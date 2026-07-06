@@ -1,0 +1,7 @@
+{
+  "name": "build",
+  "version": "0.1.0",
+  "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate.",
+  "author": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
+  "keywords": ["build", "implement", "handoff", "spec"]
+}
