@@ -51,6 +51,16 @@ Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…
 into each plugin at build time (`scripts/build.mjs`). Don't copy gates into the user's project — one
 canonical, updatable copy per plugin.
 
+**Directory convention (uniform across plugins):**
+- **`<plugin>/gates/`** — the read-only verification logic (the "is this valid?" checkers) and any
+  skill-invoked gate CLI. **gates/ never writes to disk.** (research: `branch/analysis/artifact.mjs`
+  + `cli.mjs`; educate: `dod.mjs`.)
+- **`<plugin>/scripts/`** — operational entrypoints only: the Stop-hook shim (`gate.sh`) + entry
+  (`stop.mjs`), and any *state-mutating* tracker CLI (educate's `progress.mjs`, which writes the
+  derived artifacts map on `--sync`).
+- Build/release/version tooling is **repo-level** (`scripts/build.mjs`, `sync-version.mjs`,
+  `gen-marketplace.mjs`) — a plugin does not carry its own `package.json` or self-build.
+
 ## 6. Two placement models
 
 - **Favored home** (educate): a fixed project marked by a child dir (`topics/`). Find it with

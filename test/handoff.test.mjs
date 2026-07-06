@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { writeHandoff, readHandoff, listHandoffs, markConsumed, handoffDir } from "../lib/handoff.mjs";
-import { gateProblemsForProject } from "../educate/scripts/progress.mjs";
+import { gateProblemsForProject } from "../educate/gates/dod.mjs";
 
 const scratch = () => mkdtempSync(join(tmpdir(), "praxis-ho-"));
 
