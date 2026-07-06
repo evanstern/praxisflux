@@ -1,0 +1,16 @@
+{
+  "description": "educate Definition-of-Done gate — refuses to let Claude finish while a lesson is marked beyond the artifacts that prove it. Git-agnostic; no-op outside educate projects.",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
