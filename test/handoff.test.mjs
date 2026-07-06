@@ -38,7 +38,8 @@ function delegatedProject(lesson) {
   const root = scratch();
   mkdirSync(join(root, "topics", "t", "101"), { recursive: true });
   writeFileSync(join(root, "topics", "t", "101", "checklist.md"), "");
-  writeFileSync(join(root, "topics", "t", "101", "raw-notes.md"), "");
+  // include return-leg residue so the done+foldedIn case tests the evidence path, not residue
+  writeFileSync(join(root, "topics", "t", "101", "raw-notes.md"), "# notes\n## Post-build\nfolded in\n");
   writeFileSync(join(root, "topics", "t", "progress.json"),
     JSON.stringify({ definitionOfDone: { delegatedBuild: ["spec->build->fold"] }, lessons: [{ id: "101", status: lesson.status, artifacts: {}, handoff: lesson.handoff }] }));
   return root;

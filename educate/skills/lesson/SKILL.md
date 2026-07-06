@@ -41,13 +41,21 @@ summary; it is a live log. Enforce it the same way you enforce the checklist:
   raw material for later review of this lesson and for tuning past/future lesson plans. Thin
   notes make that review worthless; that's why this is enforced, not encouraged.
 
-## The teach-me <-> build-me seam
-1. `teach-me` teaches -> checklist demonstrated -> writes `HANDOFF.md` -> status `spec'd`.
-   Then tell the user: "run `/build-me` on `<lesson>/HANDOFF.md`."
-2. `/build-me` builds + verifies -> writes `POST_BUILD_HANDOFF.md` -> status `built`.
-   It points back: "return to teach-me for the return leg + deck."
-3. Back in `teach-me` (the return leg, most-skipped step): read `POST_BUILD_HANDOFF.md`,
-   apply any source corrections, then build the deck + guide -> `decked` -> `done`.
+## The teach <-> build seam (a separate plugin, via the handoff transport)
+Implementation is a **separate plugin** (`build`). educate teaches and authors the SPEC and folds
+the findings back in; it does **not** build. Payloads ride the **gitignored `.handoff/`** transport
+and the evidence lives in `progress.json` — never loose `HANDOFF.md` files (see
+`docs/handoff-protocol.md`).
+1. `teach-me` teaches -> checklist demonstrated -> writes the SPEC as a handoff **request**
+   (`.handoff/<id>.md`, `kind: request`, `from: educate`, `to: build`), sets the lesson's
+   `handoff.specd=true`, status `spec'd`. Then tell the user: "run the **build** plugin (`/build-me`)."
+2. The `build` plugin reads the request, builds + verifies, writes a **findings response**
+   (`kind: response`, `from: build`, `to: educate`, `ref: <id>`), sets `handoff.returned=true`,
+   status `built`. It points back: "return to teach-me for the return leg + deck."
+3. Return leg (most-skipped step): read the findings response, apply source corrections, and record
+   **durable residue** — a `## Post-build` section in `guide.md`/`raw-notes.md` — then set
+   `handoff.foldedIn=true`. Build the deck + guide -> `decked` -> `done`. The gate refuses `done`
+   until `handoff.foldedIn` **and** that residue both exist, so the return leg can't be skipped.
 
 ## The Definition-of-Done gate (git-agnostic)
 A lesson is `done` only when every required artifact is on disk. The gate is enforced by
