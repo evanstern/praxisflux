@@ -1,7 +1,10 @@
 {
   "name": "praxis",
   "description": "A suite of composable knowledge-work plugins (research, educate, build) on a shared Node chassis.",
-  "owner": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
+  "owner": {
+    "name": "Evan Stern",
+    "email": "evanmicahstern@gmail.com"
+  },
   "version": "0.1.0",
   "plugins": [
     {
@@ -9,21 +12,35 @@
       "source": "./educate",
       "description": "Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts.",
       "category": "productivity",
-      "tags": ["learning", "teach-me", "socratic", "orchestration"]
+      "tags": [
+        "learning",
+        "teach-me",
+        "socratic",
+        "orchestration"
+      ]
     },
     {
       "name": "research",
       "source": "./research",
       "description": "Gather cited facts into an isolated, interlinked Markdown thinking-vault branch (embed -> query -> render). Drop-anywhere.",
       "category": "productivity",
-      "tags": ["research", "vault", "knowledge", "grounding"]
+      "tags": [
+        "research",
+        "vault",
+        "knowledge",
+        "grounding"
+      ]
     },
     {
       "name": "build",
       "source": "./build",
-      "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate; see TASK-1.8.",
+      "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate.",
       "category": "productivity",
-      "tags": ["build", "implement", "handoff"]
+      "tags": [
+        "build",
+        "implement",
+        "handoff"
+      ]
     }
   ]
 }

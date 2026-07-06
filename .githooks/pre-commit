@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# praxis pre-commit — keep the suite green and the catalog honest before every commit.
+# Enable once with:  git config core.hooksPath .githooks
+set -e
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo"
+echo "pre-commit: node --test"
+node --test
+echo "pre-commit: marketplace.json up to date"
+node scripts/gen-marketplace.mjs --check
+echo "pre-commit: versions consistent"
+node scripts/sync-version.mjs --check
