@@ -39,6 +39,12 @@ Zero-dependency Node modules vendored into each plugin at build time:
 - **Handoffs** ride a shared transport (gitignored `.handoff/` payloads, evidence in tracked
   state); payload schemas stay plugin-specific.
 
+## Docs
+
+- [`docs/skill-patterns.md`](docs/skill-patterns.md) — how to author a plugin/skill in this suite
+  (the shared patterns; read before adding a plugin).
+- [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
+
 ## Install (once built)
 
 ```
