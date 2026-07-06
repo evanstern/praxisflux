@@ -65,9 +65,18 @@ function resolveTopicsDir(args, { gate } = {}) {
 function requiredArtifacts(progress) {
   const dod = progress.definitionOfDone ?? {};
   const req = new Set(["checklist", "rawNotes"]);
-  if (dod.delegatedBuild) { req.add("handoff"); req.add("postBuild"); }
   if (dod.decksStandardForEveryLesson) { req.add("deck"); req.add("guide"); }
+  // NOTE: handoff/postBuild are no longer required *files*. Under the praxis handoff protocol the
+  // SPEC and build-findings are transient payloads in a gitignored .handoff/; the durable evidence
+  // that the delegated build ran and its findings were folded in lives in progress.json and is
+  // checked separately (see the delegated-build evidence check in checkTopic).
   return req;
+}
+
+/** Is this a delegated-build topic? (definitionOfDone.delegatedBuild set, array-or-flag tolerant.) */
+function isDelegated(progress) {
+  const d = (progress.definitionOfDone ?? {}).delegatedBuild;
+  return Array.isArray(d) ? d.length > 0 : Boolean(d);
 }
 
 /** Build the lifecycle for a topic from its definitionOfDone config. */
@@ -86,6 +95,8 @@ function checkTopic(TOPICS_DIR, topic, { sync, gate }) {
   }
   const progress = JSON.parse(readFileSync(progressPath, "utf8"));
   const lifecycle = lifecycleFor(progress);
+  const delegated = isDelegated(progress);
+  const builtRank = STATES.indexOf("built");
   const problems = [];
   let changed = false;
 
@@ -111,6 +122,19 @@ function checkTopic(TOPICS_DIR, topic, { sync, gate }) {
 
     // The Definition-of-Done gate: a status may not exceed the artifacts that prove it.
     for (const p of lifecycle.check(lessonDir, lesson.status)) problems.push(`${lesson.id}: ${p}`);
+
+    // Delegated-build evidence lives in progress.json (not loose .handoff/ files): a build that
+    // has returned, and a return leg that was folded back into the lesson.
+    if (delegated) {
+      const rank = STATES.indexOf(lesson.status);
+      const h = lesson.handoff ?? {};
+      if (rank >= builtRank && !h.returned) {
+        problems.push(`${lesson.id}: status=${lesson.status} implies a delegated build returned, but progress.json records no handoff.returned evidence`);
+      }
+      if (lesson.status === "done" && !h.foldedIn) {
+        problems.push(`${lesson.id}: status=done but the return leg is unrecorded (handoff.foldedIn=false) — fold the build findings back into the lesson first`);
+      }
+    }
   }
 
   const cur = progress.cursor?.current;

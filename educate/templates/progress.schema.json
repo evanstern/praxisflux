@@ -73,6 +73,15 @@
               "guide": { "type": "boolean" }
             }
           },
+          "handoff": {
+            "type": "object",
+            "description": "Delegated-build EVIDENCE (durable, tracked). The SPEC and findings payloads themselves are transient in a gitignored .handoff/; these booleans are the record the DoD gate reads (see the praxis handoff protocol).",
+            "properties": {
+              "specd": { "type": "boolean", "description": "A SPEC was handed to the build plugin." },
+              "returned": { "type": "boolean", "description": "The build returned its findings." },
+              "foldedIn": { "type": "boolean", "description": "The return leg was folded back into the lesson (durable residue in guide/raw-notes)." }
+            }
+          },
           "buildIncrement": { "type": "string", "description": "What the build does this lesson." },
           "motivator": { "type": "string", "description": "Why this lesson exists / the failure it fixes." },
           "feedsForward": { "type": "string", "description": "What it sets up for later lessons." },
