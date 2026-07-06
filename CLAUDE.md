@@ -10,6 +10,9 @@ plant a project `CLAUDE.md` (plugins have no always-on slot) · gates enforce "s
 exceed proven artifacts" · handoffs ride a shared transport (gitignored `.handoff/`) with
 evidence in tracked state.
 
+Authoring a plugin/skill? Read `docs/skill-patterns.md` (shared patterns) and
+`docs/handoff-protocol.md` (inter-plugin handoffs) first.
+
 The work to build this out is tracked in Backlog (below). Start with `backlog task list --plain`.
 
 ## How praxis uses Backlog.md (the working flow)
