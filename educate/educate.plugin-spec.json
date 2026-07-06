@@ -1,0 +1,14 @@
+{
+  "name": "educate",
+  "version": "0.2.0",
+  "description": "Turns any folder into a Socratic learning project: scaffolds the structure, orchestrates the teach-me -> build-me -> deck lifecycle, and gates a lesson 'done' on auditable artifacts.",
+  "author": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
+  "keywords": ["learning", "teach-me", "socratic", "curriculum", "orchestration"],
+  "skills": [
+    { "name": "start",  "description": "Initialize a new Socratic learning project in a folder, or update/migrate an existing one to the current plugin version. Use when the user wants to set up educate, bootstrap a learnings folder, start a learning project, or upgrade an existing project after a plugin update." },
+    { "name": "lesson", "description": "Orchestrate a learning lesson's lifecycle — placement, scaffolding, the teach-me -> build-me -> deck seam, and the Definition-of-Done gate." }
+  ],
+  "hooks": true,
+  "scripts": ["progress.mjs", "gate.sh", "make-plugin.mjs", "sync-version.mjs"],
+  "templates": ["CLAUDE.md", "progress.schema.json", ".template/"]
+}
