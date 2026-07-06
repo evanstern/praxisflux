@@ -8,7 +8,7 @@
 // both an educate project and holds research vaults is gated by both.
 import { runStopHook } from "../../lib/gate-runner.mjs";
 import { hasChild, findRootUpwards } from "../../lib/project-root.mjs";
-import { gateProblemsForProject } from "./progress.mjs";
+import { gateProblemsForProject } from "../gates/dod.mjs";
 
 const educateGate = {
   name: "educate",
