@@ -19,6 +19,24 @@ Convention: `topics/<topic-slug>/<NNN>-<lesson-slug>/`.
   the new lesson folder so `checklist.md` and `raw-notes.md` exist from minute one. Use a copy
   that preserves dotfiles (`cp -R`).
 
+## Grounding — optional, BEFORE teaching (the research seam)
+When the user wants the lesson grounded in real sources ("teach me X, but research first — here are
+the sources: …"), ground *before* teaching so the Socratic session rests on verified facts, not
+model recall. This composes with the **research** plugin through files, never by calling it directly.
+
+- **Scope it.** Ask/infer whether the sources inform the whole series or just this lesson:
+  - series-wide → `topics/<topic>/research/` (one vault serving every lesson under the topic)
+  - lesson-specific → `topics/<topic>/<NNN>-<lesson>/research/`
+  A lesson **consults topic-scope grounding first, then its own.**
+- **Hand off to research.** Point the `research` plugin (research-vault) at that folder with the
+  user's sources; it produces a grounded `_grounding.md` + neutral notes there (drop-anywhere — the
+  folder becomes a vault, `.research-vault` sentinel and all).
+- **Soft dependency / fallback.** If the `research` plugin isn't installed, ground **inline** (a
+  WebSearch fan-out synthesized into `<folder>/_grounding.md`) rather than blocking — same output
+  location, so the lesson cites it identically whether or not research is present.
+- **Then teach from it.** Cite the grounding during the loop; the lesson's claims trace to gathered
+  facts instead of recall.
+
 ## Lifecycle (use these exact words everywhere)
 `scaffolded` -> `taught` -> `spec'd` -> `built` -> `decked` -> `done`
 - **scaffolded** — folder copied from `.template/`.

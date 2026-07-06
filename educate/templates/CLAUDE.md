@@ -31,10 +31,15 @@ and past/future lesson plans. Treat a turn with no note as an incomplete turn.
 
 ## Running a lesson
 Invoke the **`educate:lesson`** skill — it resolves placement, scaffolds, walks the
-teach-me → build-me → deck seam, and gates `done`. To start or resume:
+teach → build → deck seam, and gates `done`. To start or resume:
 - New project setup: `educate:start`.
 - Teaching: `/teach-me <subject>` (the plugin orchestrates around it).
-- Delegated build: `/teach-me` writes `HANDOFF.md` → run `/build-me` → return leg in `/teach-me`.
+- **Ground first (optional):** to base a lesson on real sources, the lesson skill hands off to the
+  **research** plugin (into `topics/<topic>/research/` for the series, or a lesson-local `research/`),
+  then teaches from the grounding — falling back to an inline pass if research isn't installed.
+- Delegated build: the lesson skill writes a SPEC to the gitignored `.handoff/` → run the **build**
+  plugin (`/build-me`) → return leg folds findings back in. Evidence is tracked in `progress.json`
+  (`handoff.specd/returned/foldedIn`), not loose files.
 
 ## Definition of Done — the gate (git-agnostic)
 A lesson is `done` only when every required artifact exists on disk. Enforced by the plugin's
