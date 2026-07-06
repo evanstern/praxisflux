@@ -79,6 +79,20 @@ function isDelegated(progress) {
   return Array.isArray(d) ? d.length > 0 : Boolean(d);
 }
 
+/**
+ * Durable residue of the return leg: a "Post-build" / "Return leg" / "Build findings" section in a
+ * tracked artifact (guide.md or raw-notes.md). Requiring this on disk — not just a boolean flag —
+ * is what stops the most-skipped step from being rubber-stamped.
+ */
+function hasReturnLegResidue(lessonDir) {
+  const RE = /^#{1,6}\s*(post[- ]?build|return leg|build findings)/im;
+  for (const f of ["guide.md", "raw-notes.md"]) {
+    const p = join(lessonDir, f);
+    if (existsSync(p)) { try { if (RE.test(readFileSync(p, "utf8"))) return true; } catch { /* unreadable */ } }
+  }
+  return false;
+}
+
 /** Build the lifecycle for a topic from its definitionOfDone config. */
 function lifecycleFor(progress) {
   const dod = progress.definitionOfDone ?? {};
@@ -133,6 +147,8 @@ function checkTopic(TOPICS_DIR, topic, { sync, gate }) {
       }
       if (lesson.status === "done" && !h.foldedIn) {
         problems.push(`${lesson.id}: status=done but the return leg is unrecorded (handoff.foldedIn=false) — fold the build findings back into the lesson first`);
+      } else if (lesson.status === "done" && h.foldedIn && !hasReturnLegResidue(lessonDir)) {
+        problems.push(`${lesson.id}: status=done with handoff.foldedIn=true but no durable return-leg residue on disk — add a "## Post-build" section to guide.md or raw-notes.md; the return leg can't be rubber-stamped`);
       }
     }
   }
