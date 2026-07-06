@@ -1,0 +1,16 @@
+{
+  "description": "research vault self-containment gate — refuses to finish while a rendered HTML page inside a vault loads external resources (CSP-unsafe). Git-agnostic; no-op outside research vaults (detected by a .research-vault sentinel).",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
