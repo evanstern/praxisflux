@@ -10,6 +10,10 @@ is to make that argument *seen*.
 - **Skip** for: purely conceptual analyses where a chart would be decoration. Say so and stop.
 
 ## How to build it well
+0. **Start from the shared base.** `${CLAUDE_PLUGIN_ROOT}/lib/html/base.html` is the canonical
+   praxis foundation — design tokens, a light+dark theme contract (with an on-page toggle), a reset,
+   and an auditable data-table component, all self-contained. Copy its `<style>`/toggle rather than
+   re-deriving them; educate's deck template uses the same contract. Then layer the briefing on top.
 1. **Load the design guidance first.** Invoke the `artifact-design` skill before writing the page,
    and the `dataviz` skill before writing any chart. They calibrate treatment and give you an
    accessible, theme-aware chart system. Don't freehand a design when those exist.
