@@ -36,6 +36,14 @@ model recall. This composes with the **research** plugin through files, never by
   location, so the lesson cites it identically whether or not research is present.
 - **Then teach from it.** Cite the grounding during the loop; the lesson's claims trace to gathered
   facts instead of recall.
+- **Refresh the corpus index.** After research returns, regenerate the topic's roll-up so the new
+  vault is discoverable across the whole topic:
+
+      node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <projectRoot> <topic> --sync
+
+  This derives `topics/<topic>/WIKI.md` (an index of every research vault under the topic) and
+  `topics/WIKI.md` (an index of topics) from disk. `progress.mjs --sync` does this too, so the
+  start/end-of-lesson ritual keeps it fresh automatically — see **The corpus index** below.
 
 ## Lifecycle (use these exact words everywhere)
 `scaffolded` -> `taught` -> `spec'd` -> `built` -> `decked` -> `done`
@@ -74,6 +82,28 @@ and the evidence lives in `progress.json` — never loose `HANDOFF.md` files (se
    **durable residue** — a `## Post-build` section in `guide.md`/`raw-notes.md` — then set
    `handoff.foldedIn=true`. Build the deck + guide -> `decked` -> `done`. The gate refuses `done`
    until `handoff.foldedIn` **and** that residue both exist, so the return leg can't be skipped.
+
+## The corpus index (self-searchable, isolation-preserving)
+A topic accumulates isolated research vaults — one series-scope (`topics/<topic>/research/`) and one
+per lesson (`topics/<topic>/<NNN>-lesson/research/`), each with its own `Home.md` trunk. To make the
+accumulated corpus navigable as one body of knowledge, educate derives a roll-up:
+- `topics/<topic>/WIKI.md` — one row per research vault in the topic (links its `Home.md`, lists the
+  wikis it holds).
+- `topics/WIKI.md` — one row per topic that has research (links its `WIKI.md`).
+
+`WIKI.md` is **DERIVED from disk** (like `progress.json`'s artifacts map), so it can't drift — never
+hand-edit it. It uses **plain relative Markdown links, never `[[wikilinks]]`**: wikilinks can't cross
+vault boundaries and would merge the corpora in Obsidian's graph, so the roll-up is navigation only
+and **no topic bleeds into another** (the same isolation rule vaults enforce internally).
+
+    node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <projectRoot> <topic> --sync   # one topic
+    node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <projectRoot> --all --sync     # + topics/WIKI.md
+    node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <projectRoot> --all --check    # report staleness
+
+`progress.mjs --sync` regenerates the WIKI(s) as part of the start/end-of-lesson ritual, and the
+Stop hook **warns** (never blocks) if a `WIKI.md` has drifted. Running `--sync` over a project that
+predates this index is also the **migration path** — it materializes `WIKI.md` from the `Home.md`
+trunks already on disk, touching no lesson content.
 
 ## The Definition-of-Done gate (git-agnostic)
 A lesson is `done` only when every required artifact is on disk. The gate is enforced by

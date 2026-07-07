@@ -30,16 +30,19 @@ tangents worth chasing — this is the artifact a later review mines to improve 
 and past/future lesson plans. Treat a turn with no note as an incomplete turn.
 
 ## Running a lesson
-Invoke the **`educate:lesson`** skill — it resolves placement, scaffolds, walks the
-teach → build → deck seam, and gates `done`. To start or resume:
-- New project setup: `educate:start`.
-- Teaching: `/teach-me <subject>` (the plugin orchestrates around it).
+Invoke the **`educate:lesson`** skill — it resolves placement, scaffolds, runs the Socratic
+teaching loop, walks the teach → build → deck seam, and gates `done`. To start or resume:
+- New project setup / upgrade: the **`educate:start`** skill (also migrates an existing project
+  to the current plugin version after an upgrade).
+- Teach: **`educate:lesson`** — say what you want to learn ("teach me X") and the skill handles
+  placement, scaffolding, and the Socratic session.
 - **Ground first (optional):** to base a lesson on real sources, the lesson skill hands off to the
-  **research** plugin (into `topics/<topic>/research/` for the series, or a lesson-local `research/`),
-  then teaches from the grounding — falling back to an inline pass if research isn't installed.
+  **research** plugin (`research:research-vault`, into `topics/<topic>/research/` for the series, or
+  a lesson-local `research/`), then teaches from the grounding — falling back to an inline pass if
+  research isn't installed.
 - Delegated build: the lesson skill writes a SPEC to the gitignored `.handoff/` → run the **build**
-  plugin (`/build-me`) → return leg folds findings back in. Evidence is tracked in `progress.json`
-  (`handoff.specd/returned/foldedIn`), not loose files.
+  plugin (**`build:implement`**) → return leg folds findings back in. Evidence is tracked in
+  `progress.json` (`handoff.specd/returned/foldedIn`), not loose files.
 
 ## Definition of Done — the gate (git-agnostic)
 A lesson is `done` only when every required artifact exists on disk. Enforced by the plugin's
@@ -56,6 +59,26 @@ script — only judgment fields (`status`, `cursor`, `motivator`, `gotchas`) are
 A `Stop` hook runs the read-only gate automatically and refuses to finish while any lesson is
 marked beyond the artifacts that prove it. `progress.json` is the human-visible record of
 that; `SERIES.md` (optional) is the narrative index — keep them consistent.
+
+## Corpus wiki — the self-searchable index (derived, isolation-preserving)
+As lessons accumulate research, each `research/` folder is an isolated vault with its own `Home.md`
+trunk. To navigate the whole corpus, educate derives a roll-up index, kept fresh automatically:
+
+- `topics/<topic>/WIKI.md` — indexes every research vault under the topic (series-scope +
+  per-lesson), linking each vault's `Home.md` and listing the wikis inside it.
+- `topics/WIKI.md` — indexes each topic that has research.
+
+Both are **DERIVED from disk** — never hand-edit them; regenerate with the script:
+
+```
+node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <thisProjectRoot> --all --sync    # rebuild all WIKI.md
+node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <thisProjectRoot> --all --check   # report staleness
+```
+
+`progress.mjs --sync` regenerates them as part of the start/end-of-lesson ritual, and the `Stop`
+hook **warns** (never blocks) when a `WIKI.md` has drifted. Crucially, `WIKI.md` uses plain relative
+Markdown links, **never `[[wikilinks]]`** — so it is navigation only and **no topic's corpus bleeds
+into another** (the same isolation vaults enforce internally: branches don't cross-link).
 
 ## Conventions
 - Decks are single self-contained HTML files, built FROM `topics/.template/deck.html`.
