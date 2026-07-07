@@ -23,6 +23,7 @@ import { join, resolve } from "node:path";
 import { findRootUpwards, hasChild } from "../../lib/project-root.mjs";
 import { today } from "../../lib/dates.mjs";
 import { ARTIFACT_FILES, lifecycleFor, topicDoDProblems, topicsWithProgress } from "../gates/dod.mjs";
+import { syncTopicWiki, syncProjectWiki } from "./wiki.mjs";
 
 /**
  * Resolve the project root (the dir that CONTAINS topics/). In `gate` mode a missing topics/ is
@@ -105,6 +106,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const topic of topics) {
     const { problems, changed } = checkTopic(TOPICS_DIR, topic, { sync, gate });
     if (changed) console.log(`[${topic}] synced derived artifacts → progress.json`);
+    // The corpus index is derived from disk too — keep topics/<topic>/WIKI.md fresh on every sync.
+    if (sync) {
+      const w = syncTopicWiki(TOPICS_DIR, topic);
+      if (w === "written") console.log(`[${topic}] regenerated WIKI.md (corpus index)`);
+    }
     if (problems.length) {
       anyProblem = true;
       console.log(`[${topic}] ✗ ${problems.length} problem(s):`);
@@ -113,5 +119,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log(`[${topic}] ✓ progress.json consistent with disk and DoD gates`);
     }
   }
+  // The project-level index reflects every topic that has research — refresh it after any sync.
+  if (sync && syncProjectWiki(TOPICS_DIR) === "written") console.log("regenerated topics/WIKI.md (corpus index)");
   process.exit(anyProblem ? 1 : 0);
 }
