@@ -10,7 +10,7 @@
     "topic": { "type": "string", "description": "Topic slug, matches the folder under topics/." },
     "title": { "type": "string" },
     "updated": { "type": "string", "description": "ISO date (YYYY-MM-DD) this file was last updated." },
-    "mode": { "type": "string", "description": "e.g. 'build-along · delegated build (teach-me specs → build-me builds)'." },
+    "mode": { "type": "string", "description": "e.g. 'build-along · delegated build (educate specs → build implements)'." },
     "humanIndex": { "type": "string", "description": "Path to the hand-written narrative index (SERIES.md)." },
     "build": {
       "type": "object",

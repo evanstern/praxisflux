@@ -1,14 +1,15 @@
 ---
 name: lesson
-description: Orchestrate a learning lesson's lifecycle in an educate project — placement, scaffolding, the teach-me -> build-me -> deck handoff seam, and the Definition-of-Done gate. Use when starting, resuming, or finishing a lesson, or when the user asks where a lesson should live or whether it's done.
+description: Orchestrate a learning lesson's lifecycle in an educate project — placement, scaffolding, the teach -> build -> deck handoff seam, and the Definition-of-Done gate. Use when starting, resuming, or finishing a lesson, or when the user asks where a lesson should live or whether it's done.
 ---
 
 # educate:lesson — the orchestration layer
 
 This is the *logic* that used to live in the project `CLAUDE.md`, lifted into a lazily-loaded
-skill. It does not teach (that's `teach-me`) and does not build (that's `build-me`); it
-**routes, sequences, and gates**. Pair it with the project `CLAUDE.md` that `educate:start`
-planted — that file holds the always-on copy of these rules; this skill holds the procedure.
+skill. It **routes, sequences, teaches, and gates** — the one thing it delegates is *building*,
+which is a separate plugin (`build:implement`). Pair it with the project `CLAUDE.md` that
+`educate:start` planted — that file holds the always-on copy of these rules; this skill holds the
+procedure.
 
 ## Placement — resolve BEFORE teaching
 Convention: `topics/<topic-slug>/<NNN>-<lesson-slug>/`.
@@ -50,7 +51,7 @@ model recall. This composes with the **research** plugin through files, never by
 - **scaffolded** — folder copied from `.template/`.
 - **taught** — Socratic session complete; every checklist item demonstrated.
 - **spec'd** — `HANDOFF.md` written (delegated builds only).
-- **built** — `/build-me` implemented it; `POST_BUILD_HANDOFF.md` returned.
+- **built** — the build plugin (`build:implement`) implemented it; `POST_BUILD_HANDOFF.md` returned.
 - **decked** — `deck.html` (built FROM the deck template) + `guide.md` produced.
 - **done** — all required artifacts exist AND verified on disk.
 
@@ -72,12 +73,12 @@ Implementation is a **separate plugin** (`build`). educate teaches and authors t
 the findings back in; it does **not** build. Payloads ride the **gitignored `.handoff/`** transport
 and the evidence lives in `progress.json` — never loose `HANDOFF.md` files (see
 `docs/handoff-protocol.md`).
-1. `teach-me` teaches -> checklist demonstrated -> writes the SPEC as a handoff **request**
+1. This skill teaches -> checklist demonstrated -> writes the SPEC as a handoff **request**
    (`.handoff/<id>.md`, `kind: request`, `from: educate`, `to: build`), sets the lesson's
-   `handoff.specd=true`, status `spec'd`. Then tell the user: "run the **build** plugin (`/build-me`)."
+   `handoff.specd=true`, status `spec'd`. Then tell the user: "run the **build** plugin (`build:implement`)."
 2. The `build` plugin reads the request, builds + verifies, writes a **findings response**
    (`kind: response`, `from: build`, `to: educate`, `ref: <id>`), sets `handoff.returned=true`,
-   status `built`. It points back: "return to teach-me for the return leg + deck."
+   status `built`. It points back: "return to `educate:lesson` for the return leg + deck."
 3. Return leg (most-skipped step): read the findings response, apply source corrections, and record
    **durable residue** — a `## Post-build` section in `guide.md`/`raw-notes.md` — then set
    `handoff.foldedIn=true`. Build the deck + guide -> `decked` -> `done`. The gate refuses `done`

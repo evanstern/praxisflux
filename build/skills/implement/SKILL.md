@@ -30,7 +30,7 @@ Write a response handoff correlated to the request:
 - Body = **findings**: what was built, how it was verified, corrections the lesson should absorb
   (things that differed from the SPEC, gotchas, better framings discovered while building).
 
-Then point back: **"return to the lesson (teach-me) for the return leg + deck."** Do **not** write
+Then point back: **"return to the lesson (`educate:lesson`) for the return leg + deck."** Do **not** write
 the deck or edit the lesson yourself — folding findings back in is educate's return leg, and the
 DoD gate checks that it actually happened (evidence + durable residue).
 
