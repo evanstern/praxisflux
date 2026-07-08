@@ -41,6 +41,18 @@
         "implement",
         "handoff"
       ]
+    },
+    {
+      "name": "grounding-wiki",
+      "source": "./grounding-wiki",
+      "description": "Build and maintain a code-grounded corpus (docs/wiki) for a codebase: per-concept notes pinned to commits, a freshness gate, and an in-place update loop.",
+      "category": "productivity",
+      "tags": [
+        "wiki",
+        "grounding",
+        "corpus",
+        "freshness"
+      ]
     }
   ]
 }
