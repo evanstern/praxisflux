@@ -1,0 +1,386 @@
+<title>praxis — plugin & skill map</title>
+<style>
+  :root {
+    --bg: #e9ebef;
+    --surface: #ffffff;
+    --surface-2: #f4f5f8;
+    --ink: #191c21;
+    --ink-2: #3a4049;
+    --muted: #656d78;
+    --line: #d6dae0;
+    --line-2: #e4e7ec;
+
+    --research: #3a4fd6;
+    --research-soft: #e7eafb;
+    --educate: #c06a12;
+    --educate-soft: #f7ebda;
+    --build: #148a5c;
+    --build-soft: #dcefe6;
+
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+    --maxw: 1080px;
+    --r: 14px;
+    --accent: var(--research);
+    --accent-soft: var(--research-soft);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101216;
+      --surface: #191c21;
+      --surface-2: #20242a;
+      --ink: #e8ebef;
+      --ink-2: #c2c8d0;
+      --muted: #929ba6;
+      --line: #2a2f37;
+      --line-2: #232830;
+
+      --research: #8a99ff;
+      --research-soft: #1e2440;
+      --educate: #eaa24e;
+      --educate-soft: #3a2c15;
+      --build: #4bc78e;
+      --build-soft: #123528;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #e9ebef; --surface: #ffffff; --surface-2: #f4f5f8;
+    --ink: #191c21; --ink-2: #3a4049; --muted: #656d78; --line: #d6dae0; --line-2: #e4e7ec;
+    --research: #3a4fd6; --research-soft: #e7eafb;
+    --educate: #c06a12; --educate-soft: #f7ebda;
+    --build: #148a5c; --build-soft: #dcefe6;
+  }
+  :root[data-theme="dark"] {
+    --bg: #101216; --surface: #191c21; --surface-2: #20242a;
+    --ink: #e8ebef; --ink-2: #c2c8d0; --muted: #929ba6; --line: #2a2f37; --line-2: #232830;
+    --research: #8a99ff; --research-soft: #1e2440;
+    --educate: #eaa24e; --educate-soft: #3a2c15;
+    --build: #4bc78e; --build-soft: #123528;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 3rem;
+  }
+
+  [data-plugin="research"] { --accent: var(--research); --accent-soft: var(--research-soft); }
+  [data-plugin="educate"]  { --accent: var(--educate);  --accent-soft: var(--educate-soft); }
+  [data-plugin="build"]    { --accent: var(--build);    --accent-soft: var(--build-soft); }
+
+  /* ---------- masthead ---------- */
+  .mast { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem 1rem; }
+  .mast__logo {
+    font-weight: 800;
+    font-size: clamp(2.1rem, 6vw, 3.1rem);
+    letter-spacing: -0.03em;
+    margin: 0;
+    line-height: 1;
+  }
+  .mast__logo b { color: var(--research); font-weight: 800; }
+  .status {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.34rem 0.7rem;
+  }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--build); box-shadow: 0 0 0 3px var(--build-soft); }
+
+  .lede {
+    margin: 1.1rem 0 0;
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    color: var(--ink-2);
+    max-width: 46ch;
+    text-wrap: balance;
+  }
+  .lede b { color: var(--ink); font-weight: 650; }
+
+  .howto {
+    margin-top: 1.1rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .howto span {
+    font-size: 0.8rem; color: var(--muted);
+    border: 1px dashed var(--line); border-radius: 8px;
+    padding: 0.3rem 0.6rem; background: var(--surface-2);
+  }
+  .howto b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- loop diagram ---------- */
+  .loop {
+    margin: clamp(1.75rem, 4vw, 2.75rem) 0 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+  }
+  .loop__row {
+    display: flex; align-items: stretch; gap: 0.6rem;
+  }
+  .node {
+    flex: 1 1 0;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 11px;
+    padding: 0.85rem 0.6rem;
+    background: var(--surface-2);
+    min-width: 0;
+  }
+  .node__k { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .node__n { display: block; font-weight: 750; font-size: clamp(1rem, 2.4vw, 1.25rem); letter-spacing: -0.01em; margin-top: 0.15rem; }
+  .node__r { display: block; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.15rem; }
+  .arrow { display: flex; align-items: center; color: var(--muted); flex: 0 0 auto; }
+  .arrow svg { width: 26px; height: 20px; }
+  .loop__return {
+    margin-top: 0.7rem;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 0.55rem 0.8rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+    font-size: 0.82rem; color: var(--muted);
+    background: repeating-linear-gradient(-45deg, transparent, transparent 9px, var(--surface-2) 9px, var(--surface-2) 10px);
+  }
+  .loop__return b { color: var(--ink-2); font-weight: 600; }
+  .loop__return .rk { font-family: var(--mono); color: var(--educate); }
+
+  /* ---------- bands ---------- */
+  .band { margin-top: clamp(1.5rem, 4vw, 2.4rem); }
+  .band__head {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.55rem 0.8rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .band__step { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .band__name { font-size: clamp(1.3rem, 3.2vw, 1.7rem); font-weight: 780; letter-spacing: -0.02em; margin: 0; }
+  .band__role {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 0.22rem 0.55rem; border-radius: 6px; font-weight: 700;
+  }
+  .band__flow { margin-left: auto; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+
+  .skills {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.85rem;
+  }
+  .skill {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 11px;
+    padding: 1rem 1rem 1.05rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .skill__top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .skill__name { font-family: var(--mono); font-weight: 650; font-size: 0.98rem; color: var(--ink); }
+  .chip {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.06em;
+    color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 999px; padding: 0.12rem 0.5rem; white-space: nowrap;
+  }
+  .skill__desc { margin: 0; font-size: 0.9rem; color: var(--ink-2); }
+  .say {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding-top: 0.55rem; border-top: 1px solid var(--line-2);
+    margin-top: auto;
+  }
+  .say__label { font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+  .say ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .say li {
+    font-family: var(--mono); font-size: 0.76rem; color: var(--ink-2);
+    background: var(--surface-2); border: 1px solid var(--line-2);
+    border-radius: 6px; padding: 0.2rem 0.45rem;
+  }
+
+  /* ---------- mechanics ---------- */
+  .mech { margin-top: clamp(1.75rem, 4vw, 2.6rem); }
+  .mech__title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin: 0 0 0.9rem; }
+  .mech__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.85rem; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 11px; padding: 1.05rem 1.1rem;
+  }
+  .card h3 { margin: 0 0 0.4rem; font-size: 1.02rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.5rem; }
+  .card h3 .g { width: 9px; height: 9px; border-radius: 3px; }
+  .card p { margin: 0; font-size: 0.88rem; color: var(--ink-2); }
+  .card p + p { margin-top: 0.5rem; }
+  .card code { font-family: var(--mono); font-size: 0.82em; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 5px; padding: 0.06rem 0.32rem; color: var(--ink); }
+
+  /* ---------- footer ---------- */
+  .foot {
+    margin-top: clamp(1.75rem, 4vw, 2.6rem);
+    padding-top: 1.1rem; border-top: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem;
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .foot b { color: var(--ink-2); font-weight: 600; }
+  .foot code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); }
+
+  a:focus-visible, li:focus-visible { outline: 2px solid var(--research); outline-offset: 2px; border-radius: 4px; }
+
+  .fade { opacity: 0; transform: translateY(8px); animation: rise 0.5s ease forwards; }
+  .fade:nth-child(2) { animation-delay: 0.05s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade { animation: none; opacity: 1; transform: none; } }
+</style>
+
+<div class="wrap">
+
+  <header class="fade">
+    <div class="mast">
+      <h1 class="mast__logo"><b>praxis</b></h1>
+      <span class="status"><span class="dot"></span>3 plugins · 7 skills · installed (user scope)</span>
+    </div>
+    <p class="lede">A <b>research → teach → build</b> loop for Claude Code. Each plugin does one job and hands off through files — never by calling the others.</p>
+    <div class="howto">
+      <span>No slash commands — skills fire from <b>natural language</b></span>
+      <span><b>Restart Claude Code</b> to load them</span>
+      <span>Update = <b>rebuild</b> then reinstall</span>
+    </div>
+  </header>
+
+  <!-- LOOP -->
+  <section class="loop fade" aria-label="The research to teach to build loop">
+    <div class="loop__row">
+      <div class="node" data-plugin="research">
+        <span class="node__k">01</span><span class="node__n">research</span><span class="node__r">ground</span>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 26 20"><path d="M2 10h19M15 4l7 6-7 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="node" data-plugin="educate">
+        <span class="node__k">02</span><span class="node__n">educate</span><span class="node__r">teach</span>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 26 20"><path d="M2 10h19M15 4l7 6-7 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="node" data-plugin="build">
+        <span class="node__k">03</span><span class="node__n">build</span><span class="node__r">implement</span>
+      </div>
+    </div>
+    <div class="loop__return">
+      <span class="rk">&#8617;</span><span>build's <b>findings</b> &amp; the lesson's <b>SPEC</b> fold back into teaching — the loop closes</span>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="band fade" data-plugin="research">
+    <div class="band__head">
+      <span class="band__step">01</span>
+      <h2 class="band__name">research</h2>
+      <span class="band__role">ground</span>
+      <span class="band__flow">embed → query → render · drop-anywhere</span>
+    </div>
+    <div class="skills">
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">research-vault</span><span class="chip">EMBED</span></div>
+        <p class="skill__desc">Gather cited facts into an isolated, interlinked Markdown vault branch. Neutral notes, no verdicts.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"research X"</li><li>"spin up a branch on Y"</li><li>"gather what's known about…"</li>
+        </ul></div>
+      </article>
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">analyze-vault</span><span class="chip">QUERY</span></div>
+        <p class="skill__desc">Reason across an existing branch to form a thesis, weigh tradeoffs, and reach a recommendation.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"analyze the X branch"</li><li>"what should I pick given Y"</li><li>"weigh the tradeoffs"</li>
+        </ul></div>
+      </article>
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">vault-artifact</span><span class="chip">RENDER</span></div>
+        <p class="skill__desc">Render an existing analysis into a self-contained, theme-aware HTML page with charts.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"make a page for it"</li><li>"chart the tradeoffs"</li><li>"turn it into a briefing"</li>
+        </ul></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- EDUCATE -->
+  <section class="band fade" data-plugin="educate">
+    <div class="band__head">
+      <span class="band__step">02</span>
+      <h2 class="band__name">educate</h2>
+      <span class="band__role">teach</span>
+      <span class="band__flow">teach-me → build-me → deck · needs setup</span>
+    </div>
+    <div class="skills">
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">start</span><span class="chip">SETUP</span></div>
+        <p class="skill__desc">Initialize (or upgrade) a Socratic learning project in a folder — plants the always-on CLAUDE.md, lesson template, and progress schema.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"set up educate here"</li><li>"start a learning project"</li><li>"upgrade my educate project"</li>
+        </ul></div>
+      </article>
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">lesson</span><span class="chip">LIFECYCLE</span></div>
+        <p class="skill__desc">Run a lesson end to end: placement, scaffolding, the teach → build handoff seam, and the Definition-of-Done gate.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"start a lesson on X"</li><li>"resume my lesson"</li><li>"is this lesson done?"</li>
+        </ul></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- BUILD -->
+  <section class="band fade" data-plugin="build">
+    <div class="band__head">
+      <span class="band__step">03</span>
+      <h2 class="band__name">build</h2>
+      <span class="band__role">implement</span>
+      <span class="band__flow">consume SPEC → verify → return findings</span>
+    </div>
+    <div class="skills">
+      <article class="skill">
+        <div class="skill__top"><span class="skill__name">implement</span><span class="chip">HANDOFF</span></div>
+        <p class="skill__desc">Take a build SPEC handed off from a lesson, implement and verify it, then return findings for the lesson to fold back in. Owns the implementation leg.</p>
+        <div class="say"><span class="say__label">say</span><ul>
+          <li>"run build"</li><li>"build the spec"</li><li>"implement the pending handoff"</li>
+        </ul></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- MECHANICS -->
+  <section class="mech fade">
+    <p class="mech__title">How they hold together</p>
+    <div class="mech__grid">
+      <div class="card">
+        <h3><span class="g" style="background:var(--educate)"></span>Gates &nbsp;<span style="font-weight:400;color:var(--muted);font-size:0.82rem">Stop hook</span></h3>
+        <p>educate and research each ship a <b style="color:var(--ink)">Stop hook</b> that refuses to finish while a status runs ahead of the artifacts that prove it.</p>
+        <p>If a skill "won't let you finish," it's naming a missing artifact — that's the guardrail working, not a bug.</p>
+      </div>
+      <div class="card">
+        <h3><span class="g" style="background:var(--build)"></span>Handoffs &nbsp;<span style="font-weight:400;color:var(--muted);font-size:0.82rem">shared transport</span></h3>
+        <p>Plugins compose only through files: a gitignored <code>.handoff/</code> transport carries requests, with evidence kept in tracked state.</p>
+        <p>A lesson emits a SPEC → build consumes it → build returns findings. No plugin calls another directly.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot fade">
+    <span><b>Restart</b> Claude Code — these installed after the current session started.</span>
+    <span><b>Update flow:</b> <code>node scripts/build.mjs</code> → <code>claude plugin marketplace update praxis</code> → reinstall.</span>
+    <span>Source: <code>educate@praxis · research@praxis · build@praxis</code></span>
+  </footer>
+
+</div>

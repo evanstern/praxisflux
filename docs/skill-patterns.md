@@ -47,9 +47,15 @@ needs both `handoff.foldedIn` in `progress.json` *and* a `## Post-build` section
 
 ## 5. Gates and the chassis are plugin-hosted, never copied per-project
 
-Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; `lib/` is vendored
-into each plugin at build time (`scripts/build.mjs`). Don't copy gates into the user's project — one
-canonical, updatable copy per plugin.
+Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`. Don't copy gates
+into the user's project — one canonical, updatable copy per plugin.
+
+**The chassis is vendored at the source level.** Marketplace installs copy a plugin dir verbatim
+into the user's plugin cache — a repo-root sibling `lib/` is invisible there. So every plugin
+carries a committed `lib/` copy, imported as `../lib/…` from `gates/` and `scripts/`. The copies
+are generated: **edit only the repo-root `lib/`**, then run `node scripts/sync-lib.mjs`; pre-commit
+runs `sync-lib.mjs --check` so a drifted copy can't be committed. (Enable hooks once per clone:
+`git config core.hooksPath .githooks`.)
 
 **Directory convention (uniform across plugins):**
 - **`<plugin>/gates/`** — the read-only verification logic (the "is this valid?" checkers) and any

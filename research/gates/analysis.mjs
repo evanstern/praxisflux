@@ -1,7 +1,7 @@
 // analysis.mjs — GATE: does a grounded type:analysis note exist over a branch?
 // Node port of verify_analysis.py, built on the lib/ chassis.
 import { join, relative } from "node:path";
-import { extractWikilinks } from "../../lib/markdown.mjs";
+import { extractWikilinks } from "../lib/markdown.mjs";
 import { loadNotes, localNames } from "./vault.mjs";
 
 const BASIS_RE = /^#{2,}\s*(basis|grounding|evidence|sources)\b/im;
