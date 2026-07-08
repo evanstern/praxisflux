@@ -1,0 +1,7 @@
+{
+  "name": "grounding-wiki",
+  "version": "0.1.0",
+  "description": "Build and maintain a code-grounded corpus (docs/wiki) for a codebase: per-concept notes pinned to commits, a freshness gate, and an in-place update loop.",
+  "author": { "name": "Evan Stern", "email": "evan.stern@neumo.com" },
+  "keywords": ["wiki", "grounding", "corpus", "documentation", "freshness"]
+}
