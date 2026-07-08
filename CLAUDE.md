@@ -41,8 +41,10 @@ acceptance criterion, and always when a task hits `Done`. Small, frequent commit
 leads with the task id, e.g. `TASK-1.2: extract project-root + gate-runner into lib/`. End every
 commit message with the `Co-Authored-By: Claude …` trailer.
 
-**Branching:** solo greenfield repo, no remote → work and commit on `main`. Revisit per-task
-branches if/when a remote + review process is added.
+**Branching:** the repo has a remote (`origin` → `github.com:evanstern/praxis.git`) and uses a PR
+flow. Do the work on a per-task branch (e.g. `task-3-corpus-wiki`), commit often per the rule above,
+push to `origin`, and open a PR with `gh` for review/merge into `main` — don't push straight to
+`main`. End PR bodies with the `🤖 Generated with Claude Code` trailer.
 
 <!-- BACKLOG.MD GUIDELINES START -->
 <CRITICAL_INSTRUCTION>
