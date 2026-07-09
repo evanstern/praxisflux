@@ -15,6 +15,9 @@
   :root[data-theme="light"] block lets the on-page toggle override the OS in either direction.
 -->
 <style>
+  /* The canonical token schema. Hand-edit ONLY here (between the praxis:tokens markers);
+     consumers (educate's deck template) carry a stamped copy — scripts/sync-shared.mjs. */
+  /* praxis:tokens:start */
   /* ---- design tokens (light) ---- */
   :root{
     --bg:#f4f6f9; --card:#ffffff; --ink:#1b2733; --muted:#5a6776;
@@ -46,6 +49,7 @@
     --line:#dde3ea; --chip:#f3f5f8;
     --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
   }
+  /* praxis:tokens:end */
 
   /* ---- reset + base ---- */
   *{box-sizing:border-box}
@@ -105,15 +109,21 @@
   </div>
 </div>
 <script>
-  // Theme toggle: cycles auto -> light -> dark, stamping data-theme on <html> so the CSS
-  // overrides above win over the OS preference. No storage, no external calls.
-  (function(){
-    const root=document.documentElement, btn=document.getElementById('themeToggle');
+  // The shared theme-cycle core. Hand-edit ONLY here (between the praxis:theme markers);
+  // consumers carry a stamped copy — scripts/sync-shared.mjs.
+  // praxis:theme:start
+  // Cycles auto -> light -> dark, stamping data-theme on <html> so the CSS token overrides win
+  // over the OS preference. No storage, no external calls. State rides on the button
+  // (dataset.mode) so any page can bind its own button.
+  function praxisCycleTheme(btn){
     const order=["auto","light","dark"], label={auto:"◐ auto",light:"☀ light",dark:"☾ dark"};
-    function apply(t){ if(t==="auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme",t); btn.textContent=label[t]; btn.dataset.mode=t; }
-    let cur="auto"; apply(cur);
-    btn.addEventListener("click",()=>{ cur=order[(order.indexOf(cur)+1)%order.length]; apply(cur); });
-  })();
+    const next=order[(order.indexOf(btn.dataset.mode||"auto")+1)%order.length];
+    if(next==="auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme",next);
+    btn.dataset.mode=next; btn.textContent=label[next]; return next;
+  }
+  // praxis:theme:end
+  document.getElementById('themeToggle').addEventListener('click',(e)=>praxisCycleTheme(e.currentTarget));
 </script>
 </body>
 </html>

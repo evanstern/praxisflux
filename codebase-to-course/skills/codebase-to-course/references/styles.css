@@ -148,6 +148,30 @@
   --shadow-xl: 0 16px 48px rgba(0,0,0,0.60);
 }
 
+/* ── PRAXIS SHARED TOKEN SCHEMA (aliases) ───────────────────────
+   The shared praxis token NAMES mapped onto the course palette, so
+   toolkit modules (praxis lib/toolkit — snippets written against
+   --ink/--accent/…) drop into a course page unchanged. Aliases
+   resolve through the course tokens above, so they flip with dark
+   mode automatically. Names are the shared contract (praxis
+   docs/skill-patterns.md §8); VALUES stay the course's own. ──── */
+:root {
+  --bg:     var(--color-bg);
+  --card:   var(--color-surface);
+  --ink:    var(--color-text);
+  --muted:  var(--color-text-secondary);
+  --accent: var(--color-accent);
+  --accent2:var(--color-info);
+  --warn:   var(--color-error);
+  --line:   var(--color-border);
+  --chip:   var(--color-bg-warm);
+  --callout-bg: var(--color-accent-light);
+  --warn-bg:    var(--color-error-light);
+  --ok-bg:      var(--color-success-light);
+  --sans:   var(--font-body);
+  --mono:   var(--font-mono);
+}
+
 /* ── RESET & BASE ───────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

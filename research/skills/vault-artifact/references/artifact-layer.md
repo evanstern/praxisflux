@@ -18,14 +18,17 @@ is to make that argument *seen*.
    and the `dataviz` skill before writing any chart. They calibrate treatment and give you an
    accessible, theme-aware chart system. Don't freehand a design when those exist.
 2. **Lead with the verdict.** The analysis already reached a conclusion — put it up front, then let
-   the charts justify it. Don't make the reader reverse-engineer the answer.
+   the charts justify it. Don't make the reader reverse-engineer the answer. (This is the briefing
+   form of the shared praxis pedagogy — `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/pedagogy.md`: one idea
+   per screen; show, don't tell; split, don't shrink.)
 3. **Every number traces to the branch.** Pull figures from the analysis's Basis and `_grounding.md`
    — never invent data to make a chart look full. Include a small data table so the figures are
    auditable; the artifact gate warns if a substantial page has none.
 4. **Self-contained — hard requirement.** The Artifact CSP blocks all external hosts: no CDN
    scripts, webfonts, or remote images. Inline all CSS/JS; draw charts with inline SVG or Canvas;
    embed images as data URIs; use system/mono font stacks (a linked webfont fails silently). The
-   artifact gate checks this.
+   artifact gate checks this. For inline-SVG authoring pitfalls (`<tspan>` not `<b>`, `var()`
+   doesn't resolve in SVG attrs), see `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/svg-diagrams.md`.
 5. **Theme-aware.** Palette as CSS custom properties; redefine tokens under
    `@media (prefers-color-scheme: dark)` and `:root[data-theme="dark"|"light"]` so the viewer's
    toggle wins in both directions. Give both themes real care.

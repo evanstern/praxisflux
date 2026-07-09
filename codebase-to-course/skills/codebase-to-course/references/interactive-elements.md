@@ -575,6 +575,10 @@ Grid of cards highlighting engineering patterns, tech stack components, or key c
 
 ## Flow Diagrams
 
+Courses prefer these HTML/CSS patterns over SVG (they inherit tokens, wrap, and theme for
+free). If a figure genuinely needs hand-drawn inline SVG, follow the shared SVG rules —
+praxis `lib/toolkit/svg-diagrams.md` (`<tspan>` not `<b>`, literal colors in SVG attrs).
+
 **Horizontal flow (desktop):**
 ```html
 <div class="flow-steps">
@@ -647,143 +651,17 @@ The most important accessibility feature for non-technical learners. Any technic
 </p>
 ```
 
-**CSS:**
-```css
-.term {
-  border-bottom: 1.5px dashed var(--color-accent-muted);
-  cursor: pointer;    /* NOT cursor: help — pointer feels clickable and inviting */
-  position: relative;
-}
-.term:hover, .term.active {
-  border-bottom-color: var(--color-accent);
-  color: var(--color-accent);
-}
+**Implementation — prebuilt, do not inline.** The tooltip engine ships in the prebuilt
+assets (per the architecture note at the top of this file): `styles.css` styles `.term` (dashed
+underline, `cursor: pointer`) and `.term-tooltip` (a `position: fixed` bubble appended to
+`document.body` by JS, so it is **never clipped** by ancestor `overflow: hidden` containers like
+translation blocks), and `main.js` wires every `.term` on load — hover on desktop, tap-to-toggle
+on mobile, tap-away closes, viewport-clamped, flips below when there's no room above. Author the
+HTML contract above and nothing else.
 
-/* The tooltip bubble — uses position: fixed and is appended to document.body
-   via JS so it is NEVER clipped by ancestor overflow: hidden containers
-   (like translation blocks). See JS section below for positioning logic. */
-.term-tooltip {
-  position: fixed;        /* CRITICAL: fixed, not absolute — prevents clipping */
-  background: var(--color-bg-code);
-  color: #CDD6F4;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-family: var(--font-body);
-  line-height: var(--leading-normal);
-  width: max(200px, min(320px, 80vw));
-  box-shadow: var(--shadow-lg);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-fast);
-  z-index: 10000;        /* Above everything, including nav */
-}
-/* Arrow pointing down */
-.term-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--color-bg-code);
-}
-.term-tooltip.visible {
-  opacity: 1;
-}
-
-/* If tooltip goes off-screen top, flip to below */
-.term-tooltip.flip {
-  bottom: auto;
-  top: calc(100% + 8px);
-}
-.term-tooltip.flip::after {
-  top: auto;
-  bottom: 100%;
-  border-top-color: transparent;
-  border-bottom-color: var(--color-bg-code);
-}
-```
-
-**JS — position: fixed tooltips appended to body (never clipped by overflow):**
-```javascript
-// Tooltip container — appended to body so it's never clipped
-let activeTooltip = null;
-
-function positionTooltip(term, tip) {
-  const rect = term.getBoundingClientRect();
-  const tipWidth = 300; // approximate
-  let left = rect.left + rect.width / 2 - tipWidth / 2;
-  // Clamp to viewport
-  left = Math.max(8, Math.min(left, window.innerWidth - tipWidth - 8));
-
-  // Try above first
-  let top = rect.top - 8;
-  tip.style.left = left + 'px';
-
-  // Position above by default, flip below if no room
-  document.body.appendChild(tip);
-  const tipHeight = tip.offsetHeight;
-  if (rect.top - tipHeight - 8 < 0) {
-    // Flip below
-    tip.style.top = (rect.bottom + 8) + 'px';
-    tip.classList.add('flip');
-  } else {
-    tip.style.top = (rect.top - tipHeight - 8) + 'px';
-    tip.classList.remove('flip');
-  }
-}
-
-document.querySelectorAll('.term').forEach(term => {
-  const tip = document.createElement('span');
-  tip.className = 'term-tooltip';
-  tip.textContent = term.dataset.definition;
-
-  // Hover for desktop
-  term.addEventListener('mouseenter', () => {
-    if (activeTooltip && activeTooltip !== tip) {
-      activeTooltip.classList.remove('visible');
-      activeTooltip.remove();
-    }
-    positionTooltip(term, tip);
-    requestAnimationFrame(() => tip.classList.add('visible'));
-    activeTooltip = tip;
-  });
-
-  term.addEventListener('mouseleave', () => {
-    tip.classList.remove('visible');
-    setTimeout(() => { if (!tip.classList.contains('visible')) tip.remove(); }, 150);
-    activeTooltip = null;
-  });
-
-  // Tap for mobile
-  term.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (activeTooltip && activeTooltip !== tip) {
-      activeTooltip.classList.remove('visible');
-      activeTooltip.remove();
-    }
-    if (tip.classList.contains('visible')) {
-      tip.classList.remove('visible');
-      tip.remove();
-      activeTooltip = null;
-    } else {
-      positionTooltip(term, tip);
-      requestAnimationFrame(() => tip.classList.add('visible'));
-      activeTooltip = tip;
-    }
-  });
-});
-
-// Close tooltips when clicking elsewhere
-document.addEventListener('click', () => {
-  if (activeTooltip) {
-    activeTooltip.classList.remove('visible');
-    activeTooltip.remove();
-    activeTooltip = null;
-  }
-});
-```
+This is the course-native variant of the shared praxis tooltip pattern; the portable snippet for
+non-course surfaces (decks, briefings) lives in the praxis toolkit (`lib/toolkit/tooltip.md`,
+`data-tip` contract). If neither is available, gloss terms in parentheses on first use.
 
 **Rules:**
 - Mark up EVERY technical term on first use in each module (API, DOM, callback, async, endpoint, middleware, etc.)
