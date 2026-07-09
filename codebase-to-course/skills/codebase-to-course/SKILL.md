@@ -56,6 +56,11 @@ The directory-based output is intentional: separating CSS/JS from content means 
 
 Before writing course HTML, deeply understand the codebase. Read all the key files, trace the data flows, identify the "cast of characters" (main components/modules), and map how they communicate. Thoroughness here pays off — the more you understand, the better the course.
 
+**Check for a grounded corpus first.** If the target repo has `docs/wiki/INDEX.md` (a grounded corpus: one interlinked Markdown note per concept, each pinned to the commit it was verified against), make it the **primary analysis input**: read `INDEX.md`, then the notes relevant to the course. The notes are pre-verified and much cheaper than re-deriving the architecture from raw code — fall back to reading source files only for gaps the corpus doesn't cover. While analyzing, track which `[[note]]` names informed each planned module; Phase 2.5 briefs cite them as `grounding:`. Two hard rules:
+
+- **Never write into the wiki notes.** Anything the course needs to record lives in the course's own files (briefs are the sidecar). If a note looks wrong or stale, tell the user so the corpus's own update process can fix it — don't patch notes ad hoc.
+- **A corpus is optional.** No `docs/wiki/INDEX.md` → everything proceeds exactly as written below, from raw code alone.
+
 **What to extract:**
 - The main "actors" (components, services, modules) and their responsibilities
 - The primary user journey (what happens when someone uses the app end-to-end)
@@ -116,6 +121,7 @@ For complex codebases, write a brief for each module before writing any HTML. Th
 Read `references/module-brief-template.md` for the template structure. Read `references/content-philosophy.md` for the content rules that should guide brief writing.
 
 **For each module, write a brief to `course-name/briefs/0N-slug.md` containing:**
+- `grounding:` frontmatter — only when Phase 1 used a grounded corpus — listing the `[[note]]` names this module draws from (e.g. `grounding: ["[[reranker-pipeline]]", "[[query-flow]]"]`). Briefs are the course's sidecar record of what it consumed; the wiki notes themselves are never written to.
 - Teaching arc (metaphor, opening hook, key insight)
 - Pre-extracted code snippets (copy-pasted from the codebase with file paths and line numbers)
 - Interactive elements checklist with enough detail to build them
