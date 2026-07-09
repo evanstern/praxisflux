@@ -84,6 +84,13 @@ and the evidence lives in `progress.json` — never loose `HANDOFF.md` files (se
    `handoff.foldedIn=true`. Build the deck + guide -> `decked` -> `done`. The gate refuses `done`
    until `handoff.foldedIn` **and** that residue both exist, so the return leg can't be skipped.
 
+**Optional visual tools for the deck.** The shared toolkit (`${CLAUDE_PLUGIN_ROOT}/lib/toolkit/`)
+ships portable, token-styled teaching elements a slide can borrow when the lesson calls for it: a
+code ↔ plain-English translation panel (`code-translation.md` — ideal when the lesson taught real
+code), a zero-JS reveal quiz (`quiz-patterns.md` — note its coverage rule), HTML/CSS flow/file-tree
+diagrams (`diagrams.md`), and inline-SVG rules (`svg-diagrams.md`). All opt-in: a deck of plain
+slides is always valid, and each module states its no-toolkit fallback.
+
 ## The corpus index (self-searchable, isolation-preserving)
 A topic accumulates isolated research vaults — one series-scope (`topics/<topic>/research/`) and one
 per lesson (`topics/<topic>/<NNN>-lesson/research/`), each with its own `Home.md` trunk. To make the
