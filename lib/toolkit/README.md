@@ -23,7 +23,7 @@ The convention in brief:
 |---|---|---|
 | `tooltip.md` | Jargon-glossary hover/tap tooltip (overflow-safe, mouse + touch; stamped into consumers by `scripts/sync-shared.mjs`) | shipped |
 | `pedagogy.md` | Visual-teaching principles: one idea per screen, show don't tell, lead with the point, split don't shrink, let visuals breathe | shipped |
-| `svg-diagrams.md` | Inline-SVG authoring rules and pitfalls (`<tspan>` not `<b>`, no `var()` in SVG attrs) | planned — TASK-7.7 |
+| `svg-diagrams.md` | Inline-SVG authoring rules and pitfalls (`<tspan>` not `<b>`, no `var()` in SVG attrs, both-theme colors) | shipped |
 | `code-translation.md` | Code ↔ plain-English side-by-side translation block | planned — TASK-7.6 |
 | `quiz-patterns.md` | Interactive quiz widgets + the coverage rule (test application, not memory) | planned — TASK-7.6 |
 | `diagrams.md` | HTML/CSS flow, architecture, and file-tree diagram idioms | planned — TASK-7.6 |

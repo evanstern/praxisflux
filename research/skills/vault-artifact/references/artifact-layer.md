@@ -27,7 +27,8 @@ is to make that argument *seen*.
 4. **Self-contained — hard requirement.** The Artifact CSP blocks all external hosts: no CDN
    scripts, webfonts, or remote images. Inline all CSS/JS; draw charts with inline SVG or Canvas;
    embed images as data URIs; use system/mono font stacks (a linked webfont fails silently). The
-   artifact gate checks this.
+   artifact gate checks this. For inline-SVG authoring pitfalls (`<tspan>` not `<b>`, `var()`
+   doesn't resolve in SVG attrs), see `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/svg-diagrams.md`.
 5. **Theme-aware.** Palette as CSS custom properties; redefine tokens under
    `@media (prefers-color-scheme: dark)` and `:root[data-theme="dark"|"light"]` so the viewer's
    toggle wins in both directions. Give both themes real care.

@@ -575,6 +575,10 @@ Grid of cards highlighting engineering patterns, tech stack components, or key c
 
 ## Flow Diagrams
 
+Courses prefer these HTML/CSS patterns over SVG (they inherit tokens, wrap, and theme for
+free). If a figure genuinely needs hand-drawn inline SVG, follow the shared SVG rules —
+praxis `lib/toolkit/svg-diagrams.md` (`<tspan>` not `<b>`, literal colors in SVG attrs).
+
 **Horizontal flow (desktop):**
 ```html
 <div class="flow-steps">
