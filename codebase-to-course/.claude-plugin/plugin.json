@@ -1,0 +1,7 @@
+{
+  "name": "codebase-to-course",
+  "version": "0.1.0",
+  "description": "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people.",
+  "author": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
+  "keywords": ["course", "education", "codebase", "interactive", "teaching"]
+}

@@ -43,6 +43,18 @@
       ]
     },
     {
+      "name": "codebase-to-course",
+      "source": "./codebase-to-course",
+      "description": "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people.",
+      "category": "productivity",
+      "tags": [
+        "course",
+        "education",
+        "codebase",
+        "interactive"
+      ]
+    },
+    {
       "name": "grounding-wiki",
       "source": "./grounding-wiki",
       "description": "Build and maintain a code-grounded corpus (docs/wiki) for a codebase: per-concept notes pinned to commits, a freshness gate, and an in-place update loop.",
