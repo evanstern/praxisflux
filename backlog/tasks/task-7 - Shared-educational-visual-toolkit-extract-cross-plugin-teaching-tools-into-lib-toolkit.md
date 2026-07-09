@@ -3,9 +3,10 @@ id: TASK-7
 title: >-
   Shared educational/visual toolkit: extract cross-plugin teaching tools into
   lib/toolkit
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-09 19:27'
+updated_date: '2026-07-09 20:57'
 labels: []
 dependencies: []
 ordinal: 24000
@@ -23,7 +24,13 @@ Grounding survey (2026-07-09): true duplications are the theme-token block (lib/
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All subtasks Done: the four duplications are factored into lib/toolkit/ (or lib/html/) with single canonical copies
-- [ ] #2 Every plugin still builds, installs, and passes its gates standalone with no runtime cross-plugin dependency
-- [ ] #3 docs/skill-patterns.md documents the toolkit convention including the graceful-degradation rule
+- [x] #1 All subtasks Done: the four duplications are factored into lib/toolkit/ (or lib/html/) with single canonical copies
+- [x] #2 Every plugin still builds, installs, and passes its gates standalone with no runtime cross-plugin dependency
+- [x] #3 docs/skill-patterns.md documents the toolkit convention including the graceful-degradation rule
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Epic complete across 7 subtasks. The four true duplications are factored: theme tokens + toggle single-sourced in lib/html/base.html and mechanically stamped into educate's deck template (scripts/sync-shared.mjs; drift fails the suite); one canonical jargon tooltip (lib/toolkit/tooltip.md, stamped likewise); the visual pedagogy written once (pedagogy.md); educate's deck now enforced by lib/selfcontained.mjs through its DoD gate. Both borrowing seams built: c2c's code-translation/quiz/diagram tools and educate's SVG rules ship as portable, token-styled, opt-in toolkit modules (7 modules total in lib/toolkit/). Design policy honored throughout: shared token schema with per-plugin palettes — c2c adopted the shared NAMES via an additive alias block, keeping its warm palette, Google Fonts exception, and untouched prebuilt engines. Independence preserved: lib/toolkit vendors into all five plugins via the existing build (verified in dist/), no runtime cross-plugin dependency, and every consuming skill states an inline fallback. Convention documented in docs/skill-patterns.md §8. Verified by 40/40 tests incl. new drift, deck-gate, and borrow tests, plus a read-only gate run over the real ~/learn project.
+<!-- SECTION:FINAL_SUMMARY:END -->
