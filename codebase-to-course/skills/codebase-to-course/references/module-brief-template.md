@@ -4,6 +4,14 @@
 
 ---
 
+```yaml
+# Frontmatter — only when Phase 1 analyzed via a grounded corpus (docs/wiki/INDEX.md).
+# List the [[note]] names this module draws from. Omit entirely when no corpus was used.
+---
+grounding: ["[[note-name]]", "[[other-note]]"]
+---
+```
+
 ## Module N: [Title]
 
 ### Teaching Arc
