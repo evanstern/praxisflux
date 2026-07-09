@@ -18,7 +18,9 @@ is to make that argument *seen*.
    and the `dataviz` skill before writing any chart. They calibrate treatment and give you an
    accessible, theme-aware chart system. Don't freehand a design when those exist.
 2. **Lead with the verdict.** The analysis already reached a conclusion — put it up front, then let
-   the charts justify it. Don't make the reader reverse-engineer the answer.
+   the charts justify it. Don't make the reader reverse-engineer the answer. (This is the briefing
+   form of the shared praxis pedagogy — `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/pedagogy.md`: one idea
+   per screen; show, don't tell; split, don't shrink.)
 3. **Every number traces to the branch.** Pull figures from the analysis's Basis and `_grounding.md`
    — never invent data to make a chart look full. Include a small data table so the figures are
    auditable; the artifact gate warns if a substantial page has none.
