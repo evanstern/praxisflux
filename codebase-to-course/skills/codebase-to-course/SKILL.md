@@ -198,9 +198,17 @@ This produces `index.html`. Open it in the browser.
 - Interactive element JS is in `main.js`; wire up via `data-*` attributes and CSS class names as shown in `references/interactive-elements.md`
 - Chat containers need `id` attributes; flow animations need `data-steps='[...]'` JSON on `.flow-animation`
 
-### Phase 4: Review and Open
+### Phase 4: Gate, Review, and Open
 
-After running `build.sh`, open `index.html` in the browser. Walk the user through what was built and ask for feedback on content, design, and interactivity.
+After running `build.sh`, run the **output gate** on the course directory:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs course <course-dir>
+```
+
+The gate verifies: `index.html` exists and is self-contained (Google Fonts is the one allowed external host), nav dots match the module count, every module has at least one quiz and one code translation block, and the course includes at least one group chat and one flow animation. **Fix failures and rebuild until it passes** — don't present a course that fails its gate.
+
+Then open `index.html` in the browser. Walk the user through what was built and ask for feedback on content, design, and interactivity.
 
 ---
 
