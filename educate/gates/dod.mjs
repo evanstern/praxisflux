@@ -7,6 +7,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createLifecycle } from "../../lib/lifecycle.mjs";
+import { checkHtml } from "../../lib/selfcontained.mjs";
 
 // artifact key in progress.json  ->  filename on disk
 export const ARTIFACT_FILES = {
@@ -80,6 +81,16 @@ export function topicDoDProblems(topicDir, progress) {
 
     // a status may not exceed the artifacts that prove it
     for (const p of lifecycle.check(lessonDir, lesson.status)) problems.push(`${lesson.id}: ${p}`);
+
+    // a deck on disk must honor its own contract: single self-contained file, no external hosts
+    // (educate has no Google-Fonts exception). Fails block; warns stay advisory.
+    const deckPath = join(lessonDir, ARTIFACT_FILES.deck);
+    if (existsSync(deckPath)) {
+      try {
+        for (const f of checkHtml(readFileSync(deckPath, "utf8")).fails)
+          problems.push(`${lesson.id}: deck.html is not self-contained — ${f}`);
+      } catch { problems.push(`${lesson.id}: deck.html is unreadable`); }
+    }
 
     // delegated-build evidence lives in progress.json (not loose .handoff/ files)
     if (delegated) {
