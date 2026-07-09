@@ -117,6 +117,9 @@ running the plugin's script, NOT by git:
   (e.g. `done` with no deck). The `hooks/hooks.json` hook runs this automatically so a
   premature `done` is refused.
 - Never advance status past `built` while `deck`/`guide` are missing.
+- A `deck.html` on disk must also pass the shared self-contained verifier — zero external
+  hosts (no CDN scripts, fonts, or images; educate has no Google-Fonts exception). The gate
+  runs it automatically; fix the deck rather than the status.
 
 ## On resume
 Read `topics/<topic>/progress.json` -> `cursor` tells you the current lesson, its status,
