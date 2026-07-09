@@ -134,6 +134,8 @@ The code snippets are the critical token-saving step. By pre-extracting them int
 
 The course output is a **directory**, not a single file. All CSS and JS are pre-built reference files — never regenerate them. Your job is to write only the HTML content.
 
+**Where the course lives:** default to `docs/course/` inside the target repo (the standing layout pairs it with a grounded corpus at `docs/wiki/`). When the user names a destination, use theirs instead. `course-name/` in the structure below stands for whichever directory was chosen.
+
 **Output structure:**
 ```
 course-name/
