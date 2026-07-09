@@ -74,6 +74,11 @@ What module authors must know:
 - The per-course accent (`--color-accent` etc. in `_base.html`) carries into dark mode unchanged; the light tint `--color-accent-light` and the semantic `*-light` tints are automatically re-derived against the dark surface via `color-mix`, so any accent palette works in both themes.
 - Need a custom tint in inline styles? Use `color-mix(in srgb, var(--color-accent) 15%, transparent)` — never a baked-in pastel hex.
 - Actor colors and `--color-bg-code` are shared across both themes by design.
+- `styles.css` also ships the **praxis shared token schema** as aliases (`--ink`, `--muted`,
+  `--accent`, `--line`, `--chip`, `--callout-bg`, …) mapped onto the course tokens. Snippets
+  written against the shared names — e.g. praxis `lib/toolkit` modules — drop in unchanged and
+  automatically pick up the course palette in both themes. Course-native modules should keep
+  using the `--color-*` tokens; the aliases are the interop surface, not a second palette.
 
 ## Table of Contents (built into the prebuilt assets)
 
