@@ -71,9 +71,46 @@ canonical, updatable copy per plugin.
 ## 7. Shared chassis vs. per-plugin
 
 **Shared** (`lib/`): project-root, gate-runner, markdown, selfcontained, lifecycle, installer,
-dates, template, handoff; plus the HTML base (`lib/html/base.html`). **Per-plugin**: the domain
-vocabulary (lifecycle state names), the knowledge model, and handoff **payload** schemas. Shared
-plumbing, domain-specific content.
+dates, template, handoff; plus the HTML base (`lib/html/base.html`) and the content toolkit
+(`lib/toolkit/`, §8). **Per-plugin**: the domain vocabulary (lifecycle state names), the knowledge
+model, and handoff **payload** schemas. Shared plumbing, domain-specific content — with the
+toolkit as the one deliberate exception: content shared because the plugins teach with the same
+tools.
+
+## 8. Shared content modules — the toolkit (`lib/toolkit/`)
+
+Where the rest of `lib/` is shared *plumbing* (code that gates and scripts import), `lib/toolkit/`
+is shared *content*: educational methods and visual tools a skill reads while authoring a deck,
+course, or briefing — tooltip snippets, pedagogy principles, diagram idioms. One canonical copy
+serves every plugin, and single-owner tools become borrowable by siblings.
+
+**Distribution.** Toolkit modules ship exactly like the chassis: `scripts/build.mjs` vendors
+`lib/` wholesale into each packaged plugin, so every installed plugin carries its own copy and
+stays independently installable. There is no runtime cross-plugin lookup.
+
+**Referencing.** Skill prose and templates point at modules as
+`${CLAUDE_PLUGIN_ROOT}/lib/toolkit/<module>.md`. Gate code never imports from `toolkit/` —
+if something needs to be *executed or verified*, it belongs in `lib/` proper (like
+`selfcontained.mjs`), not the toolkit.
+
+**Graceful degradation (hard rule).** A toolkit module is an optional enhancer. Every skill that
+references one must state a one-line inline fallback and still function when the module is absent
+(e.g. a hand-copied skill without `lib/`): *"Gloss jargon with the toolkit tooltip module; if it's
+missing, define terms in parentheses on first use."* A skill that breaks without the toolkit has
+made it plumbing — move that part into `lib/` proper or inline it.
+
+**Design policy: shared token schema, per-plugin palettes.** All visual output uses the same CSS
+custom-property *names* and the same dark-mode contract (light default; dark via both
+`@media (prefers-color-scheme: dark)` and `:root[data-theme=…]`; an auto→light→dark toggle) —
+`lib/html/base.html` is the canonical spelling. Palette *values* stay per-plugin: educate and
+research share the praxis palette; codebase-to-course keeps its warm palette and its documented
+Google Fonts exception. Toolkit snippets are written against the token names only, so they inherit
+whichever palette the consuming page defines. HTML page *shells* remain per-plugin — the earlier
+decision (docs/handoffs/codebase-to-course-plugin.md) not to fold the course's `_base.html` into
+`lib/html/base.html` stands; what's shared is the token schema and the content modules, not the
+page skeleton.
+
+Module index: [`lib/toolkit/README.md`](../lib/toolkit/README.md).
 
 ## New-plugin checklist
 
