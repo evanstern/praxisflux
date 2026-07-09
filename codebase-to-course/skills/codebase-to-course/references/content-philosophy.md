@@ -66,6 +66,8 @@ Every technical term (API, DOM, callback, middleware, etc.) gets a dashed-underl
 
 The goal of learning is practical application — being able to *do something* with what you learned. Quizzes should test whether the learner can use their knowledge to solve a new problem, not whether they can regurgitate a definition.
 
+**The coverage rule (hard requirement):** a quiz question may only use terms, concepts, components, and scenarios that the course has already introduced *before* the quiz (in this module or one the brief says came earlier). This does NOT mean the answer must be literally written in the text — asking the learner to apply what they learned to a brand-new situation is the whole point. But every technical term the question uses, every concept it leans on, every actor it names must be 100% guaranteed to have been taught already. A learner should never hit a quiz and think "we never talked about this." If a great question needs an unintroduced concept, either teach that concept in a screen first or cut the question.
+
 **What to quiz (in order of value):**
 1. **"What would you do?" scenarios** — Present a new situation the learner hasn't seen and ask them to apply what they learned. e.g., "You want to add a 'save to favorites' feature. Which files would you need to change?" This is the gold standard.
 2. **Debugging scenarios** — "A user reports X is broken. Based on what you learned, where would you look first?" This tests whether they understood the architecture, not just memorized file names.

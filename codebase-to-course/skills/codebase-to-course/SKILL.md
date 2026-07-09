@@ -92,7 +92,7 @@ This is a **menu, not a checklist**. Pick the modules that serve the codebase �
 **The key principle:** Every module should connect back to a practical skill — steering AI, debugging, making decisions. If a module doesn't help the learner DO something better, cut it or reframe it until it does.
 
 **Each module should contain:**
-- 3-6 screens (sub-sections that flow within the module)
+- Screens (sub-sections that flow within the module): aim for **3-6 on average** across the course. Hard bounds: a module may run as lean as **1** screen or as deep as **10** when the material genuinely warrants it — never pad a thin module or cram a rich one to hit the average.
 - At least one code-with-English translation
 - At least one interactive element (quiz, visualization, or animation)
 - One or two "aha!" callout boxes with universal CS insights
@@ -102,12 +102,14 @@ This is a **menu, not a checklist**. Pick the modules that serve the codebase �
 - **Group Chat Animation** — at least one across the course. These are the iMessage/WeChat-style conversations between components. They're one of the most engaging elements and must always appear, even if you have to creatively frame a module's concept as a conversation between actors.
 - **Message Flow / Data Flow Animation** — at least one across the course. The step-by-step packet animation between actors. If the codebase has any kind of request/response, data pipeline, or multi-step process, animate it. Every codebase has data flowing somewhere — find it.
 - **Code ↔ English Translation Blocks** — at least one per module (already required above, but reiterating: this is non-negotiable).
-- **Quizzes** — at least one per module (multiple-choice, scenario, drag-and-drop, or spot-the-bug — any quiz type counts).
+- **Quizzes** — at least one per module (multiple-choice, scenario, drag-and-drop, or spot-the-bug — any quiz type counts). **Coverage rule:** a quiz may only use terms, concepts, and actors the course has already taught above it — see "The coverage rule" in `references/content-philosophy.md`.
 - **Glossary Tooltips** — on every technical term, first use per module.
 
 These five element types are the backbone of every course. Other interactive elements (architecture diagrams, layer toggles, pattern cards, etc.) are optional and should be added when they fit. But the five above must ALWAYS be present — no exceptions.
 
-**Do NOT present the curriculum for approval — just build it.** The user wants a course, not a planning document. Design the curriculum internally, then go straight to building. If they want changes, they'll tell you after seeing the result.
+**When the codebase fits one course, do NOT present the curriculum for approval — just build it.** The user wants a course, not a planning document. Design the curriculum internally, then go straight to building. If they want changes, they'll tell you after seeing the result.
+
+**The exception: after the initial digest of the codebase, if it looks large enough to warrant multiple courses** — a monorepo, several distinct subsystems, or clearly more teachable material than 8 modules can hold — you SHOULD pause and propose options before building: what the possible courses are (e.g. one per subsystem, or a fundamentals course now and a deep-dive later) and which you'd build first. Let the user pick, then build that one without further check-ins.
 
 **After designing the curriculum, decide which build path to use:**
 
