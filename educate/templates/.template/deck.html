@@ -29,28 +29,50 @@
    - NEVER put <b>/<i> inside an SVG <text>; use <tspan>. var(--…) does NOT resolve in SVG attrs — use literal values there.
 -->
 <style>
-  /* Design tokens — the shared praxis contract (see lib/html/base.html). Chrome is token-driven
-     so the deck is theme-aware: dark follows the OS AND the ◐ toggle. NOTE: hand-drawn SVG fills
-     use literal colors (var() doesn't resolve in SVG attrs) — pick colors that read on both
-     themes, or give the figure its own contrasting panel. */
+  /* Design tokens — the shared praxis contract, STAMPED from lib/html/base.html between the
+     praxis:tokens markers (scripts/sync-theme.mjs keeps them in sync; drift fails the test
+     suite — never hand-edit inside the markers). Chrome is token-driven so the deck is
+     theme-aware: dark follows the OS AND the ◐ toggle. NOTE: hand-drawn SVG fills use literal
+     colors (var() doesn't resolve in SVG attrs) — pick colors that read on both themes, or
+     give the figure its own contrasting panel. */
+  /* praxis:tokens:start */
+  /* ---- design tokens (light) ---- */
   :root{
-    --ink:#1b2733; --muted:#5a6776; --accent:#4f46e5; --accent2:#0e9488;
-    --line:#dde3ea; --chip:#f3f5f8; --card:#ffffff; --stage:#e7ebf1; --warn:#b4530a;
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1b2733; --muted:#5a6776;
+    --accent:#4f46e5; --accent2:#0e9488; --warn:#b4530a;
+    --line:#dde3ea; --chip:#f3f5f8;
     --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
   }
+  /* ---- dark tokens: follow the OS by default ... ---- */
   @media (prefers-color-scheme: dark){
-    :root{ --ink:#e7ecf2; --muted:#9aa7b5; --accent:#8b83ff; --accent2:#3ac9b8;
-      --line:#28323e; --chip:#1d2630; --card:#161d26; --stage:#0e141b; --warn:#e8903f;
-      --callout-bg:#1b1d38; --warn-bg:#33220f; --ok-bg:#0f2a27; }
+    :root{
+      --bg:#0e141b; --card:#161d26; --ink:#e7ecf2; --muted:#9aa7b5;
+      --accent:#8b83ff; --accent2:#3ac9b8; --warn:#e8903f;
+      --line:#28323e; --chip:#1d2630;
+      --callout-bg:#1b1d38; --warn-bg:#33220f; --ok-bg:#0f2a27;
+    }
   }
-  :root[data-theme="dark"]{ --ink:#e7ecf2; --muted:#9aa7b5; --accent:#8b83ff; --accent2:#3ac9b8;
-    --line:#28323e; --chip:#1d2630; --card:#161d26; --stage:#0e141b; --warn:#e8903f;
-    --callout-bg:#1b1d38; --warn-bg:#33220f; --ok-bg:#0f2a27; }
-  :root[data-theme="light"]{ --ink:#1b2733; --muted:#5a6776; --accent:#4f46e5; --accent2:#0e9488;
-    --line:#dde3ea; --chip:#f3f5f8; --card:#ffffff; --stage:#e7ebf1; --warn:#b4530a;
-    --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7; }
+  /* ... and the on-page toggle wins in either direction. */
+  :root[data-theme="dark"]{
+    --bg:#0e141b; --card:#161d26; --ink:#e7ecf2; --muted:#9aa7b5;
+    --accent:#8b83ff; --accent2:#3ac9b8; --warn:#e8903f;
+    --line:#28323e; --chip:#1d2630;
+    --callout-bg:#1b1d38; --warn-bg:#33220f; --ok-bg:#0f2a27;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1b2733; --muted:#5a6776;
+    --accent:#4f46e5; --accent2:#0e9488; --warn:#b4530a;
+    --line:#dde3ea; --chip:#f3f5f8;
+    --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
+  }
+  /* praxis:tokens:end */
+  /* deck-only tokens (outside the shared schema): the stage the 16:9 card sits on */
+  :root{ --stage:#e7ebf1 }
+  @media (prefers-color-scheme: dark){ :root{ --stage:#0e141b } }
+  :root[data-theme="dark"]{ --stage:#0e141b }
+  :root[data-theme="light"]{ --stage:#e7ebf1 }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{background:var(--stage);font-family:var(--sans);color:var(--ink);
@@ -196,7 +218,7 @@
 </div>
 
 <div class="nav">
-  <button onclick="cycleTheme()" id="themeBtn" aria-label="Toggle light/dark theme">◐ auto</button>
+  <button onclick="praxisCycleTheme(this)" id="themeBtn" aria-label="Toggle light/dark theme">◐ auto</button>
   <button onclick="go(-1)">‹ Prev</button>
   <button onclick="go(1)">Next ›</button>
 </div>
@@ -223,15 +245,20 @@
   });
   show(0);
 
-  // Theme toggle: cycles auto -> light -> dark, stamping data-theme on <html> (see lib/html/base.html).
-  (function(){
-    const root=document.documentElement, btn=document.getElementById('themeBtn');
+  // Theme toggle — the shared core, STAMPED from lib/html/base.html between the praxis:theme
+  // markers (scripts/sync-theme.mjs; never hand-edit inside them). The nav button binds it.
+  // praxis:theme:start
+  // Cycles auto -> light -> dark, stamping data-theme on <html> so the CSS token overrides win
+  // over the OS preference. No storage, no external calls. State rides on the button
+  // (dataset.mode) so any page can bind its own button.
+  function praxisCycleTheme(btn){
     const order=["auto","light","dark"], label={auto:"◐ auto",light:"☀ light",dark:"☾ dark"};
-    let cur="auto";
-    window.cycleTheme=function(){ cur=order[(order.indexOf(cur)+1)%order.length];
-      if(cur==="auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme",cur);
-      btn.textContent=label[cur]; };
-  })();
+    const next=order[(order.indexOf(btn.dataset.mode||"auto")+1)%order.length];
+    if(next==="auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme",next);
+    btn.dataset.mode=next; btn.textContent=label[next]; return next;
+  }
+  // praxis:theme:end
 
   // Lightweight tooltip: styled popover for any [data-tip] element (works on SVG too).
   (function(){
