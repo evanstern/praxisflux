@@ -21,7 +21,7 @@ The convention in brief:
 
 | Module | What it provides | Status |
 |---|---|---|
-| `tooltip.md` | Jargon-glossary hover/tap tooltip (overflow-safe, mouse + touch) | planned — TASK-7.3 |
+| `tooltip.md` | Jargon-glossary hover/tap tooltip (overflow-safe, mouse + touch; stamped into consumers by `scripts/sync-shared.mjs`) | shipped |
 | `pedagogy.md` | Visual-teaching principles: one idea per screen, show don't tell, lead with the point | planned — TASK-7.4 |
 | `svg-diagrams.md` | Inline-SVG authoring rules and pitfalls (`<tspan>` not `<b>`, no `var()` in SVG attrs) | planned — TASK-7.7 |
 | `code-translation.md` | Code ↔ plain-English side-by-side translation block | planned — TASK-7.6 |

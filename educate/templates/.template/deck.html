@@ -26,11 +26,13 @@
    - 16:9 slides that MUST fit — verify nothing clips (split before you shrink). One idea per slide.
    - Arrow keys / space to advance; progress bar + slide numbers are automatic.
    - Gloss jargon with data-tip (see the sample slide) — a visible ? badge marks the target.
+     (The tooltip is the shared lib/toolkit/tooltip.md module; if it's ever unavailable,
+     define terms in parentheses on first use instead.)
    - NEVER put <b>/<i> inside an SVG <text>; use <tspan>. var(--…) does NOT resolve in SVG attrs — use literal values there.
 -->
 <style>
   /* Design tokens — the shared praxis contract, STAMPED from lib/html/base.html between the
-     praxis:tokens markers (scripts/sync-theme.mjs keeps them in sync; drift fails the test
+     praxis:tokens markers (scripts/sync-shared.mjs keeps them in sync; drift fails the test
      suite — never hand-edit inside the markers). Chrome is token-driven so the deck is
      theme-aware: dark follows the OS AND the ◐ toggle. NOTE: hand-drawn SVG fills use literal
      colors (var() doesn't resolve in SVG attrs) — pick colors that read on both themes, or
@@ -68,8 +70,9 @@
     --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
   }
   /* praxis:tokens:end */
-  /* deck-only tokens (outside the shared schema): the stage the 16:9 card sits on */
-  :root{ --stage:#e7ebf1 }
+  /* deck-only tokens (outside the shared schema): the stage the 16:9 card sits on,
+     and deck-sized tooltip text (slides are read from across a room) */
+  :root{ --stage:#e7ebf1; --tip-size:19px }
   @media (prefers-color-scheme: dark){ :root{ --stage:#0e141b } }
   :root[data-theme="dark"]{ --stage:#0e141b }
   :root[data-theme="light"]{ --stage:#e7ebf1 }
@@ -118,20 +121,24 @@
   .nav button:hover{background:var(--chip)}
   .title-wrap{display:flex;flex-direction:column;justify-content:center;height:100%}
   .small{font-size:24px}
-  /* Lightweight hover tooltip — any element (HTML or SVG) with a data-tip attribute. */
-  [data-tip]{cursor:help}
-  .tip-pop{position:fixed;z-index:50;max-width:420px;background:var(--ink);color:#fff;
-    font-size:19px;line-height:1.4;padding:13px 17px;border-radius:10px;pointer-events:none;
-    box-shadow:0 8px 24px rgba(20,30,50,.28);opacity:0;transform:translateY(4px);
-    transition:opacity .12s ease,transform .12s ease}
-  .tip-pop.show{opacity:1;transform:translateY(0)}
+  /* Jargon tooltip — the shared module, STAMPED from lib/toolkit/tooltip.md between the
+     praxis:tooltip-css markers (scripts/sync-shared.mjs; never hand-edit inside them).
+     Any element (HTML or SVG) with a data-tip attribute gets the popover. */
+  /* praxis:tooltip-css:start */
+[data-tip]{cursor:help}
+.tip-pop{position:fixed;z-index:1000;max-width:min(420px,80vw);background:var(--ink);color:var(--bg);
+  font-size:var(--tip-size,1rem);line-height:1.4;padding:.65em .9em;border-radius:10px;
+  pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.28);opacity:0;transform:translateY(4px);
+  transition:opacity .12s ease,transform .12s ease}
+.tip-pop.show{opacity:1;transform:translateY(0)}
+@media print{ .tip-pop{display:none} }
+  /* praxis:tooltip-css:end */
   @media print{
     body{display:block;background:#fff;overflow:visible}
     .deck{width:100%;aspect-ratio:auto}
     .slide{display:flex;position:relative;page-break-after:always;box-shadow:none;
       border:1px solid var(--line);margin-bottom:18px;height:96vh}
     .nav{display:none}
-    .tip-pop{display:none}
   }
 </style>
 </head>
@@ -260,20 +267,28 @@
   }
   // praxis:theme:end
 
-  // Lightweight tooltip: styled popover for any [data-tip] element (works on SVG too).
-  (function(){
-    const pop=document.createElement('div'); pop.className='tip-pop'; document.body.appendChild(pop);
-    const place=e=>{ const pad=14, r=pop.getBoundingClientRect();
-      let x=e.clientX+pad, y=e.clientY+pad;
-      if(x+r.width>innerWidth-8) x=e.clientX-r.width-pad;
-      if(y+r.height>innerHeight-8) y=e.clientY-r.height-pad;
-      pop.style.left=x+'px'; pop.style.top=y+'px'; };
-    document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]');
-      if(!t) return; pop.textContent=t.getAttribute('data-tip'); pop.classList.add('show'); place(e); });
-    document.addEventListener('mousemove',e=>{ if(pop.classList.contains('show')) place(e); });
-    document.addEventListener('mouseout',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]');
-      if(t && !t.contains(e.relatedTarget)) pop.classList.remove('show'); });
-  })();
+  // Jargon tooltip — the shared module, STAMPED from lib/toolkit/tooltip.md between the
+  // praxis:tooltip-js markers (scripts/sync-shared.mjs; never hand-edit inside them).
+  // praxis:tooltip-js:start
+// One shared popover: follows the cursor on hover, toggles on click/tap (touch), clamps to
+// the viewport, and closes on tap-away. Works for HTML and SVG [data-tip] elements alike.
+(function(){
+  const pop=document.createElement('div'); pop.className='tip-pop'; document.body.appendChild(pop);
+  let shownFor=null;
+  const place=(x,y)=>{ const pad=14, r=pop.getBoundingClientRect();
+    let px=x+pad, py=y+pad;
+    if(px+r.width>innerWidth-8) px=Math.max(8,x-r.width-pad);
+    if(py+r.height>innerHeight-8) py=Math.max(8,y-r.height-pad);
+    pop.style.left=px+'px'; pop.style.top=py+'px'; };
+  const show=(t,x,y)=>{ pop.textContent=t.getAttribute('data-tip'); pop.classList.add('show'); shownFor=t; place(x,y); };
+  const hide=()=>{ pop.classList.remove('show'); shownFor=null; };
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]'); if(t) show(t,e.clientX,e.clientY); });
+  document.addEventListener('mousemove',e=>{ if(shownFor) place(e.clientX,e.clientY); });
+  document.addEventListener('mouseout',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]'); if(t && !t.contains(e.relatedTarget)) hide(); });
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]');
+    if(t){ e.stopPropagation(); (shownFor===t)?hide():show(t,e.clientX,e.clientY); } else hide(); });
+})();
+  // praxis:tooltip-js:end
 </script>
 </body>
 </html>
