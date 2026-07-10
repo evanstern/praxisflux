@@ -1,5 +1,6 @@
 ---
 name: start
+version: 0.1.0
 description: Initialize a new Socratic learning project in a folder, OR update an existing one to the current plugin version. Use when the user wants to set up educate, bootstrap a learnings folder, start a learning project, create the structure for educate lessons, or migrate/upgrade an existing educate project after a plugin update. Plants (or refreshes) the always-on CLAUDE.md, the lesson template, and the progress schema, then verifies the setup.
 ---
 

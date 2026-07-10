@@ -1,5 +1,6 @@
 ---
 name: lesson
+version: 0.1.0
 description: Orchestrate a learning lesson's lifecycle in an educate project — placement, scaffolding, the teach -> build -> deck handoff seam, and the Definition-of-Done gate. Use when starting, resuming, or finishing a lesson, or when the user asks where a lesson should live or whether it's done.
 ---
 

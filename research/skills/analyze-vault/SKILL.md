@@ -1,5 +1,6 @@
 ---
 name: analyze-vault
+version: 0.1.0
 description: >-
   Evaluate an existing topic branch in an Obsidian-style Markdown "thinking vault" and write a
   grounded, opinionated analysis — the QUERY phase: reason ACROSS the already-gathered corpus to

@@ -1,5 +1,6 @@
 ---
 name: implement
+version: 0.1.0
 description: Implement a build SPEC handed off from a learning lesson (or any producer), verify it works, and return findings for the lesson to fold back in. Use when a lesson has handed off a SPEC to build, when the user says "run build", "/build-me", "build the spec", or points at a pending handoff request. This plugin OWNS the implementation leg — educate teaches and authors the SPEC; build implements it and returns what it learned.
 ---
 
