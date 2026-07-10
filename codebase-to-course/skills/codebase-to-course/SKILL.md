@@ -155,7 +155,7 @@ course-name/
   index.html       ← assembled by build.sh (do not write manually)
 ```
 
-**Step 1 (both paths): Setup** — Create the course directory. Copy these five files verbatim using Read + Write (do not regenerate their contents):
+**Step 1 (both paths): Setup** — Create the course directory. Copy these five files verbatim using Read + Write (do not regenerate their contents). **Copy from the plugin's `references/` only — never from another course directory.** An existing course is a snapshot of whatever chrome generation built it, not a template; `build.sh` and the gate reject stale or mixed chrome stamps.
 - `references/styles.css` → `course-name/styles.css`
 - `references/main.js` → `course-name/main.js`
 - `references/_footer.html` → `course-name/_footer.html`

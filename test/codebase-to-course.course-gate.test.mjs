@@ -5,9 +5,15 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { validateCourse } from "../codebase-to-course/gates/course.mjs";
+import { CHROME_VERSION } from "../codebase-to-course/skills/codebase-to-course/references/validate.mjs";
 
 const quiz = '<div class="quiz-container" id="q"></div>';
-const translation = '<div class="translation-block"></div>';
+// Minimal contract-honoring block: 1:1 .tl/.code-line pairing, balanced brackets.
+const translation =
+  '<div class="translation-block"><div class="translation-code"><pre><code>\n' +
+  '<span class="code-line">start();</span>\n' +
+  '</code></pre></div><div class="translation-english"><div class="translation-lines">' +
+  '<p class="tl">Kick things off.</p></div></div></div>';
 
 function module_(n, extra = "") {
   return `<section class="module" id="module-${n}">${quiz}${translation}${extra}</section>`;
@@ -24,9 +30,12 @@ function courseHtml({ modules = 2, dots = modules, chat = true, flow = true, ext
 <body><nav>${navDots}</nav>${body}<script src="main.js"></script></body></html>`;
 }
 
-function makeCourse(html) {
+function makeCourse(html, { chromeStamp = `chrome v${CHROME_VERSION} — inline translation engine` } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "c2c-test-"));
   if (html !== null) writeFileSync(join(dir, "index.html"), html);
+  const header = chromeStamp === null ? "" : `/* ${chromeStamp} */\n`;
+  writeFileSync(join(dir, "styles.css"), `${header}body { margin: 0; }`);
+  writeFileSync(join(dir, "main.js"), `${header}(function () {})();`);
   return dir;
 }
 
@@ -76,4 +85,41 @@ test("course gate: missing group chat and flow animation fail course-wide", (t) 
   const r = validateCourse(dir);
   assert.ok(r.fails.some((f) => f.includes("group chat")), JSON.stringify(r.fails));
   assert.ok(r.fails.some((f) => f.includes("flow animation")), JSON.stringify(r.fails));
+});
+
+test("course gate: a translation block with unbalanced code fails", (t) => {
+  const broken = courseHtml().replaceAll(
+    '<span class="code-line">start();</span>',
+    '<span class="code-line">register(handlers, {</span>'
+  );
+  const dir = makeCourse(broken);
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const r = validateCourse(dir);
+  assert.ok(r.fails.some((f) => f.includes("never closed")), JSON.stringify(r.fails));
+});
+
+test("course gate: a .tl/.code-line pairing mismatch fails", (t) => {
+  const mismatched = courseHtml().replaceAll(
+    '<p class="tl">Kick things off.</p>',
+    '<p class="tl">Kick things off.</p><p class="tl">One note too many.</p>'
+  );
+  const dir = makeCourse(mismatched);
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const r = validateCourse(dir);
+  assert.ok(r.fails.some((f) => f.includes(".code-line vs")), JSON.stringify(r.fails));
+});
+
+test("course gate: unstamped chrome fails as v1 with the upgrade recipe named", (t) => {
+  const dir = makeCourse(courseHtml(), { chromeStamp: null });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const r = validateCourse(dir);
+  assert.ok(r.fails.some((f) => f.includes("no chrome version stamp")), JSON.stringify(r.fails));
+  assert.ok(r.fails.some((f) => f.includes("Stale Chrome")), JSON.stringify(r.fails));
+});
+
+test("course gate: version-mixed chrome fails", (t) => {
+  const dir = makeCourse(courseHtml(), { chromeStamp: "chrome v1 — side-by-side" });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const r = validateCourse(dir);
+  assert.ok(r.fails.some((f) => f.includes("mixed chrome")), JSON.stringify(r.fails));
 });
