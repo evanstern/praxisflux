@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-07 21:25'
-updated_date: '2026-07-07 21:37'
+updated_date: '2026-07-10 14:59'
 labels:
   - educate
   - research
@@ -17,7 +17,7 @@ ordinal: 14000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Each research/ folder under a learning topic is an isolated .research-vault with its own Home.md trunk (series-scope at topics/<topic>/research/, lesson-scope at topics/<topic>/<NNN>-lesson/research/). Today nothing ties a topic's vaults together, so the accumulated corpus isn't navigable/searchable as one body of knowledge. Add a DERIVED roll-up index: topics/<topic>/WIKI.md indexes every research vault under that topic (rolling up each vault's Home.md), and topics/WIKI.md indexes each topic's WIKI.md. Derive-from-disk (like progress.json's artifacts map) so it can't drift; the same generator is the migration path for existing projects (e.g. ~/neumo/learn/topics/philosophy). Preserve vault isolation: WIKI.md is a navigation index using plain relative Markdown links, never cross-vault [[wikilinks]] — no bleed between topics. Owned by educate (topic structure is educate's); composes over research outputs via files only.
+Each research/ folder under a learning topic is an isolated .research-vault with its own Home.md trunk (series-scope at topics/<topic>/research/, lesson-scope at topics/<topic>/<NNN>-lesson/research/). Today nothing ties a topic's vaults together, so the accumulated corpus isn't navigable/searchable as one body of knowledge. Add a DERIVED roll-up index: topics/<topic>/WIKI.md indexes every research vault under that topic (rolling up each vault's Home.md), and topics/WIKI.md indexes each topic's WIKI.md. Derive-from-disk (like progress.json's artifacts map) so it can't drift; the same generator is the migration path for existing projects (e.g. an existing multi-topic learning project). Preserve vault isolation: WIKI.md is a navigation index using plain relative Markdown links, never cross-vault [[wikilinks]] — no bleed between topics. Owned by educate (topic structure is educate's); composes over research outputs via files only.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -28,7 +28,7 @@ Each research/ folder under a learning topic is an isolated .research-vault with
 - [x] #4 WIKI.md uses plain relative Markdown links only (no [[wikilinks]]); vault isolation is preserved and there is no cross-topic content
 - [x] #5 wiki.mjs --check (read-only, in gates/) reports WIKI.md staleness without writing; wired into the educate Stop-hook gate as a warning
 - [x] #6 progress.mjs --sync regenerates the topic WIKI.md, and the lesson grounding seam regenerates it after research returns
-- [x] #7 Running the generator over ~/neumo/learn/topics/philosophy produces a correct WIKI.md from the existing Home.md's (migration verified)
+- [x] #7 Running the generator over an existing project's topic dir produces a correct WIKI.md from the existing Home.md's (migration verified)
 - [x] #8 educate templates/CLAUDE.md and skills/lesson document the WIKI layer
 <!-- AC:END -->
 
@@ -41,18 +41,18 @@ Each research/ folder under a learning topic is an isolated .research-vault with
 4. Wire freshness: progress.mjs --sync calls the wiki sync for the topic; the Stop-hook gate (stop.mjs/dod) adds a non-fatal staleness WARNING for WIKI.md (never blocks — WIKI is an index, not a DoD artifact).
 5. Grounding seam: educate/skills/lesson SKILL.md — after research grounding returns, run scripts/wiki.mjs --sync for the topic. Document the WIKI layer + isolation rule (relative links, no cross-vault wikilinks).
 6. Docs: educate/templates/CLAUDE.md gains a 'Corpus wiki' section describing topics/<topic>/WIKI.md + topics/WIKI.md, derived by the script, isolation-preserving.
-7. Migration: run scripts/wiki.mjs --all --sync against ~/neumo/learn to generate philosophy's topic WIKI.md + the project WIKI.md from existing Home.md's; verify output by hand. (Existing Home.md's are the source; no lesson content touched.)
-8. Verify: unit-exercise wiki.mjs on philosophy fixture; run --check to confirm stale->fresh; confirm no [[wikilinks]] emitted and other topics untouched.
+7. Migration: run scripts/wiki.mjs --all --sync against an existing project to generate its topic WIKI.md + the project WIKI.md from existing Home.md's; verify output by hand. (Existing Home.md's are the source; no lesson content touched.)
+8. Verify: unit-exercise wiki.mjs on a fixture; run --check to confirm stale->fresh; confirm no [[wikilinks]] emitted and other topics untouched.
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Implemented: educate/gates/wiki.mjs (read-only derivation: parseWikisTable, readVaultHome, topicVaults, renderTopicWiki/renderProjectWiki, isStale, wikiStalenessWarnings) + educate/scripts/wiki.mjs (mutating CLI: --sync/--check/--all, exports syncTopicWiki/syncProjectWiki). Wired into progress.mjs --sync (regenerates topic + project WIKI after any sync) and the lesson grounding seam. Extended lib/gate-runner with an optional non-blocking warn(root) channel; educate stop.mjs warns on WIKI drift (exit 0, never blocks). Added test/wiki.test.mjs (6 tests, suite 25/25 green). Migration: ran wiki.mjs --all --sync over ~/neumo/learn — generated topics/philosophy/WIKI.md (3 vaults: series Arc + 101-socrates + 102-plato, deep MOC links) and topics/WIKI.md; verified idempotent, --check green, zero [[wikilinks]], all deep links resolve. Docs: educate/templates/CLAUDE.md + skills/lesson/SKILL.md gained a corpus-wiki section.
+Implemented: educate/gates/wiki.mjs (read-only derivation: parseWikisTable, readVaultHome, topicVaults, renderTopicWiki/renderProjectWiki, isStale, wikiStalenessWarnings) + educate/scripts/wiki.mjs (mutating CLI: --sync/--check/--all, exports syncTopicWiki/syncProjectWiki). Wired into progress.mjs --sync (regenerates topic + project WIKI after any sync) and the lesson grounding seam. Extended lib/gate-runner with an optional non-blocking warn(root) channel; educate stop.mjs warns on WIKI drift (exit 0, never blocks). Added test/wiki.test.mjs (6 tests, suite 25/25 green). Migration: ran wiki.mjs --all --sync over a real multi-topic learning project — generated the topic WIKI.md (3 vaults: series Arc + 101-socrates + 102-plato, deep MOC links) and the project WIKI.md; verified idempotent, --check green, zero [[wikilinks]], all deep links resolve. Docs: educate/templates/CLAUDE.md + skills/lesson/SKILL.md gained a corpus-wiki section.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Added a derived, isolation-preserving corpus index over each learning topic's research vaults. topics/<topic>/WIKI.md rolls up every .research-vault under the topic (series + per-lesson) — linking each vault's Home.md and deep-linking the wikis inside it — and topics/WIKI.md indexes topics that have research. Both are DERIVED from disk (educate/gates/wiki.mjs read-only + educate/scripts/wiki.mjs mutating CLI), so they can't drift, and use plain relative Markdown links (never [[wikilinks]]) so the roll-up is navigation-only with zero cross-topic bleed — matching the vault rule that branches don't cross-link. Freshness is automatic: progress.mjs --sync and the lesson grounding seam regenerate the WIKI(s); lib/gate-runner gained a non-blocking warn() channel and educate's Stop hook warns (never blocks) on drift. Running --sync over an existing project is the migration path: verified against ~/neumo/learn/topics/philosophy (3 vaults indexed, deep MOC links resolve, idempotent, --check green, no wikilinks). 25/25 tests green (test/wiki.test.mjs +6); marketplace and version checks pass. Docs updated in templates/CLAUDE.md and skills/lesson/SKILL.md.
+Added a derived, isolation-preserving corpus index over each learning topic's research vaults. topics/<topic>/WIKI.md rolls up every .research-vault under the topic (series + per-lesson) — linking each vault's Home.md and deep-linking the wikis inside it — and topics/WIKI.md indexes topics that have research. Both are DERIVED from disk (educate/gates/wiki.mjs read-only + educate/scripts/wiki.mjs mutating CLI), so they can't drift, and use plain relative Markdown links (never [[wikilinks]]) so the roll-up is navigation-only with zero cross-topic bleed — matching the vault rule that branches don't cross-link. Freshness is automatic: progress.mjs --sync and the lesson grounding seam regenerate the WIKI(s); lib/gate-runner gained a non-blocking warn() channel and educate's Stop hook warns (never blocks) on drift. Running --sync over an existing project is the migration path: verified against a real multi-topic learning project (3 vaults indexed, deep MOC links resolve, idempotent, --check green, no wikilinks). 25/25 tests green (test/wiki.test.mjs +6); marketplace and version checks pass. Docs updated in templates/CLAUDE.md and skills/lesson/SKILL.md.
 <!-- SECTION:FINAL_SUMMARY:END -->

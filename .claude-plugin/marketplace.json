@@ -2,10 +2,9 @@
   "name": "praxis",
   "description": "A suite of composable knowledge-work plugins (research, educate, build) on a shared Node chassis.",
   "owner": {
-    "name": "Evan Stern",
-    "email": "evan.stern@neumo.com"
+    "name": "praxis maintainers"
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "plugins": [
     {
       "name": "educate",

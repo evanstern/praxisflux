@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-09 18:48'
-updated_date: '2026-07-09 18:59'
+updated_date: '2026-07-10 14:59'
 labels: []
 dependencies: []
 parent_task_id: TASK-6
@@ -15,19 +15,19 @@ ordinal: 22000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Slice 5 — needs Evan's decision, do not decide unilaterally. Once the plugin installs from the marketplace, the ~/.claude/skills/codebase-to-course symlink double-triggers. Options: (a) retire/archive the standalone repo, praxis becomes home; (b) keep standalone as upstream and vendor into praxis. Until decided, standalone repo stays untouched.
+Slice 5 — needs a human decision, do not decide unilaterally. Once the plugin installs from the marketplace, the ~/.claude/skills/codebase-to-course symlink double-triggers. Options: (a) retire/archive the standalone repo, praxis becomes home; (b) keep standalone as upstream and vendor into praxis. Until decided, standalone repo stays untouched.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Evan has chosen a cutover model and it is recorded
+- [x] #1 A cutover model has been chosen and is recorded
 - [x] #2 The double-trigger is resolved (symlink removed or vendoring flow documented)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Evan chose: praxis becomes home. Executed: removed ~/.claude/skills/codebase-to-course symlink (double-trigger resolved); standalone repo got an archive-notice README commit (9953efe), pushed, and was archived on GitHub (isArchived: true). The plugin must be installed from the marketplace for the skill to trigger again: /plugin marketplace add <praxis path> + /plugin install codebase-to-course@praxis.
+Chosen: praxis becomes home. Executed: removed ~/.claude/skills/codebase-to-course symlink (double-trigger resolved); standalone repo got an archive-notice README commit (9953efe), pushed, and was archived on GitHub (isArchived: true). The plugin must be installed from the marketplace for the skill to trigger again: /plugin marketplace add <praxis path> + /plugin install codebase-to-course@praxis.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

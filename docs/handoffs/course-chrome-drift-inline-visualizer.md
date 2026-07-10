@@ -17,16 +17,16 @@ block into the single wide code panel with `.tl` notes interleaved as `//`-comme
 ## Root cause chain (three links, all verified)
 
 1. **Two same-named skills coexist and the stale one wins unqualified resolution.**
-   `~/.claude/skills/codebase-to-course` is a symlink to
-   `/Users/evanstern/projects/codebase-to-course` (standalone repo, `main` @ `ff8837e`, clean
-   vs its origin) — its `references/main.js` is 498 lines, **pre-inline**. The praxis plugin
+   `~/.claude/skills/codebase-to-course` is a symlink to a local checkout of the standalone
+   repo (`github.com/evanstern/codebase-to-course`, `main` @ `ff8837e`, clean vs its origin)
+   — its `references/main.js` is 498 lines, **pre-inline**. The praxis plugin
    (`praxis/codebase-to-course`, cache `0.1.0`) carries the inline engine. An agent invoking
    the unqualified skill name `codebase-to-course` got the **stale standalone copy** (its
    base directory was `~/.claude/skills/codebase-to-course`), whose `interactive-elements.md`
    documents *only* the side-by-side pattern. Note: the plugin-import handoff in this folder
-   says the source of truth is `~/neumo/projects/codebase-to-course` @ `0e3b61a` ("recent
-   features to keep intact: … comments-on-top") — so the actively-developed line moved on,
-   and the `~/projects/codebase-to-course` checkout behind the global symlink was left behind.
+   says the source of truth is the same repo @ `0e3b61a` ("recent features to keep intact: …
+   comments-on-top") — so the actively-developed line moved on, and the checkout behind the
+   global symlink was left behind.
 
 2. **Vendored chrome in consuming repos silently fossilizes.** the-stacks'
    `docs/courses/008-ingestion-service/` was built before the inline engine landed, so its
@@ -54,10 +54,10 @@ block into the single wide code panel with `.tl` notes interleaved as `//`-comme
 
 ## Recommended praxis work items
 
-1. **Kill the split-brain:** retire or fast-forward `/Users/evanstern/projects/codebase-to-course`
-   (and the `~/.claude/skills/codebase-to-course` symlink) so unqualified `codebase-to-course`
-   cannot resolve to a pre-inline copy. Either point the symlink at the praxis plugin skill
-   dir, or delete it and rely on the plugin-namespaced skill.
+1. **Kill the split-brain:** retire or fast-forward the standalone repo's local checkout
+   (and the `~/.claude/skills/codebase-to-course` symlink pointing at it) so unqualified
+   `codebase-to-course` cannot resolve to a pre-inline copy. Either point the symlink at the
+   praxis plugin skill dir, or delete it and rely on the plugin-namespaced skill.
 2. **Version-stamp the chrome:** a header comment in `styles.css` and `main.js`
    (e.g. `/* codebase-to-course chrome vX.Y — inline translation engine */`) so any vendored
    copy self-identifies, and gotchas.md gains a "check the chrome version" line.
@@ -75,7 +75,7 @@ block into the single wide code panel with `.tl` notes interleaved as `//`-comme
 
 ## Evidence pointers
 
-- Stale copy: `~/.claude/skills/codebase-to-course` → `/Users/evanstern/projects/codebase-to-course`
+- Stale copy: `~/.claude/skills/codebase-to-course` → a local checkout of the standalone repo
   (`references/main.js` 498 lines, 0 hits for the translation builder).
 - Current: `praxis/codebase-to-course/skills/codebase-to-course/references/main.js` (742
   lines, `hide notes` toggle @ ~L373); `references/interactive-elements.md` §"Comments-on-top

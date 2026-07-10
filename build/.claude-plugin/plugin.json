@@ -1,10 +1,9 @@
 {
   "name": "build",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate.",
   "author": {
-    "name": "Evan Stern",
-    "email": "evan.stern@neumo.com"
+    "name": "praxis maintainers"
   },
   "keywords": [
     "build",
