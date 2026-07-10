@@ -13,6 +13,10 @@ evidence in tracked state.
 Authoring a plugin/skill? Read `docs/skill-patterns.md` (shared patterns) and
 `docs/handoff-protocol.md` (inter-plugin handoffs) first.
 
+Touching released surface (plugin dirs, `lib/`, `scripts/`, `.claude-plugin/`)? The PR must bump
+the marketplace version — and any edited skill's own `version:` — per `docs/releasing.md`; CI
+enforces it, and each merge to `main` auto-publishes the GitHub Release `v<version>`.
+
 The work to build this out is tracked in Backlog (below). Start with `backlog task list --plain`.
 
 ## How praxis uses Backlog.md (the working flow)
