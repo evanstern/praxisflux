@@ -40,7 +40,7 @@ Zero-dependency Node modules, reached from each plugin through a committed `lib 
 symlink that marketplace installs and `dist/` packaging dereference into a real copy:
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
 `lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
-`spec-derive` (Spec Kit → kanban state).
+`spec-derive` (Spec Kit → kanban state) · `cli` (symlink-safe run-as-CLI guard).
 
 ## Principles
 
@@ -56,6 +56,8 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 - [`docs/skill-patterns.md`](docs/skill-patterns.md) — how to author a plugin/skill in this suite
   (the shared patterns; read before adding a plugin).
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
+- [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
+  the composite action (`uses: evanstern/praxis@v<version>`).
 
 ## Install
 
@@ -78,3 +80,7 @@ Every merge to `main` publishes a GitHub Release `v<version>` (the marketplace v
 self-contained zip per plugin (`<plugin>-v<version>.zip`) — versioned snapshots for installing
 without the marketplace, or for pinning. The pipeline is documented in
 [`docs/releasing.md`](docs/releasing.md).
+
+Other repos can enforce the gates in CI without installing anything: the repo doubles as a
+composite GitHub Action pinned by the same release tags — see
+[`docs/consuming-gates.md`](docs/consuming-gates.md).

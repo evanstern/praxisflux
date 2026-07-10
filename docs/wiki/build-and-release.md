@@ -4,6 +4,9 @@ description: Repo-level tooling and CI/CD — packages each plugin self-containe
 kind: pipeline
 sources:
   - scripts/build.mjs
+  - scripts/run-gates.mjs
+  - action.yml
+  - docs/consuming-gates.md
   - scripts/sync-shared.mjs
   - scripts/gen-marketplace.mjs
   - scripts/sync-version.mjs
@@ -17,7 +20,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # Build and release
@@ -90,6 +93,17 @@ When the tag already exists (a docs-only merge or re-run) it publishes nothing �
 by construction. Bump-size guidance (patch/minor/major, the skill rule, recipes) lives in
 `docs/releasing.md`, linked from `CLAUDE.md`.
 
+**CI consumption surface** (`action.yml` + `scripts/run-gates.mjs`). The repo doubles as a
+composite GitHub Action: consumer repos run the gates at a pinned release tag with
+`uses: evanstern/praxis@v<version>` and a validated `gates:` input (`spec-bridge`,
+`wiki-freshness`, `course`; unknown names fail loudly). GitHub fetches the praxis tree at the
+tag onto the runner and `run-gates.mjs` maps gate names onto the existing gate functions
+against the consumer workspace — runnable from a plain checkout thanks to the per-plugin
+`lib` symlinks. Exit codes are the contract (0 pass · 1 gate failure · 2 usage error);
+`wiki-freshness` detects shallow clones and names the `fetch-depth: 0` fix. Consumer-facing
+docs: `docs/consuming-gates.md`. The planned `@praxis/gates` npm migration (Backlog TASK-17)
+swaps the runner's transport without changing this contract.
+
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
 table maps canonical sources to consumers: the `praxis:tokens` and `praxis:theme` regions of
@@ -121,13 +135,19 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 
 ## Operational notes
 
-- All scripts are zero-dependency Node (`node:fs`, `node:path`) and locate the repo root
-  relative to their own file, so they work from any cwd.
+- All scripts are zero-dependency Node (`node:` builtins plus the `lib/` chassis) and locate
+  the repo root relative to their own file, so they work from any cwd.
+- Every script's run-as-CLI entry uses `runAsCli` from `lib/cli.mjs`, which realpaths both
+  `import.meta.url` and `process.argv[1]` before comparing — Node resolves the former through
+  symlinks but leaves the latter as typed, so the naive equality check made any invocation
+  through a symlinked checkout path silently run zero of the CLI body (for `run-gates.mjs`,
+  a green exit having checked nothing). `test/run-gates.test.mjs` regression-covers the
+  symlinked invocation.
 - Check modes for CI/hooks: `gen-marketplace.mjs --check`, `sync-version.mjs --check`,
   `sync-shared.mjs --check` — each exits 1 with a message naming the fix.
 - `build.mjs` exits 1 on an unknown `--plugin` name; the unregistered-plugin case only warns.
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.3.2` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.4.0` (`v0.2.0` was the pipeline's first
   self-published release).

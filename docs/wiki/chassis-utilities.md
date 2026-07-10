@@ -1,18 +1,20 @@
 ---
 name: chassis-utilities
-description: The two smallest chassis modules — lib/dates.mjs (ISO date helpers today/bumpUpdated) and lib/template.mjs ({{PLACEHOLDER}} render for planted boilerplate)
+description: The smallest chassis modules — lib/dates.mjs (ISO date helpers today/bumpUpdated), lib/template.mjs ({{PLACEHOLDER}} render for planted boilerplate), and lib/cli.mjs (symlink-safe run-as-CLI guard)
 kind: component
 sources:
   - lib/dates.mjs
   - lib/template.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+  - lib/cli.mjs
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # Chassis utilities
 
-`lib/dates.mjs` and `lib/template.mjs` are the two smallest modules on the shared praxis
-chassis: pure, dependency-free string helpers that keep date stamping and boilerplate
-substitution consistent across every plugin instead of being re-implemented per skill.
+`lib/dates.mjs`, `lib/template.mjs`, and `lib/cli.mjs` are the smallest modules on the shared
+praxis chassis: dependency-free helpers that keep date stamping, boilerplate substitution,
+and the run-as-CLI entry check consistent across every plugin instead of being re-implemented
+per skill.
 
 ## How it works
 
@@ -34,12 +36,29 @@ boilerplate:
   leak in, and **unknown tokens are left verbatim** — a deliberate choice so a template
   can be rendered in multiple passes, each pass filling in the variables it knows.
 
-Neither module touches the filesystem or process state.
+**`lib/cli.mjs`** — the symlink-safe run-as-CLI guard for dual-use modules (importable
+library + executable script):
+
+- `runAsCli(moduleUrl)` — pass `import.meta.url`; returns true only when that module is the
+  script Node was asked to run. It realpaths **both** sides of the comparison
+  (`fileURLToPath(moduleUrl)` and `process.argv[1]`) because Node resolves `import.meta.url`
+  through symlinks while `argv[1]` stays as typed — the naive
+  `import.meta.url === `file://${argv[1]}`` idiom it replaces compared unequal through any
+  symlinked invocation path, so a gate CLI would exit 0 having run nothing (the silent skip
+  the [[gates-convention]] forbids). Returns false when there is no entry script
+  (`node -e`, REPL) or `argv[1]` doesn't resolve to a real path.
+
+`dates` and `template` touch no filesystem or process state; `cli` reads `process.argv` and
+resolves paths but never writes.
 
 ## Connections
 
-- Both are part of the shared [[chassis]] and are vendored into plugin `dist/` trees by
+- All three are part of the shared [[chassis]] and are vendored into plugin `dist/` trees by
   [[build-and-release]].
+- `runAsCli` guards every repo script's CLI entry (see [[build-and-release]]) and the
+  CLI entries of the [[educate-plugin]] scripts; the planted codebase-to-course
+  `validate.mjs` inlines the same realpath comparison because a planted copy can't import
+  the chassis ([[codebase-to-course-plugin]]).
 - `today` feeds date stamps in [[educate-plugin]] tooling: the progress tracker CLI and
   the wiki renderers default their `date` to `today()`.
 - `render` backs the template-planting step of plugin start skills described in
@@ -51,7 +70,8 @@ Neither module touches the filesystem or process state.
 
 ## Operational notes
 
-- No environment variables, no configuration, no I/O — pure functions.
+- No environment variables, no configuration; `dates` and `template` are pure functions,
+  and `cli` only reads `process.argv[1]` plus the filesystem metadata realpath needs.
 - `today` uses `toISOString`, so the date is UTC; near local midnight it can differ from
   the caller's wall-clock date.
 - `render` coerces values with `String(...)`, so `0` and `false` substitute as `"0"` and

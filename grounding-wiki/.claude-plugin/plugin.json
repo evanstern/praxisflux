@@ -1,6 +1,6 @@
 {
   "name": "grounding-wiki",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Build and maintain a code-grounded corpus (docs/wiki) for a codebase: per-concept notes pinned to commits, a freshness gate, and an in-place update loop.",
   "author": {
     "name": "praxis maintainers"

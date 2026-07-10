@@ -1,0 +1,42 @@
+# action.yml — praxis as a composite GitHub Action: the CI consumption surface for the gates.
+#
+# Consumer repos pin a released tag and pick their gates:
+#
+#   - uses: actions/checkout@v4
+#     with: { fetch-depth: 0 }          # wiki-freshness resolves pins through git history
+#   - uses: evanstern/praxis@v0.4.0
+#     with:
+#       gates: spec-bridge, wiki-freshness
+#
+# GitHub fetches this repo at the pinned tag onto the runner; the steps below run the gate
+# runner from that tree (the per-plugin lib symlinks make a plain checkout runnable) against
+# the consumer's workspace. Contract details: docs/consuming-gates.md.
+name: "praxis gates"
+description: "Run praxis gate checks (spec-bridge, wiki-freshness, course) against a repository"
+inputs:
+  gates:
+    description: "Comma-separated gates to run: spec-bridge, wiki-freshness, course. Unknown names fail the build."
+    required: true
+  path:
+    description: "Repository root to check, relative to the workspace"
+    required: false
+    default: "."
+  wiki-dir:
+    description: "Grounded-corpus directory for wiki-freshness, relative to path"
+    required: false
+    default: "docs/wiki"
+  course-dir:
+    description: "Built course directory for the course gate, relative to path"
+    required: false
+    default: "docs/course"
+runs:
+  using: "composite"
+  steps:
+    - name: Run praxis gates
+      shell: bash
+      run: |
+        node "${GITHUB_ACTION_PATH}/scripts/run-gates.mjs" \
+          --gates "${{ inputs.gates }}" \
+          --path "${{ inputs.path }}" \
+          --wiki-dir "${{ inputs['wiki-dir'] }}" \
+          --course-dir "${{ inputs['course-dir'] }}"
