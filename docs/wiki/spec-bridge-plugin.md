@@ -13,12 +13,12 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 85fbca8047cc297d482547af3457a131117e6c01
 ---
 
 # spec-bridge plugin
 
-The `spec-bridge` plugin (v0.2.0) makes the Backlog.md board a **derived kanban view over
+The `spec-bridge` plugin (v0.3.0) makes the Backlog.md board a **derived kanban view over
 GitHub Spec Kit specs** — composed the praxis way, through files and gates, forking neither
 tool. One Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
 mirror `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate
