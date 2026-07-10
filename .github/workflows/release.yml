@@ -26,7 +26,6 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
       - name: read version, check for existing tag
         id: v
         run: |
@@ -49,12 +48,22 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          # Auth is OIDC trusted publishing (id-token: write + the trusted publisher configured
+          # on npmjs.com for this repo/workflow; provenance is automatic). Needs npm >= 11.5.1 —
+          # node 22 bundles npm 10. If an NPM_TOKEN secret exists it is used as a fallback
+          # instead (bootstrap / break-glass); GATs stop publishing ~Jan 2027, so it should
+          # stay deleted in the steady state.
+          npm install -g npm@latest
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > ~/.npmrc
+            echo "using NPM_TOKEN fallback auth"
+          fi
           node scripts/build-npm.mjs
           name="$(node -p "require('./dist/npm/package.json').name")"
           if npm view "$name@${{ steps.v.outputs.version }}" version >/dev/null 2>&1; then
             echo "$name@${{ steps.v.outputs.version }} already on npm — nothing to do"
           else
-            npm publish ./dist/npm --provenance --access public
+            npm publish ./dist/npm --access public
           fi
       - name: build + zip each plugin
         if: steps.v.outputs.new == 'true'

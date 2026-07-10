@@ -105,10 +105,12 @@ each push to `main`: it reads the marketplace version and, when tag `v<version>`
 re-verifies, publishes the npm package, builds, zips each `dist/<plugin>` as
 `<plugin>-v<version>.zip`, and publishes a GitHub Release `v<version>` with generated notes
 (`gh release create`, `contents: write`). The npm step (`build-npm.mjs` then
-`npm publish --provenance --access public`; `id-token: write` for the attestation,
-`NPM_TOKEN` secret via setup-node's `registry-url`) deliberately runs **before** the release
-step that creates the tag, so a released tag can never exist whose npm version isn't already
-live. When the tag already exists (a docs-only merge or re-run) it publishes nothing, and a
+`npm publish --access public`, authenticated by **OIDC trusted publishing** — `id-token:
+write` plus the npmjs.com trusted-publisher entry for this repo/workflow; provenance is
+automatic, npm is upgraded in-step since trusted publishing needs >= 11.5.1, and a present
+`NPM_TOKEN` secret acts only as bootstrap/break-glass fallback) deliberately runs **before**
+the release step that creates the tag, so a released tag can never exist whose npm version
+isn't already live. When the tag already exists (a docs-only merge or re-run) it publishes nothing, and a
 re-run after a partial failure skips the npm half if that version is already on the registry —
 idempotent by construction. Bump-size guidance (patch/minor/major, the skill rule, recipes) lives in
 `docs/releasing.md`, linked from `CLAUDE.md`.
