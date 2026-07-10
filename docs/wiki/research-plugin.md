@@ -16,12 +16,12 @@ sources:
   - research/hooks/hooks.json
   - research/scripts/gate.sh
   - research/scripts/stop.mjs
-verified_against: 85fbca8047cc297d482547af3457a131117e6c01
+verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
 ---
 
 # Research plugin
 
-The `research` plugin (v0.3.0) turns research requests into Obsidian-style Markdown "thinking
+The `research` plugin (v0.3.1) turns research requests into Obsidian-style Markdown "thinking
 vaults": isolated, grounded, interlinked topic branches. Its defining discipline is separating
 *gathering* knowledge from *judging* it, enforced by a three-phase pipeline of skills that know
 nothing about each other and compose only through the vault's files and gates.
