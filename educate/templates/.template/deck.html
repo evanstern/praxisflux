@@ -14,7 +14,7 @@
   READABILITY IS THE PRIORITY (house rule). Type and diagrams are deliberately LARGE and the
   slide padding is tight. Optimize for someone reading from across a room or skimming a PDF —
   never for fitting more onto one slide. (These are the deck-specific rules on top of the
-  shared praxis pedagogy — lib/toolkit/pedagogy.md in the educate plugin: one idea per
+  shared praxisflux pedagogy — lib/toolkit/pedagogy.md in the educate plugin: one idea per
   screen; show, don't tell; lead with the point; split, don't shrink.)
    - ONE idea per slide. If a slide feels crammed, SPLIT it. More slides is the correct fix,
      never smaller type. A 20-slide deck that is effortless to read beats a 6-slide deck you
@@ -34,13 +34,13 @@
      (Full SVG rules + skeleton: lib/toolkit/svg-diagrams.md in the educate plugin.)
 -->
 <style>
-  /* Design tokens — the shared praxis contract, STAMPED from lib/html/base.html between the
-     praxis:tokens markers (scripts/sync-shared.mjs keeps them in sync; drift fails the test
+  /* Design tokens — the shared praxisflux contract, STAMPED from lib/html/base.html between the
+     praxisflux:tokens markers (scripts/sync-shared.mjs keeps them in sync; drift fails the test
      suite — never hand-edit inside the markers). Chrome is token-driven so the deck is
      theme-aware: dark follows the OS AND the ◐ toggle. NOTE: hand-drawn SVG fills use literal
      colors (var() doesn't resolve in SVG attrs) — pick colors that read on both themes, or
      give the figure its own contrasting panel. */
-  /* praxis:tokens:start */
+  /* praxisflux:tokens:start */
   /* ---- design tokens (light) ---- */
   :root{
     --bg:#f4f6f9; --card:#ffffff; --ink:#1b2733; --muted:#5a6776;
@@ -72,7 +72,7 @@
     --line:#dde3ea; --chip:#f3f5f8;
     --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
   }
-  /* praxis:tokens:end */
+  /* praxisflux:tokens:end */
   /* deck-only tokens (outside the shared schema): the stage the 16:9 card sits on,
      and deck-sized tooltip text (slides are read from across a room) */
   :root{ --stage:#e7ebf1; --tip-size:19px }
@@ -125,9 +125,9 @@
   .title-wrap{display:flex;flex-direction:column;justify-content:center;height:100%}
   .small{font-size:24px}
   /* Jargon tooltip — the shared module, STAMPED from lib/toolkit/tooltip.md between the
-     praxis:tooltip-css markers (scripts/sync-shared.mjs; never hand-edit inside them).
+     praxisflux:tooltip-css markers (scripts/sync-shared.mjs; never hand-edit inside them).
      Any element (HTML or SVG) with a data-tip attribute gets the popover. */
-  /* praxis:tooltip-css:start */
+  /* praxisflux:tooltip-css:start */
 [data-tip]{cursor:help}
 .tip-pop{position:fixed;z-index:1000;max-width:min(420px,80vw);background:var(--ink);color:var(--bg);
   font-size:var(--tip-size,1rem);line-height:1.4;padding:.65em .9em;border-radius:10px;
@@ -135,7 +135,7 @@
   transition:opacity .12s ease,transform .12s ease}
 .tip-pop.show{opacity:1;transform:translateY(0)}
 @media print{ .tip-pop{display:none} }
-  /* praxis:tooltip-css:end */
+  /* praxisflux:tooltip-css:end */
   @media print{
     body{display:block;background:#fff;overflow:visible}
     .deck{width:100%;aspect-ratio:auto}
@@ -228,7 +228,7 @@
 </div>
 
 <div class="nav">
-  <button onclick="praxisCycleTheme(this)" id="themeBtn" aria-label="Toggle light/dark theme">◐ auto</button>
+  <button onclick="praxisfluxCycleTheme(this)" id="themeBtn" aria-label="Toggle light/dark theme">◐ auto</button>
   <button onclick="go(-1)">‹ Prev</button>
   <button onclick="go(1)">Next ›</button>
 </div>
@@ -255,24 +255,24 @@
   });
   show(0);
 
-  // Theme toggle — the shared core, STAMPED from lib/html/base.html between the praxis:theme
+  // Theme toggle — the shared core, STAMPED from lib/html/base.html between the praxisflux:theme
   // markers (scripts/sync-theme.mjs; never hand-edit inside them). The nav button binds it.
-  // praxis:theme:start
+  // praxisflux:theme:start
   // Cycles auto -> light -> dark, stamping data-theme on <html> so the CSS token overrides win
   // over the OS preference. No storage, no external calls. State rides on the button
   // (dataset.mode) so any page can bind its own button.
-  function praxisCycleTheme(btn){
+  function praxisfluxCycleTheme(btn){
     const order=["auto","light","dark"], label={auto:"◐ auto",light:"☀ light",dark:"☾ dark"};
     const next=order[(order.indexOf(btn.dataset.mode||"auto")+1)%order.length];
     if(next==="auto") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme",next);
     btn.dataset.mode=next; btn.textContent=label[next]; return next;
   }
-  // praxis:theme:end
+  // praxisflux:theme:end
 
   // Jargon tooltip — the shared module, STAMPED from lib/toolkit/tooltip.md between the
-  // praxis:tooltip-js markers (scripts/sync-shared.mjs; never hand-edit inside them).
-  // praxis:tooltip-js:start
+  // praxisflux:tooltip-js markers (scripts/sync-shared.mjs; never hand-edit inside them).
+  // praxisflux:tooltip-js:start
 // One shared popover: follows the cursor on hover, toggles on click/tap (touch), clamps to
 // the viewport, and closes on tap-away. Works for HTML and SVG [data-tip] elements alike.
 (function(){
@@ -291,7 +291,7 @@
   document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]');
     if(t){ e.stopPropagation(); (shownFor===t)?hide():show(t,e.clientX,e.clientY); } else hide(); });
 })();
-  // praxis:tooltip-js:end
+  // praxisflux:tooltip-js:end
 </script>
 </body>
 </html>

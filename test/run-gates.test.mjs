@@ -17,7 +17,7 @@ test("run-gates: unknown or empty gate lists are usage errors, never silent skip
   assert.throws(() => runGates([], opts(repo)), /no gates requested/);
 });
 
-test("run-gates: the praxis repo itself passes spec-bridge and wiki-freshness", () => {
+test("run-gates: the praxisflux repo itself passes spec-bridge and wiki-freshness", () => {
   const results = runGates(["spec-bridge", "wiki-freshness"], opts(repo));
   for (const r of results) assert.deepEqual(r.problems, [], `${r.gate}: ${r.problems.join("; ")}`);
   assert.match(results[1].ok, /note\(s\) fresh/);
@@ -54,7 +54,7 @@ test("run-gates: GATES registry and action.yml agree on the gate names", () => {
 // realpaths both sides; the CLI must now behave identically through any invocation path.
 test("run-gates: CLI fires through a symlinked checkout — no silent zero-gate pass", () => {
   const dir = mkdtempSync(join(tmpdir(), "run-gates-symlink-"));
-  const link = join(dir, "praxis-link");
+  const link = join(dir, "praxisflux-link");
   symlinkSync(repo, link);
   const runner = (base) =>
     spawnSync(process.execPath, [join(base, "scripts", "run-gates.mjs"), "--gates", "bogus"], { encoding: "utf8" });

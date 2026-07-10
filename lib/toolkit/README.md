@@ -1,6 +1,6 @@
 # lib/toolkit — shared educational content modules
 
-Reusable teaching and visual tools shared across the praxis plugins. Where the rest of `lib/`
+Reusable teaching and visual tools shared across the praxisflux plugins. Where the rest of `lib/`
 is shared *plumbing* (code the gates and scripts import), `toolkit/` is shared *content*:
 authoring guidance and copy-paste CSS/JS snippets a skill reads while producing a deck, course,
 or briefing. The full convention lives in

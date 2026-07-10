@@ -1,9 +1,9 @@
 {
   "name": "research",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Gather cited facts into an isolated, interlinked Markdown thinking-vault branch (embed -> query -> render). Drop-anywhere.",
   "author": {
-    "name": "praxis maintainers"
+    "name": "praxisflux maintainers"
   },
   "keywords": [
     "research",

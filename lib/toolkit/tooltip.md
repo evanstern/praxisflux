@@ -38,7 +38,7 @@ Consumers embed the marked regions verbatim; `scripts/sync-shared.mjs` re-stamps
 fails the test suite). Hand-edit only here.
 
 ```css
-/* praxis:tooltip-css:start */
+/* praxisflux:tooltip-css:start */
 [data-tip]{cursor:help}
 .tip-pop{position:fixed;z-index:1000;max-width:min(420px,80vw);background:var(--ink);color:var(--bg);
   font-size:var(--tip-size,1rem);line-height:1.4;padding:.65em .9em;border-radius:10px;
@@ -46,11 +46,11 @@ fails the test suite). Hand-edit only here.
   transition:opacity .12s ease,transform .12s ease}
 .tip-pop.show{opacity:1;transform:translateY(0)}
 @media print{ .tip-pop{display:none} }
-/* praxis:tooltip-css:end */
+/* praxisflux:tooltip-css:end */
 ```
 
 ```js
-// praxis:tooltip-js:start
+// praxisflux:tooltip-js:start
 // One shared popover: follows the cursor on hover, toggles on click/tap (touch), clamps to
 // the viewport, and closes on tap-away. Works for HTML and SVG [data-tip] elements alike.
 (function(){
@@ -69,7 +69,7 @@ fails the test suite). Hand-edit only here.
   document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('[data-tip]');
     if(t){ e.stopPropagation(); (shownFor===t)?hide():show(t,e.clientX,e.clientY); } else hide(); });
 })();
-// praxis:tooltip-js:end
+// praxisflux:tooltip-js:end
 ```
 
 ## Where each plugin gets it

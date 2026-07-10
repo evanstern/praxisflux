@@ -1,6 +1,6 @@
 ---
 name: research-vault
-version: 0.1.0
+version: 0.1.1
 description: >-
   Research a topic and file it into an Obsidian-style Markdown "thinking vault" as an isolated,
   grounded, interlinked wiki branch — the EMBED phase: gather cited facts and structure them into
@@ -45,7 +45,7 @@ moment you catch yourself writing "so the best option is…", that belongs in an
    Then tell the user a new vault was set up, and proceed.
 4. The verification gates are **hosted in the plugin** (`${CLAUDE_PLUGIN_ROOT}/gates/`), not copied
    into the vault — so every vault shares one canonical, updatable copy. Nothing to install per
-   vault beyond the sentinel above. (Bootstrapping an existing pre-praxis vault? Just add the
+   vault beyond the sentinel above. (Bootstrapping an existing pre-praxisflux vault? Just add the
    `.research-vault` sentinel; leave any legacy `_scripts/` in place, it is no longer used.)
 
 ## The embed workflow

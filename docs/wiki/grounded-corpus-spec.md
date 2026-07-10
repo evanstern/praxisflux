@@ -4,13 +4,13 @@ description: The grounded-corpus interchange contract (spec v1) — corpus layou
 kind: concept
 sources:
   - docs/corpus-spec.md
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
-# The grounded corpus — praxis's interchange contract
+# The grounded corpus — praxisflux's interchange contract
 
-A grounded corpus is a directory of interlinked Markdown notes that praxis tools produce
-and consume. It is the *only* way praxis tools compose around knowledge: producers write
+A grounded corpus is a directory of interlinked Markdown notes that praxisflux tools produce
+and consume. It is the *only* way praxisflux tools compose around knowledge: producers write
 the format, consumers read it, and no tool ever invokes another. The spec lives at
 `docs/corpus-spec.md` (v1).
 

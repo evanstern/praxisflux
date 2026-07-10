@@ -1,12 +1,12 @@
 ---
 name: wiki-build
-version: 0.1.0
+version: 0.1.1
 description: Generate a code-grounded corpus (docs/wiki) for a codebase — per-concept MD notes pinned to the current commit, interlinked and indexed, passing the freshness gate. Use when the user wants a grounding wiki, a queryable knowledge base for a repo, or says "build a wiki for this codebase" / "ground this repo".
 ---
 
 # wiki-build — generate a grounding wiki from a codebase
 
-Produces a **grounded corpus** (see `docs/corpus-spec.md` in the praxis repo; the plugin's
+Produces a **grounded corpus** (see `docs/corpus-spec.md` in the praxisflux repo; the plugin's
 `templates/note.md` is the note shape) at `docs/wiki/` in the target repo: one note per
 concept/component, each pinned to the commit it was verified against and listing the source
 files whose change invalidates it.

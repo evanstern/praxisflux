@@ -1,7 +1,7 @@
-# Consuming praxis gates from another repo
+# Consuming praxisflux gates from another repo
 
-praxis's gates — "status can't exceed proven artifacts" — are enforceable in repos that don't
-carry praxis itself. There are two enforcement points, deliberately split the same way praxis
+praxisflux's gates — "status can't exceed proven artifacts" — are enforceable in repos that don't
+carry praxisflux itself. There are two enforcement points, deliberately split the same way praxisflux
 splits them for its own development:
 
 - **Locally / interactively**: the installed plugins' Stop hooks run the gates as you work.
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0        # wiki-freshness resolves pins through git history
-      - uses: evanstern/praxis@v0.5.0
+      - uses: evanstern/praxisflux@v0.5.0
         with:
           gates: spec-bridge, wiki-freshness
 ```
@@ -52,22 +52,22 @@ Dependabot's `github-actions` ecosystem automates that.
 
 The same surface ships on npm as **`@praxisflux/gates`** (published with provenance by the
 release pipeline, version lockstep with the marketplace release), so non-GitHub CI and
-one-off local runs need no praxis checkout:
+one-off local runs need no praxisflux checkout:
 
 ```sh
 npx @praxisflux/gates --gates spec-bridge,wiki-freshness --path /path/to/repo
 ```
 
-The package's bin (`praxis-gates`) is `scripts/run-gates.mjs` itself, carved out by
+The package's bin (`praxisflux-gates`) is `scripts/run-gates.mjs` itself, carved out by
 `scripts/build-npm.mjs` with the chassis and gate modules alongside — same flags, same exit
 codes, same failure lines.
 
 ## The contract
 
 Gate names, inputs, and exit codes (0 all pass · 1 any gate failed · 2 usage error) are
-praxis's versioned consumer interface, released and semver-bumped like everything else
+praxisflux's versioned consumer interface, released and semver-bumped like everything else
 (`docs/releasing.md`); each failure line names its fix. You can also invoke the runner
-directly from any praxis checkout:
+directly from any praxisflux checkout:
 
 ```sh
 node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path /path/to/repo

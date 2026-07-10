@@ -11,7 +11,7 @@ import { checkDocs } from "../scripts/check-docs.mjs";
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function fixture({ readme, claude }) {
-  const root = mkdtempSync(join(tmpdir(), "praxis-docs-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-docs-"));
   mkdirSync(join(root, ".claude-plugin"), { recursive: true });
   mkdirSync(join(root, "lib"));
   writeFileSync(join(root, ".claude-plugin", "marketplace.json"),
@@ -22,7 +22,7 @@ function fixture({ readme, claude }) {
   return root;
 }
 
-const GOOD_README = "| **alpha** | stuff |\n`widget`\n/plugin install alpha@praxis\n";
+const GOOD_README = "| **alpha** | stuff |\n`widget`\n/plugin install alpha@praxisflux\n";
 const GOOD_CLAUDE = "see docs/releasing.md\n";
 
 test("check-docs: a complete fixture passes", () => {
@@ -32,9 +32,9 @@ test("check-docs: a complete fixture passes", () => {
 
 test("check-docs: each omission is a named problem", () => {
   const cases = [
-    { readme: "`widget`\n/plugin install alpha@praxis\n", claude: GOOD_CLAUDE, expect: /no row in the plugins table/ },
-    { readme: "| **alpha** | stuff |\n`widget`\n", claude: GOOD_CLAUDE, expect: /no '\/plugin install alpha@praxis' line/ },
-    { readme: "| **alpha** | stuff |\n/plugin install alpha@praxis\n", claude: GOOD_CLAUDE, expect: /chassis module 'widget'/ },
+    { readme: "`widget`\n/plugin install alpha@praxisflux\n", claude: GOOD_CLAUDE, expect: /no row in the plugins table/ },
+    { readme: "| **alpha** | stuff |\n`widget`\n", claude: GOOD_CLAUDE, expect: /no '\/plugin install alpha@praxisflux' line/ },
+    { readme: "| **alpha** | stuff |\n/plugin install alpha@praxisflux\n", claude: GOOD_CLAUDE, expect: /chassis module 'widget'/ },
     { readme: GOOD_README, claude: "nothing here\n", expect: /does not link docs\/releasing\.md/ },
   ];
   for (const c of cases) {
@@ -47,6 +47,6 @@ test("check-docs: each omission is a named problem", () => {
   }
 });
 
-test("check-docs: the praxis repo itself is in sync", () => {
+test("check-docs: the praxisflux repo itself is in sync", () => {
   assert.deepEqual(checkDocs(repo), []);
 });

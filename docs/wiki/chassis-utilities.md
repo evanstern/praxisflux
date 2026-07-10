@@ -12,7 +12,7 @@ verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 # Chassis utilities
 
 `lib/dates.mjs`, `lib/template.mjs`, and `lib/cli.mjs` are the smallest modules on the shared
-praxis chassis: dependency-free helpers that keep date stamping, boilerplate substitution,
+praxisflux chassis: dependency-free helpers that keep date stamping, boilerplate substitution,
 and the run-as-CLI entry check consistent across every plugin instead of being re-implemented
 per skill.
 
