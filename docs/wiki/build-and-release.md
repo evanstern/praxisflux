@@ -17,13 +17,14 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
+verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
 ---
 
 # Build and release
 
-The repo-level pipeline that turns in-repo plugin sources (which import the shared chassis as
-`../../lib/…`) into independently installable packages, while keeping three things from
+The repo-level pipeline that turns in-repo plugin sources (which reach the shared chassis
+through a committed `lib -> ../lib` symlink, importing it as `../lib/…`) into independently
+installable packages, while keeping three things from
 drifting: the marketplace catalog, the version numbers, and the literal copies of shared
 visual-contract regions. Plugins carry no `package.json` and never self-build; the scripts
 live in repo-root `scripts/`, and GitHub Actions turns them into an automated release
@@ -39,10 +40,12 @@ script below; registering
 a plugin there is enough to have it packaged.
 
 **Packaging** (`scripts/build.mjs`, run as `node scripts/build.mjs [--plugin <name>|all]`).
-Deletes `dist/` outright, then for each target: copies the plugin sources to `dist/<plugin>/`,
-vendors repo-root `lib/` wholesale into `dist/<plugin>/lib/`, and rewrites every `.mjs` import
-from `../../lib/` to `../lib/` (`rewriteLibImports`) — every lib importer sits in a depth-1
-subdir (`scripts/` or `gates/`), so the rewrite is uniform. A drift guard warns about any
+Deletes `dist/` outright, then for each target: copies the plugin sources to `dist/<plugin>/`
+and swaps the copied `lib` symlink for a real copy of repo-root `lib/` (explicitly — Node's
+`cpSync` `dereference` option doesn't materialize directory symlinks met mid-recursion). No
+import rewriting: plugin code already imports `../lib/…`, which resolves identically through
+the in-repo symlink, the packaged copy, and a marketplace install (the plugins spec
+dereferences marketplace-internal symlinks into the cache copy). A drift guard warns about any
 top-level directory that has a `.claude-plugin/plugin.json` but is missing from
 marketplace.json, since it would silently not be built.
 
@@ -101,8 +104,8 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 
 ## Connections
 
-- Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by vendoring it into
-  each packaged plugin — there is no runtime cross-plugin lookup.
+- Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by dereferencing each
+  plugin's `lib` symlink into a real copy — there is no runtime cross-plugin lookup.
 - Packages [[research-plugin]], [[educate-plugin]], [[build-plugin]],
   [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], and [[spec-bridge-plugin]], as
   registered in the marketplace file.
@@ -126,5 +129,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.3.1` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.3.2` (`v0.2.0` was the pipeline's first
   self-published release).

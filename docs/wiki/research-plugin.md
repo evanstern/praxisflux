@@ -16,7 +16,7 @@ sources:
   - research/hooks/hooks.json
   - research/scripts/gate.sh
   - research/scripts/stop.mjs
-verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
+verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
 ---
 
 # Research plugin
@@ -72,7 +72,7 @@ though pinned to sources rather than commits). Skills follow [[skill-patterns]];
 [[gates-convention]] and build on [[markdown-module]] (`parseFrontmatter`, `extractWikilinks`,
 `namesFor`); the artifact gate wraps [[selfcontained-verifier]]; the Stop hook rides
 [[gate-runner]] and [[project-root]]. Briefings draw pedagogy and SVG rules from [[toolkit]]
-and the base page contract from the [[chassis]]. Packaged and vendored by [[build-and-release]].
+and the base page contract from the [[chassis]]. Packaged by [[build-and-release]].
 
 ## Operational notes
 

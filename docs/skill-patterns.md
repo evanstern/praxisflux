@@ -47,9 +47,10 @@ needs both `handoff.foldedIn` in `progress.json` *and* a `## Post-build` section
 
 ## 5. Gates and the chassis are plugin-hosted, never copied per-project
 
-Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; `lib/` is vendored
-into each plugin at build time (`scripts/build.mjs`). Don't copy gates into the user's project — one
-canonical, updatable copy per plugin.
+Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; each plugin
+reaches `lib/` through a committed `lib -> ../lib` symlink, which marketplace installs and
+`scripts/build.mjs` packaging dereference into a real per-plugin copy. Don't copy gates into the
+user's project — one canonical, updatable copy per plugin.
 
 **Directory convention (uniform across plugins):**
 - **`<plugin>/gates/`** — the read-only verification logic (the "is this valid?" checkers) and any
@@ -84,9 +85,10 @@ is shared *content*: educational methods and visual tools a skill reads while au
 course, or briefing — tooltip snippets, pedagogy principles, diagram idioms. One canonical copy
 serves every plugin, and single-owner tools become borrowable by siblings.
 
-**Distribution.** Toolkit modules ship exactly like the chassis: `scripts/build.mjs` vendors
-`lib/` wholesale into each packaged plugin, so every installed plugin carries its own copy and
-stays independently installable. There is no runtime cross-plugin lookup.
+**Distribution.** Toolkit modules ship exactly like the chassis: each plugin's `lib` symlink is
+dereferenced into a real copy when the plugin is installed or packaged, so every installed
+plugin carries its own copy and stays independently installable. There is no runtime
+cross-plugin lookup.
 
 **Referencing.** Skill prose and templates point at modules as
 `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/<module>.md`. Gate code never imports from `toolkit/` —
@@ -111,11 +113,11 @@ decision (docs/handoffs/codebase-to-course-plugin.md) not to fold the course's `
 page skeleton.
 
 **Versioned course chrome (plugin-owned toolkit citizen).** A second kind of shared visual
-machinery doesn't fit the vendor-into-every-plugin model: codebase-to-course's course chrome
+machinery doesn't fit the copy-into-every-plugin model: codebase-to-course's course chrome
 (`styles.css`, `main.js`, `_footer.html`, `build.sh`, `validate.mjs`) is heavy, domain-specific,
 and copied into every *course output directory* rather than into sibling plugins. It follows the
 toolkit spirit — one canonical copy, indexed in `lib/toolkit/README.md` — with a versioning
-convention instead of build-time vendoring:
+convention instead of chassis-style distribution:
 
 - **Stamp:** every rendering file opens with `chrome v<N> — <engine name>` in its header
   comment. No stamp = v1 (the retired pre-inline renderer, which predates stamping).
