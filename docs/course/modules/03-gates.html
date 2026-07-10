@@ -1,0 +1,528 @@
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Gates — The Inspector Who Can’t Be Sweet-Talked</h1>
+      <p class="module-subtitle">How a tiny, stubborn script stops Claude from saying “done” when it isn’t</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ========== SCREEN 1: HOOK ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The “done!” problem</h2>
+
+        <p>AI assistants have a bad habit: declaring “done!” when it isn’t. If you’ve ever vibe-coded, you’ve lived this — a confident summary, a little victory lap… and the thing doesn’t actually work.</p>
+
+        <p>Praxis’s answer is a piece of code so simple it can’t be argued with. Here’s the exact situation it exists to catch:</p>
+
+        <div class="stagger-children" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4); margin: var(--space-8) 0;">
+          <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-sm);">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: var(--space-3);">💬 What Claude says</div>
+            <p style="margin: 0; font-style: italic;">“Lesson complete! Deck written, notes captured, everything wrapped up. Marking it <strong>done</strong>. ✨”</p>
+          </div>
+          <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-sm);">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: var(--space-3);">💾 What the disk says</div>
+            <div style="font-family: var(--font-mono); font-size: var(--text-sm); line-height: 2;">
+              <div><span style="color: var(--color-success);">✓</span> checklist.md</div>
+              <div><span style="color: var(--color-success);">✓</span> raw-notes.md</div>
+              <div><span style="color: var(--color-error);">✗</span> deck.html <span style="color: var(--color-error);">— missing</span></div>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-family: var(--font-display); font-size: var(--text-2xl); text-align: center; color: var(--color-accent); margin: var(--space-10) auto; max-width: 26ch; line-height: 1.35;">A status can’t exceed the <span class="term" data-definition="A file that proves work actually happened — a deck.html proves a deck was made, raw-notes.md proves the teaching happened. No file, no credit.">artifacts</span> that prove it.</p>
+
+        <p>Praxis enforces that motto with a <span class="term" data-definition="In praxis, a gate is a small check program that runs automatically and can refuse to let Claude call work finished. Think: building inspector, but for files.">gate</span>. The metaphor to keep in your head is a building inspector and the certificate of occupancy:</p>
+
+        <div class="pattern-cards stagger-children" style="margin: var(--space-8) 0;">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">👷</div>
+            <h4 class="pattern-title">The builder — Claude</h4>
+            <p class="pattern-desc">Swears the wiring is done. Might even believe it. Confidence is not evidence.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🕵️</div>
+            <h4 class="pattern-title">The inspector — the gate</h4>
+            <p class="pattern-desc">Physically walks the site and checks the actual walls. Doesn’t negotiate, doesn’t care how confident the builder sounds.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">📋</div>
+            <h4 class="pattern-title">The fixed checklist</h4>
+            <p class="pattern-desc">The list of required evidence, written down in advance. Not up for discussion at inspection time.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🏠</div>
+            <h4 class="pattern-title">The certificate</h4>
+            <p class="pattern-desc">Permission to call the job finished. The builder can’t print their own — only the inspector issues it.</p>
+          </div>
+        </div>
+
+        <p>And the inspector shows up <em>automatically</em>, at the end of every job. Separate inspectors — one per installed <span class="term" data-definition="An add-on installed into Claude Code to give it new abilities — praxis is a marketplace of five of them, met in Module 1.">plugin</span> — each check their own specialty on the same house.</p>
+      </section>
+
+      <!-- ========== SCREEN 2: THE CLAIM VS. THE DISK ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The claim vs. the disk</h2>
+
+        <p>educate — the teaching plugin from Module 2 — tracks every lesson’s progress on a ladder. Each rung upward must be <em>earned</em> with an artifact: a real file on disk that proves the work happened.</p>
+
+        <div style="margin: var(--space-8) 0;">
+          <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: var(--space-3);">The lesson ladder — climb only with receipts 🧗</div>
+          <div style="display: flex; flex-direction: column-reverse; gap: var(--space-2);">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-border); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 0%;">
+              <strong style="font-family: var(--font-mono);">planned</strong>
+              <span style="margin-left: auto; font-size: var(--text-xs); color: var(--color-text-muted);">the only free rung — just a row in the plan</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-accent); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 4%;">
+              <strong style="font-family: var(--font-mono);">scaffolded</strong>
+              <code style="margin-left: auto; font-family: var(--font-mono); font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 12%, transparent); color: var(--color-accent); white-space: nowrap;">checklist.md</code>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-accent); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 8%;">
+              <strong style="font-family: var(--font-mono);">taught</strong>
+              <code style="margin-left: auto; font-family: var(--font-mono); font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 12%, transparent); color: var(--color-accent); white-space: nowrap;">raw-notes.md</code>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-info); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 12%;">
+              <strong style="font-family: var(--font-mono);">spec’d</strong>
+              <span style="margin-left: auto; font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); white-space: nowrap;">handoff evidence → Module 4</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-info); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 16%;">
+              <strong style="font-family: var(--font-mono);">built</strong>
+              <span style="margin-left: auto; font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); white-space: nowrap;">handoff evidence → Module 4</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border-left: 3px solid var(--color-accent); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 20%;">
+              <strong style="font-family: var(--font-mono);">decked</strong>
+              <code style="margin-left: auto; font-family: var(--font-mono); font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 12%, transparent); color: var(--color-accent); white-space: nowrap;">deck.html</code>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); border-left: 3px solid var(--color-accent); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); width: 76%; margin-left: 24%;">
+              <strong style="font-family: var(--font-mono);">done 🏁</strong>
+              <code style="margin-left: auto; font-family: var(--font-mono); font-size: var(--text-xs); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 12%, transparent); color: var(--color-accent); white-space: nowrap;">guide.md</code>
+            </div>
+          </div>
+        </div>
+
+        <p>So how does code check a claim? It doesn’t read Claude’s summary. It asks the disk. This is a tiny <span class="term" data-definition="A named, reusable recipe in code: give it ingredients (inputs), it hands back a result. You can call it from anywhere instead of rewriting the recipe.">function</span> from the shared <span class="term" data-definition="praxis’s shared plumbing: the lib/ folder of code that all five plugins borrow instead of each rewriting it — Module 1’s “one chassis” idea.">chassis</span>, and it’s the heart of the whole module:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">lib/lifecycle.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** Derive { key: bool } for each artifact by checking its filename on disk in `dir`. */</span></span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">function</span> <span class="code-function">computeArtifacts</span>(dir, artifactFiles) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> out = {};</span>
+<span class="code-line">  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> [key, file] <span class="code-keyword">of</span> Object.<span class="code-function">entries</span>(artifactFiles)) out[key] = <span class="code-function">existsSync</span>(<span class="code-function">join</span>(dir, file));</span>
+<span class="code-line">  <span class="code-keyword">return</span> out;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The whole recipe in one sentence: for each expected artifact, check whether its file is really on the disk.</p>
+              <p class="tl">A reusable function anyone can call: hand it a folder and the list of expected evidence files…</p>
+              <p class="tl">…start with an empty scorecard…</p>
+              <p class="tl">…then for every claim (“there’s a deck”, “there are notes”), ask the disk: does that exact file exist in that folder? Write down yes or no.</p>
+              <p class="tl">Hand back the scorecard.</p>
+              <p class="tl">That’s the entire trick.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Don’t believe the label — look at the disk. Truth is derived from what’s <em>observable</em>, never from what’s <em>declared</em>. And the course motto isn’t just a slogan; it sits in the real code as a comment:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">educate/gates/dod.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// a status may not exceed the artifacts that prove it</span></span>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> p <span class="code-keyword">of</span> lifecycle.<span class="code-function">check</span>(lessonDir, lesson.status)) problems.<span class="code-function">push</span>(<span class="code-string">`${lesson.id}: ${p}`</span>);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The motto, verbatim, where it does its job.</p>
+              <p class="tl">Compare the lesson’s claimed rung against the rungs the disk can prove — and every gap becomes a named problem on a list.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SCREEN 3: THE STOP HOOK ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The moment of truth: the Stop hook</h2>
+
+        <p>A checklist is useless if nobody dispatches the inspector. Here’s the beautiful part: Claude Code lets you register programs that run <em>the instant Claude tries to finish</em>. That slot is called a <span class="term" data-definition="A program you register with Claude Code that runs at the exact instant Claude tries to finish its turn — and gets the final say on whether it may.">Stop hook</span> (a <span class="term" data-definition="A slot where a tool lets you plug in your own program to run at a specific moment: “when X happens, also run my thing.”">hook</span> that fires at the Stop moment).</p>
+
+        <p>Registering one takes zero code — it’s pure <span class="term" data-definition="Settings written in a file instead of logic written in code — describing what should happen, not how to do it.">configuration</span>, a few lines of <span class="term" data-definition="A universal text format for structured data — labels and values inside curly braces — that both humans and programs can read. You met it in Module 2; it’s everywhere.">JSON</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">educate/hooks/hooks.json</span>
+            <pre><code>
+<span class="code-line"><span class="code-property">"hooks"</span>: {</span>
+<span class="code-line">    <span class="code-property">"Stop"</span>: [</span>
+<span class="code-line">      {</span>
+<span class="code-line">        <span class="code-property">"matcher"</span>: <span class="code-string">"*"</span>,</span>
+<span class="code-line">        <span class="code-property">"hooks"</span>: [</span>
+<span class="code-line">          {</span>
+<span class="code-line">            <span class="code-property">"type"</span>: <span class="code-string">"command"</span>,</span>
+<span class="code-line">            <span class="code-property">"command"</span>: <span class="code-string">"bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"</span></span>
+<span class="code-line">          }</span>
+<span class="code-line">        ]</span>
+<span class="code-line">      }</span>
+<span class="code-line">    ]</span>
+<span class="code-line">  }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Dear Claude Code: here are programs I want you to run for me…</p>
+              <p class="tl">…specifically at the Stop moment — the instant Claude tries to finish up.</p>
+              <p class="tl">Here comes one rule.</p>
+              <p class="tl">Which situations does it apply to? The star means all of them — no exceptions, ever.</p>
+              <p class="tl">And here’s what to run when it fires…</p>
+              <p class="tl">…a single entry…</p>
+              <p class="tl">…it’s a command to execute…</p>
+              <p class="tl">…namely: run the gate script that ships inside this plugin, wherever the plugin happens to be installed.</p>
+              <p class="tl">End of the entry.</p>
+              <p class="tl">…close the list of things to run…</p>
+              <p class="tl">…close the rule…</p>
+              <p class="tl">…close the Stop section…</p>
+              <p class="tl">…and done. Notice: not one line of logic. The whole registration is configuration.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That command line says <span class="term" data-definition="The classic command language of the terminal on Mac and Linux. “bash file.sh” simply means “run this script.”">bash</span>, which just means “run this <span class="term" data-definition="A small program saved as a plain text file and run directly — no assembly required, just “run this file.”">script</span>.” But how does a script <em>answer</em> the question “may Claude stop?” With the one thing every program produces as it ends: an <span class="term" data-definition="The single number every program reports as it ends. 0 means “all fine”; anything else flags a problem. When talking to an AI you might say “the script exited with code 2.”">exit code</span>.</p>
+
+        <div class="stagger-children" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); margin: var(--space-8) 0;">
+          <div style="background: var(--color-success-light); border: 2px solid var(--color-success); border-radius: var(--radius-md); padding: var(--space-6); text-align: center;">
+            <div style="font-family: var(--font-display); font-size: var(--text-5xl); font-weight: 700; color: var(--color-success); line-height: 1;">0</div>
+            <strong style="display: block; margin-top: var(--space-2); color: var(--color-success);">All fine</strong>
+            <p style="margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--color-text-secondary);">The program ends happy. Claude is allowed to stop.</p>
+          </div>
+          <div style="background: var(--color-error-light); border: 2px solid var(--color-error); border-radius: var(--radius-md); padding: var(--space-6); text-align: center;">
+            <div style="font-family: var(--font-display); font-size: var(--text-5xl); font-weight: 700; color: var(--color-error); line-height: 1;">2</div>
+            <strong style="display: block; margin-top: var(--space-2); color: var(--color-error);">Block</strong>
+            <p style="margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--color-text-secondary);">Claude may not stop — and whatever the script printed becomes the message Claude reads next.</p>
+          </div>
+        </div>
+
+        <p>The full deal between Claude Code and the gate fits in two lines. The gate receives a note through <span class="term" data-definition="Short for “standard input” — the mail slot a program reads incoming data through.">stdin</span> and writes any complaints to <span class="term" data-definition="Short for “standard error” — the separate channel a program writes problems to. Claude Code reads the gate’s stderr and hands that exact text to Claude.">stderr</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">lib/gate-runner.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// Contract (Claude Code Stop hook): stdin is JSON with { stop_hook_active, cwd, … };</span></span>
+<span class="code-line"><span class="code-comment">// exit 0 = allow the model to stop; exit 2 = block, and stderr becomes the message it sees.</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Incoming mail: a small JSON note with a flag saying whether a gate already blocked once, plus the folder Claude was working in.</p>
+              <p class="tl">Outgoing answer: just a number. 0 — free to go. 2 — blocked, and every word printed to the error channel lands in front of Claude as its new to-do list.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SCREEN 4: HERO FLOW ANIMATION ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One blocked stop, start to finish</h2>
+
+        <p>Here’s the whole journey — Claude claims “done,” the inspector checks the actual walls, and the certificate is refused… then earned. Click through it.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Claude: Lesson marked done — finishing up!"},
+          {"highlight":"flow-actor-2","label":"Claude Code intercepts the stop and runs every registered Stop hook before letting go","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"The tiny relay script gate.sh passes the question straight to the real gate program","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"The gate walks up the folders and finds a topics/ project — this house is on its beat","packet":true,"from":"actor-3","to":"actor-4"},
+          {"highlight":"flow-actor-5","label":"It checks the disk: status says done… but deck.html does not exist","packet":true,"from":"actor-4","to":"actor-5"},
+          {"highlight":"flow-actor-1","label":"Verdict: exit 2 — permission to stop denied. The printed problem list lands in front of Claude","packet":true,"from":"actor-4","to":"actor-1"},
+          {"highlight":"flow-actor-1","label":"Claude writes the missing deck and tries again — every check passes, exit 0, allowed to finish"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">🤖</div>
+              <span>Claude</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🖥️</div>
+              <span>Claude Code</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">📨</div>
+              <span>gate.sh</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">🕵️</div>
+              <span>the gate</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-5">
+              <div class="flow-actor-icon">💾</div>
+              <span>the disk</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+
+          <div class="flow-step-label" id="flow-label">Click “Next Step” to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Notice who never gets a vote: Claude’s summary. The gate only ever talked to the disk.</p>
+      </section>
+
+      <!-- ========== SCREEN 5: THE VERDICT CODE ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The verdict, in code</h2>
+
+        <p>The shared engine in <code>lib/</code> delivers the verdict for every plugin the same way. This is the courtroom moment:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">lib/gate-runner.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> { block, message, warnings } = <span class="code-function">evaluate</span>(input, gates);</span>
+<span class="code-line"><span class="code-keyword">if</span> (block) {</span>
+<span class="code-line">  process.stderr.<span class="code-function">write</span>([message, warnings].<span class="code-function">filter</span>(Boolean).<span class="code-function">join</span>(<span class="code-string">"\n"</span>) + <span class="code-string">"\n"</span>);</span>
+<span class="code-line">  <span class="code-function">exit</span>(<span class="code-number">2</span>);</span>
+<span class="code-line">} <span class="code-keyword">else</span> {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (warnings) process.stderr.<span class="code-function">write</span>(warnings + <span class="code-string">"\n"</span>);</span>
+<span class="code-line">  <span class="code-function">exit</span>(<span class="code-number">0</span>);</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Run every check and collect three things: should we block, the message explaining why, and any softer warnings.</p>
+              <p class="tl">If something required is missing…</p>
+              <p class="tl">…print the full problem list on the error channel — the exact text Claude Code will hand back to Claude…</p>
+              <p class="tl">…and end with the number 2: permission to stop is denied.</p>
+              <p class="tl">Otherwise…</p>
+              <p class="tl">…gentle reminders still get printed, but they ride along without blocking anything…</p>
+              <p class="tl">…and the number 0 says: all clear, Claude may finish.</p>
+              <p class="tl">Court adjourned.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And here’s educate declaring its own inspector. A gate is just three answers — <em>am I relevant here? what’s broken? what’s merely worth mentioning?</em> — handed to that shared engine:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">educate/scripts/stop.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> educateGate = {</span>
+<span class="code-line">  <span class="code-property">name</span>: <span class="code-string">"educate"</span>,</span>
+<span class="code-line">  <span class="code-property">resolveRoots</span>: (startDir) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">    <span class="code-keyword">const</span> root = <span class="code-function">findRootUpwards</span>(startDir, <span class="code-function">hasChild</span>(<span class="code-string">"topics"</span>));</span>
+<span class="code-line">    <span class="code-keyword">return</span> root ? [root] : [];</span>
+<span class="code-line">  },</span>
+<span class="code-line">  <span class="code-property">check</span>: (root) <span class="code-operator">=&gt;</span> <span class="code-function">gateProblemsForProject</span>(root),</span>
+<span class="code-line">  <span class="code-comment">// Corpus-index freshness is a reminder, not a DoD violation — warn (never block) if a WIKI.md</span></span>
+<span class="code-line">  <span class="code-comment">// has drifted from the vaults on disk. Run wiki.mjs --sync (or progress.mjs --sync) to refresh.</span></span>
+<span class="code-line">  <span class="code-property">warn</span>: (root) <span class="code-operator">=&gt;</span> <span class="code-function">wikiStalenessWarnings</span>(root),</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-function">runStopHook</span>({ <span class="code-property">gates</span>: [educateGate] });</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">educate describes its inspector as a small bundle of answers.</p>
+              <p class="tl">The name on the inspector’s badge.</p>
+              <p class="tl">Answer one: am I even relevant here?</p>
+              <p class="tl">Walk up the folders from where Claude was working, looking for one that contains topics/ — the exact same findRootUpwards trick from Module 2.</p>
+              <p class="tl">Found one? That project is my jurisdiction. Found nothing? Hand back an empty list and stay out of it.</p>
+              <p class="tl">End of answer one.</p>
+              <p class="tl">Answer two: what’s actually broken? Run the definition-of-done checks on that project.</p>
+              <p class="tl">A note from the authors: the next check is deliberately gentle…</p>
+              <p class="tl">…a stale index is worth mentioning, never worth blocking over.</p>
+              <p class="tl">Answer three: what’s merely worth mentioning?</p>
+              <p class="tl">The inspector is fully described.</p>
+              <p class="tl">…a breath…</p>
+              <p class="tl">Hand it to the shared engine — the chassis does the intercepting, the reading, and the exiting, identically for every plugin.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">The gate can’t be sweet-talked</strong>
+            <p>The enforcement works precisely because the enforcer is <em>dumber</em> than the thing it checks. A <span class="term" data-definition="Same input → same output, every single time. No judgment calls, no moods, nothing to persuade. The opposite of an AI’s vibes.">deterministic</span> file check returns the same verdict no matter how confident the summary sounds — <code>existsSync(deckPath)</code> has no vibes. This is the most stealable pattern in praxis: never trust an AI’s “done” — demand checkable evidence, and check it with dumb code.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">🚧</div>
+          <div class="callout-content">
+            <strong class="callout-title">Fails closed</strong>
+            <p>What if the inspector trips on the stairs — the gate itself crashes? The crash is reported as a problem and Claude <em>still</em> can’t stop. A broken inspector halts the line rather than waving everything through.</p>
+          </div>
+        </div>
+
+        <p>Three more quiet safeguards are hiding in that little bundle:</p>
+
+        <div class="icon-rows stagger-children" style="margin: var(--space-6) 0;">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔁</div>
+            <div>
+              <strong>No infinite argument</strong>
+              <p>Remember <code>stop_hook_active</code> in the stdin note? It tells the gate “you already blocked once” — so Claude can’t get trapped in an endless loop of blocked stops.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🤫</div>
+            <div>
+              <strong>Silent when off-duty</strong>
+              <p>No <code>topics/</code> folder anywhere above? The gate resolves zero projects and becomes a <span class="term" data-definition="A run that deliberately does nothing — no output, no changes, a clean exit 0. Pronounced “no-op,” short for “no operation.”">no-op</span>. That’s why installed plugins’ inspectors stack additively: each speaks only on its own beat.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: var(--color-actor-5)">👀</div>
+            <div>
+              <strong>Look, don’t touch</strong>
+              <p>The gate is <span class="term" data-definition="Looks but never changes: a read-only program inspects files without editing a single one.">read-only</span>. It inspects the disk and reports — it never “fixes” anything itself. Fixing is the builder’s job.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>So what does a blocked Claude actually read? A real one, verbatim:</p>
+
+        <div style="background: var(--color-bg-code); border-left: 3px solid var(--color-error); border-radius: var(--radius-md); padding: var(--space-5) var(--space-6); margin: var(--space-6) 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; color: #CDD6F4; white-space: pre-wrap; word-break: break-word;">[git-basics] 002-branching: status=done but the return leg is unrecorded (handoff.foldedIn=false) — fold the build findings back into the lesson first</div>
+
+        <p>That word <span class="term" data-definition="Evidence of work passed from one plugin to another — educate mailing a SPEC to build, and build mailing findings back. Module 4’s whole story.">handoff</span>? A lesson isn’t done until the work it mailed to another plugin has come back and been folded in. How that mail gets sent — and why the inspector demands the return receipt — is Module 4’s whole story. 📬</p>
+      </section>
+
+      <!-- ========== SCREEN 6: QUIZ ========== -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Inspector for a day</h2>
+
+        <p>You’re on gate duty. Four situations — call each one the way the inspector would.</p>
+
+        <div class="quiz-container" id="quiz-module3">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The gate never reads the status label as truth — computeArtifacts asks the disk, finds no deck.html, and the verdict block prints the problem and exits 2. Claude’s next message is that list."
+               data-explanation-wrong="Not quite — remember the motto: a status can’t exceed the artifacts that prove it. The gate checks the disk, sees deck.html missing, prints the problem to stderr, and exits 2 — so Claude is blocked and reads exactly that message.">
+            <h3 class="quiz-question">A lesson’s progress file says <code>decked</code>, but deck.html was never actually created. What happens when Claude tries to finish?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Claude finishes normally — the status file is the official record, so the gate trusts it</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Claude is blocked — the gate exits 2 and Claude receives a message naming the missing file</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Claude Code quietly lowers the status back down the ladder and lets Claude stop</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The gate asks Claude to confirm the deck really exists before deciding</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — the gate fails closed. A crash becomes a reported problem, not a free pass. A broken inspector halts the line rather than waving work through."
+               data-explanation-wrong="Think about which way the system is built to fail. If a crashed inspector meant “no inspection, carry on,” every bug in the gate would become a hole in the fence. Instead the crash itself is reported as a problem — Claude stays blocked. That’s called failing closed.">
+            <h3 class="quiz-question">The gate script itself crashes halfway through its checks. Does Claude get to stop?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — a broken inspector can’t block anyone, so the stop goes through</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but Claude Code shows a warning about the crash afterwards</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — the crash is reported as a problem itself; the gate fails closed</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Claude Code keeps re-running the gate until it stops crashing</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — resolveRoots walks up looking for a topics/ folder, finds none, and returns an empty list. The gate is a silent no-op: exit 0, not a word printed. That’s what lets many plugins’ inspectors coexist peacefully."
+               data-explanation-wrong="Look back at answer one of the gate: “am I even relevant here?” It walks up the folders hunting for topics/. In a photos folder there isn’t one, so it resolves zero projects and exits 0 silently — a no-op. Each inspector only speaks on its own beat.">
+            <h3 class="quiz-question">You open a random photos folder — no <code>topics/</code> anywhere above it — and Claude finishes a file-renaming job. Does educate’s gate interfere?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — a Stop hook with matcher “*” runs everywhere, so it blocks until a lesson exists</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes, but only with warnings — it can’t block outside a lesson project</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — it walks up, finds no topics/ project, and exits 0 without saying a word</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It crashes, because there’s no project for it to check</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-d"
+               data-explanation-right="Exactly! The gate never reads the conversation at all — its only inputs are a tiny stdin note and the files on disk. existsSync has no vibes: same files, same verdict, every time. The only way past the inspector is to actually do the work."
+               data-explanation-wrong="Here’s the key: the gate is deterministic and never reads the chat. Its entire worldview is the stdin note plus what’s on the disk. No summary, however brilliant, changes what existsSync returns — the only way to flip the verdict is to make the missing files exist.">
+            <h3 class="quiz-question">Could Claude talk its way past the gate with a really convincing summary of everything it accomplished?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — a detailed enough summary counts as evidence of the work</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — Stop hooks receive the conversation, so persuasive text can tip the verdict</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only if the summary explicitly promises the files will be created soon</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — the gate never reads the conversation; it only checks what’s on the disk</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
