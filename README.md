@@ -6,9 +6,10 @@ each is independently installable, aware of the others, and composes only throug
 gates — never by calling each other directly.
 
 > Status: **under construction.** The plan lives in Backlog (`backlog task list --plain`).
-> Five plugins are registered in the marketplace: `research`, `grounding-wiki`, `educate`,
-> `build` (a scaffold), and `codebase-to-course`. This repo is the unification target for the
-> standalone `research` skills, the `educate` plugin, and the `codebase-to-course` skill.
+> Six plugins are registered in the marketplace: `research`, `grounding-wiki`, `educate`,
+> `build` (a scaffold), `codebase-to-course`, and `spec-bridge`. This repo is the unification
+> target for the standalone `research` skills, the `educate` plugin, and the
+> `codebase-to-course` skill.
 
 ## Plugins
 
@@ -55,10 +56,13 @@ Zero-dependency Node modules vendored into each plugin at build time:
   (the shared patterns; read before adding a plugin).
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
 
-## Install (once built)
+## Install
+
+Add the marketplace from GitHub (needs git access to this repo while it's private), or from a
+local clone:
 
 ```
-/plugin marketplace add ~/Claude/Code/praxis
+/plugin marketplace add evanstern/praxis     # or: /plugin marketplace add /path/to/praxis
 /plugin install research@praxis
 /plugin install grounding-wiki@praxis
 /plugin install educate@praxis
@@ -68,3 +72,8 @@ Zero-dependency Node modules vendored into each plugin at build time:
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need.
+
+Every merge to `main` publishes a GitHub Release `v<version>` (the marketplace version) with a
+self-contained zip per plugin (`<plugin>-v<version>.zip`) — versioned snapshots for installing
+without the marketplace, or for pinning. The pipeline is documented in
+[`docs/releasing.md`](docs/releasing.md).
