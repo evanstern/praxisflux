@@ -10,7 +10,7 @@ sources:
   - lib/toolkit/code-translation.md
   - lib/toolkit/quiz-patterns.md
   - lib/toolkit/diagrams.md
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # Toolkit
@@ -19,7 +19,10 @@ verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
 copy-paste CSS/JS snippets that a skill reads while producing a deck, course, or briefing.
 Where the rest of `lib/` is shared *plumbing* (code that gates and scripts import), toolkit
 modules are Markdown teaching material — gate code never imports from `toolkit/`. All six
-modules are shipped, per the status table in `lib/toolkit/README.md`.
+modules are shipped, per the status table in `lib/toolkit/README.md`. The README additionally
+indexes **plugin-owned versioned chrome** — shared visual machinery too heavy and
+domain-specific to vendor everywhere, which stays with its owning plugin but is registered
+here so "where does shared visual machinery live" has a single answer.
 
 ## How it works
 
@@ -58,6 +61,16 @@ The modules:
   reveal quiz.
 - `diagrams.md` — plain HTML/CSS diagram idioms: a `.flow` of boxes with arrow separators and
   an annotated `.tree` file listing, both token-styled and responsive.
+
+The one registered chrome entry is codebase-to-course's course chrome (`styles.css`,
+`main.js`, `_footer.html`, `build.sh`, `validate.mjs`), canonical in that plugin's
+`references/`, currently `chrome v2 — inline translation engine (comments-on-top)`. Rendering
+files carry the version stamp (no stamp = the retired v1), `validate.mjs` carries
+`CHROME_VERSION`, both `build.sh` and the course gate fail unstamped or version-mixed copies,
+and `build.sh` refreshes vendored copies from the canonical source whenever
+`CLAUDE_PLUGIN_ROOT`/`C2C_REFERENCES` resolves — vendored course copies are build artifacts,
+never templates. The full convention lives in `docs/skill-patterns.md` ("Versioned course
+chrome").
 
 ## Connections
 
