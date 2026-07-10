@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:32'
-updated_date: '2026-07-10 18:38'
+updated_date: '2026-07-10 19:58'
 labels: []
 dependencies: []
 priority: high
@@ -44,6 +44,8 @@ Consumer repos (first: the-stacks) want the praxis way — spec-bridge check, gr
 
 <!-- SECTION:NOTES:BEGIN -->
 Slice 1 committed: action.yml + scripts/run-gates.mjs + 5 tests (90 total green). Runner imports gate functions directly (course gate has no CLI, only validateCourse). Smoke: praxis itself passes spec-bridge + wiki-freshness via the runner; unknown gate exits 2.
+
+Post-Done fix (pre-merge of PR #23), reported by the-stacks adoption: run-gates.mjs's run-as-CLI guard compared import.meta.url (symlink-resolved) to argv[1] (as typed), so any invocation through a symlinked checkout (~/projects -> Claude/Code) exited 0 having run zero gates — a silent pass. Fixed via new chassis module lib/cli.mjs (runAsCli realpaths both sides), adopted by all repo scripts + educate CLIs; the planted codebase-to-course validate.mjs got the same fix inline. Regression test spawns the runner through a symlink. codebase-to-course skill 0.1.0 -> 0.1.1; wiki re-verified. Commits ab6e3fd + 04b2b5b.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
