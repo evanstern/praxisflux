@@ -27,3 +27,19 @@ The convention in brief:
 | `code-translation.md` | Code ↔ plain-English translation (rules + zero-JS comments-on-top panel) | shipped |
 | `quiz-patterns.md` | Quiz design (coverage rule, application-not-memory) + zero-JS reveal quiz | shipped |
 | `diagrams.md` | HTML/CSS flow + annotated file-tree diagram idioms | shipped |
+
+## Plugin-owned versioned chrome (indexed here, lives with its owner)
+
+Some shared visual machinery is too heavy and too domain-specific to vendor into every plugin,
+but still needs one canonical, versioned home. Those modules stay in their owning plugin and are
+*indexed* here so "where does shared visual machinery live" has a single answer:
+
+| Chrome | Canonical source | Version | Convention |
+|---|---|---|---|
+| Course chrome (`styles.css`, `main.js`, `_footer.html`, `build.sh`, `validate.mjs`) | `codebase-to-course/skills/codebase-to-course/references/` | `chrome v2 — inline translation engine (comments-on-top)` | `docs/skill-patterns.md` "Versioned course chrome" |
+
+The rules that keep it from fossilizing: rendering files open with the version stamp (no stamp
+= v1, the retired side-by-side renderer); `validate.mjs` carries `CHROME_VERSION`, and both
+`build.sh` and the course gate fail unstamped or version-mixed copies; `build.sh` refreshes the
+chrome from the canonical source whenever `CLAUDE_PLUGIN_ROOT`/`C2C_REFERENCES` resolves.
+Vendored course copies are build artifacts, never templates.

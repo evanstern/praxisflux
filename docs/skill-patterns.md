@@ -110,6 +110,28 @@ decision (docs/handoffs/codebase-to-course-plugin.md) not to fold the course's `
 `lib/html/base.html` stands; what's shared is the token schema and the content modules, not the
 page skeleton.
 
+**Versioned course chrome (plugin-owned toolkit citizen).** A second kind of shared visual
+machinery doesn't fit the vendor-into-every-plugin model: codebase-to-course's course chrome
+(`styles.css`, `main.js`, `_footer.html`, `build.sh`, `validate.mjs`) is heavy, domain-specific,
+and copied into every *course output directory* rather than into sibling plugins. It follows the
+toolkit spirit — one canonical copy, indexed in `lib/toolkit/README.md` — with a versioning
+convention instead of build-time vendoring:
+
+- **Stamp:** every rendering file opens with `chrome v<N> — <engine name>` in its header
+  comment. No stamp = v1 (the retired pre-inline renderer, which predates stamping).
+- **Bump rule:** bump `<N>` only when the *rendering contract* changes — when the same authored
+  markup means something different on screen (v1 side-by-side → v2 comments-on-top). Pure fixes
+  and additions don't bump. Bump the stamp in every chrome file **and** `CHROME_VERSION` in
+  `validate.mjs` together, and add an upgrade note to the plugin's gotchas.md.
+- **Enforcement:** `validate.mjs` ships inside each course and fails unstamped or version-mixed
+  chrome at build time; the plugin's course gate repeats the check with the *plugin's* current
+  version, so a fossilized course can't pass its gate.
+- **Refresh:** `build.sh` re-copies the chrome from the canonical `references/` whenever
+  `CLAUDE_PLUGIN_ROOT` (in-session) or `C2C_REFERENCES` (manual override) resolves; standalone
+  builds fall back to the vendored copies. Vendored copies are build artifacts, never
+  templates — a new course always copies from the plugin's `references/`, never from an
+  existing course.
+
 Module index: [`lib/toolkit/README.md`](../lib/toolkit/README.md).
 
 ## New-plugin checklist

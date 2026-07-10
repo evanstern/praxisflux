@@ -2,12 +2,14 @@
 //
 // Checks the assembled index.html: it exists, is self-contained (lib/selfcontained.mjs;
 // Google Fonts is the ONE allowed external host), nav dots match module count, every module
-// carries >=1 quiz and >=1 code translation block, and the course as a whole has >=1 group
-// chat and >=1 flow animation. Never writes to disk (gates/ contract).
+// carries >=1 quiz and >=1 code translation block, the course as a whole has >=1 group
+// chat and >=1 flow animation, every translation block honors the pairing + bracket-balance
+// contracts, and the vendored chrome carries the current version stamp.
+// Never writes to disk (gates/ contract).
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { checkHtml } from "../../lib/selfcontained.mjs";
-import { checkTranslationBlocks } from "../skills/codebase-to-course/references/validate.mjs";
+import { checkTranslationBlocks, checkChrome } from "../skills/codebase-to-course/references/validate.mjs";
 
 const GOOGLE_FONTS = /https?:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^'")\s>]*/gi;
 // Any of these container classes counts as a quiz (multiple-choice, drag-and-drop,
@@ -47,6 +49,10 @@ export function validateCourse(courseDir) {
   // Translation-block contracts (same checks build.sh runs pre-assembly via the
   // course's copied validate.mjs): 1:1 .tl/.code-line pairing + bracket balance.
   fails.push(...checkTranslationBlocks(html, "index.html").fails);
+
+  // Vendored chrome must match the plugin's generation — unstamped (v1) or
+  // mixed-version chrome is the fossilization this gate exists to catch.
+  fails.push(...checkChrome(courseDir));
 
   return { ok: fails.length === 0, fails, warns, modules };
 }
