@@ -1,5 +1,6 @@
 ---
 name: wiki-build
+version: 0.1.0
 description: Generate a code-grounded corpus (docs/wiki) for a codebase — per-concept MD notes pinned to the current commit, interlinked and indexed, passing the freshness gate. Use when the user wants a grounding wiki, a queryable knowledge base for a repo, or says "build a wiki for this codebase" / "ground this repo".
 ---
 
