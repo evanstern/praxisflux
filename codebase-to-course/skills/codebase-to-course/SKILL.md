@@ -146,6 +146,7 @@ course-name/
   _base.html       ← customized shell (title, accent color, nav dots)
   _footer.html     ← copied verbatim from references/_footer.html
   build.sh         ← copied verbatim from references/build.sh
+  validate.mjs     ← copied verbatim from references/validate.mjs (build.sh runs it)
   briefs/          ← module briefs (complex codebases only, can delete after build)
   modules/
     01-intro.html
@@ -154,11 +155,12 @@ course-name/
   index.html       ← assembled by build.sh (do not write manually)
 ```
 
-**Step 1 (both paths): Setup** — Create the course directory. Copy these four files verbatim using Read + Write (do not regenerate their contents):
+**Step 1 (both paths): Setup** — Create the course directory. Copy these five files verbatim using Read + Write (do not regenerate their contents):
 - `references/styles.css` → `course-name/styles.css`
 - `references/main.js` → `course-name/main.js`
 - `references/_footer.html` → `course-name/_footer.html`
 - `references/build.sh` → `course-name/build.sh`
+- `references/validate.mjs` → `course-name/validate.mjs`
 
 **Step 2 (both paths): Customize `_base.html`** — Read `references/_base.html`, then write it to `course-name/_base.html` with exactly three substitutions:
 - Both instances of `COURSE_TITLE` → the actual course title
@@ -190,7 +192,7 @@ After all agents finish, do a quick consistency check in the main context: nav d
 ```bash
 cd course-name && bash build.sh
 ```
-This produces `index.html`. Open it in the browser.
+This first validates every translation block (1:1 `.tl`/`.code-line` pairing + bracket-balanced code — excerpts must be trimmed from within, never cut mid-structure) and only then assembles `index.html`. If validation fails, fix the flagged blocks (or run `node validate.mjs --fix modules/*.html` to mechanically auto-close ones that only miss closing brackets) and rebuild. Open the result in the browser.
 
 **Critical rules:**
 - **Never regenerate** `styles.css` or `main.js` — always copy from references
@@ -208,7 +210,7 @@ After running `build.sh`, run the **output gate** on the course directory:
 node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs course <course-dir>
 ```
 
-The gate verifies: `index.html` exists and is self-contained (Google Fonts is the one allowed external host), nav dots match the module count, every module has at least one quiz and one code translation block, and the course includes at least one group chat and one flow animation. **Fix failures and rebuild until it passes** — don't present a course that fails its gate.
+The gate verifies: `index.html` exists and is self-contained (Google Fonts is the one allowed external host), nav dots match the module count, every module has at least one quiz and one code translation block, the course includes at least one group chat and one flow animation, and every translation block honors the pairing + bracket-balance contracts (same checks as build.sh). **Fix failures and rebuild until it passes** — don't present a course that fails its gate.
 
 Then open `index.html` in the browser. Walk the user through what was built and ask for feedback on content, design, and interactivity.
 

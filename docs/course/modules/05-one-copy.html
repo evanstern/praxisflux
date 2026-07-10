@@ -285,6 +285,8 @@
 <span class="code-line">      fails.<span class="code-function">push</span>(<span class="code-string">`loads a resource from an external host: ${label} — the Artifact CSP blocks this; inline it or embed as a data: URI`</span>);</span>
 <span class="code-line">    }</span>
 <span class="code-line">  }</span>
+<span class="code-line">  <span class="code-comment">// … gentler checks and the final verdict elided …</span></span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
@@ -298,6 +300,8 @@
               <p class="tl">…record a failure that names the problem AND the fix.</p>
               <p class="tl">…end of this pattern's check.</p>
               <p class="tl">…and keep scanning until every pattern has been tried.</p>
+              <p class="tl">The function also collects its gentle warnings — we're skipping those here.</p>
+              <p class="tl">Inspection over; the lists go back to whoever asked.</p>
             </div>
           </div>
         </div>
