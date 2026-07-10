@@ -17,7 +17,13 @@ The course looks like a textbook instead of an infographic. This happens when yo
 Using "restaurant" or "kitchen" for everything. Every module needs its own metaphor that feels inevitable for that specific concept. If you catch yourself reaching for the same metaphor twice, stop and find one that fits the concept organically.
 
 ### Code Modifications
-Trimming, simplifying, or "cleaning up" code snippets from the codebase. The learner should be able to open the real file and see the exact same code. Instead of editing code to be shorter, *choose* naturally short snippets (5-10 lines) from the codebase that illustrate the point.
+Trimming, simplifying, or "cleaning up" code snippets from the codebase. The learner should be able to open the real file and see the exact same code. Instead of editing code to be shorter, *choose* naturally short snippets (5-10 lines) from the codebase that illustrate the point. When a snippet genuinely must skip material, don't rewrite the code — elide from within per the next gotcha.
+
+### Truncated Code Blocks (Unbalanced Brackets)
+A translation block whose code stops mid-structure — opened `(`/`[`/`{` never closed, or a stray leading `}` from a mid-function cut — reads as *broken* to anyone who knows code. Never end an excerpt mid-structure. Skip material from **within** the block instead: a `// … <short note on what's skipped> …` comment code-line (with its own paired `.tl` note) where the elided code was, and keep every closing bracket. `validate.mjs` enforces this — `build.sh` and the course gate both fail on unbalanced blocks. `node validate.mjs --fix modules/*.html` mechanically appends missing closers (plus paired notes); truly fragmentary pseudo-code can opt out with `data-validate="off"` on the block, but reserve that for pseudo-code, never real source.
+
+### Stale Chrome (Check the Version Stamp)
+`styles.css` and `main.js` open with a version stamp (`chrome v2 — inline translation engine (comments-on-top)`). A vendored copy with **no** stamp is v1 — the retired side-by-side renderer — and will silently ignore the inline contract. Never treat an existing course's chrome as the template; the plugin's `references/` is the only legitimate source. **Upgrade recipe for an existing course:** copy `styles.css`, `main.js`, `build.sh`, and `validate.mjs` from `references/` over the course directory, run `bash build.sh` (validates every translation block, then reassembles `index.html`), fix anything flagged, and re-run the course gate.
 
 ### Quiz Questions That Test Memory
 Asking "What does API stand for?" or "Which file handles X?" — those test recall, not understanding. Every quiz question should present a new scenario the learner hasn't seen and ask them to *apply* what they learned.
