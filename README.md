@@ -19,6 +19,7 @@ gates — never by calling each other directly.
 | **educate** | Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson `done` on auditable artifacts. | **Favored home folder** (detected via a `topics/` marker). |
 | **build** | *(scaffold — split out of educate)* Implement a SPEC and return findings for the lesson to fold back in. | Runs where the work is. |
 | **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | **Runs on a target codebase** (course lands in `docs/course/`). |
+| **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | **Runs on a project with `backlog/` + `specs/`.** |
 
 ## The loop
 
@@ -62,6 +63,7 @@ Zero-dependency Node modules vendored into each plugin at build time:
 /plugin install educate@praxis
 /plugin install build@praxis
 /plugin install codebase-to-course@praxis
+/plugin install spec-bridge@praxis
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need.
