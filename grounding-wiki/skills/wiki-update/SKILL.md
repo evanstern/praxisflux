@@ -1,5 +1,6 @@
 ---
 name: wiki-update
+version: 0.1.0
 description: Refresh a code-grounded corpus (docs/wiki) in place after code changes — find stale notes via the freshness gate, re-verify each against the actual diff, and re-pin. Use when the user asks to update/refresh/sync the wiki, when the freshness gate fails, or before merging changes that touch files listed in any note's sources.
 ---
 

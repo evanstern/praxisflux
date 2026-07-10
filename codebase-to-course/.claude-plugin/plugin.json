@@ -1,7 +1,16 @@
 {
   "name": "codebase-to-course",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people.",
-  "author": { "name": "Evan Stern", "email": "evan.stern@neumo.com" },
-  "keywords": ["course", "education", "codebase", "interactive", "teaching"]
+  "author": {
+    "name": "Evan Stern",
+    "email": "evan.stern@neumo.com"
+  },
+  "keywords": [
+    "course",
+    "education",
+    "codebase",
+    "interactive",
+    "teaching"
+  ]
 }
