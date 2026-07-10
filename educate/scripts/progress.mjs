@@ -20,8 +20,8 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { findRootUpwards, hasChild } from "../../lib/project-root.mjs";
-import { today } from "../../lib/dates.mjs";
+import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
+import { today } from "../lib/dates.mjs";
 import { ARTIFACT_FILES, lifecycleFor, topicDoDProblems, topicsWithProgress } from "../gates/dod.mjs";
 import { syncTopicWiki, syncProjectWiki } from "./wiki.mjs";
 
