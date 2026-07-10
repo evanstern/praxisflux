@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// stop-docs.mjs — praxis's own docs-sync Stop gate, wired via the tracked .claude/settings.json.
+// stop-docs.mjs — praxisflux's own docs-sync Stop gate, wired via the tracked .claude/settings.json.
 //
 // The grounding docs (docs/wiki, README.md, CLAUDE.md) are the repo's spec surface; letting a
 // turn end while they lag the code is "status exceeds proven artifacts" applied to ourselves.
 // This gate blocks Stop while either check fails, so every PR generated in this repo carries
-// its docs sync. Runs on lib/gate-runner (honors stop_hook_active; no-op outside praxis —
+// its docs sync. Runs on lib/gate-runner (honors stop_hook_active; no-op outside praxisflux —
 // the root must carry docs/wiki/INDEX.md).
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -27,7 +27,7 @@ function freshnessProblems(root) {
 
 const gate = {
   name: "docs-sync",
-  // Only ever fires for THIS repo: the resolved root must be the praxis checkout itself.
+  // Only ever fires for THIS repo: the resolved root must be the praxisflux checkout itself.
   resolveRoots: (startDir) =>
     existsSync(join(repo, "docs", "wiki", "INDEX.md")) && (startDir === repo || String(startDir).startsWith(repo)) ? [repo] : [],
   check: (root) => [...checkDocs(root), ...freshnessProblems(root)],

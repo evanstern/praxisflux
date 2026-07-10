@@ -11,7 +11,7 @@ import { gateProblemsForProject } from "../educate/gates/dod.mjs";
 const here = dirname(fileURLToPath(import.meta.url));
 
 function project(deckHtml) {
-  const root = mkdtempSync(join(tmpdir(), "praxis-deck-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-deck-"));
   const ldir = join(root, "topics", "t", "101");
   mkdirSync(ldir, { recursive: true });
   writeFileSync(join(ldir, "checklist.md"), "");

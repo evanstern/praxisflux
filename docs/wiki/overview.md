@@ -1,6 +1,6 @@
 ---
 name: overview
-description: What praxis is — a Claude Code plugin marketplace on one shared Node chassis whose plugins form a research → teach → build loop composing only through files and gates
+description: What praxisflux is — a Claude Code plugin marketplace on one shared Node chassis whose plugins form a research → teach → build loop composing only through files and gates
 kind: concept
 sources:
   - README.md
@@ -8,9 +8,9 @@ sources:
 verified_against: 0b404667b87635498be1449908fecc22ae754c1a
 ---
 
-# praxis — system overview
+# praxisflux — system overview
 
-praxis is a Claude Code **plugin marketplace** that unifies composable knowledge-work
+praxisflux is a Claude Code **plugin marketplace** that unifies composable knowledge-work
 plugins on one shared, zero-dependency Node chassis (`lib/`). Six plugins are registered
 in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`
 (a scaffold), `codebase-to-course`, and `spec-bridge`. Each is independently installable and
@@ -50,7 +50,7 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 - [[gates-convention]] — how gates keep every status backed by proven artifacts.
 - [[build-and-release]] — how the marketplace and self-contained plugin packages are produced,
   and the CI consumption surface: other repos run the gates via the composite action
-  (`uses: evanstern/praxis@v<version>`) or anywhere via the `@praxisflux/gates` npm package
+  (`uses: evanstern/praxisflux@v<version>`) or anywhere via the `@praxisflux/gates` npm package
   (`npx @praxisflux/gates`), see `docs/consuming-gates.md`.
 
 ## Operational notes
@@ -58,7 +58,7 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 - Work is tracked in Backlog.md (`backlog task list --plain`); the board is the plan of
   record, statuses flow To Do → In Progress → Done, and every unit of committed work is a task.
 - The repo uses a PR flow: per-task branches pushed to `origin`
-  (`github.com:evanstern/praxis.git`), merged into `main` via `gh`.
+  (`github.com:evanstern/praxisflux.git`), merged into `main` via `gh`.
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's own
   `version:` — per `docs/releasing.md`; CI enforces it, and each merge to `main`

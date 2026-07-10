@@ -14,7 +14,7 @@ function note(fm, body = "") {
 }
 
 function fixtureVault() {
-  const root = mkdtempSync(join(tmpdir(), "praxis-vault-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-vault-"));
   const b = join(root, "MyTopic");
   mkdirSync(b, { recursive: true });
   writeFileSync(join(b, "MyTopic.md"), note({ title: "My Topic", type: "moc" }, "Notes: [[Note A]]"));
@@ -37,7 +37,7 @@ test("branch gate: cross-branch/broken link fails isolation", () => {
 });
 
 test("branch gate: missing grounding + bad type fail", () => {
-  const root = mkdtempSync(join(tmpdir(), "praxis-vault-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-vault-"));
   const b = join(root, "Bare");
   mkdirSync(b, { recursive: true });
   writeFileSync(join(b, "Bare.md"), note({ title: "Bare", type: "moc" }));

@@ -5,7 +5,7 @@
 //   node scripts/check-docs.mjs        # exit 1 with a problem list if any doc is out of sync
 //
 // Checks: every marketplace plugin has a README table row (`| **<name>** |`) and an install
-// line (`/plugin install <name>@praxis`); every lib/*.mjs chassis module is named in README's
+// line (`/plugin install <name>@praxisflux`); every lib/*.mjs chassis module is named in README's
 // chassis section; CLAUDE.md links docs/releasing.md. The semantic half of docs-sync — prose
 // matching current code — is the wiki freshness gate's job (docs/wiki notes source README.md
 // and CLAUDE.md, so editing them pulls the wiki-update loop in). CI and the Stop hook run both.
@@ -23,8 +23,8 @@ export function checkDocs(root) {
   for (const p of mp.plugins ?? []) {
     if (!readme.includes(`| **${p.name}** |`))
       problems.push(`README.md: plugin '${p.name}' has no row in the plugins table`);
-    if (!readme.includes(`/plugin install ${p.name}@praxis`))
-      problems.push(`README.md: plugin '${p.name}' has no '/plugin install ${p.name}@praxis' line`);
+    if (!readme.includes(`/plugin install ${p.name}@praxisflux`))
+      problems.push(`README.md: plugin '${p.name}' has no '/plugin install ${p.name}@praxisflux' line`);
   }
 
   for (const f of readdirSync(join(root, "lib"))) {

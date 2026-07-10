@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { writeHandoff, readHandoff, listHandoffs, markConsumed, handoffDir } from "../lib/handoff.mjs";
 import { gateProblemsForProject } from "../educate/gates/dod.mjs";
 
-const scratch = () => mkdtempSync(join(tmpdir(), "praxis-ho-"));
+const scratch = () => mkdtempSync(join(tmpdir(), "praxisflux-ho-"));
 
 test("handoff transport: write/read round-trip, opaque body, gitignored", () => {
   const root = scratch();

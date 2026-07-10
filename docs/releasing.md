@@ -1,6 +1,6 @@
-# Releasing praxis — versions, bumps, and the automated pipeline
+# Releasing praxisflux — versions, bumps, and the automated pipeline
 
-praxis ships as **one release**: the `version` in `.claude-plugin/marketplace.json` is the
+praxisflux ships as **one release**: the `version` in `.claude-plugin/marketplace.json` is the
 release version, and every plugin's `plugin.json` — plus `action.yml`'s
 `npx @praxisflux/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
 enforces and stamps all three). Releases are git tags + GitHub Releases named

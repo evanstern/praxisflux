@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// run-gates.mjs — the praxis CI consumption surface: run selected praxis gates against a
+// run-gates.mjs — the praxisflux CI consumption surface: run selected praxisflux gates against a
 // consumer repository. This is what action.yml (the composite GitHub Action) invokes; it also
-// runs by hand from any praxis checkout:
+// runs by hand from any praxisflux checkout:
 //
 //   node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness [--path <root>]
 //                              [--wiki-dir docs/wiki] [--course-dir docs/course]
 //
-// Gate names, options, and exit codes are praxis's versioned consumer contract
+// Gate names, options, and exit codes are praxisflux's versioned consumer contract
 // (docs/consuming-gates.md): exit 0 when every gate passes, 1 when any gate fails, 2 on a
 // usage error (unknown gate, missing --gates). Each failure line names its fix. This same
 // file ships as the @praxisflux/gates npm bin (scripts/build-npm.mjs carves the package).

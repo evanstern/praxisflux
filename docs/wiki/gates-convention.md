@@ -11,7 +11,7 @@ verified_against: 54964eac9c3ecc9c8e7f1b0e5563ded19d8d1ef9
 
 # Gates convention
 
-praxis's central integrity rule: **a status can't exceed the artifacts that prove it**. Every
+praxisflux's central integrity rule: **a status can't exceed the artifacts that prove it**. Every
 plugin that tracks progress declares an ordered lifecycle and the disk evidence each state
 requires; a Stop hook makes the declaration binding by refusing to let the model finish while
 any item's status outruns its evidence. The convention is documented in `docs/skill-patterns.md`

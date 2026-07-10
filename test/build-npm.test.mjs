@@ -23,11 +23,11 @@ test("action.yml: npx pin names the package and is lockstep with the marketplace
 });
 
 test("stampNpxPin: rewrites only the named package's pins and reports what it found", () => {
-  const text = "npx --yes @praxisflux/gates@0.4.0 x\nuses: evanstern/praxis@v0.4.0\n@other/pkg@0.4.0";
+  const text = "npx --yes @praxisflux/gates@0.4.0 x\nuses: evanstern/praxisflux@v0.4.0\n@other/pkg@0.4.0";
   const { text: out, pins } = stampNpxPin(text, "@praxisflux/gates", "0.5.0");
   assert.deepEqual(pins, ["0.4.0"]);
   assert.match(out, /@praxisflux\/gates@0\.5\.0/);
-  assert.match(out, /evanstern\/praxis@v0\.4\.0/, "the uses: example is not a pin and stays untouched");
+  assert.match(out, /evanstern\/praxisflux@v0\.4\.0/, "the uses: example is not a pin and stays untouched");
   assert.match(out, /@other\/pkg@0\.4\.0/, "other packages' pins stay untouched");
   assert.deepEqual(stampNpxPin("no pin here", "@praxisflux/gates", "0.5.0").pins, []);
 });
@@ -38,7 +38,7 @@ test("build-npm: staging tree is symlink-free, lockstep-versioned, and carries t
   assert.equal(pkg.name, PACKAGE_NAME);
   assert.equal(pkg.version, mpVersion, "npm version must be lockstep with the marketplace");
   const onDisk = JSON.parse(readFileSync(join(out, "package.json"), "utf8"));
-  assert.equal(onDisk.bin["praxis-gates"], "scripts/run-gates.mjs");
+  assert.equal(onDisk.bin["praxisflux-gates"], "scripts/run-gates.mjs");
   for (const f of [
     "README.md",
     "LICENSE",
@@ -66,8 +66,8 @@ test("build-npm: packed tarball runs as a bin through node_modules/.bin with con
   assert.equal(untar.status, 0, untar.stderr);
   const bin = join(consumer, "node_modules", ".bin");
   mkdirSync(bin, { recursive: true });
-  symlinkSync(join(pkgDir, "scripts", "run-gates.mjs"), join(bin, "praxis-gates"));
-  const run = (...args) => spawnSync(process.execPath, [join(bin, "praxis-gates"), ...args], { encoding: "utf8" });
+  symlinkSync(join(pkgDir, "scripts", "run-gates.mjs"), join(bin, "praxisflux-gates"));
+  const run = (...args) => spawnSync(process.execPath, [join(bin, "praxisflux-gates"), ...args], { encoding: "utf8" });
 
   // Usage contract: no gates -> exit 2, and the run-as-CLI guard must fire through the symlink.
   const usage = run();

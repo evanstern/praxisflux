@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# praxis pre-push — don't push released-surface changes without a version bump.
+# praxisflux pre-push — don't push released-surface changes without a version bump.
 # Local mirror of the CI gate (ci.yml runs the same script); CI stays authoritative
 # because core.hooksPath is per-clone. Enable once with:
 #   git config core.hooksPath .githooks

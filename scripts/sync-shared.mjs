@@ -20,10 +20,10 @@ const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 export const SYNCS = [
   { source: "lib/html/base.html",
-    regions: ["praxis:tokens", "praxis:theme"],
+    regions: ["praxisflux:tokens", "praxisflux:theme"],
     consumers: ["educate/templates/.template/deck.html"] },
   { source: "lib/toolkit/tooltip.md",
-    regions: ["praxis:tooltip-css", "praxis:tooltip-js"],
+    regions: ["praxisflux:tooltip-css", "praxisflux:tooltip-js"],
     consumers: ["educate/templates/.template/deck.html"] },
 ];
 

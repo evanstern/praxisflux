@@ -1,6 +1,6 @@
 # Visual-teaching principles
 
-The shared pedagogy behind every praxis teaching surface — codebase-to-course's course screens,
+The shared pedagogy behind every praxisflux teaching surface — codebase-to-course's course screens,
 educate's deck slides, research's briefing pages. Written once here; each skill keeps only its
 medium-specific rules (and a one-line distillation as fallback) and points at this module.
 

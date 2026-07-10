@@ -13,7 +13,7 @@ import { evaluate } from "../lib/gate-runner.mjs";
 
 // Build a fixture project: philosophy with a series vault (Arc, with an MOC) + a lesson vault.
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), "praxis-wiki-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-wiki-"));
   const topics = join(root, "topics");
   const home = (wiki, about) =>
     `---\ntitle: Home\ntype: moc\nupdated: 2026-01-01\n---\n\n# Home\n\n## Wikis\n\n| Topic | About |\n| ----- | ----- |\n| [[${wiki}]] | ${about} |\n`;

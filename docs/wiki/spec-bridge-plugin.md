@@ -19,7 +19,7 @@ verified_against: 9047a2897ed3c173b2e0e6ed407e46b13a410e3f
 # spec-bridge plugin
 
 The `spec-bridge` plugin (v0.3.1) makes the Backlog.md board a **derived kanban view over
-GitHub Spec Kit specs** — composed the praxis way, through files and gates, forking neither
+GitHub Spec Kit specs** — composed the praxisflux way, through files and gates, forking neither
 tool. One Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
 mirror `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate
 enforces the house rule that status can't exceed proven artifacts.

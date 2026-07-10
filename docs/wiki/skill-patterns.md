@@ -1,15 +1,15 @@
 ---
 name: skill-patterns
-description: The shared authoring patterns for praxis plugins — phase-separated skills, the gate→work→gate skill shape, planted CLAUDE.md, placement models, shared-vs-per-plugin split, and the new-plugin checklist
+description: The shared authoring patterns for praxisflux plugins — phase-separated skills, the gate→work→gate skill shape, planted CLAUDE.md, placement models, shared-vs-per-plugin split, and the new-plugin checklist
 kind: pattern
 sources:
   - docs/skill-patterns.md
 verified_against: 54964eac9c3ecc9c8e7f1b0e5563ded19d8d1ef9
 ---
 
-# Skill patterns — how praxis plugins are authored
+# Skill patterns — how praxisflux plugins are authored
 
-praxis plugins look alike on purpose: a new plugin that follows the patterns in
+praxisflux plugins look alike on purpose: a new plugin that follows the patterns in
 `docs/skill-patterns.md` inherits the chassis and composes with the others for free. This
 is the leverage doc for authors, paired with [[handoff-protocol]].
 

@@ -113,7 +113,7 @@ function sh(cwd, ...args) {
 }
 
 test("end-to-end: exempt diff passes, surface diff needs a bump, tag reuse fails", () => {
-  const repo = mkdtempSync(join(tmpdir(), "praxis-bump-"));
+  const repo = mkdtempSync(join(tmpdir(), "praxisflux-bump-"));
   try {
     sh(repo, "init", "-q", "-b", "main");
     mkdirSync(join(repo, ".claude-plugin"), { recursive: true });
