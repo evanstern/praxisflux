@@ -1,10 +1,9 @@
 {
   "name": "research",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Gather cited facts into an isolated, interlinked Markdown thinking-vault branch (embed -> query -> render). Drop-anywhere.",
   "author": {
-    "name": "Evan Stern",
-    "email": "evanmicahstern@gmail.com"
+    "name": "praxis maintainers"
   },
   "keywords": [
     "research",

@@ -40,7 +40,7 @@ File: `educate/.claude-plugin/plugin.json` (lines 1-7), language `json`:
   "name": "educate",
   "version": "0.1.0",
   "description": "Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts.",
-  "author": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
+  "author": { "name": "praxis maintainers" },
   "keywords": ["learning", "teach-me", "socratic", "curriculum", "orchestration"]
 }
 ```

@@ -11,8 +11,8 @@ regeneration, and version sync.
 
 ## Source of truth (current state)
 
-- Skill repo: `~/projects/codebase-to-course` (= `github.com/evanstern/codebase-to-course`,
-  branch `main`, latest `0e3b61a`), symlinked live at `~/.claude/skills/codebase-to-course`.
+- Skill repo: `github.com/evanstern/codebase-to-course`, branch `main`, latest `0e3b61a`
+  (locate or clone locally) — symlinked live at `~/.claude/skills/codebase-to-course`.
 - Shape: `SKILL.md` (orchestration: analysis → curriculum → briefs → parallel module agents →
   assemble) + `references/` — prebuilt assets copied verbatim per course (`styles.css`,
   `main.js`, `_base.html`, `_footer.html`, `build.sh`) and authoring docs (`content-philosophy`,
@@ -20,7 +20,7 @@ regeneration, and version sync.
 - Recent features (keep intact): dark mode, self-building ToC, comments-on-top code translation
   blocks with a display-only reformatter. All generic, all in the prebuilt assets.
 - Reference outputs to test against: `reference-repo/docs/course` (course) + `reference-repo/docs/wiki`
-  (corpus) in `~/Claude/Code/reference-repo`.
+  (corpus) — a local checkout of the `reference-repo` repo.
 
 ## Required reading before authoring
 
@@ -41,18 +41,18 @@ scripts/ convention) · `docs/corpus-spec.md` · `docs/handoff-protocol.md`.
    sidecar; NEVER write course fields into wiki notes — spec guardrail 1). A corpus must remain
    optional: no corpus → today's behavior (guardrail 2).
 3. **Default output location.** Courses default to `docs/course/` inside the target repo
-   (Evan's standing layout: grounding at `docs/wiki/`, courses at `docs/course/`), overridable
-   when the user names a destination.
+   (matching the common convention: grounding at `docs/wiki/`, courses at `docs/course/`),
+   overridable when the user names a destination.
 4. **Output gate on the chassis.** `gates/course.mjs` (+ `cli.mjs course <course-dir>`),
    read-only: built `index.html` exists and is self-contained (`lib/selfcontained.mjs` —
    already proven by the research artifact gate; Google Fonts is the one allowed external),
    nav dots == module count, every module has ≥1 quiz and ≥1 code translation block, course
    includes ≥1 group chat and ≥1 flow animation. Wire the gate into the SKILL.md's Phase 4 as
    the output gate. Tests in `test/` against a minimal fixture course.
-5. **Cutover decision (needs Evan).** Once the plugin is installed from the marketplace, the
-   `~/.claude/skills` symlink would double-trigger. Options: retire the standalone repo
-   (archive; praxis becomes home), or keep it as the upstream and vendor into praxis. Ask —
-   don't decide unilaterally. Until then, keep the standalone repo untouched.
+5. **Cutover decision (needs a human decision).** Once the plugin is installed from the
+   marketplace, the `~/.claude/skills` symlink would double-trigger. Options: retire the
+   standalone repo (archive; praxis becomes home), or keep it as the upstream and vendor into
+   praxis. Ask — don't decide unilaterally. Until then, keep the standalone repo untouched.
 
 ## Constraints
 
