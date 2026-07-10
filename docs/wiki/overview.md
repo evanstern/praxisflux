@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
+verified_against: 9047a2897ed3c173b2e0e6ed407e46b13a410e3f
 ---
 
 # praxis — system overview
@@ -50,7 +50,8 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 - [[gates-convention]] — how gates keep every status backed by proven artifacts.
 - [[build-and-release]] — how the marketplace and self-contained plugin packages are produced,
   and the CI consumption surface: other repos run the gates via the composite action
-  (`uses: evanstern/praxis@v<version>`, see `docs/consuming-gates.md`).
+  (`uses: evanstern/praxis@v<version>`) or anywhere via the `@praxis/gates` npm package
+  (`npx @praxis/gates`), see `docs/consuming-gates.md`.
 
 ## Operational notes
 
