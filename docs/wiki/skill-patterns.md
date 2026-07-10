@@ -4,7 +4,7 @@ description: The shared authoring patterns for praxis plugins — phase-separate
 kind: pattern
 sources:
   - docs/skill-patterns.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 54964eac9c3ecc9c8e7f1b0e5563ded19d8d1ef9
 ---
 
 # Skill patterns — how praxis plugins are authored
@@ -42,11 +42,11 @@ still work without it. Visual output shares the token *schema* and dark-mode con
 palette *values* and page shells stay per-plugin.
 
 **Versioned course chrome (plugin-owned toolkit citizen).** A second kind of shared visual
-machinery doesn't fit the vendor-into-every-plugin model: chrome that is heavy,
+machinery doesn't fit the copy-into-every-plugin model: chrome that is heavy,
 domain-specific, and copied into every *output directory* rather than into sibling plugins
 (codebase-to-course's `styles.css`/`main.js`/`_footer.html`/`build.sh`/`validate.mjs`). It
 keeps the toolkit spirit — one canonical copy, indexed in `lib/toolkit/README.md` — with a
-versioning convention instead of build-time vendoring: every rendering file opens with a
+versioning convention instead of chassis-style distribution: every rendering file opens with a
 `chrome v<N>` stamp; the stamp bumps only when the *rendering contract* changes (same
 authored markup, different meaning on screen), together with `CHROME_VERSION` in
 `validate.mjs`; validation fails unstamped or version-mixed chrome both at course build time
@@ -62,7 +62,7 @@ tests under `test/` kept green.
 ## Connections
 
 - [[gates-convention]] — the enforcement half of these patterns (gates/ vs scripts/, lifecycle).
-- [[chassis]] — what a conforming plugin inherits; [[build-and-release]] vendors it in.
+- [[chassis]] — what a conforming plugin inherits through its `lib` symlink; [[build-and-release]] dereferences it into packaged copies.
 - Applied by every plugin note: [[research-plugin]], [[grounding-wiki-plugin]],
   [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]].
 
