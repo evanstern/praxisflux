@@ -1,7 +1,7 @@
 // artifact.mjs — GATE: is a rendered HTML page self-contained and CSP-safe?
 // Thin wrapper reading a file into the shared lib/selfcontained verifier.
 import { readFileSync } from "node:fs";
-import { checkHtml } from "../../lib/selfcontained.mjs";
+import { checkHtml } from "../lib/selfcontained.mjs";
 
 export function validateArtifact(path) {
   let html;

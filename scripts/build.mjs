@@ -1,36 +1,24 @@
 #!/usr/bin/env node
 // build.mjs — package each praxis plugin into dist/<plugin>/, self-contained.
 //
-// The shared chassis lives once at repo-root lib/ and is imported by plugins as `../../lib/…`
-// during development. A shipped plugin can't see a repo-root sibling, so packaging VENDORS lib/
-// into each plugin (dist/<plugin>/lib) and rewrites `../../lib/` → `../lib/` (every lib importer
-// sits in a depth-1 subdir — scripts/ or gates/ — so the rewrite is uniform). Run before packaging
-// a .plugin or publishing.
+// The shared chassis lives once at repo-root lib/; each plugin carries a `lib -> ../lib`
+// symlink, so plugin code imports it as `../lib/…` and skills reference
+// `${CLAUDE_PLUGIN_ROOT}/lib/…`. Marketplace installs dereference that symlink themselves
+// (the cache copy replaces marketplace-internal symlinks with real copies), so packaging here
+// only needs to do the same: copy with dereference so dist/<plugin>/lib is a real directory.
 //
 //   node scripts/build.mjs [--plugin <name>|all]
 //
 // The plugin list is derived from .claude-plugin/marketplace.json (the single source of truth) —
 // registering a plugin there is enough to have it packaged; this script needs no edit per plugin.
-import { cpSync, readdirSync, readFileSync, writeFileSync, rmSync, existsSync } from "node:fs";
-import { join, dirname, extname } from "node:path";
+import { cpSync, readdirSync, readFileSync, rmSync, existsSync, lstatSync } from "node:fs";
+import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 const marketplace = JSON.parse(readFileSync(join(repo, ".claude-plugin", "marketplace.json"), "utf8"));
 const ALL = marketplace.plugins.map((p) => p.name);
 const dist = join(repo, "dist");
-
-function rewriteLibImports(dir) {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, e.name);
-    if (e.isDirectory()) { if (e.name !== "lib") rewriteLibImports(p); continue; }
-    if (extname(p) === ".mjs") {
-      const s = readFileSync(p, "utf8");
-      const r = s.replaceAll("../../lib/", "../lib/");
-      if (r !== s) writeFileSync(p, r);
-    }
-  }
-}
 
 // Guard against drift: the manifest and the on-disk source are meant to be the same list. Warn if
 // a top-level dir looks like a plugin (has .claude-plugin/plugin.json) but isn't registered — it
@@ -50,8 +38,13 @@ if (existsSync(dist)) rmSync(dist, { recursive: true, force: true });
 for (const plugin of targets) {
   const src = join(repo, plugin), out = join(dist, plugin);
   if (!existsSync(src)) { console.error(`no such plugin: ${plugin}`); process.exit(1); }
-  cpSync(src, out, { recursive: true });                 // plugin sources
-  cpSync(join(repo, "lib"), join(out, "lib"), { recursive: true }); // vendor the chassis
-  rewriteLibImports(out);                                // ../../lib → ../lib
-  console.log(`packaged ${plugin} → dist/${plugin} (lib vendored, imports rewritten)`);
+  cpSync(src, out, { recursive: true });
+  // cpSync's dereference option doesn't materialize directory symlinks met mid-recursion, so
+  // swap the copied lib symlink for a real copy of the chassis by hand.
+  const outLib = join(out, "lib");
+  if (existsSync(outLib) && lstatSync(outLib).isSymbolicLink()) {
+    rmSync(outLib);
+    cpSync(join(repo, "lib"), outLib, { recursive: true });
+  }
+  console.log(`packaged ${plugin} → dist/${plugin} (lib dereferenced)`);
 }

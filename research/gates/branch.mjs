@@ -1,7 +1,7 @@
 // branch.mjs — GATE: is a topic branch a well-formed, analyzable wiki?
 // Node port of verify_branch.py, built on the lib/ chassis.
 import { join, basename, relative } from "node:path";
-import { extractWikilinks } from "../../lib/markdown.mjs";
+import { extractWikilinks } from "../lib/markdown.mjs";
 import { loadNotes, localNames, listBranches, KNOWN_TYPES } from "./vault.mjs";
 
 /** Validate one branch → { fails: string[], warns: string[] }. */

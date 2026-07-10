@@ -6,7 +6,7 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, isAbsolute, basename } from "node:path";
 import { execFileSync } from "node:child_process";
-import { parseFrontmatter, stripCode, extractWikilinks } from "../../lib/markdown.mjs";
+import { parseFrontmatter, stripCode, extractWikilinks } from "../lib/markdown.mjs";
 
 function git(repoRoot, args) {
   return execFileSync("git", args, { cwd: repoRoot, encoding: "utf8" }).trim();

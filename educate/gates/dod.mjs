@@ -6,8 +6,8 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { createLifecycle } from "../../lib/lifecycle.mjs";
-import { checkHtml } from "../../lib/selfcontained.mjs";
+import { createLifecycle } from "../lib/lifecycle.mjs";
+import { checkHtml } from "../lib/selfcontained.mjs";
 
 // artifact key in progress.json  ->  filename on disk
 export const ARTIFACT_FILES = {
