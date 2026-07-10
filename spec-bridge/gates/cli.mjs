@@ -4,8 +4,10 @@
 //   node cli.mjs state <specDir>   derived state for one spec dir, as JSON
 //   node cli.mjs links <root>      every linked task under <root> with derived state + verdict, as JSON
 //   node cli.mjs check <root>      human report; exit 1 if any task's status exceeds its artifacts
+import { resolve } from "node:path";
 import { deriveSpecState } from "../../lib/spec-derive.mjs";
-import { checkBridge } from "./bridge.mjs";
+import { findRootUpwards, hasChild } from "../../lib/project-root.mjs";
+import { checkBridge, loadBridgeConfig } from "./bridge.mjs";
 
 const [cmd, target] = process.argv.slice(2);
 if (!cmd || !target) {
@@ -14,7 +16,10 @@ if (!cmd || !target) {
 }
 
 if (cmd === "state") {
-  console.log(JSON.stringify(deriveSpecState(target), null, 2));
+  // Honor the project's .spec-bridge.json (strictDone) — same config checkBridge uses.
+  const root = findRootUpwards(resolve(target), hasChild("backlog"));
+  const requireAnalysis = root ? loadBridgeConfig(root).strictDone === true : false;
+  console.log(JSON.stringify(deriveSpecState(target, { requireAnalysis }), null, 2));
 } else if (cmd === "links") {
   console.log(JSON.stringify(checkBridge(target).links, null, 2));
 } else if (cmd === "check") {
