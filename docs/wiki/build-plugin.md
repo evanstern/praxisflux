@@ -6,12 +6,12 @@ sources:
   - build/.claude-plugin/plugin.json
   - build/README.md
   - build/skills/implement/SKILL.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 85fbca8047cc297d482547af3457a131117e6c01
 ---
 
 # build plugin
 
-The `build` plugin (v0.2.0) owns the implementation leg of the research → teach → build loop.
+The `build` plugin (v0.3.0) owns the implementation leg of the research → teach → build loop.
 It was split out of `educate` (per `build/README.md`, in TASK-1.8) so that the plugin with the
 context to say *what* to build (educate, which teaches and authors the SPEC) stays distinct
 from the one that *builds* it and reports back. The two never call each other; they compose

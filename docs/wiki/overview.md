@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 85fbca8047cc297d482547af3457a131117e6c01
 ---
 
 # praxis — system overview
@@ -60,6 +60,11 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's own
   `version:` — per `docs/releasing.md`; CI enforces it, and each merge to `main`
   auto-publishes the GitHub Release `v<version>` (see [[build-and-release]]).
+- Docs are load-bearing: every PR keeps `docs/wiki/`, `README.md`, and `CLAUDE.md` in sync
+  with the code. Enforced by `scripts/check-docs.mjs` plus the wiki freshness gate, run in
+  CI, the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that
+  refuses to end a turn while they fail. PRs merge with merge commits, never squash —
+  squashing would orphan the commits wiki notes pin.
 - Guiding principles (from `README.md`): shared plumbing but domain-specific content;
   phase-separated skills; plant a project `CLAUDE.md` (plugins have no always-on slot);
   gates enforce "status can't exceed proven artifacts"; handoffs use a shared transport

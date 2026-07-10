@@ -1,6 +1,6 @@
 {
   "name": "research",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Gather cited facts into an isolated, interlinked Markdown thinking-vault branch (embed -> query -> render). Drop-anywhere.",
   "author": {
     "name": "Evan Stern",
