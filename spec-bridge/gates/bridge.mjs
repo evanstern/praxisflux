@@ -18,6 +18,16 @@ import { join } from "node:path";
 import { deriveSpecState, STATUS } from "../../lib/spec-derive.mjs";
 import { hasChild, findRootsDownwards } from "../../lib/project-root.mjs";
 
+/**
+ * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
+ * `{ "strictDone": true }` turns on analyze-gated Done (see lib/spec-derive.mjs). Missing or
+ * malformed config means checkbox-only mode — strictness is opt-in.
+ */
+export function loadBridgeConfig(root) {
+  try { return JSON.parse(readFileSync(join(root, ".spec-bridge.json"), "utf8")) ?? {}; }
+  catch { return {}; }
+}
+
 const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
 const RANK = { "to do": 0, "in progress": 1, done: 2 };
 const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_ELIGIBLE]: 2 };
@@ -69,6 +79,12 @@ function shortfall(root, specDir, derived) {
   if (derived.tasksTotal === 0) parts.push("no tasks in tasks.md");
   else if (derived.tasksDone < derived.tasksTotal)
     parts.push(`${derived.tasksTotal - derived.tasksDone} of ${derived.tasksTotal} tasks unchecked (${derived.progressNote})`);
+  if (derived.analysis?.required) {
+    if (!derived.analysis.present)
+      parts.push("analysis.md missing (strict Done: save the /speckit.analyze report into the spec dir)");
+    else if (derived.analysis.criticals.length)
+      parts.push(`unresolved CRITICAL finding(s) in analysis.md: ${derived.analysis.criticals.join(" | ")}`);
+  }
   return parts.join(", ") || "artifacts incomplete";
 }
 
@@ -82,8 +98,9 @@ export function checkBridge(root) {
   const links = [];
   const problems = [];
   const warnings = [];
+  const requireAnalysis = loadBridgeConfig(root).strictDone === true;
   for (const task of findLinkedTasks(root)) {
-    const derived = deriveSpecState(join(root, task.specDir));
+    const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const v = verdict(task.status, derived.status);
     links.push({ ...task, derived, verdict: v });
     if (v === "exceeds") {
