@@ -19,6 +19,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: npm # the npmjs.com trusted publisher requires this environment claim in the OIDC token
     steps:
       - uses: actions/checkout@v5
         with:
