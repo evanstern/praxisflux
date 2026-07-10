@@ -1,0 +1,32 @@
+# ci — every PR (and main) must be green AND honest about versions before it can release.
+# Mirrors .githooks/pre-commit (tests + catalog/version consistency) and adds the two things a
+# local hook can't be trusted with: a successful package build and the version-bump gate
+# (core.hooksPath is per-clone, so CI is the authoritative enforcement point).
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history + tags: merge-base and tag-reuse checks need them
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: tests
+        run: node --test
+      - name: marketplace catalog in sync
+        run: node scripts/gen-marketplace.mjs --check
+      - name: versions consistent (lockstep)
+        run: node scripts/sync-version.mjs --check
+      - name: plugins package cleanly
+        run: node scripts/build.mjs
+      - name: version bumped when released surface changed
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-version-bump.mjs --base "origin/${{ github.base_ref }}"
