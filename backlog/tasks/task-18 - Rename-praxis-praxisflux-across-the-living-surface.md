@@ -1,11 +1,11 @@
 ---
 id: TASK-18
 title: Rename praxis -> praxisflux across the living surface
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 22:01'
-updated_date: '2026-07-10 22:02'
+updated_date: '2026-07-10 22:04'
 labels: []
 dependencies: []
 ordinal: 50000
@@ -19,11 +19,11 @@ The praxisflux npm org is secured and @praxisflux/gates@0.5.0 is live; the repo 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Marketplace id, README install lines, and all living docs/prose say praxisflux; check-docs green
-- [ ] #2 Stamped-region markers renamed consistently: canonical sources, consumers, SYNCS table, planted skill references; sync-shared --check green
-- [ ] #3 npm bin renamed praxisflux-gates; build-npm/action/package repository URL point at praxisflux; build-npm integration test green
-- [ ] #4 Touched skills' SKILL.md versions bumped; marketplace bumped to 0.6.0; bump gate green
-- [ ] #5 Wiki notes updated + re-pinned; freshness gate and full suite green
+- [x] #1 Marketplace id, README install lines, and all living docs/prose say praxisflux; check-docs green
+- [x] #2 Stamped-region markers renamed consistently: canonical sources, consumers, SYNCS table, planted skill references; sync-shared --check green
+- [x] #3 npm bin renamed praxisflux-gates; build-npm/action/package repository URL point at praxisflux; build-npm integration test green
+- [x] #4 Touched skills' SKILL.md versions bumped; marketplace bumped to 0.6.0; bump gate green
+- [x] #5 Wiki notes updated + re-pinned; freshness gate and full suite green
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -36,3 +36,15 @@ The praxisflux npm org is secured and @praxisflux/gates@0.5.0 is live; the repo 
 5. Full suite + all check modes; wiki re-pin cadence per source-touching commit.
 6. Finalize, PR. User renames the GitHub repo afterward (redirects keep old slugs working).
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Single perl sweep (praxis(?!flux) guard) over 67 living files; all couplings held in one pass (markers+SYNCS, marketplace id+README, fixtures). Skills bumped: wiki-build/research-vault/vault-artifact 0.1.1, codebase-to-course 0.1.2. Marketplace 0.6.0 stamped everywhere incl. action.yml pin. 15 wiki notes re-pinned against ada5f4c. Full suite 95 pass, every check mode green locally.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Renamed praxis -> praxisflux across all 67 living tracked files in one guarded perl pass (praxis(?!flux), both case variants): marketplace id (installs now <plugin>@praxisflux), README/CLAUDE.md/docs/wiki branding, code comments, tests, stamped-region markers (canonical + consumers + SYNCS together), npm bin (praxisflux-gates), uses: slugs and package.json repository URL (evanstern/praxisflux). Historical records (backlog/, docs/handoffs/, docs/course/) deliberately untouched. Touched skills bumped (3x 0.1.1, codebase-to-course 0.1.2); marketplace 0.6.0 stamped everywhere including the action.yml npx pin, so the next release publishes @praxisflux/gates@0.6.0 under the new branding. 15 wiki notes re-verified and re-pinned against the sweep commit ada5f4c. Verified: full suite 95 pass; gen-marketplace, sync-version, sync-shared, check-docs, wiki-freshness, and bump gate all green. PR #26. Post-merge user steps: rename the GitHub repo to praxisflux, configure the npm trusted publisher (evanstern/praxisflux + release.yml), delete NPM_TOKEN.
+<!-- SECTION:FINAL_SUMMARY:END -->
