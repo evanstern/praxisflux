@@ -4,6 +4,9 @@ description: Repo-level tooling and CI/CD — packages each plugin self-containe
 kind: pipeline
 sources:
   - scripts/build.mjs
+  - scripts/run-gates.mjs
+  - action.yml
+  - docs/consuming-gates.md
   - scripts/sync-shared.mjs
   - scripts/gen-marketplace.mjs
   - scripts/sync-version.mjs
@@ -17,7 +20,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
+verified_against: 4e985de6534f40097e629a927db31ee31802ecca
 ---
 
 # Build and release
@@ -90,6 +93,17 @@ When the tag already exists (a docs-only merge or re-run) it publishes nothing �
 by construction. Bump-size guidance (patch/minor/major, the skill rule, recipes) lives in
 `docs/releasing.md`, linked from `CLAUDE.md`.
 
+**CI consumption surface** (`action.yml` + `scripts/run-gates.mjs`). The repo doubles as a
+composite GitHub Action: consumer repos run the gates at a pinned release tag with
+`uses: evanstern/praxis@v<version>` and a validated `gates:` input (`spec-bridge`,
+`wiki-freshness`, `course`; unknown names fail loudly). GitHub fetches the praxis tree at the
+tag onto the runner and `run-gates.mjs` maps gate names onto the existing gate functions
+against the consumer workspace — runnable from a plain checkout thanks to the per-plugin
+`lib` symlinks. Exit codes are the contract (0 pass · 1 gate failure · 2 usage error);
+`wiki-freshness` detects shallow clones and names the `fetch-depth: 0` fix. Consumer-facing
+docs: `docs/consuming-gates.md`. The planned `@praxis/gates` npm migration (Backlog TASK-17)
+swaps the runner's transport without changing this contract.
+
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
 table maps canonical sources to consumers: the `praxis:tokens` and `praxis:theme` regions of
@@ -129,5 +143,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.3.2` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.4.0` (`v0.2.0` was the pipeline's first
   self-published release).
