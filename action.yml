@@ -8,9 +8,11 @@
 #     with:
 #       gates: spec-bridge, wiki-freshness
 #
-# GitHub fetches this repo at the pinned tag onto the runner; the steps below run the gate
-# runner from that tree (the per-plugin lib symlinks make a plain checkout runnable) against
-# the consumer's workspace. Contract details: docs/consuming-gates.md.
+# The step below runs the gate runner via `npx @praxis/gates@<pin>` — the npm package carved
+# by scripts/build-npm.mjs from this same tree. The pin is stamped by scripts/sync-version.mjs
+# (lockstep with the marketplace version), and release.yml publishes that npm version BEFORE
+# creating the tag, so a released tag always resolves a live package — no race. Consumers'
+# `uses:` line is unchanged from the run-from-checkout era. Contract: docs/consuming-gates.md.
 name: "praxis gates"
 description: "Run praxis gate checks (spec-bridge, wiki-freshness, course) against a repository"
 inputs:
@@ -35,7 +37,7 @@ runs:
     - name: Run praxis gates
       shell: bash
       run: |
-        node "${GITHUB_ACTION_PATH}/scripts/run-gates.mjs" \
+        npx --yes @praxis/gates@0.4.0 \
           --gates "${{ inputs.gates }}" \
           --path "${{ inputs.path }}" \
           --wiki-dir "${{ inputs['wiki-dir'] }}" \

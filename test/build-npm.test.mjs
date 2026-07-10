@@ -11,9 +11,26 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 import { buildNpm, PACKAGE_NAME } from "../scripts/build-npm.mjs";
+import { stampNpxPin } from "../scripts/sync-version.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 const mpVersion = JSON.parse(readFileSync(join(repo, ".claude-plugin", "marketplace.json"), "utf8")).version;
+
+test("action.yml: npx pin names the package and is lockstep with the marketplace", () => {
+  const { pins } = stampNpxPin(readFileSync(join(repo, "action.yml"), "utf8"), PACKAGE_NAME, mpVersion);
+  assert.equal(pins.length, 1, `expected exactly one ${PACKAGE_NAME}@<version> pin in action.yml`);
+  assert.equal(pins[0], mpVersion, "action.yml npx pin must match the marketplace version");
+});
+
+test("stampNpxPin: rewrites only the named package's pins and reports what it found", () => {
+  const text = "npx --yes @praxis/gates@0.4.0 x\nuses: evanstern/praxis@v0.4.0\n@other/pkg@0.4.0";
+  const { text: out, pins } = stampNpxPin(text, "@praxis/gates", "0.5.0");
+  assert.deepEqual(pins, ["0.4.0"]);
+  assert.match(out, /@praxis\/gates@0\.5\.0/);
+  assert.match(out, /evanstern\/praxis@v0\.4\.0/, "the uses: example is not a pin and stays untouched");
+  assert.match(out, /@other\/pkg@0\.4\.0/, "other packages' pins stay untouched");
+  assert.deepEqual(stampNpxPin("no pin here", "@praxis/gates", "0.5.0").pins, []);
+});
 
 test("build-npm: staging tree is symlink-free, lockstep-versioned, and carries the contract files", () => {
   const out = join(mkdtempSync(join(tmpdir(), "build-npm-")), "npm");
