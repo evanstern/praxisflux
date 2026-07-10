@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// build.mjs — package each praxis plugin into dist/<plugin>/, self-contained.
+// build.mjs — package each praxisflux plugin into dist/<plugin>/, self-contained.
 //
 // The shared chassis lives once at repo-root lib/; each plugin carries a `lib -> ../lib`
 // symlink, so plugin code imports it as `../lib/…` and skills reference

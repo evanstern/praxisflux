@@ -1,5 +1,5 @@
 {
-  "description": "spec-bridge gate — refuses to finish while any Backlog task linked to a Spec Kit spec dir carries a status its spec artifacts don't prove (the praxis 'status can't exceed proven artifacts' rule). No-op outside projects with a backlog/ dir and linked tasks; lagging statuses only warn.",
+  "description": "spec-bridge gate — refuses to finish while any Backlog task linked to a Spec Kit spec dir carries a status its spec artifacts don't prove (the praxisflux 'status can't exceed proven artifacts' rule). No-op outside projects with a backlog/ dir and linked tasks; lagging statuses only warn.",
   "hooks": {
     "Stop": [
       {

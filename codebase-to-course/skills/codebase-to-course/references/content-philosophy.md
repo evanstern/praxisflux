@@ -4,7 +4,7 @@
 
 These principles are what separate a great course from a generic tutorial. They should guide every content decision.
 
-The medium-independent core — *one idea per screen; show, don't tell; lead with the point; split, don't shrink; let visuals breathe* — is the shared praxis pedagogy (`lib/toolkit/pedagogy.md`, shipped with this plugin). This file adds the **course-specific** hard rules on top of it:
+The medium-independent core — *one idea per screen; show, don't tell; lead with the point; split, don't shrink; let visuals breathe* — is the shared praxisflux pedagogy (`lib/toolkit/pedagogy.md`, shipped with this plugin). This file adds the **course-specific** hard rules on top of it:
 
 ### Show, Don't Tell — Aggressively Visual
 People's eyes glaze over text blocks. The course should feel closer to an infographic than a textbook. Follow these hard rules:

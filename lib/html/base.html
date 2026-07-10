@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>praxis — self-contained page base</title>
+<title>praxisflux — self-contained page base</title>
 <!--
-  base.html — the SHARED, self-contained, theme-aware foundation for every praxis HTML artifact
+  base.html — the SHARED, self-contained, theme-aware foundation for every praxisflux HTML artifact
   (educate decks AND research briefings). Copy the token block, reset, theme-toggle, and table
   component from here; never load anything external (the Artifact CSP blocks remote hosts —
   inline all CSS/JS, embed images as data: URIs). Validate the result with lib/selfcontained.mjs.
@@ -15,9 +15,9 @@
   :root[data-theme="light"] block lets the on-page toggle override the OS in either direction.
 -->
 <style>
-  /* The canonical token schema. Hand-edit ONLY here (between the praxis:tokens markers);
+  /* The canonical token schema. Hand-edit ONLY here (between the praxisflux:tokens markers);
      consumers (educate's deck template) carry a stamped copy — scripts/sync-shared.mjs. */
-  /* praxis:tokens:start */
+  /* praxisflux:tokens:start */
   /* ---- design tokens (light) ---- */
   :root{
     --bg:#f4f6f9; --card:#ffffff; --ink:#1b2733; --muted:#5a6776;
@@ -49,7 +49,7 @@
     --line:#dde3ea; --chip:#f3f5f8;
     --callout-bg:#f5f5ff; --warn-bg:#fff6ee; --ok-bg:#eefaf7;
   }
-  /* praxis:tokens:end */
+  /* praxisflux:tokens:end */
 
   /* ---- reset + base ---- */
   *{box-sizing:border-box}
@@ -89,7 +89,7 @@
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">◐ theme</button>
 <div class="wrap">
   <h1>Self-contained page base</h1>
-  <p class="muted">The shared foundation for praxis artifacts — theme-aware, offline, CSP-safe.
+  <p class="muted">The shared foundation for praxisflux artifacts — theme-aware, offline, CSP-safe.
     Replace this content; keep the tokens, reset, toggle, and table.</p>
 
   <div class="callout">Lead with the point. A briefing leads with the analysis's verdict; a deck
@@ -109,21 +109,21 @@
   </div>
 </div>
 <script>
-  // The shared theme-cycle core. Hand-edit ONLY here (between the praxis:theme markers);
+  // The shared theme-cycle core. Hand-edit ONLY here (between the praxisflux:theme markers);
   // consumers carry a stamped copy — scripts/sync-shared.mjs.
-  // praxis:theme:start
+  // praxisflux:theme:start
   // Cycles auto -> light -> dark, stamping data-theme on <html> so the CSS token overrides win
   // over the OS preference. No storage, no external calls. State rides on the button
   // (dataset.mode) so any page can bind its own button.
-  function praxisCycleTheme(btn){
+  function praxisfluxCycleTheme(btn){
     const order=["auto","light","dark"], label={auto:"◐ auto",light:"☀ light",dark:"☾ dark"};
     const next=order[(order.indexOf(btn.dataset.mode||"auto")+1)%order.length];
     if(next==="auto") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme",next);
     btn.dataset.mode=next; btn.textContent=label[next]; return next;
   }
-  // praxis:theme:end
-  document.getElementById('themeToggle').addEventListener('click',(e)=>praxisCycleTheme(e.currentTarget));
+  // praxisflux:theme:end
+  document.getElementById('themeToggle').addEventListener('click',(e)=>praxisfluxCycleTheme(e.currentTarget));
 </script>
 </body>
 </html>

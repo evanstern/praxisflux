@@ -1,4 +1,4 @@
-# praxis — repo orientation
+# praxisflux — repo orientation
 
 A Claude Code **plugin marketplace** unifying composable knowledge-work plugins on one shared
 Node chassis (`lib/`). The plugins form a **research → teach → build** loop; each is
@@ -27,9 +27,9 @@ the Stop hook refuses to end a turn while they fail.
 
 The work to build this out is tracked in Backlog (below). Start with `backlog task list --plain`.
 
-## How praxis uses Backlog.md (the working flow)
+## How praxisflux uses Backlog.md (the working flow)
 
-Backlog.md **is** praxis's todo/kanban. Every unit of committed work is a task; the board is the
+Backlog.md **is** praxisflux's todo/kanban. Every unit of committed work is a task; the board is the
 plan of record. Statuses flow **To Do → In Progress → Done**. Per task:
 
 1. **Pick** — respect dependencies (only start a task whose deps are `Done`).
@@ -53,7 +53,7 @@ acceptance criterion, and always when a task hits `Done`. Small, frequent commit
 leads with the task id, e.g. `TASK-1.2: extract project-root + gate-runner into lib/`. End every
 commit message with the `Co-Authored-By: Claude …` trailer.
 
-**Branching:** the repo has a remote (`origin` → `github.com:evanstern/praxis.git`) and uses a PR
+**Branching:** the repo has a remote (`origin` → `github.com:evanstern/praxisflux.git`) and uses a PR
 flow. Do the work on a per-task branch (e.g. `task-3-corpus-wiki`), commit often per the rule above,
 push to `origin`, and open a PR with `gh` for review/merge into `main` — don't push straight to
 `main`. **Merge with merge commits, never squash** — squashing orphans the commits that

@@ -1,7 +1,7 @@
 # spec-bridge
 
 Backlog.md as the kanban view over [GitHub Spec Kit](https://github.com/github/spec-kit)
-specs — composed the praxis way, through files + gates, with no fork of either tool.
+specs — composed the praxisflux way, through files + gates, with no fork of either tool.
 
 One Backlog task per spec directory. The task's `Spec phase:` acceptance criteria mirror
 `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate enforces

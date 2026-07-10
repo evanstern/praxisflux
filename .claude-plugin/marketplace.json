@@ -1,10 +1,10 @@
 {
-  "name": "praxis",
+  "name": "praxisflux",
   "description": "A suite of composable knowledge-work plugins (research, educate, build) on a shared Node chassis.",
   "owner": {
     "name": "praxisflux maintainers"
   },
-  "version": "0.5.0",
+  "version": "0.6.0",
   "plugins": [
     {
       "name": "educate",

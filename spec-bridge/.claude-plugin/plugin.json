@@ -1,9 +1,9 @@
 {
   "name": "spec-bridge",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, and gate 'status can't exceed proven artifacts'.",
   "author": {
-    "name": "praxis maintainers"
+    "name": "praxisflux maintainers"
   },
   "keywords": [
     "spec-kit",

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# praxis pre-commit — keep the suite green and the catalog honest before every commit.
+# praxisflux pre-commit — keep the suite green and the catalog honest before every commit.
 # Enable once with:  git config core.hooksPath .githooks
 set -e
 repo="$(git rev-parse --show-toplevel)"

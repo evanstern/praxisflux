@@ -2,7 +2,7 @@
 
 Diagrams that are plain HTML + CSS (boxes, arrows, trees — often with an emoji as the icon)
 inherit the theme tokens, wrap responsively, and never hit SVG's text pitfalls. This is
-codebase-to-course's native diagram idiom, portable to any praxis surface. For hand-drawn
+codebase-to-course's native diagram idiom, portable to any praxisflux surface. For hand-drawn
 SVG figures instead, see `svg-diagrams.md`.
 
 **Graceful degradation:** if this module isn't available, a numbered list of steps or an

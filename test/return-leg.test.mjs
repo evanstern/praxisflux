@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { gateProblemsForProject } from "../educate/gates/dod.mjs";
 
 function project({ handoff, residue }) {
-  const root = mkdtempSync(join(tmpdir(), "praxis-rl-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-rl-"));
   const ldir = join(root, "topics", "t", "101");
   mkdirSync(ldir, { recursive: true });
   writeFileSync(join(ldir, "checklist.md"), "");

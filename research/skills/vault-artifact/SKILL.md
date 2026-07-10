@@ -1,6 +1,6 @@
 ---
 name: vault-artifact
-version: 0.1.0
+version: 0.1.1
 description: >-
   Render an existing analysis from an Obsidian-style Markdown "thinking vault" into a
   self-contained, theme-aware HTML page with charts — the RENDER phase: visualize the argument an

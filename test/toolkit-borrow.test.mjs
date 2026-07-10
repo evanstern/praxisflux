@@ -31,7 +31,7 @@ test("toolkit borrow: a deck with borrowed translation + quiz slides passes the 
      <div class="bar" id="bar"></div>`
   );
 
-  const root = mkdtempSync(join(tmpdir(), "praxis-borrow-"));
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-borrow-"));
   const ldir = join(root, "topics", "t", "101");
   mkdirSync(ldir, { recursive: true });
   writeFileSync(join(ldir, "checklist.md"), "");

@@ -578,7 +578,7 @@ Grid of cards highlighting engineering patterns, tech stack components, or key c
 
 Courses prefer these HTML/CSS patterns over SVG (they inherit tokens, wrap, and theme for
 free). If a figure genuinely needs hand-drawn inline SVG, follow the shared SVG rules —
-praxis `lib/toolkit/svg-diagrams.md` (`<tspan>` not `<b>`, literal colors in SVG attrs).
+praxisflux `lib/toolkit/svg-diagrams.md` (`<tspan>` not `<b>`, literal colors in SVG attrs).
 
 **Horizontal flow (desktop):**
 ```html
@@ -660,8 +660,8 @@ translation blocks), and `main.js` wires every `.term` on load — hover on desk
 on mobile, tap-away closes, viewport-clamped, flips below when there's no room above. Author the
 HTML contract above and nothing else.
 
-This is the course-native variant of the shared praxis tooltip pattern; the portable snippet for
-non-course surfaces (decks, briefings) lives in the praxis toolkit (`lib/toolkit/tooltip.md`,
+This is the course-native variant of the shared praxisflux tooltip pattern; the portable snippet for
+non-course surfaces (decks, briefings) lives in the praxisflux toolkit (`lib/toolkit/tooltip.md`,
 `data-tip` contract). If neither is available, gloss terms in parentheses on first use.
 
 **Rules:**

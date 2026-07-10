@@ -59,11 +59,11 @@ export function buildNpm(out) {
     name: PACKAGE_NAME,
     version: mp.version,
     description:
-      "praxis gate checks as a zero-dependency CLI (spec-bridge, wiki-freshness, course) — status can't exceed proven artifacts",
+      "praxisflux gate checks as a zero-dependency CLI (spec-bridge, wiki-freshness, course) — status can't exceed proven artifacts",
     license: "MIT",
-    repository: { type: "git", url: "git+https://github.com/evanstern/praxis.git" },
+    repository: { type: "git", url: "git+https://github.com/evanstern/praxisflux.git" },
     type: "module",
-    bin: { "praxis-gates": "scripts/run-gates.mjs" },
+    bin: { "praxisflux-gates": "scripts/run-gates.mjs" },
     engines: { node: ">=18" },
   };
   writeFileSync(join(out, "package.json"), JSON.stringify(pkg, null, 2) + "\n");

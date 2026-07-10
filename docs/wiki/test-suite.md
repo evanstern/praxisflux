@@ -46,7 +46,7 @@ Conventions shared across the files:
 What each file covers:
 
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
-  (missing plugin row / install line / chassis module / releasing link) plus "the praxis
+  (missing plugin row / install line / chassis module / releasing link) plus "the praxisflux
   repo itself is in sync".
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer

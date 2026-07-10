@@ -1,11 +1,11 @@
-# praxis — grounding wiki index
+# praxisflux — grounding wiki index
 
 One line per note. This corpus follows the code dialect of `docs/corpus-spec.md`: every
 note pins `verified_against` to a commit and lists the `sources:` whose change invalidates it.
 
 ## System
 
-- [[overview]] — what praxis is: a plugin marketplace on a shared chassis forming a research → teach → build loop
+- [[overview]] — what praxisflux is: a plugin marketplace on a shared chassis forming a research → teach → build loop
 - [[grounded-corpus-spec]] — the interchange contract (spec v1): corpus layout, note core, provenance dialects, freshness semantics
 - [[handoff-protocol]] — how plugins hand work to each other: gitignored `.handoff/` payloads, durable evidence in tracked state
 - [[skill-patterns]] — the shared authoring patterns: phase-separated skills, gate→work→gate shape, planted CLAUDE.md, placement models

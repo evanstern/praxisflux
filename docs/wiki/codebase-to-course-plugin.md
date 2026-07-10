@@ -75,7 +75,7 @@ verbatim code snippets, aggressive glossary tooltips, and quizzes that test appl
 a coverage rule (only already-taught terms). `references/gotchas.md` is the failure
 checklist (tooltip clipping, `scroll-snap-type: y proximity` not `mandatory`, token-only
 colors so dark mode works). `references/design-system.md` defines the warm token palette and
-also ships the praxis shared token schema as aliases so toolkit snippets drop in unchanged.
+also ships the praxisflux shared token schema as aliases so toolkit snippets drop in unchanged.
 
 **Output gate.** `gates/course.mjs` exposes `validateCourse(courseDir)`, read-only: fails if
 `index.html` is missing; runs `checkHtml` from `lib/selfcontained.mjs` with Google Fonts URLs

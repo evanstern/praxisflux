@@ -44,7 +44,7 @@ The modules:
   attribute; one shared `.tip-pop` element is appended to `document.body` with
   `position: fixed` (never clipped by ancestor `overflow: hidden`), follows the cursor on
   hover, toggles on tap, clamps to the viewport, hides in print. The CSS/JS live between
-  `praxis:tooltip-css/js:start|end` markers and are re-stamped into consumers by
+  `praxisflux:tooltip-css/js:start|end` markers and are re-stamped into consumers by
   `scripts/sync-shared.mjs`; drift fails the test suite.
 - `pedagogy.md` — the five visual-teaching principles shared by every teaching surface: one
   idea per screen; show, don't tell; lead with the point; split, don't shrink; let visuals
