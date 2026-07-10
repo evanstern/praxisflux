@@ -147,6 +147,34 @@ test("Stop hook via gate-runner: blocks on exceed, allows and warns on lag, no-o
   } finally { p.done(); }
 });
 
+test("strictDone config: gate blocks Done over a missing or CRITICAL-bearing analysis.md", () => {
+  const p = project();
+  try {
+    p.task("TASK-10", "Done", "Spec: specs/006-s/");
+    p.spec("specs/006-s", { "spec.md": "# S", "plan.md": "# P", "tasks.md": ALL_CHECKED });
+
+    // without config: checkbox-only mode, Done is proven
+    assert.equal(checkBridge(p.root).problems.length, 0);
+
+    // strict: no analysis.md -> block, message says how to fix
+    writeFileSync(join(p.root, ".spec-bridge.json"), '{ "strictDone": true }');
+    let { problems } = checkBridge(p.root);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], /analysis\.md missing/);
+    assert.match(problems[0], /speckit\.analyze/);
+
+    // strict: unresolved CRITICAL -> block, finding named
+    p.spec("specs/006-s", { "analysis.md": "| C1 | CRITICAL | payment race condition |" });
+    ({ problems } = checkBridge(p.root));
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], /payment race condition/);
+
+    // clean report -> proven
+    p.spec("specs/006-s", { "analysis.md": "no blocking findings" });
+    assert.equal(checkBridge(p.root).problems.length, 0);
+  } finally { p.done(); }
+});
+
 test("a linked task whose spec dir was deleted derives To Do and blocks anything above it", () => {
   const p = project();
   try {
