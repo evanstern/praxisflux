@@ -17,6 +17,14 @@ Touching released surface (plugin dirs, `lib/`, `scripts/`, `.claude-plugin/`)? 
 the marketplace version — and any edited skill's own `version:` — per `docs/releasing.md`; CI
 enforces it, and each merge to `main` auto-publishes the GitHub Release `v<version>`.
 
+**Docs are load-bearing.** The grounding docs (`docs/wiki/`, `README.md`, `CLAUDE.md`) ground
+spec-driven development here and matter as much as the code, so every PR keeps them in sync:
+finish each PR with a `/grounding-wiki:wiki-update` pass when the freshness gate fails, and
+update `README.md`/`CLAUDE.md` when what the repo ships changes. This is enforced, not
+aspirational — CI, the pre-commit/pre-push hooks, and a repo Stop hook
+(`scripts/stop-docs.mjs`) all run `scripts/check-docs.mjs` plus the wiki freshness gate, and
+the Stop hook refuses to end a turn while they fail.
+
 The work to build this out is tracked in Backlog (below). Start with `backlog task list --plain`.
 
 ## How praxis uses Backlog.md (the working flow)
@@ -48,7 +56,9 @@ commit message with the `Co-Authored-By: Claude …` trailer.
 **Branching:** the repo has a remote (`origin` → `github.com:evanstern/praxis.git`) and uses a PR
 flow. Do the work on a per-task branch (e.g. `task-3-corpus-wiki`), commit often per the rule above,
 push to `origin`, and open a PR with `gh` for review/merge into `main` — don't push straight to
-`main`. End PR bodies with the `🤖 Generated with Claude Code` trailer.
+`main`. **Merge with merge commits, never squash** — squashing orphans the commits that
+`docs/wiki` notes pin as `verified_against`, breaking the freshness gate. End PR bodies with
+the `🤖 Generated with Claude Code` trailer.
 
 <!-- BACKLOG.MD GUIDELINES START -->
 <CRITICAL_INSTRUCTION>

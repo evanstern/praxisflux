@@ -37,7 +37,8 @@ grounding-wiki ────┘             (teach)          (implement)         
 
 Zero-dependency Node modules vendored into each plugin at build time:
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
-`lifecycle` · `installer` · `dates` · `template` · `spec-derive` (Spec Kit → kanban state).
+`lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
+`spec-derive` (Spec Kit → kanban state).
 
 ## Principles
 

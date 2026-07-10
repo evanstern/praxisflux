@@ -8,3 +8,5 @@ repo="$(git rev-parse --show-toplevel)"
 cd "$repo"
 echo "pre-push: version bump check vs origin/main"
 node scripts/check-version-bump.mjs --base origin/main
+echo "pre-push: grounding wiki freshness"
+node grounding-wiki/gates/cli.mjs freshness . docs/wiki
