@@ -16,12 +16,12 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 85fbca8047cc297d482547af3457a131117e6c01
+verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
 ---
 
 # codebase-to-course plugin
 
-The `codebase-to-course` plugin (v0.3.0) turns a codebase into a single-page interactive HTML
+The `codebase-to-course` plugin (v0.3.1) turns a codebase into a single-page interactive HTML
 course that teaches how the code works to non-technical "vibe coders" — people who build with
 AI tools and need to read, understand, and direct code, not write it. It was ported from the
 standalone repo `github.com/evanstern/codebase-to-course`. The output is a directory whose

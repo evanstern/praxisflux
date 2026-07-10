@@ -17,7 +17,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 85fbca8047cc297d482547af3457a131117e6c01
+verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
 ---
 
 # Build and release
@@ -126,5 +126,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.3.0` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.3.1` (`v0.2.0` was the pipeline's first
   self-published release).
