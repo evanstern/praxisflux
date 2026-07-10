@@ -15,6 +15,7 @@
 // Bump-size guidance and the release pipeline this feeds live in docs/releasing.md.
 import { execFileSync } from "node:child_process";
 import { parseFrontmatter } from "../lib/markdown.mjs";
+import { runAsCli } from "../lib/cli.mjs";
 
 // ---------- pure core (unit-tested in test/version-bump.test.mjs) ----------
 
@@ -151,4 +152,4 @@ export function main(argv = process.argv.slice(2)) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main());
+if (runAsCli(import.meta.url)) process.exit(main());

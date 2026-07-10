@@ -12,6 +12,7 @@
 // move this runner into the @praxis/gates npm package without changing the contract.
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { runAsCli } from "../lib/cli.mjs";
 import { checkBridge } from "../spec-bridge/gates/bridge.mjs";
 import { validateFreshness } from "../grounding-wiki/gates/freshness.mjs";
 import { validateCourse } from "../codebase-to-course/gates/course.mjs";
@@ -55,7 +56,7 @@ export function runGates(names, opts) {
   return names.map((gate) => ({ gate, ...GATES[gate](opts) }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (name, dflt) => {
     const i = args.indexOf(`--${name}`);

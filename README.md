@@ -40,7 +40,7 @@ Zero-dependency Node modules, reached from each plugin through a committed `lib 
 symlink that marketplace installs and `dist/` packaging dereference into a real copy:
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
 `lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
-`spec-derive` (Spec Kit → kanban state).
+`spec-derive` (Spec Kit → kanban state) · `cli` (symlink-safe run-as-CLI guard).
 
 ## Principles
 

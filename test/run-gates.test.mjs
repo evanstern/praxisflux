@@ -1,11 +1,11 @@
 // Tests for scripts/run-gates.mjs — the CI consumption surface (action.yml's runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync } from "node:fs";
+import { mkdtempSync, mkdirSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 
 import { runGates, GATES } from "../scripts/run-gates.mjs";
 
@@ -46,4 +46,21 @@ test("run-gates: wiki-freshness on a shallow clone fails with the fetch-depth fi
 
 test("run-gates: GATES registry and action.yml agree on the gate names", () => {
   assert.deepEqual(Object.keys(GATES).sort(), ["course", "spec-bridge", "wiki-freshness"]);
+});
+
+// Regression: the run-as-CLI guard compared import.meta.url (symlink-resolved by Node)
+// against argv[1] (as typed), so invoking the runner through a symlinked checkout
+// (~/projects -> Claude/Code) ran zero gates and exited 0 — a silent pass. lib/cli.mjs
+// realpaths both sides; the CLI must now behave identically through any invocation path.
+test("run-gates: CLI fires through a symlinked checkout — no silent zero-gate pass", () => {
+  const dir = mkdtempSync(join(tmpdir(), "run-gates-symlink-"));
+  const link = join(dir, "praxis-link");
+  symlinkSync(repo, link);
+  const runner = (base) =>
+    spawnSync(process.execPath, [join(base, "scripts", "run-gates.mjs"), "--gates", "bogus"], { encoding: "utf8" });
+  for (const base of [link, repo]) {
+    const r = runner(base);
+    assert.equal(r.status, 2, `via ${base}: expected usage-error exit, got ${r.status}`);
+    assert.match(r.stderr, /unknown gate "bogus"/);
+  }
 });

@@ -14,6 +14,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runAsCli } from "../lib/cli.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -56,7 +57,7 @@ export function driftReport(root = repo) {
   return problems;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (runAsCli(import.meta.url)) {
   if (process.argv.includes("--check")) {
     const problems = driftReport();
     for (const p of problems) console.error(p);
