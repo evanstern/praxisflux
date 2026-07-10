@@ -1,8 +1,9 @@
 # Releasing praxis — versions, bumps, and the automated pipeline
 
 praxis ships as **one release**: the `version` in `.claude-plugin/marketplace.json` is the
-release version, and every plugin's `plugin.json` stays in lockstep with it
-(`scripts/sync-version.mjs` enforces this). Releases are git tags + GitHub Releases named
+release version, and every plugin's `plugin.json` — plus `action.yml`'s
+`npx @praxisflux/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
+enforces and stamps all three). Releases are git tags + GitHub Releases named
 `v<version>`, published automatically — there is no manual release step.
 
 ## The pipeline
@@ -18,10 +19,18 @@ release version, and every plugin's `plugin.json` stays in lockstep with it
   - A change under `<plugin>/skills/<skill>/` additionally requires that skill's own
     `version:` (SKILL.md frontmatter) to increase.
 - **Every merge to main** (`.github/workflows/release.yml`): if `v<version>` is a new tag,
-  re-verify, `build.mjs`, zip each `dist/<plugin>` as `<plugin>-v<version>.zip`, and publish
-  the GitHub Release with generated notes. If the tag exists (docs-only merge, re-run), it
-  publishes nothing. So: **substantive PR merged ⇒ exactly one release, named after the
-  marketplace version.**
+  re-verify, publish **`@praxisflux/gates@<version>`** to npm (`build-npm.mjs` staging, then
+  `npm publish` via **OIDC trusted publishing** — the trusted publisher on npmjs.com names
+  this repo + `release.yml`, `id-token: write` supplies the attestation, and provenance is
+  automatic; an `NPM_TOKEN` repo secret, if present, is used instead as a bootstrap/break-glass
+  fallback and should stay deleted normally — npm is deprecating publish-capable tokens),
+  then `build.mjs`, zip each `dist/<plugin>` as `<plugin>-v<version>.zip`, and publish the
+  GitHub Release with generated notes. npm deliberately publishes **before** the release step creates the tag, so
+  a released tag always resolves a live npm version — that ordering is what lets `action.yml`
+  run `npx @praxisflux/gates@<pin>` race-free. If the tag exists (docs-only merge, re-run), it
+  publishes nothing; a re-run after a partial failure skips the npm half if that version is
+  already on the registry. So: **substantive PR merged ⇒ exactly one release — one git tag,
+  one npm version — named after the marketplace version.**
 
 ## When and how much to bump
 
