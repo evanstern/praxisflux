@@ -4,7 +4,7 @@ description: The grounded-corpus interchange contract (spec v1) — corpus layou
 kind: concept
 sources:
   - docs/corpus-spec.md
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # The grounded corpus — praxisflux's interchange contract

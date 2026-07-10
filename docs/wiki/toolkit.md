@@ -10,7 +10,7 @@ sources:
   - lib/toolkit/code-translation.md
   - lib/toolkit/quiz-patterns.md
   - lib/toolkit/diagrams.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # Toolkit
