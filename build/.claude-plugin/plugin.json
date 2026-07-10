@@ -1,6 +1,6 @@
 {
   "name": "build",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate.",
   "author": {
     "name": "Evan Stern",
