@@ -19,8 +19,8 @@ regeneration, and version sync.
   `design-system`, `interactive-elements`, `gotchas`, `module-brief-template`).
 - Recent features (keep intact): dark mode, self-building ToC, comments-on-top code translation
   blocks with a display-only reformatter. All generic, all in the prebuilt assets.
-- Reference outputs to test against: `reference-repo/docs/course` (course) + `reference-repo/docs/wiki`
-  (corpus) — a local checkout of the `reference-repo` repo.
+- Reference outputs to test against: the reference repo's `docs/course` (course) +
+  `docs/wiki` (corpus) — a local checkout.
 
 ## Required reading before authoring
 
@@ -64,7 +64,7 @@ scripts/ convention) · `docs/corpus-spec.md` · `docs/handoff-protocol.md`.
 
 ## Done means
 
-Marketplace-installed plugin generates a course end-to-end on a real repo (reference-repo is the
-fixture: corpus present, expect grounded briefs) · course gate passes on the output ·
+Marketplace-installed plugin generates a course end-to-end on a real repo (the reference
+repo is the fixture: corpus present, expect grounded briefs) · course gate passes on the output ·
 `gen-marketplace --check` + `node --test` green · skill-patterns checklist satisfied ·
 backlog tasks finalized with summaries.
