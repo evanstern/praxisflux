@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:33'
-updated_date: '2026-07-10 20:41'
+updated_date: '2026-07-10 20:46'
 labels: []
 dependencies:
   - TASK-16
@@ -34,7 +34,7 @@ Semver discipline for the CLI surface (flags, exit codes) is already enforced by
 - [ ] #1 Package name/scope secured and recorded (or fallback chosen and documented)
 - [x] #2 Zero-dep package carved with a praxis-gates bin wrapping the shared runner, version lockstep with the marketplace
 - [x] #3 release.yml publishes to npm exactly once per new v<version> tag, with provenance
-- [ ] #4 Composite action switched to the package with zero consumer-visible change
+- [x] #4 Composite action switched to the package with zero consumer-visible change
 - [ ] #5 consuming-gates doc + releasing.md updated to describe the npm surface
 <!-- AC:END -->
 
@@ -57,4 +57,6 @@ Name decision: try @praxis org first (user claiming); fallback @evanstern/praxis
 Carve done: scripts/build-npm.mjs + integration test (pack → extract → run bin via .bin symlink, contract exit codes hold). LICENSE (MIT) added at repo root per user choice.
 
 release.yml wired: npm publish (provenance, --access public) ordered before tag creation; idempotent via tag check + npm view skip. Proof of first publish lands at merge; requires NPM_TOKEN secret (user).
+
+action.yml swapped to npx pin; sync-version.mjs stamps it (guarded-CLI refactor, pure stampNpxPin exported + tested). Pin currently 0.4.0; final bump stamps 0.5.0.
 <!-- SECTION:NOTES:END -->
