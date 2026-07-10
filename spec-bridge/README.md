@@ -24,6 +24,15 @@ re-reads and re-derives, so `/speckit.tasks` regenerating `tasks.md` simply re-d
 "Done-eligible" is deliberately not "Done": only the **sync** skill moves a linked task to
 Done, and only when the derivation says so.
 
+### Strict Done (opt-in)
+
+Checked boxes are necessary but weak proof. With `{ "strictDone": true }` in a
+`.spec-bridge.json` at the project root, Done-eligible additionally requires the
+`/speckit.analyze` report saved as **`<specDir>/analysis.md`** — an artifact the gate can
+read, not chat output — with no unresolved CRITICAL findings (line-based: a line containing
+`CRITICAL` counts unless that line says `resolved` or carries a checked box). Without the
+config, checkbox-only mode is unchanged.
+
 ## Parts
 
 - **link** (skill) — attach exactly one Backlog task to a spec dir: plants the `Spec: <dir>`

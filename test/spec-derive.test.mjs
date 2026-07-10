@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { deriveSpecState, parseTasks, progressNote, STATUS } from "../lib/spec-derive.mjs";
+import { deriveSpecState, parseTasks, progressNote, findCriticalFindings, STATUS } from "../lib/spec-derive.mjs";
 
 function scratch() {
   const dir = mkdtempSync(join(tmpdir(), "spec-derive-"));
@@ -102,6 +102,41 @@ test("regenerated tasks.md re-derives fresh with no stale residue", () => {
     assert.equal(state.progressNote, "Scaffold: 0/1 · Ship It: 1/2");
     assert.ok(!state.progressNote.includes("Setup")); // nothing from the old file survives
   } finally { s.done(); }
+});
+
+test("strict mode: all boxes checked is not enough without a clean analysis.md", () => {
+  const s = scratch();
+  try {
+    s.put("spec.md", "# Spec");
+    s.put("plan.md", "# Plan");
+    s.put("tasks.md", "- [x] T001 done");
+    const strict = { requireAnalysis: true };
+
+    // AC3: without strict mode, prior behavior is untouched
+    assert.equal(deriveSpecState(s.dir).status, STATUS.DONE_ELIGIBLE);
+
+    // AC1: strict + no report -> In Progress
+    let state = deriveSpecState(s.dir, strict);
+    assert.equal(state.status, STATUS.IN_PROGRESS);
+    assert.deepEqual(state.analysis, { required: true, present: false, criticals: [] });
+
+    // AC2: report with an unresolved CRITICAL -> still In Progress, finding surfaced
+    s.put("analysis.md", "| C1 | CRITICAL | Missing auth check on /pay |\n| C2 | LOW | typo |");
+    state = deriveSpecState(s.dir, strict);
+    assert.equal(state.status, STATUS.IN_PROGRESS);
+    assert.equal(state.analysis.criticals.length, 1);
+    assert.match(state.analysis.criticals[0], /Missing auth check/);
+
+    // resolved on the same line (or a checked box) clears the finding
+    s.put("analysis.md", "| C1 | CRITICAL | Missing auth check | resolved in T009 |\n- [x] CRITICAL C2 handled");
+    assert.equal(deriveSpecState(s.dir, strict).status, STATUS.DONE_ELIGIBLE);
+  } finally { s.done(); }
+});
+
+test("findCriticalFindings is line-based and case-exact on the severity word", () => {
+  const criticals = findCriticalFindings("CRITICAL: a\ncritical lowercase ignored\nCRITICAL but resolved here\n");
+  assert.deepEqual(criticals, ["CRITICAL: a"]);
+  assert.deepEqual(findCriticalFindings(""), []);
 });
 
 test("malformed and missing files degrade instead of crashing", () => {

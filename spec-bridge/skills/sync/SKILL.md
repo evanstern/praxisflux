@@ -31,6 +31,12 @@ Skip entries whose verdict is `ok` and whose phase ACs already mirror the derive
    - derived `Done-eligible` → `-s Done`. This is the ONLY path that moves a linked task to
      Done. Also write a final summary from the derived state, e.g.
      `--final-summary "All spec tasks complete (<progressNote>). Derived Done by spec-bridge sync."`
+   - **Strict mode** (`.spec-bridge.json` at the root has `"strictDone": true`): the derivation
+     also demands `analysis.md` in the spec dir with no unresolved CRITICAL findings. If the
+     `state` output shows `analysis.required` blocking Done, tell the user to run
+     `/speckit.analyze` and **save its report as `<specDir>/analysis.md`** — the gate reads
+     artifacts, not chat output. Resolving a CRITICAL finding means fixing it in the spec
+     workflow and re-saving the report, never editing the board.
    - Verdict `unknown` (custom status outside To Do/In Progress/Done): don't guess — report it
      to the user and leave the status alone.
 2. **Re-mirror phase ACs** — the ACs spelled `Spec phase: <name>` belong to the bridge; sync
