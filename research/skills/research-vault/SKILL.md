@@ -1,5 +1,6 @@
 ---
 name: research-vault
+version: 0.1.0
 description: >-
   Research a topic and file it into an Obsidian-style Markdown "thinking vault" as an isolated,
   grounded, interlinked wiki branch — the EMBED phase: gather cited facts and structure them into

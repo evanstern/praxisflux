@@ -1,5 +1,6 @@
 ---
 name: link
+version: 0.1.0
 description: Attach a Backlog.md task to a GitHub Spec Kit spec directory so the spec drives the task across the kanban. Use when the user wants a spec on the board, says "link specs/NNN-feature to backlog", "track this spec in Backlog", or "put this feature on the board". Creates or updates the task with a machine-findable Spec marker and seeds phase acceptance criteria from tasks.md.
 ---
 
