@@ -16,6 +16,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { deriveSpecState, STATUS } from "../../lib/spec-derive.mjs";
+import { hasChild, findRootsDownwards } from "../../lib/project-root.mjs";
 
 const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
 const RANK = { "to do": 0, "in progress": 1, done: 2 };
@@ -98,3 +99,15 @@ export function checkBridge(root) {
   }
   return { links, problems, warnings };
 }
+
+/**
+ * The Stop-hook gate, in gate-runner shape. Roots are directories holding a backlog/ dir;
+ * a root with no linked tasks yields no problems, so the gate is a natural no-op outside
+ * bridged projects. "exceeds" blocks; "lags" only warns.
+ */
+export const bridgeGate = {
+  name: "spec-bridge",
+  resolveRoots: (startDir) => findRootsDownwards(startDir, hasChild("backlog")),
+  check: (root) => checkBridge(root).problems,
+  warn: (root) => checkBridge(root).warnings,
+};
