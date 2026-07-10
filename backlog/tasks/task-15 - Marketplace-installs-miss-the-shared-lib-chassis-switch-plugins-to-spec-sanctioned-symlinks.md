@@ -3,11 +3,11 @@ id: TASK-15
 title: >-
   Marketplace installs miss the shared lib/ chassis: switch plugins to
   spec-sanctioned symlinks
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:01'
-updated_date: '2026-07-10 18:06'
+updated_date: '2026-07-10 18:09'
 labels: []
 dependencies: []
 priority: high
@@ -26,7 +26,7 @@ Installed plugins crash at runtime with ERR_MODULE_NOT_FOUND: marketplace.json p
 - [x] #2 All runtime imports use ../lib/ and no plugin .mjs references ../../lib/ anymore
 - [x] #3 scripts/build.mjs produces self-contained dist/ output by dereferencing the symlinks (no import rewriting)
 - [x] #4 Empirical verification: installing a plugin from the local marketplace yields a cache copy whose stop hook runs without ERR_MODULE_NOT_FOUND
-- [ ] #5 Test suite passes and marketplace version is bumped per docs/releasing.md
+- [x] #5 Test suite passes and marketplace version is bumped per docs/releasing.md
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -49,3 +49,9 @@ Symlinks + import rewrite + build.mjs simplification committed. All 85 tests pas
 
 Empirical verification done in an isolated CLAUDE_CONFIG_DIR: claude plugin marketplace add <repo> + claude plugin install spec-bridge@praxis produced a cache copy where lib/ is a REAL directory (symlink dereferenced by the installer, exactly as the plugins reference documents) and scripts/stop.mjs runs with exit 0.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Root cause: marketplace installs copy only the plugin source dir into the cache, so every hook/gate's ../../lib/ import escaped the copy (ERR_MODULE_NOT_FOUND on Stop). Fix per the plugins reference: each of the six plugins now carries a committed lib -> ../lib symlink (dereferenced into a real copy by the installer), all runtime imports moved to ../lib/, build:implement's ${CLAUDE_PLUGIN_ROOT}/../lib reference fixed (skill 0.1.0 -> 0.1.1), and scripts/build.mjs collapsed to a plain copy that swaps the symlink for a real dir. Verified empirically in an isolated CLAUDE_CONFIG_DIR: installed cache copy has a real lib/ and stop.mjs exits 0. 85/85 tests pass; marketplace bumped 0.3.1 -> 0.3.2; wiki (8 notes), README, and skill-patterns re-verified for the symlink model.
+<!-- SECTION:FINAL_SUMMARY:END -->
