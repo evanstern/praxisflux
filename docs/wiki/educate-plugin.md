@@ -15,12 +15,12 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # educate plugin
 
-The `educate` plugin (v0.1.0) turns a folder into a Socratic learning project: it teaches
+The `educate` plugin (v0.2.0) turns a folder into a Socratic learning project: it teaches
 lessons, authors build SPECs for the `build` plugin, and refuses to mark a lesson `done`
 until auditable artifacts — notes, decks, guides — exist on disk, so learning produces
 durable, verifiable work product rather than ephemeral chat.
@@ -70,6 +70,9 @@ relative Markdown links, never wikilinks, so corpora stay isolated.
 **Hook.** `hooks/hooks.json` registers a `Stop` hook running `scripts/gate.sh`, a shim that
 execs `scripts/stop.mjs`; that entry uses `runStopHook` from `lib/gate-runner.mjs` with one
 gate — `check` = DoD problems (blocking), `warn` = `wikiStalenessWarnings` (advisory only).
+Because Stop hooks run in a minimal non-login shell, the shim resolves `node` via
+`command -v` with a login-shell fallback (`$SHELL -lc`), and exits 0 (no-op) when node is
+genuinely unavailable — the gate never blocks Stop over a missing runtime.
 
 ## Connections
 

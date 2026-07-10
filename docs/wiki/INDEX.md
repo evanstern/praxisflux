@@ -30,8 +30,9 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[educate-plugin]] — Socratic learning projects: lesson lifecycle, DoD gate, teach→build seam
 - [[build-plugin]] — implements a handed-off SPEC and returns findings (scaffold split from educate)
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
+- [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
 
 ## Repo operations
 
-- [[build-and-release]] — repo-level tooling: vendoring lib/ into dist/, marketplace generation, version sync
+- [[build-and-release]] — repo-level tooling + CI/CD: vendoring lib/ into dist/, marketplace generation, version sync, the bump gate, and auto-published GitHub Releases
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams

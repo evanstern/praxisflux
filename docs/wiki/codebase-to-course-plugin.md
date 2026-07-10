@@ -12,14 +12,16 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/interactive-elements.md
   - codebase-to-course/skills/codebase-to-course/references/module-brief-template.md
   - codebase-to-course/skills/codebase-to-course/references/main.js
+  - codebase-to-course/skills/codebase-to-course/references/build.sh
+  - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # codebase-to-course plugin
 
-The `codebase-to-course` plugin (v0.1.0) turns a codebase into a single-page interactive HTML
+The `codebase-to-course` plugin (v0.2.0) turns a codebase into a single-page interactive HTML
 course that teaches how the code works to non-technical "vibe coders" — people who build with
 AI tools and need to read, understand, and direct code, not write it. It was ported from the
 standalone repo `github.com/evanstern/codebase-to-course`. The output is a directory whose
@@ -42,14 +44,30 @@ Briefs record consumed `[[note]]` names in `grounding:` frontmatter
 (`references/module-brief-template.md`), making briefs the course's sidecar record.
 
 **Output layout.** Default destination is `docs/course/` in the target repo (pairing with a
-corpus at `docs/wiki/`), user override allowed. `styles.css`, `main.js`, `_footer.html`, and
-`build.sh` are copied verbatim from `references/` — never regenerated; that invariant is the
-skill's core. `_base.html` gets exactly three substitutions (title, `ACCENT_*` palette,
-`NAV_DOTS`). Modules are bare `<section class="module">` files in `modules/`; `build.sh`
-assembles `index.html`. `references/main.js` is the complete JS engine — quizzes,
-drag-and-drop, group chat and flow animations, glossary tooltips, dark mode
-(`course-theme` in localStorage), and a self-built table of contents — auto-initializing off
-class names and `data-*` attributes.
+corpus at `docs/wiki/`), user override allowed. Five files — `styles.css`, `main.js`,
+`_footer.html`, `build.sh`, and `validate.mjs` — are copied verbatim from `references/`,
+never regenerated; that invariant is the skill's core, and copies must come **from the
+plugin's `references/` only, never from another course directory** (an existing course is a
+snapshot of whatever chrome generation built it, not a template). `_base.html` gets exactly
+three substitutions (title, `ACCENT_*` palette, `NAV_DOTS`). Modules are bare
+`<section class="module">` files in `modules/`; `build.sh` assembles `index.html`.
+`references/main.js` is the complete JS engine — quizzes, drag-and-drop, group chat and flow
+animations, glossary tooltips, dark mode (`course-theme` in localStorage), and a self-built
+table of contents — auto-initializing off class names and `data-*` attributes.
+
+**Versioned chrome.** The five copied files are the plugin's "course chrome", registered as
+a plugin-owned toolkit citizen in `lib/toolkit/README.md`. Every rendering file opens with a
+`chrome v<N> — <engine name>` stamp (currently `chrome v2 — inline translation engine
+(comments-on-top)`; no stamp = the retired v1 side-by-side renderer), and `validate.mjs`
+carries the matching `CHROME_VERSION` constant. The stamp bumps only when the rendering
+contract changes — the same authored markup meaning something different on screen. When
+`CLAUDE_PLUGIN_ROOT` (in-session) or `C2C_REFERENCES` (manual override) resolves, `build.sh`
+refreshes `styles.css`, `main.js`, `_footer.html`, and `validate.mjs` from the canonical
+references before assembling; `build.sh` itself and the per-course `_base.html` are never
+auto-refreshed. Before assembly, `build.sh` runs `validate.mjs` over the modules: every
+translation block needs 1:1 `.tl`/`.code-line` pairing and bracket-balanced code (excerpts
+trimmed from within, never cut mid-structure); `--fix` auto-closes blocks that only miss
+closing brackets.
 
 **Content rules.** `references/content-philosophy.md` mandates screens at least 50% visual,
 2–3 sentence text blocks, one concept per screen, fresh metaphors (never "restaurant"),
@@ -64,8 +82,12 @@ also ships the praxis shared token schema as aliases so toolkit snippets drop in
 masked out (the one allowed external host); requires nav-dot count == module count; per
 module, at least one quiz (any of `quiz-container`, `dnd-container`, `bug-challenge`,
 `scenario-block`) and one `.translation-block`; and course-wide at least one `.chat-window`
-and one `.flow-animation`. `gates/cli.mjs` is the entry (`node cli.mjs course <course-dir>`);
-Phase 4 requires fixing and rebuilding until it passes.
+and one `.flow-animation`. It also imports `checkTranslationBlocks` and `checkChrome` from
+the skill's `references/validate.mjs`: the assembled `index.html` must honor the
+pairing/bracket-balance contracts, and the course's vendored chrome must carry the plugin's
+current version stamp — a fossilized (unstamped or version-mixed) course can't pass.
+`gates/cli.mjs` is the entry (`node cli.mjs course <course-dir>`); Phase 4 requires fixing
+and rebuilding until it passes.
 
 ## Connections
 
