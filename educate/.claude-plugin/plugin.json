@@ -1,7 +1,16 @@
 {
   "name": "educate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts.",
-  "author": { "name": "Evan Stern", "email": "evanmicahstern@gmail.com" },
-  "keywords": ["learning", "teach-me", "socratic", "curriculum", "orchestration"]
+  "author": {
+    "name": "Evan Stern",
+    "email": "evanmicahstern@gmail.com"
+  },
+  "keywords": [
+    "learning",
+    "teach-me",
+    "socratic",
+    "curriculum",
+    "orchestration"
+  ]
 }
