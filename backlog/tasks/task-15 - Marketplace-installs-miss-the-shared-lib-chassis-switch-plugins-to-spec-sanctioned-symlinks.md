@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:01'
-updated_date: '2026-07-10 18:02'
+updated_date: '2026-07-10 18:06'
 labels: []
 dependencies: []
 priority: high
@@ -22,10 +22,10 @@ Installed plugins crash at runtime with ERR_MODULE_NOT_FOUND: marketplace.json p
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Each plugin dir that imports the chassis carries a lib symlink to ../lib, committed to git
-- [ ] #2 All runtime imports use ../lib/ and no plugin .mjs references ../../lib/ anymore
-- [ ] #3 scripts/build.mjs produces self-contained dist/ output by dereferencing the symlinks (no import rewriting)
-- [ ] #4 Empirical verification: installing a plugin from the local marketplace yields a cache copy whose stop hook runs without ERR_MODULE_NOT_FOUND
+- [x] #1 Each plugin dir that imports the chassis carries a lib symlink to ../lib, committed to git
+- [x] #2 All runtime imports use ../lib/ and no plugin .mjs references ../../lib/ anymore
+- [x] #3 scripts/build.mjs produces self-contained dist/ output by dereferencing the symlinks (no import rewriting)
+- [x] #4 Empirical verification: installing a plugin from the local marketplace yields a cache copy whose stop hook runs without ERR_MODULE_NOT_FOUND
 - [ ] #5 Test suite passes and marketplace version is bumped per docs/releasing.md
 <!-- AC:END -->
 
@@ -41,3 +41,11 @@ Installed plugins crash at runtime with ERR_MODULE_NOT_FOUND: marketplace.json p
 7. Bump marketplace version per docs/releasing.md; wiki freshness pass if the gate flags notes
 8. Push, open PR (merge commit flow)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Symlinks + import rewrite + build.mjs simplification committed. All 85 tests pass (node --test). dist/<plugin>/lib is a real dir; packaged spec-bridge stop.mjs runs with exit 0. Note: cpSync dereference:true does NOT materialize dir symlinks met mid-recursion — build.mjs swaps the symlink by hand. Bonus fix found: build:implement SKILL.md executed the chassis via ${CLAUDE_PLUGIN_ROOT}/../lib (same root cause), fixed + skill bumped to 0.1.1.
+
+Empirical verification done in an isolated CLAUDE_CONFIG_DIR: claude plugin marketplace add <repo> + claude plugin install spec-bridge@praxis produced a cache copy where lib/ is a REAL directory (symlink dereferenced by the installer, exactly as the plugins reference documents) and scripts/stop.mjs runs with exit 0.
+<!-- SECTION:NOTES:END -->
