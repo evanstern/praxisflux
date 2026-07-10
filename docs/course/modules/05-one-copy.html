@@ -1,0 +1,423 @@
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">One Copy Everywhere</h1>
+      <p class="module-subtitle">Why praxis deliberately copies its shared code into all five plugins — and the robots that make copying safe</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ============ SCREEN 1: HOOK ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The rule we're about to break</h2>
+        <p>Every programmer is taught the same commandment — <span class="term" data-definition="Short for 'Don't Repeat Yourself' — the classic programming rule that shared logic should live in exactly one place, so a fix made once lands everywhere at once.">DRY</span>: never copy-paste code, share it. Praxis copies its shared code into all five <span class="term" data-definition="A self-contained add-on that extends a tool with new abilities — each praxis plugin adds skills to Claude Code, and you install only the ones you want.">plugins</span>. On purpose. And it's the right call.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); margin: var(--space-8) 0;">
+          <div style="background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-6); border-top: 3px solid var(--color-info); text-align: center;">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: var(--space-4);">At the depot — development</div>
+            <div style="font-size: 1.6rem; letter-spacing: 0.35em;">🚚🚚🚚🚚🚚</div>
+            <div style="color: var(--color-text-muted); font-size: var(--text-sm); margin: var(--space-2) 0;">⤵ &nbsp;one extension cord each&nbsp; ⤵</div>
+            <div style="font-size: 1.6rem;">⚡</div>
+            <div style="font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-info); font-weight: 600;">lib/ — the depot's power supply</div>
+            <p style="color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: var(--space-3);">One copy of the shared code. Every plugin plugs into it.</p>
+          </div>
+          <div style="background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-6); border-top: 3px solid var(--color-accent); text-align: center;">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: var(--space-4);">On the road — shipped</div>
+            <div style="font-size: 1.6rem; letter-spacing: 0.15em;">🚚⚡ 🚚⚡ 🚚⚡</div>
+            <div style="font-size: 1.6rem; letter-spacing: 0.15em; margin-top: var(--space-1);">🚚⚡ 🚚⚡</div>
+            <div style="font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-accent); font-weight: 600; margin-top: var(--space-2);">five trucks, five generators</div>
+            <p style="color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: var(--space-3);">Every shipped plugin carries its own full copy of lib/ inside it.</p>
+          </div>
+        </div>
+
+        <p>Picture the plugins as a food-truck fleet. During development all five trucks park at one depot and plug into the depot's power — the repo-root <span class="term" data-definition="The shared folder of common code all five plugins rely on — nine files, about 455 lines. Module 2 called it the chassis: the frame everything is built on.">chassis</span>. But a truck that ships out can't drag an extension cord back to the depot — so at <span class="term" data-definition="The build step that turns source code into the finished thing you actually ship. Here, a script assembles each plugin into its own ready-to-install folder.">packaging</span> time, each truck gets its own generator installed.</p>
+      </section>
+
+      <!-- ============ SCREEN 2: VENDORING ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Vendoring: install the generator</h2>
+        <p>Engineers call this <span class="term" data-definition="Copying a dependency's code directly into your own project so it ships as one self-contained unit. When talking to an AI assistant, 'vendor that library' means 'bundle a copy in, instead of linking out to it.'">vendoring</span>: praxis shares the <span class="term" data-definition="The one official master copy that all others are measured against. Also called the canonical copy — fixes and edits happen here, never in the copies.">source of truth</span> (one canonical lib/) and duplicates the shipped <span class="term" data-definition="Here: a finished file a build produces — a packaged plugin, a rendered page. Module 3 used 'artifact' for evidence a gate can check. Same word, two senses; both mean 'a real produced thing, not a claim.'">artifact</span> (each plugin carries its own copy). Here's the same folder, before and after packaging.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin: var(--space-8) 0;">
+          <div style="background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-5);">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-info); font-weight: 700; margin-bottom: var(--space-3);">Development — the depot</div>
+            <div class="file-tree">
+              <div class="ft-folder open">
+                <span class="ft-name">praxis/</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">lib/</span>
+                    <span class="ft-desc">← one copy, shared by all</span>
+                    <div class="ft-children">
+                      <div class="ft-file"><span class="ft-name">gate-runner.mjs</span></div>
+                      <div class="ft-file"><span class="ft-name">…</span></div>
+                    </div>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">educate/</span>
+                    <span class="ft-desc">imports ../../lib/… — "up two folders"</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">research/</span>
+                    <span class="ft-desc">same deal</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">…</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-5); border-left: 3px solid var(--color-accent);">
+            <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); font-weight: 700; margin-bottom: var(--space-3);">Shipped — <span style="font-family: var(--font-mono); text-transform: none;">dist/educate</span>, self-contained</div>
+            <div class="file-tree">
+              <div class="ft-folder open">
+                <span class="ft-name">dist/educate/</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">lib/</span>
+                    <span class="ft-desc">← its own copy — the generator</span>
+                    <div class="ft-children">
+                      <div class="ft-file"><span class="ft-name">gate-runner.mjs</span></div>
+                      <div class="ft-file"><span class="ft-name">…</span></div>
+                    </div>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">skills/&nbsp; gates/&nbsp; scripts/</span>
+                    <span class="ft-desc">imports ../lib/… ← rewritten</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p style="color: var(--color-text-muted); font-size: var(--text-xs); margin-top: var(--space-3); font-style: italic;">(research ships separately, with its own lib/ copy)</p>
+          </div>
+        </div>
+
+        <p>The packaging loop in the build script does three things per truck: copy the plugin, install the generator, fix the paths. Notice the <span class="term" data-definition="Short for 'distribution' — the conventional folder name for finished, ready-to-ship build output. You edit source folders; dist/ gets regenerated.">dist/</span> folder is pure output — nobody edits it by hand.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/build.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> plugin <span class="code-keyword">of</span> targets) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> src = <span class="code-function">join</span>(repo, plugin), out = <span class="code-function">join</span>(dist, plugin);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(src)) { console.<span class="code-function">error</span>(<span class="code-string">`no such plugin: ${plugin}`</span>); process.<span class="code-function">exit</span>(<span class="code-number">1</span>); }</span>
+<span class="code-line">  <span class="code-function">cpSync</span>(src, out, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });                 <span class="code-comment">// plugin sources</span></span>
+<span class="code-line">  <span class="code-function">cpSync</span>(<span class="code-function">join</span>(repo, <span class="code-string">"lib"</span>), <span class="code-function">join</span>(out, <span class="code-string">"lib"</span>), { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> }); <span class="code-comment">// vendor the chassis</span></span>
+<span class="code-line">  <span class="code-function">rewriteLibImports</span>(out);                                <span class="code-comment">// ../../lib → ../lib</span></span>
+<span class="code-line">  console.<span class="code-function">log</span>(<span class="code-string">`packaged ${plugin} → dist/${plugin} (lib vendored, imports rewritten)`</span>);</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">For each plugin we're shipping — each truck rolling out…</p>
+              <p class="tl">…note where its source lives and where its packaged copy will go.</p>
+              <p class="tl">If that plugin doesn't exist, stop the whole build and say so — no silent failures.</p>
+              <p class="tl">Copy the entire plugin folder into the shipping area.</p>
+              <p class="tl">Copy the whole shared lib/ INSIDE it — install this truck's own generator.</p>
+              <p class="tl">Fix every "where's the shared code?" path, because lib/ now lives one level closer.</p>
+              <p class="tl">Announce what just happened, for the human watching the build.</p>
+              <p class="tl">…and move on to the next truck.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That path-fixing step matters. In development, an <span class="term" data-definition="A line of code that pulls in code from another file — with a path saying where to look, like '../../lib/' meaning 'go up two folders, then into lib.'">import</span> says "go up two folders to find lib" — but inside the packaged truck, lib/ is one folder away. A find-and-replace, performed by code, so humans never maintain two versions of the paths.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/build.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">rewriteLibImports</span>(dir) {</span>
+<span class="code-line">  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> e <span class="code-keyword">of</span> <span class="code-function">readdirSync</span>(dir, { <span class="code-property">withFileTypes</span>: <span class="code-keyword">true</span> })) {</span>
+<span class="code-line">    <span class="code-keyword">const</span> p = <span class="code-function">join</span>(dir, e.name);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (e.<span class="code-function">isDirectory</span>()) { <span class="code-keyword">if</span> (e.name !== <span class="code-string">"lib"</span>) <span class="code-function">rewriteLibImports</span>(p); <span class="code-keyword">continue</span>; }</span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-function">extname</span>(p) === <span class="code-string">".mjs"</span>) {</span>
+<span class="code-line">      <span class="code-keyword">const</span> s = <span class="code-function">readFileSync</span>(p, <span class="code-string">"utf8"</span>);</span>
+<span class="code-line">      <span class="code-keyword">const</span> r = s.<span class="code-function">replaceAll</span>(<span class="code-string">"../../lib/"</span>, <span class="code-string">"../lib/"</span>);</span>
+<span class="code-line">      <span class="code-keyword">if</span> (r !== s) <span class="code-function">writeFileSync</span>(p, r);</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A helper that fixes the import paths in one folder.</p>
+              <p class="tl">Look at every item inside that folder…</p>
+              <p class="tl">…and work out each item's full location.</p>
+              <p class="tl">If it's a folder, dive in and fix its files too — but skip the freshly copied lib/ itself.</p>
+              <p class="tl">Only touch code files — the .mjs ones.</p>
+              <p class="tl">Read the file's text…</p>
+              <p class="tl">…replace every "up two folders to lib" with "up one"…</p>
+              <p class="tl">…and only rewrite the file if something actually changed.</p>
+              <p class="tl">…close the code-file check.</p>
+              <p class="tl">…close the loop over the folder's contents.</p>
+              <p class="tl">Done — every path now points at the truck's own generator.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: THE NIGHTLY BINDER CHECK ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The nightly binder check</h2>
+        <p>Some shared content can't be imported at all. A planted <span class="term" data-definition="A pre-written starter file that gets copied into your project and filled in. Once planted, it's on its own — it can't call home to the repo it came from.">template</span> is a standalone file — at <span class="term" data-definition="The moment code actually runs, as opposed to when it's written or packaged. A planted template at runtime has only what was physically copied into it.">runtime</span> it can't reach back into lib/. So the shared blocks live as literal photocopies inside the consumer files — and photocopies drift. Praxis handles it like the fleet's master recipe binder:</p>
+
+        <div class="step-cards" style="margin: var(--space-8) 0;">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Mark it</strong>
+              <p>The master and every copy carry the same "start"/"end" marker lines around each shared block.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Stamp it</strong>
+              <p>A script — sync-shared.mjs — photocopies each marked region from the canonical source into every consumer file.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Compare it, every night</strong>
+              <p>A <span class="term" data-definition="A small program that automatically checks that other code behaves as expected. Praxis runs its tests before every commit, so a broken promise can't sneak in.">test</span> cuts the block out of the master and out of each copy and compares them, byte for byte.</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Fail loudly</strong>
+              <p><span class="term" data-definition="When a copy slowly stops matching its original — someone edits one side and forgets the other. Harmless-looking at first, and the classic reason 'never copy-paste' became a rule.">Drift</span> fails the <span class="term" data-definition="A check that runs automatically before every commit — a save-point in git. If it fails, the save is blocked until you fix it. Telling an AI 'add this to the pre-commit hook' makes a rule unskippable.">pre-commit hook</span>, naming the file and the fix — before the truck ever leaves.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The photocopy list itself is plain data — what gets stamped where:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/sync-shared.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">const</span> SYNCS = [</span>
+<span class="code-line">  { <span class="code-property">source</span>: <span class="code-string">"lib/html/base.html"</span>,</span>
+<span class="code-line">    <span class="code-property">regions</span>: [<span class="code-string">"praxis:tokens"</span>, <span class="code-string">"praxis:theme"</span>],</span>
+<span class="code-line">    <span class="code-property">consumers</span>: [<span class="code-string">"educate/templates/.template/deck.html"</span>] },</span>
+<span class="code-line">  { <span class="code-property">source</span>: <span class="code-string">"lib/toolkit/tooltip.md"</span>,</span>
+<span class="code-line">    <span class="code-property">regions</span>: [<span class="code-string">"praxis:tooltip-css"</span>, <span class="code-string">"praxis:tooltip-js"</span>],</span>
+<span class="code-line">    <span class="code-property">consumers</span>: [<span class="code-string">"educate/templates/.template/deck.html"</span>] },</span>
+<span class="code-line">];</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The master photocopy list — visible to the tests that enforce it.</p>
+              <p class="tl">First entry: the canonical file where the shared page styling lives…</p>
+              <p class="tl">…the two marked blocks inside it that get copied…</p>
+              <p class="tl">…and the consumer file that must carry an identical copy.</p>
+              <p class="tl">Second entry: the canonical tooltip snippet…</p>
+              <p class="tl">…its two marked blocks — the styles and the behavior…</p>
+              <p class="tl">…stamped into the same deck template.</p>
+              <p class="tl">End of the list — a new photocopy means one new entry here.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>And here's the robot's scissors — the function that cuts a marked block out of any file so master and copy can be compared. It uses a <span class="term" data-definition="A search pattern for text — find-and-replace with superpowers, able to match shapes like 'any line containing praxis:tokens:start.' Often shortened to 'regex.'">regular expression</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — scripts/sync-shared.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** The text between the `&lt;name&gt;:start` and `&lt;name&gt;:end` marker lines (markers excluded). */</span></span>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">function</span> <span class="code-function">extractRegion</span>(text, name) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> re = <span class="code-keyword">new</span> <span class="code-function">RegExp</span>(<span class="code-string">`^.*${name}:start.*$\\n([\\s\\S]*?)^.*${name}:end.*$`</span>, <span class="code-string">"m"</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> m = text.<span class="code-function">match</span>(re);</span>
+<span class="code-line">  <span class="code-keyword">return</span> m ? m[<span class="code-number">1</span>] : <span class="code-keyword">null</span>;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The developer's own note: grab what sits between the start and end markers.</p>
+              <p class="tl">Given a file's full text and a region name…</p>
+              <p class="tl">…build a search pattern: find the ":start" line, everything after it, then the ":end" line.</p>
+              <p class="tl">Run that search on the file.</p>
+              <p class="tl">Found it? Hand back just the middle — the shared block. Not found? Say so honestly.</p>
+              <p class="tl">Done — now the master and every copy can be cut out and compared exactly.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>If you hand-edit a copy, the comparison fails — and the failure message names the file and the fix: run <code>scripts/sync-shared.mjs</code>. The check also runs as a regular test, so the pre-commit suite fails on drift too.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">The sin isn't duplication — it's unchecked duplication</strong>
+            <p>"Never copy-paste" is really "never copy-paste <em>without a robot watching</em>." Share the source of truth, duplicate the shipped artifact, and pay for it with automation that makes drift impossible to miss.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: SELF-CONTAINED ALL THE WAY DOWN ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Self-contained all the way down</h2>
+        <p>The same philosophy applies to the <span class="term" data-definition="HyperText Markup Language — the code format web pages are written in. A single .html file can hold a whole page: text, styling, and behavior.">HTML</span> pages the plugins <em>produce</em>. They're published to a host whose <span class="term" data-definition="Content Security Policy — a rule-set the page's host enforces in the browser, like 'this page may not contact any outside server.' A locked-down CSP is why everything must be packed inside the page.">security policy</span> blocks all outside connections — no <span class="term" data-definition="Content Delivery Network — public servers that host common files (fonts, scripts, images) so websites can load them from one shared place. Exactly the kind of outside connection a strict CSP blocks.">CDN</span> scripts, no remote fonts. So a shared checker scans every page for anything that phones home:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — lib/selfcontained.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export</span> <span class="code-keyword">function</span> <span class="code-function">checkHtml</span>(html, { <span class="code-property">substantialBytes</span> = <span class="code-number">6000</span> } = {}) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> fails = [], warns = [];</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!/&lt;title&gt;\s*\S/i.<span class="code-function">test</span>(html)) fails.<span class="code-function">push</span>(<span class="code-string">"no &lt;title&gt; — the artifact needs a name"</span>);</span>
+<span class="code-line">  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> [rx, label] <span class="code-keyword">of</span> CHECKS) {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (rx.<span class="code-function">test</span>(html)) {</span>
+<span class="code-line">      fails.<span class="code-function">push</span>(<span class="code-string">`loads a resource from an external host: ${label} — the Artifact CSP blocks this; inline it or embed as a data: URI`</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Take a finished web page's text and start the inspection.</p>
+              <p class="tl">Two lists: deal-breakers, and gentle warnings.</p>
+              <p class="tl">No page title? Deal-breaker — every shipped page needs a name.</p>
+              <p class="tl">Now run through the eight forbidden "phones home" patterns…</p>
+              <p class="tl">…if the page matches one…</p>
+              <p class="tl">…record a failure that names the problem AND the fix.</p>
+              <p class="tl">…end of this pattern's check.</p>
+              <p class="tl">…and keep scanning until every pattern has been tried.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Notice each failure message even suggests the fix — embed the file inside the page as a <span class="term" data-definition="A way to encode a file — an image, a font — as text directly inside the page itself, so nothing needs to be fetched from anywhere. The self-contained page's best friend.">data: URI</span>. And a meta moment: the page you're reading passed a version of that very check. Its one documented exception: <span class="term" data-definition="Google's free font-hosting service — the single most common 'load this from outside' dependency on the web, which is exactly why it had to be documented as an exception.">Google Fonts</span>.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🪆</div>
+          <div class="callout-content">
+            <strong class="callout-title">Same philosophy, three layers</strong>
+            <p>Plugins ship <span class="term" data-definition="Carries everything it needs to work — no outside connections, no missing pieces. Asking an AI for 'a self-contained HTML file' gets you a page that works anywhere, forever.">self-contained</span>, shared regions are robot-stamped copies, and even the HTML output must carry everything it needs. One rule, all the way down: never depend on something that might not be there.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4.5: THE TOOLKIT (half-screen) ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The binder has recipes, not just wiring</h2>
+        <p>It's not only code that rides along — shared <em>content</em> does too. <code>lib/toolkit/</code> holds teaching material the plugins borrow, under one strict house rule:</p>
+
+        <div class="pattern-cards" style="margin: var(--space-8) 0;">
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">📚</div>
+            <h4 class="pattern-title">Content, not just code</h4>
+            <p class="pattern-desc">Pedagogy rules, tooltip snippets, diagram guides — written once in lib/toolkit/, borrowed by any plugin's skills.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🧾</div>
+            <h4 class="pattern-title">Every borrow states a fallback</h4>
+            <p class="pattern-desc">A skill that uses a toolkit module must say, in writing, what it does when that module isn't there.</p>
+          </div>
+          <div class="pattern-card" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🪂</div>
+            <h4 class="pattern-title">Graceful degradation</h4>
+            <p class="pattern-desc"><span class="term" data-definition="Designing something to keep working — a little plainer — when a nice-to-have piece is missing, instead of breaking outright. A great phrase to use with an AI assistant: 'degrade gracefully if X is unavailable.'">Graceful degradation</span>: the skill still works without the borrowed piece — a bit plainer, never broken.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: QUIZ ============ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+        <p>Three scenarios. Think like the fleet manager.</p>
+
+        <div class="quiz-container" id="quiz-module5">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — fix the source of truth once, then re-run packaging; every truck gets a freshly installed generator. The vendored copies are disposable output, never the place you edit."
+               data-explanation-wrong="Not quite. The copies in dist/ are build output — editing them is editing a photocopy. Fix gate-runner.mjs once in the repo-root lib/ (the canonical copy), then re-run the packaging script so all five plugins get a fresh vendored lib/.">
+            <h3 class="quiz-question">A bug is found in gate-runner.mjs — a file in the shared chassis. Where does the fix happen, and how do already-packaged plugins get it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Edit each vendored copy inside dist/ — that's where the shipped code actually lives.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fix it once in the repo-root lib/ — the source of truth — then re-run the packaging script so every plugin gets a fresh copy.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fix it in whichever plugin reported the bug; the others pick the fix up automatically at runtime.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — the drift check cuts your region out, compares it byte-for-byte with the canonical lib/toolkit source, and fails the pre-commit check. The failure even names the fix: run scripts/sync-shared.mjs. Want the change? Edit the master, then re-stamp."
+               data-explanation-wrong="Not quite. The tweak neither spreads nor slides through — the marked region no longer matches its canonical source, so the drift test fails before your commit lands, naming the file and the fix command. To really change the tooltip, edit the master in lib/toolkit and re-stamp the copies.">
+            <h3 class="quiz-question">You hand-tweak the tooltip CSS inside educate's deck template to "improve" it. What catches you?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — templates are starter files, meant to be customized.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The other plugins' copies silently update to match your edit.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A drift check compares your copy to the canonical source, fails the pre-commit check, and names both the file and the fix.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — a live wire between installed plugins breaks the promise from Module 1 that each is independently installable. Praxis shares at build time (vendoring lib/) and through files, never by one plugin calling another at runtime."
+               data-explanation-wrong="Not quite. The problem isn't taste — it's self-containment. If educate reached into research at runtime, educate would break for anyone who didn't install research. Share the source, vendor the artifact, keep the trucks independent.">
+            <h3 class="quiz-question">Your AI assistant proposes having the educate plugin import code directly from the installed research plugin at runtime. Based on this repo's philosophy, what's wrong?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It breaks self-containment — plugins share through the build step and files, never a live runtime connection to another plugin.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — importing shared code at runtime is exactly what praxis already does with lib/.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It's fine, as long as both plugins happen to be installed.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div style="margin-top: var(--space-10); padding: var(--space-5) var(--space-6); background: color-mix(in srgb, var(--color-accent) 8%, transparent); border-radius: var(--radius-md); text-align: center;">
+          <p style="margin: 0; color: var(--color-text-secondary); font-style: italic;">Copies drifting in <strong>space</strong>: solved. But what about truth drifting in <strong>time</strong> — code that changes while the documentation stands still? That's Module 6.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,472 @@
+<section class="module module-alt" id="module-6">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">Staying True</h1>
+      <p class="module-subtitle">Maps, coastlines, and the big picture — how documentation stays honest while the code sails on, and the whole praxis machine on one chart.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ─── SCREEN 1: HOOK — drift in time ─────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One enemy left: truth drifting in time</h2>
+
+        <p>Module 5 beat drift in <em>space</em> — copies of shared code wandering away from their source. But code changes every day, so there's a second enemy: how do you trust documentation written last month? That's drift in <em>time</em>.</p>
+
+        <div class="animate-in" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:var(--space-4); margin:var(--space-8) 0;">
+          <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-6); box-shadow:var(--shadow-sm); border-top:3px solid var(--color-success);">
+            <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-success); margin-bottom:var(--space-2);">Drift in space — solved (M5)</div>
+            <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin:0;">Copies of <code>lib/</code> wandering away from their source. Cure: a robot compares every copy to the original, byte for byte.</p>
+          </div>
+          <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-6); box-shadow:var(--shadow-sm); border-top:3px solid var(--color-accent);">
+            <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-accent); margin-bottom:var(--space-2);">Drift in time — this module</div>
+            <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin:0;">Notes about code wandering away from reality as the code keeps changing. Cure: this module.</p>
+          </div>
+        </div>
+
+        <div class="animate-in" style="display:flex; align-items:center; gap:var(--space-6); background:var(--color-surface-warm); border:1px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-6); margin:var(--space-8) 0;">
+          <div style="flex-shrink:0; transform:rotate(-4deg); border:2px solid var(--color-info); color:var(--color-info); border-radius:var(--radius-sm); padding:var(--space-3) var(--space-4); font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.12em; text-align:center; line-height:1.6;">Surveyed<br>as of<br>May 1852</div>
+          <p style="margin:0;">Sailors navigate by nautical charts, and every chart carries a stamp: <em>surveyed as of…</em> A chart isn't wrong because it's <em>old</em> — it's wrong when the <strong>coastline actually changed</strong> since the survey. Notes about code age exactly the same way.</p>
+        </div>
+
+        <p>A confession first: docs rot <em>in this very repo</em>. And conveniently, <span class="term" data-definition="The project's history ledger — a tool that records every change ever saved to a project, who made it, and when. Ask it 'what changed since X?' and it answers precisely.">git</span> — the ledger recording every change ever made here — can answer "did the coastline move?" precisely.</p>
+
+        <div class="animate-in" style="background:var(--color-surface); border-left:3px solid var(--color-error); border-radius:var(--radius-sm); padding:var(--space-5) var(--space-6); box-shadow:var(--shadow-sm); margin:var(--space-6) 0;">
+          <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.1em; color:var(--color-error); margin-bottom:var(--space-2);">📜 True story, this repo</div>
+          <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin:0;">Three <span class="term" data-definition="An add-on package that teaches Claude Code a new capability. praxis is a marketplace of five of them.">plugin</span> <span class="term" data-definition="The front-page file of a project or folder — the first thing a human reads to learn what's inside.">README</span>s in praxis still say "scaffold — not yet implemented" while their skills are fully written and working. The docs went <span class="term" data-definition="Out of date — describing something that has since changed. In this course: a note is stale the moment any file it describes changes after the note was verified.">stale</span> — which is exactly the disease this module's gate cures.</p>
+        </div>
+
+        <p>The patient is <strong>grounding-wiki</strong> (from Module 1): it reads a codebase and writes one note per concept into <code>docs/wiki/</code> — a <span class="term" data-definition="A collected body of documents — here, the folder of wiki notes describing one codebase, meant to be read instead of the raw code.">corpus</span> other plugins trust <em>instead of</em> re-reading the raw code. Trusted documentation is only useful if it stays true.</p>
+
+        <div class="file-tree animate-in" style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-5); box-shadow:var(--shadow-sm); margin:var(--space-6) 0;">
+          <div class="ft-folder open">
+            <span class="ft-name">docs/wiki/</span>
+            <span class="ft-desc">the corpus grounding-wiki builds</span>
+            <div class="ft-children">
+              <div class="ft-file">
+                <span class="ft-name">alpha.md</span>
+                <span class="ft-desc">one concept, one note</span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">beta.md</span>
+                <span class="ft-desc">another concept, another note</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SCREEN 2: THE PIN ───────────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The pin: every note declares what it looked at</h2>
+
+        <p>Every chart carries its survey stamp; every wiki note carries a <span class="term" data-definition="Anchoring a claim to the exact snapshot it was verified against, plus the exact files it describes — turning 'trust me' into something a script can check.">pin</span>. It lives in the note's <span class="term" data-definition="A small block of labeled facts at the very top of a file, fenced by --- lines — metadata a script can read without understanding the prose below it.">frontmatter</span>, written in <span class="term" data-definition="A human-friendly way to write structured data — labels, colons, and indented lists instead of code brackets. When talking to AI you'd say 'add a YAML field for X.'">YAML</span>. Here's the template every note starts from — real file, real words.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">grounding-wiki/templates/note.md</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">---</span></span>
+<span class="code-line"><span class="code-property">name</span>: <span class="code-string">&lt;kebab-case, matches filename&gt;</span></span>
+<span class="code-line"><span class="code-property">description</span>: <span class="code-string">&lt;one line — used to decide relevance during recall&gt;</span></span>
+<span class="code-line"><span class="code-property">kind</span>: <span class="code-string">component | concept | pipeline | pattern</span></span>
+<span class="code-line"><span class="code-property">sources</span>:</span>
+<span class="code-line">  - <span class="code-string">&lt;repo-relative path whose change invalidates this note&gt;</span></span>
+<span class="code-line"><span class="code-property">verified_against</span>: <span class="code-string">&lt;full commit hash&gt;</span></span>
+<span class="code-line"><span class="code-comment">---</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">Plain English</span>
+            <div class="translation-lines">
+              <p class="tl">The label block opens — three dashes fence the frontmatter.</p>
+              <p class="tl">The note's name, written like-this so it matches its own filename.</p>
+              <p class="tl">One line saying what the note covers, so a search can decide if it's relevant.</p>
+              <p class="tl">What kind of thing it describes: a component, an idea, a pipeline, or a pattern.</p>
+              <p class="tl">Now the important part — the list of files this note is describing…</p>
+              <p class="tl">…each one a path "whose change invalidates this note" — the template's own words.</p>
+              <p class="tl">The pin itself: the exact snapshot of the project this note was checked against.</p>
+              <p class="tl">…and the label block closes.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Two fields do all the work. <code>sources:</code> is the note's coastline — the exact files it describes; if one changes, the note is <span class="term" data-definition="To make no longer valid. If a source file changes, every note describing it is invalidated — presumed wrong until re-checked.">invalidated</span>. <code>verified_against:</code> is the survey stamp — the <span class="term" data-definition="One saved snapshot of the whole project in git's ledger, with a unique ID. Every change to a project lands as a commit.">commit</span> it was checked against, named by its <span class="term" data-definition="A commit's unique fingerprint ID — a long string like abc123def456. Quote it and anyone can pull up that exact snapshot of the project, forever.">commit hash</span>.</p>
+
+        <div class="badge-list animate-in" style="margin:var(--space-6) 0;">
+          <div class="badge-item">
+            <code class="badge-code">sources:</code>
+            <span class="badge-desc">The coastline — which files this note describes</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">verified_against:</code>
+            <span class="badge-desc">The survey stamp — which snapshot it was last checked against</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SCREEN 3: ASKING GIT ────────────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Asking git: did the coastline move?</h2>
+
+        <p>With a pin in every note, a dumb check can put one precise question to the ledger. The whole freshness <span class="term" data-definition="A dumb checker script that inspects real artifacts and passes or blocks — it never takes the AI's word for anything (Module 3).">gate</span> boils down to a single <span class="term" data-definition="The git command that lists saved changes from the ledger — filterable to 'only these files' and 'only since this snapshot.'">git log</span> question:</p>
+
+        <div class="badge-list animate-in" style="margin:var(--space-6) 0;">
+          <div class="badge-item">
+            <code class="badge-code">git log &lt;pin&gt;..HEAD -- &lt;sources&gt;</code>
+            <span class="badge-desc">"List every change to these files since that snapshot." <span class="term" data-definition="git's name for the current latest snapshot — wherever the project stands right now.">HEAD</span> means "now."</span>
+          </div>
+        </div>
+
+        <p>An empty answer means fresh. <em>Any</em> answer means stale — and the guilty commits get named. Here's the real check, from the real gate.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">grounding-wiki/gates/freshness.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">let</span> changed = <span class="code-string">""</span>;</span>
+<span class="code-line"><span class="code-keyword">try</span> {</span>
+<span class="code-line">  changed = <span class="code-function">git</span>(repoRoot, [<span class="code-string">"log"</span>, <span class="code-string">"--oneline"</span>, <span class="code-string">`${pin}..HEAD`</span>, <span class="code-string">"--"</span>, ...sources]);</span>
+<span class="code-line">} <span class="code-keyword">catch</span> (e) {</span>
+<span class="code-line">  fails.<span class="code-function">push</span>(<span class="code-string">`${rel}: git log failed for its sources (${String(e).split("\n")[0]})`</span>);</span>
+<span class="code-line">  <span class="code-keyword">continue</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"><span class="code-keyword">if</span> (changed) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> lines = changed.<span class="code-function">split</span>(<span class="code-string">"\n"</span>);</span>
+<span class="code-line">  fails.<span class="code-function">push</span>(<span class="code-string">`${rel}: STALE — sources changed since ${pin.slice(0, 12)} (${lines.length} commit(s), e.g. ${lines[0]})`</span>);</span>
+<span class="code-line">}</span>
+          </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">Plain English</span>
+            <div class="translation-lines">
+              <p class="tl">Start with an empty answer sheet.</p>
+              <p class="tl">Try asking the question — carefully, in case git can't answer at all…</p>
+              <p class="tl">…the question: "list every change to this note's files since its pinned snapshot."</p>
+              <p class="tl">If the asking itself broke down…</p>
+              <p class="tl">…record that this note couldn't be checked, quoting the error…</p>
+              <p class="tl">…and move on to the next note.</p>
+              <p class="tl">Done with the careful part.</p>
+              <p class="tl">If git came back with anything at all…</p>
+              <p class="tl">…count how many changes it found…</p>
+              <p class="tl">…and flag the note STALE — naming the snapshot, the count, and the first guilty commit.</p>
+              <p class="tl">Verdict delivered for this note.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="animate-in" style="background:var(--color-bg-code); border-radius:var(--radius-md); padding:var(--space-5) var(--space-6); margin:var(--space-6) 0; box-shadow:var(--shadow-md);">
+          <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.1em; color:#6C7086; margin-bottom:var(--space-2);">What a failure actually looks like</div>
+          <pre style="margin:0; font-family:var(--font-mono); font-size:var(--text-sm); color:#F38BA8;">docs/wiki/alpha.md: STALE — sources changed since abc123def456 (3 commit(s), e.g. abc1234 fix parser)</pre>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🧭</div>
+          <div class="callout-content">
+            <strong class="callout-title">Fresh means "nothing it describes has changed" — not "correct"</strong>
+            <p>The gate proves the coastline hasn't moved since the survey; it can't prove the survey was accurate. And a note with no <code>sources:</code> at all earns a <em>warning</em>, not a failure — its staleness is unverifiable, which is its own kind of suspicious.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SCREEN 3b: THE REPAIR LOOP ──────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Stale isn't fatal — it's a repair ticket</h2>
+
+        <p>A stale note is presumed lying until re-verified. The <strong>wiki-update</strong> skill is the repair loop, and the failure message already told it where to look:</p>
+
+        <div class="step-cards stagger-children" style="margin:var(--space-6) 0;">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Find the stale notes</strong>
+              <p>Run the freshness gate — it names each stale note and the guilty commits.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Re-verify against the actual diff</strong>
+              <p>Read the <span class="term" data-definition="The exact line-by-line difference between two versions of files — what was added, removed, or changed.">diff</span> — what really changed in the sources — and fix whatever the note now gets wrong.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Re-pin</strong>
+              <p>Stamp the note with the new snapshot in <code>verified_against:</code>. Surveyed as of… today.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="animate-in" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:var(--space-4); margin:var(--space-8) 0;">
+          <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-5); box-shadow:var(--shadow-sm); border-top:3px solid var(--color-error);">
+            <div style="font-family:var(--font-mono); font-size:var(--text-sm); margin-bottom:var(--space-2);">📄 alpha.md <span style="color:var(--color-text-muted); font-size:var(--text-xs);">· sources: src/a.txt</span></div>
+            <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin:0;">One commit touches <code>src/a.txt</code> → <strong style="color:var(--color-error);">STALE</strong></p>
+          </div>
+          <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-5); box-shadow:var(--shadow-sm); border-top:3px solid var(--color-success);">
+            <div style="font-family:var(--font-mono); font-size:var(--text-sm); margin-bottom:var(--space-2);">📄 beta.md <span style="color:var(--color-text-muted); font-size:var(--text-xs);">· sources: src/b.txt</span></div>
+            <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin:0;">Its file untouched → <strong style="color:var(--color-success);">FRESH</strong></p>
+          </div>
+        </div>
+
+        <p style="font-size:var(--text-sm); color:var(--color-text-secondary);">That exact flip is proven by a real automated test in the repo (<code>test/grounding-wiki.freshness.test.mjs</code>). And notice <em>when</em> this gate runs: not on every <span class="term" data-definition="The tripwire that fires the moment the AI tries to declare itself done — praxis hangs its cheap inspectors there (Module 3).">Stop hook</span> — cheap universal checks ride the Stop; contextual ones like freshness run at milestones, when a wiki or a course is being built or updated.</p>
+      </section>
+
+      <!-- ─── SCREEN 4: HERO — THE WHOLE MACHINE ──────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The whole machine, on one chart</h2>
+
+        <p>Six modules ago this repo was a wall of folders. Here's everything you now know, assembled into one map — click any piece to hear what it does, and which module taught it.</p>
+
+        <div class="arch-diagram animate-in">
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Gather the facts</h4>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+              <div class="arch-component" data-desc="Gathers cited facts from the outside world into a thinking vault — one of the two fact-gatherers (Module 1).">
+                <div class="arch-icon">🔭</div>
+                <span>research</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M1</span>
+              </div>
+              <div class="arch-component" data-desc="Reads a codebase and writes one pinned note per concept into docs/wiki/ — the other fact-gatherer, and the star of this module (Modules 1 &amp; 6).">
+                <div class="arch-icon">📚</div>
+                <span>grounding-wiki</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M1 · M6</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Teach ⇄ build — the handoff loop</h4>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+              <div class="arch-component" data-desc="Teaches lessons, and when it's time to practice for real, authors a SPEC and mails it out (Modules 1 &amp; 4).">
+                <div class="arch-icon">🎓</div>
+                <span>educate</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M1 · M4</span>
+              </div>
+              <span aria-hidden="true" style="font-size:1.5rem; color:var(--color-text-muted); margin:0 var(--space-1);">⇄</span>
+              <div class="arch-component" data-desc="The shared mailbox: request and response files ride this gitignored transport — plugins never call each other directly (Module 4).">
+                <div class="arch-icon">📮</div>
+                <span>.handoff/</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M4</span>
+              </div>
+              <span aria-hidden="true" style="font-size:1.5rem; color:var(--color-text-muted); margin:0 var(--space-1);">⇄</span>
+              <div class="arch-component" data-desc="Implements the SPEC, verifies it actually works, and returns findings through the mailbox (Module 4).">
+                <div class="arch-icon">🔨</div>
+                <span>build</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M4</span>
+              </div>
+              <div class="arch-component" data-desc="The evidence logbook, tracked beside the mailbox — the residue that proves the handoff really went out AND really came back (Module 4).">
+                <div class="arch-icon">🧾</div>
+                <span>progress.json</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M4</span>
+              </div>
+            </div>
+            <p style="text-align:center; font-size:var(--text-xs); color:var(--color-text-muted); margin:var(--space-2) 0 0; font-family:var(--font-mono);">The <span class="term" data-definition="A written build order: what to make and how to prove it works — the payload educate mails to build (Module 4).">SPEC</span> rides out · findings ride back · the logbook records both</p>
+          </div>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Wiki → course</h4>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+              <div class="arch-component" data-desc="The pre-verified corpus: every note pinned to a snapshot and freshness-checked — the pins are this module's overlay on the map (Module 6).">
+                <div class="arch-icon">🗂️</div>
+                <span>docs/wiki/ 📌</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M6</span>
+              </div>
+              <span aria-hidden="true" style="font-size:1.5rem; color:var(--color-text-muted); margin:0 var(--space-1);">→</span>
+              <div class="arch-component" data-desc="Turns a codebase into an interactive course. When it finds a docs/wiki/ corpus, it reads those pre-verified notes as its primary input instead of raw code — the loop feeding itself (Modules 1 &amp; 6).">
+                <div class="arch-icon">🎬</div>
+                <span>codebase-to-course</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M1 · M6</span>
+              </div>
+              <span aria-hidden="true" style="font-size:1.5rem; color:var(--color-text-muted); margin:0 var(--space-1);">→</span>
+              <div class="arch-component" data-desc="The output: an interactive course. This one. You are looking at the inside of this box right now.">
+                <div class="arch-icon">📖</div>
+                <span>docs/course/</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-accent);">← you are here</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">Under everything — the shared chassis</h4>
+            <div style="display:flex; justify-content:center;">
+              <div class="arch-component" style="width:100%; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:var(--space-3);" data-desc="Nine shared files, about 455 lines, written once and vendored into every shipped plugin — with a robot drift-check keeping every copy honest (Modules 2 &amp; 5).">
+                <div class="arch-icon">⚙️</div>
+                <span><strong>lib/</strong> — project-root · gate-runner · lifecycle · handoff · installer · selfcontained · markdown</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">9 files · ~455 lines · <span class="term" data-definition="Copied wholesale into a project so it ships self-contained — praxis vendors lib/ into each plugin, then robot-checks every copy against the source (Module 5).">vendored</span> everywhere · M2 · M5</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone">
+            <h4 class="arch-zone-label">On every plugin — the inspector</h4>
+            <div style="display:flex; justify-content:center;">
+              <div class="arch-component" style="width:100%; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:var(--space-3);" data-desc="Every plugin ships an inspector that fires when Claude tries to stop: exit 0 lets it rest, exit 2 sends it back to work. Status can never exceed proven artifacts (Module 3).">
+                <div class="arch-icon">🚦</div>
+                <span>inspector fires on Stop — exit 0 = rest · exit 2 = back to work</span>
+                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M3</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-description" id="arch-desc">Click any piece of the map to hear what it does — and which module taught it.</div>
+        </div>
+
+        <p style="text-align:center; font-size:var(--text-sm); color:var(--color-text-muted);">That <code>docs/course/</code> box? It's the page you're reading.</p>
+      </section>
+
+      <!-- ─── SCREEN 5: STEAL THESE FIVE ──────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Steal these five</h2>
+
+        <p>None of this is praxis-specific. These five principles travel — take them to every AI project you ever build.</p>
+
+        <div class="pattern-cards stagger-children" style="margin:var(--space-6) 0;">
+          <div class="pattern-card animate-in" style="border-top:3px solid var(--color-actor-1);">
+            <div class="pattern-icon" style="background:var(--color-actor-1);">🚦</div>
+            <h4 class="pattern-title">Status can't exceed proven artifacts</h4>
+            <p class="pattern-desc">Make your AI produce checkable evidence, then verify with dumb code — not vibes. <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M3</span></p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top:3px solid var(--color-actor-2);">
+            <div class="pattern-icon" style="background:var(--color-actor-2);">📁</div>
+            <h4 class="pattern-title">Compose through files, not calls</h4>
+            <p class="pattern-desc">Phases that read and write files can be run, skipped, replaced, and audited — and work with any tool, including a human. <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M1 · M4</span></p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top:3px solid var(--color-actor-3);">
+            <div class="pattern-icon" style="background:var(--color-actor-3);">🧾</div>
+            <h4 class="pattern-title">Flags aren't proof — demand residue</h4>
+            <p class="pattern-desc">Double-lock the step the AI most wants to skip: a flag can be flipped, real residue can't be faked cheaply. <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M4</span></p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top:3px solid var(--color-actor-4);">
+            <div class="pattern-icon" style="background:var(--color-actor-4);">📦</div>
+            <h4 class="pattern-title">Share the source, vendor the artifact, robot-check the copies</h4>
+            <p class="pattern-desc">Duplication is fine when a machine verifies it. <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M5</span></p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top:3px solid var(--color-actor-5);">
+            <div class="pattern-icon" style="background:var(--color-actor-5);">📌</div>
+            <h4 class="pattern-title">Pin every claim to what it looked at</h4>
+            <p class="pattern-desc">"Verified against snapshot X" turns "trust me" into a checkable statement. <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted);">M6</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SCREEN 6: FINAL QUIZ + GOODBYE ──────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The final quiz — the whole voyage</h2>
+
+        <p>Four situations you've never seen, drawing on everything since Module 3. No memory tricks — just apply what you know.</p>
+
+        <div class="quiz-container" id="quiz-module6">
+
+          <div class="quiz-question-block"
+               data-correct="fresh"
+               data-explanation-right="Exactly — staleness tracks the note's own sources, not the repo as a whole. The gate asks git about parser.mjs specifically; README.md isn't on that list, so the note stays fresh."
+               data-explanation-wrong="Not quite — replay the gate's one question: 'did any of THIS note's sources change since its pin?' The note's only source is parser.mjs. A commit that touches README.md alone never enters the answer.">
+            <h3 class="quiz-question">1. A wiki note describes <code>parser.mjs</code>, pinned to commit <code>abc123</code>. Someone commits a change to <code>README.md</code> only. Fresh or stale?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="stale-any" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Stale — any new commit makes every note in the wiki suspect</span>
+              </button>
+              <button class="quiz-option" data-value="fresh" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Fresh — the note only goes stale when its own sources change, and <code>README.md</code> isn't one of them</span>
+              </button>
+              <button class="quiz-option" data-value="stale-warn" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Stale, but only as a warning, because README changes are documentation-only</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="evidence"
+               data-explanation-right="Exactly — a gate can't tell you the prose is brilliant, but it derives status from proof: the evidence artifacts exist on disk, and the handoff went out AND came back with real residue. Status can't exceed proven artifacts."
+               data-explanation-wrong="Not quite — gates never grade quality, and they never take the AI's word. Ask instead: what can a dumb script physically verify on disk before letting 'done' stand?">
+            <h3 class="quiz-question">2. Your teammate's AI marked a lesson <code>done</code> and the gate let it through. Skeptical, what do you now know is true <em>without opening a single file</em>?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="quality" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The lesson's content is accurate and well-written</span>
+              </button>
+              <button class="quiz-option" data-value="self-check" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The AI double-checked its own work before stopping</span>
+              </button>
+              <button class="quiz-option" data-value="evidence" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The evidence files exist on disk, and the handoff was returned and folded in with real residue — the gate derives status from proof</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="files"
+               data-explanation-right="Exactly — files as the seam mean each step can be run, skipped, replaced, or even done by a human, and the residue is auditable afterward. Neither step ever invokes the other."
+               data-explanation-wrong="Not quite — praxis plugins never call each other, and a shared chat session leaves no checkable residue. Think about what rides in the .handoff/ mailbox and what stays behind in tracked evidence.">
+            <h3 class="quiz-question">3. You're designing your own two-step AI workflow (draft → fact-check). Using praxis's playbook, how do the two steps communicate?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="direct" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The draft step calls the fact-check step directly, like one function calling another</span>
+              </button>
+              <button class="quiz-option" data-value="files" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Through files — a request/response mailbox plus tracked evidence; neither step ever invokes the other</span>
+              </button>
+              <button class="quiz-option" data-value="chat" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Both steps share one long chat session so nothing gets lost between them</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="pin"
+               data-explanation-right="Exactly — that's the pin. A claim that names its sources and its snapshot can be re-checked by a dumb script; a confident summary without one is presumed lying until re-verified."
+               data-explanation-wrong="Not quite — confidence isn't evidence, and more detail from the same stale reading is just more stale detail. What single question would let a dumb check catch the summary going out of date?">
+            <h3 class="quiz-question">4. An AI hands you a confident summary of a codebase it read "a while ago." What praxis-style question do you ask before trusting it?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="confidence" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"How confident are you, on a scale of one to ten?"</span>
+              </button>
+              <button class="quiz-option" data-value="detail" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"Can you rewrite it with more detail?"</span>
+              </button>
+              <button class="quiz-option" data-value="pin" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>"What exactly did you look at, and against which snapshot — has any of it changed since?"</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+
+        <div class="callout callout-accent animate-in" style="margin-top:var(--space-12);">
+          <div class="callout-icon">⚓</div>
+          <div class="callout-content">
+            <strong class="callout-title">You watched it work</strong>
+            <p>You now know how praxis works — and you watched it work: this course is <code>docs/course/</code>, generated by the codebase-to-course plugin, checked by <code>gates/course.mjs</code> before it reached you. Status can't exceed proven artifacts — and this page is the artifact.</p>
+          </div>
+        </div>
+
+        <p style="margin-top:var(--space-8);">That's the voyage. You can now open a plugin folder and read it like a story, predict what a gate will say before it says it, and you have five principles worth stealing. If you want to go deeper, the repo's own trail starts at <code>docs/skill-patterns.md</code>.</p>
+
+        <p style="text-align:center; font-family:var(--font-display); font-size:var(--text-xl); color:var(--color-text-secondary); margin-top:var(--space-10);">Fair winds — and keep your charts freshly surveyed. 🗺️</p>
+      </section>
+
+    </div>
+  </div>
+</section>

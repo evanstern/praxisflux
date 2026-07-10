@@ -1,0 +1,473 @@
+<section class="module module-alt" id="module-4">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Handoffs: Interoffice Mail &amp; the Signed Logbook</h1>
+      <p class="module-subtitle">How two plugins that never meet pass work through a mailbox folder — and why the proof lives somewhere else entirely.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ═══════════════ SCREEN 1: HOOK ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two programs that have never met</h2>
+
+        <p>In Module 1 you watched educate hand a <span class="term" data-definition="A written work order: what to build and how we'll know it's done. In praxis, educate writes the SPEC and build implements it.">SPEC</span> to build. But here's the rule that makes praxis praxis: <span class="term" data-definition="An add-on program that extends a bigger tool with a new ability. Each praxis plugin teaches Claude Code one job — teaching lessons, building specs, running research.">plugins</span> never call each other. Ever.</p>
+
+        <p>So how does a work order travel between two departments that don't share a phone line? The answer is almost embarrassingly simple: it's a text file, dropped in a mailbox folder. That's a <span class="term" data-definition="Passing a piece of work from one program to another — like leaving a work order on a colleague's desk instead of barging in and doing their job yourself.">handoff</span>.</p>
+
+        <div class="flow-steps animate-in">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p><strong>educate</strong> finishes teaching a lesson</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>drops <strong>spec-101.md</strong> in the mailbox</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>tells <strong>you</strong> to run build</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p><strong>build</strong> checks its mail</p>
+          </div>
+        </div>
+
+        <p>Here's where everything in this module lives. Two separate worlds: the mailbox, and the records office.</p>
+
+        <div class="file-tree animate-in">
+          <div class="ft-folder open">
+            <span class="ft-name">your-project/</span>
+            <div class="ft-children">
+              <div class="ft-folder open">
+                <span class="ft-name">.handoff/</span>
+                <span class="ft-desc">the mailbox — <span class="term" data-definition="Listed in a .gitignore file: a list of files git deliberately pretends not to see, so they never show up as changes. Perfect for disposable working files.">gitignored</span>, invisible to <span class="term" data-definition="The version-control tool that tracks every change to a project's files over time — the project's official memory.">git</span></span>
+                <div class="ft-children">
+                  <div class="ft-file">
+                    <span class="ft-name">spec-101.md</span>
+                    <span class="ft-desc">a pending request</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">consumed/</span>
+                    <span class="ft-desc">answered mail, archived</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">topics/git-basics/</span>
+                <span class="ft-desc">the records office</span>
+                <div class="ft-children">
+                  <div class="ft-file">
+                    <span class="ft-name">progress.json</span>
+                    <span class="ft-desc">the <span class="term" data-definition="A file git watches and keeps the full history of. Tracked files are the durable record; gitignored files are invisible to that history.">tracked</span> logbook — <span class="term" data-definition="educate's logbook file: the durable, git-visible record of each lesson's status and handoff evidence. JSON is a structured text format for labeled data, like a form with named boxes.">progress.json</span> holds the evidence</span>
+                  </div>
+                  <div class="ft-folder open">
+                    <span class="ft-name">101-branching/</span>
+                    <div class="ft-children">
+                      <div class="ft-file">
+                        <span class="ft-name">guide.md</span>
+                        <span class="ft-desc">the work itself, incl. "## Post-build"</span>
+                      </div>
+                      <div class="ft-file">
+                        <span class="ft-name">raw-notes.md</span>
+                        <span class="ft-desc">the lesson's working notes</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p>Keep those two worlds apart in your head — the envelopes and the logbook. The entire module is the story of why they're separate.</p>
+      </section>
+
+      <!-- ═══════════════ SCREEN 2: THE ENVELOPE ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The envelope</h2>
+
+        <p>Sending a message = writing one <span class="term" data-definition="A plain-text way of writing formatted documents — # for headings, - for lists. Human-readable in any editor, no special software needed.">Markdown</span> file. The address label on the front is called <span class="term" data-definition="A small block of labeled facts at the very top of a Markdown file, fenced by --- lines — like an address label stapled to a letter.">frontmatter</span>; everything under it is the <span class="term" data-definition="The actual content being delivered — the letter inside the envelope, as opposed to the addressing info written on the outside.">payload</span>.</p>
+
+        <div class="animate-in" style="max-width: 560px; margin: var(--space-8) auto;">
+          <div style="background: var(--color-surface-warm); border: 2px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); padding: var(--space-6); position: relative;">
+            <div style="position: absolute; top: var(--space-4); right: var(--space-4); border: 2px dashed var(--color-accent-muted); border-radius: var(--radius-sm); padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.08em; text-align: center;">praxis mail<br>.handoff/</div>
+            <div style="font-family: var(--font-mono); font-size: var(--text-sm); line-height: 2;">
+              <div><span style="color: var(--color-text-muted);">id:&nbsp;&nbsp;&nbsp;&nbsp;</span><strong>spec-101</strong></div>
+              <div><span style="color: var(--color-text-muted);">kind:&nbsp;&nbsp;</span><strong>request</strong> <span style="color: var(--color-text-muted);">(or response)</span></div>
+              <div><span style="color: var(--color-text-muted);">from:&nbsp;&nbsp;</span><strong style="color: var(--color-actor-2);">educate</strong></div>
+              <div><span style="color: var(--color-text-muted);">to:&nbsp;&nbsp;&nbsp;&nbsp;</span><strong style="color: var(--color-actor-4);">build</strong></div>
+              <div><span style="color: var(--color-text-muted);">ref:&nbsp;&nbsp;&nbsp;</span>— <span style="color: var(--color-text-muted);">"in reply to memo #…" — the <span class="term" data-definition="An 'in reply to' field: the id of the earlier message this one answers, so a response can be matched to its request. Programmers call this a correlation id.">ref</span></span></div>
+            </div>
+            <div style="margin-top: var(--space-4); border-top: 2px dashed var(--color-border); padding-top: var(--space-4); color: var(--color-text-secondary); font-size: var(--text-sm);">
+              <em>The body — the payload. The mail room never opens it; only educate and build understand what's written inside.</em>
+            </div>
+          </div>
+        </div>
+
+        <p>And here is the entire mail system — one <span class="term" data-definition="A named, reusable chunk of code that does one job: give it inputs, it does its thing, it hands back a result.">function</span>, from <code>lib/handoff.mjs</code>. Eight lines.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — lib/handoff.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">writeHandoff</span>(root, { id, kind, from, to, ref = <span class="code-string">""</span>, title = <span class="code-string">""</span>, body = <span class="code-string">""</span> }) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!id || !kind || !from || !to) <span class="code-keyword">throw new</span> <span class="code-function">Error</span>(<span class="code-string">"handoff requires id, kind, from, to"</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> dir = <span class="code-function">ensureHandoffDir</span>(root);</span>
+<span class="code-line">  <span class="code-keyword">const</span> fm = [<span class="code-string">`id: ${id}`</span>, <span class="code-string">`kind: ${kind}`</span>, <span class="code-string">`from: ${from}`</span>, <span class="code-string">`to: ${to}`</span>, <span class="code-string">`ref: ${ref}`</span>, <span class="code-string">`title: ${title}`</span>].<span class="code-function">join</span>(<span class="code-string">"\n"</span>);</span>
+<span class="code-line">  <span class="code-keyword">const</span> path = <span class="code-function">join</span>(dir, <span class="code-string">`${id}.md`</span>);</span>
+<span class="code-line">  <span class="code-function">writeFileSync</span>(path, <span class="code-string">`---\n${fm}\n---\n${body}\n`</span>);</span>
+<span class="code-line">  <span class="code-keyword">return</span> path;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The send function. Every envelope arrives with an id, a kind, a from, a to — plus an optional ref, title, and body.</p>
+              <p class="tl">No complete address label? Refuse the envelope on the spot — undeliverable mail helps no one.</p>
+              <p class="tl">Make sure the mailbox folder (.handoff/) exists before dropping anything in.</p>
+              <p class="tl">Write the address label: six plain-text lines — id, kind, from, to, ref, title — stacked one per line.</p>
+              <p class="tl">The envelope's filename is its id: spec-101 becomes spec-101.md.</p>
+              <p class="tl">Staple the label on top (between --- fences) and drop the whole letter into the mailbox.</p>
+              <p class="tl">Hand back the path — "your mail is at…"</p>
+              <p class="tl">That's it. The entire postal service.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Notice what's <em>not</em> here: the mail room never reads the body. The payload is opaque — only the sender and receiver understand it.</p>
+      </section>
+
+      <!-- ═══════════════ SCREEN 3: HERO — GROUP CHAT ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Watch a work order make the round trip</h2>
+
+        <p>Here's the full loop from Module 1, seen from inside the mail room: a SPEC goes out, findings come back, and the corrections get folded in. Press play.</p>
+
+        <div class="chat-window" id="chat-module4">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="educate" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">educate</span>
+                <p>Lesson 101 taught, every checklist item demonstrated. Writing the work order.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="educate" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">educate</span>
+                <p>📨 Dropped <code>spec-101.md</code> in <code>.handoff/</code> — kind: request, from: educate, to: build. Body: what to build + done-criteria.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="educate" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">educate</span>
+                <p>Stamped my logbook: <code>handoff.specd: true</code>, status → <code>spec'd</code>. Now I tell the <em>user</em> to run build — I never call build myself.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="build" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">build</span>
+                <p>User woke me. Anything in the mailbox addressed to me? …found <code>spec-101.md</code>.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="build" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">build</span>
+                <p>Built it. Now verifying by actually <em>running</em> it, not eyeballing the code… huh, the SPEC missed an <span class="term" data-definition="An unusual input or situation at the boundary of what the code expects — an empty list, a huge file, a name with emoji in it. Bugs love to hide there.">edge case</span>. That goes in my report.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="build" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">build</span>
+                <p>📨 Response filed — kind: response, ref: spec-101. Body: what I built, how I verified, what the SPEC got wrong. Moved your request to <code>consumed/</code>.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="build" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">build</span>
+                <p>My logbook: <code>handoff.returned: true</code>, status → <code>built</code>. User — back to educate for the return leg. I don't write lessons. Not my leg.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="7" data-sender="educate" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">educate</span>
+                <p>Reading your findings… folding the corrections into the lesson. Writing a <code>## Post-build</code> section into the notes and setting <code>handoff.foldedIn: true</code>.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="8" data-sender="gate" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">G</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">DoD gate</span>
+                <p><em>(checks the logbook AND scans the disk for <code>## Post-build</code>)</em> Both present. You may call it done. Skip that next time and I block the whole lesson.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module4-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🧍</div>
+          <div class="callout-content">
+            <strong class="callout-title">The human is part of the protocol</strong>
+            <p>No plugin ever triggers another. Each one finishes, stamps its logbook, and tells <em>you</em> what to run next. The loop's invisible participant is the user.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ SCREEN 4: READING YOUR MAIL ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Reading your mail — archived, never shredded</h2>
+
+        <p>When build read <code>spec-101.md</code>, the envelope didn't vanish. Consuming a message <em>moves</em> it to the answered drawer, <code>.handoff/consumed/</code> — so you can always do archaeology later.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — lib/handoff.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">markConsumed</span>(root, id) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> src = <span class="code-function">join</span>(<span class="code-function">handoffDir</span>(root), <span class="code-string">`${id}.md`</span>);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(src)) <span class="code-keyword">return</span> <span class="code-keyword">false</span>;</span>
+<span class="code-line">  <span class="code-keyword">const</span> cdir = <span class="code-function">join</span>(<span class="code-function">handoffDir</span>(root), <span class="code-string">"consumed"</span>);</span>
+<span class="code-line">  <span class="code-function">mkdirSync</span>(cdir, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });</span>
+<span class="code-line">  <span class="code-function">renameSync</span>(src, <span class="code-function">join</span>(cdir, <span class="code-string">`${id}.md`</span>));</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-keyword">true</span>;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Reading your mail, step one: find the envelope by its id.</p>
+              <p class="tl">Here's where it should be sitting in the mailbox.</p>
+              <p class="tl">No envelope there? Say so and stop — nothing to consume.</p>
+              <p class="tl">The "answered" drawer lives inside the mailbox: .handoff/consumed/.</p>
+              <p class="tl">Build the drawer if this is the first answered letter.</p>
+              <p class="tl">Move — never shred — the envelope into the drawer.</p>
+              <p class="tl">Report success: the mail is archived.</p>
+              <p class="tl">Notice what's missing: no receipt. Writing the logbook entry is the recipient's job — the mail room never writes in anyone's books.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>One more thing about the mailbox: it's invisible on purpose. Run <span class="term" data-definition="The git command that lists which files changed since the last save point — your 'what's new on my desk' view of the project.">git status</span> mid-handoff and the envelopes simply aren't there. That invisibility is contractual — there's a <span class="term" data-definition="A small automated check that one piece of code behaves as promised. It runs on every change and fails loudly the moment the promise breaks.">unit test</span> for it.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — test/handoff.test.mjs</span>
+            <pre><code>
+<span class="code-line">  <span class="code-comment">// .handoff/ is gitignored so it never pollutes git status</span></span>
+<span class="code-line">  assert.<span class="code-function">match</span>(<span class="code-function">readFileSync</span>(<span class="code-function">join</span>(root, <span class="code-string">".gitignore"</span>), <span class="code-string">"utf8"</span>), <span class="code-string">/^\.handoff\/$/m</span>);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The promise, written down: the mailbox never clutters git's view of the project.</p>
+              <p class="tl">And a robot check that the promise holds — the .gitignore file must contain exactly the line ".handoff/", or this test fails the build.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The repo's own documentation states the split in one breath — payloads over here, evidence over there.</p>
+
+        <div class="animate-in" style="border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); margin: var(--space-8) 0;">
+          <div style="background: var(--color-bg-code); padding: var(--space-6); position: relative;">
+            <span style="position: absolute; top: var(--space-2); right: var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; color: #CDD6F4; font-family: var(--font-mono);">docs/handoff-protocol.md</span>
+            <pre style="white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.7; color: #CDD6F4; margin: 0;">A handoff message is *plumbing*, not a work product — it must not clutter `git status`. So:
+
+- **Payloads** live in a **gitignored `.handoff/`** at the project root (the installer adds the
+  ignore). They are opaque markdown files with a small envelope; consuming one moves it to
+  `.handoff/consumed/`.
+- **Evidence** that a handoff happened — and what it changed — is recorded in the consumer's own
+  **tracked state** (e.g. educate's `progress.json`). Gates read the evidence, never the loose
+  payload files.</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ SCREEN 5: THE DOUBLE LOCK ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The double lock — no rubber stamps</h2>
+
+        <p>Remember Module 3's cliffhanger — the <span class="term" data-definition="An automated inspector that blocks a status claim unless proof exists on disk. In praxis, gates run automatically (Module 3's Stop-hook inspector) and 'status can't exceed proven artifacts.'">gate</span> failure about <code>handoff.foldedIn</code>? This is that story. The return leg — folding build's findings back into the lesson — is the step an AI most wants to skip.</p>
+
+        <p>So finishing a lesson requires <em>two</em> locks to open, not one.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔒</div>
+            <h4 class="pattern-title">Lock 1 — the flag</h4>
+            <p class="pattern-desc"><code>progress.json</code> says <code>handoff.foldedIn: true</code>. Easy to stamp — which means easy to rubber-stamp.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🔒</div>
+            <h4 class="pattern-title">Lock 2 — the residue</h4>
+            <p class="pattern-desc">A real <code>## Post-build</code> section written into <code>guide.md</code> or <code>raw-notes.md</code> — physical <span class="term" data-definition="A durable trace of work left on disk: an actual file or section a gate can see and read, not just a flag claiming the work happened.">residue</span> a gate can read.</p>
+          </div>
+        </div>
+
+        <p>Here's the rubber-stamp detector itself, from educate's Definition-of-Done gate. It fires precisely when the flag is set but the disk is empty.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — educate/gates/dod.mjs</span>
+            <pre><code>
+<span class="code-line">} <span class="code-keyword">else if</span> (lesson.status === <span class="code-string">"done"</span> &amp;&amp; h.foldedIn &amp;&amp; !<span class="code-function">hasReturnLegResidue</span>(lessonDir)) {</span>
+<span class="code-line">  problems.<span class="code-function">push</span>(<span class="code-string">`${lesson.id}: status=done with handoff.foldedIn=true but no durable return-leg residue on disk — add a "## Post-build" section to guide.md or raw-notes.md; the return leg can't be rubber-stamped`</span>);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The trap: status claims done, the logbook flag swears the findings were folded in — but the disk scan finds no real Post-build section anywhere…</p>
+              <p class="tl">…then block the lesson and say exactly how to fix it: write the section into a tracked file. A checkbox can't be checked into truth.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Transient payload, durable evidence</strong>
+            <p>The messages are disposable plumbing hidden from git; the proof lives in tracked state that gates can check. This double lock — flag + residue — is how you stop any AI from rubber-stamping the step it most wants to skip.</p>
+          </div>
+        </div>
+
+        <p>And that completes Module 3's ladder: every rung of a lesson's status is backed by handoff evidence in the logbook.</p>
+
+        <div class="flow-steps animate-in">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p><strong>spec'd</strong><br>work order filed, <code>handoff.specd</code></p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p><strong>built</strong><br>response returned, <code>handoff.returned</code></p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p><strong>decked</strong><br>the deck exists on disk</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <p><strong>done</strong><br>flag <em>and</em> residue — both locks</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ SCREEN 6: QUIZ ═══════════════ -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check the mail room</h2>
+
+        <p>Three situations you haven't seen yet. Use what you know about envelopes, logbooks, and locks.</p>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — the mail is plumbing, not a work product. It's deliberately invisible to git, and the evidence that matters is stamped into the tracked logbook instead."
+               data-explanation-wrong="Not quite — remember the unit test asserting .handoff/ is in .gitignore. Invisibility is the contract: payloads are disposable plumbing, and the durable proof lives in tracked state like progress.json.">
+            <h3 class="quiz-question">Mid-handoff, you peek at <code>git status</code> — the SPEC file is nowhere in the list. Is that a bug?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — the SPEC file was lost, and the handoff silently failed.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — payloads live in the gitignored mailbox, so git pretends they don't exist. The proof lives in tracked <code>progress.json</code> instead.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — git already committed the SPEC automatically, so there's nothing new to show.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — that's the double lock. The gate demands the flag AND physical residue on disk; a checkbox can't be checked into truth."
+               data-explanation-wrong="Not quite — this is precisely the step the system refuses to take on faith. The gate scans the disk for a real ## Post-build section, and without that residue the done claim is blocked.">
+            <h3 class="quiz-question">A lesson's logbook shows <code>handoff.foldedIn: true</code>, but there's no <code>## Post-build</code> section in any of its files. Claude tries to finish the lesson — what happens?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It finishes — the logbook flag is the official record, so the gate trusts it.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The gate quietly writes the <code>## Post-build</code> section itself, so the flag becomes true.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Blocked — a flag with no residue on disk is a rubber stamp, and the lesson stays un-done until the section is actually written.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — transient payload, durable evidence. Once the receipts are in tracked state, the envelopes can burn."
+               data-explanation-wrong="Not quite — gates never read the loose payload files. The proof already lives in tracked state (the logbook and the lesson files), so the mailbox can vanish without touching the done status.">
+            <h3 class="quiz-question">Someone deletes the entire <code>.handoff/</code> folder — consumed drawer and all — after a lesson is done. Does the done status survive its next gate check?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes — gates read evidence in tracked state, never the loose mail. The envelopes were disposable all along.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No — the gate re-reads the original messages, so done breaks the moment the mail is gone.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only if <code>.handoff/consumed/</code> was backed up first — that's where the proof is archived.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+
+        <p style="margin-top: var(--space-8); color: var(--color-text-secondary);">Next up — Module 5, "One Copy Everywhere": the shared chassis physically ships inside every plugin. How does the repo stop five copies from drifting apart?</p>
+      </section>
+
+    </div>
+  </div>
+</section>
