@@ -1,8 +1,11 @@
-# release — every merge to main whose marketplace version is new publishes a GitHub Release
-# v<version> with each plugin packaged as a zip. Idempotent: if the tag already exists (e.g. a
-# docs-only merge, or a re-run), it publishes nothing. The ci workflow's bump gate guarantees
-# substantive PRs arrive with a fresh version, so merge ⇒ release needs no manual step.
-# Bump rules and recipe: docs/releasing.md.
+# release — every merge to main whose marketplace version is new publishes the npm package
+# (@praxis/gates) and a GitHub Release v<version> with each plugin packaged as a zip, in that
+# order: the release step is what creates the tag, so a tag can never exist whose npm version
+# isn't already live — which is what lets action.yml run `npx <package>@<pin>` race-free.
+# Idempotent: if the tag already exists (e.g. a docs-only merge, or a re-run), it publishes
+# nothing; a re-run after a partial failure skips the npm half if that version is already on
+# the registry. The ci workflow's bump gate guarantees substantive PRs arrive with a fresh
+# version, so merge ⇒ release needs no manual step. Bump rules and recipe: docs/releasing.md.
 name: release
 
 on:
@@ -11,6 +14,7 @@ on:
 
 permissions:
   contents: write # create the tag + release
+  id-token: write # npm provenance attestation
 
 jobs:
   release:
@@ -22,6 +26,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          registry-url: https://registry.npmjs.org
       - name: read version, check for existing tag
         id: v
         run: |
@@ -39,6 +44,18 @@ jobs:
           node --test
           node scripts/gen-marketplace.mjs --check
           node scripts/sync-version.mjs --check
+      - name: publish npm package # before the tag exists — a released tag implies its npm version is live
+        if: steps.v.outputs.new == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          node scripts/build-npm.mjs
+          name="$(node -p "require('./dist/npm/package.json').name")"
+          if npm view "$name@${{ steps.v.outputs.version }}" version >/dev/null 2>&1; then
+            echo "$name@${{ steps.v.outputs.version }} already on npm — nothing to do"
+          else
+            npm publish ./dist/npm --provenance --access public
+          fi
       - name: build + zip each plugin
         if: steps.v.outputs.new == 'true'
         run: |
