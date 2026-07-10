@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-09 18:48'
-updated_date: '2026-07-09 18:55'
+updated_date: '2026-07-10 22:17'
 labels: []
 dependencies: []
 parent_task_id: TASK-6
@@ -46,5 +46,5 @@ Gate + CLI follow the grounding-wiki gates/ pattern (read-only, ../../lib import
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Added codebase-to-course/gates/course.mjs + cli.mjs (course <course-dir>): read-only output gate checking existence, self-containment (Google Fonts allowlisted), nav-dot/module parity, per-module quiz + translation, course-wide chat + flow animation. Wired into SKILL.md Phase 4 with a fix-until-green instruction. 6 fixture tests pass; gate also passes on reference-repo's real course from both source and vendored dist.
+Added codebase-to-course/gates/course.mjs + cli.mjs (course <course-dir>): read-only output gate checking existence, self-containment (Google Fonts allowlisted), nav-dot/module parity, per-module quiz + translation, course-wide chat + flow animation. Wired into SKILL.md Phase 4 with a fix-until-green instruction. 6 fixture tests pass; gate also passes on the reference repo's real course from both source and vendored dist.
 <!-- SECTION:FINAL_SUMMARY:END -->
