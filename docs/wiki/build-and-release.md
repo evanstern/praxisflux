@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 5cd80ae2c5c6791cb74d777340cefd8965759229
+verified_against: 09348876b080ff2952602dbabb91ff5409070bd9
 ---
 
 # Build and release
@@ -106,7 +106,9 @@ re-verifies, publishes the npm package, builds, zips each `dist/<plugin>` as
 `<plugin>-v<version>.zip`, and publishes a GitHub Release `v<version>` with generated notes
 (`gh release create`, `contents: write`). The npm step (`build-npm.mjs` then
 `npm publish --access public`, authenticated by **OIDC trusted publishing** — `id-token:
-write` plus the npmjs.com trusted-publisher entry for this repo/workflow; provenance is
+write` plus the npmjs.com trusted-publisher entry for this repo/workflow, which also names
+the `npm` GitHub environment (the release job declares `environment: npm` so the OIDC token
+carries the matching claim); provenance is
 automatic, npm is upgraded in-step since trusted publishing needs >= 11.5.1, and a present
 `NPM_TOKEN` secret acts only as bootstrap/break-glass fallback) deliberately runs **before**
 the release step that creates the tag, so a released tag can never exist whose npm version
