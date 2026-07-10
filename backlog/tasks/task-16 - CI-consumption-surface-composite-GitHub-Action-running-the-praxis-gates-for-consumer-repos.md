@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:32'
-updated_date: '2026-07-10 18:33'
+updated_date: '2026-07-10 18:35'
 labels: []
 dependencies: []
 priority: high
@@ -22,10 +22,10 @@ Consumer repos (first: the-stacks) want the praxis way — spec-bridge check, gr
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 action.yml (composite) at repo root with inputs: gates (comma-separated, validated — unknown names fail loudly), path (default .), plus per-gate dirs as needed
-- [ ] #2 A gate-runner entry script maps gate names to the existing gate CLIs/modules; each failure names its fix, exit nonzero on any failure
-- [ ] #3 wiki-freshness gate detects a shallow clone and fails with the exact fix (fetch-depth: 0)
-- [ ] #4 Tests cover the runner (unknown gate, passing fixture, failing fixture)
+- [x] #1 action.yml (composite) at repo root with inputs: gates (comma-separated, validated — unknown names fail loudly), path (default .), plus per-gate dirs as needed
+- [x] #2 A gate-runner entry script maps gate names to the existing gate CLIs/modules; each failure names its fix, exit nonzero on any failure
+- [x] #3 wiki-freshness gate detects a shallow clone and fails with the exact fix (fetch-depth: 0)
+- [x] #4 Tests cover the runner (unknown gate, passing fixture, failing fixture)
 - [ ] #5 Docs: a consuming-gates doc with the consumer snippet, README mention, wiki updated; marketplace version bumped (minor)
 <!-- AC:END -->
 
@@ -39,3 +39,9 @@ Consumer repos (first: the-stacks) want the praxis way — spec-bridge check, gr
 5. Docs: docs/consuming-gates.md + README + wiki (extend build-and-release note), bump minor 0.3.2 -> 0.4.0
 6. Gates green, push, PR
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Slice 1 committed: action.yml + scripts/run-gates.mjs + 5 tests (90 total green). Runner imports gate functions directly (course gate has no CLI, only validateCourse). Smoke: praxis itself passes spec-bridge + wiki-freshness via the runner; unknown gate exits 2.
+<!-- SECTION:NOTES:END -->
