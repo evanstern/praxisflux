@@ -1,0 +1,428 @@
+<section class="module module-alt" id="module-2">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Anatomy of a Plugin</h1>
+      <p class="module-subtitle">The program is written in English — open the box and see what's really inside.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- ── SCREEN 1: HOOK — the 133-line English program ────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The main program is… a document?</h2>
+        <p>Open the <span class="term" data-definition="An add-on you install to give an app new abilities — here, a folder of instructions and small programs that teaches Claude Code a new job.">plugin</span> called educate and look for its engine. You'd expect thousands of lines of <span class="term" data-definition="The most common programming language on the web. Praxis uses it (via Node.js) for its small checker programs — files ending in .js or .mjs.">JavaScript</span>. You'll find something much stranger.</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-text-muted) 15%, transparent)">🤔</div>
+            <h3 class="pattern-title">What you expect</h3>
+            <p class="pattern-desc">A mountain of machinery — thousands of lines of code doing the teaching, tracking, and checking.</p>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-accent) 15%, transparent)">📜</div>
+            <h3 class="pattern-title">What you find</h3>
+            <p class="pattern-desc"><strong>SKILL.md — a 133-line English document.</strong> That <em>is</em> the main program. <span class="term" data-definition="Anthropic's AI coding assistant that runs in your terminal — it reads files, writes code, and follows written instructions you give it.">Claude Code</span> reads it and follows it, step by step.</p>
+          </div>
+        </div>
+
+        <p>The prose isn't documentation <em>about</em> the program — the prose <em>is</em> the program. The JavaScript that ships alongside it is tiny, and it mostly exists to <em>check the AI's work</em>, not to do the work.</p>
+
+        <div class="callout callout-accent">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Prose is source code now</strong>
+            <p>In AI-native software, carefully engineered English is <span class="term" data-definition="The human-written text a program is built from. When you talk to an AI about software, 'the source' means the editable original — not the running app.">source code</span>: kept under <span class="term" data-definition="A system (like git) that records every change to your files over time, so you can review history, compare versions, and undo mistakes.">version control</span>, reviewed like code, even tested like code. When you write instructions for an AI — a custom prompt, a workflow — you are programming.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 2: THE TOUR — annotated file tree ─────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Unboxing a plugin</h2>
+        <p>Think of praxis as a cordless power-tool platform: one battery system powers many different tools. Each plugin is one tool's box — and every box is packed the same way: a label, the manuals, an inspector's checklist, and some starter jigs. Here's the real <span class="term" data-definition="The branching layout of folders inside folders — like an org chart for your files. 'Directory' is the technical word for a folder.">folder tree</span> of educate:</p>
+
+        <div class="file-tree">
+          <div class="ft-folder open">
+            <span class="ft-name">educate/</span>
+            <span class="ft-desc">the whole tool box</span>
+            <div class="ft-children">
+              <div class="ft-file">
+                <span class="ft-name">.claude-plugin/plugin.json</span>
+                <span class="ft-desc">the label on the box — the plugin's <span class="term" data-definition="A small file that describes a software package to the system that installs it — its name, version, and what it's for. The shipping label of software.">manifest</span></span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">hooks/hooks.json</span>
+                <span class="ft-desc">"run my inspector when Claude finishes" — a <span class="term" data-definition="A way to say 'when X happens, automatically run Y' — here, 'when Claude finishes responding, run the checker.' You'd tell an AI: 'add a hook that runs my tests after every change.'">hook</span> (more in Module 3)</span>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">skills/</span>
+                <span class="ft-desc">the manuals Claude follows</span>
+                <div class="ft-children">
+                  <div class="ft-file">
+                    <span class="ft-name">lesson/SKILL.md</span>
+                    <span class="ft-desc">the main manual — 133 lines of English</span>
+                  </div>
+                  <div class="ft-file">
+                    <span class="ft-name">start/SKILL.md</span>
+                    <span class="ft-desc">the setup manual — 84 lines</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">gates/</span>
+                <span class="ft-desc">the inspector's checklist — stars in Module 3</span>
+                <div class="ft-children">
+                  <div class="ft-file">
+                    <span class="ft-name">dod.mjs</span>
+                    <span class="ft-desc">a <span class="term" data-definition="A small, read-only checker program that decides pass or fail — praxis gates stop work from being called done before it's proven. The star of Module 3.">gate</span>: "is this lesson really done?"</span>
+                  </div>
+                  <div class="ft-file">
+                    <span class="ft-name">wiki.mjs</span>
+                    <span class="ft-desc">a gate: "are the notes still fresh?"</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">scripts/</span>
+                <span class="ft-desc">gate.sh · stop.mjs · progress.mjs · wiki.mjs — the wiring that runs the inspector</span>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">templates/</span>
+                <span class="ft-desc">starter files it plants in your project</span>
+                <div class="ft-children">
+                  <div class="ft-file">
+                    <span class="ft-name">CLAUDE.md · progress.schema.json</span>
+                    <span class="ft-desc">standing rules + a progress ledger, ready to copy</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">.template/</span>
+                    <span class="ft-desc">checklist.md · raw-notes.md — blank <span class="term" data-definition="A starter file with the boring structure pre-filled, ready to be copied into a new project so you don't start from a blank page.">template</span> pages for each lesson</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p>One quirk worth knowing: plugins have no "always-on" slot — their <span class="term" data-definition="An instruction document that teaches Claude a repeatable job. In praxis, a skill is a Markdown manual Claude opens when a matching request arrives.">skills</span> load lazily, only when summoned. So a plugin that needs standing rules <strong>plants a <span class="term" data-definition="A notes file Claude automatically reads at the start of every session in that folder — standing instructions that are always on, without you repeating them.">CLAUDE.md</span></strong> into your project folder. That's exactly what <code>templates/CLAUDE.md</code> is for.</p>
+
+        <p>Now let's read the label on the box — plugin.json, line by line:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — educate/.claude-plugin/plugin.json</span>
+            <pre><code>
+<span class="code-line">{</span>
+<span class="code-line">  <span class="code-property">"name"</span>: <span class="code-string">"educate"</span>,</span>
+<span class="code-line">  <span class="code-property">"version"</span>: <span class="code-string">"0.1.0"</span>,</span>
+<span class="code-line">  <span class="code-property">"description"</span>: <span class="code-string">"Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts."</span>,</span>
+<span class="code-line">  <span class="code-property">"author"</span>: { <span class="code-property">"name"</span>: <span class="code-string">"Evan Stern"</span>, <span class="code-property">"email"</span>: <span class="code-string">"evanmicahstern@gmail.com"</span> },</span>
+<span class="code-line">  <span class="code-property">"keywords"</span>: [<span class="code-string">"learning"</span>, <span class="code-string">"teach-me"</span>, <span class="code-string">"socratic"</span>, <span class="code-string">"curriculum"</span>, <span class="code-string">"orchestration"</span>]</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">The label starts — this whole file is one <span class="term" data-definition="A plain-text format for structured data, all curly braces and quotes — the standard way programs write down settings, labels, and messages.">JSON</span> object.</p>
+              <p class="tl">The plugin's name: what you'd type to install it from the <span class="term" data-definition="A catalog of plugins you can browse and install from — praxis itself is one.">marketplace</span>.</p>
+              <p class="tl">A version number, so updates can be tracked like any other software.</p>
+              <p class="tl">One honest sentence about what's inside the box.</p>
+              <p class="tl">Who made it — a name and an email, right on the label.</p>
+              <p class="tl">Search keywords, so the right person can find this tool in the catalog.</p>
+              <p class="tl">…and the label ends. That's the entire manifest.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 3: A SKILL UP CLOSE — frontmatter translation ─────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A skill up close: one sentence, three jobs</h2>
+        <p>Every skill manual opens with <span class="term" data-definition="A small block of labeled facts at the very top of a document, fenced between two '---' lines — like an index card stapled to page one.">frontmatter</span> — a tiny <span class="term" data-definition="A plain-text format for settings that reads almost like an outline — 'name: implement' — designed to be easy for humans to write and read.">YAML</span> card stapled to page one. Here's the real one from the build plugin's implement skill, the manual for turning a <span class="term" data-definition="A written build order: what to make and how to prove it works. In praxis, educate authors the SPEC and build implements it.">SPEC</span> into working code:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — build/skills/implement/SKILL.md</span>
+            <pre><code>
+<span class="code-line"><span class="code-operator">---</span></span>
+<span class="code-line"><span class="code-property">name</span>: implement</span>
+<span class="code-line"><span class="code-property">description</span>: Implement a build SPEC handed off from a learning lesson (or any producer), verify it works, and return findings for the lesson to fold back in. Use when a lesson has handed off a SPEC to build, when the user says "run build", "/build-me", "build the spec", or points at a pending handoff request. This plugin OWNS the implementation leg — educate teaches and authors the SPEC; build implements it and returns what it learned.</span>
+<span class="code-line"><span class="code-operator">---</span></span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Three dashes open the frontmatter card.</p>
+              <p class="tl">The skill's name — what this manual is called.</p>
+              <p class="tl">One long sentence doing three jobs at once: it explains what the skill does, lists the exact phrases that wake it up ("run build", "/build-me"), and stakes out turf — "this plugin OWNS the implementation leg," so no other plugin tries to do this work.</p>
+              <p class="tl">Three dashes close the card; everything below is the manual itself.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That description line is the densest engineering in the whole plugin. Unpack it:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-actor-2) 18%, transparent)">📖</div>
+            <h3 class="pattern-title">Documentation</h3>
+            <p class="pattern-desc">A human skimming the folder learns what the skill does from one sentence.</p>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent)">🔔</div>
+            <h3 class="pattern-title">The doorbell</h3>
+            <p class="pattern-desc">Claude matches your words against it — say "run build" and this manual gets opened.</p>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-actor-3) 18%, transparent)">🚩</div>
+            <h3 class="pattern-title">A turf declaration</h3>
+            <p class="pattern-desc">"This plugin OWNS the implementation leg" — so educate teaches, build builds, and they never collide.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 4: THE SHARED BATTERY — lib/ ──────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The shared battery: lib/</h2>
+        <p>Back to the power-tool metaphor: five different tools, one battery system. The battery is <code>lib/</code> — nine tiny <span class="term" data-definition="A small file of code with one clear job that other code can borrow — the LEGO brick of programming.">modules</span> of JavaScript that every plugin snaps onto. A few of the cells:</p>
+
+        <div class="icon-rows">
+          <div class="icon-row">
+            <div class="icon-circle" style="background: color-mix(in srgb, var(--color-actor-2) 20%, transparent)">🧭</div>
+            <div>
+              <strong>project-root</strong>
+              <p>Find where the project lives, from any folder you're standing in.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: color-mix(in srgb, var(--color-actor-4) 20%, transparent)">🚦</div>
+            <div>
+              <strong>lifecycle</strong>
+              <p>Enforces "status can't exceed proof" — the rulebook behind Module 3's gates.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: color-mix(in srgb, var(--color-actor-3) 20%, transparent)">📮</div>
+            <div>
+              <strong>handoff</strong>
+              <p>The mail system plugins use to pass work to each other — Module 4's whole story.</p>
+            </div>
+          </div>
+          <div class="icon-row">
+            <div class="icon-circle" style="background: color-mix(in srgb, var(--color-actor-5) 20%, transparent)">🌱</div>
+            <div>
+              <strong>installer</strong>
+              <p>Plants starter files into your project honestly — never overwriting your edits.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>The whole battery is 455 lines across nine files — none over 81 lines — and it's <span class="term" data-definition="Software that uses nothing beyond what its language already ships with — nothing to download, nothing that can go stale or break under you.">zero-dependency</span>: it uses nothing but what ships with <span class="term" data-definition="The engine that runs JavaScript outside a web browser. Install it and your computer can execute .js and .mjs files directly.">Node.js</span>, not a single downloaded <span class="term" data-definition="Someone else's code your project downloads and relies on. Fewer dependencies means fewer things that can break, go stale, or surprise you.">dependency</span>. And at packaging time the whole <code>lib/</code> folder is <em>copied into</em> each plugin, so every installed plugin is self-contained — Module 5 owns that story.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">🔋</div>
+          <div class="callout-content">
+            <strong class="callout-title">455 lines run five plugins</strong>
+            <p>Infrastructure doesn't have to be huge — every one of the nine shared files is smaller than this page's HTML.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SCREEN 5: HOW A PLUGIN FINDS HOME ────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How a plugin finds home</h2>
+        <p>You're five folders deep in a project and ask Claude to "resume the lesson." How does educate know where the project's home is? The same way <span class="term" data-definition="The standard version-control tool. It tracks every change to a project — and it can find the project's home folder from any subfolder inside it.">git</span> finds your repo from any subfolder: it looks for a landmark. Praxis has two placement models:</p>
+
+        <div class="pattern-cards">
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-info) 15%, transparent)">⬆️</div>
+            <h3 class="pattern-title">educate walks UP</h3>
+            <p class="pattern-desc">From wherever you stand, it climbs parent folders until one contains a <code>topics/</code> landmark. That folder is home.</p>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-actor-3) 15%, transparent)">⬇️</div>
+            <h3 class="pattern-title">research walks DOWN</h3>
+            <p class="pattern-desc">It sweeps downward, collecting <em>every</em> folder marked with a <code>.research-vault</code> file — many homes, not one.</p>
+          </div>
+        </div>
+
+        <p>The landmark trick is two tiny <span class="term" data-definition="A named, reusable recipe in code: give it inputs, it does its one job, and hands back a result.">functions</span>. First, a factory that builds <span class="term" data-definition="A file or folder whose mere presence carries meaning — 'this folder is a project home.' Programmers also call it a sentinel.">marker</span> checkers:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — lib/project-root.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">/** A marker function: presence of a child file/dir named `name`. */</span></span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">hasChild</span>(name) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> (dir) <span class="code-operator">=&gt;</span> <span class="code-function">existsSync</span>(<span class="code-function">join</span>(dir, name));</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A note from the author: this manufactures little landmark-checkers.</p>
+              <p class="tl">Give it a name to look for — say, "topics" — and it builds you a custom checker.</p>
+              <p class="tl">The checker answers one yes/no question: does this folder contain something with that name?</p>
+              <p class="tl">That's the whole factory.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>Then the climber that carries a checker up the folder tree:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE — lib/project-root.mjs</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">findRootUpwards</span>(startDir, markerFn) {</span>
+<span class="code-line">  <span class="code-keyword">let</span> dir = <span class="code-function">resolve</span>(startDir);</span>
+<span class="code-line">  <span class="code-keyword">const</span> { <span class="code-property">root</span>: fsRoot } = <span class="code-function">parse</span>(dir);</span>
+<span class="code-line">  <span class="code-keyword">for</span> (;;) {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (<span class="code-function">markerFn</span>(dir)) <span class="code-keyword">return</span> dir;</span>
+<span class="code-line">    <span class="code-keyword">if</span> (dir === fsRoot) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">    dir = <span class="code-function">dirname</span>(dir);</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Start from any folder, carrying one of those landmark checkers along.</p>
+              <p class="tl">Turn "wherever we're standing" into a full, unambiguous address.</p>
+              <p class="tl">Note where the top of the disk is — the <span class="term" data-definition="The topmost folder of something. A project's root is its home folder; the disk's root is the point where there is no more 'up'.">root</span>, the point where there's no more "up".</p>
+              <p class="tl">Now loop, forever if needed…</p>
+              <p class="tl">Is the landmark here? Then this folder is home — done.</p>
+              <p class="tl">Hit the top of the disk without finding it? Give up and report "no home".</p>
+              <p class="tl">Otherwise, step up into the parent folder…</p>
+              <p class="tl">…and go around the loop again from there.</p>
+              <p class="tl">End of the climber.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That's it. <code>hasChild("topics")</code> builds the question; <code>findRootUpwards</code> keeps asking it, one parent folder at a time, until it finds home or runs out of "up".</p>
+      </section>
+
+      <!-- ── SCREEN 6: SORT THE TOOLBOX + QUIZ ────────────────────────── -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your toolbox</h2>
+        <p>First, sort the parts back into the box. Drag each item onto the role it plays:</p>
+
+        <div class="dnd-container" id="dnd-module2">
+          <div class="dnd-chips">
+            <div class="dnd-chip" draggable="true" data-answer="skill-md">SKILL.md</div>
+            <div class="dnd-chip" draggable="true" data-answer="plugin-json">plugin.json</div>
+            <div class="dnd-chip" draggable="true" data-answer="gate-dod">gates/dod.mjs</div>
+            <div class="dnd-chip" draggable="true" data-answer="claude-md">templates/CLAUDE.md</div>
+            <div class="dnd-chip" draggable="true" data-answer="lib">lib/</div>
+          </div>
+          <div class="dnd-zones">
+            <div class="dnd-zone" data-correct="skill-md">
+              <p class="dnd-zone-label">The manual Claude follows</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="plugin-json">
+              <p class="dnd-zone-label">The label on the box</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="gate-dod">
+              <p class="dnd-zone-label">The inspector's checklist</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="claude-md">
+              <p class="dnd-zone-label">Standing rules planted in your project</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+            <div class="dnd-zone" data-correct="lib">
+              <p class="dnd-zone-label">The shared battery every plugin snaps onto</p>
+              <div class="dnd-zone-target">Drop here</div>
+            </div>
+          </div>
+          <button class="quiz-check-btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+          <button class="quiz-reset-btn" onclick="resetDnD('dnd-module2')">Reset</button>
+        </div>
+
+        <p>Now three situations you might actually hit:</p>
+
+        <div class="quiz-container" id="quiz-module2">
+          <div class="quiz-question-block"
+               data-correct="frontmatter"
+               data-explanation-right="Exactly — the frontmatter description is documentation, wake-up phrase list, and turf declaration in one sentence. It's the skill's doorbell."
+               data-explanation-wrong="Not quite. plugin.json is the label on the box and scripts/ is plumbing — the wake-up phrases live in the skill's frontmatter description, the one sentence Claude reads to decide when to open the manual.">
+            <h3 class="quiz-question">You've just downloaded a new praxis-style plugin and want to know exactly which phrases wake it up. Where do you look?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="keywords" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The keywords list in plugin.json — that's what gets searched</span>
+              </button>
+              <button class="quiz-option" data-value="frontmatter" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The description in the skill's frontmatter — it lists the trigger phrases</span>
+              </button>
+              <button class="quiz-option" data-value="scripts" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The scripts/ folder — that's where the wiring lives</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="walk-up"
+               data-explanation-right="Right — findRootUpwards climbs one parent at a time asking 'is the landmark here?', exactly like git finds your repo from any subfolder."
+               data-explanation-wrong="Not quite. Scanning the whole disk would be slow, and you never have to move — educate walks UP from wherever you are until a folder contains the topics/ landmark.">
+            <h3 class="quiz-question">You're five folders deep inside a learning project and ask Claude to resume your lesson. How does educate find the project's home?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="scan-disk" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It scans your entire disk from the top down until it finds a learning project</span>
+              </button>
+              <button class="quiz-option" data-value="must-move" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It can't — you have to move back to the project's top folder first</span>
+              </button>
+              <button class="quiz-option" data-value="walk-up" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It steps up through parent folders until one contains the topics/ landmark</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="edit-prose"
+               data-explanation-right="Exactly — the manual IS the program. Changing how Claude teaches means editing the prose it follows; the JavaScript only checks the work afterward."
+               data-explanation-wrong="Not quite. Gates check finished work and plugin.json is just the label — the behavior lives in SKILL.md's prose. In an AI-native plugin, editing the English is editing the program.">
+            <h3 class="quiz-question">You love educate, but you want every lesson to open with a quick recap of the previous session. What would you change?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="edit-prose" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The English instructions in skills/lesson/SKILL.md</span>
+              </button>
+              <button class="quiz-option" data-value="edit-gate" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The checker code in gates/dod.mjs</span>
+              </button>
+              <button class="quiz-option" data-value="bump-version" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The version number in plugin.json</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+
+        <p>You can now open any praxis-style plugin and know exactly where to look. Next up: those <code>gates/</code> files — the tiny inspectors that physically stop Claude from declaring unfinished work done.</p>
+      </section>
+
+    </div>
+  </div>
+</section>
