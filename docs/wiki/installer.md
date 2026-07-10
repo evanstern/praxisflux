@@ -4,7 +4,7 @@ description: lib/installer.mjs — dotfile-safe, idempotent project-planting hel
 kind: component
 sources:
   - lib/installer.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
 ---
 
 # Installer

@@ -6,7 +6,7 @@ sources:
   - lib/dates.mjs
   - lib/template.mjs
   - lib/cli.mjs
-verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
+verified_against: 4faeaebb97616d2a8e0b2d7ce26387c89d7861ea
 ---
 
 # Chassis utilities

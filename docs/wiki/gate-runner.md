@@ -4,7 +4,7 @@ description: The shared Stop-hook harness in lib/gate-runner.mjs — reads Claud
 kind: component
 sources:
   - lib/gate-runner.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
 ---
 
 # Gate Runner
