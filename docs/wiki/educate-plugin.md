@@ -15,12 +15,12 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: 5cd80ae2c5c6791cb74d777340cefd8965759229
+verified_against: 9717576758565c3844461c4df10e42507c7f25e7
 ---
 
 # educate plugin
 
-The `educate` plugin (v0.6.1, lockstep with the marketplace) turns a folder into a Socratic learning project: it teaches
+The `educate` plugin (v0.6.2, lockstep with the marketplace) turns a folder into a Socratic learning project: it teaches
 lessons, authors build SPECs for the `build` plugin, and refuses to mark a lesson `done`
 until auditable artifacts — notes, decks, guides — exist on disk, so learning produces
 durable, verifiable work product rather than ephemeral chat.

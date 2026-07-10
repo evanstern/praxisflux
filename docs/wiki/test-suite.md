@@ -21,7 +21,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: bb813579099e655a1c486e7a1921164058a03fb2
+verified_against: 9717576758565c3844461c4df10e42507c7f25e7
 ---
 
 # Test suite
@@ -55,7 +55,8 @@ What each file covers:
   against minimal fixture HTML with modules, quizzes, and translation blocks.
 - `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
   (`references/validate.mjs`): translation-block pairing, bracket balance, `--fix`
-  auto-close, and the chrome version-stamp checks.
+  auto-close, the chrome version-stamp checks, and the orphan-content repros (panels
+  outside any block, unclosed block opens) field-reported by the-stacks.
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
   self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,

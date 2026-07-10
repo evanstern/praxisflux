@@ -16,12 +16,12 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 5cd80ae2c5c6791cb74d777340cefd8965759229
+verified_against: 9717576758565c3844461c4df10e42507c7f25e7
 ---
 
 # codebase-to-course plugin
 
-The `codebase-to-course` plugin (v0.6.1, lockstep with the marketplace) turns a codebase into a single-page interactive HTML
+The `codebase-to-course` plugin (v0.6.2, lockstep with the marketplace) turns a codebase into a single-page interactive HTML
 course that teaches how the code works to non-technical "vibe coders" — people who build with
 AI tools and need to read, understand, and direct code, not write it. It was ported from the
 standalone repo `github.com/evanstern/codebase-to-course`. The output is a directory whose
@@ -66,8 +66,10 @@ refreshes `styles.css`, `main.js`, `_footer.html`, and `validate.mjs` from the c
 references before assembling; `build.sh` itself and the per-course `_base.html` are never
 auto-refreshed. Before assembly, `build.sh` runs `validate.mjs` over the modules: every
 translation block needs 1:1 `.tl`/`.code-line` pairing and bracket-balanced code (excerpts
-trimmed from within, never cut mid-structure); `--fix` auto-closes blocks that only miss
-closing brackets.
+trimmed from within, never cut mid-structure), each block bounded at its own nesting-aware
+closing tag; tracked content (`.translation-code`, `.code-line`, `.tl`) outside every block —
+and any never-closed block open tag — fails by name with its line number instead of being
+absorbed into a neighbor's chunk. `--fix` auto-closes blocks that only miss closing brackets.
 
 **Content rules.** `references/content-philosophy.md` mandates screens at least 50% visual,
 2–3 sentence text blocks, one concept per screen, fresh metaphors (never "restaurant"),
