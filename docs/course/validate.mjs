@@ -110,15 +110,18 @@ function openTagsWithClass(html, classToken) {
   return out;
 }
 
-/** Each .translation-block open tag, its attrs, and its chunk extent (to the
- *  next block or end of input — blocks never nest, and the tracked classes
- *  only occur inside blocks, so chunk counting is exact). */
+/** Each .translation-block element with its REAL extent — from its open tag
+ *  to its own nesting-aware closing </div> (via findElements), not to the
+ *  next block's open tag. Content between blocks therefore belongs to no
+ *  chunk; the orphan scan in checkTranslationBlocks owns that territory.
+ *  A block whose close tag is missing is not returned here (findElements
+ *  can't bound it) — checkTranslationBlocks flags the unmatched open. */
 function findBlocks(html) {
-  const opens = [];
-  const re = /<div([^>]*)>/g;
-  let m;
-  while ((m = re.exec(html))) if (hasClassToken(m[1], "translation-block")) opens.push({ start: m.index, attrs: m[1] });
-  return opens.map((o, i) => ({ ...o, end: i + 1 < opens.length ? opens[i + 1].start : html.length, n: i + 1 }));
+  return findElements(html, "div", "translation-block").map((el, i) => ({
+    ...el,
+    attrs: (/^<div([^>]*)>/.exec(html.slice(el.start, el.innerStart)) || [, ""])[1],
+    n: i + 1,
+  }));
 }
 
 /* ── bracket balance over code text ───────────────────────────── */
@@ -177,6 +180,28 @@ export function checkTranslationBlocks(html, source = "html") {
   const fails = [];
   const details = [];
   const blocks = findBlocks(html);
+
+  // A translation-block open tag findElements couldn't close never reaches
+  // `blocks` — without this check it (and its contents) would silently skip
+  // validation entirely.
+  const bounded = new Set(blocks.map((b) => b.start));
+  const openRe = /<div([^>]*)>/g;
+  let om;
+  while ((om = openRe.exec(html)))
+    if (hasClassToken(om[1], "translation-block") && !bounded.has(om.index))
+      fails.push(`${source}: .translation-block opened on line ${lineOf(html, om.index)} has no matching closing </div> — nothing inside it can be validated. Close the block.`);
+
+  // Tracked content outside every block extent is unattributable: the old
+  // next-open-tag chunks blamed it on a neighboring block (or missed it
+  // before the first block); now it fails by name.
+  const inBlock = (i) => blocks.some((b) => i >= b.start && i < b.end);
+  for (const [cls, label] of [["translation-code", ".translation-code panel"], ["code-line", ".code-line span"], ["tl", ".tl note"]]) {
+    for (const t of openTagsWithClass(html, cls)) {
+      if (!inBlock(t.start))
+        fails.push(`${source}: orphan ${label} on line ${lineOf(html, t.start)} sits outside every .translation-block — the validator cannot attribute it and the renderer will misplace it. Wrap it in a .translation-block or delete it.`);
+    }
+  }
+
   for (const b of blocks) {
     const id = `${source}: translation block ${b.n} (line ${lineOf(html, b.start)})`;
     if (/data-validate\s*=\s*["']off["']/.test(b.attrs)) { details.push({ ...b, skipped: true }); continue; }

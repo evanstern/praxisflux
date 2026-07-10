@@ -1,6 +1,6 @@
 {
   "name": "codebase-to-course",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Turn any codebase into a beautiful, interactive single-page HTML course that teaches how the code works to non-technical people.",
   "author": {
     "name": "praxisflux maintainers"
