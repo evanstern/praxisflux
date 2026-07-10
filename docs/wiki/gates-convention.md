@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # Gates convention
@@ -50,7 +50,9 @@ problems on stderr). Key behaviors:
   entry (`stop.mjs`), and any state-mutating tracker CLI (educate's `progress.mjs`).
 
 Gate scripts live once in the plugin, referenced as `${CLAUDE_PLUGIN_ROOT}/…` — never copied
-into the user's project.
+into the user's project. The `gate.sh` shims resolve `node` via `command -v` with a
+login-shell fallback (Stop hooks run in a minimal non-login shell where nvm/volta/Homebrew
+paths may be absent) and exit 0 when node is unavailable — a missing runtime never blocks Stop.
 
 **Judgment steps need evidence plus durable residue, never a bare flag.** Educate's return leg
 requires both `handoff.foldedIn` in `progress.json` *and* a `## Post-build` section on disk, so
@@ -60,8 +62,12 @@ the most-skipped step can't be rubber-stamped by setting a boolean.
 
 - Implemented by [[lifecycle-engine]] (the status-vs-evidence checker) and [[gate-runner]]
   (the Stop-hook harness), both part of the [[chassis]].
-- Instantiated in [[research-plugin]], [[educate-plugin]], [[grounding-wiki-plugin]], and
-  [[codebase-to-course-plugin]], each with its own state vocabulary and gates.
+- Instantiated in [[research-plugin]], [[educate-plugin]], [[grounding-wiki-plugin]],
+  [[codebase-to-course-plugin]], and [[spec-bridge-plugin]] (whose whole premise is this rule
+  applied to Spec Kit artifacts), each with its own state vocabulary and gates.
+- Two more instances of "artifacts prove status": codebase-to-course's versioned chrome
+  (the course gate fails fossilized chrome stamps) and the repo's own release pipeline
+  (CI refuses released-surface diffs whose version didn't bump — see [[build-and-release]]).
 - Roots resolve via [[project-root]] helpers (`findRootUpwards` / `findRootsDownwards`).
 - The wider skill shape (precondition gate → work → output gate) is described in
   [[skill-patterns]]; handoff evidence rules live in [[handoff-protocol]].

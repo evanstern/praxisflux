@@ -9,12 +9,12 @@ sources:
   - grounding-wiki/gates/freshness.mjs
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/templates/note.md
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # Grounding-wiki plugin
 
-The `grounding-wiki` plugin (v0.1.0) builds and maintains a **code-grounded corpus** at
+The `grounding-wiki` plugin (v0.2.0) builds and maintains a **code-grounded corpus** at
 `docs/wiki/` in a target repo: one Markdown note per concept or component, each pinned to the
 commit it was verified against and listing the source files whose change invalidates it. Two
 skills split the lifecycle — `wiki-build` generates the corpus, `wiki-update` refreshes it in
