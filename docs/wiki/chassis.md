@@ -6,7 +6,7 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
 ---
 
 # Chassis
@@ -44,6 +44,8 @@ The module roster in `lib/`:
 - `selfcontained.mjs` — HTML self-containment verifier ([[selfcontained-verifier]])
 - `lifecycle.mjs` — status-cannot-exceed-proven-artifacts rules ([[lifecycle-engine]])
 - `installer.mjs` — project bootstrap/install helpers ([[installer]])
+- `spec-derive.mjs` — pure Spec Kit `specDir` → derived kanban status, the interpretation
+  layer of [[spec-bridge-plugin]]
 - `dates.mjs`, `template.mjs`, `handoff.mjs` — small utilities for dates, file templating,
   and the inter-plugin handoff transport ([[chassis-utilities]])
 - `html/base.html` — the shared CSS custom-property token schema referenced by toolkit snippets
@@ -52,14 +54,15 @@ The module roster in `lib/`:
   (`tooltip.md`, `pedagogy.md`, `svg-diagrams.md`, `code-translation.md`, `quiz-patterns.md`,
   `diagrams.md`). Gate code never imports from `toolkit/`; skills reference it as
   `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/<module>.md` and must degrade gracefully when a module
-  is absent.
+  is absent. Its README also indexes plugin-owned versioned chrome (currently
+  codebase-to-course's course chrome), which lives with its owning plugin rather than in `lib/`.
 
 ## Connections
 
 The chassis is consumed by every plugin's gates and scripts ([[gates-convention]]) — notably
-[[research-plugin]], [[grounding-wiki-plugin]], [[educate-plugin]], [[build-plugin]], and
-[[codebase-to-course-plugin]] — and is distributed into `dist/<plugin>/lib` by
-[[build-and-release]]. Its modules are individually documented in [[project-root]],
+[[research-plugin]], [[grounding-wiki-plugin]], [[educate-plugin]], [[build-plugin]],
+[[codebase-to-course-plugin]], and [[spec-bridge-plugin]] — and is distributed into
+`dist/<plugin>/lib` by [[build-and-release]]. Its modules are individually documented in [[project-root]],
 [[gate-runner]], [[markdown-module]], [[selfcontained-verifier]], [[lifecycle-engine]],
 [[installer]], [[chassis-utilities]], and [[toolkit]]. Behavior is covered by [[test-suite]].
 
