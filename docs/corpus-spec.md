@@ -1,7 +1,7 @@
-# The grounded corpus — praxis's interchange contract (spec v1)
+# The grounded corpus — praxisflux's interchange contract (spec v1)
 
-A **grounded corpus** is a directory of interlinked Markdown notes that praxis tools
-produce and consume. It is the *only* way praxis tools compose around knowledge: producers
+A **grounded corpus** is a directory of interlinked Markdown notes that praxisflux tools
+produce and consume. It is the *only* way praxisflux tools compose around knowledge: producers
 write the format, consumers read it, and **no tool ever invokes another**. Anything that can
 write this format participates in the ecosystem; anything that can read it benefits from
 every producer.

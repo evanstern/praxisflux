@@ -1,4 +1,4 @@
-# The praxis handoff protocol
+# The praxisflux handoff protocol
 
 How one plugin hands work to another. The **transport is shared** (`lib/handoff.mjs`); the
 **payload semantics are per plugin pair**. (Full authoring guidance lands in `skill-patterns.md`,

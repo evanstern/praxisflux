@@ -1,6 +1,6 @@
 # docs
 
-Authoring and protocol documentation for the praxis suite.
+Authoring and protocol documentation for the praxisflux suite.
 
 Planned (**TASK-1.11**): `skill-patterns.md` (the shared skill-authoring philosophy) and the
 handoff protocol spec (envelope, `.handoff/` transport, evidence-in-tracked-state,

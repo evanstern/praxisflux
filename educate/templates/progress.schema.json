@@ -75,7 +75,7 @@
           },
           "handoff": {
             "type": "object",
-            "description": "Delegated-build EVIDENCE (durable, tracked). The SPEC and findings payloads themselves are transient in a gitignored .handoff/; these booleans are the record the DoD gate reads (see the praxis handoff protocol).",
+            "description": "Delegated-build EVIDENCE (durable, tracked). The SPEC and findings payloads themselves are transient in a gitignored .handoff/; these booleans are the record the DoD gate reads (see the praxisflux handoff protocol).",
             "properties": {
               "specd": { "type": "boolean", "description": "A SPEC was handed to the build plugin." },
               "returned": { "type": "boolean", "description": "The build returned its findings." },

@@ -1,6 +1,6 @@
 # Inline-SVG diagram rules
 
-Hand-drawn inline SVG is the praxis idiom for explanatory figures (educate decks draw
+Hand-drawn inline SVG is the praxisflux idiom for explanatory figures (educate decks draw
 diagrams this way; research briefings draw charts as inline SVG). SVG has sharp edges that
 HTML habits walk straight into — these are the hard-won rules, originally from educate's
 deck template.

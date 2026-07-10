@@ -1,4 +1,4 @@
-# praxis
+# praxisflux
 
 A Claude Code **plugin marketplace** that unifies a set of composable knowledge-work
 plugins on one shared Node chassis. The plugins form a **research → teach → build** loop:
@@ -57,7 +57,7 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
   (the shared patterns; read before adding a plugin).
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
 - [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
-  the composite action (`uses: evanstern/praxis@v<version>`) or anywhere via
+  the composite action (`uses: evanstern/praxisflux@v<version>`) or anywhere via
   `npx @praxisflux/gates`.
 
 ## Install
@@ -66,13 +66,13 @@ Add the marketplace from GitHub (needs git access to this repo while it's privat
 local clone:
 
 ```
-/plugin marketplace add evanstern/praxis     # or: /plugin marketplace add /path/to/praxis
-/plugin install research@praxis
-/plugin install grounding-wiki@praxis
-/plugin install educate@praxis
-/plugin install build@praxis
-/plugin install codebase-to-course@praxis
-/plugin install spec-bridge@praxis
+/plugin marketplace add evanstern/praxisflux     # or: /plugin marketplace add /path/to/praxisflux
+/plugin install research@praxisflux
+/plugin install grounding-wiki@praxisflux
+/plugin install educate@praxisflux
+/plugin install build@praxisflux
+/plugin install codebase-to-course@praxisflux
+/plugin install spec-bridge@praxisflux
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need.

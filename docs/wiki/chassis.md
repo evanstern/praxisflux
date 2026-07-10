@@ -6,13 +6,13 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # Chassis
 
 The chassis is the repo-root `lib/` directory: zero-dependency Node (`.mjs`) modules shared by
-every praxis plugin. It exists so common plumbing — root discovery, the Stop-hook gate harness,
+every praxisflux plugin. It exists so common plumbing — root discovery, the Stop-hook gate harness,
 markdown parsing, lifecycle rules — is written once instead of per plugin, while each shipped
 plugin still installs as a self-contained unit with no runtime dependency on the repo or on
 sibling plugins.

@@ -1,6 +1,6 @@
-# Authoring praxis plugins — the shared patterns
+# Authoring praxisflux plugins — the shared patterns
 
-praxis plugins look alike on purpose. A new plugin (or skill) that follows these patterns inherits
+praxisflux plugins look alike on purpose. A new plugin (or skill) that follows these patterns inherits
 the chassis and composes with the others for free. This is the leverage doc; pair it with
 [`handoff-protocol.md`](./handoff-protocol.md).
 
@@ -105,7 +105,7 @@ made it plumbing — move that part into `lib/` proper or inline it.
 custom-property *names* and the same dark-mode contract (light default; dark via both
 `@media (prefers-color-scheme: dark)` and `:root[data-theme=…]`; an auto→light→dark toggle) —
 `lib/html/base.html` is the canonical spelling. Palette *values* stay per-plugin: educate and
-research share the praxis palette; codebase-to-course keeps its warm palette and its documented
+research share the praxisflux palette; codebase-to-course keeps its warm palette and its documented
 Google Fonts exception. Toolkit snippets are written against the token names only, so they inherit
 whichever palette the consuming page defines. HTML page *shells* remain per-plugin — the earlier
 decision (docs/handoffs/codebase-to-course-plugin.md) not to fold the course's `_base.html` into

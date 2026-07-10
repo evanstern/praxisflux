@@ -1,10 +1,10 @@
-# action.yml — praxis as a composite GitHub Action: the CI consumption surface for the gates.
+# action.yml — praxisflux as a composite GitHub Action: the CI consumption surface for the gates.
 #
 # Consumer repos pin a released tag and pick their gates:
 #
 #   - uses: actions/checkout@v4
 #     with: { fetch-depth: 0 }          # wiki-freshness resolves pins through git history
-#   - uses: evanstern/praxis@v0.4.0
+#   - uses: evanstern/praxisflux@v0.4.0
 #     with:
 #       gates: spec-bridge, wiki-freshness
 #
@@ -13,8 +13,8 @@
 # (lockstep with the marketplace version), and release.yml publishes that npm version BEFORE
 # creating the tag, so a released tag always resolves a live package — no race. Consumers'
 # `uses:` line is unchanged from the run-from-checkout era. Contract: docs/consuming-gates.md.
-name: "praxis gates"
-description: "Run praxis gate checks (spec-bridge, wiki-freshness, course) against a repository"
+name: "praxisflux gates"
+description: "Run praxisflux gate checks (spec-bridge, wiki-freshness, course) against a repository"
 inputs:
   gates:
     description: "Comma-separated gates to run: spec-bridge, wiki-freshness, course. Unknown names fail the build."
@@ -34,10 +34,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Run praxis gates
+    - name: Run praxisflux gates
       shell: bash
       run: |
-        npx --yes @praxisflux/gates@0.5.0 \
+        npx --yes @praxisflux/gates@0.6.0 \
           --gates "${{ inputs.gates }}" \
           --path "${{ inputs.path }}" \
           --wiki-dir "${{ inputs['wiki-dir'] }}" \

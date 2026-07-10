@@ -11,7 +11,7 @@ is to make that argument *seen*.
 
 ## How to build it well
 0. **Start from the shared base.** `${CLAUDE_PLUGIN_ROOT}/lib/html/base.html` is the canonical
-   praxis foundation — design tokens, a light+dark theme contract (with an on-page toggle), a reset,
+   praxisflux foundation — design tokens, a light+dark theme contract (with an on-page toggle), a reset,
    and an auditable data-table component, all self-contained. Copy its `<style>`/toggle rather than
    re-deriving them; educate's deck template uses the same contract. Then layer the briefing on top.
 1. **Load the design guidance first.** Invoke the `artifact-design` skill before writing the page,
@@ -19,7 +19,7 @@ is to make that argument *seen*.
    accessible, theme-aware chart system. Don't freehand a design when those exist.
 2. **Lead with the verdict.** The analysis already reached a conclusion — put it up front, then let
    the charts justify it. Don't make the reader reverse-engineer the answer. (This is the briefing
-   form of the shared praxis pedagogy — `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/pedagogy.md`: one idea
+   form of the shared praxisflux pedagogy — `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/pedagogy.md`: one idea
    per screen; show, don't tell; split, don't shrink.)
 3. **Every number traces to the branch.** Pull figures from the analysis's Basis and `_grounding.md`
    — never invent data to make a chart look full. Include a small data table so the figures are

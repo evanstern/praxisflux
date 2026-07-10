@@ -5,12 +5,12 @@ kind: pattern
 sources:
   - docs/handoff-protocol.md
   - lib/handoff.mjs
-verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # The handoff protocol
 
-How one praxis plugin hands work to another. The **transport is shared** (`lib/handoff.mjs`
+How one praxisflux plugin hands work to another. The **transport is shared** (`lib/handoff.mjs`
 on the chassis); the **payload semantics are per plugin pair**. The protocol reference is
 `docs/handoff-protocol.md`.
 

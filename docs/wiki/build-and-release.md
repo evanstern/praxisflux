@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 0fc99685a6b15284665979cc7694f3f935982b2e
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # Build and release
@@ -60,7 +60,7 @@ the action uses, root `lib/`, each gate plugin's `gates/` dir, the plugin-local 
 materialized as real copies (npm cannot pack symlinks — the build fails on any symlink in the
 output), and the course gate's `validate.mjs` reference. `package.json` is generated from
 `marketplace.json`, so the npm version is lockstep by construction; `docs/consuming-gates.md`
-ships as the README, root `LICENSE` (MIT) rides along, and the bin `praxis-gates` points at the
+ships as the README, root `LICENSE` (MIT) rides along, and the bin `praxisflux-gates` points at the
 runner. `test/build-npm.test.mjs` packs the tree and drives the bin through a
 `node_modules/.bin` symlink, asserting the contract exit codes.
 
@@ -117,7 +117,7 @@ idempotent by construction. Bump-size guidance (patch/minor/major, the skill rul
 
 **CI consumption surface** (`action.yml` + `scripts/run-gates.mjs` + `@praxisflux/gates`). The
 repo doubles as a composite GitHub Action: consumer repos run the gates at a pinned release
-tag with `uses: evanstern/praxis@v<version>` and a validated `gates:` input (`spec-bridge`,
+tag with `uses: evanstern/praxisflux@v<version>` and a validated `gates:` input (`spec-bridge`,
 `wiki-freshness`, `course`; unknown names fail loudly). The action's internals run
 `npx --yes @praxisflux/gates@<pin>` — the npm package staged by `build-npm.mjs`, its pin stamped
 in lockstep by `sync-version.mjs` and guaranteed live before the tag exists by the release
@@ -129,8 +129,8 @@ and names the `fetch-depth: 0` fix. Consumer-facing docs: `docs/consuming-gates.
 
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
-table maps canonical sources to consumers: the `praxis:tokens` and `praxis:theme` regions of
-`lib/html/base.html`, and the `praxis:tooltip-css`/`praxis:tooltip-js` regions of
+table maps canonical sources to consumers: the `praxisflux:tokens` and `praxisflux:theme` regions of
+`lib/html/base.html`, and the `praxisflux:tooltip-css`/`praxisflux:tooltip-js` regions of
 `lib/toolkit/tooltip.md`, all stamped into `educate/templates/.template/deck.html`. Regions are
 delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampRegion` copy the
 body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
@@ -172,5 +172,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.5.0` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.6.0` (`v0.2.0` was the pipeline's first
   self-published release; `0.5.0` is the first to publish `@praxisflux/gates` to npm).

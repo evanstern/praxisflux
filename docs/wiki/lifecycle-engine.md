@@ -9,7 +9,7 @@ verified_against: 5934860e2021d1d3b096d3c6d7a30bf5d434c003
 
 # Lifecycle engine
 
-`lib/lifecycle.mjs` is the chassis implementation of praxis's core honesty rule: a
+`lib/lifecycle.mjs` is the chassis implementation of praxisflux's core honesty rule: a
 declared status may never outrank the artifacts on disk that prove it. It was generalized
 from educate's `progress.mjs` so that every plugin can share the mechanism while keeping
 its own vocabulary (educate: scaffolded…done; research: branch → analyzed → rendered).

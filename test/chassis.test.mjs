@@ -15,7 +15,7 @@ import { createLifecycle } from "../lib/lifecycle.mjs";
 import { copyDir, ensureGitignore, verifyPresent, installMode } from "../lib/installer.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 
-const scratch = () => mkdtempSync(join(tmpdir(), "praxis-"));
+const scratch = () => mkdtempSync(join(tmpdir(), "praxisflux-"));
 
 test("markdown: frontmatter, code stripping, wikilinks", () => {
   const fm = parseFrontmatter("---\ntitle: My Note\ntype: MOC\naliases: [Alt, Other]\n---\nbody");
@@ -40,7 +40,7 @@ test("dates: today + bumpUpdated", () => {
 });
 
 test("template: render known + leave unknown", () => {
-  assert.equal(render("# {{PROJECT_NAME}} ({{MISSING}})", { PROJECT_NAME: "praxis" }), "# praxis ({{MISSING}})");
+  assert.equal(render("# {{PROJECT_NAME}} ({{MISSING}})", { PROJECT_NAME: "praxisflux" }), "# praxisflux ({{MISSING}})");
 });
 
 test("selfcontained: external loads fail, clean page passes", () => {

@@ -16,12 +16,12 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 9047a2897ed3c173b2e0e6ed407e46b13a410e3f
+verified_against: ada5f4cefad955d3444d4fc8fccb3c114adc4bf2
 ---
 
 # codebase-to-course plugin
 
-The `codebase-to-course` plugin (v0.5.0, lockstep with the marketplace) turns a codebase into a single-page interactive HTML
+The `codebase-to-course` plugin (v0.6.0, lockstep with the marketplace) turns a codebase into a single-page interactive HTML
 course that teaches how the code works to non-technical "vibe coders" — people who build with
 AI tools and need to read, understand, and direct code, not write it. It was ported from the
 standalone repo `github.com/evanstern/codebase-to-course`. The output is a directory whose
@@ -75,7 +75,7 @@ verbatim code snippets, aggressive glossary tooltips, and quizzes that test appl
 a coverage rule (only already-taught terms). `references/gotchas.md` is the failure
 checklist (tooltip clipping, `scroll-snap-type: y proximity` not `mandatory`, token-only
 colors so dark mode works). `references/design-system.md` defines the warm token palette and
-also ships the praxis shared token schema as aliases so toolkit snippets drop in unchanged.
+also ships the praxisflux shared token schema as aliases so toolkit snippets drop in unchanged.
 
 **Output gate.** `gates/course.mjs` exposes `validateCourse(courseDir)`, read-only: fails if
 `index.html` is missing; runs `checkHtml` from `lib/selfcontained.mjs` with Google Fonts URLs
