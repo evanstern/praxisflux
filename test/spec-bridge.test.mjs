@@ -4,7 +4,19 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { parseLinkedTask, findLinkedTasks, verdict, checkBridge } from "../spec-bridge/gates/bridge.mjs";
+import { parseLinkedTask, findLinkedTasks, verdict, checkBridge, bridgeGate } from "../spec-bridge/gates/bridge.mjs";
+import { evaluate } from "../lib/gate-runner.mjs";
+
+// evaluate() prefers CLAUDE_PROJECT_DIR over input.cwd; pin the fixture root explicitly.
+function evalAt(root) {
+  const saved = process.env.CLAUDE_PROJECT_DIR;
+  process.env.CLAUDE_PROJECT_DIR = root;
+  try { return evaluate({ stop_hook_active: false, cwd: root }, [bridgeGate]); }
+  finally {
+    if (saved === undefined) delete process.env.CLAUDE_PROJECT_DIR;
+    else process.env.CLAUDE_PROJECT_DIR = saved;
+  }
+}
 
 // A fixture project: backlog/tasks/*.md in Backlog.md's on-disk shape + a specs/ dir.
 function project() {
@@ -96,6 +108,42 @@ test("lagging status warns but never blocks; agreeing status is silent", () => {
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /TASK-7/);
     assert.match(warnings[0], /sync/);
+  } finally { p.done(); }
+});
+
+test("Stop hook via gate-runner: blocks on exceed, allows and warns on lag, no-op without backlog/", () => {
+  const p = project();
+  try {
+    // no-op: a dir with no backlog/ anywhere resolves no roots
+    const bare = mkdtempSync(join(tmpdir(), "spec-bridge-bare-"));
+    try {
+      const r = evalAt(bare);
+      assert.equal(r.block, false);
+      assert.equal(r.warnings, "");
+    } finally { rmSync(bare, { recursive: true, force: true }); }
+
+    // exceed blocks, message names task and shortfall
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "# S", "plan.md": "# P", "tasks.md": HALF_CHECKED });
+    let r = evalAt(p.root);
+    assert.equal(r.block, true);
+    assert.match(r.message, /TASK-1/);
+    assert.match(r.message, /unchecked/);
+
+    // fix the status: lag scenario elsewhere warns but allows the stop
+    p.task("TASK-1", "In Progress", "Spec: specs/001-a/");
+    p.task("TASK-2", "To Do", "Spec: specs/002-b/");
+    p.spec("specs/002-b", { "spec.md": "# S" });
+    r = evalAt(p.root);
+    assert.equal(r.block, false);
+    assert.match(r.warnings, /TASK-2/);
+
+    // stop_hook_active short-circuits (no infinite block loops)
+    process.env.CLAUDE_PROJECT_DIR = p.root;
+    try {
+      p.task("TASK-1", "Done", "Spec: specs/001-a/");
+      assert.equal(evaluate({ stop_hook_active: true }, [bridgeGate]).block, false);
+    } finally { delete process.env.CLAUDE_PROJECT_DIR; }
   } finally { p.done(); }
 });
 
