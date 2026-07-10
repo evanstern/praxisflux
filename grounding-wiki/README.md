@@ -12,6 +12,6 @@ to the source paths whose change invalidates it (`sources:`). Format:
   read-only staleness check: exit 1 listing every note whose sources changed after its pin.
   Drop-in usable as a pre-commit hook or CI pre-merge gate.
 
-Reference deployment: the akashic repo's `docs/wiki/` (22 notes + a repo-local bash port of
-the gate). Downstream consumers: analyze-vault (Q&A), codebase-to-course (brief grounding),
-educate (lesson grounding), akashic ingestion (MCP-served Q&A).
+Reference deployment: a local reference repo's `docs/wiki/` (22 notes + a repo-local bash port
+of the gate). Downstream consumers: analyze-vault (Q&A), codebase-to-course (brief grounding),
+educate (lesson grounding), external ingestion (MCP-served Q&A).

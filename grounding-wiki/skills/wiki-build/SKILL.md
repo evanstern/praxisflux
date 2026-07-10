@@ -1,6 +1,6 @@
 ---
 name: wiki-build
-version: 0.1.1
+version: 0.1.2
 description: Generate a code-grounded corpus (docs/wiki) for a codebase â€” per-concept MD notes pinned to the current commit, interlinked and indexed, passing the freshness gate. Use when the user wants a grounding wiki, a queryable knowledge base for a repo, or says "build a wiki for this codebase" / "ground this repo".
 ---
 
@@ -42,4 +42,4 @@ Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs freshness <repo-root> docs/wiki` â
 
 Tell the user what's now possible: ask grounded questions against the wiki, keep it honest
 with `wiki-update` when code changes, wire the gate into CI/hooks as a pre-merge check, or
-consume it downstream (courses, lessons, akashic ingestion). Don't do those here.
+consume it downstream (courses, lessons, MCP ingestion). Don't do those here.

@@ -19,4 +19,4 @@ Ported from the standalone repo `github.com/evanstern/codebase-to-course` (see
 analysis corpus-aware (reads a `docs/wiki/` grounded corpus per
 [`docs/corpus-spec.md`](../docs/corpus-spec.md) when present) and add a chassis output gate.
 
-Reference output: the akashic repo's `docs/course/`.
+Reference output: a local reference repo's `docs/course/`.

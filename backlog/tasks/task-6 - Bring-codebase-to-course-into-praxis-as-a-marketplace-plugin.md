@@ -4,7 +4,7 @@ title: Bring codebase-to-course into praxis as a marketplace plugin
 status: Done
 assignee: []
 created_date: '2026-07-09 18:48'
-updated_date: '2026-07-10 14:58'
+updated_date: '2026-07-10 22:17'
 labels: []
 dependencies: []
 ordinal: 17000
@@ -13,7 +13,7 @@ ordinal: 17000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Migrate the standalone codebase-to-course skill (github.com/evanstern/codebase-to-course, symlinked at ~/.claude/skills) into praxis as a plugin that composes with the suite: consumes grounded corpora (docs/corpus-spec.md) when present, gated on the chassis, tested. Plan of record: docs/handoffs/codebase-to-course-plugin.md. Done means: marketplace-installed plugin generates a course end-to-end on a real repo (akashic fixture, corpus present, grounded briefs), course gate passes, gen-marketplace --check + node --test green, skill-patterns checklist satisfied.
+Migrate the standalone codebase-to-course skill (github.com/evanstern/codebase-to-course, symlinked at ~/.claude/skills) into praxis as a plugin that composes with the suite: consumes grounded corpora (docs/corpus-spec.md) when present, gated on the chassis, tested. Plan of record: docs/handoffs/codebase-to-course-plugin.md. Done means: marketplace-installed plugin generates a course end-to-end on a real repo (reference-repo fixture, corpus present, grounded briefs), course gate passes, gen-marketplace --check + node --test green, skill-patterns checklist satisfied.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -27,13 +27,13 @@ Migrate the standalone codebase-to-course skill (github.com/evanstern/codebase-t
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Slices 1-5 complete (PR #3, cutover executed). Remaining before parent Done: the operator has further skill changes to make, then the end-to-end validation run on akashic (install from marketplace, generate course, gate it) — ACs 1-2 stay unchecked until then. AC 3 (checks green) and AC 4 (skill-patterns checklist: plugin.json+marketplace, SKILL.md gate->work->gate, gates/ read-only convention, tests) are satisfied on the branch but left unchecked pending the e2e that proves them from an installed plugin.
+Slices 1-5 complete (PR #3, cutover executed). Remaining before parent Done: the operator has further skill changes to make, then the end-to-end validation run on the reference repo (install from marketplace, generate course, gate it) — ACs 1-2 stay unchecked until then. AC 3 (checks green) and AC 4 (skill-patterns checklist: plugin.json+marketplace, SKILL.md gate->work->gate, gates/ read-only convention, tests) are satisfied on the branch but left unchecked pending the e2e that proves them from an installed plugin.
 
-E2E validation confirmed by the operator (2026-07-09): plugin installed from the praxis marketplace, generated a course on akashic (corpus present), course gate passed.
+E2E validation confirmed by the operator (2026-07-09): plugin installed from the praxis marketplace, generated a course on the reference repo (corpus present), course gate passed.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Migrated codebase-to-course from its standalone repo into praxis as a marketplace plugin: ported the skill (6.1), made analysis corpus-aware (6.2), defaulted output to docs/course/ (6.3), added gates/course.mjs on the chassis (6.4), executed the cutover making praxis its home (6.5), and applied skill content tweaks (6.6). Verified end-to-end on akashic: marketplace install -> course generation -> course gate pass, with gen-marketplace --check and node --test green.
+Migrated codebase-to-course from its standalone repo into praxis as a marketplace plugin: ported the skill (6.1), made analysis corpus-aware (6.2), defaulted output to docs/course/ (6.3), added gates/course.mjs on the chassis (6.4), executed the cutover making praxis its home (6.5), and applied skill content tweaks (6.6). Verified end-to-end on the reference repo: marketplace install -> course generation -> course gate pass, with gen-marketplace --check and node --test green.
 <!-- SECTION:FINAL_SUMMARY:END -->

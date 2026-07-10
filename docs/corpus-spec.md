@@ -9,7 +9,7 @@ every producer.
 Known producers: `research-vault` (web-grounded branches), `grounding-wiki` (code-grounded
 wikis). Known consumers: `analyze-vault` (Q&A/synthesis), `vault-artifact` (render),
 codebase-to-course (course briefs), educate (lesson grounding), build (SPEC citations).
-akashic can ingest a corpus via its markdown parser and serve it over MCP.
+External tools can ingest a corpus via a markdown parser and serve it over MCP.
 
 ## Corpus layout
 

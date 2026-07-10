@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-08 19:19'
-updated_date: '2026-07-08 19:19'
+updated_date: '2026-07-10 22:17'
 labels: []
 dependencies: []
 ordinal: 15000
@@ -14,7 +14,7 @@ ordinal: 15000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Standardize the grounded corpus (interlinked MD notes with provenance frontmatter) as the praxis interchange contract, and add a grounding-wiki plugin that produces/maintains code-grounded corpora. Reference deployment: akashic docs/wiki. Tools compose only through the corpus files — never by calling each other. (Migrated from a stray praxis clone where it was authored as TASK-3; renumbered here.)
+Standardize the grounded corpus (interlinked MD notes with provenance frontmatter) as the praxis interchange contract, and add a grounding-wiki plugin that produces/maintains code-grounded corpora. Reference deployment: a local reference repo's docs/wiki. Tools compose only through the corpus files — never by calling each other. (Migrated from a stray praxis clone where it was authored as TASK-3; renumbered here.)
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -29,5 +29,5 @@ Standardize the grounded corpus (interlinked MD notes with provenance frontmatte
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Shipped docs/corpus-spec.md (v1) and the grounding-wiki plugin (wiki-build + wiki-update skills, freshness gate on the chassis, note template, README). Marketplace regenerated clean; 4 new tests green; gate verified end-to-end against akashic's docs/wiki (21 notes fresh). Migrated from a stray clone (authored there as TASK-3) and renumbered.
+Shipped docs/corpus-spec.md (v1) and the grounding-wiki plugin (wiki-build + wiki-update skills, freshness gate on the chassis, note template, README). Marketplace regenerated clean; 4 new tests green; gate verified end-to-end against a reference repo's docs/wiki (21 notes fresh). Migrated from a stray clone (authored there as TASK-3) and renumbered.
 <!-- SECTION:FINAL_SUMMARY:END -->
