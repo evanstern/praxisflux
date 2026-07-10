@@ -13,7 +13,7 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
+verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
 ---
 
 # spec-bridge plugin
@@ -67,7 +67,7 @@ Missing or malformed config means checkbox-only mode.
   gate rides [[gate-runner]] and [[project-root]] from the [[chassis]], where its
   derivation layer `spec-derive.mjs` also lives.
 - Skills follow [[skill-patterns]] (link and sync are phase-separated; gates read, the
-  `backlog` CLI writes); packaged and vendored by [[build-and-release]].
+  `backlog` CLI writes); packaged by [[build-and-release]].
 - Covered by the [[test-suite]] (`test/spec-derive.test.mjs`, `test/spec-bridge.test.mjs`).
 - Unlike [[research-plugin]]/[[educate-plugin]] lifecycles, the state vocabulary here is
   Backlog.md's own (To Do / In Progress / Done) judged against derived Spec Kit stages.

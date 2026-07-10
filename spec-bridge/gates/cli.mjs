@@ -5,8 +5,8 @@
 //   node cli.mjs links <root>      every linked task under <root> with derived state + verdict, as JSON
 //   node cli.mjs check <root>      human report; exit 1 if any task's status exceeds its artifacts
 import { resolve } from "node:path";
-import { deriveSpecState } from "../../lib/spec-derive.mjs";
-import { findRootUpwards, hasChild } from "../../lib/project-root.mjs";
+import { deriveSpecState } from "../lib/spec-derive.mjs";
+import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
 import { checkBridge, loadBridgeConfig } from "./bridge.mjs";
 
 const [cmd, target] = process.argv.slice(2);

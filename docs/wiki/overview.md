@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: d9b2c1d1cdc1236ccbd1651a8ef503d0c523ce2b
+verified_against: 54964eac9c3ecc9c8e7f1b0e5563ded19d8d1ef9
 ---
 
 # praxis — system overview
@@ -45,7 +45,7 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 
 ## Connections
 
-- [[chassis]] — the shared plumbing every plugin vendors at build time.
+- [[chassis]] — the shared plumbing every plugin reaches through its committed `lib` symlink.
 - [[skill-patterns]] — the authoring conventions that make the plugins look alike.
 - [[gates-convention]] — how gates keep every status backed by proven artifacts.
 - [[build-and-release]] — how the marketplace and self-contained plugin packages are produced.

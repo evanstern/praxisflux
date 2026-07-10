@@ -6,8 +6,8 @@
 // honors stop_hook_active and is a no-op when no root resolves (not an educate project).
 // When research is also installed, its own Stop hook fires independently — so a tree that is
 // both an educate project and holds research vaults is gated by both.
-import { runStopHook } from "../../lib/gate-runner.mjs";
-import { hasChild, findRootUpwards } from "../../lib/project-root.mjs";
+import { runStopHook } from "../lib/gate-runner.mjs";
+import { hasChild, findRootUpwards } from "../lib/project-root.mjs";
 import { gateProblemsForProject } from "../gates/dod.mjs";
 import { wikiStalenessWarnings } from "../gates/wiki.mjs";
 

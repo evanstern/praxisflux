@@ -6,7 +6,7 @@
 // prove. deriveSpecState is stateless and never throws, so this hook is cheap and safe on
 // every Stop; the gate resolves roots by a backlog/ dir and is a no-op when none (or no linked
 // tasks) are in scope. Lagging-but-honest statuses surface as non-blocking warnings.
-import { runStopHook } from "../../lib/gate-runner.mjs";
+import { runStopHook } from "../lib/gate-runner.mjs";
 import { bridgeGate } from "../gates/bridge.mjs";
 
 runStopHook({ gates: [bridgeGate] });

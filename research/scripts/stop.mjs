@@ -12,8 +12,8 @@
 // its own Stop hook, so a tree that is both an educate project and holds vaults is gated by both.
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { runStopHook } from "../../lib/gate-runner.mjs";
-import { hasChild, findRootsDownwards } from "../../lib/project-root.mjs";
+import { runStopHook } from "../lib/gate-runner.mjs";
+import { hasChild, findRootsDownwards } from "../lib/project-root.mjs";
 import { validateArtifact } from "../gates/artifact.mjs";
 
 const SENTINEL = ".research-vault";

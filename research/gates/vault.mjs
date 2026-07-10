@@ -1,7 +1,7 @@
 // vault.mjs — shared note-loading for the research gates. Built on the lib/ chassis.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, basename, extname } from "node:path";
-import { parseFrontmatter, namesFor } from "../../lib/markdown.mjs";
+import { parseFrontmatter, namesFor } from "../lib/markdown.mjs";
 
 export const KNOWN_TYPES = new Set(["moc", "note", "source", "analysis"]);
 
