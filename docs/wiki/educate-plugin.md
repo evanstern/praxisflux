@@ -15,12 +15,12 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: 4e985de6534f40097e629a927db31ee31802ecca
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # educate plugin
 
-The `educate` plugin (v0.3.1) turns a folder into a Socratic learning project: it teaches
+The `educate` plugin (v0.4.0, lockstep with the marketplace) turns a folder into a Socratic learning project: it teaches
 lessons, authors build SPECs for the `build` plugin, and refuses to mark a lesson `done`
 until auditable artifacts — notes, decks, guides — exist on disk, so learning produces
 durable, verifiable work product rather than ephemeral chat.
@@ -91,3 +91,6 @@ genuinely unavailable — the gate never blocks Stop over a missing runtime.
   1 problems/staleness, 2 usage; `--gate` mode exits 0 silently outside an educate project.
 - The Stop hook blocks on DoD failures but only warns on stale `WIKI.md`; wiki `--sync` over
   a pre-index project is the migration path (derives from `Home.md` trunks already on disk).
+- The run-as-CLI entries of `progress.mjs` and `wiki.mjs` use `runAsCli` from `lib/cli.mjs`
+  (realpaths both sides of the comparison), so invoking them through a symlinked path runs
+  the CLI instead of silently doing nothing.
