@@ -7,6 +7,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { checkHtml } from "../../lib/selfcontained.mjs";
+import { checkTranslationBlocks } from "../skills/codebase-to-course/references/validate.mjs";
 
 const GOOGLE_FONTS = /https?:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^'")\s>]*/gi;
 // Any of these container classes counts as a quiz (multiple-choice, drag-and-drop,
@@ -42,6 +43,10 @@ export function validateCourse(courseDir) {
 
   if (!html.includes('class="chat-window')) fails.push("course has no group chat animation (.chat-window) — at least one is mandatory");
   if (!html.includes('class="flow-animation')) fails.push("course has no flow animation (.flow-animation) — at least one is mandatory");
+
+  // Translation-block contracts (same checks build.sh runs pre-assembly via the
+  // course's copied validate.mjs): 1:1 .tl/.code-line pairing + bracket balance.
+  fails.push(...checkTranslationBlocks(html, "index.html").fails);
 
   return { ok: fails.length === 0, fails, warns, modules };
 }
