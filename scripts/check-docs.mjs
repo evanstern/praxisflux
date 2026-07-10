@@ -12,6 +12,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runAsCli } from "../lib/cli.mjs";
 
 export function checkDocs(root) {
   const problems = [];
@@ -39,7 +40,7 @@ export function checkDocs(root) {
   return problems;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (runAsCli(import.meta.url)) {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const problems = checkDocs(root);
   if (problems.length) {

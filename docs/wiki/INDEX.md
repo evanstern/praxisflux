@@ -20,7 +20,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[selfcontained-verifier]] — checks HTML output is fully self-contained (no external requests)
 - [[lifecycle-engine]] — ordered states + artifact evidence maps; flags status that outruns proof
 - [[installer]] — plants project CLAUDE.md/templates: copyDir, installMode, ensureGitignore, verifyPresent
-- [[chassis-utilities]] — the small shared utilities: dates.mjs and template.mjs
+- [[chassis-utilities]] — the small shared utilities: dates.mjs, template.mjs, and cli.mjs (symlink-safe run-as-CLI guard)
 - [[toolkit]] — shared *content* modules (pedagogy, diagrams, tooltips) skills read while authoring
 
 ## Plugins

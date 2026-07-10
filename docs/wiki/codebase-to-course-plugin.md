@@ -16,12 +16,12 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # codebase-to-course plugin
 
-The `codebase-to-course` plugin (v0.3.1) turns a codebase into a single-page interactive HTML
+The `codebase-to-course` plugin (v0.4.0, lockstep with the marketplace) turns a codebase into a single-page interactive HTML
 course that teaches how the code works to non-technical "vibe coders" — people who build with
 AI tools and need to read, understand, and direct code, not write it. It was ported from the
 standalone repo `github.com/evanstern/codebase-to-course`. The output is a directory whose
@@ -107,3 +107,6 @@ and rebuilding until it passes.
 - Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) is the single allowed external
   dependency; everything else must be inline.
 - `briefs/` may be deleted after assembly; `index.html` is generated — never hand-written.
+- `validate.mjs`'s run-as-CLI entry realpaths both `import.meta.url` and `process.argv[1]`
+  before comparing (inline, since a planted copy can't import the chassis) — through a
+  symlinked path the naive comparison silently skipped `main()`, validating nothing.

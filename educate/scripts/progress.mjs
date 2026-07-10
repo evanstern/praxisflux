@@ -21,6 +21,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
+import { runAsCli } from "../lib/cli.mjs";
 import { today } from "../lib/dates.mjs";
 import { ARTIFACT_FILES, lifecycleFor, topicDoDProblems, topicsWithProgress } from "../gates/dod.mjs";
 import { syncTopicWiki, syncProjectWiki } from "./wiki.mjs";
@@ -83,7 +84,7 @@ function checkTopic(TOPICS_DIR, topic, { sync, gate }) {
 }
 
 // ---- CLI ----
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const sync = args.includes("--sync");
   const all = args.includes("--all");
