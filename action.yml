@@ -8,7 +8,7 @@
 #     with:
 #       gates: spec-bridge, wiki-freshness
 #
-# The step below runs the gate runner via `npx @praxis/gates@<pin>` — the npm package carved
+# The step below runs the gate runner via `npx @praxisflux/gates@<pin>` — the npm package carved
 # by scripts/build-npm.mjs from this same tree. The pin is stamped by scripts/sync-version.mjs
 # (lockstep with the marketplace version), and release.yml publishes that npm version BEFORE
 # creating the tag, so a released tag always resolves a live package — no race. Consumers'
@@ -37,7 +37,7 @@ runs:
     - name: Run praxis gates
       shell: bash
       run: |
-        npx --yes @praxis/gates@0.5.0 \
+        npx --yes @praxisflux/gates@0.5.0 \
           --gates "${{ inputs.gates }}" \
           --path "${{ inputs.path }}" \
           --wiki-dir "${{ inputs['wiki-dir'] }}" \

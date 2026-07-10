@@ -23,13 +23,13 @@ test("action.yml: npx pin names the package and is lockstep with the marketplace
 });
 
 test("stampNpxPin: rewrites only the named package's pins and reports what it found", () => {
-  const text = "npx --yes @praxis/gates@0.4.0 x\nuses: evanstern/praxis@v0.4.0\n@other/pkg@0.4.0";
-  const { text: out, pins } = stampNpxPin(text, "@praxis/gates", "0.5.0");
+  const text = "npx --yes @praxisflux/gates@0.4.0 x\nuses: evanstern/praxis@v0.4.0\n@other/pkg@0.4.0";
+  const { text: out, pins } = stampNpxPin(text, "@praxisflux/gates", "0.5.0");
   assert.deepEqual(pins, ["0.4.0"]);
-  assert.match(out, /@praxis\/gates@0\.5\.0/);
+  assert.match(out, /@praxisflux\/gates@0\.5\.0/);
   assert.match(out, /evanstern\/praxis@v0\.4\.0/, "the uses: example is not a pin and stays untouched");
   assert.match(out, /@other\/pkg@0\.4\.0/, "other packages' pins stay untouched");
-  assert.deepEqual(stampNpxPin("no pin here", "@praxis/gates", "0.5.0").pins, []);
+  assert.deepEqual(stampNpxPin("no pin here", "@praxisflux/gates", "0.5.0").pins, []);
 });
 
 test("build-npm: staging tree is symlink-free, lockstep-versioned, and carries the contract files", () => {

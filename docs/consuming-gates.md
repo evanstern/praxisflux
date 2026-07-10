@@ -24,7 +24,7 @@ jobs:
           gates: spec-bridge, wiki-freshness
 ```
 
-The action runs the gates via `npx @praxis/gates@<version>` — the npm package carved from
+The action runs the gates via `npx @praxisflux/gates@<version>` — the npm package carved from
 the same tree, pinned in lockstep with the tag you chose, and guaranteed live before the tag
 exists (release order: npm publish, then tag). No install step, no dependencies (the gates
 are zero-dependency Node, and every runner ships node + npm). Upgrade by bumping the tag;
@@ -50,12 +50,12 @@ Dependabot's `github-actions` ecosystem automates that.
 
 ## The npm package
 
-The same surface ships on npm as **`@praxis/gates`** (published with provenance by the
+The same surface ships on npm as **`@praxisflux/gates`** (published with provenance by the
 release pipeline, version lockstep with the marketplace release), so non-GitHub CI and
 one-off local runs need no praxis checkout:
 
 ```sh
-npx @praxis/gates --gates spec-bridge,wiki-freshness --path /path/to/repo
+npx @praxisflux/gates --gates spec-bridge,wiki-freshness --path /path/to/repo
 ```
 
 The package's bin (`praxis-gates`) is `scripts/run-gates.mjs` itself, carved out by
