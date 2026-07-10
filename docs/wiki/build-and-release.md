@@ -8,13 +8,16 @@ sources:
   - scripts/gen-marketplace.mjs
   - scripts/sync-version.mjs
   - scripts/check-version-bump.mjs
+  - scripts/check-docs.mjs
+  - scripts/stop-docs.mjs
+  - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .github/workflows/ci.yml
   - .github/workflows/release.yml
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 85fbca8047cc297d482547af3457a131117e6c01
 ---
 
 # Build and release
@@ -63,10 +66,20 @@ under `<plugin>/skills/<skill>/` additionally requires that skill's SKILL.md fro
 `version:` to increase (a skill gaining its first `version:` counts as bumped; a deleted skill
 is skipped). Every SKILL.md carries a `version:` for this purpose.
 
+**Docs-sync enforcement** (`scripts/check-docs.mjs`, `scripts/stop-docs.mjs`). The grounding
+docs are treated as release artifacts too. `check-docs.mjs` verifies README.md names every
+marketplace plugin (table row + `/plugin install` line) and every `lib/*.mjs` chassis module,
+and that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate
+(`node grounding-wiki/gates/cli.mjs freshness . docs/wiki`) covers the semantic half. Both
+run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
+`lib/gate-runner`, wired by the tracked `.claude/settings.json`) that blocks ending a session
+turn while either fails.
+
 **CI and release workflows.** `.github/workflows/ci.yml` runs on every PR (and main):
 `node --test`, `gen-marketplace.mjs --check`, `sync-version.mjs --check`, a full `build.mjs`
-package run, and — PRs only — the bump gate against `origin/<base branch>` (checkout uses
-`fetch-depth: 0` so merge-base and tags resolve). `.github/workflows/release.yml` runs on
+package run, `check-docs.mjs`, the wiki freshness gate, and — PRs only — the bump gate
+against `origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags
+resolve). `.github/workflows/release.yml` runs on
 each push to `main`: it reads the marketplace version and, when tag `v<version>` is new,
 re-verifies, builds, zips each `dist/<plugin>` as `<plugin>-v<version>.zip`, and publishes a
 GitHub Release `v<version>` with generated notes (`gh release create`, `contents: write`).
@@ -113,5 +126,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.2.0` (released as `v0.2.0`, the pipeline's first
+- Marketplace version at this commit: `0.3.0` (`v0.2.0` was the pipeline's first
   self-published release).

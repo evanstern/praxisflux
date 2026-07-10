@@ -4,6 +4,7 @@ description: The zero-dependency node --test suite under test/ that covers the c
 kind: pattern
 sources:
   - test/chassis.test.mjs
+  - test/check-docs.test.mjs
   - test/codebase-to-course.course-gate.test.mjs
   - test/codebase-to-course.validate.test.mjs
   - test/educate-deck-selfcontained.test.mjs
@@ -20,12 +21,12 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 85fbca8047cc297d482547af3457a131117e6c01
 ---
 
 # Test suite
 
-Fifteen test files under `test/` keep the chassis and every plugin's gate logic honest. The suite
+Sixteen test files under `test/` keep the chassis and every plugin's gate logic honest. The suite
 is deliberately minimal: plain `node --test` with `node:test` and `node:assert/strict`, zero npm
 dependencies (the repo has no `package.json`), and fixtures built in throwaway `mkdtempSync`
 directories rather than checked-in test data.
@@ -44,6 +45,9 @@ Conventions shared across the files:
 
 What each file covers:
 
+- `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
+  (missing plugin row / install line / chassis module / releasing link) plus "the praxis
+  repo itself is in sync".
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
   helpers, and gate-runner `evaluate`.
@@ -81,13 +85,14 @@ What each file covers:
 
 **Hook and CI enforcement.** A tracked hook at `.githooks/pre-commit` (enabled once per clone
 with `git config core.hooksPath .githooks`) runs, in order: `node --test`, then
-`node scripts/gen-marketplace.mjs --check`, then `node scripts/sync-version.mjs --check` —
-"keep the suite green and the catalog honest before every commit." It is `set -e`, so any
-failure blocks the commit. A sibling `.githooks/pre-push` runs the version-bump gate
-(`scripts/check-version-bump.mjs --base origin/main`) before every push. Because
+`node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`, then
+`node scripts/check-docs.mjs` — "keep the suite green and the catalog honest before every
+commit." It is `set -e`, so any failure blocks the commit. A sibling `.githooks/pre-push`
+runs the version-bump gate (`scripts/check-version-bump.mjs --base origin/main`) and the
+wiki freshness gate before every push. Because
 `core.hooksPath` is per-clone, the authoritative layer is CI: `.github/workflows/ci.yml`
-repeats the suite, both `--check` validators, a full package build, and the bump gate on
-every PR (see [[build-and-release]]).
+repeats the suite, both `--check` validators, `check-docs.mjs`, the wiki freshness gate, a
+full package build, and the bump gate on every PR (see [[build-and-release]]).
 
 ## Connections
 
