@@ -107,7 +107,8 @@ The most important teaching element. Shows real code from the project on the lef
 ```
 
 **Rules:**
-- Each English line should correspond to 1-2 code lines
+- **Exactly one `.tl` per `.code-line`, in the same order** — the inline engine pairs them positionally (see below); a per-thought note that covers 2 code lines misaligns everything after it
+- The block's code must be **bracket-balanced**: never end an excerpt mid-structure. Skip material from *within* the block — a `<span class="code-line"><span class="code-comment">// … what's skipped …</span></span>` line (with its own paired `.tl` note) where the elided code was — and keep every closing bracket. `validate.mjs` (run by `build.sh` and the course gate) fails unbalanced blocks; `--fix` appends missing closers mechanically; `data-validate="off"` on the block opts out deliberately fragmentary pseudo-code only
 - Use conversational language, not technical jargon
 - Highlight the "why" not just the "what" — e.g., "Include our API key so the server knows who we are" not "Set the Authorization header"
 

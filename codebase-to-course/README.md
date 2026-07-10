@@ -7,8 +7,12 @@ visualizations, group-chat explainers, and quizzes that test application, not me
 
 - **`codebase-to-course`** — the one skill: analysis → curriculum → module briefs → parallel
   module builds → assembly. Prebuilt assets under the skill's `references/` (`styles.css`,
-  `main.js`, `_base.html`, `_footer.html`, `build.sh`) are **copied verbatim per course, never
-  regenerated** — that invariant is the skill's core.
+  `main.js`, `_base.html`, `_footer.html`, `build.sh`, `validate.mjs`) are **copied verbatim per
+  course, never regenerated** — that invariant is the skill's core. The chrome self-identifies
+  with a version stamp (`chrome v2 — inline translation engine`); an unstamped vendored copy is
+  the retired v1 side-by-side renderer. **Upgrading an existing course** is mechanical: copy the
+  reference files over the course dir, `bash build.sh` (validates every translation block —
+  1:1 note pairing + bracket balance — then reassembles), fix what's flagged, re-run the gate.
 
 Ported from the standalone repo `github.com/evanstern/codebase-to-course` (see
 `docs/handoffs/codebase-to-course-plugin.md` for the migration plan). Upcoming slices make the
