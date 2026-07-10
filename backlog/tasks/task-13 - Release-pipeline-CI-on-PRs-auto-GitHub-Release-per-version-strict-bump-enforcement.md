@@ -3,11 +3,11 @@ id: TASK-13
 title: >-
   Release pipeline: CI on PRs, auto GitHub Release per version, strict bump
   enforcement
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 13:40'
-updated_date: '2026-07-10 13:44'
+updated_date: '2026-07-10 13:54'
 labels: []
 dependencies: []
 ordinal: 45000
@@ -29,11 +29,11 @@ Design (agreed direction):
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 scripts/check-version-bump.mjs: given --base <ref>, fails when released-surface files changed without a semver-increasing marketplace version bump, exempts docs/backlog-only diffs, and rejects a version whose v-tag already exists; node --test covers pass/fail/exempt cases
-- [ ] #2 Every SKILL.md carries version: frontmatter, and check-version-bump fails a diff that edits files under a skill dir without bumping that skill's version
-- [ ] #3 .github/workflows/ci.yml runs tests, gen-marketplace --check, sync-version --check, build.mjs, and the bump check on every PR
-- [ ] #4 .github/workflows/release.yml: on push to main with no existing v<version> tag, builds, zips each dist/<plugin>, and publishes a GitHub Release v<version> with the zips attached; a docs-only merge publishes nothing
-- [ ] #5 docs/releasing.md documents the bump rules (patch/minor/major, skill-version rule, sync-version recipe) and CLAUDE.md links to it; .githooks/pre-push mirrors the bump check locally
+- [x] #1 scripts/check-version-bump.mjs: given --base <ref>, fails when released-surface files changed without a semver-increasing marketplace version bump, exempts docs/backlog-only diffs, and rejects a version whose v-tag already exists; node --test covers pass/fail/exempt cases
+- [x] #2 Every SKILL.md carries version: frontmatter, and check-version-bump fails a diff that edits files under a skill dir without bumping that skill's version
+- [x] #3 .github/workflows/ci.yml runs tests, gen-marketplace --check, sync-version --check, build.mjs, and the bump check on every PR
+- [x] #4 .github/workflows/release.yml: on push to main with no existing v<version> tag, builds, zips each dist/<plugin>, and publishes a GitHub Release v<version> with the zips attached; a docs-only merge publishes nothing
+- [x] #5 docs/releasing.md documents the bump rules (patch/minor/major, skill-version rule, sync-version recipe) and CLAUDE.md links to it; .githooks/pre-push mirrors the bump check locally
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -47,3 +47,19 @@ Design (agreed direction):
 6. .githooks/pre-push — run check-version-bump against origin/main; docs/releasing.md with bump rules (patch/minor/major, skill rule, sync-version recipe); link from CLAUDE.md.
 7. This PR itself touches released surface → bump to 0.2.0 via sync-version.mjs; merged, it publishes the first release v0.2.0 and proves the pipeline end-to-end.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+check-version-bump.mjs + 13 tests green. Two discoveries: (1) core.hooksPath was never configured — pre-commit had never run; enabled it. (2) PR #14 merged task-12 into the task-11 branch instead of main, leaving main red (course-gate test) and without TASK-12 — opened corrective PR #15 and rebased this branch onto task-12 content.
+
+SKILL.md versions stamped (11 skills); ci.yml + release.yml committed. Dup sweep for the user's mid-task question: the 5 chrome files (references/ ↔ docs/course) are the repo's only byte-identical pairs — by-design TASK-12 vendoring, stamped + gate-enforced.
+
+Validation: node --test 70/70 green (incl. 13 new version-bump tests with a throwaway-repo e2e); gen-marketplace --check, sync-version --check, build.mjs all clean; check-version-bump --base origin/main on this branch: 'version bump ok: 0.1.0 → 0.2.0'. release.yml's end-to-end proof is the v0.2.0 release this PR publishes on merge.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Automated release pipeline + strict bump enforcement. New scripts/check-version-bump.mjs (pure evaluate() core + git wrapper): released-surface diffs (plugin dirs, lib/, scripts/, .claude-plugin/) require a semver-increased marketplace version and an unused v-tag; docs/backlog/test/.github diffs exempt; edits under a skill dir require that skill's SKILL.md version to bump (first version counts). All 11 SKILL.md stamped version: 0.1.0. ci.yml gates every PR (tests, catalog/version checks, package build, bump gate); release.yml publishes GitHub Release v<version> with per-plugin zips on any main merge whose tag is new — substantive merge ⇒ exactly one release. docs/releasing.md holds the rules (patch/minor/major, skill rule, sync-version recipe), CLAUDE.md links them, .githooks/pre-push mirrors the gate. Repo bumped 0.2.0 so the merge itself proves the pipeline. Side discoveries fixed en route: core.hooksPath had never been enabled (pre-commit had never run); PR #14 had merged task-12 into the task-11 branch leaving main red — corrective PR #15 opened and merged.
+<!-- SECTION:FINAL_SUMMARY:END -->
