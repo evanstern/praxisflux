@@ -4,14 +4,17 @@
 //   node cli.mjs state <specDir>   derived state for one spec dir, as JSON
 //   node cli.mjs links <root>      every linked task under <root> with derived state + verdict, as JSON
 //   node cli.mjs check <root>      human report; exit 1 if any task's status exceeds its artifacts
+//   node cli.mjs plan <root>       the ordered `backlog task edit` commands that reconcile the
+//                                  board to the derived state (stdout; nothing on a reconciled
+//                                  board). Prints, NEVER executes — the sync skill runs them.
 import { resolve } from "node:path";
 import { deriveSpecState } from "../lib/spec-derive.mjs";
 import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
-import { checkBridge, loadBridgeConfig } from "./bridge.mjs";
+import { checkBridge, loadBridgeConfig, planBridge } from "./bridge.mjs";
 
 const [cmd, target] = process.argv.slice(2);
 if (!cmd || !target) {
-  console.error("usage: cli.mjs state <specDir> | links <root> | check <root>");
+  console.error("usage: cli.mjs state <specDir> | links <root> | check <root> | plan <root>");
   process.exit(2);
 }
 
@@ -31,6 +34,11 @@ if (cmd === "state") {
     process.exit(1);
   }
   console.log(`spec-bridge ok: ${links.length} linked task(s), none exceed their artifacts`);
+} else if (cmd === "plan") {
+  const { commands, skipped } = planBridge(target);
+  for (const s of skipped)
+    console.error(`# ${s.id}: status "${s.status}" is outside To Do/In Progress/Done — not planned; resolve by hand`);
+  for (const c of commands) console.log(c);
 } else {
   console.error(`unknown command: ${cmd}`);
   process.exit(2);

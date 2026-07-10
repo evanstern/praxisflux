@@ -1,6 +1,6 @@
 {
   "name": "educate",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts.",
   "author": {
     "name": "praxisflux maintainers"
