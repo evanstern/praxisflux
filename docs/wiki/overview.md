@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 85fbca8047cc297d482547af3457a131117e6c01
+verified_against: d9b2c1d1cdc1236ccbd1651a8ef503d0c523ce2b
 ---
 
 # praxis — system overview
