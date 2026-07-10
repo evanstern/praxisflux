@@ -1,6 +1,6 @@
 {
   "name": "educate",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson done on auditable artifacts.",
   "author": {
     "name": "Evan Stern",

@@ -10,3 +10,5 @@ echo "pre-commit: marketplace.json up to date"
 node scripts/gen-marketplace.mjs --check
 echo "pre-commit: versions consistent"
 node scripts/sync-version.mjs --check
+echo "pre-commit: README/CLAUDE.md in sync"
+node scripts/check-docs.mjs

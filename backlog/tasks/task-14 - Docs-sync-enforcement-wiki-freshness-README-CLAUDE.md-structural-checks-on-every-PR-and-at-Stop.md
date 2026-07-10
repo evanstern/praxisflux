@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-10 14:25'
-updated_date: '2026-07-10 14:26'
+updated_date: '2026-07-10 14:27'
 labels: []
 dependencies: []
 ordinal: 46000
@@ -28,7 +28,7 @@ Design:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 scripts/check-docs.mjs fails when a marketplace plugin lacks a README table row or install line, when a lib/*.mjs module is missing from README's chassis list, or when CLAUDE.md doesn't link docs/releasing.md; node --test covers pass and each failure
+- [x] #1 scripts/check-docs.mjs fails when a marketplace plugin lacks a README table row or install line, when a lib/*.mjs module is missing from README's chassis list, or when CLAUDE.md doesn't link docs/releasing.md; node --test covers pass and each failure
 - [ ] #2 ci.yml runs the wiki freshness gate and check-docs on every PR (blocking)
 - [ ] #3 A tracked .claude/settings.json Stop hook blocks ending a turn while docs/wiki is stale or check-docs fails, honoring stop_hook_active
 - [ ] #4 pre-commit runs check-docs; pre-push runs the freshness gate
@@ -45,3 +45,9 @@ Design:
 5. .githooks: pre-commit += check-docs; pre-push += freshness gate.
 6. CLAUDE.md: docs-sync rule + merge-commit-only note. Bump 0.3.0.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+check-docs.mjs + tests green; immediately caught real drift (lib/handoff.mjs absent from README's chassis list) — fixed.
+<!-- SECTION:NOTES:END -->
