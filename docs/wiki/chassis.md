@@ -6,7 +6,7 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # Chassis
@@ -48,8 +48,9 @@ The module roster in `lib/`:
 - `installer.mjs` — project bootstrap/install helpers ([[installer]])
 - `spec-derive.mjs` — pure Spec Kit `specDir` → derived kanban status, the interpretation
   layer of [[spec-bridge-plugin]]
-- `dates.mjs`, `template.mjs`, `handoff.mjs` — small utilities for dates, file templating,
-  and the inter-plugin handoff transport ([[chassis-utilities]])
+- `dates.mjs`, `template.mjs`, `handoff.mjs`, `cli.mjs` — small utilities for dates, file
+  templating, the inter-plugin handoff transport, and the symlink-safe run-as-CLI guard
+  ([[chassis-utilities]])
 - `html/base.html` — the shared CSS custom-property token schema referenced by toolkit snippets
 - `toolkit/` — shared *content* rather than plumbing ([[toolkit]]): authoring guidance and
   copy-paste CSS/JS modules a skill reads while producing decks/courses/briefings

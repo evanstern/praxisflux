@@ -20,7 +20,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 4e985de6534f40097e629a927db31ee31802ecca
+verified_against: ab6e3fd6377e2472c7e8db3af1abfe66ed7300d7
 ---
 
 # Build and release
@@ -135,8 +135,14 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 
 ## Operational notes
 
-- All scripts are zero-dependency Node (`node:fs`, `node:path`) and locate the repo root
-  relative to their own file, so they work from any cwd.
+- All scripts are zero-dependency Node (`node:` builtins plus the `lib/` chassis) and locate
+  the repo root relative to their own file, so they work from any cwd.
+- Every script's run-as-CLI entry uses `runAsCli` from `lib/cli.mjs`, which realpaths both
+  `import.meta.url` and `process.argv[1]` before comparing — Node resolves the former through
+  symlinks but leaves the latter as typed, so the naive equality check made any invocation
+  through a symlinked checkout path silently run zero of the CLI body (for `run-gates.mjs`,
+  a green exit having checked nothing). `test/run-gates.test.mjs` regression-covers the
+  symlinked invocation.
 - Check modes for CI/hooks: `gen-marketplace.mjs --check`, `sync-version.mjs --check`,
   `sync-shared.mjs --check` — each exits 1 with a message naming the fix.
 - `build.mjs` exits 1 on an unknown `--plugin` name; the unregistered-plugin case only warns.
