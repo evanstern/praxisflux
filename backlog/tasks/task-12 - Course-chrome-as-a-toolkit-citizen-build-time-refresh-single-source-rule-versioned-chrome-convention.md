@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 05:59'
-updated_date: '2026-07-10 06:06'
+updated_date: '2026-07-10 15:01'
 labels: []
 dependencies:
   - TASK-11
@@ -17,7 +17,7 @@ ordinal: 44000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Finishes the chrome-drift handoff's item 5 along the lines approved by Evan (2026-07-10), with the toolkit registration explicitly wanted. Today course chrome (styles.css/main.js/_footer.html/build.sh/validate.mjs) is copied into each course dir and orphaned — nothing refreshes it and nothing indexes it as shared visual machinery. Three moves: (1) build.sh refreshes chrome from the plugin references at build time when reachable (CLAUDE_PLUGIN_ROOT in-session, C2C_REFERENCES override), local copies as standalone fallback; (2) the skill names the plugin references/ as the ONLY legitimate chrome source — existing courses are snapshots, never templates; (3) the chrome joins the lib/toolkit convention as a plugin-owned, version-stamped module: indexed in lib/toolkit/README.md, chrome-version convention documented in docs/skill-patterns.md, and version consistency mechanically enforced — validate.mjs carries CHROME_VERSION and fails a course dir whose chrome files are unstamped (= v1) or mixed-version, wired into build.sh and the course gate so fossilized chrome can no longer pass silently.
+Finishes the chrome-drift handoff's item 5 along the lines approved by the operator (2026-07-10), with the toolkit registration explicitly wanted. Today course chrome (styles.css/main.js/_footer.html/build.sh/validate.mjs) is copied into each course dir and orphaned — nothing refreshes it and nothing indexes it as shared visual machinery. Three moves: (1) build.sh refreshes chrome from the plugin references at build time when reachable (CLAUDE_PLUGIN_ROOT in-session, C2C_REFERENCES override), local copies as standalone fallback; (2) the skill names the plugin references/ as the ONLY legitimate chrome source — existing courses are snapshots, never templates; (3) the chrome joins the lib/toolkit convention as a plugin-owned, version-stamped module: indexed in lib/toolkit/README.md, chrome-version convention documented in docs/skill-patterns.md, and version consistency mechanically enforced — validate.mjs carries CHROME_VERSION and fails a course dir whose chrome files are unstamped (= v1) or mixed-version, wired into build.sh and the course gate so fossilized chrome can no longer pass silently.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

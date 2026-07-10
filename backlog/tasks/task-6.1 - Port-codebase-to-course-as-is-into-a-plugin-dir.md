@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-09 18:48'
-updated_date: '2026-07-09 18:51'
+updated_date: '2026-07-10 14:58'
 labels: []
 dependencies: []
 parent_task_id: TASK-6
@@ -15,7 +15,7 @@ ordinal: 18000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Slice 1 of docs/handoffs/codebase-to-course-plugin.md. Plugin dir codebase-to-course/ with .claude-plugin/plugin.json, the skill at skills/codebase-to-course/SKILL.md, prebuilt assets under the skill's references/ (paths unchanged — SKILL.md resolves them relative to its base dir). Source of truth: ~/neumo/projects/codebase-to-course @ 0e3b61a. Prebuilt assets are copied verbatim, never regenerated. Add marketplace entry, then scripts/gen-marketplace.mjs --check. No behavior change.
+Slice 1 of docs/handoffs/codebase-to-course-plugin.md. Plugin dir codebase-to-course/ with .claude-plugin/plugin.json, the skill at skills/codebase-to-course/SKILL.md, prebuilt assets under the skill's references/ (paths unchanged — SKILL.md resolves them relative to its base dir). Source of truth: github.com/evanstern/codebase-to-course @ 0e3b61a. Prebuilt assets are copied verbatim, never regenerated. Add marketplace entry, then scripts/gen-marketplace.mjs --check. No behavior change.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -29,7 +29,7 @@ Slice 1 of docs/handoffs/codebase-to-course-plugin.md. Plugin dir codebase-to-co
 
 <!-- SECTION:PLAN:BEGIN -->
 1. Create codebase-to-course/ plugin dir: .claude-plugin/plugin.json (match sibling plugin format)
-2. Copy SKILL.md to codebase-to-course/skills/codebase-to-course/SKILL.md and references/* verbatim from ~/neumo/projects/codebase-to-course @ 0e3b61a
+2. Copy SKILL.md to codebase-to-course/skills/codebase-to-course/SKILL.md and references/* verbatim from github.com/evanstern/codebase-to-course @ 0e3b61a
 3. Verify byte-identical assets (diff -r)
 4. Add marketplace entry via scripts/gen-marketplace.mjs (or manual + --check)
 5. Run gen-marketplace --check, node --test, scripts/build.mjs if applicable
@@ -39,7 +39,7 @@ Slice 1 of docs/handoffs/codebase-to-course-plugin.md. Plugin dir codebase-to-co
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Copied SKILL.md + references/ verbatim from ~/neumo/projects/codebase-to-course @ 0e3b61a; diff -r confirmed byte-identical. Added plugin.json (v0.1.0, matching sibling format) + plugin README. Manual marketplace entry, then gen-marketplace --check, sync-version --check, node --test (29 pass), build.mjs --plugin codebase-to-course all green. Commit 4d447ff.
+Copied SKILL.md + references/ verbatim from github.com/evanstern/codebase-to-course @ 0e3b61a; diff -r confirmed byte-identical. Added plugin.json (v0.1.0, matching sibling format) + plugin README. Manual marketplace entry, then gen-marketplace --check, sync-version --check, node --test (29 pass), build.mjs --plugin codebase-to-course all green. Commit 4d447ff.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
