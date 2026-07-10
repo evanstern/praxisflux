@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:33'
-updated_date: '2026-07-10 20:46'
+updated_date: '2026-07-10 20:48'
 labels: []
 dependencies:
   - TASK-16
@@ -35,7 +35,7 @@ Semver discipline for the CLI surface (flags, exit codes) is already enforced by
 - [x] #2 Zero-dep package carved with a praxis-gates bin wrapping the shared runner, version lockstep with the marketplace
 - [x] #3 release.yml publishes to npm exactly once per new v<version> tag, with provenance
 - [x] #4 Composite action switched to the package with zero consumer-visible change
-- [ ] #5 consuming-gates doc + releasing.md updated to describe the npm surface
+- [x] #5 consuming-gates doc + releasing.md updated to describe the npm surface
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -59,4 +59,6 @@ Carve done: scripts/build-npm.mjs + integration test (pack → extract → run b
 release.yml wired: npm publish (provenance, --access public) ordered before tag creation; idempotent via tag check + npm view skip. Proof of first publish lands at merge; requires NPM_TOKEN secret (user).
 
 action.yml swapped to npx pin; sync-version.mjs stamps it (guarded-CLI refactor, pure stampNpxPin exported + tested). Pin currently 0.4.0; final bump stamps 0.5.0.
+
+Docs done: consuming-gates.md npm section real, releasing.md pipeline + lockstep updated, README npm pointer, wiki note folded. Bumped 0.5.0; sync-version stamped action.yml pin live.
 <!-- SECTION:NOTES:END -->
