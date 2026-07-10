@@ -341,15 +341,19 @@
           <div class="translation-code">
             <span class="translation-label">CODE — educate/gates/dod.mjs</span>
             <pre><code>
-<span class="code-line">} <span class="code-keyword">else if</span> (lesson.status === <span class="code-string">"done"</span> &amp;&amp; h.foldedIn &amp;&amp; !<span class="code-function">hasReturnLegResidue</span>(lessonDir)) {</span>
+<span class="code-line"><span class="code-comment">// … earlier, happier status checks elided …</span></span>
+<span class="code-line"><span class="code-keyword">else if</span> (lesson.status === <span class="code-string">"done"</span> &amp;&amp; h.foldedIn &amp;&amp; !<span class="code-function">hasReturnLegResidue</span>(lessonDir)) {</span>
 <span class="code-line">  problems.<span class="code-function">push</span>(<span class="code-string">`${lesson.id}: status=done with handoff.foldedIn=true but no durable return-leg residue on disk — add a "## Post-build" section to guide.md or raw-notes.md; the return leg can't be rubber-stamped`</span>);</span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">The gate walks a checklist of statuses; the cases before this one pass honestly, so we skip them.</p>
               <p class="tl">The trap: status claims done, the logbook flag swears the findings were folded in — but the disk scan finds no real Post-build section anywhere…</p>
               <p class="tl">…then block the lesson and say exactly how to fix it: write the section into a tracked file. A checkbox can't be checked into truth.</p>
+              <p class="tl">That's the whole detector — two lines, no mercy.</p>
             </div>
           </div>
         </div>

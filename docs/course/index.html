@@ -1747,15 +1747,19 @@ grounding-wiki ────┘             (teach)          (implement)         
           <div class="translation-code">
             <span class="translation-label">CODE — educate/gates/dod.mjs</span>
             <pre><code>
-<span class="code-line">} <span class="code-keyword">else if</span> (lesson.status === <span class="code-string">"done"</span> &amp;&amp; h.foldedIn &amp;&amp; !<span class="code-function">hasReturnLegResidue</span>(lessonDir)) {</span>
+<span class="code-line"><span class="code-comment">// … earlier, happier status checks elided …</span></span>
+<span class="code-line"><span class="code-keyword">else if</span> (lesson.status === <span class="code-string">"done"</span> &amp;&amp; h.foldedIn &amp;&amp; !<span class="code-function">hasReturnLegResidue</span>(lessonDir)) {</span>
 <span class="code-line">  problems.<span class="code-function">push</span>(<span class="code-string">`${lesson.id}: status=done with handoff.foldedIn=true but no durable return-leg residue on disk — add a "## Post-build" section to guide.md or raw-notes.md; the return leg can't be rubber-stamped`</span>);</span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
             <span class="translation-label">PLAIN ENGLISH</span>
             <div class="translation-lines">
+              <p class="tl">The gate walks a checklist of statuses; the cases before this one pass honestly, so we skip them.</p>
               <p class="tl">The trap: status claims done, the logbook flag swears the findings were folded in — but the disk scan finds no real Post-build section anywhere…</p>
               <p class="tl">…then block the lesson and say exactly how to fix it: write the section into a tracked file. A checkbox can't be checked into truth.</p>
+              <p class="tl">That's the whole detector — two lines, no mercy.</p>
             </div>
           </div>
         </div>
@@ -2164,6 +2168,8 @@ grounding-wiki ────┘             (teach)          (implement)         
 <span class="code-line">      fails.<span class="code-function">push</span>(<span class="code-string">`loads a resource from an external host: ${label} — the Artifact CSP blocks this; inline it or embed as a data: URI`</span>);</span>
 <span class="code-line">    }</span>
 <span class="code-line">  }</span>
+<span class="code-line">  <span class="code-comment">// … gentler checks and the final verdict elided …</span></span>
+<span class="code-line">}</span>
             </code></pre>
           </div>
           <div class="translation-english">
@@ -2177,6 +2183,8 @@ grounding-wiki ────┘             (teach)          (implement)         
               <p class="tl">…record a failure that names the problem AND the fix.</p>
               <p class="tl">…end of this pattern's check.</p>
               <p class="tl">…and keep scanning until every pattern has been tried.</p>
+              <p class="tl">The function also collects its gentle warnings — we're skipping those here.</p>
+              <p class="tl">Inspection over; the lists go back to whoever asked.</p>
             </div>
           </div>
         </div>
