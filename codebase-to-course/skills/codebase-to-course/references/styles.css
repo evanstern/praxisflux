@@ -1,5 +1,7 @@
 /* =============================================================
    CODEBASE-TO-COURSE — COMPLETE DESIGN SYSTEM
+   chrome v2 — inline translation engine (comments-on-top)
+   (no version header = v1, the retired side-by-side renderer)
    Copy this file verbatim into the course output directory.
    Never regenerate it — customize only via :root overrides
    in _base.html (accent color only).
