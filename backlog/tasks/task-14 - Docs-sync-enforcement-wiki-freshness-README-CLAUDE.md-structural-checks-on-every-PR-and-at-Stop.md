@@ -3,11 +3,11 @@ id: TASK-14
 title: >-
   Docs-sync enforcement: wiki freshness + README/CLAUDE.md structural checks on
   every PR and at Stop
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 14:25'
-updated_date: '2026-07-10 14:27'
+updated_date: '2026-07-10 14:32'
 labels: []
 dependencies: []
 ordinal: 46000
@@ -29,10 +29,10 @@ Design:
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 scripts/check-docs.mjs fails when a marketplace plugin lacks a README table row or install line, when a lib/*.mjs module is missing from README's chassis list, or when CLAUDE.md doesn't link docs/releasing.md; node --test covers pass and each failure
-- [ ] #2 ci.yml runs the wiki freshness gate and check-docs on every PR (blocking)
-- [ ] #3 A tracked .claude/settings.json Stop hook blocks ending a turn while docs/wiki is stale or check-docs fails, honoring stop_hook_active
-- [ ] #4 pre-commit runs check-docs; pre-push runs the freshness gate
-- [ ] #5 CLAUDE.md documents the docs-sync rule and the merge-commit (no squash) requirement
+- [x] #2 ci.yml runs the wiki freshness gate and check-docs on every PR (blocking)
+- [x] #3 A tracked .claude/settings.json Stop hook blocks ending a turn while docs/wiki is stale or check-docs fails, honoring stop_hook_active
+- [x] #4 pre-commit runs check-docs; pre-push runs the freshness gate
+- [x] #5 CLAUDE.md documents the docs-sync rule and the merge-commit (no squash) requirement
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -50,4 +50,12 @@ Design:
 
 <!-- SECTION:NOTES:BEGIN -->
 check-docs.mjs + tests green; immediately caught real drift (lib/handoff.mjs absent from README's chassis list) — fixed.
+
+Validation: full suite green via pre-commit (incl. 6 new check-docs tests); stop-docs.mjs exercised by hand — blocked (exit 2) on the branch's own mid-work staleness, allowed after the wiki pass, honors stop_hook_active; freshness 22/22; bump gate ok 0.2.0→0.3.0. The dogfood loop fired for real: editing README staled overview.md, and the branch's closing wiki pass was forced by the very gates it adds.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Docs-sync is now enforced, not aspirational. New scripts/check-docs.mjs (README must name every marketplace plugin — table row + install line — and every lib/*.mjs chassis module; CLAUDE.md must link docs/releasing.md); it immediately caught real drift (handoff.mjs missing from README). The wiki freshness gate + check-docs now run in four places: CI on every PR (blocking), pre-commit (check-docs), pre-push (freshness), and a tracked .claude/settings.json Stop hook (scripts/stop-docs.mjs on lib/gate-runner, praxis-repo-only, honors stop_hook_active) so a session turn can't end with stale grounding docs. CLAUDE.md documents the rule and the merge-commit-only requirement (squash would orphan wiki pins). Bumped 0.3.0; wiki re-verified 9 notes against the branch.
+<!-- SECTION:FINAL_SUMMARY:END -->
