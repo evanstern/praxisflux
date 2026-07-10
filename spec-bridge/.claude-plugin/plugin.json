@@ -1,0 +1,7 @@
+{
+  "name": "spec-bridge",
+  "version": "0.1.0",
+  "description": "Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, and gate 'status can't exceed proven artifacts'.",
+  "author": { "name": "Evan Stern", "email": "evan.stern@neumo.com" },
+  "keywords": ["spec-kit", "backlog", "kanban", "spec-driven", "gates"]
+}

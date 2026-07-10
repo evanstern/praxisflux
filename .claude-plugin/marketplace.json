@@ -65,6 +65,18 @@
         "corpus",
         "freshness"
       ]
+    },
+    {
+      "name": "spec-bridge",
+      "source": "./spec-bridge",
+      "description": "Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, and gate 'status can't exceed proven artifacts'.",
+      "category": "productivity",
+      "tags": [
+        "spec-kit",
+        "backlog",
+        "kanban",
+        "gates"
+      ]
     }
   ]
 }
