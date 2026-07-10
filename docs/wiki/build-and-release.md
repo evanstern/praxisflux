@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 9fda082f1f96f0f7b9ad41c0c629579e6751ca36
+verified_against: 229ba63d4f345e97a5509164682a93bf21708be7
 ---
 
 # Build and release
@@ -70,9 +70,12 @@ marketplace's top-level fields and per-plugin `category`/`tags`. `--check` exits
 would change.
 
 **Version consistency** (`scripts/sync-version.mjs`). With an argument (`0.3.0`) it sets every
-plugin.json and the marketplace to that version; with no argument it syncs all plugin.json files
-to the marketplace's version; `--check` exits 1 on any disagreement. Versions are **lockstep**:
-the marketplace `version` is the single release version and every plugin.json follows it.
+plugin.json, the marketplace, and `action.yml`'s `npx @praxis/gates@<version>` pin to that
+version; with no argument it syncs those to the marketplace's version; `--check` exits 1 on any
+disagreement. The pin rewrite is the pure exported `stampNpxPin(text, name, target)`, which also
+reports the pins it found — a vanished pin fails loudly in both modes. Versions are
+**lockstep**: the marketplace `version` is the single release version and everything else
+follows it.
 
 **Bump enforcement** (`scripts/check-version-bump.mjs`, `--base <ref>` defaulting to
 `origin/main`). Evaluates the committed range `merge-base(base, HEAD)..HEAD` with a pure
@@ -110,18 +113,17 @@ re-run after a partial failure skips the npm half if that version is already on 
 idempotent by construction. Bump-size guidance (patch/minor/major, the skill rule, recipes) lives in
 `docs/releasing.md`, linked from `CLAUDE.md`.
 
-**CI consumption surface** (`action.yml` + `scripts/run-gates.mjs`). The repo doubles as a
-composite GitHub Action: consumer repos run the gates at a pinned release tag with
-`uses: evanstern/praxis@v<version>` and a validated `gates:` input (`spec-bridge`,
-`wiki-freshness`, `course`; unknown names fail loudly). GitHub fetches the praxis tree at the
-tag onto the runner and `run-gates.mjs` maps gate names onto the existing gate functions
-against the consumer workspace — runnable from a plain checkout thanks to the per-plugin
-`lib` symlinks. Exit codes are the contract (0 pass · 1 gate failure · 2 usage error);
-`wiki-freshness` detects shallow clones and names the `fetch-depth: 0` fix. Consumer-facing
-docs: `docs/consuming-gates.md`. The `@praxis/gates` npm migration (Backlog TASK-17) is in
-flight at this commit: the package carve (`build-npm.mjs`) and the release-time npm publish
-are in place; swapping the action's internals to `npx` follows, with no change to this
-contract.
+**CI consumption surface** (`action.yml` + `scripts/run-gates.mjs` + `@praxis/gates`). The
+repo doubles as a composite GitHub Action: consumer repos run the gates at a pinned release
+tag with `uses: evanstern/praxis@v<version>` and a validated `gates:` input (`spec-bridge`,
+`wiki-freshness`, `course`; unknown names fail loudly). The action's internals run
+`npx --yes @praxis/gates@<pin>` — the npm package staged by `build-npm.mjs`, its pin stamped
+in lockstep by `sync-version.mjs` and guaranteed live before the tag exists by the release
+ordering above (the TASK-17 migration; the run-from-checkout era ended with it). Non-GitHub
+CI and local one-offs call `npx @praxis/gates` directly. Either way `run-gates.mjs` maps gate
+names onto the existing gate functions against the consumer workspace. Exit codes are the
+contract (0 pass · 1 gate failure · 2 usage error); `wiki-freshness` detects shallow clones
+and names the `fetch-depth: 0` fix. Consumer-facing docs: `docs/consuming-gates.md`.
 
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
@@ -168,5 +170,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.4.0` (`v0.2.0` was the pipeline's first
-  self-published release).
+- Marketplace version at this commit: `0.5.0` (`v0.2.0` was the pipeline's first
+  self-published release; `0.5.0` is the first to publish `@praxis/gates` to npm).

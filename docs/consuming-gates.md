@@ -19,15 +19,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0        # wiki-freshness resolves pins through git history
-      - uses: evanstern/praxis@v0.4.0
+      - uses: evanstern/praxis@v0.5.0
         with:
           gates: spec-bridge, wiki-freshness
 ```
 
-GitHub fetches the praxis tree at the pinned tag onto the runner and the action runs
-`scripts/run-gates.mjs` from it against your workspace — no install step, no dependencies
-(the gates are zero-dependency Node, and every runner ships node). Upgrade by bumping the
-tag; Dependabot's `github-actions` ecosystem automates that.
+The action runs the gates via `npx @praxis/gates@<version>` — the npm package carved from
+the same tree, pinned in lockstep with the tag you chose, and guaranteed live before the tag
+exists (release order: npm publish, then tag). No install step, no dependencies (the gates
+are zero-dependency Node, and every runner ships node + npm). Upgrade by bumping the tag;
+Dependabot's `github-actions` ecosystem automates that.
 
 ### Inputs
 
@@ -47,6 +48,20 @@ tag; Dependabot's `github-actions` ecosystem automates that.
 - **`course`** — a built codebase-to-course course passes its output gate (self-contained,
   quizzes/translations per module, current chrome stamp).
 
+## The npm package
+
+The same surface ships on npm as **`@praxis/gates`** (published with provenance by the
+release pipeline, version lockstep with the marketplace release), so non-GitHub CI and
+one-off local runs need no praxis checkout:
+
+```sh
+npx @praxis/gates --gates spec-bridge,wiki-freshness --path /path/to/repo
+```
+
+The package's bin (`praxis-gates`) is `scripts/run-gates.mjs` itself, carved out by
+`scripts/build-npm.mjs` with the chassis and gate modules alongside — same flags, same exit
+codes, same failure lines.
+
 ## The contract
 
 Gate names, inputs, and exit codes (0 all pass · 1 any gate failed · 2 usage error) are
@@ -57,10 +72,3 @@ directly from any praxis checkout:
 ```sh
 node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path /path/to/repo
 ```
-
-## Planned: `@praxis/gates` on npm
-
-The action's internals will move to an npm package (`npx @praxis/gates …`) so non-GitHub CI
-and one-off local use get the same surface — with **no change** to the `uses:` line above.
-The migration path is documented in Backlog **TASK-17**; the contract in this file is what
-that migration preserves.
