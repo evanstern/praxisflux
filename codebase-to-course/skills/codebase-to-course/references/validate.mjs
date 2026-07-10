@@ -31,9 +31,16 @@
  * Opt-out: <div class="translation-block" data-validate="off"> skips a block.
  * Reserve it for deliberately fragmentary pseudo-code.
  */
-import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+/** The chrome generation this validator ships with. Bump ONLY when the
+ *  rendering contract changes (what authored markup means on screen), and
+ *  bump the stamp in every chrome file together — see docs/skill-patterns.md
+ *  "Versioned course chrome". v1 is the retired side-by-side renderer, which
+ *  predates stamping (no header = v1). */
+export const CHROME_VERSION = 2;
 
 const OPEN = { "(": ")", "[": "]", "{": "}" };
 const CLOSE = { ")": "(", "]": "[", "}": "{" };
@@ -225,17 +232,42 @@ export function fixTranslationBlocks(html, source = "html") {
   return { html, fixed, unfixable };
 }
 
+/* ── chrome version consistency ───────────────────────────────── */
+
+const STAMP = /chrome v(\d+)/;
+
+/** Check that a course dir's vendored chrome matches this validator's
+ *  generation. Unstamped chrome is v1 (pre-inline side-by-side) — the drift
+ *  the stamp exists to catch; mixed stamps mean a partial upgrade. */
+export function checkChrome(courseDir) {
+  const fails = [];
+  for (const f of ["styles.css", "main.js"]) {
+    const p = join(courseDir, f);
+    if (!existsSync(p)) { fails.push(`${f}: missing from ${courseDir}`); continue; }
+    const m = STAMP.exec(readFileSync(p, "utf8").slice(0, 600));
+    if (!m) fails.push(`${f} has no chrome version stamp — that's v1, the retired side-by-side renderer. Upgrade: copy the plugin references/ files over this course dir and rebuild (gotchas.md "Stale Chrome").`);
+    else if (+m[1] !== CHROME_VERSION) fails.push(`${f} is chrome v${m[1]} but this validator is v${CHROME_VERSION} — mixed chrome. Re-copy ALL reference files together, then rebuild.`);
+  }
+  return fails;
+}
+
 /* ── CLI ──────────────────────────────────────────────────────── */
 
 function main() {
   const args = process.argv.slice(2);
   const fix = args.includes("--fix");
-  const files = args.filter((a) => a !== "--fix");
-  if (!files.length) {
-    console.error("usage: node validate.mjs [--fix] <module.html>...");
+  const files = [];
+  let chromeDir = null;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--fix") continue;
+    else if (args[i] === "--chrome-dir") chromeDir = args[++i];
+    else files.push(args[i]);
+  }
+  if (!files.length && !chromeDir) {
+    console.error("usage: node validate.mjs [--fix] [--chrome-dir <course-dir>] <module.html>...");
     process.exit(2);
   }
-  let allFails = [];
+  let allFails = chromeDir ? checkChrome(chromeDir) : [];
   for (const file of files) {
     let html = readFileSync(file, "utf8");
     if (fix) {
