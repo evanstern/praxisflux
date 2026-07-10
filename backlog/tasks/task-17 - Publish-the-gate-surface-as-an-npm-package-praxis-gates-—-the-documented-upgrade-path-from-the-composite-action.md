@@ -3,11 +3,11 @@ id: TASK-17
 title: >-
   Publish the gate surface as an npm package (@praxis/gates) — the documented
   upgrade path from the composite action
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 18:33'
-updated_date: '2026-07-10 20:48'
+updated_date: '2026-07-10 21:13'
 labels: []
 dependencies:
   - TASK-16
@@ -31,7 +31,7 @@ Semver discipline for the CLI surface (flags, exit codes) is already enforced by
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Package name/scope secured and recorded (or fallback chosen and documented)
+- [x] #1 Package name/scope secured and recorded (or fallback chosen and documented)
 - [x] #2 Zero-dep package carved with a praxis-gates bin wrapping the shared runner, version lockstep with the marketplace
 - [x] #3 release.yml publishes to npm exactly once per new v<version> tag, with provenance
 - [x] #4 Composite action switched to the package with zero consumer-visible change
@@ -61,4 +61,12 @@ release.yml wired: npm publish (provenance, --access public) ordered before tag 
 action.yml swapped to npx pin; sync-version.mjs stamps it (guarded-CLI refactor, pure stampNpxPin exported + tested). Pin currently 0.4.0; final bump stamps 0.5.0.
 
 Docs done: consuming-gates.md npm section real, releasing.md pipeline + lockstep updated, README npm pointer, wiki note folded. Bumped 0.5.0; sync-version stamped action.yml pin live.
+
+AC#1 resolved: user claimed the praxisflux npm org (2026-07-10) — package is @praxisflux/gates (recorded in build-npm.mjs PACKAGE_NAME + docs). Eventual repo rename praxis → praxisflux noted by user as a future intent, out of scope here. Auth pivoted to OIDC trusted publishing (npm's 2026-07-08 changelog deprecates publish-capable GATs ~Jan 2027); NPM_TOKEN is now only a bootstrap/break-glass fallback the workflow honors when present. Remaining pre-merge user step: configure the trusted publisher on npmjs.com for @praxisflux/gates (owner evanstern, repo praxis, workflow release.yml) — or set NPM_TOKEN for a token-auth first publish.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+The gate surface ships as the @praxisflux/gates npm package, version-lockstep with the marketplace by construction (package.json generated from marketplace.json by scripts/build-npm.mjs, which stages a symlink-free tree — npm cannot pack symlinks — and fails loudly otherwise). release.yml publishes it via OIDC trusted publishing (provenance automatic, npm upgraded in-step, NPM_TOKEN honored only as bootstrap/break-glass) BEFORE gh release create creates the tag, so a released tag always resolves a live npm version; idempotent via tag check + npm-view skip. action.yml internals swapped to npx --yes @praxisflux/gates@<pin> with zero consumer-visible change; sync-version.mjs (refactored to guarded-CLI + pure stampNpxPin) stamps the pin as a third lockstep surface and fails loudly if it vanishes. Docs: consuming-gates.md npm section is real usage, releasing.md documents the pipeline order + auth, README points at npx, wiki re-verified across 5 passes. Verified by test/build-npm.test.mjs (pack → extract → run bin through node_modules/.bin symlink, asserting exit codes 0/1/2 and lockstep), full suite 95 pass, bump gate 0.4.0→0.5.0 ok. First real publish proof lands when PR #25 merges. MIT LICENSE added at repo root (user-approved). Name: praxisflux org claimed by user; repo may later rename to match.
+<!-- SECTION:FINAL_SUMMARY:END -->
