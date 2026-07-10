@@ -26,6 +26,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
+import { runAsCli } from "../lib/cli.mjs";
 import { renderTopicWiki, renderProjectWiki, topicVaults, topicDirs, isStale } from "../gates/wiki.mjs";
 
 function resolveTopicsDir(args) {
@@ -62,7 +63,7 @@ export function syncProjectWiki(topicsDir) {
 }
 
 // ---- CLI ----
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const sync = args.includes("--sync");
   const check = args.includes("--check");

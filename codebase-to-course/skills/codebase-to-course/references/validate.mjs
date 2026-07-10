@@ -31,7 +31,7 @@
  * Opt-out: <div class="translation-block" data-validate="off"> skips a block.
  * Reserve it for deliberately fragmentary pseudo-code.
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, realpathSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -295,4 +295,7 @@ function main() {
   console.log(`OK: translation blocks valid across ${files.length} file(s).`);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) main();
+// Realpath both sides: import.meta.url is symlink-resolved but argv[1] is as typed, so a
+// naive comparison through a symlinked path silently skips main() — never validating.
+if (process.argv[1] && existsSync(process.argv[1]) &&
+    realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) main();
