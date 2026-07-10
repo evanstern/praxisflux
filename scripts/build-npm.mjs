@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// build-npm.mjs — assemble the npm package staging tree for the gate surface (@praxis/gates).
+// build-npm.mjs — assemble the npm package staging tree for the gate surface (@praxisflux/gates).
 //
 // The npm surface is the SAME runner action.yml uses (scripts/run-gates.mjs), carved out of
 // the repo with its import graph intact: the runner, root lib/, each gate plugin's gates/
@@ -19,9 +19,9 @@ import { runAsCli } from "../lib/cli.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** The published name. Fallbacks if the @praxis scope proves unclaimable:
- *  @evanstern/praxis-gates or bare praxis-gates (TASK-17 AC#1). */
-export const PACKAGE_NAME = "@praxis/gates";
+/** The published name — the praxisflux npm org was claimed for this (TASK-17 AC#1); the
+ *  repo is expected to eventually rename to praxisflux to match. */
+export const PACKAGE_NAME = "@praxisflux/gates";
 
 /** Plugins whose gates the runner imports; each needs its lib symlink materialized. */
 const GATE_PLUGINS = ["spec-bridge", "grounding-wiki", "codebase-to-course"];

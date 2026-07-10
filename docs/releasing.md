@@ -2,7 +2,7 @@
 
 praxis ships as **one release**: the `version` in `.claude-plugin/marketplace.json` is the
 release version, and every plugin's `plugin.json` — plus `action.yml`'s
-`npx @praxis/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
+`npx @praxisflux/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
 enforces and stamps all three). Releases are git tags + GitHub Releases named
 `v<version>`, published automatically — there is no manual release step.
 
@@ -19,12 +19,12 @@ enforces and stamps all three). Releases are git tags + GitHub Releases named
   - A change under `<plugin>/skills/<skill>/` additionally requires that skill's own
     `version:` (SKILL.md frontmatter) to increase.
 - **Every merge to main** (`.github/workflows/release.yml`): if `v<version>` is a new tag,
-  re-verify, publish **`@praxis/gates@<version>`** to npm (`build-npm.mjs` staging,
+  re-verify, publish **`@praxisflux/gates@<version>`** to npm (`build-npm.mjs` staging,
   `npm publish --provenance`, authenticated by the `NPM_TOKEN` repo secret), then `build.mjs`,
   zip each `dist/<plugin>` as `<plugin>-v<version>.zip`, and publish the GitHub Release with
   generated notes. npm deliberately publishes **before** the release step creates the tag, so
   a released tag always resolves a live npm version — that ordering is what lets `action.yml`
-  run `npx @praxis/gates@<pin>` race-free. If the tag exists (docs-only merge, re-run), it
+  run `npx @praxisflux/gates@<pin>` race-free. If the tag exists (docs-only merge, re-run), it
   publishes nothing; a re-run after a partial failure skips the npm half if that version is
   already on the registry. So: **substantive PR merged ⇒ exactly one release — one git tag,
   one npm version — named after the marketplace version.**

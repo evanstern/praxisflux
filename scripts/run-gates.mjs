@@ -8,8 +8,8 @@
 //
 // Gate names, options, and exit codes are praxis's versioned consumer contract
 // (docs/consuming-gates.md): exit 0 when every gate passes, 1 when any gate fails, 2 on a
-// usage error (unknown gate, missing --gates). Each failure line names its fix. TASK-17 will
-// move this runner into the @praxis/gates npm package without changing the contract.
+// usage error (unknown gate, missing --gates). Each failure line names its fix. This same
+// file ships as the @praxisflux/gates npm bin (scripts/build-npm.mjs carves the package).
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { runAsCli } from "../lib/cli.mjs";

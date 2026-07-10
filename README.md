@@ -58,7 +58,7 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
 - [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
   the composite action (`uses: evanstern/praxis@v<version>`) or anywhere via
-  `npx @praxis/gates`.
+  `npx @praxisflux/gates`.
 
 ## Install
 
@@ -84,5 +84,5 @@ without the marketplace, or for pinning. The pipeline is documented in
 
 Other repos can enforce the gates without installing anything: the repo doubles as a
 composite GitHub Action pinned by the same release tags, and each release also publishes the
-gate CLI to npm as `@praxis/gates` (same version) for non-GitHub CI and local one-offs — see
+gate CLI to npm as `@praxisflux/gates` (same version) for non-GitHub CI and local one-offs — see
 [`docs/consuming-gates.md`](docs/consuming-gates.md).

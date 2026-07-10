@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sync-version.mjs — keep every plugin.json version, the marketplace version, and action.yml's
-// npm pin (@praxis/gates@<version>) consistent. One release = one version everywhere.
+// npm pin (@praxisflux/gates@<version>) consistent. One release = one version everywhere.
 //
 //   node scripts/sync-version.mjs 0.3.0   # set everything to 0.3.0
 //   node scripts/sync-version.mjs         # sync everything to the marketplace's version
