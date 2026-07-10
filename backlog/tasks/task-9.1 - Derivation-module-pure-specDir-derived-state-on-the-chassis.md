@@ -1,7 +1,7 @@
 ---
 id: TASK-9.1
 title: 'Derivation module: pure specDir -> derived state, on the chassis'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 02:26'
@@ -42,3 +42,9 @@ The heart of the bridge: a pure, stateless function (lib or plugin module, e.g. 
 <!-- SECTION:NOTES:BEGIN -->
 lib/spec-derive.mjs: parseTasks (## headings -> phases, checkbox lines -> counts, Phase-prefix stripped, pre-heading tasks bucketed as 'Tasks'), progressNote, deriveSpecState (never throws; missing/unreadable artifacts degrade to the earlier stage). Guarded gaps beyond the canonical rules: spec.md alone -> In Progress; all-checked without spec.md/plan.md can't reach Done-eligible. 6 tests in test/spec-derive.test.mjs; full suite 46/46 green.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added lib/spec-derive.mjs to the chassis: parseTasks (tasks.md ## headings -> phases with done/total from checkbox lines), progressNote, and deriveSpecState (spec.md/plan.md/tasks.md -> To Do / In Progress / Done-eligible). Stateless by contract so tasks.md regeneration re-derives cleanly; never throws on malformed dirs so it is safe inside the Stop-hook gate (TASK-9.4). Verified with 6 new tests in test/spec-derive.test.mjs; full suite 46/46 green.
+<!-- SECTION:FINAL_SUMMARY:END -->
