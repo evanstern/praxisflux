@@ -1,6 +1,6 @@
 ---
 name: implement
-version: 0.1.0
+version: 0.1.1
 description: Implement a build SPEC handed off from a learning lesson (or any producer), verify it works, and return findings for the lesson to fold back in. Use when a lesson has handed off a SPEC to build, when the user says "run build", "/build-me", "build the spec", or points at a pending handoff request. This plugin OWNS the implementation leg — educate teaches and authors the SPEC; build implements it and returns what it learned.
 ---
 
@@ -14,7 +14,7 @@ two never call each other — they compose through the shared handoff transport 
 ## Step 1 — Pick up the SPEC (a handoff request)
 Find the pending request addressed to build:
 ```
-node ${CLAUDE_PLUGIN_ROOT}/../lib/handoff.mjs   # (library, not a CLI) — list via the lesson skill
+node ${CLAUDE_PLUGIN_ROOT}/lib/handoff.mjs   # (library, not a CLI) — list via the lesson skill
 ```
 In practice the lesson skill tells you the id; read `.handoff/<id>.md` (kind: `request`, to:
 `build`). Its body is the SPEC — what to build, constraints, done-criteria. If no request exists,

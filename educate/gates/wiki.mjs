@@ -17,9 +17,9 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { findRootsDownwards, hasChild } from "../../lib/project-root.mjs";
-import { parseFrontmatter, extractWikilinks } from "../../lib/markdown.mjs";
-import { today } from "../../lib/dates.mjs";
+import { findRootsDownwards, hasChild } from "../lib/project-root.mjs";
+import { parseFrontmatter, extractWikilinks } from "../lib/markdown.mjs";
+import { today } from "../lib/dates.mjs";
 
 // A folder is a research vault iff it holds this sentinel (see research plugin / skill-patterns.md).
 export const RESEARCH_VAULT_SENTINEL = ".research-vault";

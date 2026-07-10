@@ -36,7 +36,8 @@ grounding-wiki ────┘             (teach)          (implement)         
 
 ## Shared chassis (`lib/`)
 
-Zero-dependency Node modules vendored into each plugin at build time:
+Zero-dependency Node modules, reached from each plugin through a committed `lib -> ../lib`
+symlink that marketplace installs and `dist/` packaging dereference into a real copy:
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
 `lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
 `spec-derive` (Spec Kit → kanban state).

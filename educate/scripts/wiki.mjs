@@ -25,7 +25,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { findRootUpwards, hasChild } from "../../lib/project-root.mjs";
+import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
 import { renderTopicWiki, renderProjectWiki, topicVaults, topicDirs, isStale } from "../gates/wiki.mjs";
 
 function resolveTopicsDir(args) {

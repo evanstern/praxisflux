@@ -1,12 +1,12 @@
 ---
 name: chassis
-description: The shared zero-dependency Node module layer in lib/, vendored into each plugin at build time so shipped plugins are self-contained.
+description: The shared zero-dependency Node module layer in lib/, reached from each plugin through a committed lib -> ../lib symlink that installers and packaging dereference into a real copy.
 kind: component
 sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: b501ef955667136e8d0e7441a3f6d31af04d25c6
+verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
 ---
 
 # Chassis
@@ -19,22 +19,24 @@ sibling plugins.
 
 ## How it works
 
-During development, plugin code imports the chassis by relative path as `../../lib/…` (every
-importer sits in a depth-1 subdirectory of its plugin, `scripts/` or `gates/`). A shipped plugin
-cannot see a repo-root sibling, so `scripts/build.mjs` **vendors** the chassis at package time:
+Every plugin directory carries a committed `lib -> ../lib` symlink, so plugin code imports the
+chassis as `../lib/…` (every importer sits in a depth-1 subdirectory of its plugin, `scripts/`
+or `gates/`) and skills reference `${CLAUDE_PLUGIN_ROOT}/lib/…`. The same path works in both
+worlds:
 
-- `node scripts/build.mjs [--plugin <name>|all]` derives the plugin list from
-  `.claude-plugin/marketplace.json` (the single source of truth), so registering a plugin there
-  is enough to have it packaged.
-- For each target it copies the plugin sources to `dist/<plugin>/`, copies `lib/` wholesale to
-  `dist/<plugin>/lib/`, then `rewriteLibImports` rewrites `../../lib/` to `../lib/` in every
-  `.mjs` file (skipping the vendored `lib/` itself). The rewrite is uniform because all
-  importers are at depth 1.
-- At runtime inside an installed plugin, `${CLAUDE_PLUGIN_ROOT}/lib/…` therefore resolves to
-  that plugin's own vendored copy.
-- The script wipes `dist/` before building and warns about drift: any top-level directory with
-  a `.claude-plugin/plugin.json` that is not registered in `marketplace.json` would silently
-  not be built, so it prints a warning.
+- **In the repo**, the symlink resolves to repo-root `lib/` — no build step during development.
+- **When installed from the marketplace**, Claude Code copies only the plugin's source dir into
+  its cache, but the plugins spec dereferences any symlink whose target resolves elsewhere in
+  the same marketplace: the cache copy gets a *real* `lib/` directory in the symlink's place.
+  A path escaping the plugin root (the old `../../lib/…` imports) would not survive that copy —
+  that was exactly the shipped-plugin `ERR_MODULE_NOT_FOUND` bug fixed in 0.3.2.
+- **When packaged**, `node scripts/build.mjs [--plugin <name>|all]` (plugin list derived from
+  `.claude-plugin/marketplace.json`, the single source of truth) copies each plugin to
+  `dist/<plugin>/` and swaps the copied `lib` symlink for a real copy of the chassis — Node's
+  `cpSync` `dereference` option doesn't materialize directory symlinks met mid-recursion, so
+  the script does the swap explicitly. It wipes `dist/` before building and warns about drift:
+  any top-level directory with a `.claude-plugin/plugin.json` that is not registered in
+  `marketplace.json` would silently not be built.
 
 The module roster in `lib/`:
 
@@ -61,8 +63,9 @@ The module roster in `lib/`:
 
 The chassis is consumed by every plugin's gates and scripts ([[gates-convention]]) — notably
 [[research-plugin]], [[grounding-wiki-plugin]], [[educate-plugin]], [[build-plugin]],
-[[codebase-to-course-plugin]], and [[spec-bridge-plugin]] — and is distributed into
-`dist/<plugin>/lib` by [[build-and-release]]. Its modules are individually documented in [[project-root]],
+[[codebase-to-course-plugin]], and [[spec-bridge-plugin]] — and reaches installed and packaged
+copies through each plugin's `lib` symlink, dereferenced by the marketplace installer and by
+[[build-and-release]]. Its modules are individually documented in [[project-root]],
 [[gate-runner]], [[markdown-module]], [[selfcontained-verifier]], [[lifecycle-engine]],
 [[installer]], [[chassis-utilities]], and [[toolkit]]. Behavior is covered by [[test-suite]].
 
@@ -71,4 +74,6 @@ The chassis is consumed by every plugin's gates and scripts ([[gates-convention]
 - Zero external dependencies by design; only `node:` built-ins.
 - `dist/` holds packaged copies only — never edit there; the canonical copy is repo-root `lib/`.
 - Building an unknown plugin name exits with status 1 (`no such plugin`).
-- Forgetting to run the build before packaging a `.plugin` ships stale or missing vendored lib.
+- The per-plugin `lib` symlinks must stay committed *as symlinks* — replacing one with a plain
+  file or directory breaks the install-time dereference. Windows contributors need symlink
+  support enabled (Developer Mode) to check them out correctly; installers are unaffected.

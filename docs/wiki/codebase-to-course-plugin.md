@@ -16,7 +16,7 @@ sources:
   - codebase-to-course/skills/codebase-to-course/references/validate.mjs
   - codebase-to-course/gates/course.mjs
   - codebase-to-course/gates/cli.mjs
-verified_against: 3b52ce895223a0c76e9610ad39a7683471cb6f10
+verified_against: 3bf242afaf0b75c05316be9f6a4323cfd189a916
 ---
 
 # codebase-to-course plugin

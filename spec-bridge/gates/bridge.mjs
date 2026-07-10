@@ -15,8 +15,8 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { deriveSpecState, STATUS } from "../../lib/spec-derive.mjs";
-import { hasChild, findRootsDownwards } from "../../lib/project-root.mjs";
+import { deriveSpecState, STATUS } from "../lib/spec-derive.mjs";
+import { hasChild, findRootsDownwards } from "../lib/project-root.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).

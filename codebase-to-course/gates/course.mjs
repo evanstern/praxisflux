@@ -8,7 +8,7 @@
 // Never writes to disk (gates/ contract).
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { checkHtml } from "../../lib/selfcontained.mjs";
+import { checkHtml } from "../lib/selfcontained.mjs";
 import { checkTranslationBlocks, checkChrome } from "../skills/codebase-to-course/references/validate.mjs";
 
 const GOOGLE_FONTS = /https?:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^'")\s>]*/gi;
