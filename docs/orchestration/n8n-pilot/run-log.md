@@ -86,3 +86,16 @@ reconciliation-driven workflow skipped the agent and parked with nothing to appr
 | 04:26:26 | **Gate 0: PASS** — T002 checked, board reconciled |
 | — | human inspection: feed→100 hunger, play→100 happiness, sleep→100 energy; unknown verb exits 2 with usage, no-pet exits 1. Mid-run incident: a human branch-switch under the running agent (recovered; finding recorded) |
 | 04:28:00 | **finish: approved by evan**, merged to main `4e00bbd` — 2/3 spec tasks done, T003 remains |
+
+## Run 5 — the finale: T003 and a completed spec (`run-mrfvzgvk-v8d3g`)
+
+| t | event |
+|---|---|
+| 04:52 | trigger: implement T003 (smoke.sh + README) via the work-mode round |
+| 04:54:01 | agent done: exit 0, **20 turns, ~2 min, $1.80** — wrote smoke.sh (which tests the pet's *feelings*: the exhausted face, the too-tired-to-play guard, a sad pet after neglect), a README that independently absorbed run 2's pet.json hygiene finding, ran the smoke suite green, and synced a now-fully-proven spec |
+| 04:54:02 | **Gate: PASS** — board derived `✔ Done`: "All spec tasks complete (Alive: 2/2 · Proven: 1/1)" |
+| 04:55:11 | **finish: approved by evan**, merged `9a69021` — **spec 001-pet-core complete** |
+
+Totals for the tamagotchi: empty directory → done-and-documented in three pipeline runs
+(T001 $1.38 · T002 $1.36 · T003 $1.80 ≈ **$4.54 of model time**), three gate verdicts,
+three human approvals, zero hand-written lines.
