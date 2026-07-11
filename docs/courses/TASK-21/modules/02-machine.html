@@ -1,0 +1,229 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · The Sorting Machine</span>
+    <h1>plan: two piles, one honest rule</h1>
+
+    <p>TASK-21 built a sorting machine. Point the new <code>plan</code> command at the wiki and it examines every stale note's changes, then sorts them into exactly two piles:</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🗂️</div>
+        <h4 class="pattern-title">RE-PIN-ONLY</h4>
+        <p class="pattern-desc">The change provably cannot have touched what the note says. The machine prints a ready-to-run filing command — no thinking required.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🔍</div>
+        <h4 class="pattern-title">NEEDS-REVIEW</h4>
+        <p class="pattern-desc">Everything else. The machine prints a work order — what changed, how much, why it needs eyes — and a person (or AI) does the judging.</p>
+      </div>
+    </div>
+
+    <h2>How the flow runs now</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"Code changes land — some notes go stale"},
+      {"highlight":"flow-actor-2","label":"plan examines each stale note against history","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"Provably-trivial changes: it prints filing commands"},
+      {"highlight":"flow-actor-3","label":"Everything else becomes a work order for review","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"Judgment happens only where judgment is needed"},
+      {"highlight":"flow-actor-2","label":"Re-run plan: silence means fully reconciled","packet":true,"from":"actor-3","to":"actor-2"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📝</div>
+          <span>Code changes</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🗂️</div>
+          <span>plan</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🔍</div>
+          <span>Reviewer</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to run the new loop</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The one honest rule</h2>
+
+    <p>What earns a spot in the easy pile? The machine allows exactly <strong>one</strong> provably-safe case, and here it is — the real classifier, verbatim:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!changedLines.every((l) =&gt; STAMP_LINE.test(l)))</span>
+<span class="code-line">  <span class="code-keyword">return</span> { cls: <span class="code-string">"REVIEW"</span>, reason: <span class="code-string">"sources changed beyond version stamps — re-verify the prose against the diff"</span> };</span>
+<span class="code-line"><span class="code-keyword">if</span> (SEMVER.test(String(noteBody ?? <span class="code-string">""</span>)))</span>
+<span class="code-line">  <span class="code-keyword">return</span> { cls: <span class="code-string">"REVIEW"</span>, reason: <span class="code-string">"stamp-only diff, but the note quotes version literals — update them, then re-pin"</span> };</span>
+<span class="code-line"><span class="code-keyword">return</span> { cls: <span class="code-string">"REPIN"</span>, reason: <span class="code-string">"version stamps only, and the note quotes no versions"</span> };</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">If even one changed line is anything besides a routine version-number stamp…</p>
+          <p class="tl">…refuse to file it — send it to review with the reason spelled out.</p>
+          <p class="tl">Even if every change IS a version stamp: does the note itself mention any version number?</p>
+          <p class="tl">Then it might be quoting the very number that just changed — review, with instructions.</p>
+          <p class="tl">Only when both checks pass is the change provably trivial: file it automatically.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>The machine's power comes from what it refuses to do. When it cannot <em>prove</em> a change is trivial — including when it simply could not read the change — it defaults to the review pile. A filing system you can trust is one that never guesses.</p>
+      </div>
+    </div>
+
+    <h2>The backticks near-miss</h2>
+
+    <p>One bug was caught during the build, and it is worth retelling. Notes in this wiki quote version numbers inside <span class="term" data-definition="Backticks (the ` character) mark text as code in Markdown notes — like writing `0.6.3` to show a version number in a code-style font.">backticks</span>. The classifier's first draft stripped code formatting before scanning — which would have <em>hidden exactly those version mentions</em> and filed notes that needed review. The fix: scan the raw text, so any doubt pushes toward the review pile, never away from it.</p>
+
+    <h2>The machine meets reality</h2>
+
+    <p>First real run, on this very project's wiki — eight stale notes. Listen in:</p>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Eight stale notes again. plan, sort them for me.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="plan" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🗂️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">plan</span>
+            <p>Sorted: zero in the easy pile, eight need review.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Zero?! The whole point was to automate the filing!</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="plan" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🗂️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">plan</span>
+            <p>Six of your notes quote version numbers in their prose — the exact numbers that just changed. If I re-pinned those, they would be lying. Update the mentions; then I file.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>…which is exactly the edit I have been making by hand all day. Fine. You pass.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — a pin is a verification claim, so an unreadable change means the claim cannot be proven. Default to review; never guess."
+           data-explanation-wrong="Remember the key insight: what does the machine do with anything it cannot PROVE trivial?">
+        <h3 class="quiz-question">The sorting machine hits a note whose change history it cannot read at all. What does it do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Files it automatically — no readable change, no problem</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Sends it to the review pile — it cannot prove the change is trivial</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Deletes the note — unreadable history means it is unmaintainable</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — the first run sorting all eight into review was the machine working: six really did quote the changed numbers, two had real code changes. Honest beats convenient."
+           data-explanation-wrong="Was the empty easy pile a failure? Check what the review reasons said about those six notes.">
+        <h3 class="quiz-question">On its first real run, the machine put ZERO notes in the easy pile. Was it broken?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes — an automation that automates nothing has failed</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes — it should have filed the six version-only cases anyway</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>No — those six notes quoted the changed numbers, so filing them would have made them lie</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — stop quoting exact numbers the release process changes routinely, and those notes become provably safe to auto-file next time. The style of the notes decides how much the machine can do."
+           data-explanation-wrong="The blocker for those six notes was something IN the notes themselves. What could the authors change?">
+        <h3 class="quiz-question">You want more notes to land in the automatic pile next release. Based on this module, what is the highest-leverage change?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Stop quoting exact version numbers in note prose — say "lockstep with the release" instead</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Loosen the classifier to accept "probably fine" changes</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Run the machine twice — the second pass will file what the first refused</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
