@@ -1,11 +1,11 @@
 ---
 id: TASK-24
 title: 'spec-bridge strict mode: warn when Done is blocked only by the analysis gate'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-11 01:36'
-updated_date: '2026-07-11 04:31'
+updated_date: '2026-07-11 04:36'
 labels: []
 dependencies: []
 priority: low
@@ -20,10 +20,10 @@ Spun off from TASK-9.8 (parent TASK-9 closed 2026-07-10; subtask archived) — f
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 strictDone + all boxes checked + missing analysis.md -> non-blocking warning naming the missing report
-- [ ] #2 strictDone + all boxes checked + unresolved CRITICAL -> non-blocking warning naming the finding
-- [ ] #3 No such warning in checkbox-only mode, or while tasks.md still has unchecked tasks
-- [ ] #4 Tests through gate-runner evaluate() assert these surface as warnings, never problems
+- [x] #1 strictDone + all boxes checked + missing analysis.md -> non-blocking warning naming the missing report
+- [x] #2 strictDone + all boxes checked + unresolved CRITICAL -> non-blocking warning naming the finding
+- [x] #3 No such warning in checkbox-only mode, or while tasks.md still has unchecked tasks
+- [x] #4 Tests through gate-runner evaluate() assert these surface as warnings, never problems
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -33,3 +33,15 @@ Spun off from TASK-9.8 (parent TASK-9 closed 2026-07-10; subtask archived) — f
 2. Tests through gate-runner evaluate(): missing-analysis warning, CRITICAL warning (naming the finding), silence in checkbox-only mode, silence while tasks remain unchecked, and warnings-never-problems.
 3. Bump marketplace 0.6.5; wiki plan/repin cadence; per-task course docs/courses/TASK-24; finalize + PR.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Shipped: checkBridge near-miss warning (six-condition guard: honest verdict + strict mode + all boxes + plan.md present + not Done-eligible => the analysis requirement is provably the only blocker). Warn channel only. Tests through gate-runner evaluate(): missing-report, CRITICAL-named-verbatim, resolved-CRITICAL handoff to ordinary lag, checkbox-only silence, unchecked-tasks silence. Suite 112. Marketplace 0.6.5. Wiki pass also pulled the TASK-21 style lever: six plugin notes dropped lockstep numerals — future stamp bumps auto-RE-PIN them. Course docs/courses/TASK-24 (2 modules, coral) gate-passed.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+strictDone's silent near-miss state is gone: when a linked task is honest, every checkbox is checked, plan.md exists, and ONLY the analysis requirement blocks Done-eligible, checkBridge emits a lag-style warning on the warn channel naming the missing analysis.md (with the save-the-report fix) or the unresolved CRITICAL findings verbatim — never a blocking problem, the status is honest. Covered end-to-end through gate-runner evaluate() incl. silence in checkbox-only mode and while tasks remain unchecked. Marketplace 0.6.5; wiki re-verified (8 notes, plus the literal-free lockstep prose change that makes future stamp bumps auto-RE-PIN six notes); per-task course at docs/courses/TASK-24.
+<!-- SECTION:FINAL_SUMMARY:END -->

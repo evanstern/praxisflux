@@ -1,0 +1,156 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Warn, Never Block</span>
+    <h1>A smoke detector, not a locked door</h1>
+
+    <p>The fix is one carefully-aimed rule. When a task is honest AND every box is checked AND the <em>only</em> thing between it and the finish line is the analysis requirement — the gate now speaks up. On the warning channel. Never the blocking one.</p>
+
+    <p>Why never block? Because blocking is for <em>dishonesty</em>, and this task is telling the truth. What it needs is a smoke detector — something that says "you're one report away, here's exactly what to do" — not a locked door punishing it for a state it honestly declared.</p>
+
+    <h2>The new rule, verbatim</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">v === <span class="code-string">"ok"</span> &amp;&amp;</span>
+<span class="code-line">derived.analysis?.required &amp;&amp;</span>
+<span class="code-line">derived.status !== STATUS.DONE_ELIGIBLE &amp;&amp;</span>
+<span class="code-line">derived.tasksTotal &gt; <span class="code-number">0</span> &amp;&amp;</span>
+<span class="code-line">derived.tasksDone === derived.tasksTotal &amp;&amp;</span>
+<span class="code-line">existsSync(join(root, task.specDir, <span class="code-string">"plan.md"</span>))</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Only for tasks whose status is honest — liars are already handled by the blocker…</p>
+          <p class="tl">…and only when strict mode is actually demanding an analysis report…</p>
+          <p class="tl">…and the task has not reached the finish line…</p>
+          <p class="tl">…despite the work list being real…</p>
+          <p class="tl">…and every single item on it being checked…</p>
+          <p class="tl">…and the plan existing too — so the report is provably the ONLY missing piece.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>Six conditions, and every one earns its place: drop any of them and the warning would fire in situations where the report <em>isn't</em> the only blocker — turning a precise nudge into noise people learn to ignore.</p>
+
+    <h2>What it sounds like now</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Last checkbox done! Wrapping up for the day.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Gate</span>
+            <p>Heads up — all 12 spec tasks checked; Done blocked by strict mode: analysis.md missing. Run the analysis and save its report into the spec folder.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>…I would have stared at that In Progress column for a week. Report saved. Anything else?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Gate</span>
+            <p>One unresolved CRITICAL in your report: payment idempotency unhandled. Fix it in the spec workflow and re-save. Still not blocking you — you're honest. Just… informed.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Resolved and re-saved. Sync just moved it to Done. A whole finish line I can actually see now.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Good automation separates its voices: one channel that <em>stops</em> you (for things that must not happen) and one that <em>informs</em> you (for things you'd want to know). Collapse them and people either get blocked unfairly or learn to ignore everything.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — blocking is reserved for status that overclaims. This task's status is true, so it gets information, not punishment."
+           data-explanation-wrong="Recall the smoke-detector framing: what is the blocking channel actually FOR in this system?">
+        <h3 class="quiz-question">Why does the near-miss warning refuse to block, even though Done is genuinely unreachable?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Blocking would be too slow to compute</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Blocking is for dishonest status — this task is telling the truth and just needs a pointer</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Warnings and blocks are the same thing with different wording</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — with half the list unchecked, the report is NOT the only blocker, and saying 'blocked by strict mode' would be false. Precision is what keeps the warning trustworthy."
+           data-explanation-wrong="Check the six conditions: which one exists precisely to keep this warning quiet while ordinary work is still in flight?">
+        <h3 class="quiz-question">A strict-mode task has 6 of 12 boxes checked and no analysis report. Should the new warning fire?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>No — the report isn't the only blocker yet, so the warning would be misleading noise</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes — the earlier the reminder, the better</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes, but only as a blocking error</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
