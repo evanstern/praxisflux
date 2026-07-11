@@ -63,6 +63,66 @@ test("checkTranslationBlocks: entities decode before balancing; tl-inline is not
   assert.equal(checkTranslationBlocks(withInline, "t").fails.length, 0);
 });
 
+// TASK-19 repros — orphan .translation-code panels outside any block. The old
+// findBlocks bounded each chunk at the NEXT block's open tag, so every one of
+// these passed or blamed the wrong block against the shipped validator.
+const orphanPanel = (code) =>
+  `<div class="translation-code"><pre><code><span class="code-line">${code}</span></code></pre></div>`;
+
+test("orphans: a panel between two healthy blocks fails as orphan, not as the neighbor's pairing bug", () => {
+  const html =
+    block({ codeLines: ["a();"], notes: ["A."] }) +
+    orphanPanel("stray();") +
+    block({ codeLines: ["b();"], notes: ["B."] });
+  const { fails } = checkTranslationBlocks(html, "t");
+  // old logic: the orphan's .code-line landed in block 1's chunk -> "2 .code-line vs 1 .tl"
+  assert.ok(!fails.some((f) => f.includes(".code-line vs")), `healthy blocks must not take the blame: ${fails}`);
+  const orphanFails = fails.filter((f) => f.includes("orphan"));
+  assert.ok(orphanFails.length >= 1, `expected orphan failures, got: ${fails}`);
+  assert.match(orphanFails[0], /line \d+/);
+  assert.match(orphanFails[0], /Wrap it in a \.translation-block or delete it/);
+});
+
+test("orphans: a stray .tl after a genuinely broken block must not cancel the real pairing bug", () => {
+  const html =
+    block({ codeLines: ["a();", "b();"], notes: ["Only one note."] }) + // REAL bug: 2 code vs 1 tl
+    '<p class="tl">orphan note</p>';
+  const { fails } = checkTranslationBlocks(html, "t");
+  // old logic: the orphan .tl fell into block 1's chunk, 2v2, false green
+  assert.ok(fails.some((f) => f.includes("2 .code-line vs 1 .tl")), `the real bug must surface: ${fails}`);
+  assert.ok(fails.some((f) => f.includes("orphan .tl note")), `the orphan must surface too: ${fails}`);
+});
+
+test("orphans: panels before the first block and in block-free files are no longer invisible", () => {
+  const before = orphanPanel("unbalanced((") + block({ codeLines: ["a();"], notes: ["A."] });
+  assert.ok(checkTranslationBlocks(before, "t").fails.some((f) => f.includes("orphan")));
+  const blockFree = orphanPanel("dangling(");
+  const r = checkTranslationBlocks(blockFree, "t");
+  assert.equal(r.blocks, 0);
+  assert.ok(r.fails.some((f) => f.includes("orphan")), `block-free file must still fail: ${r.fails}`);
+});
+
+test("orphans: an unclosed .translation-block open tag fails loudly instead of vanishing", () => {
+  const unclosed = '<div class="translation-block"><div class="translation-code"><pre><code><span class="code-line">a();</span></code></pre></div>';
+  const { fails } = checkTranslationBlocks(unclosed, "t");
+  assert.ok(fails.some((f) => f.includes("no matching closing")), `unclosed block must be named: ${fails}`);
+});
+
+test("orphans: --fix inserts at correct offsets with an orphan panel sitting after the block", () => {
+  const truncated = block({
+    codeLines: ["register(handlers, {", "  onReady: start,"],
+    notes: ["Wire up…", "…when ready."],
+  });
+  const html = truncated + orphanPanel("noise();");
+  const r = fixTranslationBlocks(html, "t");
+  assert.equal(r.fixed, 1);
+  assert.deepEqual(r.unfixable, []);
+  const after = checkTranslationBlocks(r.html, "t");
+  // the block itself is healed; only the orphan remains, still at its own line
+  assert.ok(after.fails.every((f) => f.includes("orphan")), `only orphan failures should remain: ${after.fails}`);
+  assert.ok(r.html.includes("})"), "closers must land inside the block, not in the orphan");
+});
+
 test("fixTranslationBlocks: auto-close round-trips to passing with pairing intact", () => {
   const truncated = block({
     codeLines: ["register(handlers, {", "  onReady: start,"],

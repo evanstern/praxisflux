@@ -37,7 +37,7 @@ runs:
     - name: Run praxisflux gates
       shell: bash
       run: |
-        npx --yes @praxisflux/gates@0.6.1 \
+        npx --yes @praxisflux/gates@0.6.2 \
           --gates "${{ inputs.gates }}" \
           --path "${{ inputs.path }}" \
           --wiki-dir "${{ inputs['wiki-dir'] }}" \
