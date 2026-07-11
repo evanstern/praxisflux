@@ -13,12 +13,12 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: b1f31c6520fd11d19c970bcb6a6a4abdae74a930
+verified_against: 97faf5237adcbedab4128d99075d74ca0595e09b
 ---
 
 # spec-bridge plugin
 
-The `spec-bridge` plugin (v0.6.4, lockstep with the marketplace) makes the Backlog.md board a **derived kanban view over
+The `spec-bridge` plugin (lockstep with the marketplace version) makes the Backlog.md board a **derived kanban view over
 GitHub Spec Kit specs** — composed the praxisflux way, through files and gates, forking neither
 tool. One Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
 mirror `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate
@@ -55,7 +55,11 @@ AC:BEGIN/END block) stays read-only — plan prints, the skill executes and re-v
 `hasChild("backlog")`), parses linked tasks, and compares each task's frontmatter status to
 its derived status: **exceeds** (status claims more than the artifacts prove) blocks the
 Stop; **lags** (artifacts ahead of status) warns to run sync, never blocks; **ok** is
-silent; **unknown** (a status outside To Do / In Progress / Done) neither blocks nor warns.
+silent — except the strict-mode near-miss: an honest task with every checkbox checked whose
+ONLY shortfall from Done-eligible is the analysis requirement gets a lag-style warning
+naming the missing `analysis.md` (and where to save it) or the unresolved CRITICAL findings
+verbatim, so "Done is out of reach" is never a silent state; **unknown** (a status outside
+To Do / In Progress / Done) neither blocks nor warns.
 A linked task whose spec dir was deleted derives `To Do` and blocks anything above it.
 `hooks/hooks.json` wires the Stop hook through the standard `gate.sh` shim (node resolved
 via `command -v` with a login-shell fallback, no-op when unavailable) into `scripts/stop.mjs`

@@ -21,7 +21,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: b1f31c6520fd11d19c970bcb6a6a4abdae74a930
+verified_against: 97faf5237adcbedab4128d99075d74ca0595e09b
 ---
 
 # Test suite
@@ -73,7 +73,8 @@ What each file covers:
   durable on-disk residue; a flag alone can't rubber-stamp the return leg.
 - `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (including the task's
   AC block), exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
-  `strictDone` mode, and the deterministic `plan` command (status move, Done summary,
+  `strictDone` mode (including the near-miss warning when only the analysis requirement
+  blocks Done), and the deterministic `plan` command (status move, Done summary,
   post-regeneration re-mirror, no-op board, shell quoting).
 - `test/spec-derive.test.mjs` — pure Spec Kit derivation: lifecycle stages → status,
   per-phase checkbox counts, regenerated `tasks.md` re-deriving fresh, strict-mode
