@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 631b700ab44bd6fd534e481d19a4a73a1b29c115
+verified_against: b1f31c6520fd11d19c970bcb6a6a4abdae74a930
 ---
 
 # Build and release
@@ -174,5 +174,5 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
   the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
-- Marketplace version at this commit: `0.6.3` (`v0.2.0` was the pipeline's first
+- Marketplace version at this commit: `0.6.4` (`v0.2.0` was the pipeline's first
   self-published release; `0.5.0` is the first to publish `@praxisflux/gates` to npm).

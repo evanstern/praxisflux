@@ -1,0 +1,122 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Bookkeeping Tax</span>
+    <h1>The wiki that refuses to lie</h1>
+
+    <p>This project keeps a living encyclopedia of itself — a <span class="term" data-definition="A wiki here is a folder of interlinked notes, one per concept, describing how the code actually works. This project's lives at docs/wiki/.">wiki</span> where every note carries two receipts: which source files it describes, and a <span class="term" data-definition="A pin is a saved reference to one exact moment in the project's history — like a bookmark saying 'this note was checked against the code as it existed right here.'">pin</span> naming the exact code snapshot it was last checked against.</p>
+
+    <p>A <span class="term" data-definition="A gate is a small automatic checker that inspects the project's files and refuses to accept work whose evidence is missing or out of date.">gate</span> enforces the deal: if any source file changed after a note's pin, the note is declared <strong>stale</strong> — and nothing ships until someone re-verifies it.</p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📚</div>
+      <div class="callout-content">
+        <strong class="callout-title">Why so strict?</strong>
+        <p>Documentation that <em>might</em> be current is worse than none — you cannot tell which parts to trust. The pin turns "probably still true" into "checked against exactly this version."</p>
+      </div>
+    </div>
+
+    <h2>The tax</h2>
+
+    <p>Strictness has a price. On one busy day in this project, the freshness check fired on <strong>eight notes at once</strong> — because a routine release had touched a version number inside files those notes listed as sources. The change was one digit. The follow-up was not:</p>
+
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Read eight change reports</strong>
+          <p>Open the history for each note and confirm what actually changed in its sources</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Discover most were trivial</strong>
+          <p>A version number ticked up — the notes' explanations were untouched by it</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Re-pin all eight by hand</strong>
+          <p>Edit each note's pin line to the new snapshot — carefully, because a wrong pin is a false receipt</p>
+        </div>
+      </div>
+    </div>
+
+    <p>That is skilled attention spent on filing. And this project had just learned a name for the cure, from its task-board tooling: <strong>computed, not reasoned</strong> — when the follow-up to a change can be calculated, a program should calculate it, and thinking should be saved for the parts that need it.</p>
+
+    <h2>What "stale" looks like, in the real machinery</h2>
+
+    <p>This is the actual heart of the freshness check — the question it asks the project's history for every note:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">const log = git(repoRoot, [<span class="code-string">"log"</span>, <span class="code-string">"--oneline"</span>, <span class="code-string">`${pin}..HEAD`</span>, <span class="code-string">"--"</span>, ...sources]);</span>
+<span class="code-line">if (!log) <span class="code-keyword">continue</span>; <span class="code-comment">// fresh</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Ask the project history: list every change to this note&rsquo;s source files made after its pin.</p>
+          <p class="tl">Silence means nothing changed — the note is still fresh, move on to the next one.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>TASK-21's question: when that list is <em>not</em> silent, could a program tell the trivial cases from the ones needing real judgment — and do the filing itself?</p>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the pin is a receipt naming the snapshot the note was verified against. When sources change after it, the receipt no longer covers the current code."
+           data-explanation-wrong="Think about what the pin claims: checked against THIS exact snapshot. What breaks that claim?">
+        <h3 class="quiz-question">A note's explanation is still perfectly accurate, but a file it lists as a source changed yesterday. Why does the gate still flag it?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The gate is buggy — accurate notes should pass</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nobody has re-verified it — "still accurate" is a guess until someone checks and re-pins</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Notes must be rewritten from scratch whenever any code changes</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — that is the computed-not-reasoned rule. Calculate the mechanical part, and spend the thinking only where judgment is genuinely needed."
+           data-explanation-wrong="The lesson of the eight-note day was not to lower the standard — it was about WHO should do the filing.">
+        <h3 class="quiz-question">Your team's checklist keeps flagging routine follow-ups that are 90% filing and 10% judgment. Per this module, what is the right fix?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Relax the checklist so it flags less often</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Accept the tax — rigor always costs attention</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Have a program compute the filing and hand people only the judgment calls</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

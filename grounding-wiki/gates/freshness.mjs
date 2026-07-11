@@ -90,3 +90,69 @@ export function validateFreshness(repoRoot, corpusDir = "docs/wiki") {
 
   return { fails, warns, checked };
 }
+
+/* ── plan: classify stale notes into computed re-pins vs review work ───── */
+
+// The ONE provably-safe diff class. A changed line is a lockstep version stamp when it is a
+// version key ("version": "1.2.3" / version: 1.2.3) or an npm-style pin (@scope/name@1.2.3).
+const STAMP_LINE = /(["']?version["']?\s*[:=]\s*["']?\d+\.\d+\.\d+)|(@[\w.-]+\/[\w.-]+@\d+\.\d+\.\d+)/;
+const SEMVER = /\d+\.\d+\.\d+/;
+
+/**
+ * Pure classifier. `changedLines` are the +/- content lines of the diff over a note's
+ * sources since its pin; `noteBody` is the note's full text. RE-PIN-ONLY iff every changed
+ * line is a version stamp AND the note quotes no semver literal anywhere (a note that names
+ * versions may claim the very number that just changed). Anything else — including an empty
+ * diff we couldn't read — defaults to NEEDS-REVIEW: a pin is a verification claim, and the
+ * planner must never make one it can't prove.
+ */
+export function classifyNote(changedLines, noteBody) {
+  if (!changedLines.length) return { cls: "REVIEW", reason: "diff could not be read — verify by hand" };
+  if (!changedLines.every((l) => STAMP_LINE.test(l)))
+    return { cls: "REVIEW", reason: "sources changed beyond version stamps — re-verify the prose against the diff" };
+  // Raw body, deliberately: notes quote versions in backticks (`0.6.3`), which stripCode
+  // would hide — and hiding them would flip the classification in the UNSAFE direction.
+  if (SEMVER.test(String(noteBody ?? "")))
+    return { cls: "REVIEW", reason: "stamp-only diff, but the note quotes version literals — update them, then re-pin" };
+  return { cls: "REPIN", reason: "version stamps only, and the note quotes no versions" };
+}
+
+/**
+ * Plan the reconciliation of a stale corpus: for each stale note, the diff summary since its
+ * pin and a classification. Read-only (gates/ contract) — the CLI prints, the wiki-update
+ * skill executes. Returns { head, entries, problems }; a fresh corpus yields entries: [].
+ * Notes that fail structurally (no pin, unknown pin) land in `problems` — plan doesn't
+ * paper over what the freshness gate would reject.
+ */
+export function planFreshness(repoRoot, corpusDir = "docs/wiki") {
+  const entries = [];
+  const problems = [];
+  const dir = isAbsolute(corpusDir) ? corpusDir : join(repoRoot, corpusDir);
+  if (!existsSync(join(dir, "INDEX.md"))) return { head: "", entries, problems: [`not a corpus: ${join(dir, "INDEX.md")} missing`] };
+  const head = git(repoRoot, ["rev-parse", "HEAD"]);
+
+  for (const file of readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "INDEX.md").sort()) {
+    const rel = `${corpusDir}/${file}`;
+    const text = readFileSync(join(dir, file), "utf8");
+    const pin = parseFrontmatter(text)?.verified_against;
+    if (!pin) { problems.push(`${rel}: no verified_against pin`); continue; }
+    try { git(repoRoot, ["cat-file", "-e", `${pin}^{commit}`]); }
+    catch { problems.push(`${rel}: pin ${pin} is not a known commit`); continue; }
+    const sources = parseSourcesBlock(text);
+    if (!sources.length) continue; // unverifiable — the freshness gate already warns
+
+    const log = git(repoRoot, ["log", "--oneline", `${pin}..HEAD`, "--", ...sources]);
+    if (!log) continue; // fresh
+    const commits = log.split("\n").length;
+    const files = git(repoRoot, ["diff", "--numstat", `${pin}..HEAD`, "--", ...sources])
+      .split("\n").filter(Boolean)
+      .map((l) => { const [plus, minus, path] = l.split("\t"); return { path, plus: +plus || 0, minus: +minus || 0 }; });
+    const changedLines = git(repoRoot, ["diff", "-U0", `${pin}..HEAD`, "--", ...sources])
+      .split("\n")
+      .filter((l) => (/^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l)))
+      .map((l) => l.slice(1))
+      .filter((l) => l.trim() !== "");
+    entries.push({ note: rel, absPath: join(dir, file), pin, head, commits, files, ...classifyNote(changedLines, text) });
+  }
+  return { head, entries, problems };
+}

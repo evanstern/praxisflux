@@ -21,7 +21,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 631b700ab44bd6fd534e481d19a4a73a1b29c115
+verified_against: b1f31c6520fd11d19c970bcb6a6a4abdae74a930
 ---
 
 # Test suite
@@ -60,7 +60,9 @@ What each file covers:
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
   self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
-  `parseSourcesBlock`) against a throwaway git repo.
+  `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
+  truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
+  fresh-corpus silence, repin refusals).
 - `test/handoff.test.mjs` — the shared handoff transport (write/read round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
