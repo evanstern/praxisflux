@@ -1,0 +1,180 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · The Test Flights</span>
+    <h1>Three runs, nobody watching</h1>
+
+    <p>A claim like "AI can run unattended" is worthless without a test. So TASK-20 built a small throwaway project — a practice dummy with a task board and a work plan — and launched the real skill at it three times, using one command.</p>
+
+    <h2>The launch command</h2>
+
+    <p>This is the actual command, verbatim. One line of it does almost all the talking:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">claude -p <span class="code-string">"/spec-bridge:sync"</span> \</span>
+<span class="code-line">  --allowedTools <span class="code-string">"Bash(node:*),Bash(backlog:*),Bash(git:*),Read,Glob,Grep"</span> \</span>
+<span class="code-line">  --output-format json &gt; run.json</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Start an AI session with no chat window, and hand it one instruction: run the board-syncing skill.</p>
+          <p class="tl">Grant it a specific toolbox — it may run these named programs and read files, nothing we did not list.</p>
+          <p class="tl">When it finishes, save a machine-readable receipt (cost, timing, result) into a file for inspection.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>The <span class="term" data-definition="A flag is an option you add to a command to change its behavior — like adding '--json' to get structured data instead of plain text. When instructing an AI agent, you would say: add a flag for JSON output.">flag</span> <code>-p</code> is the whole trick: it tells the <span class="term" data-definition="A CLI (command-line interface) is a program you operate by typing commands in a terminal instead of clicking buttons. Claude Code is a CLI.">CLI</span> to run one instruction to completion and exit — no conversation, no waiting for a human.</p>
+
+    <h2>The three flights</h2>
+
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>The catch-up</strong>
+          <p>The board was behind the real work. Unattended, the skill moved the task forward and mirrored the plan onto it. <em>8 turns · 49 seconds · $0.71</em></p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>The finish line</strong>
+          <p>The work plan was regenerated and everything checked off. The skill replaced the stale plan items and moved the task to Done — with a written summary derived from the files. <em>6 turns · 43 seconds · $0.67</em></p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>The honest retreat</strong>
+          <p>New unfinished work appeared after Done. The skill moved the task <em>backwards</em> — from Done to In Progress — because the files no longer proved Done. <em>10 turns · 45 seconds · $0.75</em></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Flight three is the one that matters. Any system can march forward; a trustworthy one <em>retreats</em> when the evidence stops supporting its status. No human told it to — the rule is in the files.</p>
+      </div>
+    </div>
+
+    <h2>Listen in on a run</h2>
+
+    <p>If the three parties could talk, an unattended run would sound like this:</p>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="orchestrator" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">⏰</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Scheduler</span>
+            <p>Claude, the board in this project is behind the real work. Run the sync skill. I will not be reading along.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="claude" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">AI Session</span>
+            <p>On it. The skill says: compute the exact edits first, then apply them, then verify my own work before I finish.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="claude" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">AI Session</span>
+            <p>Done — board updated, my own checks pass, and I never touched the plan files. Ending the session. Exit code: 0.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Gate</span>
+            <p>Nice speech. Inspecting the files anyway… nothing left to reconcile, every status matches its evidence. NOW it is done.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="orchestrator" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">⏰</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Scheduler</span>
+            <p>Verdict logged. Total: 49 seconds, 71 cents, zero humans interrupted.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <p>Notice who has the last word before the scheduler logs anything: the gate. Every flight ended with that same inspection — silence from the checker, a clean pass from the gate, and zero stray edits outside the skill's permitted territory.</p>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — moving backwards is the system being honest. The files stopped proving Done, so Done had to go. That is the behavior that makes unattended runs trustworthy."
+           data-explanation-wrong="Look at flight three again: new unfinished work appeared after the task was Done. What should a status do when its evidence disappears?">
+        <h3 class="quiz-question">A month from now, an unattended run moves a finished-looking task from Done back to In Progress. What is the most likely explanation?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The AI glitched — statuses should never move backwards</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>New unfinished work appeared, so the files no longer prove Done</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Someone forgot to tell the AI the task was finished</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — the toolbox list is the point. An unattended session gets exactly the named tools and nothing else you intended to hand it. (Module 3 has a surprising wrinkle about this.)"
+           data-explanation-wrong="Re-read the launch command translation: the middle line is a list of named programs. What is it doing?">
+        <h3 class="quiz-question">In the launch command, what is the <code>--allowedTools</code> line trying to do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Hand the session a specific, named toolbox for the job</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Speed the session up by skipping safety checks</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Tell the AI which skill to run</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>

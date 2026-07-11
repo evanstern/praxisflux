@@ -1,0 +1,169 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 3 · What We Learned</span>
+    <h1>The surprises are the deliverable</h1>
+
+    <p>The spike proved the happy path — but its real value is three findings that were <em>not</em> obvious going in. Each one changes how you should think about automating AI work, in this project or your own.</p>
+
+    <h2>Finding 1: exit code 0 is not a gold star</h2>
+
+    <p>Every run reported success the same way — even a probe that was set up to be under-equipped for the job. Here is a real receipt, straight from a run's saved output:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">{</span>
+<span class="code-line">  <span class="code-property">"is_error"</span>: <span class="code-keyword">false</span>,</span>
+<span class="code-line">  <span class="code-property">"subtype"</span>: <span class="code-string">"success"</span>,</span>
+<span class="code-line">  <span class="code-property">"num_turns"</span>: <span class="code-number">10</span>,</span>
+<span class="code-line">  <span class="code-property">"total_cost_usd"</span>: <span class="code-number">0.754</span></span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The receipt for one run, written as structured data…</p>
+          <p class="tl">"No error happened" — meaning the session ran without crashing…</p>
+          <p class="tl">"success" — but careful: this only means the session finished, not that the work is right…</p>
+          <p class="tl">The AI took ten back-and-forth steps with its tools…</p>
+          <p class="tl">…and the whole run cost about 75 cents.</p>
+          <p class="tl">End of the receipt.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong class="callout-title">Common mistake</strong>
+        <p>Automation that treats "the program exited cleanly" as "the task succeeded." A finished session and a correct result are different facts — only the gate inspecting the files can confirm the second one.</p>
+      </div>
+    </div>
+
+    <h2>Finding 2: the toolbox list adds, it does not fence</h2>
+
+    <p>The biggest surprise. One probe deliberately left the important tools OFF the allowed list — and the run used them anyway, freely. Why? The machine it ran on already had its own standing permissions, and the launch command's list only <em>adds</em> to those. It is not a fence; it is a gift registry.</p>
+
+    <p>The lesson for any real deployment: true limits must come from the <em>environment</em> — a sealed <span class="term" data-definition="A container is a sealed, disposable mini-computer inside your computer. Whatever runs inside it gets only what you packed into it — a fresh, controlled environment every time.">container</span> with a clean configuration — not from the launch command's options.</p>
+
+    <h2>Finding 3: the robot borrowed the house keys</h2>
+
+    <p>The test project was empty, yet the skill was found and ran perfectly. How? The <em>machine</em> had the plugin installed, and the unattended session quietly inherited it. Convenient on a laptop — but a trap for automation: a fresh machine in the cloud has none of that. Whatever the run needs must be packed in explicitly.</p>
+
+    <h2>The pre-flight checklist</h2>
+
+    <p>The findings boil down to a checklist any skill must pass before it can run unattended. This is now a permanent document in the project:</p>
+
+    <div class="badge-list">
+      <div class="badge-item">
+        <code class="badge-code">1 · ends with proof</code>
+        <span class="badge-desc">The skill finishes by verifying its own work against files — never by asking a person a question</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">2 · decisions from files</code>
+        <span class="badge-desc">Every choice it needs is readable from the project — anything needing human judgment is split out as a human step</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">3 · fails loudly</code>
+        <span class="badge-desc">When it cannot finish, the leftover evidence must make the gate fail — a polite apology in the transcript helps nobody</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">4 · declares its needs</code>
+        <span class="badge-desc">Tools and plugins are named so a container can pack them — never assumed from someone's laptop</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">5 · machine core, AI shell</code>
+        <span class="badge-desc">Everything mechanical is a plain program; the AI handles only the genuinely creative part — cheaper, steadier runs</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">6 · scoped writes</code>
+        <span class="badge-desc">It is declared up front which files the skill may change, so the run can be audited afterwards</span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Nothing on this checklist is about making the AI smarter. Unattended automation is earned with <em>structure</em> — proof at the end, limits from the environment, needs declared up front. The intelligence was never the bottleneck.</p>
+      </div>
+    </div>
+
+    <p>With the question answered and the checklist written, the path is open for the next step: wiring these unattended runs into a real production line, with the gates as checkpoints and a person holding the final approval.</p>
+
+    <div class="quiz-container" id="quiz-module3">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — a clean exit only says the session finished. The gate inspecting the files is what confirms the work, and finding 1 exists because those two facts diverge."
+           data-explanation-wrong="Careful — this is finding 1. What did the receipt's success label actually promise?">
+        <h3 class="quiz-question">Your overnight automation reports: every AI run exited cleanly with "success." What do you actually know?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The work is done and correct</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nothing at all — the reports are meaningless</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The sessions finished without crashing — the gates still owe you the real verdict</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — the launch list only adds to whatever permissions the machine already grants. A sealed container with a clean configuration is what actually limits an unattended run."
+           data-explanation-wrong="Remember the gift-registry surprise: the probe used tools that were left OFF its list. Where did those permissions come from?">
+        <h3 class="quiz-question">You want an unattended AI run truly limited to reading files — no running programs. Based on finding 2, what actually enforces that?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Listing only Read tools in the launch command</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Running it in a sealed environment that grants nothing else</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Adding a line to the instruction asking it nicely not to run programs</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — checklist item 3. A failure that leaves the gate failing is visible to the machinery; a failure that only lives in the transcript vanishes the moment nobody reads it."
+           data-explanation-wrong="Think about who — or what — is reading the results of an unattended run. Where does a failure need to show up to be noticed?">
+        <h3 class="quiz-question">A skill hits a wall mid-run with nobody watching. Per the checklist, what is the RIGHT way for it to fail?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Leave the files in a state the gate will flag — the failure is inspectable</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Write a clear apology and explanation in its final message</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Quietly undo everything so the project looks untouched</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+    </div>
+
+  </div>
+</section>

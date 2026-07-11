@@ -1,0 +1,160 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Question</span>
+    <h1>Could nobody be there?</h1>
+
+    <p>Every task in this project ends the same way: a person watches an AI assistant do the work in a chat window, reads along, nudges it, and decides when it is finished. TASK-20 asked a simple, slightly unsettling question: <strong>what if nobody was watching?</strong></p>
+
+    <p>Could a <span class="term" data-definition="A skill is a packaged, reusable procedure an AI assistant knows how to follow — like a recipe card it can pick up and execute. This project ships several skills as plugins.">skill</span> run start-to-finish with no human in the chat — and could we still <em>trust</em> the result?</p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🤖</div>
+      <div class="callout-content">
+        <strong class="callout-title">"Headless," in plain terms</strong>
+        <p>Running a program <strong>headless</strong> means running it with no screen and no person attached — fire it off, walk away, collect the result. The "head" that is missing is you.</p>
+      </div>
+    </div>
+
+    <h2>Why bother?</h2>
+
+    <p>Because if a skill can run unattended, a whole workflow can be wired together like a factory line — with humans only at the decision points that genuinely need them. That is the project's larger plan, and it needs three kinds of stations:</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">⚙️</div>
+        <h4 class="pattern-title">Machine steps</h4>
+        <p class="pattern-desc">Boring, exact work — checks and bookkeeping — done by small programs that behave the same way every time.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🤖</div>
+        <h4 class="pattern-title">AI steps</h4>
+        <p class="pattern-desc">The genuinely creative middle — writing, deciding, fixing — done by an AI session running a skill. <em>This</em> is the step TASK-20 had to prove.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🙋</div>
+        <h4 class="pattern-title">Human steps</h4>
+        <p class="pattern-desc">Real judgment calls — approvals and merges — kept for people, on purpose.</p>
+      </div>
+    </div>
+
+    <h2>The autopilot rule</h2>
+
+    <p>Think of an autopilot flight. The airline does not decide the landing went well because the autopilot <em>says</em> "landing complete." It checks the instruments, the flight recorder, the aircraft itself. <strong>The report is not the evidence — the aircraft is.</strong></p>
+
+    <p>This project already lives by that rule. Every claim of progress must be backed by <span class="term" data-definition="An artifact is a real file the work leaves behind — a document, a checked-off list, a test result. Evidence you can inspect, as opposed to a claim someone makes.">artifacts</span>, and small programs called <span class="term" data-definition="A gate is a small automatic checker that inspects the project's files and refuses to accept work whose evidence is missing — like a turnstile that only opens for a valid ticket.">gates</span> inspect those files and reject anything unproven. TASK-20's bet: that same rule is exactly what makes an unattended AI run trustworthy.</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A scheduler kicks off the job — no human involved"},
+      {"highlight":"flow-actor-2","label":"An AI session starts and runs the skill","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"The skill reads and updates the project files"},
+      {"highlight":"flow-actor-2","label":"The session ends and reports: success"},
+      {"highlight":"flow-actor-3","label":"We do NOT take its word — the gate inspects the files","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"The gate issues the real verdict: proven, or rejected"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">⏰</div>
+          <span>Scheduler</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🤖</div>
+          <span>AI Session</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to watch an unattended run</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The inspection, in real code</h2>
+
+    <p>Here is the actual post-flight inspection from TASK-20 — two commands, run after the AI session ends. They are the entire basis for trusting the run:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">node &lt;praxisflux&gt;/spec-bridge/gates/cli.mjs plan .    <span class="code-comment"># must print nothing</span></span>
+<span class="code-line">node &lt;praxisflux&gt;/spec-bridge/gates/cli.mjs check .   <span class="code-comment"># must exit 0, no lag warnings</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Ask the checker: is any work still left undone here? Silence means the job is fully reconciled.</p>
+          <p class="tl">Then ask the gate: does every claimed status match the actual files? A clean pass is the only verdict that counts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Trust the evidence, never the narrator. Engineers call this <em>verification by artifact</em> — and it is the single idea that makes unattended automation safe enough to use.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly. The session's own report is just a claim — the gate inspecting the files is the evidence. That is the autopilot rule."
+           data-explanation-wrong="Not quite. Remember the autopilot: the landing is judged by instruments and inspection, never by the autopilot announcing it went well.">
+        <h3 class="quiz-question">An unattended AI run finishes and reports "all done, everything went great." What should decide whether the work is actually accepted?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The report itself — the AI was there, we were not</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A gate inspecting the files the run left behind</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Reading the full transcript of everything the AI did</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — approvals and merges are genuine judgment calls, so the design keeps a person at exactly those points and nowhere else."
+           data-explanation-wrong="Think about the three station types: machines do exact bookkeeping, AI does the creative middle — so which step is deliberately reserved for people?">
+        <h3 class="quiz-question">In the factory-line picture of this workflow, where do humans deliberately remain?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Watching every AI session as it runs</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nowhere — the goal is to remove people entirely</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>At the judgment calls: approvals and merges</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

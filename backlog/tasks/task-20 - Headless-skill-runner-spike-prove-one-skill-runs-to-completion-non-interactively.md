@@ -3,9 +3,11 @@ id: TASK-20
 title: >-
   Headless skill-runner spike: prove one skill runs to completion
   non-interactively
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-07-11 01:29'
+updated_date: '2026-07-11 03:02'
 labels: []
 dependencies: []
 priority: high
@@ -20,8 +22,37 @@ decision-1's extraction step 2 and the last real unknown in the orchestration st
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A documented, reproducible headless invocation runs the chosen skill end-to-end in a fixture project with exit code reflecting success/failure
-- [ ] #2 The run produces the skill's normal artifacts and passes the relevant gate afterwards, verified by the gate CLI not by transcript reading
-- [ ] #3 Every interactive assumption encountered is recorded as a headless-readiness checklist in docs/ (or the task) with proposed fixes
-- [ ] #4 Findings recorded on the task; follow-up scope (if any) proposed, not silently expanded
+- [x] #1 A documented, reproducible headless invocation runs the chosen skill end-to-end in a fixture project with exit code reflecting success/failure
+- [x] #2 The run produces the skill's normal artifacts and passes the relevant gate afterwards, verified by the gate CLI not by transcript reading
+- [x] #3 Every interactive assumption encountered is recorded as a headless-readiness checklist in docs/ (or the task) with proposed fixes
+- [x] #4 Findings recorded on the task; follow-up scope (if any) proposed, not silently expanded
+- [x] #5 docs/courses/TASK-20/ contains a codebase-to-course artifact describing just this task's work, passing the course gate
+- [x] #6 Examination documented: how per-task course artifacts become a permanent workflow addition (convention, enforcement point, chrome-fossil policy question)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Fixture: scratch project (git + backlog init + linked task + Spec Kit-shaped spec dir) via the TASK-9.7 verification recipe, in a tmp dir.
+2. Headless attempt: claude -p '/spec-bridge:sync' from the fixture root, least-privilege first (--allowedTools scoped to Bash(node/backlog) + reads), --output-format json for cost/duration; escalate flags only as observed failures demand and record each escalation as a checklist item.
+3. Verify by artifacts only: spec-bridge cli plan (must be empty) + check (exit 0, no lag warnings) after the run; never by reading the transcript.
+4. Exercise one corrective loop: re-stale the fixture (regenerate tasks.md), rerun headlessly, re-verify — the n8n gate-node pattern.
+5. Deliverable: docs/headless-runner.md — the exact invocation, observed behavior (incl. Stop-hook/gate behavior in -p mode), cost/wall-clock, and the headless-readiness checklist of interactive assumptions found.
+6. Findings to task notes; propose follow-ups, never silently expand.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Three headless runs of /spec-bridge:sync via claude -p (CLI 2.1.207) against a fixture Backlog+SpecKit project, each verified by artifacts only (plan empty + check clean + spec-dir git status): (1) lag -> In Progress + mirror, 8 turns/49s/$0.71; (2) regeneration + all checked -> Done with derived final summary, 6/43s/$0.67; (3) new phase after Done -> honest backwards move, 10/45s/$0.75. Key findings: exit 0 means session-completed not task-succeeded (verify by gates, never exit codes); --allowedTools is ADDITIVE to inherited user config, not a sandbox — least privilege needs environment isolation (container/clean config); plugins were inherited from the dev machine's marketplace install — orchestrator images must install them explicitly; the skill's SKILL.md output-gate shape self-verified unattended; the plan command kept runs cheap/low-variance. Deliverable: docs/headless-runner.md (recipe, observed behavior, 6-point headless-readiness checklist, not-exercised follow-ups: blocking-Stop behavior in -p, container recipe -> TASK-22 input). Total spike cost ~$2.13.
+
+Scope augmented at user direction (2026-07-10): per-task course artifact (docs/courses/TASK-XX, the-stacks pattern) piloted on this task + permanence examination. Rides PR #33.
+
+Augmentation done: docs/courses/TASK-20/ (3 modules: The Question / The Test Flights / What We Learned, teal chrome, gate passed first build). Permanence: convention documented in docs/task-courses.md (location, scope, build, when, headless-ready framing) + CLAUDE.md finalize step 4 extended. Enforcement decision surfaced, not made: three strengths, with the chrome-fossil policy (course gate checks chrome currency; every historical course fails the day chrome bumps) as the real open question — recommended starting at convention-only and deciding CI policy at the next chrome bump.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Proven: a praxisflux skill runs to completion non-interactively. claude -p '/spec-bridge:sync' with scoped allowedTools completed three scenarios (lag, regeneration->Done, honest backwards move) in a fixture project, each judged by artifacts through the gate CLI (plan empty, check clean, zero spec-dir writes) — never by transcript. Recipe, observed behavior (exit codes are session-level; --allowedTools is additive not a sandbox; plugins inherited from machine install; output-gate-shaped skills self-verify), and a 6-point headless-readiness checklist are documented in docs/headless-runner.md and linked from README. Follow-ups proposed, not expanded: blocking-Stop behavior in -p mode, and the clean-config container recipe (feeds TASK-22). ~$2.13 total spike cost.
+<!-- SECTION:FINAL_SUMMARY:END -->

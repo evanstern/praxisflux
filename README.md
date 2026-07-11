@@ -56,6 +56,9 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 - [`docs/skill-patterns.md`](docs/skill-patterns.md) — how to author a plugin/skill in this suite
   (the shared patterns; read before adding a plugin).
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.
+- [`docs/headless-runner.md`](docs/headless-runner.md) — run a skill non-interactively
+  (`claude -p`), gate-verified: the agent-node recipe for orchestrators, with the
+  headless-readiness checklist.
 - [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
   the composite action (`uses: evanstern/praxisflux@v<version>`) or anywhere via
   `npx @praxisflux/gates`.
