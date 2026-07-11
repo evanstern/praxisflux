@@ -23,6 +23,12 @@ task level.
   `node codebase-to-course/gates/cli.mjs course docs/courses/TASK-XX`.
 - **When:** authored on the task branch as part of finalization, so it rides the same PR as
   the work it describes (task ↔ PR ↔ course stay 1:1).
+- **Exemption — decision-only closures.** A task whose entire deliverable is a recorded
+  decision (a checkpoint closed with rationale in its notes, nothing built) ships no course:
+  the decision record already teaches what happened, and a course about choosing not to
+  build something is the convention consuming itself. The moment a decision task produces
+  an artifact beyond its own record, the exemption ends. (First instance: TASK-23,
+  2026-07-11.)
 - **Headless-ready by construction:** building the course is itself a skill run with an
   output gate, so it slots into the orchestrated flow (`docs/headless-runner.md`) as one more
   agent node + gate node pair.
