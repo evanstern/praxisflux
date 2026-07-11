@@ -21,7 +21,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 9717576758565c3844461c4df10e42507c7f25e7
+verified_against: 631b700ab44bd6fd534e481d19a4a73a1b29c115
 ---
 
 # Test suite
@@ -69,8 +69,10 @@ What each file covers:
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
 - `test/return-leg.test.mjs` — at `done`, a delegated build needs `foldedIn` evidence AND
   durable on-disk residue; a flag alone can't rubber-stamp the return leg.
-- `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing, exceeds/lags/ok
-  verdicts, `checkBridge` blocking, the Stop hook via gate-runner, and `strictDone` mode.
+- `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (including the task's
+  AC block), exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
+  `strictDone` mode, and the deterministic `plan` command (status move, Done summary,
+  post-regeneration re-mirror, no-op board, shell quoting).
 - `test/spec-derive.test.mjs` — pure Spec Kit derivation: lifecycle stages → status,
   per-phase checkbox counts, regenerated `tasks.md` re-deriving fresh, strict-mode
   `analysis.md` requirements, and graceful degradation on malformed files.
