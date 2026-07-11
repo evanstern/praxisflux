@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: a66499f990f3f412fd0bda5b89058cc54c20f89d
+verified_against: 25cc22b0df24fc94b737a6afdcf304a9db0b1ffb
 ---
 
 # praxisflux — system overview
@@ -57,6 +57,9 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 
 - Work is tracked in Backlog.md (`backlog task list --plain`); the board is the plan of
   record, statuses flow To Do → In Progress → Done, and every unit of committed work is a task.
+  Finalizing a task also builds its **per-task course** at `docs/courses/TASK-XX/`
+  (codebase-to-course scoped to that task's work, course-gated, riding the same PR —
+  `docs/task-courses.md`).
 - The repo uses a PR flow: per-task branches pushed to `origin`
   (`github.com:evanstern/praxisflux.git`), merged into `main` via `gh`.
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
