@@ -70,3 +70,19 @@ plan's exact reconciling commands) → agent round (6 turns, $0.64) → npx gate
 2. **The spec-bridge gate proves the board, not the code.** T001 "passing" the gate means the
    bookkeeping is honest; whether `pet.mjs` is any good is exactly what the approval pause
    exists for. Tier boundaries held.
+
+## Run 4 — T002 through the work-mode round (`run-mrfv1d62-ph4fb`, post-TASK-22)
+
+The first "do new work" run exposed a shape gap: with an honest board, the
+reconciliation-driven workflow skipped the agent and parked with nothing to approve
+(run-mrfuvl23, cancelled). The work-mode round fixed it: a trigger prompt now runs
+**Agent 0 before the gate ladder**.
+
+| t | event |
+|---|---|
+| 04:24:17 | checkout: tamagotchi on `pilot/run-mrfv1d62-ph4fb` |
+| 04:24:17 | Work Given? → **Agent 0**: implement T002 (feed / play with energy guard / sleep, honest exits) |
+| 04:26:25 | agent done: exit 0, **18 turns, ~2 min, $1.36** |
+| 04:26:26 | **Gate 0: PASS** — T002 checked, board reconciled |
+| — | human inspection: feed→100 hunger, play→100 happiness, sleep→100 energy; unknown verb exits 2 with usage, no-pet exits 1. Mid-run incident: a human branch-switch under the running agent (recovered; finding recorded) |
+| 04:28:00 | **finish: approved by evan**, merged to main `4e00bbd` — 2/3 spec tasks done, T003 remains |
