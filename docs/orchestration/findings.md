@@ -43,6 +43,15 @@ and host-toolchain execution.
 - **Temporal is where this goes if the loops get serious** — a real programming model for
   retries/compensation and industrial durability — at the cost of running it and writing
   workers. The runner service we built *is* the worker shape Temporal would want.
+- **Two findings from the first post-merge run (the work-mode round):** (1) the original
+  workflow was purely reconciliation-driven — agents fired only on gate objections, and an
+  honest board objects to nothing, so "implement the next task" runs skipped the agent and
+  parked with nothing to approve. Gates *verify* work; they don't *request* it — the
+  work-mode round (trigger prompt → agent before the gate ladder) fixed the shape. (2) The
+  runner's real-repo checkout is a **shared working tree**: a human (or another session)
+  switching branches mid-run happened live and nearly corrupted an in-flight agent round.
+  A production runner needs per-run isolation — clones or git worktrees — not
+  branch-switching in place.
 - **A cost optimization the pilot deliberately skipped**: pure board-sync rounds (scenarios
   1 and 3) went through the agent node (~$0.6/round) for workflow uniformity — but sync is
   now `plan | sh`, a tier-1 operation. A deterministic "reconcile" endpoint on the runner
