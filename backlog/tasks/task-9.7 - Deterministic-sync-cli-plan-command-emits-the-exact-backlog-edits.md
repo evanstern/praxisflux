@@ -1,9 +1,11 @@
 ---
 id: TASK-9.7
 title: 'Deterministic sync: cli ''plan'' command emits the exact backlog edits'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-10 04:10'
+updated_date: '2026-07-10 22:54'
 labels: []
 dependencies:
   - TASK-9.3

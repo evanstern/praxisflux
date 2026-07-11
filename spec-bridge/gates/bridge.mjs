@@ -33,8 +33,10 @@ const RANK = { "to do": 0, "in progress": 1, done: 2 };
 const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_ELIGIBLE]: 2 };
 
 /**
- * Parse one Backlog task file. Returns { id, status, specDir } for a linked task,
- * null for anything else (no marker, unreadable, or not a task file).
+ * Parse one Backlog task file. Returns { id, status, specDir, acs } for a linked task,
+ * null for anything else (no marker, unreadable, or not a task file). `acs` is the task's
+ * acceptance criteria as [{ index, checked, text }] read from the AC:BEGIN/END block —
+ * still read-only; the plan command needs them to compute reconciling edits.
  */
 export function parseLinkedTask(raw) {
   const text = String(raw ?? "");
@@ -46,7 +48,12 @@ export function parseLinkedTask(raw) {
   const id = field("id");
   const status = field("status");
   if (!id) return null;
-  return { id, status, specDir: marker[1] };
+  const acs = [];
+  const block = text.match(/<!-- AC:BEGIN -->([\s\S]*?)<!-- AC:END -->/);
+  if (block)
+    for (const m of block[1].matchAll(/^- \[( |x|X)\] #(\d+)\s+(.*\S)\s*$/gm))
+      acs.push({ index: +m[2], checked: m[1] !== " ", text: m[3] });
+  return { id, status, specDir: marker[1], acs };
 }
 
 /** Scan <root>/backlog/tasks/*.md for linked tasks. Unreadable files are skipped. */
@@ -115,6 +122,90 @@ export function checkBridge(root) {
     }
   }
   return { links, problems, warnings };
+}
+
+/* ── plan: the exact backlog edits that reconcile the board ────────────── */
+
+const PHASE_PREFIX = "Spec phase: ";
+
+/** Single-quote a string for verbatim shell use. */
+const sq = (s) => `'${String(s).replace(/'/g, "'\\''")}'`;
+
+/**
+ * Pure planner for ONE linked task: the ordered `backlog task edit` commands that reconcile
+ * it to its derived state. Command order matters and is: status move → stale phase-AC
+ * removals (highest index first, so earlier indexes stay valid) → phase-AC additions →
+ * check/uncheck at post-edit indexes → one progress note (only when something changed).
+ * ACs that don't start with "Spec phase: " are human-authored and are never touched.
+ */
+export function planLinkedTask(task, derived) {
+  const cmds = [];
+  const edit = (args) => cmds.push(`backlog task edit ${task.id} ${args}`);
+
+  // Status — Done-eligible is the only path to Done and carries the derived final summary.
+  const target = derived.status === STATUS.DONE_ELIGIBLE ? "Done" : derived.status;
+  const statusChanged = String(task.status).toLowerCase() !== target.toLowerCase();
+  if (statusChanged) {
+    if (target === "Done")
+      edit(`-s ${sq("Done")} --final-summary ${sq(`All spec tasks complete (${derived.progressNote}). Derived Done by spec-bridge sync.`)}`);
+    else edit(`-s ${sq(target)}`);
+  }
+
+  // Phase-AC reconciliation. The bridge owns exactly the "Spec phase: " ACs.
+  const phaseByName = new Map((derived.phases || []).map((p) => [p.name, p]));
+  const seen = new Set();
+  const removed = new Set();
+  for (const a of task.acs || []) {
+    if (!a.text.startsWith(PHASE_PREFIX)) continue;
+    const name = a.text.slice(PHASE_PREFIX.length);
+    if (!phaseByName.has(name) || seen.has(name)) removed.add(a.index); // stale or duplicate
+    else seen.add(name);
+  }
+  for (const i of [...removed].sort((a, z) => z - a)) edit(`--remove-ac ${i}`);
+
+  const additions = (derived.phases || []).filter((p) => !seen.has(p.name));
+  for (const p of additions) edit(`--ac ${sq(PHASE_PREFIX + p.name)}`);
+
+  // Post-edit indexes: survivors keep their relative order and renumber from 1; additions
+  // append after them, unchecked. Check/uncheck against what each phase actually proves.
+  const survivors = (task.acs || []).filter((a) => !removed.has(a.index));
+  const finalList = [
+    ...survivors.map((a) => ({ text: a.text, checked: a.checked })),
+    ...additions.map((p) => ({ text: PHASE_PREFIX + p.name, checked: false })),
+  ];
+  finalList.forEach((item, i) => {
+    if (!item.text.startsWith(PHASE_PREFIX)) return; // human-authored: never touched
+    const p = phaseByName.get(item.text.slice(PHASE_PREFIX.length));
+    if (!p) return;
+    const want = p.total > 0 && p.done === p.total;
+    if (want && !item.checked) edit(`--check-ac ${i + 1}`);
+    else if (!want && item.checked) edit(`--uncheck-ac ${i + 1}`);
+  });
+
+  // One note, only when this sync changed something — no churn in the task history.
+  if (cmds.length) {
+    const suffix = statusChanged ? ` — status ${task.status} → ${target}` : "";
+    edit(`--append-notes ${sq(`spec-bridge sync: ${derived.progressNote}${suffix}`)}`);
+  }
+  return cmds;
+}
+
+/**
+ * Plan every linked task under <root>, in queue order. Returns:
+ *   commands — ordered `backlog task edit` lines; empty on a reconciled board (no-op)
+ *   skipped  — [{ id, status }] for verdict-unknown tasks (custom status: don't guess)
+ * Read-only like everything in gates/: plan PRINTS edits, it never executes them.
+ */
+export function planBridge(root) {
+  const commands = [];
+  const skipped = [];
+  const requireAnalysis = loadBridgeConfig(root).strictDone === true;
+  for (const task of findLinkedTasks(root)) {
+    const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
+    if (verdict(task.status, derived.status) === "unknown") { skipped.push({ id: task.id, status: task.status }); continue; }
+    commands.push(...planLinkedTask(task, derived));
+  }
+  return { commands, skipped };
 }
 
 /**

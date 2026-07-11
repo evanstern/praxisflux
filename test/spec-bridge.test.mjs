@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { parseLinkedTask, findLinkedTasks, verdict, checkBridge, bridgeGate } from "../spec-bridge/gates/bridge.mjs";
+import { parseLinkedTask, findLinkedTasks, verdict, checkBridge, planLinkedTask, planBridge, bridgeGate } from "../spec-bridge/gates/bridge.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 
 // evaluate() prefers CLAUDE_PROJECT_DIR over input.cwd; pin the fixture root explicitly.
@@ -42,7 +42,16 @@ const HALF_CHECKED = "## Phase 1: Setup\n- [x] T001 a\n\n## Phase 2: Core\n- [ ]
 
 test("parseLinkedTask extracts id, status, and the Spec marker; others parse to null", () => {
   const linked = parseLinkedTask("---\nid: TASK-3\nstatus: In Progress\n---\n\nOutcome text.\n\nSpec: specs/001-pay/\n");
-  assert.deepEqual(linked, { id: "TASK-3", status: "In Progress", specDir: "specs/001-pay" });
+  assert.deepEqual(linked, { id: "TASK-3", status: "In Progress", specDir: "specs/001-pay", acs: [] });
+
+  const withAcs = parseLinkedTask(
+    "---\nid: TASK-5\nstatus: To Do\n---\n\nSpec: specs/003-c/\n\n## Acceptance Criteria\n" +
+    "<!-- AC:BEGIN -->\n- [ ] #1 Human criterion\n- [x] #2 Spec phase: Setup\n<!-- AC:END -->\n"
+  );
+  assert.deepEqual(withAcs.acs, [
+    { index: 1, checked: false, text: "Human criterion" },
+    { index: 2, checked: true, text: "Spec phase: Setup" },
+  ]);
 
   assert.equal(parseLinkedTask("---\nid: TASK-4\nstatus: Done\n---\n\nNo marker here."), null);
   assert.equal(parseLinkedTask("not a task file at all"), null);
@@ -182,5 +191,83 @@ test("a linked task whose spec dir was deleted derives To Do and blocks anything
     const { problems } = checkBridge(p.root);
     assert.equal(problems.length, 1);
     assert.match(problems[0], /spec\.md missing/);
+  } finally { p.done(); }
+});
+
+/* ── plan: the deterministic sync backbone (TASK-9.7) ─────────── */
+
+const AC = (lines) => `## Acceptance Criteria\n<!-- AC:BEGIN -->\n${lines.join("\n")}\n<!-- AC:END -->`;
+
+test("plan: a lagging task gets a status move, mirrored phase ACs at post-edit indexes, one note", () => {
+  const p = project();
+  try {
+    p.task("TASK-1", "To Do", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": HALF_CHECKED });
+    const { commands, skipped } = planBridge(p.root);
+    assert.deepEqual(skipped, []);
+    assert.deepEqual(commands, [
+      "backlog task edit TASK-1 -s 'In Progress'",
+      "backlog task edit TASK-1 --ac 'Spec phase: Setup'",
+      "backlog task edit TASK-1 --ac 'Spec phase: Core'",
+      "backlog task edit TASK-1 --check-ac 1", // Setup is 1/1; Core (index 2) stays unchecked
+      "backlog task edit TASK-1 --append-notes 'spec-bridge sync: Setup: 1/1 · Core: 0/1 — status To Do → In Progress'",
+    ]);
+  } finally { p.done(); }
+});
+
+test("plan: Done-eligible plans '-s Done' with the derived final summary — the only path to Done", () => {
+  const p = project();
+  try {
+    p.task("TASK-2", "In Progress", `Spec: specs/002-b/\n\n${AC(["- [x] #1 Spec phase: Setup", "- [x] #2 Spec phase: Core"])}`);
+    p.spec("specs/002-b", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_CHECKED });
+    const { commands } = planBridge(p.root);
+    assert.equal(commands.length, 2);
+    assert.match(commands[0], /^backlog task edit TASK-2 -s 'Done' --final-summary 'All spec tasks complete \(Setup: 1\/1 · Core: 1\/1\)\. Derived Done by spec-bridge sync\.'$/);
+    assert.match(commands[1], /--append-notes .*status In Progress → Done/);
+  } finally { p.done(); }
+});
+
+test("plan: post-regeneration re-mirror — stale phase ACs removed highest-first, human ACs untouched", () => {
+  const p = project();
+  try {
+    // tasks.md was regenerated: "Old" phase is gone, "Core" is new, Setup went back to unchecked.
+    p.task("TASK-3", "In Progress", `Spec: specs/003-c/\n\n${AC([
+      "- [ ] #1 Human criterion",
+      "- [x] #2 Spec phase: Old",
+      "- [x] #3 Spec phase: Setup",
+      "- [x] #4 Spec phase: Old",
+    ])}`);
+    p.spec("specs/003-c", { "spec.md": "s", "plan.md": "p", "tasks.md": "## Setup\n- [ ] T1 a\n\n## Core\n- [ ] T2 b\n" });
+    const { commands } = planBridge(p.root);
+    assert.deepEqual(commands, [
+      "backlog task edit TASK-3 --remove-ac 4", // highest index first, so 2 stays valid
+      "backlog task edit TASK-3 --remove-ac 2",
+      "backlog task edit TASK-3 --ac 'Spec phase: Core'",
+      "backlog task edit TASK-3 --uncheck-ac 2", // Setup renumbered to 2 after removals; human AC stays 1, untouched
+      "backlog task edit TASK-3 --append-notes 'spec-bridge sync: Setup: 0/1 · Core: 0/1'",
+    ]);
+    assert.ok(!commands.some((c) => c.includes("Human criterion") || / 1$/.test(c)), "human AC must never be touched");
+  } finally { p.done(); }
+});
+
+test("plan: reconciled board is a no-op; unknown statuses are skipped, never guessed", () => {
+  const p = project();
+  try {
+    p.task("TASK-4", "In Progress", `Spec: specs/004-d/\n\n${AC(["- [x] #1 Spec phase: Setup", "- [ ] #2 Spec phase: Core"])}`);
+    p.spec("specs/004-d", { "spec.md": "s", "plan.md": "p", "tasks.md": HALF_CHECKED });
+    p.task("TASK-5", "Blocked", "Spec: specs/004-d/");
+    const { commands, skipped } = planBridge(p.root);
+    assert.deepEqual(commands, [], `reconciled board must plan nothing, got: ${commands}`);
+    assert.deepEqual(skipped, [{ id: "TASK-5", status: "Blocked" }]);
+  } finally { p.done(); }
+});
+
+test("plan: shell quoting survives apostrophes in phase names and notes", () => {
+  const p = project();
+  try {
+    p.task("TASK-6", "To Do", "Spec: specs/005-e/");
+    p.spec("specs/005-e", { "spec.md": "s", "plan.md": "p", "tasks.md": "## Author's pass\n- [ ] T1 a\n" });
+    const { commands } = planBridge(p.root);
+    assert.ok(commands.some((c) => c.includes(`--ac 'Spec phase: Author'\\''s pass'`)), commands.join("\n"));
   } finally { p.done(); }
 });

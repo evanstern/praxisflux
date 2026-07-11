@@ -1,6 +1,6 @@
 ---
 name: sync
-version: 0.1.0
+version: 0.1.1
 description: Catch the Backlog board up to what the Spec Kit artifacts prove — move each linked task's status, re-mirror phase acceptance criteria from tasks.md, and record progress notes. Use after working a spec, when the user says "sync the board", "update the kanban from the specs", or when the spec-bridge Stop gate warns a task lags its spec.
 ---
 
@@ -16,56 +16,52 @@ even a touch. If the derivation looks wrong, the fix happens in the spec workflo
 
 1. Find the project root (the directory containing `backlog/`).
 2. Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs links <root>`. Empty array → STOP: nothing is
-   linked yet — offer the **link** skill. Otherwise the array (each entry carries the task id,
-   its current status, the derived state, and a verdict) is your work queue. The user may scope
-   sync to one task/spec; then filter the queue to it.
+   linked yet — offer the **link** skill.
 
-## Work — per linked task, in queue order
+## Work — the plan command is the backbone
 
-Skip entries whose verdict is `ok` and whose phase ACs already mirror the derived phases
-(nothing to do); process the rest. All writes via `backlog task edit` — never touch the files.
+The reconciling edits are **computed, not reasoned**. Run:
 
-1. **Status** — set it to exactly what the derivation proves:
-   - derived `To Do` → `-s "To Do"`; derived `In Progress` → `-s "In Progress"`. Yes, this can
-     move a task *backwards* (e.g. after `/speckit.tasks` regenerated `tasks.md` and wiped
-     checkboxes) — an honest regression is the point of the bridge.
-   - derived `Done-eligible` → `-s Done`. This is the ONLY path that moves a linked task to
-     Done. Also write a final summary from the derived state, e.g.
-     `--final-summary "All spec tasks complete (<progressNote>). Derived Done by spec-bridge sync."`
-   - **Strict mode** (`.spec-bridge.json` at the root has `"strictDone": true`): the derivation
-     also demands `analysis.md` in the spec dir with no unresolved CRITICAL findings. If the
-     `state` output shows `analysis.required` blocking Done, tell the user to run
-     `/speckit.analyze` and **save its report as `<specDir>/analysis.md`** — the gate reads
-     artifacts, not chat output. Resolving a CRITICAL finding means fixing it in the spec
-     workflow and re-saving the report, never editing the board.
-   - Verdict `unknown` (custom status outside To Do/In Progress/Done): don't guess — report it
-     to the user and leave the status alone.
-2. **Re-mirror phase ACs** — the ACs spelled `Spec phase: <name>` belong to the bridge; sync
-   owns them wholesale. Read the current list with `backlog task view <id> --plain`, then
-   reconcile against the derived `phases`:
-   - a derived phase with no matching AC → add it (`--ac "Spec phase: <name>"`);
-   - a `Spec phase:` AC whose phase no longer exists in the derivation → remove it
-     (`--remove-ac <index>`; indexes shift after removal — remove highest-index first);
-   - check each phase AC whose phase is fully done (`done === total`), uncheck any checked one
-     that no longer is (`--check-ac` / `--uncheck-ac`).
-   Never add, remove, check, or uncheck an AC that doesn't start with `Spec phase:` — those are
-   human-authored.
-3. **Progress note** — if (and only if) this task's status or any AC changed, append one line:
-   `--append-notes "spec-bridge sync: <progressNote>[ — status <old> → <new>]"`. An unchanged
-   task gets no note (no churn in the task history).
+```sh
+node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs plan <root>
+```
+
+It prints, in execution order, the exact `backlog task edit` commands that reconcile every
+linked task — status moves (including honest *backwards* moves after a regenerated
+`tasks.md`, and `Done-eligible → -s Done` with a derived final summary, the ONLY path that
+moves a linked task to Done), `Spec phase:` AC add/remove/check/uncheck at correct post-edit
+indexes, and one change-only progress note per touched task. An already-reconciled board
+prints nothing. `plan` never executes anything; running the commands is this skill's job.
+
+1. **Scope** — if the user scoped sync to one task/spec, keep only that task's lines
+   (commands are grouped per task, in queue order).
+2. **Sanity-check the lines** — every line must be `backlog task edit <linked-task-id> …` and
+   must never name an AC that doesn't start with `Spec phase:` (those are human-authored; the
+   planner is built to leave them alone — a line that touches one is a bug, stop and report).
+3. **Execute verbatim, in order** — the order is load-bearing (removals are emitted
+   highest-index-first; check/uncheck indexes assume the removals and additions already ran).
+   Do not reorder, dedupe, or "improve" the commands.
+4. **Skipped tasks** — `plan` reports tasks with a status outside To Do/In Progress/Done on
+   stderr (`# <id>: … not planned`). Don't guess — surface them to the user unchanged.
+5. **Strict mode** (`.spec-bridge.json` has `"strictDone": true`): the derivation demands
+   `analysis.md` in the spec dir with no unresolved CRITICAL findings before Done. If `state`
+   output shows `analysis.required` blocking Done, tell the user to run `/speckit.analyze`
+   and **save its report as `<specDir>/analysis.md`** — the gate reads artifacts, not chat
+   output. Resolving a CRITICAL means fixing it in the spec workflow and re-saving the
+   report, never editing the board.
 
 ## Output gate
 
-Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs check <root>`: exit 0, and the tasks you synced
-must no longer appear in its `warn:` lines (a lag you just synced away shouldn't still warn).
-If a problem or leftover lag names a task you touched, fix it before declaring the sync done.
-
-Confirm the one-way contract held: `git status` inside the project must show no modifications
-under any spec dir from this sync (Backlog files under `backlog/` will have changed — that's
-the CLI's doing and expected).
+1. `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs plan <root>` again — must print **nothing** for
+   the tasks you synced (the plan is idempotent; leftover lines mean a command failed).
+2. `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs check <root>` — exit 0, and no `warn:` line may
+   name a task you just synced.
+3. One-way contract held: `git status` must show no modifications under any spec dir from
+   this sync (changes under `backlog/` are the CLI's doing and expected).
 
 ## Handing off
 
-Report per task: old → new status and the progress line. Remind the user that the Stop-hook
-gate keeps enforcing this bridge between syncs, and that a task the derivation moved to Done
-stays Done only as long as the spec artifacts keep proving it.
+Report per task: old → new status and the progress line (both are visible in the executed
+commands). Remind the user that the Stop-hook gate keeps enforcing this bridge between
+syncs, and that a task the derivation moved to Done stays Done only as long as the spec
+artifacts keep proving it.

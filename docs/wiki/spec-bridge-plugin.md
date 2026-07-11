@@ -13,12 +13,12 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 9717576758565c3844461c4df10e42507c7f25e7
+verified_against: 631b700ab44bd6fd534e481d19a4a73a1b29c115
 ---
 
 # spec-bridge plugin
 
-The `spec-bridge` plugin (v0.3.1) makes the Backlog.md board a **derived kanban view over
+The `spec-bridge` plugin (v0.6.3, lockstep with the marketplace) makes the Backlog.md board a **derived kanban view over
 GitHub Spec Kit specs** — composed the praxisflux way, through files and gates, forking neither
 tool. One Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
 mirror `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate
@@ -40,9 +40,16 @@ relative to the project root, the one holding `backlog/`). The **link** skill pl
 marker and seeds `Spec phase: <name>` ACs from `tasks.md` — always via the `backlog` CLI,
 never by hand-editing task files; `gates/bridge.mjs` only reads them.
 
-**Syncing.** The **sync** skill reconciles one way: status strictly follows the derivation
-(backwards moves included), phase ACs are re-mirrored wholesale (human-authored ACs
-untouched), and a progress note (`Setup: 2/2 · Core: 4/7`) is appended when anything changed.
+**Syncing.** The **sync** skill reconciles one way, and its edits are **computed, not
+reasoned**: `cli.mjs plan <root>` prints, in execution order, the exact `backlog task edit`
+commands that reconcile every linked task — status moves (backwards included; `Done-eligible`
+plans `-s Done` with a derived final summary, the only path to Done), `Spec phase:` AC
+removals highest-index-first, additions, check/uncheck at post-edit indexes, and one
+change-only progress note (`Setup: 2/2 · Core: 4/7`) per touched task. Human-authored ACs
+(no `Spec phase:` prefix) are structurally untouchable; verdict-unknown tasks are reported on
+stderr, never guessed; a reconciled board plans nothing. The planner (`planLinkedTask` /
+`planBridge` in `gates/bridge.mjs`, fed by `parseLinkedTask` which also reads the task's
+AC:BEGIN/END block) stays read-only — plan prints, the skill executes and re-verifies.
 
 **The gate.** `gates/bridge.mjs` finds project roots downwards (`findRootsDownwards` +
 `hasChild("backlog")`), parses linked tasks, and compares each task's frontmatter status to
@@ -75,7 +82,7 @@ Missing or malformed config means checkbox-only mode.
 ## Operational notes
 
 - Read-only CLI backbone: `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir> |
-  links <root> | check <root>`.
+  links <root> | check <root> | plan <root>`.
 - Known tradeoff (from the README): Spec Kit works branch-per-feature, so a linked task file
   lives on the feature branch until merge — `main`'s board lags in-flight spec work; the
   board is authoritative per branch.
