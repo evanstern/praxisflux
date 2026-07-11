@@ -1,9 +1,11 @@
 ---
 id: TASK-21
 title: 'grounding-wiki ''plan'' command: compute the wiki re-pin edits'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-11 01:30'
+updated_date: '2026-07-11 03:14'
 labels: []
 dependencies: []
 priority: medium
@@ -23,3 +25,14 @@ Apply TASK-9.7's computed-not-reasoned pattern to the wiki freshness loop, which
 - [ ] #3 On a fresh corpus plan emits nothing (idempotent no-op)
 - [ ] #4 wiki-update SKILL.md rewritten with plan as its backbone; tests cover safe re-pin, needs-review, and no-op; skill + marketplace versions bumped
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. freshness.mjs (read-only): pure classifyStampDiff(changedLines, noteBody) — the ONE provably-safe class is 'every changed line is a lockstep version stamp (json/yaml version keys, npx @pkg@semver pins) AND the note body contains no semver literal'; everything else NEEDS-REVIEW (default). planFreshness(root, corpusDir) walks stale notes and returns entries {note, pin, head, commits, files(+/-), cls, reason}.
+2. grounding-wiki/scripts/repin.mjs — the writer the plan emits (gates stay read-only, spec-bridge/backlog precedent): sets verified_against to a validated full hash; runAsCli + exported repin() for tests.
+3. cli.mjs plan <root> [corpus-dir]: RE-PIN-ONLY entries print runnable 'node .../repin.mjs <note> <head>' lines with a # reason; NEEDS-REVIEW entries print a # work-order line (pin, commits since, per-file +/- summary). Fresh corpus prints nothing, exit 0.
+4. Tests in test/grounding-wiki.freshness.test.mjs (throwaway git repo fixture already there): stamp-only -> REPIN + emitted command runs verbatim -> gate green; stamp-only but note mentions a semver -> REVIEW; code diff -> REVIEW with summary; fresh -> silent.
+5. wiki-update SKILL.md rewritten around plan (bump 0.1.1 -> 0.1.2); marketplace 0.6.4; wiki re-pin cadence.
+6. Finalize + per-task course (docs/courses/TASK-21) + PR.
+<!-- SECTION:PLAN:END -->
