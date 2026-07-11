@@ -43,6 +43,11 @@ and host-toolchain execution.
 - **Temporal is where this goes if the loops get serious** — a real programming model for
   retries/compensation and industrial durability — at the cost of running it and writing
   workers. The runner service we built *is* the worker shape Temporal would want.
+- **A cost optimization the pilot deliberately skipped**: pure board-sync rounds (scenarios
+  1 and 3) went through the agent node (~$0.6/round) for workflow uniformity — but sync is
+  now `plan | sh`, a tier-1 operation. A deterministic "reconcile" endpoint on the runner
+  would handle every no-creative-work round for free, reserving the model for rounds that
+  author something. The pilot proves the seam exists; wiring it is a one-endpoint change.
 - **The load-bearing insight is orchestrator-independence**: because state is derived from
   artifacts and gates speak model, the praxisflux flow ported to n8n with a ~150-line generic
   runner and one JSON file. Nothing in the chassis knows n8n exists. Swapping orchestrators

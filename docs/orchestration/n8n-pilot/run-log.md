@@ -37,7 +37,29 @@ mood faces), verify by running it, check the box, sync the board.
 | 03:55:00 | **Gate 1: PASS** — T001 checked, board In Progress, phase ACs mirrored, plan empty |
 | 03:55:00 | APPROVAL NEEDED — parked at the Wait node |
 | — | human inspection before approving: `node pet.mjs hatch Praxis && node pet.mjs status` → a happy ASCII cat at 80/80/100. Two hygiene findings (below), fixed pre-approval |
-| *(pending)* | approval + merge to the tamagotchi's main |
+| 04:01:51 | **finish: approved by evan** — `pilot/run-mrftwdca-2yerm` merged `--no-ff` into the tamagotchi's main, HEAD `d88c7e7`. T002/T003 remain on its board for future pipeline runs |
+
+## Scenario 3 — Done promotion lands through the human node (`run-mrfu9vrl-6ik7p`)
+
+Fixture: scratch `done-eligible` — spec fully proven (all tasks checked), board lagging at
+**In Progress**. The pipeline's agent round runs sync, whose derivation is the ONLY path
+that moves a linked task to Done; the human then approves the landing.
+
+| t | event |
+|---|---|
+| 04:02:55 | checkout: scratch fixture `done-eligible` |
+| 04:02:55 | **Gate 0: FAIL** — plan non-empty (the Done promotion is pending) |
+| 04:02:56 | Agent round 1 — sync |
+| 04:03:52 | **Gate 1: PASS** — verified in the fixture: task `✔ Done`, final summary "All spec tasks complete (Setup: 1/1 · Core: 1/1). Derived Done by spec-bridge sync." |
+| 04:04:33 | **finish: approved by evan**, HEAD `60f2c1d`. Done was promoted by sync's derivation inside the pipeline; the human approved the landing — the tier boundary the flow is built around |
+
+## Addendum — the gate node consumes the published npm artifact (`run-mrfudcxk-nlnao`)
+
+After the three workflow runs, the runner's gate step was switched from the local checkout
+CLI to **`npx -y @praxisflux/gates --gates spec-bridge`** — the same published surface any
+external orchestrator would consume — and re-verified directly against the runner on a fresh
+`exceeds` fixture: npx gate FAIL (exit 1, full failure text — which now also carries the
+plan's exact reconciling commands) → agent round (6 turns, $0.64) → npx gate PASS.
 
 ### Findings from scenario 2's inspection window
 

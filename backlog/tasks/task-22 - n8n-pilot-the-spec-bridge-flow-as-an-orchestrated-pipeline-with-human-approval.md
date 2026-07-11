@@ -3,9 +3,11 @@ id: TASK-22
 title: >-
   n8n pilot: the spec-bridge flow as an orchestrated pipeline with human
   approval
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-11 01:30'
+updated_date: '2026-07-11 03:45'
 labels: []
 dependencies:
   - TASK-20
@@ -26,3 +28,19 @@ decision-1's pilot, updated for the three-tier node taxonomy (deterministic CLI 
 - [ ] #3 Workflow JSON + checkout-service artifacts committed (or attached to the task) with a README explaining each node tier
 - [ ] #4 A findings note compares n8n vs GHA-environments vs Temporal for this flow — input to the orchestration presentation
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Architecture: n8n in Docker (orchestrator only); a zero-dep node runner service on the host exposing whitelisted steps as HTTP endpoints — POST /checkout (generate the scratch target project; two fixtures: 'lagging' and 'exceeds'), POST /agent (claude -p headless per docs/headless-runner.md, corrective prompt support), POST /gate (spec-bridge check + plan-empty verdict by artifacts), POST /approve-finish (records the human decision). n8n reaches it at host.docker.internal.
+2. Workflow (exported JSON): webhook trigger -> checkout -> gate -> IF fail -> agent(with gate stderr) -> gate again (bounded retries via attempt counter) -> Wait node (human approval webhook) -> finish. The forced-failure demo is REAL: the 'exceeds' fixture makes the first gate fail, the corrective loop fixes it via the agent.
+3. Run it: one full pass incl. the gate-failure iteration and the human approval resume; save the run log.
+4. Deliverables under docs/orchestration/n8n-pilot/: workflow.json, runner.mjs, fixture generator, README (node tiers explained), run-log.md; findings note comparing n8n vs GHA-environments vs Temporal.
+5. Per-task course docs/courses/TASK-22; finalize + PR.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+User-directed fixture upgrade: the pilot target is a REAL mini project — a tamagotchi TUI at ~/Claude/Code/tamagotchi (persistent, super simple to start) with a genuine Spec Kit spec; the agent node implements actual tasks.md items headlessly, not just board sync. The scratch 'exceeds' fixture stays for the forced-failure corrective-loop demo.
+<!-- SECTION:NOTES:END -->

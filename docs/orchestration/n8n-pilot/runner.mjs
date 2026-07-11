@@ -50,11 +50,18 @@ function scratchFixture(fixture) {
   mkdirSync(join(dir, "specs", "001-pay"), { recursive: true });
   writeFileSync(join(dir, "specs", "001-pay", "spec.md"), "s");
   writeFileSync(join(dir, "specs", "001-pay", "plan.md"), "p");
-  writeFileSync(join(dir, "specs", "001-pay", "tasks.md"), "## Phase 1: Setup\n- [x] T001 a\n\n## Phase 2: Core\n- [ ] T002 b\n");
+  const allDone = fixture === "done-eligible";
+  writeFileSync(join(dir, "specs", "001-pay", "tasks.md"),
+    `## Phase 1: Setup\n- [x] T001 a\n\n## Phase 2: Core\n- [${allDone ? "x" : " "}] T002 b\n`);
   if (fixture === "exceeds") {
     // The forced-failure scenario is REAL: the board claims Done while the spec proves
     // In Progress — the gate's own failure text becomes the agent's corrective prompt.
     execFileSync("backlog", ["task", "edit", "TASK-1", "-s", "Done"], { cwd: dir });
+  }
+  if (allDone) {
+    // The promotion scenario: spec fully proven, board lagging at In Progress — sync's
+    // Done-eligible -> Done move happens in the pipeline, the human approves the landing.
+    execFileSync("backlog", ["task", "edit", "TASK-1", "-s", "In Progress"], { cwd: dir });
   }
   git(dir, "add", "-A");
   git(dir, "commit", "-qm", `fixture: ${fixture}`);
@@ -106,12 +113,16 @@ function agent({ runId, prompt, correction }) {
 function gate({ runId }) {
   const run = runs.get(runId);
   if (!run) throw new Error(`unknown runId ${runId}`);
+  // The check half runs the PUBLISHED npm artifact — the pilot consumes the same
+  // @praxisflux/gates surface any external orchestrator would, not a repo checkout.
+  const check = spawnSync("npx", ["-y", "@praxisflux/gates", "--gates", "spec-bridge", "--path", "."],
+    { cwd: run.dir, encoding: "utf8", timeout: 120_000 });
+  // plan-empty is the reconciliation half (plan is part of the plugin, not the npm gate CLI).
   const plan = spawnSync("node", [SPEC_CLI, "plan", "."], { cwd: run.dir, encoding: "utf8" });
-  const check = spawnSync("node", [SPEC_CLI, "check", "."], { cwd: run.dir, encoding: "utf8" });
   const planEmpty = plan.status === 0 && plan.stdout.trim() === "";
-  const checkPass = check.status === 0 && !/^warn:/m.test(check.stdout);
+  const checkPass = check.status === 0 && !/warn:/m.test(check.stdout);
   const pass = planEmpty && checkPass;
-  log(`gate ${runId}: ${pass ? "PASS" : "FAIL"} (planEmpty=${planEmpty} checkExit=${check.status})`);
+  log(`gate ${runId}: ${pass ? "PASS" : "FAIL"} (planEmpty=${planEmpty} npxCheckExit=${check.status})`);
   return {
     pass,
     // The corrective prompt for the agent node, verbatim — the gates already speak model.
