@@ -1,11 +1,11 @@
 ---
 id: TASK-9
 title: 'spec-bridge plugin: Backlog.md kanban as the derived view over Spec Kit specs'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 02:26'
-updated_date: '2026-07-10 03:07'
+updated_date: '2026-07-11 01:37'
 labels: []
 dependencies: []
 priority: medium
@@ -30,3 +30,9 @@ A new praxis plugin bridging GitHub Spec Kit and Backlog.md through files + gate
 <!-- SECTION:NOTES:BEGIN -->
 Bundle PR (9.2 link + 9.3 sync + 9.4 gate) built on 9.1's derivation. AC2 verified live on a scratch Spec Kit-shaped project (git+backlog init in job tmp): link plants marker -> lag warning while board trails spec.md -> sync to In Progress -> premature Done blocked by real stop.mjs (exit 2, message names TASK, spec dir, '1 of 2 tasks unchecked') -> all boxes checked -> Done allowed (exit 0). AC3 covered by spec-bridge/README.md (derivation table + one-way contract + branch-per-feature tradeoff). Remaining before epic Done: TASK-9.5 (strict analyze-gated Done), TASK-9.6 (TUI checkpoint).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+spec-bridge shipped complete: pure one-way derivation on the chassis (lib/spec-derive.mjs), link + sync skills, the Stop-hook bridge gate (exceeds blocks, lags warns), opt-in strict Done (analysis.md), and — from the first real spin's findings — the deterministic plan command (TASK-9.7) that makes sync computed-not-reasoned. Proven on a real Spec Kit lifecycle end to end (link, multiple syncs, tasks.md regeneration re-mirror, cheat-Done blocked, strict-mode flow, proven Done allowed) and consumable outside the repo via @praxisflux/gates. Subtasks 9.1-9.5 + 9.7 Done; the two deferred LOWs spun off as standalone TASK-23 (micro-TUI checkpoint) and TASK-24 (strict-mode lag warning) and archived as subtasks. All three parent ACs checked.
+<!-- SECTION:FINAL_SUMMARY:END -->
