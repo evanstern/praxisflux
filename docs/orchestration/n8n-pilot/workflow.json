@@ -244,6 +244,44 @@
         "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, approvedBy: $json.body.approvedBy }) }}",
         "options": {}
       }
+    },
+    {
+      "name": "Work Given?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Trigger').item.json.body.prompt || '' }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent 0",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        150
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt }) }}",
+        "options": {
+          "timeout": 660000
+        }
+      }
     }
   ],
   "connections": {
@@ -262,7 +300,7 @@
       "main": [
         [
           {
-            "node": "Gate 0",
+            "node": "Work Given?",
             "type": "main",
             "index": 0
           }
@@ -394,6 +432,35 @@
         [
           {
             "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Work Given?": {
+      "main": [
+        [
+          {
+            "node": "Agent 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gate 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 0": {
+      "main": [
+        [
+          {
+            "node": "Gate 0",
             "type": "main",
             "index": 0
           }
