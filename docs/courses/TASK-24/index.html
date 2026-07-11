@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-24 — The Silent Almost</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #E06B56;
+      --color-accent-hover: #C85A47;
+      --color-accent-light: #FDECEA;
+      --color-accent-muted: #E89585;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-24 — The Silent Almost</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Silent Almost" role="tab" aria-label="Module 1: The Silent Almost"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Warn, Never Block" role="tab" aria-label="Module 2: Warn, Never Block"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Silent Almost</span>
+    <h1>Every box checked. Nothing happens.</h1>
+
+    <p>This project's task board has a watchdog — a <span class="term" data-definition="A gate is a small automatic checker that inspects the project's files and refuses to accept work whose evidence is missing — like a turnstile that only opens for a valid ticket.">gate</span> that compares every task's claimed status against what its files actually prove. It knew three situations:</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">⛔</div>
+        <h4 class="pattern-title">Overclaiming</h4>
+        <p class="pattern-desc">The board says Done but the files disagree. BLOCKED — loudly, immediately.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🐢</div>
+        <h4 class="pattern-title">Lagging</h4>
+        <p class="pattern-desc">The files are ahead of the board. A gentle warning: run the sync.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">😶</div>
+        <h4 class="pattern-title">Honest</h4>
+        <p class="pattern-desc">Board and files agree. Silence — no news is good news. <em>Usually.</em></p>
+      </div>
+    </div>
+
+    <h2>The trap inside "honest"</h2>
+
+    <p>The project has an optional <span class="term" data-definition="Strict mode here means: checked boxes aren't enough to finish a task — you also need a saved analysis report with no unresolved critical problems in it.">strict mode</span>: finishing a task requires not just every checkbox ticked, but a saved analysis report with no unresolved <strong>CRITICAL</strong> findings. Now imagine: every box checked, report missing. The task honestly says In&nbsp;Progress. The gate sees "honest" — and says <em>nothing</em>.</p>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🕳️</div>
+      <div class="callout-content">
+        <strong class="callout-title">The silent almost</strong>
+        <p>Done is unreachable, and no part of the system says so. You finished everything on the list, and the finish line quietly moved — discoverable only if you happen to ask the right diagnostic command.</p>
+      </div>
+    </div>
+
+    <p>Watch the moment the old gate goes quiet:</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"Last checkbox ticked — the work list is complete"},
+      {"highlight":"flow-actor-2","label":"Gate compares board vs files","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"Board says In Progress. Files prove In Progress. Verdict: honest"},
+      {"highlight":"flow-actor-2","label":"Old behavior: honest means silent — the gate says nothing"},
+      {"highlight":"flow-actor-3","label":"Meanwhile Done is blocked by a missing report nobody mentioned","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"The human waits for a finish line that will never announce itself"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">✅</div>
+          <span>Work list</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Gate</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🙋</div>
+          <span>Human</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to watch the silence happen</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>Where the finish line actually is</h2>
+
+    <p>The rule that creates the trap is real code — the project's single source of truth for "how done is this spec":</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">status = has(<span class="code-string">"plan.md"</span>) &amp;&amp; tasksTotal &gt; <span class="code-number">0</span> &amp;&amp; tasksDone === tasksTotal &amp;&amp; analysisOk</span>
+<span class="code-line">  ? STATUS.DONE_ELIGIBLE</span>
+<span class="code-line">  : STATUS.IN_PROGRESS;</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">A task can only finish when the plan exists, the work list is non-empty, every item is checked — AND the analysis requirement is satisfied.</p>
+          <p class="tl">All four true: eligible to be marked Done.</p>
+          <p class="tl">Any one false: still In Progress — including when the ONLY missing piece is that analysis report.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — the status is truthful, so the honesty check passes. The problem isn't a lie; it's that a true status can still hide an invisible blocker."
+           data-explanation-wrong="Careful: the board says In Progress and the files prove In Progress. Is anything actually dishonest here?">
+        <h3 class="quiz-question">Every checkbox is done, the report is missing, and the board says In Progress. Why doesn't the gate complain?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A bug — the gate should have blocked</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Strict mode turns the gate off</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The status is genuinely honest — and the gate only spoke when honesty failed</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — a system can be perfectly truthful and still leave you stuck, because truth-checking and progress-checking are different jobs. That gap is what TASK-24 closes."
+           data-explanation-wrong="Think about what the learner in this situation is missing: is it accurate information, or a nudge about what to do next?">
+        <h3 class="quiz-question">What's the general lesson of the silent almost?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Honesty checks are useless without blocking</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A truthful system can still strand you — surfacing the next blocker is a separate job from catching lies</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Strict mode causes more problems than it solves</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Warn, Never Block</span>
+    <h1>A smoke detector, not a locked door</h1>
+
+    <p>The fix is one carefully-aimed rule. When a task is honest AND every box is checked AND the <em>only</em> thing between it and the finish line is the analysis requirement — the gate now speaks up. On the warning channel. Never the blocking one.</p>
+
+    <p>Why never block? Because blocking is for <em>dishonesty</em>, and this task is telling the truth. What it needs is a smoke detector — something that says "you're one report away, here's exactly what to do" — not a locked door punishing it for a state it honestly declared.</p>
+
+    <h2>The new rule, verbatim</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">v === <span class="code-string">"ok"</span> &amp;&amp;</span>
+<span class="code-line">derived.analysis?.required &amp;&amp;</span>
+<span class="code-line">derived.status !== STATUS.DONE_ELIGIBLE &amp;&amp;</span>
+<span class="code-line">derived.tasksTotal &gt; <span class="code-number">0</span> &amp;&amp;</span>
+<span class="code-line">derived.tasksDone === derived.tasksTotal &amp;&amp;</span>
+<span class="code-line">existsSync(join(root, task.specDir, <span class="code-string">"plan.md"</span>))</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Only for tasks whose status is honest — liars are already handled by the blocker…</p>
+          <p class="tl">…and only when strict mode is actually demanding an analysis report…</p>
+          <p class="tl">…and the task has not reached the finish line…</p>
+          <p class="tl">…despite the work list being real…</p>
+          <p class="tl">…and every single item on it being checked…</p>
+          <p class="tl">…and the plan existing too — so the report is provably the ONLY missing piece.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>Six conditions, and every one earns its place: drop any of them and the warning would fire in situations where the report <em>isn't</em> the only blocker — turning a precise nudge into noise people learn to ignore.</p>
+
+    <h2>What it sounds like now</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Last checkbox done! Wrapping up for the day.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Gate</span>
+            <p>Heads up — all 12 spec tasks checked; Done blocked by strict mode: analysis.md missing. Run the analysis and save its report into the spec folder.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>…I would have stared at that In Progress column for a week. Report saved. Anything else?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Gate</span>
+            <p>One unresolved CRITICAL in your report: payment idempotency unhandled. Fix it in the spec workflow and re-save. Still not blocking you — you're honest. Just… informed.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Maintainer</span>
+            <p>Resolved and re-saved. Sync just moved it to Done. A whole finish line I can actually see now.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Good automation separates its voices: one channel that <em>stops</em> you (for things that must not happen) and one that <em>informs</em> you (for things you'd want to know). Collapse them and people either get blocked unfairly or learn to ignore everything.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — blocking is reserved for status that overclaims. This task's status is true, so it gets information, not punishment."
+           data-explanation-wrong="Recall the smoke-detector framing: what is the blocking channel actually FOR in this system?">
+        <h3 class="quiz-question">Why does the near-miss warning refuse to block, even though Done is genuinely unreachable?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Blocking would be too slow to compute</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Blocking is for dishonest status — this task is telling the truth and just needs a pointer</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Warnings and blocks are the same thing with different wording</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — with half the list unchecked, the report is NOT the only blocker, and saying 'blocked by strict mode' would be false. Precision is what keeps the warning trustworthy."
+           data-explanation-wrong="Check the six conditions: which one exists precisely to keep this warning quiet while ordinary work is still in flight?">
+        <h3 class="quiz-question">A strict-mode task has 6 of 12 boxes checked and no analysis report. Should the new warning fire?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>No — the report isn't the only blocker yet, so the warning would be misleading noise</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes — the earlier the reminder, the better</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes, but only as a blocking error</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
