@@ -1,0 +1,405 @@
+{
+  "name": "praxisflux-pilot",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "name": "Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "praxisflux-pilot",
+      "parameters": {
+        "path": "pilot",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "name": "Checkout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/checkout",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fixture: $json.body.fixture, target: $json.body.target }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Gate 0",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/gate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Proven 0?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.pass }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        450
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate 0').item.json.failureText }) }}",
+        "options": {
+          "timeout": 660000
+        }
+      }
+    },
+    {
+      "name": "Gate 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        450
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/gate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Proven 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        450
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.pass }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate 1').item.json.failureText }) }}",
+        "options": {
+          "timeout": 660000
+        }
+      }
+    },
+    {
+      "name": "Gate 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/gate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Proven 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.pass }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Give Up",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        750
+      ],
+      "parameters": {
+        "errorMessage": "={{ 'gate still failing after bounded agent rounds: ' + $('Gate 2').item.json.failureText }}"
+      }
+    },
+    {
+      "name": "Notify Human",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/notify",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, resumeUrl: $execution.resumeUrl }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Await Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2200,
+        300
+      ],
+      "webhookId": "praxisflux-pilot-wait",
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {}
+      }
+    },
+    {
+      "name": "Finish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/finish",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, approvedBy: $json.body.approvedBy }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout": {
+      "main": [
+        [
+          {
+            "node": "Gate 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate 0": {
+      "main": [
+        [
+          {
+            "node": "Proven 0?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proven 0?": {
+      "main": [
+        [
+          {
+            "node": "Notify Human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 1": {
+      "main": [
+        [
+          {
+            "node": "Gate 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate 1": {
+      "main": [
+        [
+          {
+            "node": "Proven 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proven 1?": {
+      "main": [
+        [
+          {
+            "node": "Notify Human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 2": {
+      "main": [
+        [
+          {
+            "node": "Gate 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate 2": {
+      "main": [
+        [
+          {
+            "node": "Proven 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proven 2?": {
+      "main": [
+        [
+          {
+            "node": "Notify Human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Human": {
+      "main": [
+        [
+          {
+            "node": "Await Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Approval": {
+      "main": [
+        [
+          {
+            "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "praxisfluxpilot1"
+}
