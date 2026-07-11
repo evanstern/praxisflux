@@ -41,7 +41,9 @@ plan of record. Statuses flow **To Do → In Progress → Done**. Per task:
    (`--append-notes`) → tick criteria as they come true (`--check-ac <n>`). **Commit after each
    meaningful slice** (see commit rule below).
 4. **Finalize** — all ACs checked + DoD checked, write `--final-summary`, set `-s "Done"`, and
-   commit. (`backlog instructions task-finalization` is the full checklist.)
+   commit. (`backlog instructions task-finalization` is the full checklist.) Then build the
+   **per-task course** at `docs/courses/TASK-XX/` — codebase-to-course scoped to just this
+   task's work, passing the course gate — so it rides the same PR (`docs/task-courses.md`).
 5. **Scope discipline** — discovered out-of-scope work: stop and ask; never silently expand a
    task. Follow-up tasks need approval before creation.
 6. **Subtasks one at a time** — each gets its own plan, notes, checked ACs, and final summary.

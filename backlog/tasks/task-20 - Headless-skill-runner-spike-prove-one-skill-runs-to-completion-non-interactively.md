@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-11 01:29'
-updated_date: '2026-07-11 02:23'
+updated_date: '2026-07-11 03:02'
 labels: []
 dependencies: []
 priority: high
@@ -26,6 +26,8 @@ decision-1's extraction step 2 and the last real unknown in the orchestration st
 - [x] #2 The run produces the skill's normal artifacts and passes the relevant gate afterwards, verified by the gate CLI not by transcript reading
 - [x] #3 Every interactive assumption encountered is recorded as a headless-readiness checklist in docs/ (or the task) with proposed fixes
 - [x] #4 Findings recorded on the task; follow-up scope (if any) proposed, not silently expanded
+- [x] #5 docs/courses/TASK-20/ contains a codebase-to-course artifact describing just this task's work, passing the course gate
+- [x] #6 Examination documented: how per-task course artifacts become a permanent workflow addition (convention, enforcement point, chrome-fossil policy question)
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -43,6 +45,10 @@ decision-1's extraction step 2 and the last real unknown in the orchestration st
 
 <!-- SECTION:NOTES:BEGIN -->
 Three headless runs of /spec-bridge:sync via claude -p (CLI 2.1.207) against a fixture Backlog+SpecKit project, each verified by artifacts only (plan empty + check clean + spec-dir git status): (1) lag -> In Progress + mirror, 8 turns/49s/$0.71; (2) regeneration + all checked -> Done with derived final summary, 6/43s/$0.67; (3) new phase after Done -> honest backwards move, 10/45s/$0.75. Key findings: exit 0 means session-completed not task-succeeded (verify by gates, never exit codes); --allowedTools is ADDITIVE to inherited user config, not a sandbox — least privilege needs environment isolation (container/clean config); plugins were inherited from the dev machine's marketplace install — orchestrator images must install them explicitly; the skill's SKILL.md output-gate shape self-verified unattended; the plan command kept runs cheap/low-variance. Deliverable: docs/headless-runner.md (recipe, observed behavior, 6-point headless-readiness checklist, not-exercised follow-ups: blocking-Stop behavior in -p, container recipe -> TASK-22 input). Total spike cost ~$2.13.
+
+Scope augmented at user direction (2026-07-10): per-task course artifact (docs/courses/TASK-XX, the-stacks pattern) piloted on this task + permanence examination. Rides PR #33.
+
+Augmentation done: docs/courses/TASK-20/ (3 modules: The Question / The Test Flights / What We Learned, teal chrome, gate passed first build). Permanence: convention documented in docs/task-courses.md (location, scope, build, when, headless-ready framing) + CLAUDE.md finalize step 4 extended. Enforcement decision surfaced, not made: three strengths, with the chrome-fossil policy (course gate checks chrome currency; every historical course fails the day chrome bumps) as the real open question — recommended starting at convention-only and deciding CI policy at the next chrome bump.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-20 — Teaching a Skill to Run Itself</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-20 — Teaching a Skill to Run Itself</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Question" role="tab" aria-label="Module 1: The Question"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Test Flights" role="tab" aria-label="Module 2: The Test Flights"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="What We Learned" role="tab" aria-label="Module 3: What We Learned"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Question</span>
+    <h1>Could nobody be there?</h1>
+
+    <p>Every task in this project ends the same way: a person watches an AI assistant do the work in a chat window, reads along, nudges it, and decides when it is finished. TASK-20 asked a simple, slightly unsettling question: <strong>what if nobody was watching?</strong></p>
+
+    <p>Could a <span class="term" data-definition="A skill is a packaged, reusable procedure an AI assistant knows how to follow — like a recipe card it can pick up and execute. This project ships several skills as plugins.">skill</span> run start-to-finish with no human in the chat — and could we still <em>trust</em> the result?</p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🤖</div>
+      <div class="callout-content">
+        <strong class="callout-title">"Headless," in plain terms</strong>
+        <p>Running a program <strong>headless</strong> means running it with no screen and no person attached — fire it off, walk away, collect the result. The "head" that is missing is you.</p>
+      </div>
+    </div>
+
+    <h2>Why bother?</h2>
+
+    <p>Because if a skill can run unattended, a whole workflow can be wired together like a factory line — with humans only at the decision points that genuinely need them. That is the project's larger plan, and it needs three kinds of stations:</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">⚙️</div>
+        <h4 class="pattern-title">Machine steps</h4>
+        <p class="pattern-desc">Boring, exact work — checks and bookkeeping — done by small programs that behave the same way every time.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🤖</div>
+        <h4 class="pattern-title">AI steps</h4>
+        <p class="pattern-desc">The genuinely creative middle — writing, deciding, fixing — done by an AI session running a skill. <em>This</em> is the step TASK-20 had to prove.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🙋</div>
+        <h4 class="pattern-title">Human steps</h4>
+        <p class="pattern-desc">Real judgment calls — approvals and merges — kept for people, on purpose.</p>
+      </div>
+    </div>
+
+    <h2>The autopilot rule</h2>
+
+    <p>Think of an autopilot flight. The airline does not decide the landing went well because the autopilot <em>says</em> "landing complete." It checks the instruments, the flight recorder, the aircraft itself. <strong>The report is not the evidence — the aircraft is.</strong></p>
+
+    <p>This project already lives by that rule. Every claim of progress must be backed by <span class="term" data-definition="An artifact is a real file the work leaves behind — a document, a checked-off list, a test result. Evidence you can inspect, as opposed to a claim someone makes.">artifacts</span>, and small programs called <span class="term" data-definition="A gate is a small automatic checker that inspects the project's files and refuses to accept work whose evidence is missing — like a turnstile that only opens for a valid ticket.">gates</span> inspect those files and reject anything unproven. TASK-20's bet: that same rule is exactly what makes an unattended AI run trustworthy.</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A scheduler kicks off the job — no human involved"},
+      {"highlight":"flow-actor-2","label":"An AI session starts and runs the skill","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"The skill reads and updates the project files"},
+      {"highlight":"flow-actor-2","label":"The session ends and reports: success"},
+      {"highlight":"flow-actor-3","label":"We do NOT take its word — the gate inspects the files","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"The gate issues the real verdict: proven, or rejected"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">⏰</div>
+          <span>Scheduler</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🤖</div>
+          <span>AI Session</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to watch an unattended run</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The inspection, in real code</h2>
+
+    <p>Here is the actual post-flight inspection from TASK-20 — two commands, run after the AI session ends. They are the entire basis for trusting the run:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">node &lt;praxisflux&gt;/spec-bridge/gates/cli.mjs plan .    <span class="code-comment"># must print nothing</span></span>
+<span class="code-line">node &lt;praxisflux&gt;/spec-bridge/gates/cli.mjs check .   <span class="code-comment"># must exit 0, no lag warnings</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Ask the checker: is any work still left undone here? Silence means the job is fully reconciled.</p>
+          <p class="tl">Then ask the gate: does every claimed status match the actual files? A clean pass is the only verdict that counts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Trust the evidence, never the narrator. Engineers call this <em>verification by artifact</em> — and it is the single idea that makes unattended automation safe enough to use.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly. The session's own report is just a claim — the gate inspecting the files is the evidence. That is the autopilot rule."
+           data-explanation-wrong="Not quite. Remember the autopilot: the landing is judged by instruments and inspection, never by the autopilot announcing it went well.">
+        <h3 class="quiz-question">An unattended AI run finishes and reports "all done, everything went great." What should decide whether the work is actually accepted?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The report itself — the AI was there, we were not</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A gate inspecting the files the run left behind</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Reading the full transcript of everything the AI did</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — approvals and merges are genuine judgment calls, so the design keeps a person at exactly those points and nowhere else."
+           data-explanation-wrong="Think about the three station types: machines do exact bookkeeping, AI does the creative middle — so which step is deliberately reserved for people?">
+        <h3 class="quiz-question">In the factory-line picture of this workflow, where do humans deliberately remain?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Watching every AI session as it runs</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nowhere — the goal is to remove people entirely</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>At the judgment calls: approvals and merges</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · The Test Flights</span>
+    <h1>Three runs, nobody watching</h1>
+
+    <p>A claim like "AI can run unattended" is worthless without a test. So TASK-20 built a small throwaway project — a practice dummy with a task board and a work plan — and launched the real skill at it three times, using one command.</p>
+
+    <h2>The launch command</h2>
+
+    <p>This is the actual command, verbatim. One line of it does almost all the talking:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">claude -p <span class="code-string">"/spec-bridge:sync"</span> \</span>
+<span class="code-line">  --allowedTools <span class="code-string">"Bash(node:*),Bash(backlog:*),Bash(git:*),Read,Glob,Grep"</span> \</span>
+<span class="code-line">  --output-format json &gt; run.json</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Start an AI session with no chat window, and hand it one instruction: run the board-syncing skill.</p>
+          <p class="tl">Grant it a specific toolbox — it may run these named programs and read files, nothing we did not list.</p>
+          <p class="tl">When it finishes, save a machine-readable receipt (cost, timing, result) into a file for inspection.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>The <span class="term" data-definition="A flag is an option you add to a command to change its behavior — like adding '--json' to get structured data instead of plain text. When instructing an AI agent, you would say: add a flag for JSON output.">flag</span> <code>-p</code> is the whole trick: it tells the <span class="term" data-definition="A CLI (command-line interface) is a program you operate by typing commands in a terminal instead of clicking buttons. Claude Code is a CLI.">CLI</span> to run one instruction to completion and exit — no conversation, no waiting for a human.</p>
+
+    <h2>The three flights</h2>
+
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>The catch-up</strong>
+          <p>The board was behind the real work. Unattended, the skill moved the task forward and mirrored the plan onto it. <em>8 turns · 49 seconds · $0.71</em></p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>The finish line</strong>
+          <p>The work plan was regenerated and everything checked off. The skill replaced the stale plan items and moved the task to Done — with a written summary derived from the files. <em>6 turns · 43 seconds · $0.67</em></p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>The honest retreat</strong>
+          <p>New unfinished work appeared after Done. The skill moved the task <em>backwards</em> — from Done to In Progress — because the files no longer proved Done. <em>10 turns · 45 seconds · $0.75</em></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Flight three is the one that matters. Any system can march forward; a trustworthy one <em>retreats</em> when the evidence stops supporting its status. No human told it to — the rule is in the files.</p>
+      </div>
+    </div>
+
+    <h2>Listen in on a run</h2>
+
+    <p>If the three parties could talk, an unattended run would sound like this:</p>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="orchestrator" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">⏰</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Scheduler</span>
+            <p>Claude, the board in this project is behind the real work. Run the sync skill. I will not be reading along.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="claude" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">AI Session</span>
+            <p>On it. The skill says: compute the exact edits first, then apply them, then verify my own work before I finish.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="claude" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">AI Session</span>
+            <p>Done — board updated, my own checks pass, and I never touched the plan files. Ending the session. Exit code: 0.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Gate</span>
+            <p>Nice speech. Inspecting the files anyway… nothing left to reconcile, every status matches its evidence. NOW it is done.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="orchestrator" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">⏰</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Scheduler</span>
+            <p>Verdict logged. Total: 49 seconds, 71 cents, zero humans interrupted.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <p>Notice who has the last word before the scheduler logs anything: the gate. Every flight ended with that same inspection — silence from the checker, a clean pass from the gate, and zero stray edits outside the skill's permitted territory.</p>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — moving backwards is the system being honest. The files stopped proving Done, so Done had to go. That is the behavior that makes unattended runs trustworthy."
+           data-explanation-wrong="Look at flight three again: new unfinished work appeared after the task was Done. What should a status do when its evidence disappears?">
+        <h3 class="quiz-question">A month from now, an unattended run moves a finished-looking task from Done back to In Progress. What is the most likely explanation?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The AI glitched — statuses should never move backwards</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>New unfinished work appeared, so the files no longer prove Done</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Someone forgot to tell the AI the task was finished</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — the toolbox list is the point. An unattended session gets exactly the named tools and nothing else you intended to hand it. (Module 3 has a surprising wrinkle about this.)"
+           data-explanation-wrong="Re-read the launch command translation: the middle line is a list of named programs. What is it doing?">
+        <h3 class="quiz-question">In the launch command, what is the <code>--allowedTools</code> line trying to do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Hand the session a specific, named toolbox for the job</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Speed the session up by skipping safety checks</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Tell the AI which skill to run</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 3 · What We Learned</span>
+    <h1>The surprises are the deliverable</h1>
+
+    <p>The spike proved the happy path — but its real value is three findings that were <em>not</em> obvious going in. Each one changes how you should think about automating AI work, in this project or your own.</p>
+
+    <h2>Finding 1: exit code 0 is not a gold star</h2>
+
+    <p>Every run reported success the same way — even a probe that was set up to be under-equipped for the job. Here is a real receipt, straight from a run's saved output:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">{</span>
+<span class="code-line">  <span class="code-property">"is_error"</span>: <span class="code-keyword">false</span>,</span>
+<span class="code-line">  <span class="code-property">"subtype"</span>: <span class="code-string">"success"</span>,</span>
+<span class="code-line">  <span class="code-property">"num_turns"</span>: <span class="code-number">10</span>,</span>
+<span class="code-line">  <span class="code-property">"total_cost_usd"</span>: <span class="code-number">0.754</span></span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The receipt for one run, written as structured data…</p>
+          <p class="tl">"No error happened" — meaning the session ran without crashing…</p>
+          <p class="tl">"success" — but careful: this only means the session finished, not that the work is right…</p>
+          <p class="tl">The AI took ten back-and-forth steps with its tools…</p>
+          <p class="tl">…and the whole run cost about 75 cents.</p>
+          <p class="tl">End of the receipt.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong class="callout-title">Common mistake</strong>
+        <p>Automation that treats "the program exited cleanly" as "the task succeeded." A finished session and a correct result are different facts — only the gate inspecting the files can confirm the second one.</p>
+      </div>
+    </div>
+
+    <h2>Finding 2: the toolbox list adds, it does not fence</h2>
+
+    <p>The biggest surprise. One probe deliberately left the important tools OFF the allowed list — and the run used them anyway, freely. Why? The machine it ran on already had its own standing permissions, and the launch command's list only <em>adds</em> to those. It is not a fence; it is a gift registry.</p>
+
+    <p>The lesson for any real deployment: true limits must come from the <em>environment</em> — a sealed <span class="term" data-definition="A container is a sealed, disposable mini-computer inside your computer. Whatever runs inside it gets only what you packed into it — a fresh, controlled environment every time.">container</span> with a clean configuration — not from the launch command's options.</p>
+
+    <h2>Finding 3: the robot borrowed the house keys</h2>
+
+    <p>The test project was empty, yet the skill was found and ran perfectly. How? The <em>machine</em> had the plugin installed, and the unattended session quietly inherited it. Convenient on a laptop — but a trap for automation: a fresh machine in the cloud has none of that. Whatever the run needs must be packed in explicitly.</p>
+
+    <h2>The pre-flight checklist</h2>
+
+    <p>The findings boil down to a checklist any skill must pass before it can run unattended. This is now a permanent document in the project:</p>
+
+    <div class="badge-list">
+      <div class="badge-item">
+        <code class="badge-code">1 · ends with proof</code>
+        <span class="badge-desc">The skill finishes by verifying its own work against files — never by asking a person a question</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">2 · decisions from files</code>
+        <span class="badge-desc">Every choice it needs is readable from the project — anything needing human judgment is split out as a human step</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">3 · fails loudly</code>
+        <span class="badge-desc">When it cannot finish, the leftover evidence must make the gate fail — a polite apology in the transcript helps nobody</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">4 · declares its needs</code>
+        <span class="badge-desc">Tools and plugins are named so a container can pack them — never assumed from someone's laptop</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">5 · machine core, AI shell</code>
+        <span class="badge-desc">Everything mechanical is a plain program; the AI handles only the genuinely creative part — cheaper, steadier runs</span>
+      </div>
+      <div class="badge-item">
+        <code class="badge-code">6 · scoped writes</code>
+        <span class="badge-desc">It is declared up front which files the skill may change, so the run can be audited afterwards</span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Nothing on this checklist is about making the AI smarter. Unattended automation is earned with <em>structure</em> — proof at the end, limits from the environment, needs declared up front. The intelligence was never the bottleneck.</p>
+      </div>
+    </div>
+
+    <p>With the question answered and the checklist written, the path is open for the next step: wiring these unattended runs into a real production line, with the gates as checkpoints and a person holding the final approval.</p>
+
+    <div class="quiz-container" id="quiz-module3">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — a clean exit only says the session finished. The gate inspecting the files is what confirms the work, and finding 1 exists because those two facts diverge."
+           data-explanation-wrong="Careful — this is finding 1. What did the receipt's success label actually promise?">
+        <h3 class="quiz-question">Your overnight automation reports: every AI run exited cleanly with "success." What do you actually know?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The work is done and correct</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nothing at all — the reports are meaningless</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The sessions finished without crashing — the gates still owe you the real verdict</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — the launch list only adds to whatever permissions the machine already grants. A sealed container with a clean configuration is what actually limits an unattended run."
+           data-explanation-wrong="Remember the gift-registry surprise: the probe used tools that were left OFF its list. Where did those permissions come from?">
+        <h3 class="quiz-question">You want an unattended AI run truly limited to reading files — no running programs. Based on finding 2, what actually enforces that?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Listing only Read tools in the launch command</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Running it in a sealed environment that grants nothing else</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Adding a line to the instruction asking it nicely not to run programs</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — checklist item 3. A failure that leaves the gate failing is visible to the machinery; a failure that only lives in the transcript vanishes the moment nobody reads it."
+           data-explanation-wrong="Think about who — or what — is reading the results of an unattended run. Where does a failure need to show up to be noticed?">
+        <h3 class="quiz-question">A skill hits a wall mid-run with nobody watching. Per the checklist, what is the RIGHT way for it to fail?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Leave the files in a state the gate will flag — the failure is inspectable</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Write a clear apology and explanation in its final message</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Quietly undo everything so the project looks untouched</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
