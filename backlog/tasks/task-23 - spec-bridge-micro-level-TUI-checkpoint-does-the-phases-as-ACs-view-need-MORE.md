@@ -1,9 +1,11 @@
 ---
 id: TASK-23
 title: 'spec-bridge micro-level TUI checkpoint: does the phases-as-ACs view need MORE'
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-07-11 01:36'
+updated_date: '2026-07-11 04:46'
 labels: []
 dependencies: []
 priority: low
@@ -18,5 +20,17 @@ Spun off from TASK-9.6 (parent TASK-9 closed 2026-07-10; subtask archived) — d
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Decision recorded (in this task's notes) on whether/what to build, based on actual usage of the bridge
+- [x] #1 Decision recorded (in this task's notes) on whether/what to build, based on actual usage of the bridge
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Decision (user-confirmed 2026-07-11): DO NOTHING FURTHER. The checkpoint's question — does phases-as-ACs need a richer live micro view? — was answered sideways by usage: (1) the mechanical-sync friction became the deterministic plan command (TASK-9.7); (2) the silent strict-mode block became the near-miss warning (TASK-24); (3) the n8n pilot's execution UI (TASK-22) turned out to be the live view a micro-TUI would have offered — gate verdicts, agent rounds, parked approvals, per-node payloads, in real time. What nobody missed in practice: watching individual T-task checkbox flips. A bespoke tasks.md watcher would duplicate the orchestration surface. Revisit only if a real usage pain re-raises it — as a new task.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Decision checkpoint closed: no micro-level TUI gets built. The general appetite for MORE was satisfied by three shipped things the first spin could not have foreseen — the plan command (computed sync), the strict-mode near-miss warning, and the n8n pilot's execution view, which is a richer live surface than a tasks.md watcher would have been. Decision recorded with rationale in notes; any future revival starts as a fresh task grounded in a concrete usage pain.
+<!-- SECTION:FINAL_SUMMARY:END -->
