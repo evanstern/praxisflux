@@ -59,6 +59,9 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 - [`docs/headless-runner.md`](docs/headless-runner.md) — run a skill non-interactively
   (`claude -p`), gate-verified: the agent-node recipe for orchestrators, with the
   headless-readiness checklist.
+- [`docs/orchestration/`](docs/orchestration/) — the n8n pilot (workflow, runner service,
+  run log) and the orchestrator findings: the praxisflux flow under external orchestration
+  with humans only at the approval seam.
 - [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
   the composite action (`uses: evanstern/praxisflux@v<version>`) or anywhere via
   `npx @praxisflux/gates`.

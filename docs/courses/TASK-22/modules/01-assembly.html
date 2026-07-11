@@ -1,0 +1,161 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Assembly Line</span>
+    <h1>Who does what, and who says so</h1>
+
+    <p>Earlier work proved each station alone: checkers that judge work by its files, an AI that runs a <span class="term" data-definition="A skill is a packaged, reusable procedure an AI assistant knows how to follow — like a recipe card it can pick up and execute.">skill</span> with nobody watching, and small programs that compute routine bookkeeping. TASK-22 wired them into an actual assembly line, run by an <span class="term" data-definition="An orchestrator is software that runs a multi-step process for you: it calls each step in order, decides what happens on failure, and can pause to wait for a person. Here: n8n, a popular open-source one.">orchestrator</span> called <span class="term" data-definition="n8n is an open-source workflow tool: you draw boxes (steps) and arrows (what happens next), and it executes them. It ran in a container for this pilot.">n8n</span>.</p>
+
+    <h2>Two processes, three kinds of station</h2>
+
+    <p>The design splits cleanly. n8n owns <em>sequencing</em> — which step happens next, and where to pause for a person. A tiny local service (the <strong>runner</strong>) owns <em>execution</em> — it has the actual tools, exposed as a handful of named steps:</p>
+
+    <div class="icon-rows">
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-1)">⚙️</div>
+        <div>
+          <strong>Deterministic stations — checkout, gate</strong>
+          <p>Exact, repeatable programs. The gate judges work purely by the files it left behind.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-2)">🤖</div>
+        <div>
+          <strong>The model station — agent</strong>
+          <p>An unattended AI session, used only for genuinely creative work: fixing what a gate names, or writing new code.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-3)">🙋</div>
+        <div>
+          <strong>The human station — approve</strong>
+          <p>The line physically parks until a person posts their approval. No approval, no landing — by structure, not by policy.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Watch a run move down the line</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A web request starts the run — n8n takes over"},
+      {"highlight":"flow-actor-2","label":"Runner checks out the target project on a fresh branch","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-3","label":"Gate inspects the files — and FAILS, in writing","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-2","label":"The gate report becomes the AI agent instructions, verbatim","packet":true,"from":"actor-3","to":"actor-2"},
+      {"highlight":"flow-actor-3","label":"Gate inspects again — PASS","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"The line parks. A person reviews and posts approval","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-4","label":"Approval merges the branch — the run lands"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">🌐</div>
+          <span>Trigger</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🔧</div>
+          <span>Runner</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Gate</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🙋</div>
+          <span>Human</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to start a run</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The gate station, verbatim</h2>
+
+    <p>Here is the runner's actual gate step. Note whose judgment it consults — a <span class="term" data-definition="A published package is code shipped to a public registry (here: npm) under a version number, so anyone — or any machine — can download and run that exact version.">published package</span>, the same one any outsider would download:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> check = <span class="code-function">spawnSync</span>(<span class="code-string">"npx"</span>, [<span class="code-string">"-y"</span>, <span class="code-string">"@praxisflux/gates"</span>, <span class="code-string">"--gates"</span>, <span class="code-string">"spec-bridge"</span>, <span class="code-string">"--path"</span>, <span class="code-string">"."</span>],</span>
+<span class="code-line">  { cwd: run.dir, encoding: <span class="code-string">"utf8"</span>, timeout: <span class="code-number">120_000</span> });</span>
+<span class="code-line"><span class="code-keyword">const</span> pass = planEmpty &amp;&amp; checkPass;</span>
+<span class="code-line"><span class="code-keyword">return</span> { pass, failureText: pass ? <span class="code-string">""</span> : [plan.stdout.trim(), check.stdout.trim()].filter(Boolean).join(<span class="code-string">"\n"</span>) };</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Download-and-run the project&rsquo;s published checker — the exact same one anyone on the internet would get…</p>
+          <p class="tl">…pointed at this run&rsquo;s working folder, with a two-minute time limit.</p>
+          <p class="tl">The verdict: the bookkeeping must be fully reconciled AND the checker must approve.</p>
+          <p class="tl">On failure, hand back the checker&rsquo;s complaint word-for-word — it becomes the AI&rsquo;s repair instructions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>The failure message and the repair instructions are the <em>same text</em>. When your checkers write error messages a person could act on, a machine can act on them too — that one habit is what makes the retry loop free.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the pause is structural. The merge step is only reachable through the parked wait, and only a human posting approval resumes it."
+           data-explanation-wrong="Think about the line parking at the human station: what physically happens to the run until someone posts approval?">
+        <h3 class="quiz-question">What stops this assembly line from merging work no human ever saw?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A rule in the AI agent instructions asking it not to merge</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The workflow structurally parks before the merge step until a person posts approval</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The gate refuses to pass unless a human has logged in recently</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — and that is why the gate consults the published package: an outside orchestrator gets the identical judgment, so the pipeline works anywhere the package can be downloaded."
+           data-explanation-wrong="Look at the gate station code again: where does the checker it runs come from?">
+        <h3 class="quiz-question">Why does the gate download the published checker package instead of using the copy sitting in the project's own folder?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The published copy runs faster</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Local copies are forbidden by the orchestrator</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It proves any outside system would reach the same verdict — the pipeline is not tied to this machine</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 25cc22b0df24fc94b737a6afdcf304a9db0b1ffb
+verified_against: c2c19ee3003d411a403ba85dc11f29deff9a14e0
 ---
 
 # praxisflux — system overview
@@ -71,6 +71,9 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
   CI, the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that
   refuses to end a turn while they fail. PRs merge with merge commits, never squash —
   squashing would orphan the commits wiki notes pin.
+- The flow also runs under external orchestration with humans only at the approval seam:
+  `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
+  pilot — workflow, host runner service, run log, orchestrator findings).
 - Guiding principles (from `README.md`): shared plumbing but domain-specific content;
   phase-separated skills; plant a project `CLAUDE.md` (plugins have no always-on slot);
   gates enforce "status can't exceed proven artifacts"; handoffs use a shared transport

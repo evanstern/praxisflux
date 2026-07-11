@@ -1,0 +1,197 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Three Runs and a Cat</span>
+    <h1>The line, proven live</h1>
+
+    <p>A pipeline diagram proves nothing. TASK-22 ran the line three times against three different situations — including one where the AI wrote real code that now lives on a real project's main branch.</p>
+
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>The lie detector</strong>
+          <p>A project whose board claimed Done over unfinished work. Gate FAILED in writing → the AI repaired it from the gate&rsquo;s own words ($0.61) → gate PASSED → a human approved the landing.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>The cat</strong>
+          <p>A real mini-project: a terminal <span class="term" data-definition="A tamagotchi is a virtual pet you keep alive by feeding and playing with it — here, one that lives in your terminal as ASCII art.">tamagotchi</span>. The AI station implemented its first feature from the spec — state, hatching, mood faces — on a fresh branch ($1.38). Gate passed; a human met the cat, then approved the merge.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>The promotion</strong>
+          <p>A fully-proven spec with a lagging board. The pipeline promoted the task to Done — derived from the files, never hand-set — and the human approved that landing too.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>The approval window earned its keep</h2>
+
+    <p>In run 2, the human inspection before approving caught something no gate checks: the pet&rsquo;s <em>save file</em> — runtime data created just by playing with it — was about to ride into the merge, because the landing step commits everything in the folder. One quick fix later, save files are permanently ignored.</p>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong class="callout-title">The boundary, stated plainly</strong>
+        <p>The gate proves the <em>bookkeeping</em> is honest. It does not review the <em>work</em>. That review is exactly what the human station is for — automation that skips it isn't a pipeline, it&rsquo;s a liability.</p>
+      </div>
+    </div>
+
+    <h2>Run 2, as it happened</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="n8n" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🌐</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">n8n</span>
+            <p>New run: target is the tamagotchi repo. Runner, fresh branch please. Gate, first opinion?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Gate</span>
+            <p>FAIL. The board lags its spec — reconciliation pending. Here is exactly what is owed.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="agent" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Agent</span>
+            <p>Reading the spec… implementing T001: state file, ticks, hatch, four mood faces. Hatched a test pet — it works. Box checked, board synced. 14 turns, $1.38.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="gate" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🚧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Gate</span>
+            <p>PASS. Reconciled, honest, nothing pending. Parking the line for a human.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-4)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-4)">Evan</span>
+            <p>Ran it myself — happy little cat, 80/80/100. Caught a save file about to sneak into the merge; ignored it. Approved.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" data-sender="n8n" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🌐</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">n8n</span>
+            <p>Approval received. Branch merged to main. The cat is production software now.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>Meet the deliverable</h2>
+
+    <p>This is real output from the code the AI station wrote — the actual pet, as merged:</p>
+
+    <div class="translation-block animate-in" data-validate="off">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">$ node pet.mjs status</span>
+<span class="code-line">  /\_/\ </span>
+<span class="code-line"> ( ^.^ )</span>
+<span class="code-line">  &gt; ^ &lt; </span>
+<span class="code-line">Praxis is feeling happy</span>
+<span class="code-line">hunger    [########--] 80/100</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Ask the pet how it is doing…</p>
+          <p class="tl">…and get a face drawn in text characters…</p>
+          <p class="tl">…this one has perky ears and bright eyes…</p>
+          <p class="tl">…and whiskers, because the AI had standards.</p>
+          <p class="tl">The mood line: picked from whichever stat is doing worst.</p>
+          <p class="tl">Ten-segment bars for each stat — neglect makes them drop in real time.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Nothing in the underlying system knows n8n exists. Because state lives in files and checkers judge files, the whole flow ported to an orchestrator with one small connector service — swapping orchestrators is a plumbing decision, not a redesign.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the gate certifies honest bookkeeping; judging whether the work itself is good is the human station's job. Two different questions, two different stations."
+           data-explanation-wrong="Careful — recall the save-file catch: which station found it, and why was it the ONLY one that could?">
+        <h3 class="quiz-question">In run 2, the gate passed — yet the human still found a problem before approving. What does that show?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The gate was broken and needs fixing</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Gates and humans answer different questions — honest bookkeeping vs. good work — and the line needs both</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Humans should re-do every check the gate already did</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — because everything meaningful lives in files, and every judgment is derived from files, any orchestrator that can call the steps gets identical behavior. The tool is swappable; the doctrine is the architecture."
+           data-explanation-wrong="Recall the final insight: what is it about the system that made the n8n hookup a small connector instead of a rebuild?">
+        <h3 class="quiz-question">Your team wants to swap n8n for a different workflow tool next year. Based on this pilot, how big is that job?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Small — state lives in files and gates judge files, so only the connector layer changes</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Huge — the whole workflow logic lives inside n8n now</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Impossible — orchestrators lock you in by design</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
