@@ -271,3 +271,48 @@ test("plan: shell quoting survives apostrophes in phase names and notes", () => 
     assert.ok(commands.some((c) => c.includes(`--ac 'Spec phase: Author'\\''s pass'`)), commands.join("\n"));
   } finally { p.done(); }
 });
+
+/* ── strict-mode near-miss warning (TASK-24) ──────────────────── */
+
+test("strict near-miss: all boxes checked + analysis blocking Done warns through the gate-runner, never blocks", (t) => {
+  const p = project();
+  t.after(() => p.done());
+  writeFileSync(join(p.root, ".spec-bridge.json"), '{ "strictDone": true }');
+  p.task("TASK-1", "In Progress", "Spec: specs/001-a/");
+  p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_CHECKED });
+
+  // missing analysis.md -> non-blocking warning naming the report and where to save it
+  let r = evalAt(p.root);
+  assert.equal(r.block, false, r.message);
+  assert.match(r.warnings, /all 2 spec tasks checked; Done blocked by strict mode: analysis\.md missing/);
+  assert.match(r.warnings, /specs\/001-a\/analysis\.md/);
+
+  // unresolved CRITICAL -> warning names the finding verbatim
+  p.spec("specs/001-a", { "analysis.md": "# report\nCRITICAL: payment idempotency unhandled\n" });
+  r = evalAt(p.root);
+  assert.equal(r.block, false, r.message);
+  assert.match(r.warnings, /unresolved CRITICAL finding\(s\).*payment idempotency unhandled/);
+
+  // resolved CRITICAL -> Done-eligible; the task now lags (ordinary lag warning, not this one)
+  p.spec("specs/001-a", { "analysis.md": "# report\nCRITICAL: payment idempotency unhandled — resolved\n" });
+  r = evalAt(p.root);
+  assert.equal(r.block, false);
+  assert.ok(!/blocked by strict mode/.test(r.warnings), r.warnings);
+});
+
+test("strict near-miss: silent in checkbox-only mode and while tasks remain unchecked", (t) => {
+  const p = project();
+  t.after(() => p.done());
+  // checkbox-only mode: same shape, no config -> derives Done-eligible, ordinary lag warning only
+  p.task("TASK-1", "In Progress", "Spec: specs/001-a/");
+  p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_CHECKED });
+  let { warnings, problems } = checkBridge(p.root);
+  assert.ok(!warnings.some((w) => w.includes("blocked by strict mode")), warnings.join("; "));
+
+  // strict mode but tasks unchecked: honest In Progress, no near-miss warning
+  writeFileSync(join(p.root, ".spec-bridge.json"), '{ "strictDone": true }');
+  p.spec("specs/001-a", { "tasks.md": HALF_CHECKED });
+  ({ warnings, problems } = checkBridge(p.root));
+  assert.deepEqual(problems, []);
+  assert.ok(!warnings.some((w) => w.includes("blocked by strict mode")), warnings.join("; "));
+});

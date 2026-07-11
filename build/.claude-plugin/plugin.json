@@ -1,6 +1,6 @@
 {
   "name": "build",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Implement a SPEC and return findings for a lesson to fold back in. Split out of educate.",
   "author": {
     "name": "praxisflux maintainers"

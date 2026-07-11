@@ -1,9 +1,11 @@
 ---
 id: TASK-24
 title: 'spec-bridge strict mode: warn when Done is blocked only by the analysis gate'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-11 01:36'
+updated_date: '2026-07-11 04:31'
 labels: []
 dependencies: []
 priority: low
@@ -23,3 +25,11 @@ Spun off from TASK-9.8 (parent TASK-9 closed 2026-07-10; subtask archived) — f
 - [ ] #3 No such warning in checkbox-only mode, or while tasks.md still has unchecked tasks
 - [ ] #4 Tests through gate-runner evaluate() assert these surface as warnings, never problems
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. checkBridge (spec-bridge/gates/bridge.mjs): after the verdict, when verdict is 'ok' AND strict mode is on AND spec.md+plan.md present AND all tasks checked AND Done-eligible is blocked ONLY by the analysis requirement -> push a non-blocking lag-style warning naming the exact reason (analysis.md missing w/ the save-the-report fix, or the unresolved CRITICAL findings verbatim). Never a problem — the status is honest.
+2. Tests through gate-runner evaluate(): missing-analysis warning, CRITICAL warning (naming the finding), silence in checkbox-only mode, silence while tasks remain unchecked, and warnings-never-problems.
+3. Bump marketplace 0.6.5; wiki plan/repin cadence; per-task course docs/courses/TASK-24; finalize + PR.
+<!-- SECTION:PLAN:END -->

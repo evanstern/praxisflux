@@ -119,6 +119,25 @@ export function checkBridge(root) {
       warnings.push(
         `[spec-bridge] ${task.id} is "${task.status}" but ${task.specDir} already derives "${derived.status}" — run the spec-bridge sync skill to catch the board up.`
       );
+    } else if (
+      // Strict-mode near-miss: the status is honest ("ok"), every checkbox is checked, and
+      // the ONLY thing between this task and Done-eligible is the analysis requirement.
+      // Without this notice the state is silent — Done is out of reach and nothing says so
+      // until someone thinks to run `state`. Warn (the warn channel), never block.
+      v === "ok" &&
+      derived.analysis?.required &&
+      derived.status !== STATUS.DONE_ELIGIBLE &&
+      derived.tasksTotal > 0 &&
+      derived.tasksDone === derived.tasksTotal &&
+      existsSync(join(root, task.specDir, "plan.md"))
+    ) {
+      const a = derived.analysis;
+      warnings.push(
+        `[spec-bridge] ${task.id}: all ${derived.tasksTotal} spec tasks checked; Done blocked by strict mode: ` +
+        (!a.present
+          ? "analysis.md missing — run /speckit.analyze and save its report as " + `${task.specDir}/analysis.md`
+          : `unresolved CRITICAL finding(s) in analysis.md: ${a.criticals.join(" | ")}`)
+      );
     }
   }
   return { links, problems, warnings };
