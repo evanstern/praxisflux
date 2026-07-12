@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 97faf5237adcbedab4128d99075d74ca0595e09b
+verified_against: 873d8bdcbb27f328a3ca7ce67347edf18b8323d2
 ---
 
 # Build and release

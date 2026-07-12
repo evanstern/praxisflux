@@ -21,7 +21,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 97faf5237adcbedab4128d99075d74ca0595e09b
+verified_against: 873d8bdcbb27f328a3ca7ce67347edf18b8323d2
 ---
 
 # Test suite
@@ -90,7 +90,10 @@ What each file covers:
   `topics/WIKI.md`): table parsing, rendering, and staleness warnings.
 
 **Hook and CI enforcement.** A tracked hook at `.githooks/pre-commit` (enabled once per clone
-with `git config core.hooksPath .githooks`) runs, in order: `node --test`, then
+with `git config core.hooksPath .githooks`) runs, in order: `node --test` (wrapped in
+`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE` — in a worktree checkout git hands hooks
+an absolute `GIT_DIR` that the suite's tmpdir fixture repos would otherwise inherit,
+committing onto the real branch), then
 `node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`, then
 `node scripts/check-docs.mjs` — "keep the suite green and the catalog honest before every
 commit." It is `set -e`, so any failure blocks the commit. A sibling `.githooks/pre-push`
