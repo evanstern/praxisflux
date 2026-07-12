@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@pipeline'
 created_date: '2026-07-12 01:23'
-updated_date: '2026-07-12 02:43'
+updated_date: '2026-07-12 02:52'
 labels: []
 dependencies: []
 priority: medium
@@ -48,10 +48,12 @@ T002 landed: workflow.json ladder — Reconcile + Gate R + Reconciled? between P
 T003 landed: test-reconcile.sh green on a scratch runner (random port) — exceeds: gate FAIL → 5 plan commands → gate PASS; done-eligible: gate FAIL → 6 commands (incl. the Done promotion) → gate PASS; zero /agent lines in the runner log = $0 model spend. README ladder (diagram + reconcile-first bullet) and run-log addendum updated.
 
 spec-bridge sync: Endpoint: 2/2 · Proven: 1/1 — status In Progress → Done
+
+Human-tier verification (the ceremony on PR #44): test-reconcile.sh run independently from the worktree — both fixtures gate-FAIL -> reconcile (5 and 6 plan commands executed) -> gate-PASS with zero /agent calls; test-isolation.sh still 5/5 on the modified runner; workflow ladder reviewed (Reconcile + Gate R + Reconciled? before Agent 1). Implemented END-TO-END by the pipeline itself (TASK-30 phase B, run-mrh660hx-adnns): two 10-minute timeout kills survived via commit-per-slice discipline; the agent self-diagnosed and patched a real worktree hazard (.githooks GIT_DIR leak — collateral core.bare flip on the host repo repaired by the human tier); the agent ALSO ran the full wiki cadence unprompted, obeying the worktree's CLAUDE.md.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-All spec tasks complete (Endpoint: 2/2 · Proven: 1/1). Derived Done by spec-bridge sync.
+POST /reconcile shipped: plan-emitted backlog commands executed verbatim (comments kept as context, anything else errors), re-plan verified, {ran, planEmpty} returned — no model, ever. Workflow ladder: Gate 0 fail -> Reconcile -> Gate R -> only then the agent; exceeds and done-eligible fixtures complete at $0 model spend, proven by the self-contained test-reconcile.sh. Pilot README/run-log updated; wiki notes re-verified. Implemented entirely by the praxisflux pipeline in an isolated worktree of this repo (TASK-30 phase B), landed as PR #44 via the approval-gated PR flow. Bonus root-cause fix: pre-commit now scrubs GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE so fixture repos stay hermetic in worktrees.
 <!-- SECTION:FINAL_SUMMARY:END -->

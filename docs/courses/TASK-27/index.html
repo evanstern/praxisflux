@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-27 — Bookkeeping Is Not Thinking</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-27 — Bookkeeping Is Not Thinking</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The $0 Round" role="tab" aria-label="Module 1: The $0 Round"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Born of the Pipeline" role="tab" aria-label="Module 2: Born of the Pipeline"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The $0 Round</span>
+    <h1>Stop paying a genius to file paperwork</h1>
+
+    <p>The pipeline's early runs had a quiet inefficiency: whenever the <span class="term" data-definition="A gate is a small automatic checker that inspects the project's files and refuses to accept work whose evidence is missing or out of date.">gate</span> failed because the task board was merely out of date — pure filing, no thinking — the workflow summoned a full AI session to fix it. About 60 cents and a minute of world-class intelligence, spent ticking boxes a program had <em>already computed the exact fixes for</em>.</p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🧾</div>
+      <div class="callout-content">
+        <strong class="callout-title">The tell</strong>
+        <p>The planner's output IS the fix: a list of ready-to-run commands. When the remedy is already written down, executing it is clerical work — and clerks should be free.</p>
+      </div>
+    </div>
+
+    <h2>The new station, verbatim</h2>
+
+    <p>This code was written by the pipeline itself (more on that in module 2). Note the two safety choices — the refusal rail and the honest ending:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!line.startsWith(<span class="code-string">"backlog task edit "</span>)) <span class="code-keyword">throw new</span> Error(<span class="code-string">`reconcile ${runId}: plan emitted a non-command line, refusing to execute: ${line}`</span>);</span>
+<span class="code-line">commands.push(line);</span>
+<span class="code-line"><span class="code-comment">// Honest report, no retry: a non-empty re-plan means this failure wasn't pure bookkeeping.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> planEmpty = replan.status === <span class="code-number">0</span> &amp;&amp; replan.stdout.trim() === <span class="code-string">""</span>;</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Only one shape of command may ever be executed — anything unexpected from the planner is treated as a bug and refused, not run.</p>
+          <p class="tl">Everything that passes the rail joins the to-run list.</p>
+          <p class="tl">After running the fixes, ask the planner again — and if work remains, say so instead of looping.</p>
+          <p class="tl">"Fully reconciled" is only claimed when the planner has nothing left to say.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>The ladder, upgraded</h2>
+
+    <p>Failures now climb an escalation ladder — and the expensive rung moved to the top:</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"Gate fails: the board does not match the files"},
+      {"highlight":"flow-actor-2","label":"FIRST: reconcile — run the planner-computed fixes. Cost: zero","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-1","label":"Re-gate. Pure bookkeeping? Fixed. Done","packet":true,"from":"actor-2","to":"actor-1"},
+      {"highlight":"flow-actor-3","label":"Still failing? NOW summon the AI — something needs actual thought","packet":true,"from":"actor-1","to":"actor-3"},
+      {"highlight":"flow-actor-1","label":"Re-gate the AI repair, as always","packet":true,"from":"actor-3","to":"actor-1"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Gate</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🗂️</div>
+          <span>Reconcile ($0)</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🤖</div>
+          <span>Agent ($$)</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to climb the ladder</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Escalation ladders are how you spend intelligence well: cheapest fixer first, and each rung must <em>honestly report</em> what it couldn't fix rather than retry forever. The model becomes the escalation, not the default.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — a surprise line from the planner means something upstream changed or broke. Executing surprises is how automation causes damage; refusing them is how it stays trustworthy."
+           data-explanation-wrong="Look at the refusal rail again: what does it assume about a line it does not recognize?">
+        <h3 class="quiz-question">The reconcile station refuses to execute any line that isn't exactly a board-edit command. Why so rigid?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Other commands would be too slow to run</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>An unexpected line means a bug upstream — executing surprises is how automation causes damage</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The planner never emits anything else, so the check is decorative</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — a leftover plan after reconciling means the failure was never pure bookkeeping. Report honestly and let the ladder escalate to something that can think."
+           data-explanation-wrong="Recall the honest ending: what does a NON-empty re-plan tell the ladder about this particular failure?">
+        <h3 class="quiz-question">Reconcile runs all its fixes, re-checks, and the planner STILL has work pending. What should happen?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Run reconcile again — it will converge eventually</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Declare success — most of the work got done</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Report honestly and escalate — this failure needs thought, not more filing</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Born of the Pipeline</span>
+    <h1>This feature wrote itself. Literally.</h1>
+
+    <p>Everything module 1 taught you was <strong>implemented by the pipeline it improves</strong>. The feature was written as a spec, put on the project's own task board, and handed to the pipeline: an AI session in an isolated copy of the repository, judged by the repository's own gates, landing as a normal <span class="term" data-definition="A pull request (PR) is a proposed set of changes submitted for review — the standard way code enters a shared project. Nothing merges without it.">pull request</span> that a human reviewed. Self-hosting, run one.</p>
+
+    <p>It was not a smooth ride — and the bumps taught more than smoothness would have:</p>
+
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Killed at minute ten. Twice.</strong>
+          <p>The runner's session time limit — sized for quick fixes — executed the agent mid-work, twice. What saved the run: it had been told to <em>commit every working slice immediately</em>. Death lost nothing that mattered.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>It found a real bug nobody knew about</strong>
+          <p>Inside its isolated copy, the project's pre-commit checks were quietly leaking the repository's identity into test sandboxes — test repos could touch the real one. The agent diagnosed it and patched the root cause, unprompted. (One piece of earlier collateral — a flipped config flag — needed a human to spot.)</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>It obeyed house rules nobody recited</strong>
+          <p>The repo's conventions demand documentation stay in sync with code. The agent read the house manual in its checkout and ran the full documentation ritual — unprompted, correctly.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>The run, compressed</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="pipeline" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🌐</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Pipeline</span>
+            <p>New run. Target: the praxisflux repo itself. Implement spec 001-reconcile-endpoint. Isolated worktree ready.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="agent" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Agent</span>
+            <p>Reading the spec… hold on, your pre-commit hooks leak repo identity into test sandboxes when run from a worktree. Patching that first, then— </p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="runner" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">⏱️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Timeout</span>
+            <p>— ten minutes. Terminated.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="agent" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🤖</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">Agent</span>
+            <p>Resumed. My hook fix survived as a commit. Endpoint… committed. Workflow ladder… committed. Proof script passing… committed. Board synced, docs ritual done—</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="runner" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">⏱️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Timeout</span>
+            <p>— ten minutes. Terminated. …again.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-4)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-4)">Human</span>
+            <p>…and yet: every task done, every commit green, proof script passes on my machine too. It died at the finish line, work intact. Approved — open the PR.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>The proof, as run by the human reviewer</h2>
+
+    <div class="translation-block animate-in" data-validate="off">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">ok   exceeds: reconcile executed 5 plan command(s), re-plan empty</span>
+<span class="code-line">ok   exceeds: gate PASSes after reconcile</span>
+<span class="code-line">ok   done-eligible: reconcile executed 6 plan command(s), re-plan empty</span>
+<span class="code-line">ok   done-eligible: gate PASSes after reconcile</span>
+<span class="code-line">ok   zero /agent calls across both fixtures — $0 of model spend</span>
+<span class="code-line">reconcile: all checks passed</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">A board that was lying got fixed by five computed commands…</p>
+          <p class="tl">…and the gate confirmed it, no AI involved.</p>
+          <p class="tl">A finished-but-unfiled board got its six commands too…</p>
+          <p class="tl">…same verdict, same silence from the model.</p>
+          <p class="tl">The receipt that matters: not one AI session across both repairs.</p>
+          <p class="tl">The AI wrote this test to prove its own absence would work.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>Self-hosting worked not because the AI was flawless — it was killed twice — but because the <em>structure</em> forgave failure: commit-per-slice made death cheap, gates made claims checkable, isolation made mistakes local, and a human held the only pen that signs.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — frequent small commits meant each termination lost only uncommitted minutes, not the run. Cheap deaths are a design property, not luck."
+           data-explanation-wrong="The agent died twice and the work survived twice. What habit — explicitly instructed — made that survivable?">
+        <h3 class="quiz-question">The agent was terminated mid-work twice, yet the finished feature landed. What made that possible?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Committing every working slice immediately — each death lost only minutes</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The runner automatically saved its memory between sessions</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Luck — the timeouts happened to land after the work was done</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — conventions that live in the repo (house manual, hooks, gates) govern WHOEVER works there, human or machine. That's why the agent did the documentation ritual nobody recited to it."
+           data-explanation-wrong="The agent's prompt never mentioned the documentation rules. Where did it learn them?">
+        <h3 class="quiz-question">Nobody told the agent to run the repo's documentation ritual — it did anyway. What's the general principle?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Advanced AIs infer unwritten team habits</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Conventions written into the repo itself govern whoever works there — human or machine</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The pipeline injects every rule into every prompt</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
