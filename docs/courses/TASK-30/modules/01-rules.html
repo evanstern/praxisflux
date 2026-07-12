@@ -1,0 +1,148 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · Rules Before Robots</span>
+    <h1>Letting the machine touch its own machinery</h1>
+
+    <p>Self-hosting — a system developing <em>itself</em> — sounds reckless. TASK-30's bet was that it becomes safe when three rules are structural, not aspirational. All three were built and tested on <em>other</em> projects before the machine was allowed anywhere near its own:</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🏝️</div>
+        <h4 class="pattern-title">Work in isolation</h4>
+        <p class="pattern-desc">The AI gets a private, disposable copy of the repository. Its mistakes are local until proven otherwise.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">⚖️</div>
+        <h4 class="pattern-title">Same law for everyone</h4>
+        <p class="pattern-desc">The repo's hooks, gates, and house manual govern whoever works there — the machine gets no exemptions from rules it enforces on humans.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">📮</div>
+        <h4 class="pattern-title">Propose, never merge</h4>
+        <p class="pattern-desc">Human approval creates a <em>proposal</em> (a pull request) — review and CI keep the final word, exactly as for any contributor.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📮</div>
+      <div class="callout-content">
+        <strong class="callout-title">The subtle one: approval ≠ merge</strong>
+        <p>On other projects the pipeline's approval merged directly. For its own repository, approval was deliberately demoted to "open the proposal." Self-hosting doesn't bypass the front door — it knocks like everyone else.</p>
+      </div>
+    </div>
+
+    <h2>The run, end to end</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A real feature is specced onto the repo own task board"},
+      {"highlight":"flow-actor-2","label":"The pipeline checks out a private copy of its own repo","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"The AI implements — under the repo own hooks and rules"},
+      {"highlight":"flow-actor-3","label":"The repo own gates judge the result","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"A human reviews and approves — which opens a pull request","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-1","label":"CI and review decide the merge, like any other contribution","packet":true,"from":"actor-4","to":"actor-1"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📋</div>
+          <span>Spec + board</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🤖</div>
+          <span>AI in isolation</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🚧</div>
+          <span>Own gates</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🙋</div>
+          <span>Human</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to run self-hosting safely</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The landing rule, verbatim</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (run.target &amp;&amp; land === <span class="code-string">"pr"</span>) {</span>
+<span class="code-line">  git(run.dir, <span class="code-string">"push"</span>, <span class="code-string">"-u"</span>, <span class="code-string">"origin"</span>, run.branch);</span>
+<span class="code-line">  <span class="code-keyword">const</span> pr = <span class="code-function">execFileSync</span>(<span class="code-string">"gh"</span>, [<span class="code-string">"pr"</span>, <span class="code-string">"create"</span>, <span class="code-string">"--head"</span>, run.branch, <span class="code-comment">/* … */</span>], { cwd: run.dir, encoding: <span class="code-string">"utf8"</span> }).trim();</span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">For targets with a review culture, the approved landing takes the polite path…</p>
+          <p class="tl">…publish the work branch for everyone to see…</p>
+          <p class="tl">…and open a pull request — a proposal, with the target&rsquo;s own review and CI holding the pen.</p>
+          <p class="tl">No merge happens here. Ever.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — the machine knocks on the same front door as everyone else. Bypassing review for 'trusted' automation is how trusted automation becomes the incident report."
+           data-explanation-wrong="Recall the subtle rule: what did approval get demoted to when the target became the system's own repo?">
+        <h3 class="quiz-question">For its own repository, why does the pipeline's human approval open a pull request instead of merging?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Merging directly is technically impossible for automation</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Pull requests are faster than merges</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The repo's review and CI keep the final word — automation gets no shortcut past the front door</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — every safety property was proven on other targets (a scratch fixture, then a toy project) before the system's own repo was ever the target. Blast radius grows only after trust is earned."
+           data-explanation-wrong="Think about the order of the whole arc: what did the pipeline practice on before touching its own repository?">
+        <h3 class="quiz-question">What made it reasonable to point the pipeline at its own repository AT ALL?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Isolation, gates, and PR-landing were each proven on other targets first — blast radius grew with earned trust</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The AI model was upgraded to a more careful version</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Backups made any mistake reversible</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
