@@ -10,9 +10,10 @@ humans only at the decision points. This directory is the complete, reproducible
  ┌──────────────────────────────┐        ┌─────────────────────────────────┐
  │ Trigger (webhook)            │        │ /checkout   tier 1 deterministic │
  │  → Checkout ─────────────────┼──HTTP──▶ /gate       tier 1 deterministic │
- │  → Gate 0 → Proven?          │        │ /agent      tier 2 model         │
- │     ├─ fail → Agent 1 → Gate1│        │ /notify ┐   tier 3 human's       │
- │     │   └─ fail → Agent 2 …  │        │ /finish ┘   landing points       │
+ │  → Gate 0 → Proven?          │        │ /reconcile  tier 1 deterministic │
+ │     ├─ fail → Reconcile      │        │ /agent      tier 2 model         │
+ │     │    → Gate R → fail →   │        │ /notify ┐   tier 3 human's       │
+ │     │      Agent 1 → Gate1 … │        │ /finish ┘   landing points       │
  │  → Notify → Await Approval   │        └─────────────────────────────────┘
  │  → Finish (merge)            │
  └──────────────────────────────┘
@@ -30,8 +31,15 @@ humans only at the decision points. This directory is the complete, reproducible
   is the repro). `/finish` merges the run's branch into the target's main — approval
   literally is the merge — refusing loudly (worktree kept for inspection) if the target
   isn't on a clean main.
-- **The corrective loop is the gate's stderr, verbatim.** `Proven N?` routing a failure into
-  `Agent N+1`'s `correction` field is the praxisflux Stop-hook pattern lifted into the
+- **Bookkeeping failures never reach the model.** On a Gate 0 failure the workflow tries
+  `/reconcile` first — spec-bridge `plan`'s own emitted `backlog task edit` lines executed
+  verbatim (anything else in plan's stdout is refused, and a non-empty re-plan is reported
+  honestly, never retried) — then re-gates at `Gate R`; only a still-failing gate escalates
+  to the agent rounds. Pure-sync rounds cost $0: `test-reconcile.sh` proves the `exceeds`
+  and `done-eligible` fixtures complete gate-FAIL → reconcile → gate-PASS with zero
+  `/agent` calls.
+- **The corrective loop is the gate's stderr, verbatim.** `Reconciled?`/`Proven N?` routing
+  a still-failing gate's text into the next agent's `correction` field is the praxisflux Stop-hook pattern lifted into the
   orchestrator: gates already speak model. Bounded twice in the workflow shape, and the
   runner hard-caps agent rounds at 3 per run.
 - **Verification is by artifacts, never by the agent's word** (docs/headless-runner.md):

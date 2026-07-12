@@ -75,7 +75,7 @@
       }
     },
     {
-      "name": "Agent 1",
+      "name": "Reconcile",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -84,17 +84,15 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "http://host.docker.internal:8787/agent",
+        "url": "http://host.docker.internal:8787/reconcile",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate 0').item.json.failureText }) }}",
-        "options": {
-          "timeout": 660000
-        }
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId }) }}",
+        "options": {}
       }
     },
     {
-      "name": "Gate 1",
+      "name": "Gate R",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -111,7 +109,7 @@
       }
     },
     {
-      "name": "Proven 1?",
+      "name": "Reconciled?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
@@ -130,7 +128,7 @@
       }
     },
     {
-      "name": "Agent 2",
+      "name": "Agent 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -142,14 +140,14 @@
         "url": "http://host.docker.internal:8787/agent",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate 1').item.json.failureText }) }}",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate R').item.json.failureText }) }}",
         "options": {
           "timeout": 660000
         }
       }
     },
     {
-      "name": "Gate 2",
+      "name": "Gate 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -166,7 +164,7 @@
       }
     },
     {
-      "name": "Proven 2?",
+      "name": "Proven 1?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
@@ -185,12 +183,67 @@
       }
     },
     {
+      "name": "Agent 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        750
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, prompt: $('Trigger').item.json.body.prompt, correction: $('Gate 1').item.json.failureText }) }}",
+        "options": {
+          "timeout": 660000
+        }
+      }
+    },
+    {
+      "name": "Gate 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        750
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/gate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId }) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Proven 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        750
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.pass }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
       "name": "Give Up",
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        2000,
-        750
+        2600,
+        850
       ],
       "parameters": {
         "errorMessage": "={{ 'gate still failing after bounded agent rounds: ' + $('Gate 2').item.json.failureText }}"
@@ -319,6 +372,46 @@
       ]
     },
     "Proven 0?": {
+      "main": [
+        [
+          {
+            "node": "Notify Human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reconcile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile": {
+      "main": [
+        [
+          {
+            "node": "Gate R",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate R": {
+      "main": [
+        [
+          {
+            "node": "Reconciled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconciled?": {
       "main": [
         [
           {

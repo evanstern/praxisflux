@@ -15,6 +15,10 @@
 //   /agent    {runId, prompt?, correction?} -> {exit, round, receipt}  headless claude -p
 //                                              (docs/headless-runner.md recipe; `correction`
 //                                              carries a gate's failure text verbatim)
+//   /reconcile {runId}                      -> {ran, planEmpty}  pure-sync round: run
+//                                              spec-bridge plan and execute its emitted
+//                                              `backlog task edit` lines verbatim — no
+//                                              model, no claude session, ever
 //   /gate     {runId}                       -> {pass, failureText}  verdict by artifacts:
 //                                              spec-bridge plan prints nothing AND check
 //                                              exits 0 with no lag warnings
@@ -23,8 +27,9 @@
 //   /finish   {runId, approvedBy}           -> {merged}  the human tier's landing point:
 //                                              commit the branch and merge it into main
 //
-// Tier map (decision-1 vocabulary): /checkout /gate — tier 1 deterministic · /agent — tier 2
-// model · /notify + /finish — tier 3, only reachable through n8n's human approval.
+// Tier map (decision-1 vocabulary): /checkout /gate /reconcile — tier 1 deterministic ·
+// /agent — tier 2 model · /notify + /finish — tier 3, only reachable through n8n's human
+// approval.
 import { createServer } from "node:http";
 import { mkdtempSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -114,6 +119,38 @@ function agent({ runId, prompt, correction }) {
   return out;
 }
 
+function reconcile({ runId }) {
+  const run = runs.get(runId);
+  if (!run) throw new Error(`unknown runId ${runId}`);
+  // Tier 1's answer to pure-bookkeeping gate failures: plan already computed the exact
+  // reconciling commands, so execute them deterministically — the model becomes the
+  // escalation, not the default. No claude session is ever spawned here.
+  const runPlan = () => spawnSync("node", [SPEC_CLI, "plan", "."], { cwd: run.dir, encoding: "utf8" });
+  const plan = runPlan();
+  const context = [], commands = [];
+  for (const line of plan.stdout.split("\n")) {
+    if (!line.trim()) continue;
+    if (line.startsWith("#")) { context.push(line); continue; }
+    // Safety rail: plan emits shell-quoted `backlog task edit` lines for verbatim use —
+    // anything else in its stdout is a bug upstream, never something to execute.
+    if (!line.startsWith("backlog task edit ")) throw new Error(`reconcile ${runId}: plan emitted a non-command line, refusing to execute: ${line}`);
+    commands.push(line);
+  }
+  log(`reconcile ${runId}: plan emitted ${commands.length} command(s)${context.length ? ` (+${context.length} comment(s))` : ""}`);
+  const ran = [];
+  for (const cmd of commands) {
+    const r = spawnSync("bash", ["-c", cmd], { cwd: run.dir, encoding: "utf8" });
+    if (r.status !== 0) throw new Error(`reconcile ${runId}: command failed (exit ${r.status}): ${cmd}\n${(r.stderr || r.stdout || "").trim()}`);
+    ran.push(cmd);
+  }
+  log(`reconcile ${runId}: executed ${ran.length} command(s)`);
+  const replan = runPlan();
+  // Honest report, no retry: a non-empty re-plan means this failure wasn't pure bookkeeping.
+  const planEmpty = replan.status === 0 && replan.stdout.trim() === "";
+  log(`reconcile ${runId}: re-plan ${planEmpty ? "empty — board reconciled" : "NON-EMPTY — needs escalation"}`);
+  return { ran, planEmpty, context };
+}
+
 function gate({ runId }) {
   const run = runs.get(runId);
   if (!run) throw new Error(`unknown runId ${runId}`);
@@ -183,7 +220,7 @@ function finish({ runId, approvedBy, land, prTitle }) {
   return { merged, approvedBy, branch: run.branch ?? null };
 }
 
-const HANDLERS = { "/checkout": checkout, "/agent": agent, "/gate": gate, "/notify": notify, "/finish": finish };
+const HANDLERS = { "/checkout": checkout, "/agent": agent, "/reconcile": reconcile, "/gate": gate, "/notify": notify, "/finish": finish };
 
 createServer((req, res) => {
   const send = (code, obj) => { res.writeHead(code, { "content-type": "application/json" }); res.end(JSON.stringify(obj)); };
