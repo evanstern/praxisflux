@@ -5,7 +5,10 @@ set -e
 repo="$(git rev-parse --show-toplevel)"
 cd "$repo"
 echo "pre-commit: node --test"
-node --test
+# In a worktree checkout, git hands hooks an ABSOLUTE GIT_DIR; the suite's fixture repos
+# (execFileSync git with cwd=tmpdir) would inherit it and commit onto the real branch.
+# Scrub the hook env so the fixtures stay hermetic wherever the suite runs from.
+env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test
 echo "pre-commit: marketplace.json up to date"
 node scripts/gen-marketplace.mjs --check
 echo "pre-commit: versions consistent"
