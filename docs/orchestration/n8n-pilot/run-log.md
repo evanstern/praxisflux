@@ -99,3 +99,19 @@ reconciliation-driven workflow skipped the agent and parked with nothing to appr
 Totals for the tamagotchi: empty directory → done-and-documented in three pipeline runs
 (T001 $1.38 · T002 $1.36 · T003 $1.80 ≈ **$4.54 of model time**), three gate verdicts,
 three human approvals, zero hand-written lines.
+
+## Addendum — the reconcile station: pure-sync rounds at $0 (2026-07-11, TASK-27)
+
+Scenarios 1 and 3 each paid a model round (~$0.61) for failures whose exact fix
+`spec-bridge plan` had already computed. The ladder now tries tier 1 first: **Gate 0 fail →
+`/reconcile`** (plan's emitted `backlog task edit` lines, executed verbatim — no model, no
+claude session) **→ Gate R**, and only a still-failing Gate R reaches Agent 1.
+`test-reconcile.sh` is the standing proof, replayed green against a scratch runner:
+
+| fixture | before | reconcile | after |
+|---|---|---|---|
+| `exceeds` | gate FAIL (board claims Done over an unproven spec) | 5 plan commands, re-plan empty | gate PASS |
+| `done-eligible` | gate FAIL (spec proven, board lagging) | 6 plan commands incl. the Done promotion, re-plan empty | gate PASS |
+
+Zero `/agent` lines in the runner log across both runs — what cost $0.61 in scenario 1 now
+costs $0, and the model is the escalation, not the default.
