@@ -23,9 +23,13 @@ humans only at the decision points. This directory is the complete, reproducible
   physically cannot reach `/finish` without a human posting to the resume URL with
   `approvedBy`.
 - **The runner owns the host toolchain** (claude CLI, backlog, git, node) behind whitelisted
-  endpoints. `/checkout` gives each run either a scratch fixture (`lagging`/`exceeds`) or a
-  **real repo on a fresh `pilot/<runId>` branch**; `/finish` merges that branch into main —
-  approval literally is the merge.
+  endpoints. `/checkout` gives each run either a scratch fixture (`lagging`/`exceeds`/
+  `done-eligible`) or — for a real repo — an **isolated per-run git worktree** on a fresh
+  `pilot/<runId>` branch: the target's own checkout is never touched, humans switching
+  branches there mid-run are non-events, and concurrent runs coexist (`test-isolation.sh`
+  is the repro). `/finish` merges the run's branch into the target's main — approval
+  literally is the merge — refusing loudly (worktree kept for inspection) if the target
+  isn't on a clean main.
 - **The corrective loop is the gate's stderr, verbatim.** `Proven N?` routing a failure into
   `Agent N+1`'s `correction` field is the praxisflux Stop-hook pattern lifted into the
   orchestrator: gates already speak model. Bounded twice in the workflow shape, and the

@@ -71,12 +71,16 @@ function scratchFixture(fixture) {
 function checkout({ fixture, target }) {
   const runId = newRunId();
   if (target) {
+    // Per-run isolation (pilot finding, demonstrated live): the run gets its OWN working
+    // tree via git worktree — the target's checkout is never touched, so humans (or other
+    // sessions) switching branches there mid-run are non-events, and concurrent runs of
+    // the same target coexist.
     const branch = `pilot/${runId}`;
-    git(target, "checkout", "-q", "main");
-    git(target, "checkout", "-qb", branch);
-    runs.set(runId, { dir: target, branch, agentRounds: 0 });
-    log(`checkout ${runId}: REAL target ${target} on ${branch}`);
-    return { runId, dir: target, branch };
+    const wt = join(mkdtempSync(join(tmpdir(), "n8n-pilot-wt-")), "run");
+    execFileSync("git", ["-C", target, "worktree", "add", "-b", branch, wt, "main"], { encoding: "utf8" });
+    runs.set(runId, { dir: wt, target, branch, agentRounds: 0 });
+    log(`checkout ${runId}: REAL target ${target} → isolated worktree ${wt} on ${branch}`);
+    return { runId, dir: wt, branch, target };
   }
   const { dir } = scratchFixture(fixture || "lagging");
   runs.set(runId, { dir, agentRounds: 0 });
@@ -145,10 +149,19 @@ function finish({ runId, approvedBy }) {
   const dirty = git(run.dir, "status", "--porcelain");
   if (dirty) git(run.dir, "commit", "-qm", `pilot ${runId}: work approved by ${approvedBy}`);
   let merged = null;
-  if (run.branch) {
-    git(run.dir, "checkout", "-q", "main");
-    git(run.dir, "merge", "--no-ff", "-q", "-m", `pilot ${runId}: merge ${run.branch} — approved by ${approvedBy}`, run.branch);
-    merged = git(run.dir, "rev-parse", "--short", "HEAD");
+  if (run.target) {
+    // Landing needs a stable main in the TARGET. This is tier-3 — a human is present by
+    // definition — so an unstable target fails loudly (worktree left intact for inspection)
+    // rather than force-switching anything under anyone.
+    const targetBranch = git(run.target, "branch", "--show-current");
+    if (targetBranch !== "main")
+      throw new Error(`target is on '${targetBranch}', not main — check out a clean main in ${run.target}, then re-approve. Run's work is safe on ${run.branch} (worktree kept: ${run.dir})`);
+    if (git(run.target, "status", "--porcelain"))
+      throw new Error(`target working tree is dirty — commit/stash in ${run.target}, then re-approve. Run's work is safe on ${run.branch} (worktree kept: ${run.dir})`);
+    git(run.target, "merge", "--no-ff", "-q", "-m", `pilot ${runId}: merge ${run.branch} — approved by ${approvedBy}`, run.branch);
+    merged = git(run.target, "rev-parse", "--short", "HEAD");
+    execFileSync("git", ["-C", run.target, "worktree", "remove", run.dir], { encoding: "utf8" });
+    git(run.target, "branch", "-d", run.branch);
   } else {
     merged = git(run.dir, "rev-parse", "--short", "HEAD");
   }

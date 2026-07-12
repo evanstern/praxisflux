@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-26 — Nobody Else's Kitchen</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #D94F30;
+      --color-accent-hover: #C4432A;
+      --color-accent-light: #FDEEE9;
+      --color-accent-muted: #E8836C;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-26 — Nobody Else's Kitchen</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Shared Kitchen" role="tab" aria-label="Module 1: The Shared Kitchen"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Landing Rights" role="tab" aria-label="Module 2: Landing Rights"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Shared Kitchen</span>
+    <h1>The incident that wrote this task</h1>
+
+    <p>During the pipeline's very first week, an AI agent was two minutes into implementing a feature when a human — juggling three things at once — switched the project's active <span class="term" data-definition="A branch is a parallel line of work in a project's history. Switching branches changes which version of every file you're looking at — and editing.">branch</span> out from under it. The agent's half-written work was suddenly sitting on the wrong branch.</p>
+
+    <p>It got caught in seconds and recovered. But "we noticed fast" is not a safety model. The root cause: the pipeline gave each run a fresh branch, but every run — and every human — shared <strong>one working copy</strong> of the project. One kitchen, many cooks, no doors.</p>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🔪</div>
+      <div class="callout-content">
+        <strong class="callout-title">The trap: isolation by politeness</strong>
+        <p>"Nobody will touch the folder during a run" is a rule enforced by hope. The moment automation shares a workspace with humans — or with other automation — collisions stop being <em>if</em> and become <em>when</em>.</p>
+      </div>
+    </div>
+
+    <h2>The fix: every run gets its own kitchen</h2>
+
+    <p>Git has a built-in answer: a <span class="term" data-definition="A git worktree is an extra, separate folder connected to the same project history — its own working copy on its own branch, without copying the whole repository.">worktree</span> — a second (or tenth) working folder wired to the same project history. Each pipeline run now cooks in its own:</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A run starts against a real project"},
+      {"highlight":"flow-actor-2","label":"The runner creates a private worktree on a fresh branch","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"The agent works there — the original folder is never touched"},
+      {"highlight":"flow-actor-3","label":"Meanwhile a human switches branches in the original. Nothing happens to the run","packet":true,"from":"actor-3","to":"actor-3"},
+      {"highlight":"flow-actor-2","label":"A second run starts: its own worktree, side by side"},
+      {"highlight":"flow-actor-1","label":"Runs land one by one; each worktree is cleaned up after its merge"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📁</div>
+          <span>Target repo</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🍳</div>
+          <span>Run worktrees</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🙋</div>
+          <span>Human</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to see isolation at work</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The whole fix is three lines</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> wt = <span class="code-function">join</span>(<span class="code-function">mkdtempSync</span>(<span class="code-function">join</span>(<span class="code-function">tmpdir</span>(), <span class="code-string">"n8n-pilot-wt-"</span>)), <span class="code-string">"run"</span>);</span>
+<span class="code-line"><span class="code-function">execFileSync</span>(<span class="code-string">"git"</span>, [<span class="code-string">"-C"</span>, target, <span class="code-string">"worktree"</span>, <span class="code-string">"add"</span>, <span class="code-string">"-b"</span>, branch, wt, <span class="code-string">"main"</span>]);</span>
+<span class="code-line">runs.set(runId, { dir: wt, target, branch, agentRounds: <span class="code-number">0</span> });</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Pick a fresh throwaway folder for this run alone.</p>
+          <p class="tl">Ask git to set up a private working copy there, on a brand-new branch, without disturbing the original.</p>
+          <p class="tl">Remember: this run lives in THAT folder from now on — every later step works there.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — a branch only isolates the HISTORY line; everyone still shared one physical folder. The worktree isolates the folder itself."
+           data-explanation-wrong="The run already HAD its own branch when the incident happened. What did it not have?">
+        <h3 class="quiz-question">The original design gave each run its own branch — and the incident happened anyway. Why wasn't a branch enough?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Branches are unreliable in git</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The agent forgot which branch it was on</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A branch separates history, not the physical folder — everyone still shared one working copy</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — politeness rules fail silently under multitasking. Structure (a private folder per run) makes the collision impossible instead of impolite."
+           data-explanation-wrong="Think about WHO broke the rule in the incident — and whether any amount of reminding would have helped at that moment.">
+        <h3 class="quiz-question">Your team's automation shares a folder with developers, protected by a "don't touch it while a job runs" rule in the wiki. What does this module predict?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It's fine as long as the rule is clearly documented</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A collision is a matter of when, not if — replace the rule with structural isolation</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Automation should simply run at night when nobody's around</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Landing Rights</span>
+    <h1>Refuse loudly, keep the work</h1>
+
+    <p>Isolation solves the <em>working</em> half. The <em>landing</em> half — merging an approved run back into the project — still touches shared ground: the target's own main branch. What if, at that exact moment, the target is sitting on some other branch, or has uncommitted edits?</p>
+
+    <p>The old code would have switched branches under whoever was there — the incident, but in reverse. The new landing rule is the opposite of force:</p>
+
+    <div class="icon-rows">
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-1)">✅</div>
+        <div>
+          <strong>Target on a clean main → land</strong>
+          <p>Merge the run's branch (keeping its history visible), remove the worktree, delete the branch. Leave no litter.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-3)">🛑</div>
+        <div>
+          <strong>Anything else → refuse, loudly, safely</strong>
+          <p>Fail with a message naming exactly what to fix — and keep the run's worktree intact, so approved work is never lost to a refusal.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>The refusal is safe to be strict about for one structural reason: landing only ever happens at the human-approval step. If the target is in a weird state, a person is <em>right there</em> to fix it and re-approve.</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (targetBranch !== <span class="code-string">"main"</span>)</span>
+<span class="code-line">  <span class="code-keyword">throw new</span> Error(<span class="code-string">`target is on '${targetBranch}', not main — check out a clean main in ${run.target}, then re-approve. Run's work is safe on ${run.branch} (worktree kept: ${run.dir})`</span>);</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">If the project is not sitting on its main line when the merge is requested…</p>
+          <p class="tl">…refuse — and make the refusal a complete instruction: what is wrong, where to fix it, that the approved work is safe, and exactly where it is waiting.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Proven by replaying the crime</h2>
+
+    <p>The task ships a self-contained repro script that spins up its own runner and re-enacts the original incident on a throwaway project. Its transcript, verbatim:</p>
+
+    <div class="translation-block animate-in" data-validate="off">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">ok   mid-run branch switch + dirty target: run tree unaffected</span>
+<span class="code-line">ok   two concurrent checkouts of the same target coexist</span>
+<span class="code-line">ok   finish refuses an unstable target and keeps the worktree</span>
+<span class="code-line">ok   finish merged --no-ff into target main, removed worktree + branch</span>
+<span class="code-line">ok   concurrent run 2 unaffected by run 1's landing</span>
+<span class="code-line">isolation: all checks passed</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The original incident, replayed on purpose — and this time it is a non-event.</p>
+          <p class="tl">Two runs of the same project at once: both healthy, neither aware of the other.</p>
+          <p class="tl">A messy target at landing time gets a refusal, not a forced merge — and the work survives.</p>
+          <p class="tl">A clean target gets the real landing, with full cleanup after.</p>
+          <p class="tl">And landing one run leaves its neighbor untouched.</p>
+          <p class="tl">Every safety claim in this course is a passing check, not a promise.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>A refusal, live</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Human</span>
+            <p>Work looks great — approved. Land it.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="runner" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🔧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Runner</span>
+            <p>Refusing. Your target is on branch &quot;quick-experiment&quot; with uncommitted edits. Check out a clean main, then re-approve. The run&rsquo;s work is safe on its branch — worktree kept, path in this message.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">Human</span>
+            <p>…oh right, that was me an hour ago. Stashed, back on main. Approving again.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="runner" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🔧</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Runner</span>
+            <p>Merged, worktree removed, branch deleted. Like the mess never happened — because it happened somewhere else.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight</strong>
+        <p>When a safety fix comes from a real incident, encode the incident as a test. "We fixed it" fades; a check that replays the exact failure and passes is the fix, permanently on guard.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the refusal happens at the human-approval step by construction, so someone is present to fix the target and re-approve. Strictness is cheap when a human is guaranteed to be there."
+           data-explanation-wrong="Think about WHEN landing happens in this pipeline — is it ever unattended?">
+        <h3 class="quiz-question">Why can the landing step afford to flatly refuse a messy target instead of trying to work around it?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because messy targets are rare enough to ignore</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because landing only happens at the approval step — a human is guaranteed present to fix and re-approve</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because refusing is always better than acting, in every system</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — the worktree survives the refusal on purpose, and the error message says exactly where it is. Approved work must never be hostage to the target's mood."
+           data-explanation-wrong="Re-read the refusal message: it makes two promises about the run's work. What are they?">
+        <h3 class="quiz-question">A landing is refused because someone left uncommitted edits in the target. What happened to the run's approved work?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Safe and intact in its own worktree — the refusal names the exact path</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Rolled back — it must be re-run after the target is cleaned</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Force-merged anyway, since it was already approved</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
