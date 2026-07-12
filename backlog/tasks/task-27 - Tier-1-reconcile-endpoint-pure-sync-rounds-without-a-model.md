@@ -1,11 +1,11 @@
 ---
 id: TASK-27
 title: 'Tier-1 reconcile endpoint: pure-sync rounds without a model'
-status: In Progress
+status: Done
 assignee:
   - '@pipeline'
 created_date: '2026-07-12 01:23'
-updated_date: '2026-07-12 02:42'
+updated_date: '2026-07-12 02:43'
 labels: []
 dependencies: []
 priority: medium
@@ -26,8 +26,8 @@ Spec: specs/001-reconcile-endpoint
 - [x] #2 Workflow tries Reconcile before any Agent round on gate failure; Agent remains the escalation for non-mechanical failures
 - [x] #3 exceeds and done-eligible fixture runs complete end-to-end with zero model cost, gate-verified
 - [x] #4 Run log/README updated with the new ladder
-- [ ] #5 Spec phase: Endpoint
-- [ ] #6 Spec phase: Proven
+- [x] #5 Spec phase: Endpoint
+- [x] #6 Spec phase: Proven
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -46,4 +46,12 @@ T001 landed: /reconcile on runner.mjs — plan → execute emitted 'backlog task
 
 T002 landed: workflow.json ladder — Reconcile + Gate R + Reconciled? between Proven 0? false branch and Agent 1; Agent 1 correction now carries Gate R's failure text. Import + activation verified on a throwaway n8n container (n8n import:workflow + update:workflow --active=true, then removed); the live n8n-pilot container and :8787 runner untouched per run constraints.
 T003 landed: test-reconcile.sh green on a scratch runner (random port) — exceeds: gate FAIL → 5 plan commands → gate PASS; done-eligible: gate FAIL → 6 commands (incl. the Done promotion) → gate PASS; zero /agent lines in the runner log = $0 model spend. README ladder (diagram + reconcile-first bullet) and run-log addendum updated.
+
+spec-bridge sync: Endpoint: 2/2 · Proven: 1/1 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Endpoint: 2/2 · Proven: 1/1). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
