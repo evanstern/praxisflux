@@ -141,7 +141,7 @@ function notify({ runId, resumeUrl }) {
   return { notified: true };
 }
 
-function finish({ runId, approvedBy }) {
+function finish({ runId, approvedBy, land, prTitle }) {
   const run = runs.get(runId);
   if (!run) throw new Error(`unknown runId ${runId}`);
   if (!approvedBy) throw new Error("finish requires approvedBy — this endpoint is the human tier's landing point");
@@ -149,6 +149,20 @@ function finish({ runId, approvedBy }) {
   const dirty = git(run.dir, "status", "--porcelain");
   if (dirty) git(run.dir, "commit", "-qm", `pilot ${runId}: work approved by ${approvedBy}`);
   let merged = null;
+  if (run.target && land === "pr") {
+    // PR landing: for targets with a PR flow (praxisflux itself), approval gates PR
+    // CREATION, never a direct merge — the target's CI and review stay authoritative.
+    git(run.dir, "push", "-u", "origin", run.branch);
+    const pr = execFileSync("gh", ["pr", "create",
+      "--head", run.branch,
+      "--title", prTitle || `pilot ${runId}: pipeline run approved by ${approvedBy}`,
+      "--body", `Produced by the praxisflux pipeline (run ${runId}), approved by ${approvedBy} at the Wait node. Verification and merge stay with the target's own CI/review flow.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`,
+    ], { cwd: run.dir, encoding: "utf8" }).trim();
+    execFileSync("git", ["-C", run.target, "worktree", "remove", run.dir], { encoding: "utf8" });
+    git(run.target, "branch", "-D", run.branch); // pushed — the remote branch is the record
+    log(`finish ${runId}: approved by ${approvedBy}, PR ${pr}`);
+    return { pr, approvedBy, branch: run.branch };
+  }
   if (run.target) {
     // Landing needs a stable main in the TARGET. This is tier-3 — a human is present by
     // definition — so an unstable target fails loudly (worktree left intact for inspection)

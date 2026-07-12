@@ -241,7 +241,7 @@
         "url": "http://host.docker.internal:8787/finish",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, approvedBy: $json.body.approvedBy }) }}",
+        "jsonBody": "={{ JSON.stringify({ runId: $('Checkout').item.json.runId, approvedBy: $json.body.approvedBy, land: $('Trigger').item.json.body.land, prTitle: $('Trigger').item.json.body.prTitle }) }}",
         "options": {}
       }
     },
