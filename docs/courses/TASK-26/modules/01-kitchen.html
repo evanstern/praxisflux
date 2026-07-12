@@ -1,0 +1,128 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Shared Kitchen</span>
+    <h1>The incident that wrote this task</h1>
+
+    <p>During the pipeline's very first week, an AI agent was two minutes into implementing a feature when a human — juggling three things at once — switched the project's active <span class="term" data-definition="A branch is a parallel line of work in a project's history. Switching branches changes which version of every file you're looking at — and editing.">branch</span> out from under it. The agent's half-written work was suddenly sitting on the wrong branch.</p>
+
+    <p>It got caught in seconds and recovered. But "we noticed fast" is not a safety model. The root cause: the pipeline gave each run a fresh branch, but every run — and every human — shared <strong>one working copy</strong> of the project. One kitchen, many cooks, no doors.</p>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🔪</div>
+      <div class="callout-content">
+        <strong class="callout-title">The trap: isolation by politeness</strong>
+        <p>"Nobody will touch the folder during a run" is a rule enforced by hope. The moment automation shares a workspace with humans — or with other automation — collisions stop being <em>if</em> and become <em>when</em>.</p>
+      </div>
+    </div>
+
+    <h2>The fix: every run gets its own kitchen</h2>
+
+    <p>Git has a built-in answer: a <span class="term" data-definition="A git worktree is an extra, separate folder connected to the same project history — its own working copy on its own branch, without copying the whole repository.">worktree</span> — a second (or tenth) working folder wired to the same project history. Each pipeline run now cooks in its own:</p>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A run starts against a real project"},
+      {"highlight":"flow-actor-2","label":"The runner creates a private worktree on a fresh branch","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"The agent works there — the original folder is never touched"},
+      {"highlight":"flow-actor-3","label":"Meanwhile a human switches branches in the original. Nothing happens to the run","packet":true,"from":"actor-3","to":"actor-3"},
+      {"highlight":"flow-actor-2","label":"A second run starts: its own worktree, side by side"},
+      {"highlight":"flow-actor-1","label":"Runs land one by one; each worktree is cleaned up after its merge"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📁</div>
+          <span>Target repo</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🍳</div>
+          <span>Run worktrees</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🙋</div>
+          <span>Human</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to see isolation at work</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The whole fix is three lines</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> wt = <span class="code-function">join</span>(<span class="code-function">mkdtempSync</span>(<span class="code-function">join</span>(<span class="code-function">tmpdir</span>(), <span class="code-string">"n8n-pilot-wt-"</span>)), <span class="code-string">"run"</span>);</span>
+<span class="code-line"><span class="code-function">execFileSync</span>(<span class="code-string">"git"</span>, [<span class="code-string">"-C"</span>, target, <span class="code-string">"worktree"</span>, <span class="code-string">"add"</span>, <span class="code-string">"-b"</span>, branch, wt, <span class="code-string">"main"</span>]);</span>
+<span class="code-line">runs.set(runId, { dir: wt, target, branch, agentRounds: <span class="code-number">0</span> });</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Pick a fresh throwaway folder for this run alone.</p>
+          <p class="tl">Ask git to set up a private working copy there, on a brand-new branch, without disturbing the original.</p>
+          <p class="tl">Remember: this run lives in THAT folder from now on — every later step works there.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — a branch only isolates the HISTORY line; everyone still shared one physical folder. The worktree isolates the folder itself."
+           data-explanation-wrong="The run already HAD its own branch when the incident happened. What did it not have?">
+        <h3 class="quiz-question">The original design gave each run its own branch — and the incident happened anyway. Why wasn't a branch enough?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Branches are unreliable in git</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The agent forgot which branch it was on</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A branch separates history, not the physical folder — everyone still shared one working copy</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — politeness rules fail silently under multitasking. Structure (a private folder per run) makes the collision impossible instead of impolite."
+           data-explanation-wrong="Think about WHO broke the rule in the incident — and whether any amount of reminding would have helped at that moment.">
+        <h3 class="quiz-question">Your team's automation shares a folder with developers, protected by a "don't touch it while a job runs" rule in the wiki. What does this module predict?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It's fine as long as the rule is clearly documented</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>A collision is a matter of when, not if — replace the rule with structural isolation</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Automation should simply run at night when nobody's around</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

@@ -48,10 +48,11 @@ and host-toolchain execution.
   honest board objects to nothing, so "implement the next task" runs skipped the agent and
   parked with nothing to approve. Gates *verify* work; they don't *request* it — the
   work-mode round (trigger prompt → agent before the gate ladder) fixed the shape. (2) The
-  runner's real-repo checkout is a **shared working tree**: a human (or another session)
+  runner's real-repo checkout was a **shared working tree**: a human (or another session)
   switching branches mid-run happened live and nearly corrupted an in-flight agent round.
-  A production runner needs per-run isolation — clones or git worktrees — not
-  branch-switching in place.
+  *Resolved (TASK-26):* `/checkout` now gives each run an isolated git worktree; the live
+  incident is replayed as a passing check in `n8n-pilot/test-isolation.sh`, and `/finish`
+  refuses an unstable target loudly instead of forcing anything.
 - **A cost optimization the pilot deliberately skipped**: pure board-sync rounds (scenarios
   1 and 3) went through the agent node (~$0.6/round) for workflow uniformity — but sync is
   now `plan | sh`, a tier-1 operation. A deterministic "reconcile" endpoint on the runner
