@@ -1,0 +1,152 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Empty Slot</span>
+    <h1>A toolbox can't hang its own rules on your wall</h1>
+
+    <p>The praxisflux plugins are like toolboxes: they sit closed until a job needs them. Nothing in a closed toolbox is <em>always visible</em> — yet the whole suite depends on standing rules the project must see every single session: which folders mean what, which gates apply, how work gets handed between tools. TASK-31 built the suite-level answer: one skill, <strong>pdlc:bootstrap</strong>, that stamps those standing rules onto any project — a brand-new empty folder or a codebase with years of history.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🌱</div>
+        <h4 class="pattern-title">Day zero or year five</h4>
+        <p class="pattern-desc">An empty folder gets a fresh rulebook; an existing project gets the rules <em>added after</em> its own — never over them.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🔖</div>
+        <h4 class="pattern-title">One marked block</h4>
+        <p class="pattern-desc">Everything planted lives between two visible bookmarks in the rulebook. Inside: refreshable boilerplate. Outside: yours, untouchable.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🤖</div>
+        <h4 class="pattern-title">The boring part is a machine</h4>
+        <p class="pattern-desc">A small deterministic script does the planting, byte-for-byte repeatable. The AI contributes judgment — questions, diffs, consent — never the typing.</p>
+      </div>
+    </div>
+
+    <h2>One bootstrap run, end to end</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"You point the skill at a folder — new or already full of code"},
+      {"highlight":"flow-actor-2","label":"The skill checks for a stamp: first visit, or an update?"},
+      {"highlight":"flow-actor-2","label":"It asks about the two supported companions (next module) and remembers your answers"},
+      {"highlight":"flow-actor-3","label":"The planting script writes the marked block, the stamp, and the ignore rule","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"It re-checks the folder on disk — no claim of success without looking"},
+      {"highlight":"flow-actor-4","label":"The project now carries its own rulebook; the skill hands off and steps away","packet":true,"from":"actor-3","to":"actor-4"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">🙋</div>
+          <span>You</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🌱</div>
+          <span>bootstrap skill</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🤖</div>
+          <span>planting script</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">📁</div>
+          <span>Your project</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to bootstrap a project</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The five verdicts, verbatim</h2>
+
+    <p>The heart of the planting script is one decision: what state is the project's rulebook in, and what is the honest move? Five verdicts cover every case:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(claudePath)) { claudeMd = <span class="code-string">"created"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (!found) { claudeMd = <span class="code-string">"appended"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (found.block === expected) { claudeMd = <span class="code-string">"unchanged"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (!force) { claudeMd = <span class="code-string">"drifted"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else</span> { claudeMd = <span class="code-string">"replaced"</span>; }</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">No rulebook at all? Write a fresh one.</p>
+          <p class="tl">A rulebook exists but has no bookmarks? Add the block at the end — the owner&rsquo;s text stays first and stays whole.</p>
+          <p class="tl">The block matches exactly what this version would plant? Touch nothing.</p>
+          <p class="tl">The block differs and nobody has consented? Report &ldquo;drifted&rdquo; and stop — differing text is never silently overwritten.</p>
+          <p class="tl">Consent given? Replace just the block, leaving everything around it alone.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🔖</div>
+      <div class="callout-content">
+        <strong class="callout-title">Why bookmarks change everything</strong>
+        <p>Because the planted rules live between visible markers, three hard problems become easy: an existing rulebook is appended to instead of clobbered, an upgrade can refresh the whole block in one honest move, and "your edits" versus "our boilerplate" has a physical boundary instead of a judgment call.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the markers give planted boilerplate a physical boundary, so the project's own content is structurally safe and updates can refresh the block wholesale."
+           data-explanation-wrong="Think about the folder that already has a rulebook full of the team's own rules. Where does the planted block go, and what makes that safe?">
+        <h3 class="quiz-question">Why does the planted grounding live between two marker comments instead of being its own file content?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Markers make the file load faster</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>They draw a physical boundary: an existing rulebook is appended to, never clobbered, and updates can refresh exactly the block and nothing else</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The markers hide the planted rules from the AI</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — 'drifted' means 'what's on disk differs from what I would plant.' Maybe the plugin upgraded; maybe a human edited inside the block. Either way, overwriting without showing the difference and getting consent would silently destroy someone's words."
+           data-explanation-wrong="The fourth verdict stops and reports instead of writing. What is the one thing the script refuses to do without consent?">
+        <h3 class="quiz-question">The script finds the planted block differs from what it would write today. Why does it stop and report "drifted" instead of just fixing it?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Rewriting the block is too slow to do automatically</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The script can't tell which version is newer</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The difference might be a human's deliberate edit — differing text is shown and consented to, never silently overwritten</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

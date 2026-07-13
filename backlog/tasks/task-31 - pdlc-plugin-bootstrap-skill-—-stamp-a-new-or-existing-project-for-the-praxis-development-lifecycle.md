@@ -3,11 +3,11 @@ id: TASK-31
 title: >-
   pdlc plugin: bootstrap skill — stamp a new or existing project for the praxis
   development lifecycle
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-13 15:23'
-updated_date: '2026-07-13 15:31'
+updated_date: '2026-07-13 15:38'
 labels: []
 dependencies: []
 ordinal: 63000
@@ -27,7 +27,7 @@ A new marketplace plugin `pdlc` whose `bootstrap` skill initializes a NEW or EXI
 - [x] #4 Peer utility handling: detects the backlog and specify CLIs; absent -> names them officially supported and recommends installation; present -> asks to opt in; on opt-in runs backlog init / specify init (skipping when backlog/ or .specify/ already exist) and wires their conventions into the planted CLAUDE.md
 - [x] #5 Scaffolding is ensured via lib/installer.mjs semantics (dotfile-safe copy, ensureGitignore .handoff/, installMode markers) and phase separation holds: bootstrap hands off to next skills (e.g. wiki-build) but never invokes sibling skills
 - [x] #6 Skill verifies planted files on disk (verifyPresent semantics) before declaring success and reports exactly what was created, refreshed, skipped, and left untouched
-- [ ] #7 Tests under test/ cover the new surface and node --test stays green; README plugin table + docs updated; marketplace version and the skill's own version bumped per docs/releasing.md
+- [x] #7 Tests under test/ cover the new surface and node --test stays green; README plugin table + docs updated; marketplace version and the skill's own version bumped per docs/releasing.md
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -47,4 +47,12 @@ A new marketplace plugin `pdlc` whose `bootstrap` skill initializes a NEW or EXI
 
 <!-- SECTION:NOTES:BEGIN -->
 Implemented: pdlc plugin scaffolded (plugin.json, lib symlink, README), templates/CLAUDE.md grounding block with pdlc:grounding + pdlc:peer:{backlog,spec-kit} markers, scripts/plant.mjs (dual-use CLI on lib/installer+template+cli: fresh/append/replace/unchanged/drifted semantics, drift never overwritten without --force, sentinel .pdlc never advances past an unconfirmed drift, --check writes nothing and exits 1 while pending), skills/bootstrap/SKILL.md (gate->work->gate; peer detect/recommend/opt-in with backlog init & specify init, skip when backlog/ or .specify/ exist; hands off to wiki-build/spec-bridge/c2c without invoking them). 10 new tests in test/pdlc.test.mjs; full suite 122 pass. README table/install/status updated; marketplace regenerated via gen-marketplace; version bumped 0.6.5 -> 0.7.0 via sync-version (minor: new plugin). Live smoke on scratch dir: append-to-existing-CLAUDE.md verified.
+
+Wiki pass: new docs/wiki/pdlc-plugin.md pinned to 57edb43; overview.md updated (seven plugins, pdlc line) and re-pinned; 6 stamp-only re-pins via grounding-wiki plan/repin; build-and-release reviewed against the marketplace/action.yml diff (mechanism prose unaffected) and re-pinned. Freshness gate: 23 notes fresh. Per-task course docs/courses/TASK-31/ (2 modules: The Empty Slot, Guests Not Squatters) built from canonical chrome references; course gate PASSED. check-docs green.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+New marketplace plugin pdlc (v0.7.0, minor bump) whose bootstrap skill stamps a new OR existing folder for the praxis development lifecycle. Deterministic core pdlc/scripts/plant.mjs (chassis: installer/template/cli) plants the always-on grounding between <!-- pdlc:grounding --> markers — created/appended/replaced/unchanged/drifted semantics, drift never overwritten without --force, .pdlc sentinel records version+peer choices and never advances past unconfirmed drift, --check dry-runs and exits 1 while pending. Template carries the loop, plugin roles, gates + handoff rules, with pdlc:peer:{backlog,spec-kit} opt-in blocks. SKILL.md (gate->work->gate) detects the backlog/specify CLIs, recommends install when absent, asks per-peer opt-in when present (running backlog init / specify init, skipping existing backlog//.specify/), verifies on disk, reports honestly, hands off without invoking siblings. Verified: 10 new tests (test/pdlc.test.mjs), suite 122 pass; live smoke on scratch project incl. append-to-existing CLAUDE.md; freshness + check-docs + course gates green. Docs: README table/install/status, wiki note pdlc-plugin, per-task course TASK-31 (course gate passed).
+<!-- SECTION:FINAL_SUMMARY:END -->
