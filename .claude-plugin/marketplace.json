@@ -4,7 +4,7 @@
   "owner": {
     "name": "praxisflux maintainers"
   },
-  "version": "0.6.5",
+  "version": "0.7.0",
   "plugins": [
     {
       "name": "educate",
@@ -75,6 +75,18 @@
         "backlog",
         "kanban",
         "gates"
+      ]
+    },
+    {
+      "name": "pdlc",
+      "source": "./pdlc",
+      "description": "Bootstrap a new or existing project for the praxis development lifecycle: plant the always-on PDLC grounding (CLAUDE.md), wire the .handoff/ transport, and opt into the supported peer utilities (Backlog.md, Spec Kit).",
+      "category": "productivity",
+      "tags": [
+        "pdlc",
+        "bootstrap",
+        "installer",
+        "lifecycle"
       ]
     }
   ]
