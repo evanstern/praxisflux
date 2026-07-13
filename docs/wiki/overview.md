@@ -5,16 +5,17 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: c2c19ee3003d411a403ba85dc11f29deff9a14e0
+verified_against: 57edb4337bb6a3acb2eda39716fde84fe3ce97b9
 ---
 
 # praxisflux — system overview
 
 praxisflux is a Claude Code **plugin marketplace** that unifies composable knowledge-work
-plugins on one shared, zero-dependency Node chassis (`lib/`). Six plugins are registered
+plugins on one shared, zero-dependency Node chassis (`lib/`). Seven plugins are registered
 in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`
-(a scaffold), `codebase-to-course`, and `spec-bridge`. Each is independently installable and
-mutually aware, but plugins never call each other — they compose only through files and gates.
+(a scaffold), `codebase-to-course`, `spec-bridge`, and `pdlc`. Each is independently
+installable and mutually aware, but plugins never call each other — they compose only
+through files and gates.
 
 ## How it works
 
@@ -35,6 +36,9 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[codebase-to-course-plugin]] consumes a grounded corpus to produce an interactive course.
 - [[spec-bridge-plugin]] sits beside the loop: it makes the Backlog.md board a derived kanban
   view over GitHub Spec Kit specs, gated so status can't exceed proven spec artifacts.
+- [[pdlc-plugin]] sits before the loop: its `bootstrap` skill stamps a new or existing project
+  for the praxis development lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore,
+  opt-in to the supported peer utilities Backlog.md and Spec Kit).
 
 Knowledge interchange rides one contract, the grounded corpus ([[grounded-corpus-spec]]);
 work interchange rides one transport, the handoff protocol ([[handoff-protocol]]).

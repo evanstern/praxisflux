@@ -6,8 +6,8 @@ each is independently installable, aware of the others, and composes only throug
 gates — never by calling each other directly.
 
 > Status: **under construction.** The plan lives in Backlog (`backlog task list --plain`).
-> Six plugins are registered in the marketplace: `research`, `grounding-wiki`, `educate`,
-> `build` (a scaffold), `codebase-to-course`, and `spec-bridge`. This repo is the unification
+> Seven plugins are registered in the marketplace: `research`, `grounding-wiki`, `educate`,
+> `build` (a scaffold), `codebase-to-course`, `spec-bridge`, and `pdlc`. This repo is the unification
 > target for the standalone `research` skills, the `educate` plugin, and the
 > `codebase-to-course` skill.
 
@@ -21,6 +21,7 @@ gates — never by calling each other directly.
 | **build** | *(scaffold — split out of educate)* Implement a SPEC and return findings for the lesson to fold back in. | Runs where the work is. |
 | **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | **Runs on a target codebase** (course lands in `docs/course/`). |
 | **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | **Runs on a project with `backlog/` + `specs/`.** |
+| **pdlc** | Bootstrap a new **or existing** project for the praxis development lifecycle: plant the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignore the `.handoff/` transport, and opt into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in. | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
 
 ## The loop
 
@@ -79,6 +80,7 @@ local clone:
 /plugin install build@praxisflux
 /plugin install codebase-to-course@praxisflux
 /plugin install spec-bridge@praxisflux
+/plugin install pdlc@praxisflux
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need.

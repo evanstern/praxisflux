@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-31 — Setting the Table</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-31 — Setting the Table</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Empty Slot" role="tab" aria-label="Module 1: The Empty Slot"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Guests, Not Squatters" role="tab" aria-label="Module 2: Guests, Not Squatters"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Empty Slot</span>
+    <h1>A toolbox can't hang its own rules on your wall</h1>
+
+    <p>The praxisflux plugins are like toolboxes: they sit closed until a job needs them. Nothing in a closed toolbox is <em>always visible</em> — yet the whole suite depends on standing rules the project must see every single session: which folders mean what, which gates apply, how work gets handed between tools. TASK-31 built the suite-level answer: one skill, <strong>pdlc:bootstrap</strong>, that stamps those standing rules onto any project — a brand-new empty folder or a codebase with years of history.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🌱</div>
+        <h4 class="pattern-title">Day zero or year five</h4>
+        <p class="pattern-desc">An empty folder gets a fresh rulebook; an existing project gets the rules <em>added after</em> its own — never over them.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🔖</div>
+        <h4 class="pattern-title">One marked block</h4>
+        <p class="pattern-desc">Everything planted lives between two visible bookmarks in the rulebook. Inside: refreshable boilerplate. Outside: yours, untouchable.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🤖</div>
+        <h4 class="pattern-title">The boring part is a machine</h4>
+        <p class="pattern-desc">A small deterministic script does the planting, byte-for-byte repeatable. The AI contributes judgment — questions, diffs, consent — never the typing.</p>
+      </div>
+    </div>
+
+    <h2>One bootstrap run, end to end</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"You point the skill at a folder — new or already full of code"},
+      {"highlight":"flow-actor-2","label":"The skill checks for a stamp: first visit, or an update?"},
+      {"highlight":"flow-actor-2","label":"It asks about the two supported companions (next module) and remembers your answers"},
+      {"highlight":"flow-actor-3","label":"The planting script writes the marked block, the stamp, and the ignore rule","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-3","label":"It re-checks the folder on disk — no claim of success without looking"},
+      {"highlight":"flow-actor-4","label":"The project now carries its own rulebook; the skill hands off and steps away","packet":true,"from":"actor-3","to":"actor-4"}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">🙋</div>
+          <span>You</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🌱</div>
+          <span>bootstrap skill</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">🤖</div>
+          <span>planting script</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">📁</div>
+          <span>Your project</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to bootstrap a project</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The five verdicts, verbatim</h2>
+
+    <p>The heart of the planting script is one decision: what state is the project's rulebook in, and what is the honest move? Five verdicts cover every case:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(claudePath)) { claudeMd = <span class="code-string">"created"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (!found) { claudeMd = <span class="code-string">"appended"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (found.block === expected) { claudeMd = <span class="code-string">"unchanged"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else if</span> (!force) { claudeMd = <span class="code-string">"drifted"</span>; }</span>
+<span class="code-line"><span class="code-keyword">else</span> { claudeMd = <span class="code-string">"replaced"</span>; }</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">No rulebook at all? Write a fresh one.</p>
+          <p class="tl">A rulebook exists but has no bookmarks? Add the block at the end — the owner&rsquo;s text stays first and stays whole.</p>
+          <p class="tl">The block matches exactly what this version would plant? Touch nothing.</p>
+          <p class="tl">The block differs and nobody has consented? Report &ldquo;drifted&rdquo; and stop — differing text is never silently overwritten.</p>
+          <p class="tl">Consent given? Replace just the block, leaving everything around it alone.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🔖</div>
+      <div class="callout-content">
+        <strong class="callout-title">Why bookmarks change everything</strong>
+        <p>Because the planted rules live between visible markers, three hard problems become easy: an existing rulebook is appended to instead of clobbered, an upgrade can refresh the whole block in one honest move, and "your edits" versus "our boilerplate" has a physical boundary instead of a judgment call.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the markers give planted boilerplate a physical boundary, so the project's own content is structurally safe and updates can refresh the block wholesale."
+           data-explanation-wrong="Think about the folder that already has a rulebook full of the team's own rules. Where does the planted block go, and what makes that safe?">
+        <h3 class="quiz-question">Why does the planted grounding live between two marker comments instead of being its own file content?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Markers make the file load faster</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>They draw a physical boundary: an existing rulebook is appended to, never clobbered, and updates can refresh exactly the block and nothing else</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The markers hide the planted rules from the AI</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — 'drifted' means 'what's on disk differs from what I would plant.' Maybe the plugin upgraded; maybe a human edited inside the block. Either way, overwriting without showing the difference and getting consent would silently destroy someone's words."
+           data-explanation-wrong="The fourth verdict stops and reports instead of writing. What is the one thing the script refuses to do without consent?">
+        <h3 class="quiz-question">The script finds the planted block differs from what it would write today. Why does it stop and report "drifted" instead of just fixing it?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Rewriting the block is too slow to do automatically</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The script can't tell which version is newer</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The difference might be a human's deliberate edit — differing text is shown and consented to, never silently overwritten</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · Guests, Not Squatters</span>
+    <h1>Two invited companions and a doorbell</h1>
+
+    <p>The lifecycle works best alongside two outside tools: <strong>Backlog.md</strong> (the task board) and <strong>GitHub Spec Kit</strong> (feature specs). Neither belongs to praxisflux — they are <em>officially supported peers</em>, and TASK-31 made the relationship explicit. Bootstrap never assumes them, never installs them behind your back, and never squats on a setup you already have. It rings the doorbell:</p>
+
+    <div class="icon-rows">
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-1)">🔍</div>
+        <div>
+          <strong>1 · Look before asking</strong>
+          <p>The skill checks whether each companion's command-line tool is installed on your machine. That's the fork in the road.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-2)">💬</div>
+        <div>
+          <strong>2 · Absent? Recommend, don't require</strong>
+          <p>You're told the tool is officially supported and given the install command. Declining is fine — the project is planted without that companion's rules, and opting in later is one re-run away.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-3)">🚪</div>
+        <div>
+          <strong>3 · Present? Ask to opt in</strong>
+          <p>Having a tool installed doesn't mean this project should use it. One question per companion — and on an update, your previous answer is the remembered default.</p>
+        </div>
+      </div>
+      <div class="icon-row">
+        <div class="icon-circle" style="background: var(--color-actor-4)">🤝</div>
+        <div>
+          <strong>4 · Opting in means bootstrap does the setup</strong>
+          <p>It runs the companion's own initializer for you — and skips it entirely if the folder shows the companion is already set up. Your answers select which convention blocks get planted, and the stamp file remembers them.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>The doorbell, dramatized</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="skill" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🌱</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">bootstrap</span>
+            <p>I found the <em>backlog</em> tool on your machine. Backlog.md is an officially supported companion — want this project on a task board?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-4)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-4)">You</span>
+            <p>Yes please. And Spec Kit too.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="skill" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🌱</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">bootstrap</span>
+            <p>This folder already has a <em>backlog/</em> directory — someone set the board up before me. Skipping its initializer; I&rsquo;ll only plant the board conventions into the rulebook.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="human" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-4)">🙋</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-4)">You</span>
+            <p>And if I re-run you next month after a plugin upgrade?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="skill" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🌱</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">bootstrap</span>
+            <p>Then I read the stamp file, offer your old answers as defaults, show you exactly what the refreshed block would change, and touch nothing until you say go.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>The stamp that refuses to lie</h2>
+
+    <p>Every bootstrapped project carries a small stamp file recording which plugin version planted it and which companions it opted into. One guard keeps the stamp honest:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-comment">// A drifted, unconfirmed block means nothing was planted —</span></span>
+<span class="code-line"><span class="code-comment">// don't advance the sentinel past it.</span></span>
+<span class="code-line"><span class="code-keyword">if</span> (!check &amp;&amp; !same &amp;&amp; claudeMd !== <span class="code-string">"drifted"</span>) {</span>
+<span class="code-line">  <span class="code-function">writeFileSync</span>(sentinelPath, JSON.<span class="code-function">stringify</span>({ ...desired, plantedAt }));</span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">If the rulebook refresh was refused pending your consent&hellip;</p>
+          <p class="tl">&hellip;the stamp must keep saying the OLD version is what&rsquo;s planted &mdash; because it is.</p>
+          <p class="tl">Only when something really was written&hellip;</p>
+          <p class="tl">&hellip;does the stamp advance to the new version and choices&hellip;</p>
+          <p class="tl">&hellip;so the stamp never claims a state the folder isn&rsquo;t actually in.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-accent">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong class="callout-title">Key Insight — set the table, don't cook</strong>
+        <p>Bootstrap creates no wiki, no course, no lessons, and never invokes the plugins that do. It plants the rules, wires the transport, and hands off — telling you what's now possible (ground the codebase, spec the first feature) without doing any of it. In this suite, tools compose through files and gates, never by calling each other.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — opt-in means bootstrap does the work, but a folder that already shows the companion set up (a backlog/ or .specify/ directory) is respected as-is. Doing setup FOR you and squatting on existing setup are different things."
+           data-explanation-wrong="Re-play the chat: what did bootstrap do when it found the backlog/ directory already there?">
+        <h3 class="quiz-question">You opt into Backlog.md, but the project already has a backlog/ directory. What does bootstrap do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Skips the initializer — the existing board is respected — and only plants the board conventions into the rulebook</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Re-initializes the board to bring it up to date</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Refuses to continue until the old board is deleted</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — phase separation is the suite's load-bearing rule. Each skill does one phase and hands off through files and gates; a bootstrap that also built the wiki would blur the honest boundary between setting up and doing the work."
+           data-explanation-wrong="Think of the Key Insight: what is the one way praxisflux tools are allowed to compose?">
+        <h3 class="quiz-question">Grounding the codebase is the recommended next step — so why doesn't bootstrap just build the wiki itself?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Building the wiki is too slow to run during setup</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The wiki plugin might not be installed</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Skills compose only through files and gates, never by calling each other — bootstrap does its one phase and hands off</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
