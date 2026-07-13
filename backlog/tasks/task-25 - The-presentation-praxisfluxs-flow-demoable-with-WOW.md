@@ -1,13 +1,14 @@
 ---
 id: TASK-25
 title: 'The presentation: praxisflux''s flow, demoable with WOW'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-12 01:23'
+updated_date: '2026-07-13 20:15'
 labels: []
 dependencies: []
 priority: high
-ordinal: 57000
+ordinal: 500
 ---
 
 ## Description

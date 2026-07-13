@@ -3,13 +3,14 @@ id: TASK-29
 title: >-
   Build plugin for real: the implementation leg, unified with the pipeline's
   agent node
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-12 01:24'
+updated_date: '2026-07-13 20:19'
 labels: []
 dependencies: []
 priority: medium
-ordinal: 61000
+ordinal: 125
 ---
 
 ## Description

@@ -3,13 +3,14 @@ id: TASK-28
 title: >-
   Approval surface: parked runs visible and approvable by humans who are not
   running curl
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-12 01:23'
+updated_date: '2026-07-13 20:18'
 labels: []
 dependencies: []
 priority: medium
-ordinal: 60000
+ordinal: 250
 ---
 
 ## Description
