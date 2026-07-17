@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-17 14:13'
-updated_date: '2026-07-17 14:17'
+updated_date: '2026-07-17 14:20'
 labels: []
 dependencies: []
 priority: high
@@ -46,3 +46,9 @@ Decide where these live in praxis (the always-on PDLC CLAUDE.md grounding block 
 7. Coda side (AC#4): update specs/009-taint-architecture/contracts/constitution-amendment.md in the task-0003.01 worktree to cite praxisflux docs/principles.md as the upstream source instead of the 'flagged, praxis-side change pending' language; commit on that branch.
 8. Per-task course docs/courses/TASK-32/, finalize (ACs, final summary, Done), PR from task-32-101-principles.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Owner refinements (2026-07-17, ratified while restructuring Coda's TASK-0003): (1) Reason-to-approve test — a PR exists only where it carries a stated reason for a human to approve (a policy ratified, a posture changed, a contract made binding); work items too small to give a reviewer a real decision merge into the deliverable they serve. (2) Three-tier model: EPIC groups deliverables, no PR of its own; TASK = deliverable, exactly 1 PR; SUBTASK = internal breakdown, never a PR. Worked example landed in Coda: TASK-0003 epic restructured to 7 deliverable TASKs (two merges: .06→.04 pre-PR checks pairing, .10→.08 quarantine surface); drafted into Coda's v1.4.0 amendment as a Principle V clarification (specs/009-taint-architecture/contracts/constitution-amendment.md on kofile/coda PR #9).
+<!-- SECTION:NOTES:END -->
