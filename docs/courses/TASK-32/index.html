@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-32 — The Two Laws</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-32 — The Two Laws</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Paper Trail" role="tab" aria-label="Module 1: The Paper Trail"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="One Task, One PR" role="tab" aria-label="Module 2: One Task, One PR"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Paper Trail</span>
+    <h1>If it isn't written down somewhere checkable, it didn't happen</h1>
+
+    <p>Imagine a company where deals are closed with a handshake in the hallway and nobody writes anything down. A month later, nobody agrees on what was promised. TASK-32 wrote down praxis's first law against exactly that — but for AI-assisted work: <strong>neither the AI nor the person steering it ever does anything without leaving a durable paper trail, or without checking against real evidence already in the project</strong> — a file, a git commit, a task on the board. The rule got a permanent home: a new document, <code>docs/principles.md</code>, plus a copy planted into every project that bootstraps onto the praxis lifecycle.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🗒️</div>
+        <h4 class="pattern-title">Chat is not a record</h4>
+        <p class="pattern-desc">A choice that lives only in a conversation turn <em>did not happen</em>. Decisions must land in artifacts that outlive the conversation and can be reviewed by a human later.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🔁</div>
+        <h4 class="pattern-title">Artifacts in, artifacts out</h4>
+        <p class="pattern-desc">Decisions are <em>derived from</em> what already exists on disk and on the board — and every decision <em>produces</em> new evidence in turn.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🙅</div>
+        <h4 class="pattern-title">Don't re-ask the answered</h4>
+        <p class="pattern-desc">If an existing document or principle already answers a question, the answer is taken from it — not re-asked as a matter of taste.</p>
+      </div>
+    </div>
+
+    <h2>How a decision travels under the first law</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A question comes up: should we do X?"},
+      {"highlight":"flow-actor-2","label":"First stop: the existing record — files, commits, the board. Is it already answered?","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"Already answered? Take the answer from the record. Done — nobody gets re-asked."},
+      {"highlight":"flow-actor-3","label":"Genuinely new? Decide — and write the decision into a durable artifact","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"A gate later checks the artifact — not anybody&apos;s memory of the chat","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-4","label":"The record grew. The next question starts at step two with better evidence."}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">❓</div>
+          <span>A question</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">📚</div>
+          <span>The record</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">✍️</div>
+          <span>New artifact</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🚦</div>
+          <span>The gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to follow a decision</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The law checks itself</h2>
+
+    <p>Here is the pleasing part: the principle about programmatic evidence is itself guarded by a programmatic check. A new automated test refuses to pass unless the canonical document exists and the planted rulebook actually carries both laws — so the principles can never quietly fall out of what gets planted:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-function">assert.ok</span>(<span class="code-function">existsSync</span>(<span class="code-string">"docs/principles.md"</span>));</span>
+<span class="code-line"><span class="code-function">assert.match</span>(TEMPLATE, <span class="code-string">/Artifact-grounded action:/</span>);</span>
+<span class="code-line"><span class="code-function">assert.match</span>(TEMPLATE, <span class="code-string">/One TASK, one PR:/</span>);</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The canonical principles document must exist on disk — not in anyone&rsquo;s memory.</p>
+          <p class="tl">The rulebook planted into every new project must state the first law, word for word.</p>
+          <p class="tl">And it must state the second law too — a build that drops either one fails loudly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🌍</div>
+      <div class="callout-content">
+        <strong class="callout-title">Written once, inherited everywhere</strong>
+        <p>The full statement lives in <code>docs/principles.md</code> — the canonical version, with rationale. The planted project rulebook carries a compact operational copy under "Rules that always hold." And a downstream project (Coda's constitution) now <em>references</em> the praxis document as its upstream source instead of re-deriving the argument — one law, one home, many inheritors.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — under the first law, only durable, checkable artifacts count as state. A chat-only agreement has no home a gate or a future reader can verify, so it did not happen."
+           data-explanation-wrong="Reread the first pattern card: what does the law say about a choice that lives only in a conversation turn?">
+        <h3 class="quiz-question">During a chat session, everyone agrees on a plan — and then the session ends with nothing written anywhere. Under the first law, what is the status of that plan?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It counts, as long as everyone remembers it the same way</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It did not happen — a decision only exists once it lands in a durable artifact a human or a gate can check</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It counts for the AI but not for the humans</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — asking a preference for something the record already determines is a failure of grounding. The answer is derived from the existing artifact, and re-asking just invites the record and the conversation to disagree."
+           data-explanation-wrong="Think about the third pattern card. If the plan of record already answers the question, what is the honest move?">
+        <h3 class="quiz-question">A question comes up that the project's plan of record already answers. What does the first law say to do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Ask anyway — it's polite to double-check preferences</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Answer from memory of past conversations</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Resolve it from the existing artifact — an answered question is never re-asked as a preference</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · One Task, One PR</span>
+    <h1>The review boundary is the promise boundary</h1>
+
+    <p>The second law is about granularity — how work is sliced. Every task system on earth distinguishes two levels, whatever it calls them: the <strong>TASK</strong>, a top-level deliverable someone committed to, and the <strong>SUBTASK</strong>, the internal breakdown of how that deliverable gets done. The law fixes the relationship between them: <strong>a TASK maps one-to-one to a pull request; a SUBTASK never gets its own.</strong> Subtasks land as ordinary commits on the parent task's single branch and merge together in that task's one PR.</p>
+
+    <p>The wording in <code>docs/principles.md</code> is deliberately tool-agnostic, because the disguises vary: Backlog.md spells subtasks as dotted ids (TASK-3.02), GitHub spells them as sub-issues or checklist items, Jira calls them sub-tasks, Spec Kit slices a spec into phases. Different costumes, same invariant.</p>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚖️</div>
+      <div class="callout-content">
+        <strong class="callout-title">Why it matters</strong>
+        <p>A pull request is where a human reviews and approves work. If review happens at the level of internal chunks, the actual <em>promise</em> — the deliverable — is never reviewed as a whole. And the law cuts both ways: a subtask that seems to deserve its own PR is really a deliverable in disguise (promote it on the board first — a paper-trail move, per the first law), while a task too big for one reviewable PR is mis-scoped and should be split <em>as a task</em>, not smeared across several PRs.</p>
+      </div>
+    </div>
+
+    <h2>Overheard on a project</h2>
+
+    <div class="chat-window" id="chat-module2">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🛠️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Builder</span>
+            <p>I finished subtask 3.02 — the branch-prefix check. Opening a little PR for it now?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="rules" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">📜</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The rulebook</span>
+            <p>No — 3.02 is a <em>subtask</em>. It rides the parent task&rsquo;s branch as a commit. Task 3 gets exactly one PR, and everything inside it merges together.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🛠️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Builder</span>
+            <p>But this piece feels big enough to review on its own&hellip;</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="rules" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">📜</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The rulebook</span>
+            <p>Then it might really be a deliverable. Make that call where deliverables live — promote it to a full task on the board, <em>then</em> it earns a branch and a PR. Branch mechanics never restructure the plan of record.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🛠️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Builder</span>
+            <p>And if the parent task balloons and its one PR turns huge?</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" data-sender="rules" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">📜</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The rulebook</span>
+            <p>That&rsquo;s a scoping smell, not a license for multi-PR tasks. Split the <em>task</em>. The one-to-one mapping stays.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>The law, as this very task obeyed it</h2>
+
+    <p>TASK-32 itself followed the second law. Its whole life on the command line is three moves — and the middle one repeats as often as needed while the other two happen exactly once:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line">git checkout <span class="code-string">-b task-32-101-principles</span></span>
+<span class="code-line">git commit <span class="code-string">-m "TASK-32: ..."</span>   <span class="code-comment"># once per slice</span></span>
+<span class="code-line">gh pr create                     <span class="code-comment"># exactly once</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">One task, one branch — created when the task starts, named after it.</p>
+          <p class="tl">Every slice of internal progress becomes a commit on that same branch — as many as the work needs.</p>
+          <p class="tl">And exactly one pull request carries the whole deliverable to review.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Where the two laws now live</h2>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">📖</div>
+        <h4 class="pattern-title">The canon</h4>
+        <p class="pattern-desc"><code>docs/principles.md</code> — full statements, rationale, and the per-system dictionary. The single upstream source.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🌱</div>
+        <h4 class="pattern-title">Every new project</h4>
+        <p class="pattern-desc">The bootstrap rulebook plants both laws under "Rules that always hold," plus each companion tool&rsquo;s own dialect of the second law.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🛰️</div>
+        <h4 class="pattern-title">Downstream projects</h4>
+        <p class="pattern-desc">Coda&rsquo;s constitution amendment now cites the praxis document as its upstream source and adds only its own domain-specific enforcement.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Right — subtasks are internal breakdown. They become commits on the parent task's branch, and the whole deliverable is reviewed once, in the parent's single PR."
+           data-explanation-wrong="The rulebook answered exactly this in the chat above: where does a finished subtask's work go?">
+        <h3 class="quiz-question">You finish a subtask of a larger task. Where does its work land?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>As commits on the parent task's branch, merging in the parent's one PR</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>In its own small PR — small PRs are always better</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Straight onto the main branch, since it's only a fragment</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — the invariant is the TASK↔SUBTASK relationship itself, which every system has under some name. That's what makes the law portable to Backlog.md, GitHub Issues, Jira, Spec Kit, or whatever comes next."
+           data-explanation-wrong="The law was deliberately written without naming any one tool. What do dotted ids, sub-issues, Jira sub-tasks, and spec phases all have in common?">
+        <h3 class="quiz-question">Why is the second law written without naming any particular task system?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because naming tools in documents is against the style guide</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the team hasn't picked a task system yet</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the invariant is the TASK↔SUBTASK relationship, which every system has under a different name — so one statement covers them all</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
