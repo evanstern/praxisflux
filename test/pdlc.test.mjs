@@ -49,6 +49,15 @@ test("template markers are well-formed: one grounding block, both peer blocks in
   }
 });
 
+test("template carries the foundational (101) principles from docs/principles.md", () => {
+  // P1 — artifact-grounded action; P2 — one TASK, one PR. Canonical statement lives in
+  // docs/principles.md; every bootstrapped project must inherit the operational form.
+  assert.ok(existsSync(join(repo, "docs", "principles.md")), "canonical principles doc missing");
+  assert.match(TEMPLATE, /\*\*Artifact-grounded action:\*\*/);
+  assert.match(TEMPLATE, /\*\*One TASK, one PR:\*\*/);
+  assert.match(TEMPLATE, /never gets its own PR/);
+});
+
 test("renderGrounding substitutes tokens and strips non-opted peer blocks", () => {
   const none = renderGrounding(TEMPLATE, { projectName: "acme", version: "9.9.9", peers: [] });
   assert.ok(none.includes("# acme — praxis development lifecycle"));

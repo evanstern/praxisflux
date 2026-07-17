@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 57edb4337bb6a3acb2eda39716fde84fe3ce97b9
+verified_against: 6b37e2fbf4a81cd696b779d4282519849cfde30f
 ---
 
 # pdlc plugin
@@ -32,6 +32,13 @@ Everything pdlc plants rides between `<!-- pdlc:grounding BEGIN/END -->` markers
 
 Peer conventions are nested `<!-- pdlc:peer:backlog -->` / `<!-- pdlc:peer:spec-kit -->` sub-blocks,
 stripped at render time unless opted in.
+
+The block's "Rules that always hold" carry the foundational ("101") praxis principles from
+`docs/principles.md` — **artifact-grounded action** (never act without a durable paper trail
+and/or gating on real physical evidence) and **one TASK, one PR** (a SUBTASK never gets its own
+PR) — so every bootstrapped project inherits them; each peer sub-block adds that system's
+mapping (Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR
+boundaries). `test/pdlc.test.mjs` asserts the template carries both.
 
 ## Deterministic core: scripts/plant.mjs
 

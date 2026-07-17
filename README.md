@@ -45,6 +45,18 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 
 ## Principles
 
+The foundational ("101") rules are stated canonically in
+[`docs/principles.md`](docs/principles.md) and planted into every bootstrapped project's
+always-on grounding:
+
+- **Artifact-grounded action (P1)** — never act without leaving a durable paper trail
+  and/or gating against real physical evidence; artifacts are the only currency of state
+  and decision.
+- **One TASK, one PR (P2)** — a top-level task maps 1:1 to a PR; subtasks (any system's
+  spelling of them) never get their own PR — they ride the parent task's branch.
+
+Suite-design principles:
+
 - **Shared plumbing, domain-specific content** — plugins share the chassis, not their vocabularies.
 - **Phase-separated skills** that know nothing of each other; they compose through files + gates.
 - **Plant a project `CLAUDE.md`** — a plugin has no always-on slot, so it installs one.
@@ -54,6 +66,9 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 
 ## Docs
 
+- [`docs/principles.md`](docs/principles.md) — the foundational ("101") praxis principles:
+  artifact-grounded action and one-TASK-one-PR, stated task-system-agnostically; the
+  upstream source downstream constitutions reference.
 - [`docs/skill-patterns.md`](docs/skill-patterns.md) — how to author a plugin/skill in this suite
   (the shared patterns; read before adding a plugin).
 - [`docs/handoff-protocol.md`](docs/handoff-protocol.md) — the inter-plugin handoff transport.

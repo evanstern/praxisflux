@@ -1,0 +1,148 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Paper Trail</span>
+    <h1>If it isn't written down somewhere checkable, it didn't happen</h1>
+
+    <p>Imagine a company where deals are closed with a handshake in the hallway and nobody writes anything down. A month later, nobody agrees on what was promised. TASK-32 wrote down praxis's first law against exactly that — but for AI-assisted work: <strong>neither the AI nor the person steering it ever does anything without leaving a durable paper trail, or without checking against real evidence already in the project</strong> — a file, a git commit, a task on the board. The rule got a permanent home: a new document, <code>docs/principles.md</code>, plus a copy planted into every project that bootstraps onto the praxis lifecycle.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🗒️</div>
+        <h4 class="pattern-title">Chat is not a record</h4>
+        <p class="pattern-desc">A choice that lives only in a conversation turn <em>did not happen</em>. Decisions must land in artifacts that outlive the conversation and can be reviewed by a human later.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🔁</div>
+        <h4 class="pattern-title">Artifacts in, artifacts out</h4>
+        <p class="pattern-desc">Decisions are <em>derived from</em> what already exists on disk and on the board — and every decision <em>produces</em> new evidence in turn.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🙅</div>
+        <h4 class="pattern-title">Don't re-ask the answered</h4>
+        <p class="pattern-desc">If an existing document or principle already answers a question, the answer is taken from it — not re-asked as a matter of taste.</p>
+      </div>
+    </div>
+
+    <h2>How a decision travels under the first law</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"A question comes up: should we do X?"},
+      {"highlight":"flow-actor-2","label":"First stop: the existing record — files, commits, the board. Is it already answered?","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-2","label":"Already answered? Take the answer from the record. Done — nobody gets re-asked."},
+      {"highlight":"flow-actor-3","label":"Genuinely new? Decide — and write the decision into a durable artifact","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"A gate later checks the artifact — not anybody&apos;s memory of the chat","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-4","label":"The record grew. The next question starts at step two with better evidence."}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">❓</div>
+          <span>A question</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">📚</div>
+          <span>The record</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">✍️</div>
+          <span>New artifact</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🚦</div>
+          <span>The gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to follow a decision</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The law checks itself</h2>
+
+    <p>Here is the pleasing part: the principle about programmatic evidence is itself guarded by a programmatic check. A new automated test refuses to pass unless the canonical document exists and the planted rulebook actually carries both laws — so the principles can never quietly fall out of what gets planted:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-function">assert.ok</span>(<span class="code-function">existsSync</span>(<span class="code-string">"docs/principles.md"</span>));</span>
+<span class="code-line"><span class="code-function">assert.match</span>(TEMPLATE, <span class="code-string">/Artifact-grounded action:/</span>);</span>
+<span class="code-line"><span class="code-function">assert.match</span>(TEMPLATE, <span class="code-string">/One TASK, one PR:/</span>);</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The canonical principles document must exist on disk — not in anyone&rsquo;s memory.</p>
+          <p class="tl">The rulebook planted into every new project must state the first law, word for word.</p>
+          <p class="tl">And it must state the second law too — a build that drops either one fails loudly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🌍</div>
+      <div class="callout-content">
+        <strong class="callout-title">Written once, inherited everywhere</strong>
+        <p>The full statement lives in <code>docs/principles.md</code> — the canonical version, with rationale. The planted project rulebook carries a compact operational copy under "Rules that always hold." And a downstream project (Coda's constitution) now <em>references</em> the praxis document as its upstream source instead of re-deriving the argument — one law, one home, many inheritors.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — under the first law, only durable, checkable artifacts count as state. A chat-only agreement has no home a gate or a future reader can verify, so it did not happen."
+           data-explanation-wrong="Reread the first pattern card: what does the law say about a choice that lives only in a conversation turn?">
+        <h3 class="quiz-question">During a chat session, everyone agrees on a plan — and then the session ends with nothing written anywhere. Under the first law, what is the status of that plan?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It counts, as long as everyone remembers it the same way</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It did not happen — a decision only exists once it lands in a durable artifact a human or a gate can check</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It counts for the AI but not for the humans</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — asking a preference for something the record already determines is a failure of grounding. The answer is derived from the existing artifact, and re-asking just invites the record and the conversation to disagree."
+           data-explanation-wrong="Think about the third pattern card. If the plan of record already answers the question, what is the honest move?">
+        <h3 class="quiz-question">A question comes up that the project's plan of record already answers. What does the first law say to do?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Ask anyway — it's polite to double-check preferences</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Answer from memory of past conversations</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Resolve it from the existing artifact — an answered question is never re-asked as a preference</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 57edb4337bb6a3acb2eda39716fde84fe3ce97b9
+verified_against: 6b37e2fbf4a81cd696b779d4282519849cfde30f
 ---
 
 # praxisflux — system overview
@@ -78,7 +78,12 @@ Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folde
 - The flow also runs under external orchestration with humans only at the approval seam:
   `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
   pilot — workflow, host runner service, run log, orchestrator findings).
-- Guiding principles (from `README.md`): shared plumbing but domain-specific content;
+- Foundational ("101") principles (`docs/principles.md`, the canonical statement, planted
+  into every bootstrapped project by [[pdlc-plugin]]): **artifact-grounded action** — never
+  act without a durable paper trail and/or gating on real physical evidence — and **one
+  TASK, one PR** — a top-level task maps 1:1 to a PR; subtasks never get their own PR.
+  They bind this repo's own workflow too.
+- Suite-design principles (from `README.md`): shared plumbing but domain-specific content;
   phase-separated skills; plant a project `CLAUDE.md` (plugins have no always-on slot);
   gates enforce "status can't exceed proven artifacts"; handoffs use a shared transport
   with evidence in tracked state.
