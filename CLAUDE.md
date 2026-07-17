@@ -8,7 +8,10 @@ calling each other directly. See `README.md` for the full picture.
 **Guiding principles:** shared plumbing but domain-specific content · phase-separated skills ·
 plant a project `CLAUDE.md` (plugins have no always-on slot) · gates enforce "status can't
 exceed proven artifacts" · handoffs ride a shared transport (gitignored `.handoff/`) with
-evidence in tracked state.
+evidence in tracked state. The foundational ("101") rules — **artifact-grounded action**
+(never act without a durable paper trail and/or gating on real evidence) and **one TASK,
+one PR** (subtasks never get their own PR) — are stated canonically in `docs/principles.md`
+and bind this repo's own workflow too.
 
 Authoring a plugin/skill? Read `docs/skill-patterns.md` (shared patterns) and
 `docs/handoff-protocol.md` (inter-plugin handoffs) first.

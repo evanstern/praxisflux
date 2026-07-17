@@ -32,6 +32,17 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 
 ## Rules that always hold
 
+- **Artifact-grounded action:** never do anything without leaving a durable paper trail
+  and/or gating against real physical evidence in the project — a file, a git commit, a
+  task/issue. Artifacts that survive for human review are the only currency of state and
+  decision: a choice living only in a chat turn, or a commitment left as prose where its
+  durable home is the tracker, did not happen. Decisions are derived FROM artifacts and
+  produce NEW artifacts; a question an existing artifact or principle already answers is
+  resolved from it, not re-asked as a preference.
+- **One TASK, one PR:** a TASK is a top-level deliverable and maps 1:1 to a pull request —
+  one task, one branch, one PR. A SUBTASK (whatever the task system calls it) is internal
+  work breakdown and never gets its own PR: subtasks land as commits on the parent TASK's
+  single branch and merge together in that TASK's one PR.
 - **Gates:** a status can never exceed the artifacts that prove it. Plugins ship Stop hooks
   that enforce this; when a gate blocks, produce the missing artifact — don't argue with the
   gate or edit derived state by hand.
@@ -49,6 +60,9 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 - Start from `backlog task list --plain`; read a task with `backlog task view TASK-x --plain`.
 - Record plans (`--plan`), progress (`--append-notes`), and tick acceptance criteria
   (`--check-ac <n>`) as they come true; finish with `--final-summary` and `-s Done`.
+- **One task, one PR:** a top-level TASK gets one branch and one PR. Dotted-id subtasks
+  (TASK-x.y) are internal breakdown — they ride the parent task's branch and merge in its
+  PR, never their own.
 - **Never hand-edit** files under `backlog/` — always the `backlog` CLI, so metadata and
   relationships stay consistent.
 <!-- pdlc:peer:backlog END -->
@@ -63,5 +77,7 @@ Features are specified with GitHub Spec Kit (`specify`) under `specs/NNN-<featur
   `spec-bridge:sync` to move the linked task, re-mirror phase criteria, and record progress.
 - The bridge gate blocks a linked task's status from exceeding what the spec artifacts
   prove — produce the artifact, then sync.
+- A spec's linked task is the deliverable: it lands as **one PR**. Spec phases and their
+  mirrored criteria are internal breakdown, not PR boundaries.
 <!-- pdlc:peer:spec-kit END -->
 <!-- pdlc:grounding END -->

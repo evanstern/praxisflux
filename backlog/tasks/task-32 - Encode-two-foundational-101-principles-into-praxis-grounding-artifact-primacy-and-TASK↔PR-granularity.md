@@ -3,9 +3,11 @@ id: TASK-32
 title: >-
   Encode two foundational (101) principles into praxis grounding:
   artifact-primacy and TASK↔PR granularity
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-17 14:13'
+updated_date: '2026-07-17 14:17'
 labels: []
 dependencies: []
 priority: high
@@ -31,3 +33,16 @@ Decide where these live in praxis (the always-on PDLC CLAUDE.md grounding block 
 - [ ] #3 Principle B (1 TASK = 1 PR; SUBTASK never gets its own PR) is worded task-system-agnostically with the TASK↔SUBTASK relationship as the invariant
 - [ ] #4 The Coda v1.4.0 amendment references the praxis statement as the upstream source rather than duplicating the rationale
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Design the durable home: canonical statement in a new docs/principles.md (praxis principles doc — the referenceable upstream artifact); operational form inherited by every bootstrapped project via pdlc/templates/CLAUDE.md 'Rules that always hold' (+ per-peer mapping lines).
+2. Write docs/principles.md: Principle A (artifact-grounded action / evidentiary primacy) and Principle B (1 TASK = 1 PR; SUBTASK never gets its own PR), both task-system-agnostic, with rationale and per-system mapping table.
+3. Encode concise forms in pdlc/templates/CLAUDE.md rules block; add mapping lines to the backlog + spec-kit peer blocks.
+4. Sync repo surfaces: README Principles + Docs sections, root CLAUDE.md pointer; add template-content assertions to test/pdlc.test.mjs.
+5. Bump marketplace version 0.7.0 -> 0.8.0 (released surface: pdlc/templates) via scripts/sync-version.mjs; run tests + bump gate.
+6. Wiki pass: re-pin docs/wiki/pdlc-plugin.md (sources include pdlc/templates/CLAUDE.md) via wiki-update.
+7. Coda side (AC#4): update specs/009-taint-architecture/contracts/constitution-amendment.md in the task-0003.01 worktree to cite praxisflux docs/principles.md as the upstream source instead of the 'flagged, praxis-side change pending' language; commit on that branch.
+8. Per-task course docs/courses/TASK-32/, finalize (ACs, final summary, Done), PR from task-32-101-principles.
+<!-- SECTION:PLAN:END -->
