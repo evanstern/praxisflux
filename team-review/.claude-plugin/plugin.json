@@ -1,6 +1,6 @@
 {
   "name": "team-review",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Lead-engineer-plus-team architecture review of any codebase via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched).",
   "author": {
     "name": "praxisflux maintainers"
