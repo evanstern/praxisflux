@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-23 16:59'
-updated_date: '2026-07-23 17:09'
+updated_date: '2026-07-23 17:10'
 labels: []
 dependencies: []
 priority: medium
@@ -23,7 +23,7 @@ Review idea 6 from TASK-35's vendored spec input (docs/handoffs/team-review-iter
 - [x] #1 node scripts/new-plugin.mjs <name> produces a plugin dir that passes check-docs.mjs, gen-marketplace.mjs --check, sync-version.mjs --check, and node --test unmodified
 - [x] #2 The stamped SKILL.md skeleton carries the frontmatter the bump gate keys on and the gate->work->gate section structure
 - [x] #3 A test scaffolds a plugin into a fixture repo and asserts the drift checks pass; running the scaffolder twice fails safely rather than clobbering
-- [ ] #4 docs/skill-patterns.md's new-plugin checklist names the scaffolder as the paved path
+- [x] #4 docs/skill-patterns.md's new-plugin checklist names the scaffolder as the paved path
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,4 +41,6 @@ Review idea 6 from TASK-35's vendored spec input (docs/handoffs/team-review-iter
 
 <!-- SECTION:NOTES:BEGIN -->
 scripts/new-plugin.mjs + test/new-plugin.test.mjs landed. Verified AC1 end-to-end in the real repo: scaffolded scratch-demo --with-gate, then check-docs, gen-marketplace --check, sync-version --check, and node --test (142 pass) all green unmodified; scratch plugin reverted. Fixture tests cover drift-check pass, fail-safe rerun, --with-gate trio (no-op stub gate), and kebab-case rejection.
+
+docs/skill-patterns.md checklist now leads with the scaffolder as the paved path, marking which items it stamps vs. which stay manual.
 <!-- SECTION:NOTES:END -->
