@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Paved Road — How praxisflux Scaffolds a New Plugin</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">The Paved Road — How praxisflux Scaffolds a New Plugin</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="Five Hand-Edits and a Wall of Inspectors" role="tab" aria-label="Module 1: Five Hand-Edits and a Wall of Inspectors"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Scaffolder" role="tab" aria-label="Module 2: The Scaffolder"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Proving It Works" role="tab" aria-label="Module 3: Proving It Works"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>Five Hand-Edits and a Wall of Inspectors</h1>
+      <p class="lead">
+        praxisflux is a <span class="term" data-definition="A catalog of installable add-ons. Like an app store, but for plugins — small packages of skills that extend what Claude Code can do.">plugin marketplace</span>:
+        one <span class="term" data-definition="A folder of code tracked by git, the tool that records every change ever made to a project. Think of it as the project itself, with its full history attached.">repository</span>
+        holding eight plugins that share one chassis. This course is about a single question:
+        <strong>what did it take to add plugin number nine?</strong>
+      </p>
+      <p>
+        Until this task, the honest answer was: <em>five careful hand-edits in five different
+        places</em> — and if you missed one, a robot rejected your work. Let's meet the robots first.
+      </p>
+    </div>
+
+    <!-- Screen 2: the drift gates -->
+    <div class="screen">
+      <h2>The inspectors: drift gates</h2>
+      <p>
+        praxisflux runs on a rule: <strong>documentation and catalogs are never allowed to drift from
+        what the code actually ships.</strong> The rule is enforced by
+        <span class="term" data-definition="A small program that checks whether two things that should agree actually do — like a catalog and the folders it lists. If they disagree (have 'drifted' apart), it fails loudly and blocks the work.">drift gates</span> —
+        think of them as building inspectors who visit after every change. Each inspector checks one
+        kind of agreement:
+      </p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">📋</div>
+          <div>
+            <strong>check-docs</strong>
+            <p>Does the README name every plugin the marketplace ships — a table row and an install line for each?</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🗂️</div>
+          <div>
+            <strong>gen-marketplace</strong>
+            <p>Does the marketplace catalog match each plugin&rsquo;s own <span class="term" data-definition="A small file (plugin.json) inside each plugin that states its name, version, and description — the plugin's ID card.">manifest</span>?</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-3)">🔢</div>
+          <div>
+            <strong>sync-version</strong>
+            <p>Does every plugin carry the exact same <span class="term" data-definition="A number like 0.10.0 that names a release. The three parts (major.minor.patch) grow as the software changes, so everyone can say precisely which snapshot they mean.">version number</span> as the marketplace? One release, one number, everywhere.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-4)">🧪</div>
+          <div>
+            <strong>the test suite</strong>
+            <p>Do all 140+ automated checks still pass with the new plugin present?</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🏛️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why so strict?</strong>
+          <p>The repo&rsquo;s founding principle is that a claim can never exceed its evidence. A README that lists a plugin that doesn&rsquo;t exist — or misses one that does — is a false claim, so a gate blocks it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what an inspector looks like in code -->
+    <div class="screen">
+      <h2>What an inspector actually looks like</h2>
+      <p>
+        Here is the real heart of <code>check-docs</code>. It loops over every plugin registered in
+        the marketplace and demands the README mention each one — twice:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">scripts/check-docs.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> p <span class="code-keyword">of</span> mp.plugins ?? []) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!readme.includes(<span class="code-string">`| **${p.name}** |`</span>))</span>
+<span class="code-line">    problems.push(<span class="code-string">`README.md: plugin '${p.name}' has no row in the plugins table`</span>);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!readme.includes(<span class="code-string">`/plugin install ${p.name}@praxisflux`</span>))</span>
+<span class="code-line">    problems.push(<span class="code-string">`README.md: plugin '${p.name}' has no '/plugin install ${p.name}@praxisflux' line`</span>);</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Go through every plugin the marketplace catalog lists...</p>
+            <p class="tl">If the README table has no row for this plugin...</p>
+            <p class="tl">...write down a complaint naming exactly what is missing.</p>
+            <p class="tl">If the README has no install command for this plugin either...</p>
+            <p class="tl">...write down a second complaint, just as specific.</p>
+            <p class="tl">Then move on to the next plugin.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Notice the inspector doesn&rsquo;t fix anything — it only <em>names problems</em>. Fixing was
+        the human&rsquo;s job. That&rsquo;s the pain this task removes.
+      </p>
+    </div>
+
+    <!-- Screen 4: group chat — the author vs the gates -->
+    <div class="screen">
+      <h2>A new plugin author, before this task</h2>
+      <p>
+        The eighth plugin, <code>team-review</code>, was moved into this repo by hand. Here&rsquo;s
+        roughly how that afternoon went — as a group chat between the author and the inspectors:
+      </p>
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Done! Copied the team-review folder in. Shipping it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="gencat" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">🗂️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">gen-marketplace</span>
+              <p>Hold on. The folder exists but the marketplace catalog has no entry for it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Fine, added the catalog entry by hand. Now?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="checkdocs" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">📋</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">check-docs</span>
+              <p>README.md: plugin team-review has no row in the plugins table. Also no install line.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Two more edits... okay, README updated. Are we good?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="syncver" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">🔢</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">sync-version</span>
+              <p>team-review says version 1.0.0 but the marketplace is on 0.9.0. One release, one number. Everywhere.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>...there has to be a better way to do this.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">The insight that became this task</strong>
+          <p>The inspectors already know <em>exactly</em> what a finished plugin must look like. So why is a human assembling it from memory? Anything a gate can check, a tool can generate.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — a drift gate only names problems; it never edits anything. Fixing (or generating) is someone else&apos;s job, which is why this task built a generator."
+             data-explanation-wrong="Not quite. Look back at the check-docs code: it pushes complaint strings into a list. It never touches the README itself.">
+          <h3 class="quiz-question">You add a new plugin folder but change nothing else. What does the check-docs inspector do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Quietly adds the missing README row for you</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Blocks the work and names exactly which README lines are missing</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Deletes the new folder because it is unregistered</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the version rule is one release, one number, everywhere: the marketplace and every plugin manifest must agree, and sync-version checks all of them."
+             data-explanation-wrong="Think about what sync-version complained about in the chat: the plugin said 1.0.0 while the marketplace said 0.9.0. The rule spans the whole repo, not one file.">
+          <h3 class="quiz-question">A teammate bumps the marketplace version but forgets one plugin&rsquo;s manifest. Based on the version rule, what happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — each plugin is free to have its own version</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the README inspector complains</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>sync-version flags the one plugin whose number disagrees</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the idea -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>The Scaffolder</h1>
+      <p class="lead">
+        TASK-36&rsquo;s answer is one new tool: a
+        <span class="term" data-definition="A program that stamps out the standard skeleton of something new — folders, files, boilerplate — so a human starts from a working frame instead of a blank page.">scaffolder</span>.
+        One command replaces all five hand-edits:
+      </p>
+      <div class="badge-list">
+        <div class="badge-item">
+          <code class="badge-code">node scripts/new-plugin.mjs my-plugin</code>
+          <span class="badge-desc">Stamp everything the inspectors will demand — in one shot</span>
+        </div>
+      </div>
+      <p>
+        Think of a housing development where every lot used to be built from a hand-drawn sketch —
+        and the city inspector rejected half of them. The scaffolder is the <strong>pre-fabricated
+        frame</strong>: it arrives already meeting code, and the builder only does the parts that
+        need judgment — what the house is <em>for</em>.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">🛣️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The paved road</strong>
+          <p>Engineers call this a paved road: the easy way and the correct way become the same way. You can still walk off-road — the scaffolder just makes the right path the effortless one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: what gets stamped -->
+    <div class="screen">
+      <h2>What one command stamps</h2>
+      <p>Everything below appears from a single run — each piece aimed at a specific inspector from Module 1:</p>
+      <div class="file-tree">
+        <div class="ft-folder open">
+          <span class="ft-name">my-plugin/</span>
+          <span class="ft-desc">the new plugin, ready for the inspectors</span>
+          <div class="ft-children">
+            <div class="ft-file">
+              <span class="ft-name">.claude-plugin/plugin.json</span>
+              <span class="ft-desc">the manifest — version copied from the marketplace, so sync-version passes</span>
+            </div>
+            <div class="ft-file">
+              <span class="ft-name">skills/my-plugin/SKILL.md</span>
+              <span class="ft-desc">a skill skeleton with the sections and header fields the gates expect</span>
+            </div>
+            <div class="ft-file">
+              <span class="ft-name">lib →&nbsp;../lib</span>
+              <span class="ft-desc">a <span class="term" data-definition="A file that is really a signpost pointing at another location. Opening it opens the target — here, the one shared code library every plugin uses.">symlink</span> to the shared chassis</span>
+            </div>
+          </div>
+        </div>
+        <div class="ft-file">
+          <span class="ft-name">.claude-plugin/marketplace.json</span>
+          <span class="ft-desc">catalog entry added automatically — gen-marketplace passes</span>
+        </div>
+        <div class="ft-file">
+          <span class="ft-name">README.md</span>
+          <span class="ft-desc">table row + install line inserted — check-docs passes</span>
+        </div>
+      </div>
+      <p>
+        Where judgment is required — the plugin&rsquo;s description, what its skill actually does — the
+        scaffolder writes a loud <code>TODO</code> instead of guessing. Machines stamp the checkable;
+        humans write the meaningful.
+      </p>
+    </div>
+
+    <!-- Screen 3: flow animation -->
+    <div class="screen">
+      <h2>Watch a run, step by step</h2>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"You ask for a new plugin named my-plugin"},
+        {"highlight":"flow-actor-2","label":"Guard 1: is the name well-formed? Guard 2: does the folder already exist? If so, stop — never overwrite","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Read the marketplace version, then stamp the manifest, the skill skeleton, and the lib symlink"},
+        {"highlight":"flow-actor-3","label":"Register the newcomer in the marketplace catalog","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-4","label":"Insert the README table row and install line the docs inspector demands","packet":true,"from":"actor-2","to":"actor-4"},
+        {"highlight":"flow-actor-4","label":"Done — every inspector from Module 1 now passes unmodified"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">👩‍💻</div>
+            <span>You</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🏗️</div>
+            <span>new-plugin.mjs</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🗂️</div>
+            <span>Marketplace catalog</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon">📖</div>
+            <span>README</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: the guards in code -->
+    <div class="screen">
+      <h2>The guards, in real code</h2>
+      <p>
+        The very first lines of the scaffolder are refusals. Nothing is written until both guards
+        pass — so running it twice can never destroy work:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">scripts/new-plugin.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name))</span>
+<span class="code-line">  <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">Error</span>(<span class="code-string">`plugin name must be kebab-case (got ${JSON.stringify(name)})`</span>);</span>
+<span class="code-line"><span class="code-keyword">const</span> dir = <span class="code-function">join</span>(repo, name);</span>
+<span class="code-line"><span class="code-keyword">if</span> (<span class="code-function">existsSync</span>(dir)) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">Error</span>(<span class="code-string">`${name}/ already exists — refusing to clobber`</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> mp = JSON.<span class="code-function">parse</span>(<span class="code-function">readFileSync</span>(<span class="code-function">join</span>(repo, <span class="code-string">".claude-plugin"</span>, <span class="code-string">"marketplace.json"</span>), <span class="code-string">"utf8"</span>));</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Is the name in <span class="term" data-definition="The lowercase-words-joined-by-hyphens naming style, like team-review or new-plugin. Named, delightfully, after the look of a kebab on a skewer.">kebab-case</span>? If not...</p>
+            <p class="tl">...stop immediately and say exactly what was wrong with it.</p>
+            <p class="tl">Work out where the new plugin folder would go.</p>
+            <p class="tl">If that folder already exists, stop — never overwrite someone&rsquo;s work.</p>
+            <p class="tl">(Only past both guards do we proceed...)</p>
+            <p class="tl">...and the first real act is reading the marketplace, so the new plugin can copy its version number.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🔒</div>
+        <div class="callout-content">
+          <strong class="callout-title">Fail-safe by ordering</strong>
+          <p>The guards run <em>before</em> any file is written. Order is the whole safety mechanism: a tool that checks after writing has already done the damage.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: the optional flag -->
+    <div class="screen">
+      <h2>The optional extra: <code>--with-gate</code></h2>
+      <p>
+        Some plugins enforce their own rules with a
+        <span class="term" data-definition="A hook that runs automatically when the AI assistant tries to finish its turn. If the plugin's rules aren't satisfied, the hook refuses to let it stop — like a checklist the pilot must clear before landing.">Stop hook</span>.
+        Adding the <span class="term" data-definition="An option you append to a command to change its behavior — like adding --with-gate to also stamp the enforcement files. When talking to an AI you would say: add a flag for that.">flag</span>
+        <code>--with-gate</code> stamps that whole enforcement kit too:
+      </p>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚦</div>
+          <h4 class="pattern-title">gates/my-plugin.mjs</h4>
+          <p class="pattern-desc">The rule-checker itself. Stamped as a stub that checks nothing yet — harmless until you wire in real rules.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔌</div>
+          <h4 class="pattern-title">scripts/stop.mjs + gate.sh</h4>
+          <p class="pattern-desc">The wiring that connects the rule-checker to the Stop hook, borrowed line-for-line from the plugins that already work.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+          <h4 class="pattern-title">hooks/hooks.json</h4>
+          <p class="pattern-desc">The registration card telling Claude Code the hook exists and when to run it.</p>
+        </div>
+      </div>
+      <p>
+        The stub gate deliberately applies to <em>zero</em> projects until someone edits it. A brand-new
+        plugin should never block anyone&rsquo;s work by accident.
+      </p>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the exists-check guard throws before a single file is written, so the half-finished plugin from yesterday is untouched. You delete or rename it, then rerun."
+             data-explanation-wrong="Look at the guard order again: existsSync runs before any writing starts. The scaffolder would rather do nothing than risk overwriting your edits.">
+          <h3 class="quiz-question">You scaffolded <code>my-plugin</code> yesterday and already customized its skill file. Today a teammate accidentally runs the same scaffold command again. What happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It stops with an error and changes nothing — your edits survive</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It re-stamps the skeleton, wiping your customized skill file</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It creates my-plugin-2 next to the original</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the checkable parts (catalog entries, version numbers, README lines) are stamped by the machine; the meaningful parts (what the plugin is for) are left as TODOs for a human. That split is the design."
+             data-explanation-wrong="Not quite. The scaffolder never guesses at meaning — it stamps what the inspectors can verify and leaves a TODO wherever human judgment is needed.">
+          <h3 class="quiz-question">Which part of a new plugin does the scaffolder deliberately NOT write for you?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The marketplace catalog entry</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A real description of what the plugin does</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The README install line</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the claim needs proof -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Proving It Works</h1>
+      <p class="lead">
+        A tool that <em>claims</em> to satisfy the inspectors is worth nothing in this repo — claims
+        can&rsquo;t exceed evidence. So the scaffolder ships with proof, gathered two ways.
+      </p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🧪</div>
+          <div>
+            <strong>Way 1: automated tests in a fixture repo</strong>
+            <p>A disposable miniature marketplace, rebuilt from scratch for every test run</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🏟️</div>
+          <div>
+            <strong>Way 2: a live dress rehearsal in the real repo</strong>
+            <p>Scaffold a scratch plugin for real, run every inspector, then remove it</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the fixture -->
+    <div class="screen">
+      <h2>Way 1: the crash-test town</h2>
+      <p>
+        Car makers don&rsquo;t test airbags on city streets — they build a crash-test facility. The
+        tests here do the same: each one builds a
+        <span class="term" data-definition="A tiny, throwaway copy of the project structure, created fresh inside a temporary folder just for one test, then deleted. Tests can smash it freely without touching the real project.">fixture</span>
+        marketplace — a fake README, catalog, and one existing plugin — scaffolds into <em>that</em>,
+        and then unleashes the real inspectors on the result:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">test/new-plugin.test.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-function">scaffoldPlugin</span>(root, <span class="code-string">"newbie"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// check-docs: README row + install line were inserted.</span></span>
+<span class="code-line">assert.<span class="code-function">deepEqual</span>(<span class="code-function">checkDocs</span>(root), []);</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Scaffold a plugin called &ldquo;newbie&rdquo; into the crash-test town.</p>
+            <p class="tl">Then...</p>
+            <p class="tl">...invite the README inspector from Module 1 — the real one, not a copy...</p>
+            <p class="tl">...and insist its list of complaints is exactly empty.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Other tests in the same file prove the rerun guard (scaffold twice → error, files untouched),
+        the <code>--with-gate</code> kit, and the name check. The
+        <span class="term" data-definition="The command node --test, which finds and runs every automated check in the project. It runs automatically before every commit here — you literally cannot save work that breaks it.">test suite</span>
+        runs before every <span class="term" data-definition="A saved snapshot of changes in git, with a message describing them. Projects move forward one commit at a time.">commit</span>,
+        so this proof re-runs forever.
+      </p>
+    </div>
+
+    <!-- Screen 3: the dress rehearsal -->
+    <div class="screen">
+      <h2>Way 2: the dress rehearsal</h2>
+      <p>Tests in a fixture are necessary but not sufficient — so the scaffolder was also run once, for real, in the actual repo:</p>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Scaffold a scratch plugin</strong>
+            <p><code>node scripts/new-plugin.mjs scratch-demo --with-gate</code> — the full kit, stamped into the live repo</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Summon every inspector</strong>
+            <p>check-docs, gen-marketplace, sync-version, and the full 142-test suite — all four passed with zero edits to the stamped files</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Strike the set</strong>
+            <p>Delete the scratch plugin and restore the catalog and README — the rehearsal leaves no trace in the shipped repo</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">The universal lesson</strong>
+          <p>Correct by construction beats correct by inspection. When a checklist matters, don&rsquo;t just check it — build the tool that makes passing it the default. The inspectors still run, but now they&rsquo;re confirming, not catching.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: closing the loop in the docs -->
+    <div class="screen">
+      <h2>Closing the loop</h2>
+      <p>
+        One last edit made the change stick: the authoring guide&rsquo;s new-plugin checklist — the very
+        list that used to mean five hand-edits — now opens by naming the scaffolder as
+        <strong>the paved path</strong>, and marks which steps it stamps versus which still need a human.
+        The next author reads the better way <em>first</em>.
+      </p>
+      <p>
+        And the story has a planned ending: the <em>ninth</em> plugin, whenever it comes, is meant to
+        be this scaffolder&rsquo;s first real customer.
+      </p>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the fixture tests call the real inspector functions on the crash-test town, so a scaffolder that stamped a bad plugin would fail the suite immediately."
+             data-explanation-wrong="Not quite. The whole point of Way 1 is that the tests reuse the real inspectors — the same code that guards the real repo judges the fixture.">
+          <h3 class="quiz-question">Suppose someone edits the scaffolder and accidentally breaks the README insertion. Where does that mistake get caught first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Never — the scaffolder is trusted code</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Months later, when a human notices the README looks wrong</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Before the edit can even be committed — the fixture test runs checkDocs and demands zero complaints</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — that&apos;s the correct-by-construction principle applied to your own work: let the machine stamp the checkable boilerplate, and spend your attention only where judgment is needed."
+             data-explanation-wrong="Think back to the split the scaffolder makes: machines stamp what inspectors can verify; humans write what needs judgment. Asking your AI to build the checker AND the generator is exactly this pattern.">
+          <h3 class="quiz-question">You&rsquo;re building your own project with an AI assistant, and adding each new page requires the same four edits in four files. What&rsquo;s the lesson from this task?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Be more careful — checklists exist to be memorized</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Ask the AI for a scaffolder that stamps all four edits, plus a check that fails when they drift</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Reduce the project to fewer files so there is less to edit</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

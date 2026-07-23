@@ -1,0 +1,241 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the idea -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>The Scaffolder</h1>
+      <p class="lead">
+        TASK-36&rsquo;s answer is one new tool: a
+        <span class="term" data-definition="A program that stamps out the standard skeleton of something new — folders, files, boilerplate — so a human starts from a working frame instead of a blank page.">scaffolder</span>.
+        One command replaces all five hand-edits:
+      </p>
+      <div class="badge-list">
+        <div class="badge-item">
+          <code class="badge-code">node scripts/new-plugin.mjs my-plugin</code>
+          <span class="badge-desc">Stamp everything the inspectors will demand — in one shot</span>
+        </div>
+      </div>
+      <p>
+        Think of a housing development where every lot used to be built from a hand-drawn sketch —
+        and the city inspector rejected half of them. The scaffolder is the <strong>pre-fabricated
+        frame</strong>: it arrives already meeting code, and the builder only does the parts that
+        need judgment — what the house is <em>for</em>.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">🛣️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The paved road</strong>
+          <p>Engineers call this a paved road: the easy way and the correct way become the same way. You can still walk off-road — the scaffolder just makes the right path the effortless one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: what gets stamped -->
+    <div class="screen">
+      <h2>What one command stamps</h2>
+      <p>Everything below appears from a single run — each piece aimed at a specific inspector from Module 1:</p>
+      <div class="file-tree">
+        <div class="ft-folder open">
+          <span class="ft-name">my-plugin/</span>
+          <span class="ft-desc">the new plugin, ready for the inspectors</span>
+          <div class="ft-children">
+            <div class="ft-file">
+              <span class="ft-name">.claude-plugin/plugin.json</span>
+              <span class="ft-desc">the manifest — version copied from the marketplace, so sync-version passes</span>
+            </div>
+            <div class="ft-file">
+              <span class="ft-name">skills/my-plugin/SKILL.md</span>
+              <span class="ft-desc">a skill skeleton with the sections and header fields the gates expect</span>
+            </div>
+            <div class="ft-file">
+              <span class="ft-name">lib →&nbsp;../lib</span>
+              <span class="ft-desc">a <span class="term" data-definition="A file that is really a signpost pointing at another location. Opening it opens the target — here, the one shared code library every plugin uses.">symlink</span> to the shared chassis</span>
+            </div>
+          </div>
+        </div>
+        <div class="ft-file">
+          <span class="ft-name">.claude-plugin/marketplace.json</span>
+          <span class="ft-desc">catalog entry added automatically — gen-marketplace passes</span>
+        </div>
+        <div class="ft-file">
+          <span class="ft-name">README.md</span>
+          <span class="ft-desc">table row + install line inserted — check-docs passes</span>
+        </div>
+      </div>
+      <p>
+        Where judgment is required — the plugin&rsquo;s description, what its skill actually does — the
+        scaffolder writes a loud <code>TODO</code> instead of guessing. Machines stamp the checkable;
+        humans write the meaningful.
+      </p>
+    </div>
+
+    <!-- Screen 3: flow animation -->
+    <div class="screen">
+      <h2>Watch a run, step by step</h2>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"You ask for a new plugin named my-plugin"},
+        {"highlight":"flow-actor-2","label":"Guard 1: is the name well-formed? Guard 2: does the folder already exist? If so, stop — never overwrite","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Read the marketplace version, then stamp the manifest, the skill skeleton, and the lib symlink"},
+        {"highlight":"flow-actor-3","label":"Register the newcomer in the marketplace catalog","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-4","label":"Insert the README table row and install line the docs inspector demands","packet":true,"from":"actor-2","to":"actor-4"},
+        {"highlight":"flow-actor-4","label":"Done — every inspector from Module 1 now passes unmodified"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">👩‍💻</div>
+            <span>You</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🏗️</div>
+            <span>new-plugin.mjs</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🗂️</div>
+            <span>Marketplace catalog</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon">📖</div>
+            <span>README</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: the guards in code -->
+    <div class="screen">
+      <h2>The guards, in real code</h2>
+      <p>
+        The very first lines of the scaffolder are refusals. Nothing is written until both guards
+        pass — so running it twice can never destroy work:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">scripts/new-plugin.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name))</span>
+<span class="code-line">  <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">Error</span>(<span class="code-string">`plugin name must be kebab-case (got ${JSON.stringify(name)})`</span>);</span>
+<span class="code-line"><span class="code-keyword">const</span> dir = <span class="code-function">join</span>(repo, name);</span>
+<span class="code-line"><span class="code-keyword">if</span> (<span class="code-function">existsSync</span>(dir)) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">Error</span>(<span class="code-string">`${name}/ already exists — refusing to clobber`</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> mp = JSON.<span class="code-function">parse</span>(<span class="code-function">readFileSync</span>(<span class="code-function">join</span>(repo, <span class="code-string">".claude-plugin"</span>, <span class="code-string">"marketplace.json"</span>), <span class="code-string">"utf8"</span>));</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Is the name in <span class="term" data-definition="The lowercase-words-joined-by-hyphens naming style, like team-review or new-plugin. Named, delightfully, after the look of a kebab on a skewer.">kebab-case</span>? If not...</p>
+            <p class="tl">...stop immediately and say exactly what was wrong with it.</p>
+            <p class="tl">Work out where the new plugin folder would go.</p>
+            <p class="tl">If that folder already exists, stop — never overwrite someone&rsquo;s work.</p>
+            <p class="tl">(Only past both guards do we proceed...)</p>
+            <p class="tl">...and the first real act is reading the marketplace, so the new plugin can copy its version number.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🔒</div>
+        <div class="callout-content">
+          <strong class="callout-title">Fail-safe by ordering</strong>
+          <p>The guards run <em>before</em> any file is written. Order is the whole safety mechanism: a tool that checks after writing has already done the damage.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: the optional flag -->
+    <div class="screen">
+      <h2>The optional extra: <code>--with-gate</code></h2>
+      <p>
+        Some plugins enforce their own rules with a
+        <span class="term" data-definition="A hook that runs automatically when the AI assistant tries to finish its turn. If the plugin's rules aren't satisfied, the hook refuses to let it stop — like a checklist the pilot must clear before landing.">Stop hook</span>.
+        Adding the <span class="term" data-definition="An option you append to a command to change its behavior — like adding --with-gate to also stamp the enforcement files. When talking to an AI you would say: add a flag for that.">flag</span>
+        <code>--with-gate</code> stamps that whole enforcement kit too:
+      </p>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚦</div>
+          <h4 class="pattern-title">gates/my-plugin.mjs</h4>
+          <p class="pattern-desc">The rule-checker itself. Stamped as a stub that checks nothing yet — harmless until you wire in real rules.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔌</div>
+          <h4 class="pattern-title">scripts/stop.mjs + gate.sh</h4>
+          <p class="pattern-desc">The wiring that connects the rule-checker to the Stop hook, borrowed line-for-line from the plugins that already work.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📜</div>
+          <h4 class="pattern-title">hooks/hooks.json</h4>
+          <p class="pattern-desc">The registration card telling Claude Code the hook exists and when to run it.</p>
+        </div>
+      </div>
+      <p>
+        The stub gate deliberately applies to <em>zero</em> projects until someone edits it. A brand-new
+        plugin should never block anyone&rsquo;s work by accident.
+      </p>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the exists-check guard throws before a single file is written, so the half-finished plugin from yesterday is untouched. You delete or rename it, then rerun."
+             data-explanation-wrong="Look at the guard order again: existsSync runs before any writing starts. The scaffolder would rather do nothing than risk overwriting your edits.">
+          <h3 class="quiz-question">You scaffolded <code>my-plugin</code> yesterday and already customized its skill file. Today a teammate accidentally runs the same scaffold command again. What happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It stops with an error and changes nothing — your edits survive</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It re-stamps the skeleton, wiping your customized skill file</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It creates my-plugin-2 next to the original</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the checkable parts (catalog entries, version numbers, README lines) are stamped by the machine; the meaningful parts (what the plugin is for) are left as TODOs for a human. That split is the design."
+             data-explanation-wrong="Not quite. The scaffolder never guesses at meaning — it stamps what the inspectors can verify and leaves a TODO wherever human judgment is needed.">
+          <h3 class="quiz-question">Which part of a new plugin does the scaffolder deliberately NOT write for you?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The marketplace catalog entry</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A real description of what the plugin does</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The README install line</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,245 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>Five Hand-Edits and a Wall of Inspectors</h1>
+      <p class="lead">
+        praxisflux is a <span class="term" data-definition="A catalog of installable add-ons. Like an app store, but for plugins — small packages of skills that extend what Claude Code can do.">plugin marketplace</span>:
+        one <span class="term" data-definition="A folder of code tracked by git, the tool that records every change ever made to a project. Think of it as the project itself, with its full history attached.">repository</span>
+        holding eight plugins that share one chassis. This course is about a single question:
+        <strong>what did it take to add plugin number nine?</strong>
+      </p>
+      <p>
+        Until this task, the honest answer was: <em>five careful hand-edits in five different
+        places</em> — and if you missed one, a robot rejected your work. Let's meet the robots first.
+      </p>
+    </div>
+
+    <!-- Screen 2: the drift gates -->
+    <div class="screen">
+      <h2>The inspectors: drift gates</h2>
+      <p>
+        praxisflux runs on a rule: <strong>documentation and catalogs are never allowed to drift from
+        what the code actually ships.</strong> The rule is enforced by
+        <span class="term" data-definition="A small program that checks whether two things that should agree actually do — like a catalog and the folders it lists. If they disagree (have 'drifted' apart), it fails loudly and blocks the work.">drift gates</span> —
+        think of them as building inspectors who visit after every change. Each inspector checks one
+        kind of agreement:
+      </p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">📋</div>
+          <div>
+            <strong>check-docs</strong>
+            <p>Does the README name every plugin the marketplace ships — a table row and an install line for each?</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🗂️</div>
+          <div>
+            <strong>gen-marketplace</strong>
+            <p>Does the marketplace catalog match each plugin&rsquo;s own <span class="term" data-definition="A small file (plugin.json) inside each plugin that states its name, version, and description — the plugin's ID card.">manifest</span>?</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-3)">🔢</div>
+          <div>
+            <strong>sync-version</strong>
+            <p>Does every plugin carry the exact same <span class="term" data-definition="A number like 0.10.0 that names a release. The three parts (major.minor.patch) grow as the software changes, so everyone can say precisely which snapshot they mean.">version number</span> as the marketplace? One release, one number, everywhere.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-4)">🧪</div>
+          <div>
+            <strong>the test suite</strong>
+            <p>Do all 140+ automated checks still pass with the new plugin present?</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🏛️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why so strict?</strong>
+          <p>The repo&rsquo;s founding principle is that a claim can never exceed its evidence. A README that lists a plugin that doesn&rsquo;t exist — or misses one that does — is a false claim, so a gate blocks it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what an inspector looks like in code -->
+    <div class="screen">
+      <h2>What an inspector actually looks like</h2>
+      <p>
+        Here is the real heart of <code>check-docs</code>. It loops over every plugin registered in
+        the marketplace and demands the README mention each one — twice:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">scripts/check-docs.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> p <span class="code-keyword">of</span> mp.plugins ?? []) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!readme.includes(<span class="code-string">`| **${p.name}** |`</span>))</span>
+<span class="code-line">    problems.push(<span class="code-string">`README.md: plugin '${p.name}' has no row in the plugins table`</span>);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!readme.includes(<span class="code-string">`/plugin install ${p.name}@praxisflux`</span>))</span>
+<span class="code-line">    problems.push(<span class="code-string">`README.md: plugin '${p.name}' has no '/plugin install ${p.name}@praxisflux' line`</span>);</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Go through every plugin the marketplace catalog lists...</p>
+            <p class="tl">If the README table has no row for this plugin...</p>
+            <p class="tl">...write down a complaint naming exactly what is missing.</p>
+            <p class="tl">If the README has no install command for this plugin either...</p>
+            <p class="tl">...write down a second complaint, just as specific.</p>
+            <p class="tl">Then move on to the next plugin.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Notice the inspector doesn&rsquo;t fix anything — it only <em>names problems</em>. Fixing was
+        the human&rsquo;s job. That&rsquo;s the pain this task removes.
+      </p>
+    </div>
+
+    <!-- Screen 4: group chat — the author vs the gates -->
+    <div class="screen">
+      <h2>A new plugin author, before this task</h2>
+      <p>
+        The eighth plugin, <code>team-review</code>, was moved into this repo by hand. Here&rsquo;s
+        roughly how that afternoon went — as a group chat between the author and the inspectors:
+      </p>
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Done! Copied the team-review folder in. Shipping it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="gencat" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">🗂️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">gen-marketplace</span>
+              <p>Hold on. The folder exists but the marketplace catalog has no entry for it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Fine, added the catalog entry by hand. Now?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="checkdocs" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">📋</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">check-docs</span>
+              <p>README.md: plugin team-review has no row in the plugins table. Also no install line.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>Two more edits... okay, README updated. Are we good?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="syncver" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">🔢</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">sync-version</span>
+              <p>team-review says version 1.0.0 but the marketplace is on 0.9.0. One release, one number. Everywhere.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="author" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">👩‍💻</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Author</span>
+              <p>...there has to be a better way to do this.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">The insight that became this task</strong>
+          <p>The inspectors already know <em>exactly</em> what a finished plugin must look like. So why is a human assembling it from memory? Anything a gate can check, a tool can generate.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — a drift gate only names problems; it never edits anything. Fixing (or generating) is someone else&apos;s job, which is why this task built a generator."
+             data-explanation-wrong="Not quite. Look back at the check-docs code: it pushes complaint strings into a list. It never touches the README itself.">
+          <h3 class="quiz-question">You add a new plugin folder but change nothing else. What does the check-docs inspector do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Quietly adds the missing README row for you</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Blocks the work and names exactly which README lines are missing</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Deletes the new folder because it is unregistered</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the version rule is one release, one number, everywhere: the marketplace and every plugin manifest must agree, and sync-version checks all of them."
+             data-explanation-wrong="Think about what sync-version complained about in the chat: the plugin said 1.0.0 while the marketplace said 0.9.0. The rule spans the whole repo, not one file.">
+          <h3 class="quiz-question">A teammate bumps the marketplace version but forgets one plugin&rsquo;s manifest. Based on the version rule, what happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — each plugin is free to have its own version</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the README inspector complains</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>sync-version flags the one plugin whose number disagrees</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
