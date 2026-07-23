@@ -4,7 +4,8 @@ description: The shared authoring patterns for praxisflux plugins — phase-sepa
 kind: pattern
 sources:
   - docs/skill-patterns.md
-verified_against: f239615f94d67b076d14392f1659091e1f464ced
+  - scripts/new-plugin.mjs
+verified_against: f7d977059e0b48f45ac95c26f392a08126cba585
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -62,7 +63,13 @@ templates.
 marketplace (running `scripts/gen-marketplace.mjs` now registers an unregistered plugin dir,
 not just re-syncs — see [[build-and-release]]); skills in the gate→work→gate shape; a planted
 `CLAUDE.md` if it stamps a project; a lifecycle + Stop hook if it enforces one;
-`lib/handoff.mjs` if it hands off; tests under `test/` kept green.
+`lib/handoff.mjs` if it hands off; tests under `test/` kept green. The paved path is
+`scripts/new-plugin.mjs <name> [--with-gate]` (`scaffoldPlugin`): it stamps the drift-gated
+surface in one shot — plugin.json in version lockstep, the SKILL.md skeleton with the
+frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace entry, and
+the README row + install line — plus, with `--with-gate`, the Stop-hook trio
+(`gates/<name>.mjs` stub resolving no roots, `scripts/{stop.mjs,gate.sh}`,
+`hooks/hooks.json`). It refuses to overwrite an existing plugin dir.
 
 ## Connections
 
