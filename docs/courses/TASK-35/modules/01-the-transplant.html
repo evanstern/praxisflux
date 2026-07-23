@@ -1,0 +1,110 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Transplant</span>
+    <h1>A battle-tested skill moves house — and nothing has to be rewritten</h1>
+
+    <p>Outside this repo lived a skill called <strong>team-review</strong>: it runs a codebase review the way an engineering lead runs one, sending several specialist AI teammates into the code in parallel and merging their findings into one evidence-backed report. It had been hardened through three graded practice rounds — scoring a perfect 10/10 unsupervised on the final one. TASK-35 brought it home: turned the standalone skill into the marketplace's eighth plugin, <code>team-review/</code>.</p>
+
+    <p>The remarkable part is what <em>didn't</em> change. The skill had been built from day one to speak this repo's conventions — same gate contract, same directory rules, same storage transport — so adopting it was a <strong>move, not a rewrite</strong>. The only surgery was swapping its small vendored copy of the stop-hook machinery for the shared original it had been imitating.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🧳</div>
+        <h4 class="pattern-title">Built to move</h4>
+        <p class="pattern-desc">The standalone skill vendored a ~30-line imitation of the shared gate-runner, matching its contract exactly — so the transplant could delete the copy and import the real thing.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🚦</div>
+        <h4 class="pattern-title">Gates never write</h4>
+        <p class="pattern-desc">The house rule held on arrival: the plugin's <code>gates/</code> folder only checks things. A search for any file-writing call across it comes back empty — provably.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">📦</div>
+        <h4 class="pattern-title">Proven installed</h4>
+        <p class="pattern-desc">The finished plugin was packaged exactly as the marketplace installs it, then driven end-to-end against a sample repo — which came out byte-for-byte untouched.</p>
+      </div>
+    </div>
+
+    <h2>The one real change, in three lines</h2>
+
+    <p>After the move, the plugin's stop-hook entry — the tripwire that refuses to let a session end while a review is unfinished — collapsed to almost nothing, because the shared chassis now does the heavy lifting:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">import</span> { runStopHook } <span class="code-keyword">from</span> <span class="code-string">"../lib/gate-runner.mjs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { reviewGate } <span class="code-keyword">from</span> <span class="code-string">"../gates/review.mjs"</span>;</span>
+<span class="code-line"><span class="code-function">runStopHook</span>({ gates: [reviewGate] });</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Borrow the shared machinery every plugin in this marketplace uses to guard the end of a session.</p>
+          <p class="tl">Bring team-review&rsquo;s one domain rule: an open review must be finished or formally closed, never abandoned silently.</p>
+          <p class="tl">Wire the two together — that single line is now the entire stop hook.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🧾</div>
+      <div class="callout-content">
+        <strong class="callout-title">The spec came from the patient</strong>
+        <p>Before moving in, the skill was pointed at <em>this very repo</em> and asked for a review. Its report — vendored into the repo at <code>docs/handoffs/team-review-iteration-3-review.md</code> — became the task's design input: it named exactly which two potholes a newcomer plugin would hit, and the transplant plan was written around fixing them first. Module 3 tells that story.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the skill had imitated the shared contract precisely, so the vendored copy could be deleted and replaced by an import. That's what made it a move, not a rewrite."
+           data-explanation-wrong="Look at the first pattern card: what did the standalone skill vendor, and why did matching the contract matter?">
+        <h3 class="quiz-question">Why was adopting team-review a "move, not a rewrite"?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the skill was small enough to rewrite from scratch in an afternoon</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because it already spoke the repo's conventions — its vendored machinery imitated the shared contract exactly, so the copy could simply become an import</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the marketplace accepts any folder without changes</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — the claim is greppable: a search for file-writing calls across the plugin's gates/ directory returns nothing, and the test suite plus an end-to-end run back it up."
+           data-explanation-wrong="The second pattern card says how the 'gates never write' rule is held: what kind of proof is it?">
+        <h3 class="quiz-question">How does the repo know team-review's gates never write to disk?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The author promised in the pull request description</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Reviews are read-only, so writing is impossible by definition</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It's checkable evidence: a grep for write calls over gates/ comes back empty, and tests exercise the gate to prove it only reports problems</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>

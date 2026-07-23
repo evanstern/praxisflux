@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-35 — The Transplant &amp; the Third Shape</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-35 — The Transplant &amp; the Third Shape</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Transplant" role="tab" aria-label="Module 1: The Transplant"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Third Shape" role="tab" aria-label="Module 2: The Third Shape"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Paving the Road" role="tab" aria-label="Module 3: Paving the Road"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 1 · The Transplant</span>
+    <h1>A battle-tested skill moves house — and nothing has to be rewritten</h1>
+
+    <p>Outside this repo lived a skill called <strong>team-review</strong>: it runs a codebase review the way an engineering lead runs one, sending several specialist AI teammates into the code in parallel and merging their findings into one evidence-backed report. It had been hardened through three graded practice rounds — scoring a perfect 10/10 unsupervised on the final one. TASK-35 brought it home: turned the standalone skill into the marketplace's eighth plugin, <code>team-review/</code>.</p>
+
+    <p>The remarkable part is what <em>didn't</em> change. The skill had been built from day one to speak this repo's conventions — same gate contract, same directory rules, same storage transport — so adopting it was a <strong>move, not a rewrite</strong>. The only surgery was swapping its small vendored copy of the stop-hook machinery for the shared original it had been imitating.</p>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🧳</div>
+        <h4 class="pattern-title">Built to move</h4>
+        <p class="pattern-desc">The standalone skill vendored a ~30-line imitation of the shared gate-runner, matching its contract exactly — so the transplant could delete the copy and import the real thing.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">🚦</div>
+        <h4 class="pattern-title">Gates never write</h4>
+        <p class="pattern-desc">The house rule held on arrival: the plugin's <code>gates/</code> folder only checks things. A search for any file-writing call across it comes back empty — provably.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">📦</div>
+        <h4 class="pattern-title">Proven installed</h4>
+        <p class="pattern-desc">The finished plugin was packaged exactly as the marketplace installs it, then driven end-to-end against a sample repo — which came out byte-for-byte untouched.</p>
+      </div>
+    </div>
+
+    <h2>The one real change, in three lines</h2>
+
+    <p>After the move, the plugin's stop-hook entry — the tripwire that refuses to let a session end while a review is unfinished — collapsed to almost nothing, because the shared chassis now does the heavy lifting:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">import</span> { runStopHook } <span class="code-keyword">from</span> <span class="code-string">"../lib/gate-runner.mjs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { reviewGate } <span class="code-keyword">from</span> <span class="code-string">"../gates/review.mjs"</span>;</span>
+<span class="code-line"><span class="code-function">runStopHook</span>({ gates: [reviewGate] });</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Borrow the shared machinery every plugin in this marketplace uses to guard the end of a session.</p>
+          <p class="tl">Bring team-review&rsquo;s one domain rule: an open review must be finished or formally closed, never abandoned silently.</p>
+          <p class="tl">Wire the two together — that single line is now the entire stop hook.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🧾</div>
+      <div class="callout-content">
+        <strong class="callout-title">The spec came from the patient</strong>
+        <p>Before moving in, the skill was pointed at <em>this very repo</em> and asked for a review. Its report — vendored into the repo at <code>docs/handoffs/team-review-iteration-3-review.md</code> — became the task's design input: it named exactly which two potholes a newcomer plugin would hit, and the transplant plan was written around fixing them first. Module 3 tells that story.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module1">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Exactly — the skill had imitated the shared contract precisely, so the vendored copy could be deleted and replaced by an import. That's what made it a move, not a rewrite."
+           data-explanation-wrong="Look at the first pattern card: what did the standalone skill vendor, and why did matching the contract matter?">
+        <h3 class="quiz-question">Why was adopting team-review a "move, not a rewrite"?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the skill was small enough to rewrite from scratch in an afternoon</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because it already spoke the repo's conventions — its vendored machinery imitated the shared contract exactly, so the copy could simply become an import</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the marketplace accepts any folder without changes</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — the claim is greppable: a search for file-writing calls across the plugin's gates/ directory returns nothing, and the test suite plus an end-to-end run back it up."
+           data-explanation-wrong="The second pattern card says how the 'gates never write' rule is held: what kind of proof is it?">
+        <h3 class="quiz-question">How does the repo know team-review's gates never write to disk?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The author promised in the pull request description</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Reviews are read-only, so writing is impossible by definition</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It's checkable evidence: a grep for write calls over gates/ comes back empty, and tests exercise the gate to prove it only reports problems</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · The Third Shape</span>
+    <h1>A guest in someone else's house: review the repo, touch nothing</h1>
+
+    <p>Every plugin in this marketplace "lives" somewhere. Until now there were two shapes: plugins with a <strong>favored home</strong> (a folder marked as theirs, like a classroom), and <strong>drop-anywhere</strong> plugins (any folder can become theirs by planting a marker file). team-review fits neither. It works on a repo <em>the caller points at</em> — someone else's project — and the whole engagement is <strong>read-only by doctrine</strong>. It may not leave so much as a settings file behind in the repo it reviews.</p>
+
+    <p>So where does its bookkeeping go? At the <strong>invoking</strong> project's root — the place you're working <em>from</em>, never the place you're pointing <em>at</em>. Run records ride the gitignored <code>.handoff/</code> transport there; the report lands outside the target too. TASK-35 named this the <strong>third placement model</strong> and wrote it into the authoring guide, so the next plugin like this doesn't have to rediscover the rule.</p>
+
+    <h2>One review, start to finish</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"begin: open a tracked run and photograph the target&apos;s exact state (its git snapshot)"},
+      {"highlight":"flow-actor-2","label":"The run record lands at the INVOKING root &mdash; never inside the repo under review","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-3","label":"The lead orients, fans out teammates in parallel, and synthesizes one report &mdash; written outside the target","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"finish: the gate checks the report&apos;s sections, verifies its file citations are real, and re-photographs the target","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-4","label":"Snapshots match, byte for byte? The run is proven done. Any difference &mdash; the gate blocks."}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📸</div>
+          <span>begin</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🗂️</div>
+          <span>Run record</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">👥</div>
+          <span>The review</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🚦</div>
+          <span>finish gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to follow a review run</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The rule that keeps the guest honest</h2>
+
+    <p>The authoring guide's new paragraph carries one load-bearing warning. The shared helper that sets up the <code>.handoff/</code> storage also edits a project's <code>.gitignore</code> — a <em>write</em>. Pointed at the invoking root, that's correct plumbing. Pointed at the review target, it would itself be the forbidden write. The guide now states the rooting rule inline:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-comment">// skill-patterns §6 — third placement model</span></span>
+<span class="code-line">ensureGitignore(<span class="code-string">invokingRoot</span>)   <span class="code-comment">// ✓ correct transport</span></span>
+<span class="code-line">ensureGitignore(<span class="code-string">reviewTarget</span>)   <span class="code-comment">// ✗ the forbidden write</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The guide names the shape: operate on a caller-supplied repo, keep state at your own root.</p>
+          <p class="tl">Setting up storage at your own root is legitimate housekeeping.</p>
+          <p class="tl">Doing the same to the repo you&rsquo;re reviewing would modify it — exactly what a review must never do. Nothing gets installed into the target: no hook, no rulebook, nothing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🕵️</div>
+      <div class="callout-content">
+        <strong class="callout-title">Walking away is also caught</strong>
+        <p>Open a review and try to end the session without finishing it? The plugin's stop hook blocks the exit, listing what's missing and the two honest ways out: <em>finish</em> (produce a passing report) or <em>abandon</em> (close it formally, with the reason kept on record). A review that's out of scope for your current folder never triggers it — no runs in scope, no opinion.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — state lives at the invoking root (the project you're working from), because the target belongs to someone else and must come out untouched."
+           data-explanation-wrong="Remember the guest-in-someone-else's-house rule: whose root can team-review write its bookkeeping to?">
+        <h3 class="quiz-question">Where does team-review keep its run records?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Inside the reviewed repo, in a hidden folder</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>At the invoking project's root, in the gitignored .handoff/ transport — never inside the target</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nowhere — the report is the only artifact</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — the gate compares the target's git snapshot at finish against the one taken at begin. Byte-for-byte equality is the proof; a promise isn't."
+           data-explanation-wrong="Follow the flow animation to its last step: what does the finish gate compare?">
+        <h3 class="quiz-question">How does the output gate prove the review really was read-only?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The reviewing agents are instructed not to modify files, which settles it</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It locks the target's files while the review runs</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It photographs the target's git state at begin and again at finish — the two snapshots must match byte for byte, or the gate blocks</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 3 · Paving the Road</span>
+    <h1>The new arrival reviewed its own destination — and the potholes got fixed first</h1>
+
+    <p>Here's the loop that makes TASK-35 unusual: before the transplant, the team-review skill was aimed at <em>this repo</em> — the marketplace it was about to join — with the question "how ready is this chassis for a plugin like me?" Its 10/10-gated report found the two potholes a newcomer would hit first, and the task was deliberately sequenced to <strong>pave the road before driving on it</strong>: fix both, <em>then</em> move in as the first beneficiary.</p>
+
+    <h2>Overheard: a new plugin author meets the old road</h2>
+
+    <div class="chat-window" id="chat-module3">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>The checklist says: add your plugin to the catalog — <em>or just run the generator script</em>. Ran it. Nothing happened.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="review" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🔍</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The review</span>
+            <p>Found it. The generator only refreshed plugins <em>already</em> in the catalog — a brand-new folder was silently ignored. The docs said one thing, the script did another. First thing a newcomer hits, and it costs real time.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>And the placement guide lists exactly two shapes a plugin can have. Mine is neither…</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="review" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🔍</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The review</span>
+            <p>That's pothole two: the guide presented two models as if they were the only ones. A caller-supplied-target plugin is a third shape — and one shared helper becomes a trap if you root it at the wrong repo. Nothing warned you.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="fix" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🛠️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">TASK-35.1</span>
+            <p>Both fixed before the move: the generator now <em>registers</em> unregistered plugin folders — the checklist is true as written, with a test proving it — and the guide names the third shape with the rooting rule inline.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>So the ninth plugin gets a paved road. Nice welcome gift.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module3-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>The generator, before and after</h2>
+
+    <p>The pothole fix itself is small enough to read. The catalog generator used to loop only over plugins already registered; now it also sweeps the repo's top-level folders and adopts any that carry a plugin manifest:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> e <span class="code-keyword">of</span> <span class="code-function">readdirSync</span>(repo)) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (registered.<span class="code-function">has</span>(e.name)) <span class="code-keyword">continue</span>;</span>
+<span class="code-line">  <span class="code-keyword">const</span> pj = <span class="code-function">manifest</span>(e.name);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (pj) plugins.<span class="code-function">push</span>({ name: pj.name, <span class="code-string">...</span> });</span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Walk every folder at the top of the repo, not just the ones the catalog already knows.</p>
+          <p class="tl">Skip anything that's already registered — existing entries keep their hand-tuned settings.</p>
+          <p class="tl">Peek inside for a plugin manifest — the file that says "I am a plugin."</p>
+          <p class="tl">Found one that's new? Write it into the catalog with sensible defaults.</p>
+          <p class="tl">That's the whole fix: the checklist's "just run the generator" is now literally true.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>What one task left behind</h2>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🗺️</div>
+        <h4 class="pattern-title">A named third shape</h4>
+        <p class="pattern-desc">The authoring guide's placement section grew from two models to three, with the trap (root the storage helper at the wrong repo) called out inline.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">⚙️</div>
+        <h4 class="pattern-title">A generative catalog</h4>
+        <p class="pattern-desc">Drop a plugin folder in, run the generator, and it's registered — description synced, defaults filled. A drift test keeps the repo's own catalog honest forever.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🧪</div>
+        <h4 class="pattern-title">Eleven new tests + a stronger drift check</h4>
+        <p class="pattern-desc">The review gate, run lifecycle, and stop hook are all covered; and a hand-maintained gate list is now compared against the real CI documentation instead of a hardcoded copy.</p>
+      </div>
+    </div>
+
+    <p>The whole task rode one branch toward one pull request — three subtasks as commits, versions bumped once (a new plugin is a minor release, so the marketplace moved to 0.9.0 with the skill at 1.0.0), and the grounding wiki re-verified note by note against the exact commits that changed their sources. The report that specified all of this is permanent evidence in <code>docs/handoffs/</code>: the review taught the repo, the repo adopted the reviewer.</p>
+
+    <div class="quiz-container" id="quiz-module3">
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — the paving subtask ran first so the transplant could land on the fixed road: the generator registered the new folder, and the guide already described the new plugin's shape."
+           data-explanation-wrong="The module title is the hint: what do you do to a road before driving on it?">
+        <h3 class="quiz-question">Why did TASK-35 fix the docs and the generator before moving the plugin in?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>So the transplant itself could use the paved road — get auto-registered by the generator and match a placement model the guide actually names</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because documentation changes are easier to review first</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the version bump had to happen before any code changed</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — the review report is the task's vendored spec input: a durable artifact in docs/handoffs/ that the plan was written from, and that future readers can check the work against."
+           data-explanation-wrong="Think about the first law of this repo: what must a decision be grounded in, and where did TASK-35's design decisions come from?">
+        <h3 class="quiz-question">What role did the skill's own review of this repo play in TASK-35?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It was a demo, kept only as a curiosity</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It replaced the need for tests</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It was the task's design input — vendored into docs/handoffs/ as the durable spec the plan was written from, per the artifact-grounded-action principle</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

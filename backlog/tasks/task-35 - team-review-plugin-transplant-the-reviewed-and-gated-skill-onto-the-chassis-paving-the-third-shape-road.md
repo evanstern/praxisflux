@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-23 05:15'
-updated_date: '2026-07-23 16:22'
+updated_date: '2026-07-23 16:38'
 labels: []
 dependencies: []
 priority: high
@@ -26,13 +26,15 @@ Shape of the transplant: team-review/{.claude-plugin/plugin.json, skills/team-re
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 team-review installs from the marketplace and its skill runs end-to-end (begin → review → finish) against a sample target with the target untouched
-- [ ] #2 The iteration-3 review report + process log are vendored into the repo as this task's spec input, at a documented location
-- [ ] #3 Vendored runner replaced by lib/gate-runner.mjs + lib/cli.mjs; gates/ still provably write-free; node --test covers checkReview (sections, citations, untouched) and the run lifecycle (begin/finish/abandon/collision)
-- [ ] #4 docs/skill-patterns.md §6 names the third placement model (caller-supplied target, state at invoking root) with the handoff rooting rule inline
-- [ ] #5 gen-marketplace.mjs registers unregistered plugin dirs (checklist step 1 becomes true as written), with a drift test
-- [ ] #6 marketplace.json entry, README row, marketplace version bump, and skill version 1.0.0 per docs/releasing.md; wiki-update pass green
+- [x] #1 team-review installs from the marketplace and its skill runs end-to-end (begin → review → finish) against a sample target with the target untouched
+- [x] #2 The iteration-3 review report + process log are vendored into the repo as this task's spec input, at a documented location
+- [x] #3 Vendored runner replaced by lib/gate-runner.mjs + lib/cli.mjs; gates/ still provably write-free; node --test covers checkReview (sections, citations, untouched) and the run lifecycle (begin/finish/abandon/collision)
+- [x] #4 docs/skill-patterns.md §6 names the third placement model (caller-supplied target, state at invoking root) with the handoff rooting rule inline
+- [x] #5 gen-marketplace.mjs registers unregistered plugin dirs (checklist step 1 becomes true as written), with a drift test
+- [x] #6 marketplace.json entry, README row, marketplace version bump, and skill version 1.0.0 per docs/releasing.md; wiki-update pass green
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 

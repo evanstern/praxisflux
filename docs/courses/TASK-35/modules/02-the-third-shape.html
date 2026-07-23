@@ -1,0 +1,131 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 2 · The Third Shape</span>
+    <h1>A guest in someone else's house: review the repo, touch nothing</h1>
+
+    <p>Every plugin in this marketplace "lives" somewhere. Until now there were two shapes: plugins with a <strong>favored home</strong> (a folder marked as theirs, like a classroom), and <strong>drop-anywhere</strong> plugins (any folder can become theirs by planting a marker file). team-review fits neither. It works on a repo <em>the caller points at</em> — someone else's project — and the whole engagement is <strong>read-only by doctrine</strong>. It may not leave so much as a settings file behind in the repo it reviews.</p>
+
+    <p>So where does its bookkeeping go? At the <strong>invoking</strong> project's root — the place you're working <em>from</em>, never the place you're pointing <em>at</em>. Run records ride the gitignored <code>.handoff/</code> transport there; the report lands outside the target too. TASK-35 named this the <strong>third placement model</strong> and wrote it into the authoring guide, so the next plugin like this doesn't have to rediscover the rule.</p>
+
+    <h2>One review, start to finish</h2>
+
+    <div class="flow-animation" data-steps='[
+      {"highlight":"flow-actor-1","label":"begin: open a tracked run and photograph the target&apos;s exact state (its git snapshot)"},
+      {"highlight":"flow-actor-2","label":"The run record lands at the INVOKING root &mdash; never inside the repo under review","packet":true,"from":"actor-1","to":"actor-2"},
+      {"highlight":"flow-actor-3","label":"The lead orients, fans out teammates in parallel, and synthesizes one report &mdash; written outside the target","packet":true,"from":"actor-2","to":"actor-3"},
+      {"highlight":"flow-actor-4","label":"finish: the gate checks the report&apos;s sections, verifies its file citations are real, and re-photographs the target","packet":true,"from":"actor-3","to":"actor-4"},
+      {"highlight":"flow-actor-4","label":"Snapshots match, byte for byte? The run is proven done. Any difference &mdash; the gate blocks."}
+    ]'>
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">📸</div>
+          <span>begin</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🗂️</div>
+          <span>Run record</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">👥</div>
+          <span>The review</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🚦</div>
+          <span>finish gate</span>
+        </div>
+      </div>
+
+      <div class="flow-packet" id="flow-packet"></div>
+
+      <div class="flow-step-label" id="flow-label">Click "Next Step" to follow a review run</div>
+
+      <div class="flow-controls">
+        <button class="btn flow-next-btn">Next Step</button>
+        <button class="btn flow-reset-btn">Restart</button>
+        <span class="flow-progress"></span>
+      </div>
+    </div>
+
+    <h2>The rule that keeps the guest honest</h2>
+
+    <p>The authoring guide's new paragraph carries one load-bearing warning. The shared helper that sets up the <code>.handoff/</code> storage also edits a project's <code>.gitignore</code> — a <em>write</em>. Pointed at the invoking root, that's correct plumbing. Pointed at the review target, it would itself be the forbidden write. The guide now states the rooting rule inline:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-comment">// skill-patterns §6 — third placement model</span></span>
+<span class="code-line">ensureGitignore(<span class="code-string">invokingRoot</span>)   <span class="code-comment">// ✓ correct transport</span></span>
+<span class="code-line">ensureGitignore(<span class="code-string">reviewTarget</span>)   <span class="code-comment">// ✗ the forbidden write</span></span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">The guide names the shape: operate on a caller-supplied repo, keep state at your own root.</p>
+          <p class="tl">Setting up storage at your own root is legitimate housekeeping.</p>
+          <p class="tl">Doing the same to the repo you&rsquo;re reviewing would modify it — exactly what a review must never do. Nothing gets installed into the target: no hook, no rulebook, nothing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-icon">🕵️</div>
+      <div class="callout-content">
+        <strong class="callout-title">Walking away is also caught</strong>
+        <p>Open a review and try to end the session without finishing it? The plugin's stop hook blocks the exit, listing what's missing and the two honest ways out: <em>finish</em> (produce a passing report) or <em>abandon</em> (close it formally, with the reason kept on record). A review that's out of scope for your current folder never triggers it — no runs in scope, no opinion.</p>
+      </div>
+    </div>
+
+    <div class="quiz-container" id="quiz-module2">
+      <div class="quiz-question-block"
+           data-correct="option-b"
+           data-explanation-right="Right — state lives at the invoking root (the project you're working from), because the target belongs to someone else and must come out untouched."
+           data-explanation-wrong="Remember the guest-in-someone-else's-house rule: whose root can team-review write its bookkeeping to?">
+        <h3 class="quiz-question">Where does team-review keep its run records?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Inside the reviewed repo, in a hidden folder</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>At the invoking project's root, in the gitignored .handoff/ transport — never inside the target</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Nowhere — the report is the only artifact</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Exactly — the gate compares the target's git snapshot at finish against the one taken at begin. Byte-for-byte equality is the proof; a promise isn't."
+           data-explanation-wrong="Follow the flow animation to its last step: what does the finish gate compare?">
+        <h3 class="quiz-question">How does the output gate prove the review really was read-only?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The reviewing agents are instructed not to modify files, which settles it</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It locks the target's files while the review runs</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It photographs the target's git state at begin and again at finish — the two snapshots must match byte for byte, or the gate blocks</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+    </div>
+
+  </div>
+</section>
