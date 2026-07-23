@@ -88,6 +88,19 @@
         "installer",
         "lifecycle"
       ]
+    },
+    {
+      "name": "team-review",
+      "source": "./team-review",
+      "description": "Lead-engineer-plus-team architecture review of any codebase via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched).",
+      "category": "productivity",
+      "tags": [
+        "review",
+        "architecture",
+        "subagents",
+        "read-only",
+        "gates"
+      ]
     }
   ]
 }
