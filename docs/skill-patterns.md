@@ -62,12 +62,18 @@ user's project — one canonical, updatable copy per plugin.
 - Build/release/version tooling is **repo-level** (`scripts/build.mjs`, `sync-version.mjs`,
   `gen-marketplace.mjs`) — a plugin does not carry its own `package.json` or self-build.
 
-## 6. Two placement models
+## 6. Three placement models
 
 - **Favored home** (educate): a fixed project marked by a child dir (`topics/`). Find it with
   `findRootUpwards(dir, hasChild("topics"))`.
 - **Drop-anywhere** (research): a project can live in any folder, marked by an unambiguous
   **sentinel** (`.research-vault`). Find all of them with `findRootsDownwards(dir, hasChild(sentinel))`.
+- **Caller-supplied target** (team-review): the skill *operates on* a root the caller names (the
+  repo under review) but *stores state at the invoking project's root* — the target is someone
+  else's project and must stay untouched. **Rooting rule:** `lib/handoff.mjs` (`ensureHandoffDir`
+  → `ensureGitignore`) writes to whatever root it is given, so it may only ever be rooted at the
+  **invoking** root; pointed at the caller-supplied target it would itself be the forbidden write.
+  Same rule for any planted hook or CLAUDE.md — this shape installs nothing into its target.
 
 ## 7. Shared chassis vs. per-plugin
 

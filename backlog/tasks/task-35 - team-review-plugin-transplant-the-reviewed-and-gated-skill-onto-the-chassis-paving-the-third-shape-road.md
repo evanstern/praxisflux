@@ -3,9 +3,11 @@ id: TASK-35
 title: >-
   team-review plugin: transplant the reviewed-and-gated skill onto the chassis,
   paving the third-shape road
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-23 05:15'
+updated_date: '2026-07-23 16:22'
 labels: []
 dependencies: []
 priority: high
@@ -31,3 +33,12 @@ Shape of the transplant: team-review/{.claude-plugin/plugin.json, skills/team-re
 - [ ] #5 gen-marketplace.mjs registers unregistered plugin dirs (checklist step 1 becomes true as written), with a drift test
 - [ ] #6 marketplace.json entry, README row, marketplace version bump, and skill version 1.0.0 per docs/releasing.md; wiki-update pass green
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. TASK-35.1 first (pave the road): skill-patterns §6 third placement model + generative gen-marketplace.mjs with drift test.
+2. TASK-35.2: transplant ~/.claude/skills/team-review v0.4.0 into team-review/ per the plugin shape (plugin.json, skills/team-review/SKILL.md v1.0.0, gates/review.mjs domain logic unchanged, scripts/{run,orient,stop}.mjs + gate.sh, hooks/hooks.json, lib -> ../lib symlink); swap vendored stop-runner for lib/gate-runner.mjs runStopHook; adopt lib/cli.mjs runAsCli; vendor iteration-3 review.md + process-log.md as spec input under docs/handoffs/; e2e run against a sample target.
+3. TASK-35.3: node --test coverage (checkReview, run lifecycle, stop evaluate paths, run-gates/action.yml registry drift test), marketplace registration via the now-generative gen-marketplace, README row, version bumps per docs/releasing.md, wiki-update pass.
+Branch: task-35-team-review-plugin; one PR for the whole TASK-35 tree per one-TASK-one-PR.
+<!-- SECTION:PLAN:END -->
