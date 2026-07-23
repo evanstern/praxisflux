@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 8edd7fb870d1fafea4d112d8980647933e015279
+verified_against: f239615f94d67b076d14392f1659091e1f464ced
 ---
 
 # Build and release
@@ -149,8 +149,8 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by dereferencing each
   plugin's `lib` symlink into a real copy — there is no runtime cross-plugin lookup.
 - Packages [[research-plugin]], [[educate-plugin]], [[build-plugin]],
-  [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], and [[spec-bridge-plugin]], as
-  registered in the marketplace file.
+  [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], [[spec-bridge-plugin]],
+  [[pdlc-plugin]], and [[team-review-plugin]], as registered in the marketplace file.
 - The stamped theme regions originate in the HTML base described in [[chassis-utilities]];
   the tooltip regions come from the [[toolkit]].
 - Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`,

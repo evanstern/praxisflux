@@ -8,6 +8,7 @@ sources:
   - test/codebase-to-course.course-gate.test.mjs
   - test/codebase-to-course.validate.test.mjs
   - test/educate-deck-selfcontained.test.mjs
+  - test/gen-marketplace.test.mjs
   - test/grounding-wiki.freshness.test.mjs
   - test/handoff.test.mjs
   - test/html-base.test.mjs
@@ -16,17 +17,18 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/sync-shared.test.mjs
+  - test/team-review.test.mjs
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 873d8bdcbb27f328a3ca7ce67347edf18b8323d2
+verified_against: f239615f94d67b076d14392f1659091e1f464ced
 ---
 
 # Test suite
 
-Sixteen test files under `test/` keep the chassis and every plugin's gate logic honest. The suite
+The test files under `test/` keep the chassis and every plugin's gate logic honest. The suite
 is deliberately minimal: plain `node --test` with `node:test` and `node:assert/strict`, zero npm
 dependencies (the repo has no `package.json`), and fixtures built in throwaway `mkdtempSync`
 directories rather than checked-in test data.
@@ -59,6 +61,9 @@ What each file covers:
   outside any block, unclosed block opens) field-reported by the-stacks.
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
   self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
+- `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
+  a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
+  repo's own catalog is never stale.
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
   truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
@@ -81,6 +86,10 @@ What each file covers:
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
+- `test/team-review.test.mjs` — the review output gate (`checkReview`: sections, citation
+  resolution with repeated-basename tolerance, report-inside-target rejection, untouched vs
+  mutated snapshot), the run lifecycle CLI (begin/finish/abandon, same-second id collision)
+  under `$TEAM_REVIEW_HOME`, and the Stop-hook paths through gate-runner `evaluate`.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
@@ -109,7 +118,7 @@ full package build, and the bump gate on every PR (see [[build-and-release]]).
   [[selfcontained-verifier]], [[lifecycle-engine]], [[gate-runner]], and [[installer]].
 - Exercises each plugin's instantiation of the [[gates-convention]]: [[research-plugin]],
   [[educate-plugin]], [[grounding-wiki-plugin]], [[codebase-to-course-plugin]],
-  [[spec-bridge-plugin]].
+  [[spec-bridge-plugin]], [[team-review-plugin]].
 - `handoff.test.mjs` and `return-leg.test.mjs` pin down the [[handoff-protocol]] transport and
   its evidence-plus-residue return leg.
 - `sync-shared.test.mjs` imports `driftReport` from the [[build-and-release]] tooling, so

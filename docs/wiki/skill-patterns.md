@@ -4,7 +4,7 @@ description: The shared authoring patterns for praxisflux plugins — phase-sepa
 kind: pattern
 sources:
   - docs/skill-patterns.md
-verified_against: 8edd7fb870d1fafea4d112d8980647933e015279
+verified_against: f239615f94d67b076d14392f1659091e1f464ced
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -69,7 +69,8 @@ not just re-syncs — see [[build-and-release]]); skills in the gate→work→ga
 - [[gates-convention]] — the enforcement half of these patterns (gates/ vs scripts/, lifecycle).
 - [[chassis]] — what a conforming plugin inherits through its `lib` symlink; [[build-and-release]] dereferences it into packaged copies.
 - Applied by every plugin note: [[research-plugin]], [[grounding-wiki-plugin]],
-  [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]].
+  [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]],
+  [[spec-bridge-plugin]], [[pdlc-plugin]], [[team-review-plugin]].
 
 ## Operational notes
 

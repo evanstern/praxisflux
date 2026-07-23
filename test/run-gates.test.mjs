@@ -1,7 +1,7 @@
 // Tests for scripts/run-gates.mjs — the CI consumption surface (action.yml's runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, symlinkSync } from "node:fs";
+import { mkdtempSync, mkdirSync, symlinkSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,8 +44,13 @@ test("run-gates: wiki-freshness on a shallow clone fails with the fetch-depth fi
   assert.match(r.problems[0], /shallow clone.*fetch-depth: 0/);
 });
 
+// The GATES map and action.yml's documented gate list are hand-maintained in parallel — this
+// is the drift check tying them together, read from the real action.yml rather than a copy.
 test("run-gates: GATES registry and action.yml agree on the gate names", () => {
-  assert.deepEqual(Object.keys(GATES).sort(), ["course", "spec-bridge", "wiki-freshness"]);
+  const action = readFileSync(join(repo, "action.yml"), "utf8");
+  const doc = action.match(/Comma-separated gates to run: ([^.]+)\./);
+  assert.ok(doc, "action.yml no longer documents the gate list in the gates input description");
+  assert.deepEqual(Object.keys(GATES).sort(), doc[1].split(",").map((s) => s.trim()).sort());
 });
 
 // Regression: the run-as-CLI guard compared import.meta.url (symlink-resolved by Node)
