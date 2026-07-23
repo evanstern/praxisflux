@@ -1,0 +1,216 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: docs are claims -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Honest Signs on the Door</h1>
+      <p class="lead">
+        The test proved the machinery. The last two acceptance criteria were about something
+        softer and just as load-bearing: <strong>the signs on the door.</strong> A
+        <span class="term" data-definition="The front-page document of a repository — the first thing a visitor reads. It states what the project is, and crucially, how to install and use it.">README</span>
+        is a set of claims, and this one had drifted from reality.
+      </p>
+      <p>
+        The install section still warned that you&rsquo;d need special access “while this repo is
+        private.” TASK-39 checked the facts on the day of the work: the repository had gone
+        <strong>public</strong>, and the companion package was live on
+        <span class="term" data-definition="The public registry where JavaScript packages are published and downloaded — the app store for Node code.">npm</span>.
+        The caveat wasn&rsquo;t cautious; it was <em>wrong</em> — in the too-pessimistic direction,
+        which still costs adopters who believe it.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: verify, don&rsquo;t transcribe</strong>
+          <p>The task&rsquo;s brief <em>assumed</em> the repo was private and asked for the caveat to be kept. The work started by checking — one command against the live service — and the answer flipped what the README should say. Docs written from memory drift; docs written from checks don&rsquo;t.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the three trails -->
+    <div class="screen">
+      <h2>Three marked trails in</h2>
+      <p>
+        The rewritten install section reads like a good trailhead sign: every route that actually
+        exists, each with what it&rsquo;s for — and nothing that doesn&rsquo;t exist.
+      </p>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🛍️</div>
+          <h4 class="pattern-title">The marketplace</h4>
+          <p class="pattern-desc">The primary surface: add the marketplace inside Claude Code and install plugins one by one — each arrives with its Stop hooks, on the very path Module 2&rsquo;s test now proves.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">Per-plugin zips</h4>
+          <p class="pattern-desc">Every release attaches one zip archive per plugin, packaged with the signpost already turned into real files — for installs that can&rsquo;t reach the marketplace.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">⚖️</div>
+          <h4 class="pattern-title">Gates only, no install</h4>
+          <p class="pattern-desc">Any project&rsquo;s CI can run just the honesty gates — via a ready-made GitHub Action or a single <span class="term" data-definition="A command that downloads and runs a published package in one step, without permanently installing it.">npx</span> command — without adopting the plugins at all.</p>
+        </div>
+      </div>
+      <p>
+        And one sentence above all three, now true and checkable: <strong>every surface is
+        public; no special access required.</strong>
+      </p>
+    </div>
+
+    <!-- Screen 3: the bash doorman and the Windows question -->
+    <div class="screen">
+      <h2>The doorman is written in bash</h2>
+      <p>
+        One claim was still missing from the door: <em>which machines does any of this work on?</em>
+        The answer hides in the doorman itself. Here is the working half of <code>gate.sh</code>,
+        verbatim:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — team-review/scripts/gate.sh</span>
+          <pre><code>
+<span class="code-line">here=<span class="code-string">"$(cd "$(dirname "$0")" &amp;&amp; pwd)"</span></span>
+<span class="code-line">root=<span class="code-string">"${CLAUDE_PLUGIN_ROOT:-$(dirname "$here")}"</span></span>
+<span class="code-line">node_bin=<span class="code-string">"$(command -v node 2&gt;/dev/null)"</span></span>
+<span class="code-line"><span class="code-keyword">if</span> [ -z <span class="code-string">"$node_bin"</span> ]; <span class="code-keyword">then</span></span>
+<span class="code-line">  node_bin=<span class="code-string">"$(${SHELL:-/bin/sh} -lc 'command -v node' 2&gt;/dev/null)"</span></span>
+<span class="code-line"><span class="code-keyword">fi</span></span>
+<span class="code-line"><span class="code-keyword">if</span> [ -z <span class="code-string">"$node_bin"</span> ]; <span class="code-keyword">then</span></span>
+<span class="code-line">  <span class="code-keyword">exit</span> 0</span>
+<span class="code-line"><span class="code-keyword">fi</span></span>
+<span class="code-line"><span class="code-keyword">exec</span> <span class="code-string">"$node_bin"</span> <span class="code-string">"${root}/scripts/stop.mjs"</span></span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Figure out which folder this script itself lives in.</p>
+            <p class="tl">The plugin&rsquo;s root: use the location Claude Code provides, or fall back to “one folder up from me.”</p>
+            <p class="tl">Look for <span class="term" data-definition="The program that runs JavaScript outside a browser. All of praxisflux's gate logic is JavaScript, so the doorman must find Node to do anything at all.">Node</span> on this machine, hiding any error message.</p>
+            <p class="tl">If it wasn&rsquo;t found…</p>
+            <p class="tl">…try once more the way the user&rsquo;s own login shell would find it.</p>
+            <p class="tl">End of the retry.</p>
+            <p class="tl">Still nothing?</p>
+            <p class="tl">Then bow out quietly — a missing runtime must never block the assistant from finishing.</p>
+            <p class="tl">End of the give-up check.</p>
+            <p class="tl">Node found: hand the whole job over to the real gate program.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Every line of that is <strong>bash</strong> — and Windows doesn&rsquo;t ship bash. Add that
+        Windows checkouts don&rsquo;t reliably support symlinks, and a native-Windows install would
+        recreate Module 1&rsquo;s nightmare exactly: <strong>gates silently absent.</strong>
+      </p>
+    </div>
+
+    <!-- Screen 4: the decision -->
+    <div class="screen">
+      <h2>Saying “no” out loud</h2>
+      <p>
+        There were two honest options: do the large engineering to support Windows natively, or
+        <strong>declare it out of scope — loudly, with reasons.</strong> The owner chose the
+        declaration. The README now states: macOS and Linux supported; native Windows out of
+        scope <em>because</em> the shims are bash and the symlinks assume
+        <span class="term" data-definition="A git setting that controls whether symlinks are recreated as real links on checkout. Off — common on Windows — and they become plain text files, breaking anything that relies on them.">core.symlinks</span>;
+        Windows users should run under
+        <span class="term" data-definition="Windows Subsystem for Linux — a full Linux environment built into Windows. Inside it, bash, symlinks, and Node all behave exactly as on Linux.">WSL</span>,
+        where everything behaves as on Linux.
+      </p>
+      <p>
+        And one more sentence with teeth: revisiting the decision means <em>a tested PowerShell
+        shim path, not a doc edit</em> — the claim can only be upgraded by new evidence, never by
+        wishful rewording.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: a recorded “no” beats a silent gap</strong>
+          <p>Silence about a platform reads as “probably fine” — and fails as a mystery on the user&rsquo;s machine, eroding trust in everything else. A stated limitation with a reason and an escape hatch costs one paragraph and fails as a known, navigable fact. In your own projects: never let scope be implied by omission.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — declare it out of scope, in writing, with the reason and the workaround. Users on that platform hit a clear sign instead of a mystery, and the limitation can be revisited when there's evidence, not vibes."
+             data-explanation-wrong="Shipping silently recreates the 'gates silently absent' nightmare, and blocking everything punishes platforms that work fine. What did this module say the README should do about the platform it can't serve?">
+          <h3 class="quiz-question">Your tool&rsquo;s enforcement layer can&rsquo;t run on one popular platform, and fixing that is months of work. What&rsquo;s the honest move for the next release?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Ship as-is — most users are on supported platforms, and the docs shouldn&rsquo;t advertise weaknesses</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>State the limitation in the docs with the reason and an escape hatch, and set an evidence bar for revisiting it</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Refuse to release anything until every platform is supported equally</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the gates-only surface exists for precisely this: any CI that can run Node can run one npx command, no marketplace, no plugins, no GitHub required."
+             data-explanation-wrong="The marketplace and the zips both install the plugins into Claude Code — but this team only wants the checks, inside a non-GitHub CI. Which trail was designed for that?">
+          <h3 class="quiz-question">A team loves the honesty gates but uses a non-GitHub CI system and doesn&rsquo;t use Claude Code at all. Which trail do they take?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The marketplace — it&rsquo;s the primary surface, so it&rsquo;s always the answer</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Per-plugin zips, unpacked into their CI server</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Gates only: run the published package with a single npx command inside their CI</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly. The doorman treats a missing runtime as 'quietly stand aside' — by design, so a machine without Node never gets locked out of finishing turns. The cost of that mercy is silence, which is why the install-path test matters so much."
+             data-explanation-wrong="Re-read the doorman's last give-up check. It was written specifically so a missing runtime can never block the assistant. What does it do instead of complaining?">
+          <h3 class="quiz-question">Based on the gate.sh code you just read: on a machine with <em>no Node installed at all</em>, what does a Stop event do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing visible — the doorman quietly exits 0 and the gates simply don&rsquo;t run</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The turn is blocked with “Node is required” until the user installs it</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Claude Code uninstalls the plugin, since it can&rsquo;t function</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+      <p>
+        <em>That last answer is the loop closed: the doorman&rsquo;s deliberate silence is exactly
+        why the install path needed a loud, automated proof. Machinery that fails politely must be
+        tested impolitely.</em>
+      </p>
+    </div>
+
+  </div>
+</section>
