@@ -85,8 +85,11 @@ Suite-design principles:
 
 ## Install
 
-Add the marketplace from GitHub (needs git access to this repo while it's private), or from a
-local clone:
+Every surface below is public — the repo and the
+[`@praxisflux/gates`](https://www.npmjs.com/package/@praxisflux/gates) npm package need no
+special access.
+
+**Claude Code marketplace** (the primary surface) — from GitHub or a local clone:
 
 ```
 /plugin marketplace add evanstern/praxisflux     # or: /plugin marketplace add /path/to/praxisflux
@@ -100,7 +103,27 @@ local clone:
 /plugin install team-review@praxisflux
 ```
 
-Each plugin is independently installable — take only the legs of the loop you need.
+Each plugin is independently installable — take only the legs of the loop you need. Installing
+copies the plugin into Claude Code's cache with the `lib -> ../lib` symlink dereferenced into a
+real directory; CI proves that exact path end-to-end on every PR (`test/install-path.test.mjs`
+simulates the dereferenced copy, spawns each plugin's Stop hook the way Claude Code does, and
+asserts the gates fire).
+
+**Per-plugin zips** — each GitHub Release `v<version>` attaches `<plugin>-v<version>.zip`,
+packaged by `scripts/build.mjs` with the symlink already dereferenced.
+
+**Gates only, no install** — enforce the gates in any repo's CI via the composite action
+(`uses: evanstern/praxisflux@v<version>`) or anywhere Node runs via `npx @praxisflux/gates`;
+see [`docs/consuming-gates.md`](docs/consuming-gates.md).
+
+### Platform support
+
+macOS and Linux are supported. **Native Windows is explicitly out of scope** (owner decision,
+2026-07-23): the Stop-hook shims are bash and the committed `lib -> ../lib` symlinks assume
+`core.symlinks`, so a native-Windows install would get gates that are silently absent — the
+exact failure mode this suite exists to prevent, so we decline to ship it rather than ship it
+broken. Windows users should run under WSL, where everything behaves as on Linux. Revisiting
+this means a tested PowerShell/cmd shim path, not a doc edit.
 
 Every merge to `main` publishes a GitHub Release `v<version>` (the marketplace version) with a
 self-contained zip per plugin (`<plugin>-v<version>.zip`) — versioned snapshots for installing
