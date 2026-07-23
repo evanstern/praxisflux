@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-39 — Proving the Install Path</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-39 — Proving the Install Path</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Untested Bet" role="tab" aria-label="Module 1: The Untested Bet"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="An Install in a Bottle" role="tab" aria-label="Module 2: An Install in a Bottle"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Honest Signs on the Door" role="tab" aria-label="Module 3: Honest Signs on the Door"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>The Untested Bet</h1>
+      <p class="lead">
+        praxisflux is a <span class="term" data-definition="A catalog of installable add-ons. Like an app store, but for plugins — small packages of skills and rules that extend what Claude Code can do.">plugin marketplace</span>:
+        eight plugins sharing one toolbox of common code. An outside
+        <span class="term" data-definition="A structured critique of a codebase by (in this case) a team of AI reviewers — what's good, what's risky, what's missing.">architecture review</span>
+        of the project ended with one worry it called <em>the biggest structural bet, unverified</em>:
+        <strong>nobody had ever proven that installing a plugin actually works.</strong>
+      </p>
+      <p>
+        TASK-39 is the story of turning that bet into a checked fact. To see why it was a bet
+        at all, you need to meet one strange character: the symlink.
+      </p>
+    </div>
+
+    <!-- Screen 2: the recipe card metaphor -->
+    <div class="screen">
+      <h2>The recipe card and the family cookbook</h2>
+      <p>
+        Imagine a box of recipe cards. To save space, every card that needs the house tomato
+        sauce just says <em>“sauce: see the family cookbook, page 12.”</em> At home, perfect —
+        the cookbook is always on the same shelf. But <strong>mail a card to a friend</strong> and
+        the reference is worthless… unless whoever copies the card also copies page 12 onto it.
+      </p>
+      <p>
+        praxisflux works exactly like that box. The shared code lives once, in a folder called
+        <code>lib/</code>, and every plugin contains a
+        <span class="term" data-definition="A symbolic link — a file that isn't real content, just a signpost pointing at another location on disk, like a shortcut. Programs that follow it see whatever it points to.">symlink</span>
+        named <code>lib</code> that points at <code>../lib</code> — “one shelf up.”
+      </p>
+      <div class="file-tree">
+        <div class="ft-folder open">
+          <span class="ft-name">praxisflux/</span>
+          <span class="ft-desc">the whole marketplace repository</span>
+          <div class="ft-children">
+            <div class="ft-folder">
+              <span class="ft-name">lib/</span>
+              <span class="ft-desc">the family cookbook — shared code, kept once</span>
+            </div>
+            <div class="ft-folder open">
+              <span class="ft-name">team-review/</span>
+              <span class="ft-desc">one of the eight plugins</span>
+              <div class="ft-children">
+                <div class="ft-file">
+                  <span class="ft-name">lib → ../lib</span>
+                  <span class="ft-desc">not a folder — a signpost saying “see the cookbook, one shelf up”</span>
+                </div>
+                <div class="ft-folder">
+                  <span class="ft-name">scripts/</span>
+                  <span class="ft-desc">this plugin&rsquo;s own code, which follows that signpost</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p>
+        When you <strong>install</strong> a plugin, the marketplace copies just that plugin&rsquo;s
+        folder onto your machine — and it is supposed to
+        <span class="term" data-definition="To replace a signpost with a real copy of what it points to. After dereferencing, the folder contains actual files instead of a pointer that might lead nowhere.">dereference</span>
+        the signpost: copy page 12 onto the card. <em>Supposed to.</em> No test had ever checked.
+      </p>
+    </div>
+
+    <!-- Screen 3: what the plugins actually do with it — Stop hooks -->
+    <div class="screen">
+      <h2>What&rsquo;s riding on it: the Stop hook</h2>
+      <p>
+        Why does it matter? Because the shared code being reached through that signpost includes
+        the plugins&rsquo; conscience. Four praxisflux plugins ship a
+        <span class="term" data-definition="A small program Claude Code runs automatically at a specific moment — here, the moment the AI assistant tries to finish its turn. The hook can allow the stop, or block it with a message.">Stop hook</span>:
+        every time the AI assistant tries to end its turn, the hook inspects the project and
+        refuses to let it finish if the work claims more than the files prove.
+      </p>
+      <p>Here is the chain that fires on every single stop. Step through it:</p>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The AI assistant finishes answering and tries to end its turn"},
+        {"highlight":"flow-actor-1","label":"Claude Code fires the Stop event and runs the command wired in the plugin: bash gate.sh","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"gate.sh is a tiny doorman script: it finds Node on this machine and hands the job over","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"stop.mjs loads the shared gate-runner THROUGH the lib signpost and inspects the project"},
+        {"highlight":"flow-actor-3","label":"Verdict travels back as an exit code: 0 = all claims proven, finish allowed","packet":true,"from":"actor-3","to":"actor-1"},
+        {"highlight":"flow-actor-1","label":"…or exit code 2: the stop is BLOCKED and the assistant is told exactly what is unproven"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🤖</div>
+            <span>Claude Code</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🚪</div>
+            <span>gate.sh</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">⚖️</div>
+            <span>stop.mjs + gates</span>
+          </div>
+        </div>
+        <div class="flow-packet" id="flow-packet"></div>
+        <div class="flow-step-label" id="flow-label">Click “Next Step” to begin</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+      <p>
+        An <span class="term" data-definition="A single number every program reports when it ends. 0 conventionally means 'all good'; anything else signals a problem. Other programs read it to decide what to do next.">exit code</span>
+        is the whole conversation: <strong>0</strong> means “let the assistant finish,”
+        <strong>2</strong> means “block, and show it my complaint.”
+      </p>
+    </div>
+
+    <!-- Screen 4: the code where the bet lives -->
+    <div class="screen">
+      <h2>The bet, in four lines</h2>
+      <p>
+        This is the top of one plugin&rsquo;s Stop-hook entry — real code from
+        <code>research/scripts/stop.mjs</code>. Look at where the last two lines
+        <span class="term" data-definition="To load code from another file so you can use it. An import path like ../lib/… means 'go up one folder, then into lib' — it's followed literally, like directions.">import</span>
+        from:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">import</span> { readdirSync } <span class="code-keyword">from</span> <span class="code-string">"node:fs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { join } <span class="code-keyword">from</span> <span class="code-string">"node:path"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { runStopHook } <span class="code-keyword">from</span> <span class="code-string">"../lib/gate-runner.mjs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { hasChild, findRootsDownwards } <span class="code-keyword">from</span> <span class="code-string">"../lib/project-root.mjs"</span>;</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Borrow a tool for listing folder contents from Node itself — always available, no bet here.</p>
+            <p class="tl">Borrow a tool for gluing file paths together — also built in, also safe.</p>
+            <p class="tl">Now the bet: load the shared gate-runner from “../lib” — one folder up, then into lib. That path only works if the signpost was turned into a real folder during install.</p>
+            <p class="tl">Same bet again: the project-root finder also lives behind the signpost. Two of four imports depend on the copy step nobody had tested.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        In the repository, <code>../lib</code> resolves through the symlink. In an installed copy,
+        it resolves only if the installer really did paste page 12 onto the card.
+      </p>
+    </div>
+
+    <!-- Screen 5: the failure mode -->
+    <div class="screen">
+      <h2>The scary part: failure would be <em>silent</em></h2>
+      <p>
+        Suppose the install step didn&rsquo;t dereference. The import fails, the hook program
+        crashes, and it reports exit code <strong>1</strong> — which is neither “allow” (0) nor
+        “block” (2). Claude Code shrugs and moves on. No error dialog. No warning.
+      </p>
+      <div class="callout callout-warning">
+        <div class="callout-icon">🕳️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Gates that vanish without a sound</strong>
+          <p>The user would keep working, believing the honesty gates are on duty — while every single one of them is absent. A broken feature that <em>announces</em> itself gets fixed; a broken safety net gets discovered the day you fall.</p>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: a bet is fine — an unchecked bet isn&rsquo;t</strong>
+          <p>Engineers call an assumption the whole design leans on an <em>invariant</em>. The fix for a risky invariant is rarely to redesign — it&rsquo;s to <strong>write a check that fails loudly the day the assumption breaks</strong>. That&rsquo;s exactly what Module 2 builds.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Each installed plugin carries its own dereferenced copy of lib/ — there's no runtime connection back to the marketplace or to other plugins. That independence is the whole design."
+             data-explanation-wrong="Not quite. Remember what the install step does with the signpost: it pastes a real copy of the shared code INTO the plugin being installed. Each plugin travels with its own cookbook pages.">
+          <h3 class="quiz-question">A friend installs only <em>one</em> of the eight plugins — nothing else from praxisflux. Can its Stop hook work?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No — the shared code lives in the marketplace, so at least one other plugin must be installed too</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — installing dereferenced the signpost, so the plugin carries its own real copy of the shared code</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only if the friend also downloads the whole praxisflux repository next to it</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — and that's what made this bet so dangerous. Exit 1 is neither 'allow' nor 'block', so the hook just… stops existing. Nothing on screen changes; the safety net is simply gone."
+             data-explanation-wrong="Think back to the exit-code contract: 0 allows the stop, 2 blocks it with a message. A crash reports 1 — which the Stop machinery doesn't treat as a block. What does the user experience?">
+          <h3 class="quiz-question">Imagine the installer had a bug and copied the <code>lib</code> signpost as a signpost. What would a user actually <em>see</em>?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>An error dialog the moment they install the plugin</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Every turn gets blocked, because a crashed gate refuses everything to be safe</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing at all — the gates silently stop existing while everything else keeps working</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly the right instinct. When a design leans on an assumption, the cheapest strong move is a check that fails loudly the day the assumption breaks — you keep the design and lose the risk."
+             data-explanation-wrong="That would work, but look at the cost. Duplicating the shared code into every plugin (or redesigning away the sharing) trades a small, checkable risk for permanent maintenance pain. What did this module say is the usual fix for a risky invariant?">
+          <h3 class="quiz-question">You&rsquo;re building your own tool and notice it quietly assumes “the config file is always next to the app.” What&rsquo;s the move this module argues for?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Keep the design, but add an automated check that fails loudly if the assumption ever breaks</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redesign so nothing is ever shared or assumed — copies everywhere, just in case</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Document the assumption in the README and trust readers to remember it</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the idea -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>An Install in a Bottle</h1>
+      <p class="lead">
+        You can&rsquo;t unit-test a marketplace you don&rsquo;t control. But you <em>can</em> build
+        a perfect replica of what it does. TASK-39&rsquo;s answer is one new test file —
+        <code>test/install-path.test.mjs</code> — that performs a complete install inside a
+        <span class="term" data-definition="A temporary folder created just for one test run and thrown away afterward. Nothing the test does can touch your real files.">throwaway folder</span>,
+        then treats the result exactly the way Claude Code would.
+      </p>
+      <p>
+        This kind of test is called <span class="term" data-definition="End-to-end: a test that exercises the whole real chain — files, programs, processes — instead of checking one function in isolation. Slower, but it catches problems unit tests can't see.">e2e</span>,
+        end-to-end. First step: simulate the install itself.
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — test/install-path.test.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">installPlugin</span>({ name, source }) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> dest = <span class="code-function">join</span>(<span class="code-function">mkdtempSync</span>(<span class="code-function">join</span>(<span class="code-function">tmpdir</span>(), <span class="code-string">`praxisflux-install-${name}-`</span>)), name);</span>
+<span class="code-line">  <span class="code-function">cpSync</span>(<span class="code-function">join</span>(repo, source), dest, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });</span>
+<span class="code-line">  <span class="code-keyword">const</span> lib = <span class="code-function">join</span>(dest, <span class="code-string">"lib"</span>);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (<span class="code-function">existsSync</span>(lib) &amp;&amp; <span class="code-function">lstatSync</span>(lib).<span class="code-function">isSymbolicLink</span>()) {</span>
+<span class="code-line">    <span class="code-function">rmSync</span>(lib);</span>
+<span class="code-line">    <span class="code-function">cpSync</span>(<span class="code-function">join</span>(repo, <span class="code-string">"lib"</span>), lib, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> dest;</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">“Install” one plugin, given its name and where it lives in the repository.</p>
+            <p class="tl">Make a fresh throwaway folder to install into — our bottle.</p>
+            <p class="tl">Copy the whole plugin folder over, exactly as the marketplace would.</p>
+            <p class="tl">Now find the copied “lib” entry — the recipe-card signpost from Module 1.</p>
+            <p class="tl">If it&rsquo;s still a signpost rather than a real folder…</p>
+            <p class="tl">…tear the signpost out…</p>
+            <p class="tl">…and paste in a real copy of the shared code — page 12, copied onto the card.</p>
+            <p class="tl">Done with the special case.</p>
+            <p class="tl">Hand back the installed plugin&rsquo;s location.</p>
+            <p class="tl">That&rsquo;s the entire install, replicated in nine lines.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        The test then asserts something blunt: <strong>no signpost of any kind survives</strong> in
+        the installed copy, and the shared code is physically there.
+      </p>
+    </div>
+
+    <!-- Screen 2: spawning it like the real thing -->
+    <div class="screen">
+      <h2>Run it the way Claude Code runs it</h2>
+      <p>
+        Here&rsquo;s the subtle part. Older tests imported the gate functions directly into the test
+        program — like phoning the doorman at home to ask what he <em>would</em> say. This test
+        instead walks up to the actual door:
+      </p>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Read the plugin&rsquo;s own wiring</strong>
+            <p>The command comes out of the installed plugin&rsquo;s <code>hooks.json</code> — the same file Claude Code reads — not out of the test author&rsquo;s memory of it.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Launch it as a real separate program</strong>
+            <p>The test <span class="term" data-definition="To start another program as its own independent process, rather than calling a function inside your own program. The spawned program has its own environment and its own exit code.">spawns</span> the command through <span class="term" data-definition="The standard command-line shell on macOS and Linux — the program that reads commands like 'bash gate.sh' and runs them. Windows does not ship it.">bash</span>, exactly as the Stop event would.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Feed it a fake Stop event</strong>
+            <p>Claude Code hands hooks a small <span class="term" data-definition="JavaScript Object Notation — a simple text format for structured data, all curly braces and quotes. Programs use it to pass messages to each other.">JSON</span> message on <span class="term" data-definition="Standard input — the channel a program reads from when another program pipes text into it. One of the oldest ways programs talk.">stdin</span>; the test forges one, pointing at a fixture project.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Judge only the exit code</strong>
+            <p>Whatever number the doorman reports — 0, 1, or 2 — is the verdict the test grades. Same contract as production, nothing mocked.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this matters for steering AI</strong>
+          <p>When you ask an AI to “add tests,” it will usually take the phone-call shortcut — importing functions directly. If what you actually fear is the <em>wiring</em> (config files, launch commands, environment), say so: “spawn the real command like production does.” That one sentence is the difference between this test and a comforting illusion.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the smoke detector principle -->
+    <div class="screen">
+      <h2>The smoke-detector principle</h2>
+      <p>
+        A silent smoke detector means one of two things: clean air, or a dead battery. From the
+        silence alone, <strong>you cannot tell which</strong>. The only honest check is to make
+        some smoke and demand a scream.
+      </p>
+      <p>So every plugin&rsquo;s hook faces three fixtures, and must produce three different verdicts:</p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🌤️</div>
+          <div>
+            <strong>Clean air → exit 0</strong>
+            <p>An empty project. The hook must run to completion and allow the stop — this alone proves the whole chain loads from the installed copy (a broken signpost would crash with exit 1 right here).</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🔥</div>
+          <div>
+            <strong>Smoke → exit 2, with the complaint on <span class="term" data-definition="Standard error — the output channel programs use for warnings and complaints, kept separate from normal output so it can be read on its own.">stderr</span></strong>
+            <p>A project deliberately violating that plugin&rsquo;s one rule. The gate must actually fire and say why — proving the pass wasn&rsquo;t an empty formality.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-3)">🔁</div>
+          <div>
+            <strong>Second alarm → exit 0 again</strong>
+            <p>Same smoky project, but the fake event says “I already blocked you once.” The hook must yield — otherwise the assistant gets trapped in an endless argue-with-the-doorman loop.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: test both verdicts, always</strong>
+          <p>A test that only checks the happy path can pass <em>vacuously</em> — green because nothing happened, not because the right thing happened. Engineers guard against it by forcing the failure they claim to detect. If your AI-written tests never construct a failure, they may be measuring silence, not safety.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: group chat -->
+    <div class="screen">
+      <h2>Inside the test run</h2>
+      <p>Eavesdrop on one plugin&rsquo;s interrogation — this is literally what the test does, four times over:</p>
+      <div class="chat-window" id="chat-module2">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Fresh install of you in a throwaway folder. First: I checked your luggage — zero signposts, real lib/ folder. Good start.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Here&rsquo;s a spotless empty project. Stop event incoming — any objections?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>Loaded all my shared code from my own copy, inspected the project… nothing in scope. Exit 0 — carry on.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Now the trap. This project&rsquo;s records claim a lesson reached “taught” — but the lesson&rsquo;s folder doesn&rsquo;t exist. Stop event!</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>BLOCKED. Exit 2: “folder missing but status=taught.” Status may not exceed what the files prove.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Same rotten project — but this time the event says stop_hook_active: you already blocked once. Now what?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>Then I yield — exit 0. I get one loud objection, not a filibuster. Trapping the assistant forever helps nobody.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="7" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>0, 2, 0 — three fixtures, three correct verdicts, all from a dereferenced copy. You pass. Next plugin!</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-typing" id="chat-module2-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+      <p>
+        Each of the four hook-shipping plugins gets its own bespoke “smoke”: a lesson claiming
+        progress with no files, a research page loading code from the internet, a task marked
+        Done over an unproven spec, an abandoned review left in flight. One rule each — violated
+        precisely.
+      </p>
+    </div>
+
+    <!-- Screen 5: proof it has teeth + CI -->
+    <div class="screen">
+      <h2>Proving the test itself has teeth</h2>
+      <p>
+        One more turn of the screw: how do you know the <em>test</em> isn&rsquo;t the dead battery?
+        During the task, the author re-ran the install simulation <strong>with the dereference step
+        deleted</strong> — the exact bug the test exists to catch. Result: the hook crashed with exit
+        code 1, and the test failed loudly. The alarm screams when there&rsquo;s real smoke.
+      </p>
+      <p>
+        The whole file now runs two ways on every
+        <span class="term" data-definition="A proposed batch of changes to a codebase, reviewed before merging. Automated checks run against it — if they fail, the changes can't land.">pull request</span>:
+        inside the main test suite, and as its own separately-named job in
+        <span class="term" data-definition="Continuous Integration — a robot that runs a project's checks automatically on every proposed change. The authoritative referee: local checks can be skipped, CI can't.">CI</span>,
+        so an install-path regression is never buried inside a generic “tests failed.”
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🧯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: coverage that recruits the future</strong>
+          <p>The test derives its plugin list from the marketplace catalog. A future plugin that ships a Stop hook is pulled into coverage automatically — and the test fails with instructions if that plugin has no “smoke” fixture yet. The invariant stays checked without anyone remembering to extend the test.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — a happy-path-only suite can be green vacuously. The exit-2 assertion proves the gate actually evaluated the project and objected; without it, 'exit 0' could just mean 'crashless indifference'."
+             data-explanation-wrong="Think about the smoke detector. Silence in clean air is consistent with a working detector AND a dead one. What single extra check separates them?">
+          <h3 class="quiz-question">A teammate says: “The hook exits 0 on a clean project — ship it, the install path works.” What&rsquo;s missing?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — exit 0 already proves the whole chain loaded and ran</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A violating fixture that must produce exit 2 — otherwise the pass could be an empty formality</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>More clean projects — one empty folder isn&rsquo;t a big enough sample</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. Importing the function skips hooks.json, gate.sh, bash, stdin, and the exit-code contract — the exact layers this task feared. Spawning the real command is the only way to test the wiring."
+             data-explanation-wrong="Both would re-test the gate LOGIC — which older tests already covered. The untested part was everything wrapped around the logic. Which option exercises those wrapping layers?">
+          <h3 class="quiz-question">You want to know whether a config-file typo could disconnect a plugin&rsquo;s hook. Which test style can catch that?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Import the gate function and call it with a test project</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Add more assertions to the existing unit tests of the gate logic</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Read the command out of the config file itself and spawn it as a real process, like production does</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — that third fixture is the anti-nagging rule. One loud, specific objection; then yield. An enforcement tool that can trap its subject in an infinite loop doesn't get to call itself a safety feature."
+             data-explanation-wrong="Look back at the third fixture: same violation, but the event carries an 'I already blocked you once' flag — and the required verdict flips to exit 0. What behavior is that protecting?">
+          <h3 class="quiz-question">Why does the test demand exit 0 on a <em>still-violating</em> project the second time around?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>So a gate can object loudly once but never trap the assistant in an endless block loop</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because the violation expires — records older than one turn stop counting</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>To keep the test fast — blocking twice would double the runtime</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: docs are claims -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Honest Signs on the Door</h1>
+      <p class="lead">
+        The test proved the machinery. The last two acceptance criteria were about something
+        softer and just as load-bearing: <strong>the signs on the door.</strong> A
+        <span class="term" data-definition="The front-page document of a repository — the first thing a visitor reads. It states what the project is, and crucially, how to install and use it.">README</span>
+        is a set of claims, and this one had drifted from reality.
+      </p>
+      <p>
+        The install section still warned that you&rsquo;d need special access “while this repo is
+        private.” TASK-39 checked the facts on the day of the work: the repository had gone
+        <strong>public</strong>, and the companion package was live on
+        <span class="term" data-definition="The public registry where JavaScript packages are published and downloaded — the app store for Node code.">npm</span>.
+        The caveat wasn&rsquo;t cautious; it was <em>wrong</em> — in the too-pessimistic direction,
+        which still costs adopters who believe it.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: verify, don&rsquo;t transcribe</strong>
+          <p>The task&rsquo;s brief <em>assumed</em> the repo was private and asked for the caveat to be kept. The work started by checking — one command against the live service — and the answer flipped what the README should say. Docs written from memory drift; docs written from checks don&rsquo;t.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the three trails -->
+    <div class="screen">
+      <h2>Three marked trails in</h2>
+      <p>
+        The rewritten install section reads like a good trailhead sign: every route that actually
+        exists, each with what it&rsquo;s for — and nothing that doesn&rsquo;t exist.
+      </p>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🛍️</div>
+          <h4 class="pattern-title">The marketplace</h4>
+          <p class="pattern-desc">The primary surface: add the marketplace inside Claude Code and install plugins one by one — each arrives with its Stop hooks, on the very path Module 2&rsquo;s test now proves.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">Per-plugin zips</h4>
+          <p class="pattern-desc">Every release attaches one zip archive per plugin, packaged with the signpost already turned into real files — for installs that can&rsquo;t reach the marketplace.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">⚖️</div>
+          <h4 class="pattern-title">Gates only, no install</h4>
+          <p class="pattern-desc">Any project&rsquo;s CI can run just the honesty gates — via a ready-made GitHub Action or a single <span class="term" data-definition="A command that downloads and runs a published package in one step, without permanently installing it.">npx</span> command — without adopting the plugins at all.</p>
+        </div>
+      </div>
+      <p>
+        And one sentence above all three, now true and checkable: <strong>every surface is
+        public; no special access required.</strong>
+      </p>
+    </div>
+
+    <!-- Screen 3: the bash doorman and the Windows question -->
+    <div class="screen">
+      <h2>The doorman is written in bash</h2>
+      <p>
+        One claim was still missing from the door: <em>which machines does any of this work on?</em>
+        The answer hides in the doorman itself. Here is the working half of <code>gate.sh</code>,
+        verbatim:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — team-review/scripts/gate.sh</span>
+          <pre><code>
+<span class="code-line">here=<span class="code-string">"$(cd "$(dirname "$0")" &amp;&amp; pwd)"</span></span>
+<span class="code-line">root=<span class="code-string">"${CLAUDE_PLUGIN_ROOT:-$(dirname "$here")}"</span></span>
+<span class="code-line">node_bin=<span class="code-string">"$(command -v node 2&gt;/dev/null)"</span></span>
+<span class="code-line"><span class="code-keyword">if</span> [ -z <span class="code-string">"$node_bin"</span> ]; <span class="code-keyword">then</span></span>
+<span class="code-line">  node_bin=<span class="code-string">"$(${SHELL:-/bin/sh} -lc 'command -v node' 2&gt;/dev/null)"</span></span>
+<span class="code-line"><span class="code-keyword">fi</span></span>
+<span class="code-line"><span class="code-keyword">if</span> [ -z <span class="code-string">"$node_bin"</span> ]; <span class="code-keyword">then</span></span>
+<span class="code-line">  <span class="code-keyword">exit</span> 0</span>
+<span class="code-line"><span class="code-keyword">fi</span></span>
+<span class="code-line"><span class="code-keyword">exec</span> <span class="code-string">"$node_bin"</span> <span class="code-string">"${root}/scripts/stop.mjs"</span></span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Figure out which folder this script itself lives in.</p>
+            <p class="tl">The plugin&rsquo;s root: use the location Claude Code provides, or fall back to “one folder up from me.”</p>
+            <p class="tl">Look for <span class="term" data-definition="The program that runs JavaScript outside a browser. All of praxisflux's gate logic is JavaScript, so the doorman must find Node to do anything at all.">Node</span> on this machine, hiding any error message.</p>
+            <p class="tl">If it wasn&rsquo;t found…</p>
+            <p class="tl">…try once more the way the user&rsquo;s own login shell would find it.</p>
+            <p class="tl">End of the retry.</p>
+            <p class="tl">Still nothing?</p>
+            <p class="tl">Then bow out quietly — a missing runtime must never block the assistant from finishing.</p>
+            <p class="tl">End of the give-up check.</p>
+            <p class="tl">Node found: hand the whole job over to the real gate program.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Every line of that is <strong>bash</strong> — and Windows doesn&rsquo;t ship bash. Add that
+        Windows checkouts don&rsquo;t reliably support symlinks, and a native-Windows install would
+        recreate Module 1&rsquo;s nightmare exactly: <strong>gates silently absent.</strong>
+      </p>
+    </div>
+
+    <!-- Screen 4: the decision -->
+    <div class="screen">
+      <h2>Saying “no” out loud</h2>
+      <p>
+        There were two honest options: do the large engineering to support Windows natively, or
+        <strong>declare it out of scope — loudly, with reasons.</strong> The owner chose the
+        declaration. The README now states: macOS and Linux supported; native Windows out of
+        scope <em>because</em> the shims are bash and the symlinks assume
+        <span class="term" data-definition="A git setting that controls whether symlinks are recreated as real links on checkout. Off — common on Windows — and they become plain text files, breaking anything that relies on them.">core.symlinks</span>;
+        Windows users should run under
+        <span class="term" data-definition="Windows Subsystem for Linux — a full Linux environment built into Windows. Inside it, bash, symlinks, and Node all behave exactly as on Linux.">WSL</span>,
+        where everything behaves as on Linux.
+      </p>
+      <p>
+        And one more sentence with teeth: revisiting the decision means <em>a tested PowerShell
+        shim path, not a doc edit</em> — the claim can only be upgraded by new evidence, never by
+        wishful rewording.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: a recorded “no” beats a silent gap</strong>
+          <p>Silence about a platform reads as “probably fine” — and fails as a mystery on the user&rsquo;s machine, eroding trust in everything else. A stated limitation with a reason and an escape hatch costs one paragraph and fails as a known, navigable fact. In your own projects: never let scope be implied by omission.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — declare it out of scope, in writing, with the reason and the workaround. Users on that platform hit a clear sign instead of a mystery, and the limitation can be revisited when there's evidence, not vibes."
+             data-explanation-wrong="Shipping silently recreates the 'gates silently absent' nightmare, and blocking everything punishes platforms that work fine. What did this module say the README should do about the platform it can't serve?">
+          <h3 class="quiz-question">Your tool&rsquo;s enforcement layer can&rsquo;t run on one popular platform, and fixing that is months of work. What&rsquo;s the honest move for the next release?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Ship as-is — most users are on supported platforms, and the docs shouldn&rsquo;t advertise weaknesses</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>State the limitation in the docs with the reason and an escape hatch, and set an evidence bar for revisiting it</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Refuse to release anything until every platform is supported equally</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the gates-only surface exists for precisely this: any CI that can run Node can run one npx command, no marketplace, no plugins, no GitHub required."
+             data-explanation-wrong="The marketplace and the zips both install the plugins into Claude Code — but this team only wants the checks, inside a non-GitHub CI. Which trail was designed for that?">
+          <h3 class="quiz-question">A team loves the honesty gates but uses a non-GitHub CI system and doesn&rsquo;t use Claude Code at all. Which trail do they take?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The marketplace — it&rsquo;s the primary surface, so it&rsquo;s always the answer</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Per-plugin zips, unpacked into their CI server</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Gates only: run the published package with a single npx command inside their CI</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly. The doorman treats a missing runtime as 'quietly stand aside' — by design, so a machine without Node never gets locked out of finishing turns. The cost of that mercy is silence, which is why the install-path test matters so much."
+             data-explanation-wrong="Re-read the doorman's last give-up check. It was written specifically so a missing runtime can never block the assistant. What does it do instead of complaining?">
+          <h3 class="quiz-question">Based on the gate.sh code you just read: on a machine with <em>no Node installed at all</em>, what does a Stop event do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing visible — the doorman quietly exits 0 and the gates simply don&rsquo;t run</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The turn is blocked with “Node is required” until the user installs it</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Claude Code uninstalls the plugin, since it can&rsquo;t function</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+      <p>
+        <em>That last answer is the loop closed: the doorman&rsquo;s deliberate silence is exactly
+        why the install path needed a loud, automated proof. Machinery that fails politely must be
+        tested impolitely.</em>
+      </p>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
