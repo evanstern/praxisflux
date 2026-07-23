@@ -3,11 +3,11 @@ id: TASK-35
 title: >-
   team-review plugin: transplant the reviewed-and-gated skill onto the chassis,
   paving the third-shape road
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-23 05:15'
-updated_date: '2026-07-23 16:38'
+updated_date: '2026-07-23 16:42'
 labels: []
 dependencies: []
 priority: high
@@ -34,8 +34,6 @@ Shape of the transplant: team-review/{.claude-plugin/plugin.json, skills/team-re
 - [x] #6 marketplace.json entry, README row, marketplace version bump, and skill version 1.0.0 per docs/releasing.md; wiki-update pass green
 <!-- AC:END -->
 
-
-
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
@@ -44,3 +42,15 @@ Shape of the transplant: team-review/{.claude-plugin/plugin.json, skills/team-re
 3. TASK-35.3: node --test coverage (checkReview, run lifecycle, stop evaluate paths, run-gates/action.yml registry drift test), marketplace registration via the now-generative gen-marketplace, README row, version bumps per docs/releasing.md, wiki-update pass.
 Branch: task-35-team-review-plugin; one PR for the whole TASK-35 tree per one-TASK-one-PR.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+All three subtasks Done in order (35.1 paved road, 35.2 transplant, 35.3 tests+registration+docs). Evidence: dist-form e2e run begin->review->finish with sample target untouched and Stop-hook block/allow verified; gates/ grep-proven write-free; suite 138 pass; freshness gate 24/24; versions 0.9.0 lockstep, skill 1.0.0; bump gate vs main ok; spec input vendored at docs/handoffs/team-review-iteration-3-{review,process-log}.md; per-task course at docs/courses/TASK-35/ passes the course gate (3 modules). Out-of-scope follow-ups left for approval per the task: new-plugin.mjs scaffolder, build/-stub listing decision, docs/handoffs vs .handoff naming collision.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+team-review is praxisflux's eighth plugin. TASK-35.1 paved the road the iteration-3 review demanded: docs/skill-patterns.md §6 names the third placement model (caller-supplied target, state at the invoking root, ensureGitignore rooting rule inline) and gen-marketplace.mjs is generative (registers unregistered plugin dirs; tested). TASK-35.2 transplanted ~/.claude/skills/team-review v0.4.0 into team-review/ unchanged in domain logic: vendored stop-runner swapped for lib/gate-runner.mjs runStopHook via a constant reviewGate, CLIs on lib/cli.mjs runAsCli, no lifecycle, no planted CLAUDE.md, gate in-skill; the iteration-3 review + process log are vendored spec input at docs/handoffs/. TASK-35.3 added node --test coverage (checkReview, run lifecycle, stop-hook paths; run-gates/action.yml drift test now reads action.yml), bumped 0.8.0 -> 0.9.0 with skill v1.0.0, and completed the wiki pass (new team-review-plugin note; 24/24 fresh). Verified end-to-end from the built dist against a sample git repo: begin -> review -> finish green with the target byte-for-byte untouched. Per-task course at docs/courses/TASK-35/ passes the course gate.
+<!-- SECTION:FINAL_SUMMARY:END -->
