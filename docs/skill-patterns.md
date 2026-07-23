@@ -144,12 +144,21 @@ Module index: [`lib/toolkit/README.md`](../lib/toolkit/README.md).
 
 ## New-plugin checklist
 
+**The paved path: `node scripts/new-plugin.mjs <name> [--with-gate]`.** It stamps items 1–2
+(and, with `--with-gate`, the Stop-hook trio of item 4) in one shot — plugin.json in version
+lockstep with the marketplace, the SKILL.md skeleton in the gate→work→gate shape with the
+frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace entry, and the
+README table row + install line the docs gate demands — then leaves TODOs where judgment is
+needed. It refuses to overwrite an existing plugin dir. The remaining items are yours:
+
 1. `<plugin>/.claude-plugin/plugin.json`; add it to `.claude-plugin/marketplace.json` (or run
-   `scripts/gen-marketplace.mjs`).
+   `scripts/gen-marketplace.mjs`). *(scaffolded)*
 2. Skills under `<plugin>/skills/<name>/SKILL.md`, each in the gate→work→gate shape.
+   *(scaffolded as a skeleton — fill in the description: it is the trigger surface.)*
 3. If it stamps a project: a planted `CLAUDE.md` + templates, installed via `lib/installer.mjs`.
 4. If it has a lifecycle to enforce: define it with `lib/lifecycle.mjs`; ship a Stop hook
    (`<plugin>/scripts/stop.mjs` → `lib/gate-runner.mjs`) + a `gate.sh` shim + `hooks/hooks.json`.
+   *(`--with-gate` stamps the trio with a no-op stub gate — wire `resolveRoots`/`check`.)*
 5. If it hands off to another plugin: use `lib/handoff.mjs`; define your payload; record evidence in
    tracked state (see [`handoff-protocol.md`](./handoff-protocol.md)).
 6. Tests under `test/`; keep `node --test` green (the pre-commit hook enforces it).

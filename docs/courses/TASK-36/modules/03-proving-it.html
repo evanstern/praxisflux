@@ -1,0 +1,174 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the claim needs proof -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Proving It Works</h1>
+      <p class="lead">
+        A tool that <em>claims</em> to satisfy the inspectors is worth nothing in this repo — claims
+        can&rsquo;t exceed evidence. So the scaffolder ships with proof, gathered two ways.
+      </p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🧪</div>
+          <div>
+            <strong>Way 1: automated tests in a fixture repo</strong>
+            <p>A disposable miniature marketplace, rebuilt from scratch for every test run</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🏟️</div>
+          <div>
+            <strong>Way 2: a live dress rehearsal in the real repo</strong>
+            <p>Scaffold a scratch plugin for real, run every inspector, then remove it</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the fixture -->
+    <div class="screen">
+      <h2>Way 1: the crash-test town</h2>
+      <p>
+        Car makers don&rsquo;t test airbags on city streets — they build a crash-test facility. The
+        tests here do the same: each one builds a
+        <span class="term" data-definition="A tiny, throwaway copy of the project structure, created fresh inside a temporary folder just for one test, then deleted. Tests can smash it freely without touching the real project.">fixture</span>
+        marketplace — a fake README, catalog, and one existing plugin — scaffolds into <em>that</em>,
+        and then unleashes the real inspectors on the result:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">test/new-plugin.test.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-function">scaffoldPlugin</span>(root, <span class="code-string">"newbie"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// check-docs: README row + install line were inserted.</span></span>
+<span class="code-line">assert.<span class="code-function">deepEqual</span>(<span class="code-function">checkDocs</span>(root), []);</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Scaffold a plugin called &ldquo;newbie&rdquo; into the crash-test town.</p>
+            <p class="tl">Then...</p>
+            <p class="tl">...invite the README inspector from Module 1 — the real one, not a copy...</p>
+            <p class="tl">...and insist its list of complaints is exactly empty.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Other tests in the same file prove the rerun guard (scaffold twice → error, files untouched),
+        the <code>--with-gate</code> kit, and the name check. The
+        <span class="term" data-definition="The command node --test, which finds and runs every automated check in the project. It runs automatically before every commit here — you literally cannot save work that breaks it.">test suite</span>
+        runs before every <span class="term" data-definition="A saved snapshot of changes in git, with a message describing them. Projects move forward one commit at a time.">commit</span>,
+        so this proof re-runs forever.
+      </p>
+    </div>
+
+    <!-- Screen 3: the dress rehearsal -->
+    <div class="screen">
+      <h2>Way 2: the dress rehearsal</h2>
+      <p>Tests in a fixture are necessary but not sufficient — so the scaffolder was also run once, for real, in the actual repo:</p>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Scaffold a scratch plugin</strong>
+            <p><code>node scripts/new-plugin.mjs scratch-demo --with-gate</code> — the full kit, stamped into the live repo</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Summon every inspector</strong>
+            <p>check-docs, gen-marketplace, sync-version, and the full 142-test suite — all four passed with zero edits to the stamped files</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Strike the set</strong>
+            <p>Delete the scratch plugin and restore the catalog and README — the rehearsal leaves no trace in the shipped repo</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">The universal lesson</strong>
+          <p>Correct by construction beats correct by inspection. When a checklist matters, don&rsquo;t just check it — build the tool that makes passing it the default. The inspectors still run, but now they&rsquo;re confirming, not catching.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: closing the loop in the docs -->
+    <div class="screen">
+      <h2>Closing the loop</h2>
+      <p>
+        One last edit made the change stick: the authoring guide&rsquo;s new-plugin checklist — the very
+        list that used to mean five hand-edits — now opens by naming the scaffolder as
+        <strong>the paved path</strong>, and marks which steps it stamps versus which still need a human.
+        The next author reads the better way <em>first</em>.
+      </p>
+      <p>
+        And the story has a planned ending: the <em>ninth</em> plugin, whenever it comes, is meant to
+        be this scaffolder&rsquo;s first real customer.
+      </p>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your intuition</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the fixture tests call the real inspector functions on the crash-test town, so a scaffolder that stamped a bad plugin would fail the suite immediately."
+             data-explanation-wrong="Not quite. The whole point of Way 1 is that the tests reuse the real inspectors — the same code that guards the real repo judges the fixture.">
+          <h3 class="quiz-question">Suppose someone edits the scaffolder and accidentally breaks the README insertion. Where does that mistake get caught first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Never — the scaffolder is trusted code</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Months later, when a human notices the README looks wrong</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Before the edit can even be committed — the fixture test runs checkDocs and demands zero complaints</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — that&apos;s the correct-by-construction principle applied to your own work: let the machine stamp the checkable boilerplate, and spend your attention only where judgment is needed."
+             data-explanation-wrong="Think back to the split the scaffolder makes: machines stamp what inspectors can verify; humans write what needs judgment. Asking your AI to build the checker AND the generator is exactly this pattern.">
+          <h3 class="quiz-question">You&rsquo;re building your own project with an AI assistant, and adding each new page requires the same four edits in four files. What&rsquo;s the lesson from this task?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Be more careful — checklists exist to be memorized</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Ask the AI for a scaffolder that stamps all four edits, plus a check that fails when they drift</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Reduce the project to fewer files so there is less to edit</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
