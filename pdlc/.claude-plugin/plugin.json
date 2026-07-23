@@ -1,6 +1,6 @@
 {
   "name": "pdlc",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Bootstrap a new or existing project for the praxis development lifecycle: plant the always-on PDLC grounding (CLAUDE.md), wire the .handoff/ transport, and opt into the supported peer utilities (Backlog.md, Spec Kit).",
   "author": {
     "name": "praxisflux maintainers"
