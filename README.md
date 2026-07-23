@@ -22,6 +22,7 @@ gates — never by calling each other directly.
 | **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | **Runs on a target codebase** (course lands in `docs/course/`). |
 | **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | **Runs on a project with `backlog/` + `specs/`.** |
 | **pdlc** | Bootstrap a new **or existing** project for the praxis development lifecycle: plant the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignore the `.handoff/` transport, and opt into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in. | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
+| **team-review** | Lead-engineer-plus-team architecture review via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched). | **Caller-supplied target** — reviews a repo the caller names; state stays at the invoking root. |
 
 ## The loop
 
@@ -96,6 +97,7 @@ local clone:
 /plugin install codebase-to-course@praxisflux
 /plugin install spec-bridge@praxisflux
 /plugin install pdlc@praxisflux
+/plugin install team-review@praxisflux
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need.

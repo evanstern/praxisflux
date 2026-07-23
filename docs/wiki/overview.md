@@ -5,17 +5,17 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 6b37e2fbf4a81cd696b779d4282519849cfde30f
+verified_against: f239615f94d67b076d14392f1659091e1f464ced
 ---
 
 # praxisflux — system overview
 
 praxisflux is a Claude Code **plugin marketplace** that unifies composable knowledge-work
-plugins on one shared, zero-dependency Node chassis (`lib/`). Seven plugins are registered
+plugins on one shared, zero-dependency Node chassis (`lib/`). Eight plugins are registered
 in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`
-(a scaffold), `codebase-to-course`, `spec-bridge`, and `pdlc`. Each is independently
-installable and mutually aware, but plugins never call each other — they compose only
-through files and gates.
+(a scaffold), `codebase-to-course`, `spec-bridge`, `pdlc`, and `team-review`. Each is
+independently installable and mutually aware, but plugins never call each other — they
+compose only through files and gates.
 
 ## How it works
 
@@ -39,13 +39,18 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[pdlc-plugin]] sits before the loop: its `bootstrap` skill stamps a new or existing project
   for the praxis development lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore,
   opt-in to the supported peer utilities Backlog.md and Spec Kit).
+- [[team-review-plugin]] sits beside the loop: a lead-plus-subagent architecture review of
+  any caller-named codebase, read-only by doctrine, proven by an output gate (report
+  sections + resolving citations + target untouched).
 
 Knowledge interchange rides one contract, the grounded corpus ([[grounded-corpus-spec]]);
 work interchange rides one transport, the handoff protocol ([[handoff-protocol]]).
 
 Placement differs per plugin: `research` is drop-anywhere (sentinel-marked folders),
-`educate` has a favored home folder (a `topics/` marker), while `grounding-wiki` and
-`codebase-to-course` run against a target codebase.
+`educate` has a favored home folder (a `topics/` marker), `grounding-wiki` and
+`codebase-to-course` run against a target codebase, and `team-review` is the
+caller-supplied-target shape — it reviews a repo the caller names while keeping all state
+at the invoking root.
 
 ## Connections
 

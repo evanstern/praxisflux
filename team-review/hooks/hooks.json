@@ -1,0 +1,16 @@
+{
+  "description": "team-review run gate — refuses to end a turn while a review run opened with run.mjs begin is in flight without a report that passes the output gate (sections + resolving citations + target repo untouched). No-op when no run is in scope for this project dir.",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -13,7 +13,7 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 6b37e2fbf4a81cd696b779d4282519849cfde30f
+verified_against: 4af419050c5aa2aedb2a515173f301aef9440623
 ---
 
 # spec-bridge plugin

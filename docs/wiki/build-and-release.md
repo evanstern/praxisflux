@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 6b37e2fbf4a81cd696b779d4282519849cfde30f
+verified_against: 4af419050c5aa2aedb2a515173f301aef9440623
 ---
 
 # Build and release
@@ -38,9 +38,8 @@ the marketplace version.
 ## How it works
 
 **Plugin discovery** — `.claude-plugin/marketplace.json` is the single source of truth. Its
-`plugins[]` array (currently educate, research, build, codebase-to-course, grounding-wiki,
-spec-bridge, each with `name`, `source`, `description`, `category`, `tags`) drives every
-script below; registering
+`plugins[]` array (one entry per plugin dir, each with `name`, `source`, `description`,
+`category`, `tags`) drives every script below; registering
 a plugin there is enough to have it packaged.
 
 **Packaging** (`scripts/build.mjs`, run as `node scripts/build.mjs [--plugin <name>|all]`).
@@ -64,10 +63,14 @@ ships as the README, root `LICENSE` (MIT) rides along, and the bin `praxisflux-g
 runner. `test/build-npm.test.mjs` packs the tree and drives the bin through a
 `node_modules/.bin` symlink, asserting the contract exit codes.
 
-**Catalog consistency** (`scripts/gen-marketplace.mjs`). Regenerates each marketplace entry's
-`name` and `description` from that plugin's own `.claude-plugin/plugin.json`, preserving the
-marketplace's top-level fields and per-plugin `category`/`tags`. `--check` exits 1 if the file
-would change.
+**Catalog consistency** (`scripts/gen-marketplace.mjs`). Generative, not just a re-sync: the
+exported `genMarketplace(repo)` regenerates each registered entry's `name` and `description`
+from that plugin's own `.claude-plugin/plugin.json` (preserving the marketplace's top-level
+fields and hand-set per-plugin `category`/`tags`) **and appends an entry for any top-level dir
+that carries a `plugin.json` but isn't registered yet** (default category `productivity`, tags
+from the plugin's `keywords`) — so the new-plugin checklist's "run gen-marketplace.mjs" is
+true as written. `--check` exits 1 if the file would change; guarded by
+`test/gen-marketplace.test.mjs`, including a repo-own-catalog staleness check.
 
 **Version consistency** (`scripts/sync-version.mjs`). With an argument (`0.3.0`) it sets every
 plugin.json, the marketplace, and `action.yml`'s `npx @praxisflux/gates@<version>` pin to that
@@ -146,8 +149,8 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by dereferencing each
   plugin's `lib` symlink into a real copy — there is no runtime cross-plugin lookup.
 - Packages [[research-plugin]], [[educate-plugin]], [[build-plugin]],
-  [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], and [[spec-bridge-plugin]], as
-  registered in the marketplace file.
+  [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], [[spec-bridge-plugin]],
+  [[pdlc-plugin]], and [[team-review-plugin]], as registered in the marketplace file.
 - The stamped theme regions originate in the HTML base described in [[chassis-utilities]];
   the tooltip regions come from the [[toolkit]].
 - Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`,

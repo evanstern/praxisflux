@@ -1,0 +1,173 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <span class="module-eyebrow">Module 3 · Paving the Road</span>
+    <h1>The new arrival reviewed its own destination — and the potholes got fixed first</h1>
+
+    <p>Here's the loop that makes TASK-35 unusual: before the transplant, the team-review skill was aimed at <em>this repo</em> — the marketplace it was about to join — with the question "how ready is this chassis for a plugin like me?" Its 10/10-gated report found the two potholes a newcomer would hit first, and the task was deliberately sequenced to <strong>pave the road before driving on it</strong>: fix both, <em>then</em> move in as the first beneficiary.</p>
+
+    <h2>Overheard: a new plugin author meets the old road</h2>
+
+    <div class="chat-window" id="chat-module3">
+      <div class="chat-messages">
+        <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>The checklist says: add your plugin to the catalog — <em>or just run the generator script</em>. Ran it. Nothing happened.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" data-sender="review" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🔍</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The review</span>
+            <p>Found it. The generator only refreshed plugins <em>already</em> in the catalog — a brand-new folder was silently ignored. The docs said one thing, the script did another. First thing a newcomer hits, and it costs real time.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>And the placement guide lists exactly two shapes a plugin can have. Mine is neither…</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" data-sender="review" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-2)">🔍</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-2)">The review</span>
+            <p>That's pothole two: the guide presented two models as if they were the only ones. A caller-supplied-target plugin is a third shape — and one shared helper becomes a trap if you root it at the wrong repo. Nothing warned you.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" data-sender="fix" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-3)">🛠️</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-3)">TASK-35.1</span>
+            <p>Both fixed before the move: the generator now <em>registers</em> unregistered plugin folders — the checklist is true as written, with a test proving it — and the guide names the third shape with the rooting rule inline.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" data-sender="dev" style="display:none">
+          <div class="chat-avatar" style="background: var(--color-actor-1)">🧑‍💻</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color: var(--color-actor-1)">Plugin author</span>
+            <p>So the ninth plugin gets a paved road. Nice welcome gift.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-typing" id="chat-module3-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="chat-controls">
+        <button class="btn chat-next-btn">Next Message</button>
+        <button class="btn chat-all-btn">Play All</button>
+        <button class="btn chat-reset-btn">Replay</button>
+        <span class="chat-progress"></span>
+      </div>
+    </div>
+
+    <h2>The generator, before and after</h2>
+
+    <p>The pothole fix itself is small enough to read. The catalog generator used to loop only over plugins already registered; now it also sweeps the repo's top-level folders and adopts any that carry a plugin manifest:</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE</span>
+        <pre><code>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> e <span class="code-keyword">of</span> <span class="code-function">readdirSync</span>(repo)) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (registered.<span class="code-function">has</span>(e.name)) <span class="code-keyword">continue</span>;</span>
+<span class="code-line">  <span class="code-keyword">const</span> pj = <span class="code-function">manifest</span>(e.name);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (pj) plugins.<span class="code-function">push</span>({ name: pj.name, <span class="code-string">...</span> });</span>
+<span class="code-line">}</span>
+        </code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p class="tl">Walk every folder at the top of the repo, not just the ones the catalog already knows.</p>
+          <p class="tl">Skip anything that's already registered — existing entries keep their hand-tuned settings.</p>
+          <p class="tl">Peek inside for a plugin manifest — the file that says "I am a plugin."</p>
+          <p class="tl">Found one that's new? Write it into the catalog with sensible defaults.</p>
+          <p class="tl">That's the whole fix: the checklist's "just run the generator" is now literally true.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>What one task left behind</h2>
+
+    <div class="pattern-cards">
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+        <div class="pattern-icon" style="background: var(--color-actor-1)">🗺️</div>
+        <h4 class="pattern-title">A named third shape</h4>
+        <p class="pattern-desc">The authoring guide's placement section grew from two models to three, with the trap (root the storage helper at the wrong repo) called out inline.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+        <div class="pattern-icon" style="background: var(--color-actor-2)">⚙️</div>
+        <h4 class="pattern-title">A generative catalog</h4>
+        <p class="pattern-desc">Drop a plugin folder in, run the generator, and it's registered — description synced, defaults filled. A drift test keeps the repo's own catalog honest forever.</p>
+      </div>
+      <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+        <div class="pattern-icon" style="background: var(--color-actor-3)">🧪</div>
+        <h4 class="pattern-title">Eleven new tests + a stronger drift check</h4>
+        <p class="pattern-desc">The review gate, run lifecycle, and stop hook are all covered; and a hand-maintained gate list is now compared against the real CI documentation instead of a hardcoded copy.</p>
+      </div>
+    </div>
+
+    <p>The whole task rode one branch toward one pull request — three subtasks as commits, versions bumped once (a new plugin is a minor release, so the marketplace moved to 0.9.0 with the skill at 1.0.0), and the grounding wiki re-verified note by note against the exact commits that changed their sources. The report that specified all of this is permanent evidence in <code>docs/handoffs/</code>: the review taught the repo, the repo adopted the reviewer.</p>
+
+    <div class="quiz-container" id="quiz-module3">
+      <div class="quiz-question-block"
+           data-correct="option-a"
+           data-explanation-right="Exactly — the paving subtask ran first so the transplant could land on the fixed road: the generator registered the new folder, and the guide already described the new plugin's shape."
+           data-explanation-wrong="The module title is the hint: what do you do to a road before driving on it?">
+        <h3 class="quiz-question">Why did TASK-35 fix the docs and the generator before moving the plugin in?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>So the transplant itself could use the paved road — get auto-registered by the generator and match a placement model the guide actually names</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because documentation changes are easier to review first</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Because the version bump had to happen before any code changed</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-question-block"
+           data-correct="option-c"
+           data-explanation-right="Right — the review report is the task's vendored spec input: a durable artifact in docs/handoffs/ that the plan was written from, and that future readers can check the work against."
+           data-explanation-wrong="Think about the first law of this repo: what must a decision be grounded in, and where did TASK-35's design decisions come from?">
+        <h3 class="quiz-question">What role did the skill's own review of this repo play in TASK-35?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It was a demo, kept only as a curiosity</span>
+          </button>
+          <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It replaced the need for tests</span>
+          </button>
+          <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It was the task's design input — vendored into docs/handoffs/ as the durable spec the plan was written from, per the artifact-grounded-action principle</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+      <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+    </div>
+
+  </div>
+</section>

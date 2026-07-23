@@ -32,6 +32,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
 - [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
 - [[pdlc-plugin]] — the suite-level installer: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block, stamps the .pdlc sentinel, and opts into the peer utilities (Backlog.md, Spec Kit)
+- [[team-review-plugin]] — lead-plus-subagent architecture review of a caller-supplied codebase; read-only, proven by an output gate over run records at the invoking root
 
 ## Repo operations
 

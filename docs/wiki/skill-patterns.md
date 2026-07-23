@@ -4,7 +4,7 @@ description: The shared authoring patterns for praxisflux plugins — phase-sepa
 kind: pattern
 sources:
   - docs/skill-patterns.md
-verified_against: bb813579099e655a1c486e7a1921164058a03fb2
+verified_against: f239615f94d67b076d14392f1659091e1f464ced
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -29,10 +29,14 @@ off* by telling the user what's now possible next, without doing it.
 The installer plants a project `CLAUDE.md` carrying the always-on rules (lifecycle,
 placement, DoD), using [[installer]] — and never claims success without `verifyPresent`.
 
-**Two placement models.** *Favored home* (educate): a fixed project marked by a child dir
+**Three placement models.** *Favored home* (educate): a fixed project marked by a child dir
 (`topics/`), found with `findRootUpwards(dir, hasChild("topics"))`. *Drop-anywhere*
 (research): projects marked by a sentinel (`.research-vault`), found with
-`findRootsDownwards` — both from [[project-root]].
+`findRootsDownwards` — both from [[project-root]]. *Caller-supplied target* (team-review):
+the skill operates on a root the caller names but stores state at the **invoking** project's
+root; the rooting rule is inline in §6 — `lib/handoff.mjs`'s `ensureGitignore` may only ever
+run at the invoking root, since pointed at the target it would itself be a forbidden write,
+and this shape installs nothing (no hook, no CLAUDE.md) into its target.
 
 **Shared vs per-plugin.** Shared (`lib/`): plumbing modules plus the HTML base
 (`lib/html/base.html`) and the content [[toolkit]]. Per-plugin: domain vocabulary
@@ -55,16 +59,18 @@ and in the plugin's gate; and `build.sh` refreshes vendored copies from the cano
 templates.
 
 **New-plugin checklist** (abridged): a `.claude-plugin/plugin.json` registered in the
-marketplace; skills in the gate→work→gate shape; a planted `CLAUDE.md` if it stamps a
-project; a lifecycle + Stop hook if it enforces one; `lib/handoff.mjs` if it hands off;
-tests under `test/` kept green.
+marketplace (running `scripts/gen-marketplace.mjs` now registers an unregistered plugin dir,
+not just re-syncs — see [[build-and-release]]); skills in the gate→work→gate shape; a planted
+`CLAUDE.md` if it stamps a project; a lifecycle + Stop hook if it enforces one;
+`lib/handoff.mjs` if it hands off; tests under `test/` kept green.
 
 ## Connections
 
 - [[gates-convention]] — the enforcement half of these patterns (gates/ vs scripts/, lifecycle).
 - [[chassis]] — what a conforming plugin inherits through its `lib` symlink; [[build-and-release]] dereferences it into packaged copies.
 - Applied by every plugin note: [[research-plugin]], [[grounding-wiki-plugin]],
-  [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]].
+  [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]],
+  [[spec-bridge-plugin]], [[pdlc-plugin]], [[team-review-plugin]].
 
 ## Operational notes
 
