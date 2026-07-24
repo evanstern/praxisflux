@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: f239615f94d67b076d14392f1659091e1f464ced
+verified_against: cd7885ba19365297feb0b6d15a3663ef8d4d5c61
 ---
 
 # praxisflux — system overview
@@ -80,6 +80,11 @@ at the invoking root.
   CI, the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that
   refuses to end a turn while they fail. PRs merge with merge commits, never squash —
   squashing would orphan the commits wiki notes pin.
+- Install surfaces are public (the repo and the `@praxisflux/gates` npm package need no
+  special access) and platform support is an explicit recorded decision: macOS/Linux
+  supported, native Windows out of scope (the Stop-hook shims are bash and the committed
+  `lib` symlinks assume `core.symlinks`; WSL works) — see README's Install section. The
+  marketplace install path itself is CI-proven end to end (`test/install-path.test.mjs`).
 - The flow also runs under external orchestration with humans only at the approval seam:
   `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
   pilot — workflow, host runner service, run log, orchestrator findings).

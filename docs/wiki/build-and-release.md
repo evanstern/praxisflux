@@ -21,7 +21,7 @@ sources:
   - .githooks/pre-commit
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: da3870780948d07c9507f28d1f6acd7e3940bd3a
+verified_against: 2ef73970c47261a467466eba92663bbc7ae0c1c6
 ---
 
 # Build and release
@@ -103,7 +103,11 @@ turn while either fails.
 `node --test`, `gen-marketplace.mjs --check`, `sync-version.mjs --check`, a full `build.mjs`
 package run, `check-docs.mjs`, the wiki freshness gate, and — PRs only — the bump gate
 against `origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags
-resolve). `.github/workflows/release.yml` runs on
+resolve). A second job, `install-path`, re-runs `test/install-path.test.mjs` on its own:
+the marketplace install simulation that copies each hook-shipping plugin with its `lib`
+symlink dereferenced and spawns its Stop hook end-to-end — the file also runs inside the
+main `node --test` step, but the separate job keeps the install-path signal its own visible
+check. `.github/workflows/release.yml` runs on
 each push to `main`: it reads the marketplace version and, when tag `v<version>` is new,
 re-verifies, publishes the npm package, builds, zips each `dist/<plugin>` as
 `<plugin>-v<version>.zip`, and publishes a GitHub Release `v<version>` with generated notes

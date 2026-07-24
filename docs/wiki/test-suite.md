@@ -12,6 +12,7 @@ sources:
   - test/grounding-wiki.freshness.test.mjs
   - test/handoff.test.mjs
   - test/html-base.test.mjs
+  - test/install-path.test.mjs
   - test/research-gates.test.mjs
   - test/return-leg.test.mjs
   - test/spec-bridge.test.mjs
@@ -23,7 +24,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 2a8fc88b873279ff5afd4565cf0aa86e35110162
+verified_against: 2ef73970c47261a467466eba92663bbc7ae0c1c6
 ---
 
 # Test suite
@@ -72,6 +73,13 @@ What each file covers:
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
   self-contained verifier with zero warnings (theme-aware, has a data table).
+- `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin
+  shipping `hooks/hooks.json` (catalog-derived), simulate an install (copy with the
+  `lib -> ../lib` symlink dereferenced, assert no symlink survives), then spawn the exact
+  Stop command from hooks.json with fake hook JSON on stdin — exit 0 on a clean fixture,
+  exit 2 with the gate's message on a per-plugin violating fixture, exit 0 again under
+  `stop_hook_active`. The one file that runs hooks the way Claude Code spawns them rather
+  than importing gate modules in-process; also run as its own CI job.
 - `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
 - `test/return-leg.test.mjs` — at `done`, a delegated build needs `foldedIn` evidence AND

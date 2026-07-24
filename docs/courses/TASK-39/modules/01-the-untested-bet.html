@@ -1,0 +1,253 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>The Untested Bet</h1>
+      <p class="lead">
+        praxisflux is a <span class="term" data-definition="A catalog of installable add-ons. Like an app store, but for plugins — small packages of skills and rules that extend what Claude Code can do.">plugin marketplace</span>:
+        eight plugins sharing one toolbox of common code. An outside
+        <span class="term" data-definition="A structured critique of a codebase by (in this case) a team of AI reviewers — what's good, what's risky, what's missing.">architecture review</span>
+        of the project ended with one worry it called <em>the biggest structural bet, unverified</em>:
+        <strong>nobody had ever proven that installing a plugin actually works.</strong>
+      </p>
+      <p>
+        TASK-39 is the story of turning that bet into a checked fact. To see why it was a bet
+        at all, you need to meet one strange character: the symlink.
+      </p>
+    </div>
+
+    <!-- Screen 2: the recipe card metaphor -->
+    <div class="screen">
+      <h2>The recipe card and the family cookbook</h2>
+      <p>
+        Imagine a box of recipe cards. To save space, every card that needs the house tomato
+        sauce just says <em>“sauce: see the family cookbook, page 12.”</em> At home, perfect —
+        the cookbook is always on the same shelf. But <strong>mail a card to a friend</strong> and
+        the reference is worthless… unless whoever copies the card also copies page 12 onto it.
+      </p>
+      <p>
+        praxisflux works exactly like that box. The shared code lives once, in a folder called
+        <code>lib/</code>, and every plugin contains a
+        <span class="term" data-definition="A symbolic link — a file that isn't real content, just a signpost pointing at another location on disk, like a shortcut. Programs that follow it see whatever it points to.">symlink</span>
+        named <code>lib</code> that points at <code>../lib</code> — “one shelf up.”
+      </p>
+      <div class="file-tree">
+        <div class="ft-folder open">
+          <span class="ft-name">praxisflux/</span>
+          <span class="ft-desc">the whole marketplace repository</span>
+          <div class="ft-children">
+            <div class="ft-folder">
+              <span class="ft-name">lib/</span>
+              <span class="ft-desc">the family cookbook — shared code, kept once</span>
+            </div>
+            <div class="ft-folder open">
+              <span class="ft-name">team-review/</span>
+              <span class="ft-desc">one of the eight plugins</span>
+              <div class="ft-children">
+                <div class="ft-file">
+                  <span class="ft-name">lib → ../lib</span>
+                  <span class="ft-desc">not a folder — a signpost saying “see the cookbook, one shelf up”</span>
+                </div>
+                <div class="ft-folder">
+                  <span class="ft-name">scripts/</span>
+                  <span class="ft-desc">this plugin&rsquo;s own code, which follows that signpost</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p>
+        When you <strong>install</strong> a plugin, the marketplace copies just that plugin&rsquo;s
+        folder onto your machine — and it is supposed to
+        <span class="term" data-definition="To replace a signpost with a real copy of what it points to. After dereferencing, the folder contains actual files instead of a pointer that might lead nowhere.">dereference</span>
+        the signpost: copy page 12 onto the card. <em>Supposed to.</em> No test had ever checked.
+      </p>
+    </div>
+
+    <!-- Screen 3: what the plugins actually do with it — Stop hooks -->
+    <div class="screen">
+      <h2>What&rsquo;s riding on it: the Stop hook</h2>
+      <p>
+        Why does it matter? Because the shared code being reached through that signpost includes
+        the plugins&rsquo; conscience. Four praxisflux plugins ship a
+        <span class="term" data-definition="A small program Claude Code runs automatically at a specific moment — here, the moment the AI assistant tries to finish its turn. The hook can allow the stop, or block it with a message.">Stop hook</span>:
+        every time the AI assistant tries to end its turn, the hook inspects the project and
+        refuses to let it finish if the work claims more than the files prove.
+      </p>
+      <p>Here is the chain that fires on every single stop. Step through it:</p>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The AI assistant finishes answering and tries to end its turn"},
+        {"highlight":"flow-actor-1","label":"Claude Code fires the Stop event and runs the command wired in the plugin: bash gate.sh","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"gate.sh is a tiny doorman script: it finds Node on this machine and hands the job over","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"stop.mjs loads the shared gate-runner THROUGH the lib signpost and inspects the project"},
+        {"highlight":"flow-actor-3","label":"Verdict travels back as an exit code: 0 = all claims proven, finish allowed","packet":true,"from":"actor-3","to":"actor-1"},
+        {"highlight":"flow-actor-1","label":"…or exit code 2: the stop is BLOCKED and the assistant is told exactly what is unproven"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🤖</div>
+            <span>Claude Code</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🚪</div>
+            <span>gate.sh</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">⚖️</div>
+            <span>stop.mjs + gates</span>
+          </div>
+        </div>
+        <div class="flow-packet" id="flow-packet"></div>
+        <div class="flow-step-label" id="flow-label">Click “Next Step” to begin</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+      <p>
+        An <span class="term" data-definition="A single number every program reports when it ends. 0 conventionally means 'all good'; anything else signals a problem. Other programs read it to decide what to do next.">exit code</span>
+        is the whole conversation: <strong>0</strong> means “let the assistant finish,”
+        <strong>2</strong> means “block, and show it my complaint.”
+      </p>
+    </div>
+
+    <!-- Screen 4: the code where the bet lives -->
+    <div class="screen">
+      <h2>The bet, in four lines</h2>
+      <p>
+        This is the top of one plugin&rsquo;s Stop-hook entry — real code from
+        <code>research/scripts/stop.mjs</code>. Look at where the last two lines
+        <span class="term" data-definition="To load code from another file so you can use it. An import path like ../lib/… means 'go up one folder, then into lib' — it's followed literally, like directions.">import</span>
+        from:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">import</span> { readdirSync } <span class="code-keyword">from</span> <span class="code-string">"node:fs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { join } <span class="code-keyword">from</span> <span class="code-string">"node:path"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { runStopHook } <span class="code-keyword">from</span> <span class="code-string">"../lib/gate-runner.mjs"</span>;</span>
+<span class="code-line"><span class="code-keyword">import</span> { hasChild, findRootsDownwards } <span class="code-keyword">from</span> <span class="code-string">"../lib/project-root.mjs"</span>;</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Borrow a tool for listing folder contents from Node itself — always available, no bet here.</p>
+            <p class="tl">Borrow a tool for gluing file paths together — also built in, also safe.</p>
+            <p class="tl">Now the bet: load the shared gate-runner from “../lib” — one folder up, then into lib. That path only works if the signpost was turned into a real folder during install.</p>
+            <p class="tl">Same bet again: the project-root finder also lives behind the signpost. Two of four imports depend on the copy step nobody had tested.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        In the repository, <code>../lib</code> resolves through the symlink. In an installed copy,
+        it resolves only if the installer really did paste page 12 onto the card.
+      </p>
+    </div>
+
+    <!-- Screen 5: the failure mode -->
+    <div class="screen">
+      <h2>The scary part: failure would be <em>silent</em></h2>
+      <p>
+        Suppose the install step didn&rsquo;t dereference. The import fails, the hook program
+        crashes, and it reports exit code <strong>1</strong> — which is neither “allow” (0) nor
+        “block” (2). Claude Code shrugs and moves on. No error dialog. No warning.
+      </p>
+      <div class="callout callout-warning">
+        <div class="callout-icon">🕳️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Gates that vanish without a sound</strong>
+          <p>The user would keep working, believing the honesty gates are on duty — while every single one of them is absent. A broken feature that <em>announces</em> itself gets fixed; a broken safety net gets discovered the day you fall.</p>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: a bet is fine — an unchecked bet isn&rsquo;t</strong>
+          <p>Engineers call an assumption the whole design leans on an <em>invariant</em>. The fix for a risky invariant is rarely to redesign — it&rsquo;s to <strong>write a check that fails loudly the day the assumption breaks</strong>. That&rsquo;s exactly what Module 2 builds.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Each installed plugin carries its own dereferenced copy of lib/ — there's no runtime connection back to the marketplace or to other plugins. That independence is the whole design."
+             data-explanation-wrong="Not quite. Remember what the install step does with the signpost: it pastes a real copy of the shared code INTO the plugin being installed. Each plugin travels with its own cookbook pages.">
+          <h3 class="quiz-question">A friend installs only <em>one</em> of the eight plugins — nothing else from praxisflux. Can its Stop hook work?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No — the shared code lives in the marketplace, so at least one other plugin must be installed too</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — installing dereferenced the signpost, so the plugin carries its own real copy of the shared code</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only if the friend also downloads the whole praxisflux repository next to it</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — and that's what made this bet so dangerous. Exit 1 is neither 'allow' nor 'block', so the hook just… stops existing. Nothing on screen changes; the safety net is simply gone."
+             data-explanation-wrong="Think back to the exit-code contract: 0 allows the stop, 2 blocks it with a message. A crash reports 1 — which the Stop machinery doesn't treat as a block. What does the user experience?">
+          <h3 class="quiz-question">Imagine the installer had a bug and copied the <code>lib</code> signpost as a signpost. What would a user actually <em>see</em>?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>An error dialog the moment they install the plugin</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Every turn gets blocked, because a crashed gate refuses everything to be safe</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing at all — the gates silently stop existing while everything else keeps working</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly the right instinct. When a design leans on an assumption, the cheapest strong move is a check that fails loudly the day the assumption breaks — you keep the design and lose the risk."
+             data-explanation-wrong="That would work, but look at the cost. Duplicating the shared code into every plugin (or redesigning away the sharing) trades a small, checkable risk for permanent maintenance pain. What did this module say is the usual fix for a risky invariant?">
+          <h3 class="quiz-question">You&rsquo;re building your own tool and notice it quietly assumes “the config file is always next to the app.” What&rsquo;s the move this module argues for?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Keep the design, but add an automated check that fails loudly if the assumption ever breaks</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redesign so nothing is ever shared or assumed — copies everywhere, just in case</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Document the assumption in the README and trust readers to remember it</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

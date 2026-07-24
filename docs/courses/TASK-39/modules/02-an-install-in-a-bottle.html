@@ -1,0 +1,332 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the idea -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>An Install in a Bottle</h1>
+      <p class="lead">
+        You can&rsquo;t unit-test a marketplace you don&rsquo;t control. But you <em>can</em> build
+        a perfect replica of what it does. TASK-39&rsquo;s answer is one new test file —
+        <code>test/install-path.test.mjs</code> — that performs a complete install inside a
+        <span class="term" data-definition="A temporary folder created just for one test run and thrown away afterward. Nothing the test does can touch your real files.">throwaway folder</span>,
+        then treats the result exactly the way Claude Code would.
+      </p>
+      <p>
+        This kind of test is called <span class="term" data-definition="End-to-end: a test that exercises the whole real chain — files, programs, processes — instead of checking one function in isolation. Slower, but it catches problems unit tests can't see.">e2e</span>,
+        end-to-end. First step: simulate the install itself.
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — test/install-path.test.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">installPlugin</span>({ name, source }) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> dest = <span class="code-function">join</span>(<span class="code-function">mkdtempSync</span>(<span class="code-function">join</span>(<span class="code-function">tmpdir</span>(), <span class="code-string">`praxisflux-install-${name}-`</span>)), name);</span>
+<span class="code-line">  <span class="code-function">cpSync</span>(<span class="code-function">join</span>(repo, source), dest, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });</span>
+<span class="code-line">  <span class="code-keyword">const</span> lib = <span class="code-function">join</span>(dest, <span class="code-string">"lib"</span>);</span>
+<span class="code-line">  <span class="code-keyword">if</span> (<span class="code-function">existsSync</span>(lib) &amp;&amp; <span class="code-function">lstatSync</span>(lib).<span class="code-function">isSymbolicLink</span>()) {</span>
+<span class="code-line">    <span class="code-function">rmSync</span>(lib);</span>
+<span class="code-line">    <span class="code-function">cpSync</span>(<span class="code-function">join</span>(repo, <span class="code-string">"lib"</span>), lib, { <span class="code-property">recursive</span>: <span class="code-keyword">true</span> });</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> dest;</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">“Install” one plugin, given its name and where it lives in the repository.</p>
+            <p class="tl">Make a fresh throwaway folder to install into — our bottle.</p>
+            <p class="tl">Copy the whole plugin folder over, exactly as the marketplace would.</p>
+            <p class="tl">Now find the copied “lib” entry — the recipe-card signpost from Module 1.</p>
+            <p class="tl">If it&rsquo;s still a signpost rather than a real folder…</p>
+            <p class="tl">…tear the signpost out…</p>
+            <p class="tl">…and paste in a real copy of the shared code — page 12, copied onto the card.</p>
+            <p class="tl">Done with the special case.</p>
+            <p class="tl">Hand back the installed plugin&rsquo;s location.</p>
+            <p class="tl">That&rsquo;s the entire install, replicated in nine lines.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        The test then asserts something blunt: <strong>no signpost of any kind survives</strong> in
+        the installed copy, and the shared code is physically there.
+      </p>
+    </div>
+
+    <!-- Screen 2: spawning it like the real thing -->
+    <div class="screen">
+      <h2>Run it the way Claude Code runs it</h2>
+      <p>
+        Here&rsquo;s the subtle part. Older tests imported the gate functions directly into the test
+        program — like phoning the doorman at home to ask what he <em>would</em> say. This test
+        instead walks up to the actual door:
+      </p>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Read the plugin&rsquo;s own wiring</strong>
+            <p>The command comes out of the installed plugin&rsquo;s <code>hooks.json</code> — the same file Claude Code reads — not out of the test author&rsquo;s memory of it.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Launch it as a real separate program</strong>
+            <p>The test <span class="term" data-definition="To start another program as its own independent process, rather than calling a function inside your own program. The spawned program has its own environment and its own exit code.">spawns</span> the command through <span class="term" data-definition="The standard command-line shell on macOS and Linux — the program that reads commands like 'bash gate.sh' and runs them. Windows does not ship it.">bash</span>, exactly as the Stop event would.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Feed it a fake Stop event</strong>
+            <p>Claude Code hands hooks a small <span class="term" data-definition="JavaScript Object Notation — a simple text format for structured data, all curly braces and quotes. Programs use it to pass messages to each other.">JSON</span> message on <span class="term" data-definition="Standard input — the channel a program reads from when another program pipes text into it. One of the oldest ways programs talk.">stdin</span>; the test forges one, pointing at a fixture project.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Judge only the exit code</strong>
+            <p>Whatever number the doorman reports — 0, 1, or 2 — is the verdict the test grades. Same contract as production, nothing mocked.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this matters for steering AI</strong>
+          <p>When you ask an AI to “add tests,” it will usually take the phone-call shortcut — importing functions directly. If what you actually fear is the <em>wiring</em> (config files, launch commands, environment), say so: “spawn the real command like production does.” That one sentence is the difference between this test and a comforting illusion.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the smoke detector principle -->
+    <div class="screen">
+      <h2>The smoke-detector principle</h2>
+      <p>
+        A silent smoke detector means one of two things: clean air, or a dead battery. From the
+        silence alone, <strong>you cannot tell which</strong>. The only honest check is to make
+        some smoke and demand a scream.
+      </p>
+      <p>So every plugin&rsquo;s hook faces three fixtures, and must produce three different verdicts:</p>
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🌤️</div>
+          <div>
+            <strong>Clean air → exit 0</strong>
+            <p>An empty project. The hook must run to completion and allow the stop — this alone proves the whole chain loads from the installed copy (a broken signpost would crash with exit 1 right here).</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">🔥</div>
+          <div>
+            <strong>Smoke → exit 2, with the complaint on <span class="term" data-definition="Standard error — the output channel programs use for warnings and complaints, kept separate from normal output so it can be read on its own.">stderr</span></strong>
+            <p>A project deliberately violating that plugin&rsquo;s one rule. The gate must actually fire and say why — proving the pass wasn&rsquo;t an empty formality.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-3)">🔁</div>
+          <div>
+            <strong>Second alarm → exit 0 again</strong>
+            <p>Same smoky project, but the fake event says “I already blocked you once.” The hook must yield — otherwise the assistant gets trapped in an endless argue-with-the-doorman loop.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: test both verdicts, always</strong>
+          <p>A test that only checks the happy path can pass <em>vacuously</em> — green because nothing happened, not because the right thing happened. Engineers guard against it by forcing the failure they claim to detect. If your AI-written tests never construct a failure, they may be measuring silence, not safety.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: group chat -->
+    <div class="screen">
+      <h2>Inside the test run</h2>
+      <p>Eavesdrop on one plugin&rsquo;s interrogation — this is literally what the test does, four times over:</p>
+      <div class="chat-window" id="chat-module2">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Fresh install of you in a throwaway folder. First: I checked your luggage — zero signposts, real lib/ folder. Good start.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Here&rsquo;s a spotless empty project. Stop event incoming — any objections?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>Loaded all my shared code from my own copy, inspected the project… nothing in scope. Exit 0 — carry on.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Now the trap. This project&rsquo;s records claim a lesson reached “taught” — but the lesson&rsquo;s folder doesn&rsquo;t exist. Stop event!</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>BLOCKED. Exit 2: “folder missing but status=taught.” Status may not exceed what the files prove.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>Same rotten project — but this time the event says stop_hook_active: you already blocked once. Now what?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="hook" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">⚖️</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Installed Stop Hook</span>
+              <p>Then I yield — exit 0. I get one loud objection, not a filibuster. Trapping the assistant forever helps nobody.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="7" data-sender="runner" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🧪</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Test Runner</span>
+              <p>0, 2, 0 — three fixtures, three correct verdicts, all from a dereferenced copy. You pass. Next plugin!</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-typing" id="chat-module2-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+      <p>
+        Each of the four hook-shipping plugins gets its own bespoke “smoke”: a lesson claiming
+        progress with no files, a research page loading code from the internet, a task marked
+        Done over an unproven spec, an abandoned review left in flight. One rule each — violated
+        precisely.
+      </p>
+    </div>
+
+    <!-- Screen 5: proof it has teeth + CI -->
+    <div class="screen">
+      <h2>Proving the test itself has teeth</h2>
+      <p>
+        One more turn of the screw: how do you know the <em>test</em> isn&rsquo;t the dead battery?
+        During the task, the author re-ran the install simulation <strong>with the dereference step
+        deleted</strong> — the exact bug the test exists to catch. Result: the hook crashed with exit
+        code 1, and the test failed loudly. The alarm screams when there&rsquo;s real smoke.
+      </p>
+      <p>
+        The whole file now runs two ways on every
+        <span class="term" data-definition="A proposed batch of changes to a codebase, reviewed before merging. Automated checks run against it — if they fail, the changes can't land.">pull request</span>:
+        inside the main test suite, and as its own separately-named job in
+        <span class="term" data-definition="Continuous Integration — a robot that runs a project's checks automatically on every proposed change. The authoritative referee: local checks can be skipped, CI can't.">CI</span>,
+        so an install-path regression is never buried inside a generic “tests failed.”
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🧯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: coverage that recruits the future</strong>
+          <p>The test derives its plugin list from the marketplace catalog. A future plugin that ships a Stop hook is pulled into coverage automatically — and the test fails with instructions if that plugin has no “smoke” fixture yet. The invariant stays checked without anyone remembering to extend the test.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — a happy-path-only suite can be green vacuously. The exit-2 assertion proves the gate actually evaluated the project and objected; without it, 'exit 0' could just mean 'crashless indifference'."
+             data-explanation-wrong="Think about the smoke detector. Silence in clean air is consistent with a working detector AND a dead one. What single extra check separates them?">
+          <h3 class="quiz-question">A teammate says: “The hook exits 0 on a clean project — ship it, the install path works.” What&rsquo;s missing?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — exit 0 already proves the whole chain loaded and ran</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A violating fixture that must produce exit 2 — otherwise the pass could be an empty formality</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>More clean projects — one empty folder isn&rsquo;t a big enough sample</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. Importing the function skips hooks.json, gate.sh, bash, stdin, and the exit-code contract — the exact layers this task feared. Spawning the real command is the only way to test the wiring."
+             data-explanation-wrong="Both would re-test the gate LOGIC — which older tests already covered. The untested part was everything wrapped around the logic. Which option exercises those wrapping layers?">
+          <h3 class="quiz-question">You want to know whether a config-file typo could disconnect a plugin&rsquo;s hook. Which test style can catch that?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Import the gate function and call it with a test project</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Add more assertions to the existing unit tests of the gate logic</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Read the command out of the config file itself and spawn it as a real process, like production does</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — that third fixture is the anti-nagging rule. One loud, specific objection; then yield. An enforcement tool that can trap its subject in an infinite loop doesn't get to call itself a safety feature."
+             data-explanation-wrong="Look back at the third fixture: same violation, but the event carries an 'I already blocked you once' flag — and the required verdict flips to exit 0. What behavior is that protecting?">
+          <h3 class="quiz-question">Why does the test demand exit 0 on a <em>still-violating</em> project the second time around?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>So a gate can object loudly once but never trap the assistant in an endless block loop</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because the violation expires — records older than one turn stop counting</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>To keep the test fast — blocking twice would double the runtime</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
