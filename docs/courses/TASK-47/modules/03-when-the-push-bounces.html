@@ -1,0 +1,165 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">When the Push Bounces</h1>
+      <p class="module-subtitle">A rejected push isn't a glitch to work around — it's the doctrine working exactly as designed</p>
+
+      <p>An electronic door badge reader only opens for the first valid badge it sees in a
+      given instant. If two people swipe within the same fraction of a second, one door
+      opens and the other reader flashes red. That red light isn't a malfunction — it's the
+      system telling the second person, unambiguously, "someone already went through."</p>
+
+      <p>A rejected
+      <span class="term" data-definition="Sending your local commits up to the shared remote repository (like GitHub) so everyone else can see them. A push can be REJECTED if the remote has moved since you last synced with it — git refuses to overwrite what's there.">git push</span>
+      after a claim attempt is that red light. It means someone else's claim reached the
+      shared remote first.</p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the runbook now says</h2>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE (runbook.md)</span>
+          <pre><code>
+<span class="code-line">- **A rejected push means you lost the race:** fetch, re-read the board and `specs/`.</span>
+<span class="code-line">  If another session now holds that task or number, STOP the lane and surface it to</span>
+<span class="code-line">  the operator. Unrelated rejection (e.g. a board-notes push) with the task+number</span>
+<span class="code-line">  still free → rebase and re-push the claim.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Don't panic and don't retry blindly — first, pull the latest state
+            of both the board and the specs folder so you're looking at current reality, not
+            your stale snapshot of it.</p>
+            <p class="tl">If that fresh look shows someone else genuinely holds your task or
+            your spec number now, the race is over and you lost it — stop that entire branch
+            of work and tell the human operator, rather than plowing ahead.</p>
+            <p class="tl">But if the rejection turns out to be for an unrelated reason (say,
+            someone else pushed an unrelated board-notes commit) and your task and number are
+            still free —</p>
+            <p class="tl">— then it's safe to just rebase onto the latest remote state and
+            push your claim again.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the decision tree -->
+    <div class="screen">
+      <h2 class="screen-heading">The decision, step by step</h2>
+      <p>Every rejected push runs through the same short checklist before you do anything
+      else:</p>
+
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Fetch — get the current truth</strong>
+            <p>Pull the latest remote state instead of guessing why the push failed.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Re-read the board and specs/</strong>
+            <p>Check whether your task or your spec number now belongs to someone else.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Contended? Stop and surface it</strong>
+            <p>Someone else's claim landed first — halt this lane of work and hand the
+            situation to the operator instead of improvising.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Not contended? Rebase and re-push</strong>
+            <p>The rejection was for an unrelated reason — your claim is still safe to make;
+            just replay it on top of the newer history.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: composing with merge-drift gate -->
+    <div class="screen">
+      <h2 class="screen-heading">When a project can check this automatically</h2>
+      <p>Some host projects ship a
+      <span class="term" data-definition="A script (scripts/check-merge-drift.mjs in projects that have it) that mechanically checks for exactly the kind of collision this module covers — before you create a spec folder or cut a worktree — instead of relying on a human or AI session to remember to look.">merge-drift gate</span>.
+      For those, the runbook now names the exact commands that make this doctrine
+      mechanical instead of a matter of discipline:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🔒</div>
+          <h4 class="pattern-title"><code>claim --dir NNN-slug</code></h4>
+          <p class="pattern-desc">Run before creating any new spec folder — blocks
+          automatically if that number is already taken, instead of trusting a manual
+          folder-listing check.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🌳</div>
+          <h4 class="pattern-title"><code>worktree --spec NNN --task TASK-&lt;n&gt;</code></h4>
+          <p class="pattern-desc">Run before cutting a worktree — warns if the board card
+          isn't actually claimed yet, and accepts a spec dir claim already made by that same
+          task.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Discipline where there's no gate, mechanics where there is</strong>
+          <p>Not every project that uses this runbook template ships a merge-drift gate. The
+          claim-before-work doctrine works either way — as a human/AI discipline everywhere,
+          and as an enforced, unmissable check wherever the mechanics exist.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — this is the &quot;unrelated rejection&quot; case. Nothing about your task or your spec number changed; the fix is a normal rebase, not stopping the lane."
+             data-explanation-wrong="Re-read what actually happened: did anyone else touch YOUR task or YOUR spec number, or did the rejection come from something else entirely?">
+          <h3 class="quiz-question">You push your claim for TASK-88 / spec 071 and it's
+          rejected. You fetch and look: a teammate's session pushed an unrelated commit
+          updating board notes on a completely different task a minute before you tried.
+          TASK-88 and spec 071 are both still unclaimed by anyone else. What should you do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Stop the lane and escalate to the operator — any rejection means the race is lost</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Force-push to make sure your claim lands no matter what</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Rebase onto the new remote state and push the claim again — your task and number are still free</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
