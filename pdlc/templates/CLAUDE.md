@@ -29,6 +29,10 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   → `vault-artifact`) for grounding external topics.
 - **spec-bridge** — the kanban view over Spec Kit specs (see the Spec Kit block below, if
   opted in).
+- **pdlc** — the lifecycle's own verbs: `pdlc:bootstrap` (re)stamps this grounding after
+  plugin upgrades; `/pdlc:sweep` orchestrates a set of board tasks through the whole loop —
+  an authored, operator-signed-off runbook, then spec → PR → merge → re-ground per task,
+  parallel lanes with serial merges.
 
 ## Rules that always hold
 

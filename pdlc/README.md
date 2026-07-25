@@ -1,7 +1,10 @@
-# pdlc — bootstrap a project for the praxis development lifecycle
+# pdlc — bootstrap a project for the praxis development lifecycle, then run it
 
-The suite-level installer. One skill, `bootstrap`, stamps a **new or existing** folder as a
-PDLC project:
+The suite-level installer plus the lifecycle's orchestrator. Two skills:
+`bootstrap` stamps a **new or existing** folder as a PDLC project; `sweep` runs a set of
+that project's board tasks through the whole lifecycle automatically.
+
+`bootstrap`:
 
 - Plants the always-on grounding into the project's `CLAUDE.md` — the praxisflux loop, each
   plugin's role and entry skill, the gates principle, the `.handoff/` transport — inside
@@ -24,4 +27,21 @@ bootstrap sets the table and hands off to `wiki-build`, `spec-bridge:link`, and
 /pdlc:bootstrap          # fresh install, or idempotent update after a plugin upgrade
 ```
 
-No lifecycle of its own, so no Stop hook — the plugins it wires in bring their own gates.
+`sweep` — the board-sweep orchestrator. Given a set of board tasks (ids, a label, or a
+synthesis doc naming them), it **authors a dependency-laned runbook** — develop-parallel /
+merge-serial lanes, model tiers per the host rubric, the project's per-PR gates enumerated,
+concurrency doctrine for repos with other agents live, operator checkpoints, done-means —
+commits it to `docs/design/<slug>-runbook.md`, and stops for operator sign-off. Given an
+**existing signed-off runbook**, it executes: per task, spec → `spec-bridge:link` → worktree
+→ delegated implementation → PR → serial merge → re-ground, logging each landing in the
+runbook so a fresh session can resume the sweep from the runbook + board alone. A runbook is
+an instruction-bearing artifact, so the adopt path refuses one that isn't verifiably
+signed-off, committed, and board-backed.
+
+```
+/pdlc:sweep TASK-12 TASK-13 TASK-15            # author the runbook, stop at sign-off
+/pdlc:sweep docs/design/payments-runbook.md    # adopt + execute a signed-off runbook
+```
+
+No lifecycle of its own, so no Stop hook — the plugins it wires in bring their own gates
+(and `sweep` defers to the host project's own gates per task).

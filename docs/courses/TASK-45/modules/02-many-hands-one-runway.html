@@ -1,0 +1,215 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the authoring problem -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>Many Hands, One Runway</h1>
+      <p class="lead">
+        Authoring a runbook starts with one question: <em>which tasks can safely happen at the
+        same time?</em> The sweep&rsquo;s answer is an airport&rsquo;s: any number of planes can be
+        in the air at once, but there is only one runway. <strong>Develop in parallel, merge
+        serially.</strong> Building several tasks side by side is cheap — each gets its own
+        <span class="term" data-definition="A separate working copy of the codebase checked out into its own folder, so one task's half-finished changes can't disturb another's. Git can maintain many at once.">worktree</span>
+        — but landing them into the shared code one on top of another is where collisions happen,
+        so merges queue up and land one at a time.
+      </p>
+      <p>
+        The author reads every input task, the design document that produced them, and the
+        project&rsquo;s own rulebook, then sorts the tasks into <strong>lanes</strong> — groups
+        ordered by dependency. Three placement rules do most of the work: tasks that touch the
+        same files share a lane (and merge smallest-first); the single biggest task gets a lane
+        where nothing fights it for files; and low-priority polish goes in a tail lane that can
+        be dropped without breaking anything.
+      </p>
+    </div>
+
+    <!-- Screen 2: lanes, verbatim -->
+    <div class="screen">
+      <h2>What a lane actually looks like</h2>
+      <p>
+        One placement rule deserves its own paragraph: <strong>contract-shaped work goes
+        first</strong>. If task A publishes an interface that tasks B and C will consume, A&rsquo;s
+        <em>contract</em> unblocks them even while A&rsquo;s internals are still being built — like
+        pouring a doorframe before the walls are painted. Here is the lane skeleton from the
+        shipped template, with that rule baked into its example entry:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">TEMPLATE — pdlc/skills/sweep/templates/runbook.md</span>
+          <pre><code>
+<span class="code-line">**Lane 1 — start immediately, in parallel:**</span>
+<span class="code-line">- **TASK-{{n}} ({{tier}} — {{rubric justification}})** — {{one-line scope; note if only</span>
+<span class="code-line">  its CONTRACT blocks others while implementation can lag}}</span>
+<span class="code-line"><span class="code-comment">// … lanes 2 through N-1 elided — each opens &ldquo;after {{condition}}&rdquo; …</span></span>
+<span class="code-line">**Lane N — tail (droppable):**</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">The first lane needs nothing — every task in it can start the moment the sweep begins, all at once.</p>
+            <p class="tl">Each entry names the task, which strength of AI worker it gets (and the written reason why)&hellip;</p>
+            <p class="tl">&hellip;and flags the doorframe case: when only this task&rsquo;s published interface blocks the others, the lane behind it can open before the task is fully finished.</p>
+            <p class="tl">Middle lanes are trimmed here for the lesson — each states the condition that unlocks it.</p>
+            <p class="tl">The last lane is the nice-to-haves: droppable without breaking anything if the sweep runs out of road.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Lanes are only part of what the author derives. The runbook also enumerates the
+        project&rsquo;s <strong>per-PR
+        <span class="term" data-definition="An automated checker that refuses to let work count as finished until the files prove it — praxisflux's core mechanism. Every project grows its own set: check scripts, freshness tests, required companion edits.">gates</span></strong>
+        (so a dispatched worker can&rsquo;t miss one), a per-task <strong>model
+        <span class="term" data-definition="Which strength of AI does the work: routine tasks go to a faster, cheaper model; architecturally hard or previously-failed tasks escalate to the most capable one. The choice and its justification get recorded on each task.">tier</span></strong>
+        from the host project&rsquo;s own rubric, the known conflict hotspots, the checkpoints
+        where a human must be asked, and a checkable definition of done.
+      </p>
+    </div>
+
+    <!-- Screen 3: the execute loop, animated -->
+    <div class="screen">
+      <h2>The per-task loop, in motion</h2>
+      <p>
+        With the lanes signed off (more on that in Module 3), execution begins. For every single
+        task, the same loop runs. Step through it:
+      </p>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"SPEC — the orchestrator freshens the shared code at the root, runs the task through the project&apos;s spec cycle, and links the spec to its board task BEFORE any building starts"},
+        {"highlight":"flow-actor-2","label":"DISPATCH — a worktree opens on its own branch, and implementation is handed to a worker agent at the runbook&apos;s model tier; the orchestrator never writes the code itself","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"BUILD + GATES — the worker builds inside its worktree; the runbook&apos;s enumerated per-PR gates run right there, including any companion artifacts they demand"},
+        {"highlight":"flow-actor-3","label":"REBASE + PR — the branch is replayed on top of the CURRENT shared code, tests and gates re-run AFTER the replay (sibling merges may have changed things), then the PR opens","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"MERGE, SERIALLY — one landing at a time: confirm the branch still sits on current main, merge, and VERIFY the merge really happened before deleting anything"},
+        {"highlight":"flow-actor-1","label":"RE-GROUND — the merge is not the end: the board syncs, the project wiki refreshes where the change touched it, and the task is marked Done with a summary","packet":true,"from":"actor-3","to":"actor-1"},
+        {"highlight":"flow-actor-1","label":"LOG — one line lands in the runbook&apos;s execution log: task, PR, merge, date. Then the next task in the lane."}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🎼</div>
+            <span>The orchestrator</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🔨</div>
+            <span>A worker, in a worktree</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🛬</div>
+            <span>The shared main code</span>
+          </div>
+        </div>
+        <div class="flow-packet" id="flow-packet"></div>
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+      <p>
+        Within a lane, several worktrees run this loop <em>at once</em> — but watch the runway:
+        step five is always one at a time, and re-grounding follows every landing before the
+        next one is cleared.
+      </p>
+    </div>
+
+    <!-- Screen 4: concurrency doctrine -->
+    <div class="screen">
+      <h2>Conflicts are weather, not accidents</h2>
+      <p>
+        The runbook assumes something most plans politely ignore: <strong>other sessions are
+        working the same repository at the same time.</strong> So it writes down conflict
+        doctrine like a pilot&rsquo;s weather rules. On a
+        <span class="term" data-definition="What happens when two sets of changes touch the same lines of the same files — the shared code can't accept both automatically, and someone must reconcile them.">merge conflict</span>:
+        replay your branch on top of the current shared code (never tangle the histories
+        together), keep the shared side for anything you didn&rsquo;t deliberately change, and
+        re-run every gate afterward. When your open PR collides with another session&rsquo;s, the
+        <strong>smaller one lands first</strong> — regardless of whose it is. And before
+        diagnosing &ldquo;my branch broke,&rdquo; check whether the shared code simply moved
+        underneath you — it usually did.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🌦️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: written down because nobody will have watched</strong>
+          <p>The doctrine section exists for the amnesia reason again: the session executing lane 3 next week won&rsquo;t have watched this week&rsquo;s conflicts happen. Naming the actual hotspot files and the reconciliation rules in the runbook is how hard-won conflict experience survives the shift change.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — overlapping file footprints put tasks in the same lane, and within it the smaller merges first. Parallel building is fine; it's the landings that must queue."
+             data-explanation-wrong="The rule isn't about building — worktrees keep parallel building cheap. It's about the runway. What does the lane rule say about tasks that touch the same files?">
+          <h3 class="quiz-question">Two queued tasks both rewrite the same rendering file. One is large, one is small. How does the author lay them out?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Separate lanes, so their PRs can merge simultaneously and save time</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The same lane, with the smaller one merging first</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Combine them into one big task so there&rsquo;s only one merge</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the doorframe rule: a published interface unblocks its consumers even while the internals lag. The contract task leads its lane, and the lane behind it can open before the task is fully done."
+             data-explanation-wrong="Think about WHAT the waiting tasks actually need from task A. Is it the finished machinery — or just the published shape they'll plug into?">
+          <h3 class="quiz-question">Task A defines a new data format that tasks B and C will consume. A&rsquo;s full implementation will take days. When can B and C start?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only after A is completely merged — dependencies are dependencies</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Immediately — lanes are just suggestions</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>As soon as A&rsquo;s format is published — the contract unblocks them while A&rsquo;s internals catch up</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — sibling merges change things, so the loop demands gates re-run AFTER the replay onto current main. A branch that passed yesterday, on yesterday's main, has proven nothing about today's."
+             data-explanation-wrong="The branch passed its gates on the code as it stood BEFORE two other tasks landed. What does the loop say must happen after a rebase?">
+          <h3 class="quiz-question">A worker&rsquo;s branch passed all gates yesterday. Overnight, two sibling tasks merged. The branch is replayed onto the current shared code. Can its PR merge now?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Not yet — tests and gates must re-run after the replay, because the code underneath has changed</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — the gates already passed, and re-running them wastes compute</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes, as long as the replay itself reported no conflicts</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
