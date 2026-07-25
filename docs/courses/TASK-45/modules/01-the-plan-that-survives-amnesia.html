@@ -1,0 +1,151 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>The Plan That Survives Amnesia</h1>
+      <p class="lead">
+        One day in July 2026, a game project called promptworld finished a big
+        re-think of its user interface and ended up with a stack of decided tasks on its
+        <span class="term" data-definition="The project's task list, kept in files inside the repository (the Backlog.md tool) — the plan of record for what work exists and what state it's in.">board</span>.
+        The direction was settled; nobody needed to debate <em>what</em> to build anymore.
+        What remained was the grind: take each task through a spec, an implementation, a
+        <span class="term" data-definition="Pull request — a proposed batch of changes to a codebase, packaged for review before it's merged into the shared main version.">PR</span>,
+        a merge, and a documentation refresh — <strong>times ten</strong>, some in parallel,
+        without breaking each other.
+      </p>
+      <p>
+        Here&rsquo;s the catch: the AI session doing that orchestration has a
+        <span class="term" data-definition="The finite amount of conversation and file content an AI session can hold in mind at once. When a session ends — or fills up — everything it 'knew' that wasn't written to a file is gone.">context window</span>.
+        A sweep this size outlives any single session. The session that plans the work in the
+        morning will not be the session that merges the last PR days later — and the next
+        session remembers <em>nothing</em>. Whatever the plan is, it has to survive total amnesia.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">📔</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: bottled from a real run</strong>
+          <p>The promptworld session solved this live: it wrote its marching orders into a file — a <em>runbook</em> — and later sessions executed from that file, across days. TASK-45 bottled that working practice into a reusable skill, <code>pdlc:sweep</code>, the same way a good recipe gets written down only after the dish has actually been cooked.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: two artifacts of record -->
+    <div class="screen">
+      <h2>A shift-change handover, in writing</h2>
+      <p>
+        Think of a hospital shift change. The outgoing nurse doesn&rsquo;t recite the ward&rsquo;s
+        whole state from memory and hope — there&rsquo;s a handover binder, and the incoming shift
+        runs from the binder. The sweep skill works the same way, with exactly <strong>two
+        artifacts of record</strong>: the <strong>board</strong> (which tasks exist and what each
+        one says — never duplicated anywhere else) and the <strong>runbook</strong> (the order to
+        do them in, the rules of the road, and a log of what&rsquo;s done). Here is the runbook
+        template&rsquo;s actual opening — the words the next session wakes up to:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">TEMPLATE — pdlc/skills/sweep/templates/runbook.md</span>
+          <pre><code>
+<span class="code-line">**You (the session reading this) are the ORCHESTRATOR** for the tasks below. Run each</span>
+<span class="code-line">through the host project's full PDLC — spec → link → worktree → delegated implementation →</span>
+<span class="code-line">PR → merge → re-ground — parallelizing within lanes, merging serially, treating merge</span>
+<span class="code-line">conflicts as routine. Direction is decided; do not re-litigate it: {{DIRECTION_SOURCES}}</span>
+<span class="code-line">win. Plan-of-record is the board; this file carries only ordering, doctrine, and the log.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">The file speaks directly to whoever opens it: &ldquo;you, reading this, are now in charge of running these tasks.&rdquo; It assumes its reader remembers nothing.</p>
+            <p class="tl">Each task travels the project&rsquo;s full development lifecycle: write a plan, connect it to the board, build in an isolated copy, hand the coding to a helper&hellip;</p>
+            <p class="tl">&hellip;then propose the changes, fold them in — several tasks may be <em>built</em> at once, but they are folded into the shared code <em>one at a time</em>, and collisions are expected, not emergencies.</p>
+            <p class="tl">The big questions are already answered — the documents that decided them (named here) outrank any second-guessing.</p>
+            <p class="tl">And a division of labor: the board owns what the tasks ARE; this file owns only the sequence, the rules, and the diary.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        The skill states its design test in one sentence: <em>a fresh session must be able to
+        resume the sweep from the runbook plus the board alone.</em> If a decision lives only in
+        chat, the next session doesn&rsquo;t have it — so it may as well not exist.
+      </p>
+    </div>
+
+    <!-- Screen 3: what the sweep refuses to do -->
+    <div class="screen">
+      <h2>Three things a sweep refuses to do</h2>
+      <p>
+        The skill is defined as much by its refusals as by its powers. A sweep does <strong>not
+        decide direction</strong> — the tasks arrive already decided (from a re-think session, a
+        milestone, or the owner&rsquo;s explicit list), and a sweep that catches itself re-debating
+        scope must stop and send the question back where it came from. It does <strong>not skip
+        the per-task rigor</strong> — every substantial task still gets its own spec-and-plan
+        cycle; the sweep just runs that loop ten times instead of once. And it does <strong>not
+        write code</strong>: implementation is always handed to a separate worker session, while
+        the orchestrator&rsquo;s hands touch only plans, the board, plumbing, and docs.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: the conductor doesn&rsquo;t play an instrument</strong>
+          <p>An orchestrator that starts implementing &ldquo;just this one small task&rdquo; inline has quietly become a worker — and nobody is conducting anymore. Keeping the layers separate is what lets one session credibly oversee ten tasks: it plans, dispatches, and checks; it never disappears into the weeds of any single task.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the design test is that the runbook plus the board are sufficient. A decision that lives only in yesterday's chat fails the test, so mid-flight decisions get written into the runbook (or the board) the moment they're made."
+             data-explanation-wrong="Remember the amnesia rule: the next session has NO memory of any conversation. What are the only two things it's guaranteed to have?">
+          <h3 class="quiz-question">Mid-sweep, the operator and the session agree in chat to postpone one task. The session ends. What must be true for tomorrow&rsquo;s session to honor that decision?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — the new session will re-read the whole conversation history and find it</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The decision must have been written into the runbook or the board before the session ended</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The operator must remember to repeat the instruction at the start of every new session</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the board is the plan of record, and the runbook 'never duplicates task content.' Copies drift: the moment the board task changes, a pasted copy in the runbook becomes a lie. The runbook holds only ordering, doctrine, and the log."
+             data-explanation-wrong="The skill's very first sentence about its artifacts draws a hard line between what the board owns and what the runbook owns. Which side does a task's description live on?">
+          <h3 class="quiz-question">To be extra safe, an author pastes every task&rsquo;s full description into the runbook &ldquo;so it&rsquo;s all in one place.&rdquo; Good idea?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — one self-contained file is exactly what a fresh session needs</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes, but only for the most important tasks</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No — the board is the plan of record; copies drift out of date, so the runbook carries only ordering, rules, and the log</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
