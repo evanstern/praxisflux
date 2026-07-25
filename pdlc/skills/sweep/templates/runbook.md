@@ -60,7 +60,19 @@ Record the model tier + rubric justification on each board task at dispatch
   deliberately change; re-run gates after every rebase.
 - Two hotspot-heavy PRs never merge within one re-ground cycle without a rebase between.
 - Conflicting with a sibling session's open PR → the smaller PR merges first.
-- Spec-number collisions: check `origin/main:specs/` before claiming an NNN.
+- **Claim before work:** the FIRST commit of any task claims it — board card →
+  In Progress AND the spec number's directory (a stub claims the number) — before any
+  spec authoring or code. Push immediately (`git push -u origin <branch>` on first
+  commit, so in-flight work is auditable from any clone); never force-push a claim.
+- **A rejected push means you lost the race:** fetch, re-read the board and `specs/`.
+  If another session now holds that task or number, STOP the lane and surface it to
+  the operator. Unrelated rejection (e.g. a board-notes push) with the task+number
+  still free → rebase and re-push the claim.
+- Where the host ships merge-drift gates (`scripts/check-merge-drift.mjs`), the claim
+  checks are mechanical: `claim --dir NNN-slug` before creating any new `specs/NNN-*`
+  dir (blocks on a taken number); `worktree --spec NNN --task TASK-<n>` when cutting
+  the worktree (warns if the card isn't claimed; accepts a spec dir already claimed by
+  that same task).
 - Verify a PR is merged (`gh api … --jq .merged`) before deleting its branch/worktree;
   never delete+recreate a closed PR's head.
 

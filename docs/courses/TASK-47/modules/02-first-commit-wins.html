@@ -1,0 +1,157 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">First Commit Wins</h1>
+      <p class="module-subtitle">How the new doctrine turns "look before you leap" into an actual, unambiguous claim</p>
+
+      <p>A community garden doesn't hand out plots by trusting people to just <em>notice</em>
+      an empty patch of dirt and start planting. It has two steps: you sign your name in the
+      logbook at the shed, <em>and</em> you hammer a labeled stake into the actual ground.
+      Either one alone is weak — a name in a book nobody re-checks, or a stake someone could
+      miss. Together, anyone walking by can tell in five seconds whether a plot is taken.</p>
+
+      <p>TASK-47 gives the sweep runbook template that same two-part claim, and moves it to
+      the earliest possible moment: <strong>the first commit of any task.</strong></p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the runbook now says</h2>
+      <p>This is the replacement bullet, copied exactly from
+      <code>pdlc/skills/sweep/templates/runbook.md</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE (runbook.md)</span>
+          <pre><code>
+<span class="code-line">- **Claim before work:** the FIRST commit of any task claims it — board card →</span>
+<span class="code-line">  In Progress AND the spec number's directory (a stub claims the number) — before any</span>
+<span class="code-line">  spec authoring or code. Push immediately (`git push -u origin &lt;branch&gt;` on first</span>
+<span class="code-line">  commit, so in-flight work is auditable from any clone); never force-push a claim.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">The very first commit you make on a task IS the claim — not a
+            side-note, the commit itself.</p>
+            <p class="tl">Two things flip together: the board card moves to "In Progress," and
+            a folder for the spec number gets created (even just a placeholder file).</p>
+            <p class="tl">Both of those happen before you write a single line of the actual
+            spec or code — claim first, work second, never the other order.</p>
+            <p class="tl">Then push that commit to the shared remote right away, and never
+            overwrite someone else's history to "fix" your claim — a forced push would erase
+            the very race-detection this doctrine depends on.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: the claim IS the commit</strong>
+          <p>There's no separate "reservation" step to forget or skip. The same commit that
+          starts the work also stakes it — so there's nothing to do differently, just an
+          order to respect: claim, then build.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: flow animation of the claim sequence -->
+    <div class="screen">
+      <h2 class="screen-heading">Trace the claim, step by step</h2>
+      <p>Here's what "first commit claims it" looks like in the order it actually happens.
+      Click through each step.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Session picks a task and a free spec number"},
+        {"highlight":"flow-actor-1","label":"Flips the board card to In Progress and writes a spec-dir stub — the claim itself","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Commits that claim as the FIRST commit on the task"},
+        {"highlight":"flow-actor-2","label":"Pushes immediately with git push -u origin — never force-push","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Shared remote now shows the claim to every other clone — the race is decided"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">📋</div>
+            <span>Board + spec dir</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">✅</div>
+            <span>First commit</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">☁️</div>
+            <span>origin (shared remote)</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: why never force-push -->
+    <div class="screen">
+      <h2 class="screen-heading">Why never force-push the claim</h2>
+      <p>A
+      <span class="term" data-definition="Normally, pushing code adds your commits on top of what's already there. A force-push instead REPLACES the shared history with your own version — deleting anyone else's commits that came after the point you're pushing from.">force-push</span>
+      rewrites the shared history instead of adding to it. If your claim collided with
+      someone else's, force-pushing wouldn't resolve the race — it would erase the evidence
+      that a race happened at all, and silently delete their claim underneath them.</p>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🚫</div>
+        <div class="callout-content">
+          <strong class="callout-title">The rule exists because of what it protects</strong>
+          <p>The whole doctrine depends on the shared remote being an honest record of who
+          claimed what, and when. Force-pushing over someone else's claim breaks that
+          record — which is exactly the failure this doctrine was built to prevent.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — the claim isn't real until it's visible to everyone else, and that only happens once it leaves your machine. A claim that only exists locally can't stop anyone else from taking the same number."
+             data-explanation-wrong="Think about what makes a claim actually stop a collision: is it enough for the claim to exist on your own laptop, or does it need to be somewhere every other session can see it?">
+          <h3 class="quiz-question">You've just made your first commit on a new task: the
+          board card flipped to In Progress and you added a stub file for spec number 072.
+          You get pulled away before pushing. Is the claim actually in effect yet?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No — until it's pushed to the shared remote, no other session can see it, so someone else could still take 072</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — the board card already changed, so the task is claimed regardless of push status</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — committing locally is permanent, so nobody can ever take 072 now</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

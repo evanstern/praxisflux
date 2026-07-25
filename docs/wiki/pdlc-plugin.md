@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: dee138b3acd8334967540cf57aef1606f2e6a410
+verified_against: 2adb4865bc6b0e0ef3933c47fb6ba95c021389a4
 ---
 
 # pdlc plugin
@@ -35,10 +35,14 @@ board tasks** into merged PRs. Two phases, gate → work → gate:
   with named hotspots, operator checkpoints, and a done-means — written from the template to
   `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on the
   lanes.
-- **Execute:** per task, the host PDLC loop instantiated — Spec Kit cycle (with
-  spec-number-collision checks), `spec-bridge:link`, worktree, delegated implementation
-  (never inline), per-PR gates, rebase, PR, serial merge with verify-merged-before-cleanup,
-  re-ground, one execution-log line.
+- **Execute:** per task, the host PDLC loop instantiated — **claim before work** (the
+  first commit claims the task: board card → In Progress and the spec number's
+  directory — before any authoring; push immediately, never force-push a claim; a
+  rejected push means the race was lost — fetch and re-read the board/`specs/` before
+  assuming, then stop the lane and surface it to the operator if genuinely contended, or
+  rebase-and-repush if the rejection was unrelated), Spec Kit cycle, `spec-bridge:link`,
+  worktree, delegated implementation (never inline), per-PR gates, rebase, PR, serial
+  merge with verify-merged-before-cleanup, re-ground, one execution-log line.
 
 Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
 finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern —
@@ -49,6 +53,13 @@ before each `git worktree add`; `pr` blocks each `gh pr create` (and re-runs aft
 rebase) on predicted conflicts, its overlap warnings doubling as the same-PR companion
 checklist. The runbook template records the probe result so adopting sessions don't
 re-derive it. When no gate ships, the raw git doctrine stands unchanged.
+
+Since 0.13.0 the runbook template's concurrency doctrine replaces the bare
+spec-number-collision check with the fuller claim-before-work doctrine above, and names
+the mechanical checks for hosts that ship a merge-drift gate: `claim --dir NNN-slug`
+before creating any new `specs/NNN-*` dir (blocks on a taken number), and
+`worktree --spec NNN --task TASK-<n>` when cutting the worktree (warns if the card isn't
+claimed; accepts a spec dir already claimed by that same task).
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from the
 runbook + board alone. Because a runbook is an instruction-bearing artifact a session
