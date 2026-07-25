@@ -45,6 +45,10 @@ Record the model tier + rubric justification on each board task at dispatch
 
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 
+- **Merge-drift gate: {{present at scripts/check-merge-drift.mjs | absent}}.** When
+  present, mandatory at every choke point: `session` at sweep start (janitor + drift
+  matrix), `worktree [--spec NNN]` before every `git worktree add`, `pr` from the
+  worktree before every `gh pr create` AND after every rebase — nonzero exit blocks.
 - {{gate 1 — e.g. `node scripts/<check>.mjs --changed` before any PR touching <path>}}
 - {{gate 2 — e.g. same-PR amendment of <reference doc>, status flips, pin bumps}}
 - {{re-ground obligations — wiki refresh triggers, downstream doc freshness checks}}

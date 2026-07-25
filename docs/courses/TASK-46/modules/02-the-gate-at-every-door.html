@@ -1,0 +1,196 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>The Gate at Every Door</h1>
+      <p class="lead">
+        One project living with these collisions every day — a game called
+        <strong>promptworld</strong>, where several AI sessions routinely work the same repo —
+        got tired of relying on every session&rsquo;s memory and good manners. Its insight:
+        each of the three failures from Module 1 has <em>exactly one moment</em> when it is
+        still cheap to prevent. Miss the moment, and prevention turns into cleanup.
+      </p>
+      <p>
+        So promptworld built a single
+        <span class="term" data-definition="A small program a project keeps in its own repo — here, one file named scripts/check-merge-drift.mjs — that anyone (human or AI) can run to check something automatically.">script</span>
+        — <code>scripts/check-merge-drift.mjs</code>, written under its spec 051 — and gave it
+        three <strong>modes</strong>, one per moment. Think of a factory with a gate at every
+        door: one at the entrance when your shift starts, one at each workbay before you open
+        it, one at the shipping dock before anything leaves. Same guard, three posts.
+      </p>
+    </div>
+
+    <!-- Screen 2: the three modes -->
+    <div class="screen">
+      <h2>Three modes, three moments</h2>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🌅</div>
+          <h4 class="pattern-title">session</h4>
+          <p class="pattern-desc">Run when a work session starts. It sweeps out leftover workspaces from already-merged tasks (the &ldquo;janitor&rdquo;), confirms your copy of main is current, and — the clever part — compares <em>every open branch against every other</em>, predicting which pairs will collide before anyone merges anything. That prediction table is called the <strong>drift matrix</strong>.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔧</div>
+          <h4 class="pattern-title">worktree</h4>
+          <p class="pattern-desc">Run right before opening a new workspace for a task. It checks the root is sitting at the very freshest main (no stale checkouts), and — given a spec number you want to claim — checks nobody else took it, naming the next free number if they did. The silent collisions from Module 1, caught mechanically.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📦</div>
+          <h4 class="pattern-title">pr</h4>
+          <p class="pattern-desc">Run right before proposing your changes as a
+            <span class="term" data-definition="Pull request — a proposed batch of changes to the shared codebase, packaged for review before it's merged in.">PR</span>.
+            It rehearses the merge in advance, predicting textual conflicts with main and with sibling branches, and warns about <em>semantic</em> overlaps — shared board files, documentation that pins the files you touched — that git alone would never mention.</p>
+        </div>
+      </div>
+
+      <p>
+        Every run ends the same way: a single
+        <span class="term" data-definition="A number a program hands back when it finishes — the universal way scripts talk to other scripts. Zero conventionally means success; anything else is a specific kind of failure.">exit code</span>,
+        as unambiguous as a traffic light:
+      </p>
+      <div class="badge-list">
+        <div class="badge-item">
+          <code class="badge-code">exit 0</code>
+          <span class="badge-desc">Pass — the door opens, proceed.</span>
+        </div>
+        <div class="badge-item">
+          <code class="badge-code">exit 1</code>
+          <span class="badge-desc">Blocked — the gate found real trouble (a predicted conflict, a taken spec number, a stale root). Fix it, re-run, and only proceed on 0.</span>
+        </div>
+        <div class="badge-item">
+          <code class="badge-code">exit 2</code>
+          <span class="badge-desc">Environment error — the gate could not even perform the check (wrong directory, missing tooling). Not a verdict about your work: fix the setup, then re-run.</span>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: check where it&rsquo;s preventable, not where it&rsquo;s visible</strong>
+          <p>A merge conflict becomes <em>visible</em> at merge time, but it becomes <em>preventable</em> much earlier — when the session starts, when the workspace opens, when the PR is about to exist. Putting the gate at those three doors converts days of cleanup into seconds of checking. Engineers call this general move &ldquo;shift left&rdquo;: move every check to the earliest moment it can possibly run.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: flow animation -->
+    <div class="screen">
+      <h2>One task&rsquo;s journey through the gates</h2>
+      <p>Follow a single task from shift start to shipped, and watch where each gate stands:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"A work session wakes up. Gate one: session mode scans the whole garage before any work starts"},
+        {"highlight":"flow-actor-1","label":"It sweeps out workspaces left over from merged tasks, confirms main is current, and builds the drift matrix — which open branches will collide with which"},
+        {"highlight":"flow-actor-2","label":"Exit 0 — all clear. Time to start a task","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Gate two: worktree mode — is the root at the freshest main? Is the spec number free? Only on exit 0 does the new workspace open"},
+        {"highlight":"flow-actor-3","label":"The task is built in its own workspace, on its own branch","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Gate three: pr mode rehearses the merge — conflicts with main? with sibling branches? overlaps with pinned docs?"},
+        {"highlight":"flow-actor-3","label":"Exit 1 blocks the shipment until fixed. And after every rebase, the gate runs again — a moved base is a new merge to rehearse. Exit 0: ship it"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🌅</div>
+            <span>Shift start</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🔧</div>
+            <span>New workbay</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📦</div>
+            <span>Shipping dock</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: how another tool describes the gate, verbatim -->
+    <div class="screen">
+      <h2>The pattern, in a tool&rsquo;s own words</h2>
+      <p>
+        The script lives in promptworld&rsquo;s repo — but the clearest description of the
+        pattern now lives somewhere more surprising: inside the praxisflux <strong>sweep</strong>
+        skill, which learned to look for it (that&rsquo;s Module 3&rsquo;s story). Here is how
+        the skill describes what a merge-drift gate <em>is</em>, verbatim:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SKILL — pdlc/skills/sweep/SKILL.md</span>
+          <pre><code>
+<span class="code-line">3. **Probe for a merge-drift gate** — hosts following the spec-051 pattern (promptworld)</span>
+<span class="code-line">   ship `scripts/check-merge-drift.mjs` with `session` / `worktree` / `pr` modes and</span>
+<span class="code-line">   0 pass / 1 blocked / 2 env-error exit codes. When present it is **mandatory at its</span>
+<span class="code-line">   choke points for the whole sweep**, not a runbook-author judgment call: run</span>
+<span class="code-line">   `node scripts/check-merge-drift.mjs session` now — it subsumes the fetch/ff-pull</span>
+<span class="code-line">   above, prescribes janitor cleanup of merged worktrees, and emits the n-way drift</span>
+<span class="code-line">   matrix Phase 1 needs. When absent, the raw git commands above stand.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Check whether this project follows the pattern promptworld pioneered in its spec 051&hellip;</p>
+            <p class="tl">&hellip;meaning it keeps a gate script at a known address, answering to the three mode names&hellip;</p>
+            <p class="tl">&hellip;and speaking the three-light language: 0 opens the door, 1 blocks it, 2 means the check itself could not run. If the script exists, obeying it is not optional&hellip;</p>
+            <p class="tl">&hellip;and not a matter of anyone&rsquo;s judgment — so run the shift-start check immediately&hellip;</p>
+            <p class="tl">&hellip;it replaces the manual &ldquo;refresh your copy of main&rdquo; commands&hellip;</p>
+            <p class="tl">&hellip;tells you which leftover workspaces to sweep out, and produces the collision-prediction table&hellip;</p>
+            <p class="tl">&hellip;that the planning phase needs. And if the project has no such script? The old manual commands still apply — nothing is invented.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: match the mode to the moment -->
+    <div class="screen">
+      <h2>Post the guard yourself</h2>
+      <p>Drag each mode to the door where it stands guard:</p>
+
+      <div class="dnd-container" id="dnd-module2">
+        <div class="dnd-chips">
+          <div class="dnd-chip" draggable="true" data-answer="mode-session">session</div>
+          <div class="dnd-chip" draggable="true" data-answer="mode-worktree">worktree</div>
+          <div class="dnd-chip" draggable="true" data-answer="mode-pr">pr</div>
+        </div>
+        <div class="dnd-zones">
+          <div class="dnd-zone" data-correct="mode-session">
+            <p class="dnd-zone-label">A work session is just waking up: clean out merged leftovers, confirm main is current, predict which open branches will collide</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="mode-worktree">
+            <p class="dnd-zone-label">About to open a fresh workspace and claim spec number 053: is the root at the freshest main, and is that number actually free?</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="mode-pr">
+            <p class="dnd-zone-label">About to propose finished work (and again right after rebasing onto newer main): will this merge cleanly, and what does it semantically overlap?</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+        </div>
+        <div class="dnd-controls">
+          <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+          <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🚦</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: why &ldquo;pr&rdquo; runs twice</strong>
+          <p>Passing the shipping-dock gate once isn&rsquo;t a lifetime pass. If you then <em>rebase</em> — replay your work on top of a newer main — you have effectively built a new shipment: same intent, different base. So the rule is mechanical: after every rebase, the pr gate runs again.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

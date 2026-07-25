@@ -1,0 +1,227 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>Many Robots, One Garage</h1>
+      <p class="lead">
+        Modern projects don&rsquo;t have one AI session working at a time — they have several,
+        in parallel, all editing the same
+        <span class="term" data-definition="The project's shared folder of files, tracked by git so every change is recorded and every contributor works against the same history.">repository</span>.
+        One session is building a feature, another is fixing a bug, a third is refreshing the
+        docs. Picture several mechanics sharing one garage: each rolls the car onto their own
+        lift, works on their own part — and then everyone&rsquo;s changes have to fit back onto
+        <em>the same car</em>.
+      </p>
+      <p>
+        Git makes the &ldquo;own lift&rdquo; part easy: each session works on its own
+        <span class="term" data-definition="A parallel line of work in git — like a private photocopy of the project you can change freely, then propose folding back into the shared original.">branch</span>,
+        inside its own
+        <span class="term" data-definition="A separate folder holding a checked-out copy of one branch, so several branches can be worked on at once without switching back and forth in a single folder.">worktree</span>.
+        The trouble starts when the parallel work has to come back together. This module is
+        about the three ways it goes wrong — and why two of the three are <em>invisible</em>
+        until it&rsquo;s too late.
+      </p>
+    </div>
+
+    <!-- Screen 2: three collisions, via chat -->
+    <div class="screen">
+      <h2>Watch two sessions collide</h2>
+      <p>
+        Here are two well-behaved AI sessions, each doing exactly what it was asked, and the
+        shared <strong>main branch</strong> caught in the middle. Neither session did anything
+        wrong — and everything still goes wrong. Play the conversation:
+      </p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Starting my task! I branched off main on Tuesday. Clean copy, all tests green.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session-b" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session B</span>
+              <p>Me too! I also need a number for my new spec folder. The highest one I can see is 051, so I&rsquo;ll take 052.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Funny — the highest number I can see is also 051. Taking 052 for mine.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="main" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">M</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Main branch</span>
+              <p>Heads up: you have now BOTH created a folder called spec 052 — with completely different contents. I will happily accept both. No error. Good luck to whoever reads the specs later.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="session-b" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session B</span>
+              <p>Done with my feature! Merging into main. Four files changed.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Wait. My branch suddenly conflicts with main in two files. I did not touch anything since yesterday!</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="main" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">M</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Main branch</span>
+              <p>You did not move — I did. Your branch is based on Tuesday&rsquo;s me. Session B just changed two of the files you also changed. The conflict was born the moment B merged; you are only discovering it now.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <p>
+        Three distinct failures hide in that exchange. A
+        <span class="term" data-definition="When two branches change the same lines of the same file and git can't decide which version wins — a human (or an AI session) has to untangle it by hand.">merge conflict</span>:
+        two sessions edited the same files, and the second one to arrive inherits the mess. A
+        <strong>stolen spec number</strong>: both sessions claimed &ldquo;052&rdquo;, and because
+        the folders have different names, git raises <em>no error at all</em> — the collision is
+        silent. And a <strong>stale checkout</strong>: Session A was reasoning about Tuesday&rsquo;s
+        version of the project while the real one moved on without it.
+      </p>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The nasty part: two of the three are silent</strong>
+          <p>Git loudly flags a merge conflict — eventually. But it says nothing about two different spec folders sharing a number, and nothing about a branch quietly going stale while main moves. The failures you aren&rsquo;t warned about are the ones that cost days.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the rules of the road, verbatim -->
+    <div class="screen">
+      <h2>The rules of the road (before this task)</h2>
+      <p>
+        The praxisflux <strong>sweep</strong> skill — the
+        <span class="term" data-definition="The AI session that runs a batch of tasks end to end: it plans the order, hands each task to a worker, and shepherds every change back into the shared project. It conducts; it doesn't play an instrument.">orchestrator</span>
+        that runs many tasks through development at once — already knew all of this. Its
+        &ldquo;concurrency doctrine&rdquo; treats collisions as routine, not exceptional. Here
+        are three of its actual rules:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SKILL — pdlc/skills/sweep/SKILL.md</span>
+          <pre><code>
+<span class="code-line">- On conflict: **rebase** (never merge-commit into a task branch), take main's side for</span>
+<span class="code-line">  anything you didn't deliberately change, then re-run gates — a rebase can silently</span>
+<span class="code-line">  invalidate a design-doc amendment or a pinned reference.</span>
+<span class="code-line">- Two PRs heavy in the same hotspot must not merge within one re-ground cycle without a</span>
+<span class="code-line">  rebase between them, or the grounding gates thrash.</span>
+<span class="code-line">- When your open PR conflicts with a sibling session's, let the **smaller** one merge</span>
+<span class="code-line">  first, regardless of whose it is.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">When your work collides with main, replay your changes on top of the newest version — never mash the two histories together — and where you didn&rsquo;t mean to differ, let main win&hellip;</p>
+            <p class="tl">&hellip;then re-run every check, because moving your work onto a new base can quietly break things that passed before&hellip;</p>
+            <p class="tl">&hellip;like a documentation note that was pinned to the old version and is now out of date.</p>
+            <p class="tl">Two batches of changes that hit the same busy files must not land back to back without&hellip;</p>
+            <p class="tl">&hellip;refreshing one against the other first — otherwise the documentation checks flip-flop endlessly.</p>
+            <p class="tl">And when your proposal collides with a teammate&rsquo;s, the smaller one goes first&hellip;</p>
+            <p class="tl">&hellip;no matter whose it is — small changes are cheap to replay on top of big ones, not the reverse.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Good rules — but notice what they all have in common: they tell you what to do
+        <em>after</em> you discover trouble, or they rely on the session <em>remembering</em>
+        to check. Written doctrine only works if every session reads it, every time. The next
+        module is about one project&rsquo;s answer: stop relying on memory, and put a machine
+        at the door.
+      </p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the branch didn't break, the ground under it moved. Another session merged work into main that touches the same files, and the conflict was born at that moment. The fix starts with fetching the latest main and comparing, not with debugging your own changes."
+             data-explanation-wrong="Think about the chat you just watched: Session A changed nothing overnight, yet woke up to conflicts. What moved, if not the branch?">
+          <h3 class="quiz-question">Your branch was clean yesterday. Today — with zero changes on your side — it conflicts with main. What most likely happened?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Your branch got corrupted overnight and needs to be rebuilt from scratch</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Another session merged changes into main that touch your files — main moved, not you</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Git randomly re-checks old work sometimes; wait and it may clear on its own</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — because the two folders have different names, git sees no textual conflict and accepts both. The project ends up with two different specs claiming the same number. It's a real collision, but only a purpose-built check (not git) will ever flag it."
+             data-explanation-wrong="Careful — git only complains when the same lines of the same file disagree. Two folders named 052-alpha and 052-beta are different files entirely. What does git do with those?">
+          <h3 class="quiz-question">Two sessions each create a spec folder numbered 052 — one named <code>052-alpha</code>, the other <code>052-beta</code>. What happens when both merge?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Git blocks the second merge with a conflict, so the problem fixes itself</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The second folder silently overwrites the first one</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Both merge cleanly — the numbering collision is invisible to git and needs its own dedicated check</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
