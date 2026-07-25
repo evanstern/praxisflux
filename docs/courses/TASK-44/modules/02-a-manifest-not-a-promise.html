@@ -1,0 +1,177 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the problem of optional everything -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>A Manifest, Not a Promise</h1>
+      <p class="lead">
+        The owner made one design call that shaped the whole plugin: <strong>require nothing.</strong>
+        A project might have a research vault, a
+        <span class="term" data-definition="In praxisflux projects, docs/wiki/ — a folder of notes about the codebase, each pinned to the exact code version it was verified against.">wiki</span>,
+        and a
+        <span class="term" data-definition="A task board kept in files (the Backlog.md tool) — the project's plan of record, edited only through its command-line tool.">task board</span>
+        — or none of them. reorient must run anywhere, on any pile of notes.
+      </p>
+      <p>
+        That flexibility creates a trap. A tool that <em>requires</em> a wiki can promise
+        &ldquo;every claim was checked against the wiki.&rdquo; A tool where everything is optional
+        can promise&hellip; what, exactly? The answer reorient landed on: <strong>promise exactly
+        what you detected, in writing, and let the checker hold you to precisely that.</strong>
+      </p>
+    </div>
+
+    <!-- Screen 2: the run record -->
+    <div class="screen">
+      <h2>The run record is the contract</h2>
+      <p>
+        When a run opens, the plugin writes a small
+        <span class="term" data-definition="reorient's run record: a small JSON file listing the lens, the research branches being evaluated, which optional surfaces (vault/wiki/board) were found, and where the final synthesis will live.">manifest</span>
+        recording the lens, every research branch being evaluated, and — crucially — which
+        optional surfaces it actually found. Here is the detection, verbatim from the plugin:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — reorient/scripts/run.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> detectGrounding(root, corpus) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> {</span>
+<span class="code-line">    vault: corpus.some((c) =&gt; c.kind === <span class="code-string">"vault-branch"</span>),</span>
+<span class="code-line">    wiki: existsSync(join(root, <span class="code-string">"docs"</span>, <span class="code-string">"wiki"</span>)) ? <span class="code-string">"docs/wiki"</span> : <span class="code-keyword">null</span>,</span>
+<span class="code-line">    board: existsSync(join(root, <span class="code-string">"backlog"</span>)),</span>
+<span class="code-line">  };</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">A little routine: given the project folder and the list of research branches&hellip;</p>
+            <p class="tl">&hellip;answer three yes/no questions and hand the answers back:</p>
+            <p class="tl">Is any of the research proper vault research (versus a loose folder of notes)?</p>
+            <p class="tl">Does a wiki folder exist? Remember where; write down &ldquo;none&rdquo; otherwise.</p>
+            <p class="tl">Does a task board exist?</p>
+            <p class="tl">That&rsquo;s the whole answer&hellip;</p>
+            <p class="tl">&hellip;and the whole routine. No configuration, no guessing — just looking.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Nothing here fails when something is missing. Absence isn&rsquo;t an error —
+        <strong>it&rsquo;s a fact that gets recorded</strong>, and the skill tells the user
+        plainly how the run degrades: no wiki means evaluators ground against the README instead
+        and say so; no board means &ldquo;board moves&rdquo; become a proposed-task list.
+      </p>
+    </div>
+
+    <!-- Screen 3: the gate scales to the manifest -->
+    <div class="screen">
+      <h2>The checker demands exactly what you recorded</h2>
+      <p>
+        Every praxisflux plugin ends in a
+        <span class="term" data-definition="A read-only checker that refuses to let work be declared finished until the files prove it. praxisflux's core principle: a status can never exceed the artifacts that prove it.">gate</span>,
+        and reorient&rsquo;s gate reads the manifest first. One line shows the trick — this is
+        from the list of sections the final synthesis document must contain:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — reorient/gates/reorient.mjs</span>
+          <pre><code>
+<span class="code-line">{ name: <span class="code-string">"Board moves"</span>, re: /(^|\n)#+\s+.*board/i, when: (run) =&gt; !!run.grounding?.board },</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">&ldquo;The synthesis must have a Board moves section — but only WHEN this run&rsquo;s manifest recorded that a board actually exists.&rdquo;</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        The same scaling runs through the whole gate: only branches recorded as
+        <em>vault branches</em> must carry a formal analysis note; the &ldquo;Board moves&rdquo;
+        section is only demanded of projects that have a board. And two demands never relax:
+        the synthesis must live <strong>outside every research branch</strong> (it&rsquo;s the
+        connective tissue the vault&rsquo;s isolation rule forbids the branches from holding),
+        and it must <strong>mention every branch by name</strong> — a &ldquo;merge&rdquo; that
+        never names a branch didn&rsquo;t merge it.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">⚖️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: the gate never writes</strong>
+          <p>By suite convention the checker is read-only — it can refuse, but it can never &ldquo;fix.&rdquo; Exactly one script (the run tracker) is allowed to write run records. Splitting the writer from the judge is what makes the judge trustworthy.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: the stop hook -->
+    <div class="screen">
+      <h2>No walking away mid-run</h2>
+      <p>
+        One more piece rides along: a
+        <span class="term" data-definition="A small program Claude Code runs automatically when the AI assistant tries to end its turn. It can allow the stop, or block it with a message saying what's unfinished.">Stop hook</span>.
+        While a reorientation run is in flight, the AI assistant cannot simply end its session
+        and wander off — the hook checks the run record, finds the missing artifacts, and blocks
+        with instructions: <em>finish it (land the analyses and the synthesis, then run
+        <code>finish</code>) or close it honestly with <code>abandon &lt;reason&gt;</code></em>.
+        Either way the run record survives as residue. An abandoned reorientation is a recorded
+        fact; a silently evaporated one is a lie by omission.
+      </p>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — everything-optional plus a recorded manifest means the gate demands exactly what was available: no board recorded, no Board-moves section required. The run still finishes."
+             data-explanation-wrong="Remember the 'when:' line — the Board-moves demand is conditional on what the manifest recorded at begin. What did it record for this project?">
+          <h3 class="quiz-question">A run opens on a project with research notes but no task board. The synthesis is written with no &ldquo;Board moves&rdquo; section. What does the gate do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Block — every synthesis needs every section, or the format isn&rsquo;t trustworthy</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Pass — the manifest recorded &ldquo;no board,&rdquo; so that section was never owed</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Pass with a warning that the project should really install a task board</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the synthesis is cross-branch connective tissue, and the research vault's isolation rule says branches must never hold links or content that belongs to the space between them. The gate enforces the geometry."
+             data-explanation-wrong="It's not about tidiness. The research vault has one iron rule about what a branch may contain — and a document that merges several branches is the definition of what a single branch must NOT hold.">
+          <h3 class="quiz-question">Why does the gate refuse a synthesis file saved inside one of the research branches, even if its content is perfect?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The merge document belongs to the space between branches; vault isolation forbids any single branch from holding cross-branch material</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Files inside research branches are read-only by convention</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It would make the branch folder too large for the research tooling</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,16 @@
+{
+  "description": "reorient gate — an in-flight reorientation run may not be left dangling: finish it (analyses + synthesis proven) or abandon it with residue before the turn ends. No-op while no run is in flight under the session's project.",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
