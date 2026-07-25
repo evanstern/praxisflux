@@ -124,6 +124,27 @@ const TRIPS = {
     },
     expect: /report not written yet/,
   },
+  reorient: {
+    fixture: (root) => {
+      const runs = join(root, ".handoff", "reorient", "runs");
+      mkdirSync(join(root, "corpus"), { recursive: true });
+      mkdirSync(runs, { recursive: true });
+      writeFileSync(
+        join(runs, "r1.json"),
+        JSON.stringify({
+          id: "r1",
+          state: "in-flight",
+          root,
+          lens: "fixture lens",
+          corpus: [{ path: "corpus", name: "corpus", kind: "adhoc" }],
+          grounding: { vault: false, wiki: null, board: false },
+          synthesis: join(root, "reorient-synthesis.md"),
+          cwd: root,
+        }),
+      );
+    },
+    expect: /synthesis not written yet/,
+  },
 };
 
 test("every Stop-hook plugin is covered: catalog-derived list is complete and has a tripping fixture", () => {
