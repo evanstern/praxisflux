@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 374b57a836c610a79d066bcf6f9dc8b5768400a9
+verified_against: dee138b3acd8334967540cf57aef1606f2e6a410
 ---
 
 # pdlc plugin
@@ -39,6 +39,16 @@ board tasks** into merged PRs. Two phases, gate → work → gate:
   spec-number-collision checks), `spec-bridge:link`, worktree, delegated implementation
   (never inline), per-PR gates, rebase, PR, serial merge with verify-merged-before-cleanup,
   re-ground, one execution-log line.
+
+Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
+finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern —
+`session`/`worktree`/`pr` modes, 0/1/2 exit codes): `session` at sweep start subsumes the
+root fetch/ff-pull, prescribes janitor cleanup, and feeds its n-way drift matrix into lane
+construction; `worktree [--spec NNN]` mechanizes the fresh-root and spec-number checks
+before each `git worktree add`; `pr` blocks each `gh pr create` (and re-runs after every
+rebase) on predicted conflicts, its overlap warnings doubling as the same-PR companion
+checklist. The runbook template records the probe result so adopting sessions don't
+re-derive it. When no gate ships, the raw git doctrine stands unchanged.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from the
 runbook + board alone. Because a runbook is an instruction-bearing artifact a session
