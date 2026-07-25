@@ -33,6 +33,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
 - [[pdlc-plugin]] — the suite-level installer: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block, stamps the .pdlc sentinel, and opts into the peer utilities (Backlog.md, Spec Kit)
 - [[team-review-plugin]] — lead-plus-subagent architecture review of a caller-supplied codebase; read-only, proven by an output gate over run records at the invoking root
+- [[reorient-plugin]] — corpus-grounded reorientation loop: N evaluator subagents under a stated lens, operator-steered rounds, cross-grounded analyses, one synthesis landing as board moves
 
 ## Repo operations
 
