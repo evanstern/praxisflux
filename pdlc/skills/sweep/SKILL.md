@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.1.0
+version: 0.2.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -36,7 +36,14 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
    (Spec Kit). Missing either → stop; this skill has nothing to orchestrate with.
 2. **Root discipline holds:** repo root is on the default branch and clean
    (`git fetch origin && git pull --ff-only`); branch work happens only in worktrees.
-3. **Identify the input mode:**
+3. **Probe for a merge-drift gate** — hosts following the spec-051 pattern (promptworld)
+   ship `scripts/check-merge-drift.mjs` with `session` / `worktree` / `pr` modes and
+   0 pass / 1 blocked / 2 env-error exit codes. When present it is **mandatory at its
+   choke points for the whole sweep**, not a runbook-author judgment call: run
+   `node scripts/check-merge-drift.mjs session` now — it subsumes the fetch/ff-pull
+   above, prescribes janitor cleanup of merged worktrees, and emits the n-way drift
+   matrix Phase 1 needs. When absent, the raw git commands above stand.
+4. **Identify the input mode:**
    - A **runbook path** → adopt it; skip to Execute — but a runbook is an
      instruction-bearing artifact a session obeys, so verify its authority before obeying
      it: its status line must say **signed-off** (never execute a draft), it must be
@@ -59,6 +66,9 @@ constitution/tier rubric). Then derive, in this order:
    - **Contract-shaped work goes first** even when its full implementation can lag — a
      published interface unblocks consumers; its internals don't.
    - Tasks with overlapping file footprints share a lane and merge smallest-first.
+     Where the precondition probe found a merge-drift gate, its session-mode **drift
+     matrix is evidence for this** — branch pairs it predicts to conflict must not
+     develop in parallel lanes on the promise of an easy merge.
    - The biggest slice gets a lane with nothing else fighting for its files.
    - Low-priority polish goes in the tail lane, droppable without breaking anything.
 2. **Model tier per task**, from the host project's rubric (e.g. a constitution's
@@ -67,7 +77,9 @@ constitution/tier rubric). Then derive, in this order:
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
-   for them in the project CLAUDE.md, design-doc INDEX files, and `scripts/`.
+   for them in the project CLAUDE.md, design-doc INDEX files, and `scripts/`. Record
+   the merge-drift probe's result here (present/absent; when present, the three
+   invocations verbatim) so an adopting session doesn't re-derive it.
 4. **Concurrency doctrine** — the repo's conflict hotspots (name actual paths) and the
    rebase/merge rules (see Execute below), written down because the next session won't
    have watched this session's conflicts happen.
@@ -88,19 +100,29 @@ guess costs days instead of minutes.
 Work lane by lane. Within a lane, open parallel worktrees and dispatch; across merges, go
 one at a time. For **each task**, the loop is the host PDLC's, instantiated:
 
-1. Root freshness (`git fetch origin && git pull --ff-only` at root).
+1. Root freshness (`git fetch origin && git pull --ff-only` at root; with a merge-drift
+   gate, `node scripts/check-merge-drift.mjs session` — apply its janitor prescriptions
+   for merged leftovers before starting new work).
 2. Spec Kit cycle (specify → clarify only if ambiguous → plan → tasks). **Check for spec
    number collisions against `origin/main` before claiming an NNN** — concurrent sessions
-   take numbers constantly; renumber on conflict.
+   take numbers constantly; renumber on conflict. With a merge-drift gate this check is
+   mechanical: `node scripts/check-merge-drift.mjs worktree --spec <NNN>` blocks on a
+   taken number and names the next free one.
 3. `spec-bridge:link` the spec to the board task BEFORE implementation.
-4. `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main`. One task, one
+4. With a merge-drift gate, `node scripts/check-merge-drift.mjs worktree` must exit 0
+   first (fresh root at origin/main tip). Then
+   `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main`. One task, one
    worktree, one branch, one PR — subtasks are commits, never their own PRs.
 5. Dispatch implementation to the host's implementer agent at the runbook's tier; record
    tier + justification on the board task.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
 7. Rebase onto fresh `origin/main`; re-run tests and gates AFTER the rebase (sibling
-   merges change tripwires); open the PR from the worktree.
+   merges change tripwires). With a merge-drift gate,
+   `node scripts/check-merge-drift.mjs pr` from the worktree is the last gate before
+   `gh pr create` — and again after every rebase; a nonzero exit blocks the PR, and its
+   semantic-overlap warnings (board files, wiki-pinned sources, design surfaces) are the
+   same-PR companion-artifact checklist. Then open the PR from the worktree.
 8. **Merge serially:** before merging, confirm the branch still sits on current
    `origin/main`; after merging, verify (`gh api ... --jq .merged`) BEFORE deleting
    anything; then remove the worktree, delete the branch, ff-pull root. Never
@@ -126,7 +148,9 @@ must too:
 - When your open PR conflicts with a sibling session's, let the **smaller** one merge
   first, regardless of whose it is.
 - Before diagnosing "my branch broke," fetch and diff against `origin/main` — concurrent
-  sessions rebase main frequently, and a moved base explains most surprises.
+  sessions rebase main frequently, and a moved base explains most surprises. A
+  merge-drift gate's session mode answers this in one run: base lag, predicted
+  conflicts, and which sibling branch they're with.
 
 ### Operator checkpoints — never proceed silently past
 
