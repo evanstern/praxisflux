@@ -3,11 +3,11 @@ id: TASK-44
 title: >-
   reorient plugin: corpus-grounded reorientation loop (research -> N evaluations
   -> steer -> cross-ground -> synthesize -> execute)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-25 05:22'
-updated_date: '2026-07-25 05:35'
+updated_date: '2026-07-25 05:41'
 labels: []
 dependencies: []
 ordinal: 79000
@@ -26,7 +26,7 @@ Formalize the operator-steered reorientation process proven live in the promptwo
 - [x] #3 Run tracker (scripts/run.mjs begin/finish/abandon) writes .handoff/reorient/runs at the invoking root only; gates/ verifies runs read-only (manifest vs artifacts: per-branch analyses, synthesis sections, decisions recorded) and never writes
 - [x] #4 Tests under test/ cover the run tracker and gate; node --test green
 - [x] #5 Docs synced: README + wiki note for reorient (freshness gate green); marketplace version bumped per docs/releasing.md
-- [ ] #6 Per-task course at docs/courses/TASK-XX passing the course gate
+- [x] #6 Per-task course at docs/courses/TASK-XX passing the course gate
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -38,7 +38,5 @@ Formalize the operator-steered reorientation process proven live in the promptwo
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Slice 1 committed: plugin core (gate/tracker/skill), 9 reorient tests + install-path fixture, full suite 157 green, drift gates green, v0.11.0. Remaining: wiki note + course + PR.
-
-Slice 2: wiki note + INDEX + 11 re-pins; freshness gate 25 fresh; check-docs green.
+Delivered on branch task-44-reorient-plugin. Plugin: gates/reorient.mjs (checkReorient: manifest-scaled artifact verification — analyses per declared vault branch, synthesis outside corpus with conditional sections, merge names every branch; Stop-hook gate over in-flight runs), scripts/run.mjs (begin/finish/abandon/list; lens + corpus classification via .research-vault sentinel + vault/wiki/board grounding detection), SKILL.md (six-phase orchestrator: frame / evaluate xN / steer / cross-ground / synthesize / execute, everything-optional degradation, evaluator report template, checkpointed-relay steering protocol, no-subagent + hand-copied fallbacks). Tests: test/reorient.test.mjs (9) + install-path tripping fixture; full suite 157 green. Docs: README row, wiki note reorient-plugin.md + INDEX, 11 notes re-verified (overview plugin count 8->9), freshness + check-docs green. Version: 0.10.0 -> 0.11.0 (new plugin = minor). Course: docs/courses/TASK-44, 3 modules, course gate green. Formalized from the promptworld learning-game reorientation session of 2026-07-25.
 <!-- SECTION:NOTES:END -->
