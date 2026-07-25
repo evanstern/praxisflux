@@ -1,23 +1,51 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — the suite-level installer; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit).
+description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); sweep authors a dependency-laned, operator-signed-off runbook over a set of board tasks and executes them through spec → PR → merge → re-ground.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
   - pdlc/README.md
   - pdlc/skills/bootstrap/SKILL.md
+  - pdlc/skills/sweep/SKILL.md
+  - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 5682f89e7ffc438a965ca1b17c5f8049fba413a6
+verified_against: 374b57a836c610a79d066bcf6f9dc8b5768400a9
 ---
 
 # pdlc plugin
 
-The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level installer**: where
-`educate:start` stamps one plugin's project type, `pdlc:bootstrap` stamps a folder — brand-new or an
-existing codebase — as a **praxis-development-lifecycle project** whose always-on context knows the
-whole loop. It is the suite-wide application of the [[skill-patterns]] rule "plant a project
-CLAUDE.md" (a plugin has no always-on slot).
+The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level installer plus
+the lifecycle's own orchestrator**: where `educate:start` stamps one plugin's project type,
+`pdlc:bootstrap` stamps a folder — brand-new or an existing codebase — as a
+**praxis-development-lifecycle project** whose always-on context knows the whole loop. It is
+the suite-wide application of the [[skill-patterns]] rule "plant a project CLAUDE.md" (a
+plugin has no always-on slot). Since 0.12.0 the plugin carries a second skill, `sweep`, that
+runs the lifecycle it installs (below).
+
+## pdlc:sweep — the board-sweep orchestrator
+
+`skills/sweep/SKILL.md` (with `skills/sweep/templates/runbook.md`) orchestrates a **set of
+board tasks** into merged PRs. Two phases, gate → work → gate:
+
+- **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered **lanes**
+  (the governing rule is *develop in parallel, merge serially*; contract-shaped work leads
+  because a published interface unblocks consumers while internals lag), per-task model
+  tiers from the host rubric, the project's per-PR gates enumerated, concurrency doctrine
+  with named hotspots, operator checkpoints, and a done-means — written from the template to
+  `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on the
+  lanes.
+- **Execute:** per task, the host PDLC loop instantiated — Spec Kit cycle (with
+  spec-number-collision checks), `spec-bridge:link`, worktree, delegated implementation
+  (never inline), per-PR gates, rebase, PR, serial merge with verify-merged-before-cleanup,
+  re-ground, one execution-log line.
+
+The runbook is the **session-portable contract**: a fresh session resumes the sweep from the
+runbook + board alone. Because a runbook is an instruction-bearing artifact a session
+*obeys*, the adopt path verifies authority before obeying — status verifiably signed-off
+(only the operator flips draft → signed-off; the author never pre-fills it), committed, and
+board-backed — refusing anything unverifiable. Phase separation holds: sweep decides no
+direction (that arrives from reorient/team-review/the operator) and writes no code.
 
 ## The planted grounding is a marked block, not a file
 
