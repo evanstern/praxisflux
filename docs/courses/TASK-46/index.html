@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-46 — The Gate at Every Door</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-46 — The Gate at Every Door</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="Many Robots, One Garage" role="tab" aria-label="Module 1: Many Robots, One Garage"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Gate at Every Door" role="tab" aria-label="Module 2: The Gate at Every Door"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Teaching the Orchestrator" role="tab" aria-label="Module 3: Teaching the Orchestrator"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>Many Robots, One Garage</h1>
+      <p class="lead">
+        Modern projects don&rsquo;t have one AI session working at a time — they have several,
+        in parallel, all editing the same
+        <span class="term" data-definition="The project's shared folder of files, tracked by git so every change is recorded and every contributor works against the same history.">repository</span>.
+        One session is building a feature, another is fixing a bug, a third is refreshing the
+        docs. Picture several mechanics sharing one garage: each rolls the car onto their own
+        lift, works on their own part — and then everyone&rsquo;s changes have to fit back onto
+        <em>the same car</em>.
+      </p>
+      <p>
+        Git makes the &ldquo;own lift&rdquo; part easy: each session works on its own
+        <span class="term" data-definition="A parallel line of work in git — like a private photocopy of the project you can change freely, then propose folding back into the shared original.">branch</span>,
+        inside its own
+        <span class="term" data-definition="A separate folder holding a checked-out copy of one branch, so several branches can be worked on at once without switching back and forth in a single folder.">worktree</span>.
+        The trouble starts when the parallel work has to come back together. This module is
+        about the three ways it goes wrong — and why two of the three are <em>invisible</em>
+        until it&rsquo;s too late.
+      </p>
+    </div>
+
+    <!-- Screen 2: three collisions, via chat -->
+    <div class="screen">
+      <h2>Watch two sessions collide</h2>
+      <p>
+        Here are two well-behaved AI sessions, each doing exactly what it was asked, and the
+        shared <strong>main branch</strong> caught in the middle. Neither session did anything
+        wrong — and everything still goes wrong. Play the conversation:
+      </p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Starting my task! I branched off main on Tuesday. Clean copy, all tests green.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session-b" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session B</span>
+              <p>Me too! I also need a number for my new spec folder. The highest one I can see is 051, so I&rsquo;ll take 052.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Funny — the highest number I can see is also 051. Taking 052 for mine.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="main" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">M</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Main branch</span>
+              <p>Heads up: you have now BOTH created a folder called spec 052 — with completely different contents. I will happily accept both. No error. Good luck to whoever reads the specs later.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="session-b" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session B</span>
+              <p>Done with my feature! Merging into main. Four files changed.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="session-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Session A</span>
+              <p>Wait. My branch suddenly conflicts with main in two files. I did not touch anything since yesterday!</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="main" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">M</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Main branch</span>
+              <p>You did not move — I did. Your branch is based on Tuesday&rsquo;s me. Session B just changed two of the files you also changed. The conflict was born the moment B merged; you are only discovering it now.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <p>
+        Three distinct failures hide in that exchange. A
+        <span class="term" data-definition="When two branches change the same lines of the same file and git can't decide which version wins — a human (or an AI session) has to untangle it by hand.">merge conflict</span>:
+        two sessions edited the same files, and the second one to arrive inherits the mess. A
+        <strong>stolen spec number</strong>: both sessions claimed &ldquo;052&rdquo;, and because
+        the folders have different names, git raises <em>no error at all</em> — the collision is
+        silent. And a <strong>stale checkout</strong>: Session A was reasoning about Tuesday&rsquo;s
+        version of the project while the real one moved on without it.
+      </p>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The nasty part: two of the three are silent</strong>
+          <p>Git loudly flags a merge conflict — eventually. But it says nothing about two different spec folders sharing a number, and nothing about a branch quietly going stale while main moves. The failures you aren&rsquo;t warned about are the ones that cost days.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the rules of the road, verbatim -->
+    <div class="screen">
+      <h2>The rules of the road (before this task)</h2>
+      <p>
+        The praxisflux <strong>sweep</strong> skill — the
+        <span class="term" data-definition="The AI session that runs a batch of tasks end to end: it plans the order, hands each task to a worker, and shepherds every change back into the shared project. It conducts; it doesn't play an instrument.">orchestrator</span>
+        that runs many tasks through development at once — already knew all of this. Its
+        &ldquo;concurrency doctrine&rdquo; treats collisions as routine, not exceptional. Here
+        are three of its actual rules:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SKILL — pdlc/skills/sweep/SKILL.md</span>
+          <pre><code>
+<span class="code-line">- On conflict: **rebase** (never merge-commit into a task branch), take main's side for</span>
+<span class="code-line">  anything you didn't deliberately change, then re-run gates — a rebase can silently</span>
+<span class="code-line">  invalidate a design-doc amendment or a pinned reference.</span>
+<span class="code-line">- Two PRs heavy in the same hotspot must not merge within one re-ground cycle without a</span>
+<span class="code-line">  rebase between them, or the grounding gates thrash.</span>
+<span class="code-line">- When your open PR conflicts with a sibling session's, let the **smaller** one merge</span>
+<span class="code-line">  first, regardless of whose it is.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">When your work collides with main, replay your changes on top of the newest version — never mash the two histories together — and where you didn&rsquo;t mean to differ, let main win&hellip;</p>
+            <p class="tl">&hellip;then re-run every check, because moving your work onto a new base can quietly break things that passed before&hellip;</p>
+            <p class="tl">&hellip;like a documentation note that was pinned to the old version and is now out of date.</p>
+            <p class="tl">Two batches of changes that hit the same busy files must not land back to back without&hellip;</p>
+            <p class="tl">&hellip;refreshing one against the other first — otherwise the documentation checks flip-flop endlessly.</p>
+            <p class="tl">And when your proposal collides with a teammate&rsquo;s, the smaller one goes first&hellip;</p>
+            <p class="tl">&hellip;no matter whose it is — small changes are cheap to replay on top of big ones, not the reverse.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Good rules — but notice what they all have in common: they tell you what to do
+        <em>after</em> you discover trouble, or they rely on the session <em>remembering</em>
+        to check. Written doctrine only works if every session reads it, every time. The next
+        module is about one project&rsquo;s answer: stop relying on memory, and put a machine
+        at the door.
+      </p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the branch didn't break, the ground under it moved. Another session merged work into main that touches the same files, and the conflict was born at that moment. The fix starts with fetching the latest main and comparing, not with debugging your own changes."
+             data-explanation-wrong="Think about the chat you just watched: Session A changed nothing overnight, yet woke up to conflicts. What moved, if not the branch?">
+          <h3 class="quiz-question">Your branch was clean yesterday. Today — with zero changes on your side — it conflicts with main. What most likely happened?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Your branch got corrupted overnight and needs to be rebuilt from scratch</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Another session merged changes into main that touch your files — main moved, not you</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Git randomly re-checks old work sometimes; wait and it may clear on its own</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — because the two folders have different names, git sees no textual conflict and accepts both. The project ends up with two different specs claiming the same number. It's a real collision, but only a purpose-built check (not git) will ever flag it."
+             data-explanation-wrong="Careful — git only complains when the same lines of the same file disagree. Two folders named 052-alpha and 052-beta are different files entirely. What does git do with those?">
+          <h3 class="quiz-question">Two sessions each create a spec folder numbered 052 — one named <code>052-alpha</code>, the other <code>052-beta</code>. What happens when both merge?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Git blocks the second merge with a conflict, so the problem fixes itself</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The second folder silently overwrites the first one</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Both merge cleanly — the numbering collision is invisible to git and needs its own dedicated check</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>The Gate at Every Door</h1>
+      <p class="lead">
+        One project living with these collisions every day — a game called
+        <strong>promptworld</strong>, where several AI sessions routinely work the same repo —
+        got tired of relying on every session&rsquo;s memory and good manners. Its insight:
+        each of the three failures from Module 1 has <em>exactly one moment</em> when it is
+        still cheap to prevent. Miss the moment, and prevention turns into cleanup.
+      </p>
+      <p>
+        So promptworld built a single
+        <span class="term" data-definition="A small program a project keeps in its own repo — here, one file named scripts/check-merge-drift.mjs — that anyone (human or AI) can run to check something automatically.">script</span>
+        — <code>scripts/check-merge-drift.mjs</code>, written under its spec 051 — and gave it
+        three <strong>modes</strong>, one per moment. Think of a factory with a gate at every
+        door: one at the entrance when your shift starts, one at each workbay before you open
+        it, one at the shipping dock before anything leaves. Same guard, three posts.
+      </p>
+    </div>
+
+    <!-- Screen 2: the three modes -->
+    <div class="screen">
+      <h2>Three modes, three moments</h2>
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🌅</div>
+          <h4 class="pattern-title">session</h4>
+          <p class="pattern-desc">Run when a work session starts. It sweeps out leftover workspaces from already-merged tasks (the &ldquo;janitor&rdquo;), confirms your copy of main is current, and — the clever part — compares <em>every open branch against every other</em>, predicting which pairs will collide before anyone merges anything. That prediction table is called the <strong>drift matrix</strong>.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔧</div>
+          <h4 class="pattern-title">worktree</h4>
+          <p class="pattern-desc">Run right before opening a new workspace for a task. It checks the root is sitting at the very freshest main (no stale checkouts), and — given a spec number you want to claim — checks nobody else took it, naming the next free number if they did. The silent collisions from Module 1, caught mechanically.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📦</div>
+          <h4 class="pattern-title">pr</h4>
+          <p class="pattern-desc">Run right before proposing your changes as a
+            <span class="term" data-definition="Pull request — a proposed batch of changes to the shared codebase, packaged for review before it's merged in.">PR</span>.
+            It rehearses the merge in advance, predicting textual conflicts with main and with sibling branches, and warns about <em>semantic</em> overlaps — shared board files, documentation that pins the files you touched — that git alone would never mention.</p>
+        </div>
+      </div>
+
+      <p>
+        Every run ends the same way: a single
+        <span class="term" data-definition="A number a program hands back when it finishes — the universal way scripts talk to other scripts. Zero conventionally means success; anything else is a specific kind of failure.">exit code</span>,
+        as unambiguous as a traffic light:
+      </p>
+      <div class="badge-list">
+        <div class="badge-item">
+          <code class="badge-code">exit 0</code>
+          <span class="badge-desc">Pass — the door opens, proceed.</span>
+        </div>
+        <div class="badge-item">
+          <code class="badge-code">exit 1</code>
+          <span class="badge-desc">Blocked — the gate found real trouble (a predicted conflict, a taken spec number, a stale root). Fix it, re-run, and only proceed on 0.</span>
+        </div>
+        <div class="badge-item">
+          <code class="badge-code">exit 2</code>
+          <span class="badge-desc">Environment error — the gate could not even perform the check (wrong directory, missing tooling). Not a verdict about your work: fix the setup, then re-run.</span>
+        </div>
+      </div>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: check where it&rsquo;s preventable, not where it&rsquo;s visible</strong>
+          <p>A merge conflict becomes <em>visible</em> at merge time, but it becomes <em>preventable</em> much earlier — when the session starts, when the workspace opens, when the PR is about to exist. Putting the gate at those three doors converts days of cleanup into seconds of checking. Engineers call this general move &ldquo;shift left&rdquo;: move every check to the earliest moment it can possibly run.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: flow animation -->
+    <div class="screen">
+      <h2>One task&rsquo;s journey through the gates</h2>
+      <p>Follow a single task from shift start to shipped, and watch where each gate stands:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"A work session wakes up. Gate one: session mode scans the whole garage before any work starts"},
+        {"highlight":"flow-actor-1","label":"It sweeps out workspaces left over from merged tasks, confirms main is current, and builds the drift matrix — which open branches will collide with which"},
+        {"highlight":"flow-actor-2","label":"Exit 0 — all clear. Time to start a task","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Gate two: worktree mode — is the root at the freshest main? Is the spec number free? Only on exit 0 does the new workspace open"},
+        {"highlight":"flow-actor-3","label":"The task is built in its own workspace, on its own branch","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Gate three: pr mode rehearses the merge — conflicts with main? with sibling branches? overlaps with pinned docs?"},
+        {"highlight":"flow-actor-3","label":"Exit 1 blocks the shipment until fixed. And after every rebase, the gate runs again — a moved base is a new merge to rehearse. Exit 0: ship it"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🌅</div>
+            <span>Shift start</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🔧</div>
+            <span>New workbay</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📦</div>
+            <span>Shipping dock</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: how another tool describes the gate, verbatim -->
+    <div class="screen">
+      <h2>The pattern, in a tool&rsquo;s own words</h2>
+      <p>
+        The script lives in promptworld&rsquo;s repo — but the clearest description of the
+        pattern now lives somewhere more surprising: inside the praxisflux <strong>sweep</strong>
+        skill, which learned to look for it (that&rsquo;s Module 3&rsquo;s story). Here is how
+        the skill describes what a merge-drift gate <em>is</em>, verbatim:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SKILL — pdlc/skills/sweep/SKILL.md</span>
+          <pre><code>
+<span class="code-line">3. **Probe for a merge-drift gate** — hosts following the spec-051 pattern (promptworld)</span>
+<span class="code-line">   ship `scripts/check-merge-drift.mjs` with `session` / `worktree` / `pr` modes and</span>
+<span class="code-line">   0 pass / 1 blocked / 2 env-error exit codes. When present it is **mandatory at its</span>
+<span class="code-line">   choke points for the whole sweep**, not a runbook-author judgment call: run</span>
+<span class="code-line">   `node scripts/check-merge-drift.mjs session` now — it subsumes the fetch/ff-pull</span>
+<span class="code-line">   above, prescribes janitor cleanup of merged worktrees, and emits the n-way drift</span>
+<span class="code-line">   matrix Phase 1 needs. When absent, the raw git commands above stand.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Check whether this project follows the pattern promptworld pioneered in its spec 051&hellip;</p>
+            <p class="tl">&hellip;meaning it keeps a gate script at a known address, answering to the three mode names&hellip;</p>
+            <p class="tl">&hellip;and speaking the three-light language: 0 opens the door, 1 blocks it, 2 means the check itself could not run. If the script exists, obeying it is not optional&hellip;</p>
+            <p class="tl">&hellip;and not a matter of anyone&rsquo;s judgment — so run the shift-start check immediately&hellip;</p>
+            <p class="tl">&hellip;it replaces the manual &ldquo;refresh your copy of main&rdquo; commands&hellip;</p>
+            <p class="tl">&hellip;tells you which leftover workspaces to sweep out, and produces the collision-prediction table&hellip;</p>
+            <p class="tl">&hellip;that the planning phase needs. And if the project has no such script? The old manual commands still apply — nothing is invented.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: match the mode to the moment -->
+    <div class="screen">
+      <h2>Post the guard yourself</h2>
+      <p>Drag each mode to the door where it stands guard:</p>
+
+      <div class="dnd-container" id="dnd-module2">
+        <div class="dnd-chips">
+          <div class="dnd-chip" draggable="true" data-answer="mode-session">session</div>
+          <div class="dnd-chip" draggable="true" data-answer="mode-worktree">worktree</div>
+          <div class="dnd-chip" draggable="true" data-answer="mode-pr">pr</div>
+        </div>
+        <div class="dnd-zones">
+          <div class="dnd-zone" data-correct="mode-session">
+            <p class="dnd-zone-label">A work session is just waking up: clean out merged leftovers, confirm main is current, predict which open branches will collide</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="mode-worktree">
+            <p class="dnd-zone-label">About to open a fresh workspace and claim spec number 053: is the root at the freshest main, and is that number actually free?</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="mode-pr">
+            <p class="dnd-zone-label">About to propose finished work (and again right after rebasing onto newer main): will this merge cleanly, and what does it semantically overlap?</p>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+        </div>
+        <div class="dnd-controls">
+          <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+          <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🚦</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: why &ldquo;pr&rdquo; runs twice</strong>
+          <p>Passing the shipping-dock gate once isn&rsquo;t a lifetime pass. If you then <em>rebase</em> — replay your work on top of a newer main — you have effectively built a new shipment: same intent, different base. So the rule is mechanical: after every rebase, the pr gate runs again.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Teaching the Orchestrator</h1>
+      <p class="lead">
+        So promptworld had its gate. But here&rsquo;s the problem TASK-46 was created to fix:
+        the gate lived in <em>one repo&rsquo;s</em> scripts and <em>one repo&rsquo;s</em> docs.
+        The sweep — the orchestrator
+        <span class="term" data-definition="A packaged set of instructions an AI session loads for a particular job — here, the pdlc:sweep skill that runs a whole batch of tasks through development automatically.">skill</span>
+        from Module 1 that runs whole batches of tasks — knew the general rules of the road,
+        but it would only use promptworld&rsquo;s gate if a human (or a runbook author)
+        remembered to say so. A safety practice that depends on someone remembering to
+        mention it isn&rsquo;t a practice yet. It&rsquo;s a hope.
+      </p>
+      <p>
+        TASK-46&rsquo;s move: teach the <em>orchestrator itself</em> to look for the gate.
+        Think of a traveling foreman who, on arriving at any site, first checks whether the
+        site posts its own safety officer at the door — and if it does, that officer&rsquo;s
+        word <strong>outranks the foreman&rsquo;s habits, automatically</strong>. The change
+        is small on paper — one skill file and one template, amended — and it flips who
+        carries the responsibility: from every future session&rsquo;s memory, to the tooling
+        every session already runs.
+      </p>
+    </div>
+
+    <!-- Screen 2: the wiring -->
+    <div class="screen">
+      <h2>One probe, three standing orders</h2>
+      <p>
+        The amended sweep now begins every run with a
+        <span class="term" data-definition="A quick look to see whether something exists before deciding how to behave — here, checking whether the host project ships a file named scripts/check-merge-drift.mjs.">probe</span>:
+        does this project ship <code>scripts/check-merge-drift.mjs</code>? If yes, the skill&rsquo;s
+        own text declares the gate <em>&ldquo;mandatory at its choke points for the whole
+        sweep, not a runbook-author judgment call&rdquo;</em> — and wires one invocation into
+        each
+        <span class="term" data-definition="A narrow passage everything must go through — the few moments in the workflow where a single check can catch trouble for every task that passes.">choke point</span>:
+      </p>
+
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>At sweep start — <code>session</code> mode</strong>
+            <p>Replaces the hand-typed &ldquo;refresh main&rdquo; commands, prescribes janitor cleanup of merged-and-forgotten workspaces, and hands its drift matrix to the planner — branch pairs predicted to collide are not allowed to develop in parallel lanes on the promise of an easy merge.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Before every new workspace — <code>worktree</code> mode</strong>
+            <p>Must exit 0 before any <code>git worktree add</code>; with <code>--spec NNN</code> it also referees the spec-number race from Module 1, blocking a taken number and naming the next free one.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Before every PR, and again after every rebase — <code>pr</code> mode</strong>
+            <p>The last gate before <code>gh pr create</code>. A nonzero exit blocks the PR outright, and the gate&rsquo;s overlap warnings double as a checklist of companion artifacts the same PR must carry.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>Here is the strongest of the three, verbatim from the amended skill:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SKILL — pdlc/skills/sweep/SKILL.md (Phase 2, step 7)</span>
+          <pre><code>
+<span class="code-line">7. Rebase onto fresh `origin/main`; re-run tests and gates AFTER the rebase (sibling</span>
+<span class="code-line">   merges change tripwires). With a merge-drift gate,</span>
+<span class="code-line">   `node scripts/check-merge-drift.mjs pr` from the worktree is the last gate before</span>
+<span class="code-line">   `gh pr create` — and again after every rebase; a nonzero exit blocks the PR, and its</span>
+<span class="code-line">   semantic-overlap warnings (board files, wiki-pinned sources, design surfaces) are the</span>
+<span class="code-line">   same-PR companion-artifact checklist. Then open the PR from the worktree.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Replay your finished work on top of the very latest shared version, then re-run every check — because a teammate&rsquo;s merge may have changed what &ldquo;passing&rdquo; means&hellip;</p>
+            <p class="tl">&hellip;and if this project has a merge-drift gate&hellip;</p>
+            <p class="tl">&hellip;running its shipping-dock check is the final door before proposing your changes&hellip;</p>
+            <p class="tl">&hellip;and the door swings again after every rebase. Any answer other than &ldquo;pass&rdquo; stops the proposal cold&hellip;</p>
+            <p class="tl">&hellip;and the gate&rsquo;s warnings about quieter overlaps — shared task-board files, documentation pinned to the files you touched, design references&hellip;</p>
+            <p class="tl">&hellip;are read as a to-do list: whatever they name must be updated in the same proposal. Only then does the PR open.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the runbook remembers -->
+    <div class="screen">
+      <h2>Written down, so nobody re-derives it</h2>
+      <p>
+        One last thread ties this to the sweep&rsquo;s founding rule. A sweep outlives any
+        single AI session, and the next session remembers <em>nothing</em> — it resumes from
+        the
+        <span class="term" data-definition="The sweep's written marching orders: a committed file carrying the task ordering, the rules of the road, and a log of what's done — everything a fresh session with no memory needs to take over.">runbook</span>
+        plus the task board alone. So the probe&rsquo;s verdict can&rsquo;t live in the session&rsquo;s
+        head: TASK-46 also amended the runbook template, adding a permanent line to its
+        gates section:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">TEMPLATE — pdlc/skills/sweep/templates/runbook.md</span>
+          <pre><code>
+<span class="code-line">- **Merge-drift gate: {{present at scripts/check-merge-drift.mjs | absent}}.** When</span>
+<span class="code-line">  present, mandatory at every choke point: `session` at sweep start (janitor + drift</span>
+<span class="code-line">  matrix), `worktree [--spec NNN]` before every `git worktree add`, `pr` from the</span>
+<span class="code-line">  worktree before every `gh pr create` AND after every rebase — nonzero exit blocks.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">The runbook&rsquo;s author fills in the blank: this project either has the gate at the standard address, or it doesn&rsquo;t&hellip;</p>
+            <p class="tl">&hellip;and when it does, the three standing orders are spelled out right here — the shift-start check with its cleanup and collision forecast&hellip;</p>
+            <p class="tl">&hellip;the workspace check (with the spec number when one is being claimed) before every new workspace&hellip;</p>
+            <p class="tl">&hellip;and the shipping check before every proposal and after every rebase. Any session that later adopts this runbook obeys the gate without re-discovering it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: practices travel in tools, not in memos</strong>
+          <p>Notice what TASK-46 did <em>not</em> do: it didn&rsquo;t copy promptworld&rsquo;s script into the plugin, and it didn&rsquo;t write a memo urging sessions to please remember the gate. It gave the orchestrator a <strong>convention</strong> — a standard address, three mode names, three exit codes — and a standing order to obey whatever answers at that address. Any project, today or years from now, that ships a script honoring the convention gets the whole safety practice for free. That&rsquo;s how good practices escape the repo they were born in.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the skill's own words: 'When absent, the raw git commands above stand.' The gate is mandatory when present, never invented when absent. The sweep falls back to its manual doctrine: fetch and fast-forward main by hand, check spec numbers by eye, rebase and re-run gates."
+             data-explanation-wrong="The probe has exactly two outcomes, and neither of them is 'stop working' or 'create new files in someone else's project.' What did the skill do before merge-drift gates existed?">
+          <h3 class="quiz-question">The sweep starts up in a project that has no <code>scripts/check-merge-drift.mjs</code>. What does it do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Refuses to run — every project must adopt the gate before a sweep is allowed</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Falls back to its manual doctrine — the raw git commands stand, exactly as before this task</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Writes the script into the project itself, so the gate always exists</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — the sweep's design test is that a fresh session resumes from the runbook plus the board alone. A verdict living only in the current session's context dies with it; written into the runbook's gates section, it reaches every future session that adopts the sweep."
+             data-explanation-wrong="Remember the sweep's founding rule from its own skill text: a sweep outlives any one session, and the next session starts with no memory. Where is the only place it's guaranteed to look?">
+          <h3 class="quiz-question">The probe already ran at sweep start and found the gate. Why must its result <em>also</em> be written into the runbook?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>For the humans — managers like to see which checks were performed</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Running the probe twice would be too slow, so the result is cached in the file</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because the next session has no memory — a fresh session resumes from the runbook and the board alone, so anything not written there effectively never happened</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Yes — pr mode passed for the branch as it stood then. A rebase rebuilds the branch on a new base: same intent, different merge. The amended skill is explicit that the pr gate runs before every PR and again after every rebase, and a nonzero exit blocks."
+             data-explanation-wrong="Think of what a rebase actually does: it replays your work on top of a different, newer main. Is the shipment the gate approved still the shipment you're about to send?">
+          <h3 class="quiz-question">Mid-sweep, a task&rsquo;s branch passes <code>pr</code> mode. Before the PR opens, a sibling merge lands and the branch is rebased onto the new main. Can the PR open now?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Not yet — the rebase produced a different branch, so <code>pr</code> mode must run again and exit 0 first</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes — the gate already passed once, and a pass is a pass</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Yes, but only if the rebase had no conflicts</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🧭</div>
+        <div class="callout-content">
+          <strong class="callout-title">Where this leaves things</strong>
+          <p>The garage from Module 1 still has many robots in it — that part never changes. But the guard promptworld posted at three doors (Module 2) now travels with the orchestrator itself: any project that ships the convention gets the gates enforced automatically, and any project that doesn&rsquo;t simply gets the old careful manual habits. Sweep skill v0.2.0, one probe, three standing orders — and one less thing that depends on anyone remembering.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
