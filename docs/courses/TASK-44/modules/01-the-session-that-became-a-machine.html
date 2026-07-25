@@ -1,0 +1,189 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>The Session That Became a Machine</h1>
+      <p class="lead">
+        One morning, a game project called promptworld had a pile of fresh
+        <span class="term" data-definition="In praxisflux, a 'vault branch' — a folder of carefully gathered, cited research notes about one topic, produced by the research plugin.">research</span>
+        and a hard question: <em>we researched how great games teach and how great games are
+        documented — so what should we actually build?</em> The owner didn&rsquo;t want a summary.
+        They wanted the project&rsquo;s whole direction re-examined against one sentence:
+        <strong>&ldquo;this is a game that teaches AI-prompting skills, and it must be fun.&rdquo;</strong>
+      </p>
+      <p>
+        What followed was a live, one-off working session: two AI evaluators read one research
+        branch each, judged the project against that sentence, asked the owner eight sharp
+        questions, folded the answers back in, cross-checked each other, and merged into a single
+        plan that rewrote the project&rsquo;s task board. It worked so well that the owner asked
+        for it to be <strong>bottled</strong> — turned into a repeatable tool. TASK-44 is that
+        bottling: the <code>reorient</code> plugin.
+      </p>
+      <div class="callout callout-info">
+        <div class="callout-icon">🧪</div>
+        <div class="callout-content">
+          <strong class="callout-title">Good to know: dogfooding in reverse</strong>
+          <p>Most tools are built first and tried later. reorient went the other way: the process ran once, live, on a real project — decisions, dead ends, and all — and only the parts that proved themselves were written down as the plugin. The best spec turned out to be a transcript.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the lens -->
+    <div class="screen">
+      <h2>Everything starts with a lens</h2>
+      <p>
+        The single most important input isn&rsquo;t the research — it&rsquo;s the
+        <span class="term" data-definition="reorient's word for the project's purpose statement: the one sentence every evaluation is pressure-tested against. Recorded when the run opens; the output gate refuses a run without one.">lens</span>.
+        Research is neutral by design; a lens gives it a direction to push against. In the
+        promptworld session, the lens even <em>contradicted</em> the research&rsquo;s own framing:
+        the notes had been gathered assuming &ldquo;an ambient simulation you watch,&rdquo; but the
+        lens said &ldquo;a learning game you <em>write prompts at</em>.&rdquo; Spotting that clash —
+        and ruling that the lens wins — became the deepest finding of the whole run.
+      </p>
+      <p>
+        That&rsquo;s why the plugin refuses to open a run without one. A reorientation without a
+        purpose statement is just a book report. Here is what opening a run actually looks like —
+        the exact command, translated:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">COMMAND — opening a reorient run</span>
+          <pre><code>
+<span class="code-line">node scripts/run.mjs begin . \</span>
+<span class="code-line">  --lens <span class="code-string">"a game that teaches prompting skills, and it must be fun"</span> \</span>
+<span class="code-line">  --corpus <span class="code-string">research/Game-Gameplay-Patterns</span> \</span>
+<span class="code-line">  --corpus <span class="code-string">research/Game-Player-Docs</span></span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Open a tracked reorientation run on this project (the dot means &ldquo;right here&rdquo;).</p>
+            <p class="tl">This is the lens — the one sentence every evaluation will push against. Refusing to start without it is the point.</p>
+            <p class="tl">Evaluate this research branch (how games create engaging play)&hellip;</p>
+            <p class="tl">&hellip;and this one (how games teach and document themselves) — one evaluator each, in parallel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the six phases, animated -->
+    <div class="screen">
+      <h2>Six phases, one loop</h2>
+      <p>Here is the whole loop the plugin now walks. Step through it:</p>
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"FRAME — the lead captures the lens, picks the research branches, and opens a tracked run (the paper trail that a reorientation is in flight)"},
+        {"highlight":"flow-actor-2","label":"EVALUATE — one evaluator per branch, in parallel, read-only: each judges the project against the lens and ends with open questions for the operator","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-3","label":"STEER — the lead digests each draft, spot-checks its boldest claims, and puts the questions to the operator as concrete decisions","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-2","label":"…the answers travel back into the SAME evaluators as fixed constraints — not suggestions","packet":true,"from":"actor-3","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"CROSS-GROUND — each evaluator reads its siblings&apos; converged drafts, reconciles, and writes a durable analysis note into its own branch"},
+        {"highlight":"flow-actor-1","label":"SYNTHESIZE — the lead (never an agent) merges everything into one document: decisions, course of action, board moves, open questions","packet":true,"from":"actor-2","to":"actor-1"},
+        {"highlight":"flow-actor-3","label":"EXECUTE — the operator signs off; approved moves land on the task board; an output gate proves the artifacts exist before the run may close","packet":true,"from":"actor-1","to":"actor-3"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🎓</div>
+            <span>The lead</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🔬</div>
+            <span>N evaluators</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🧭</div>
+            <span>The operator</span>
+          </div>
+        </div>
+        <div class="flow-packet" id="flow-packet"></div>
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+      <p>
+        Notice who writes the final document: <strong>the lead, never an evaluator.</strong> Each
+        evaluator is deliberately deep in one branch and blind to the whole; the merge is the one
+        step that needs the whole picture — and accountability for it.
+      </p>
+    </div>
+
+    <!-- Screen 4: what it produced, in numbers -->
+    <div class="screen">
+      <h2>What one run produced</h2>
+      <p>
+        The live session that became this plugin ran the loop once, on two research branches,
+        and left behind: <strong>eight operator decisions</strong> recorded mid-flight, two
+        cross-grounded analysis notes (one per branch), one synthesis document with an explicit
+        &ldquo;do we need a massive refactor?&rdquo; assessment (verdict: no — with reasons), and
+        <strong>thirteen task-board moves</strong>: priorities raised, tasks rescoped, seven new
+        tasks created, one research follow-up commissioned. Every artifact still exists and is
+        still load-bearing in that project today.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: the residue IS the product</strong>
+          <p>The conversation that produced all this is gone — conversations always are. What makes the loop worth a plugin is that every phase leaves a durable artifact: a run record, analysis notes, a synthesis, board entries. Anyone (or any AI) arriving next week can reconstruct not just what was decided, but why.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the lens is the purpose statement, and it outranks even the research's own framing. The promptworld run's deepest finding was exactly that clash, resolved in the lens's favor."
+             data-explanation-wrong="The research is an input, not the boss. Module 1's whole point about the 'ambient simulation vs learning game' clash was that one of these wins — which one?">
+          <h3 class="quiz-question">The research notes were gathered assuming the project is one kind of thing; the operator&rsquo;s lens says it&rsquo;s another. What does reorient do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Trust the research — it was gathered carefully, and the lens is just one sentence</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The lens wins — and the clash itself gets called out as a finding worth acting on</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Refuse to run until the research is re-gathered under the new framing</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — evaluators are deliberately deep-and-narrow; only the lead holds the whole picture, so only the lead may write the merge. That's an accountability rule, not a convenience."
+             data-explanation-wrong="Think about what each participant can see. An evaluator knows one branch deeply and the others only through drafts. Who is the only one positioned — and accountable — to merge?">
+          <h3 class="quiz-question">Why does the synthesis have to be written by the lead rather than by the best evaluator?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Evaluators are cheaper models, so their writing isn&rsquo;t polished enough for a final document</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It&rsquo;s arbitrary — any participant could write it as long as the gate passes</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Each evaluator is deliberately deep in one branch and blind to the whole; the merge needs the one participant who saw everything — and who answers for it</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

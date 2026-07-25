@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-25 05:22'
-updated_date: '2026-07-25 05:32'
+updated_date: '2026-07-25 05:35'
 labels: []
 dependencies: []
 ordinal: 79000
@@ -25,7 +25,7 @@ Formalize the operator-steered reorientation process proven live in the promptwo
 - [x] #2 SKILL.md orchestrator covers all six phases in gate->work->gate shape with everything-optional grounding detection, structured evaluator report template, steering-round protocol, isolation-safe cross-grounding, synthesis section contract, and inline fallbacks for every referenced script
 - [x] #3 Run tracker (scripts/run.mjs begin/finish/abandon) writes .handoff/reorient/runs at the invoking root only; gates/ verifies runs read-only (manifest vs artifacts: per-branch analyses, synthesis sections, decisions recorded) and never writes
 - [x] #4 Tests under test/ cover the run tracker and gate; node --test green
-- [ ] #5 Docs synced: README + wiki note for reorient (freshness gate green); marketplace version bumped per docs/releasing.md
+- [x] #5 Docs synced: README + wiki note for reorient (freshness gate green); marketplace version bumped per docs/releasing.md
 - [ ] #6 Per-task course at docs/courses/TASK-XX passing the course gate
 <!-- AC:END -->
 
@@ -39,4 +39,6 @@ Formalize the operator-steered reorientation process proven live in the promptwo
 
 <!-- SECTION:NOTES:BEGIN -->
 Slice 1 committed: plugin core (gate/tracker/skill), 9 reorient tests + install-path fixture, full suite 157 green, drift gates green, v0.11.0. Remaining: wiki note + course + PR.
+
+Slice 2: wiki note + INDEX + 11 re-pins; freshness gate 25 fresh; check-docs green.
 <!-- SECTION:NOTES:END -->

@@ -1,0 +1,241 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the constraint -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Steering a Team You Can&rsquo;t Interrupt</h1>
+      <p class="lead">
+        Here is the awkward physics of parallel AI teamwork: the evaluator
+        <span class="term" data-definition="A helper AI session spawned by the lead to work on one bounded job. It runs on its own and reports back — it has no channel to talk to the human user directly.">subagents</span>
+        cannot talk to the human. They can&rsquo;t pause to ask &ldquo;wait — do you want scores,
+        or just a story?&rdquo; But a reorientation is <em>full</em> of questions only the owner
+        can answer. The promptworld session hit eight of them.
+      </p>
+      <p>
+        reorient&rsquo;s answer is <strong>checkpointed relay</strong>: evaluators end every draft
+        with a section literally titled <em>&ldquo;open questions for the operator&rdquo;</em>;
+        the lead digests each draft for the human, collects decisions, and sends them back into
+        the <strong>same</strong> evaluator sessions — whose memory of their branch is intact —
+        phrased as <em>fixed constraints, not suggestions</em>.
+      </p>
+    </div>
+
+    <!-- Screen 2: the checkpoint, dramatized -->
+    <div class="screen">
+      <h2>One steering round, replayed</h2>
+      <p>
+        This exchange compresses a real round from the promptworld session. Watch what the lead
+        does <em>between</em> the evaluator and the operator — and what happens to a claim that
+        doesn&rsquo;t survive checking:
+      </p>
+      <div class="chat-window" id="chat-module3">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="evaluator" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">🔬</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Evaluator A (gameplay branch)</span>
+              <p>Draft ready. Verdict: the project has a brilliant instrument but no game — nothing creates situations that demand the skill it teaches. Boldest evidence: the angel sat on full charges while two villagers died. Open question for the operator: may a &ldquo;director&rdquo; component schedule dramatic events, or is pure emergence sacred?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="lead" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🎓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Lead</span>
+              <p>Before I pass that up: spot-checking the charge claim against the task board&hellip; confirmed, verbatim, on TASK-111 — charges regenerated to cap while Ash starved and Oak froze. The claim survives. Operator, decision needed.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="operator" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">🧭</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Operator</span>
+              <p>Director-lite first: scripted event schedules in tutorial scenarios now, a live watching director later. Don&rsquo;t build the big subsystem yet.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="lead" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🎓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Lead</span>
+              <p>Recorded on the board as decision 2 — durable, not just chat. Evaluator A: DECIDED, director-lite first. That&rsquo;s a constraint now. Rework your idea ranking under it, and reconcile with Evaluator B&rsquo;s draft — here it is, copied inline.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="evaluator" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">🔬</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Evaluator A (gameplay branch)</span>
+              <p>Reworked: my #1 idea splits into a v1 that rides existing machinery and a post-v1 director. One honesty note: &ldquo;existing machinery&rdquo; is almost true — nothing today schedules a future event. Small design step, flagging it rather than hiding it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="evaluator" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">🔬</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Evaluator A (gameplay branch)</span>
+              <p>Cross-grounding done — analysis note written into my branch. One conflict I could NOT reconcile: an angel that both tutors the player and autonomously saves lives shrinks the space where a learner can fail informatively. Containing it needs a decision you haven&rsquo;t made yet. Flagged, not papered over.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="lead" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">🎓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Lead</span>
+              <p>Correct behavior — that tension goes into the synthesis&rsquo;s Open Questions, parked where it will resurface when the next task needs it. An unresolved conflict honestly named is synthesis input, not failure.</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-typing" id="chat-module3-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+      <p>
+        Three habits to steal from that exchange: the lead <strong>verifies before relaying</strong>
+        (an evaluator&rsquo;s plausible-but-wrong claim is the lead&rsquo;s responsibility to catch);
+        decisions are <strong>recorded durably the moment they&rsquo;re made</strong>; and
+        constraints flow back into agents that <strong>kept their context</strong> — nobody
+        re-reads a branch from scratch.
+      </p>
+    </div>
+
+    <!-- Screen 3: cross-grounding without contamination -->
+    <div class="screen">
+      <h2>Reconcile, don&rsquo;t contaminate</h2>
+      <p>
+        The cross-ground phase has a subtle rule inherited from the research vault:
+        <span class="term" data-definition="The research vault's core structural rule — each topic branch is self-contained, and a note in one branch may never link into another branch. Connections between topics live only at the vault's index level.">isolation</span>.
+        Evaluators read each other&rsquo;s drafts, but the drafts are <em>copied inline</em> into
+        their instructions — branch A&rsquo;s files never link to branch B&rsquo;s. Whatever
+        context a branch&rsquo;s analysis needs from its sibling gets <strong>duplicated, not
+        referenced</strong>. And the merged view — the one document that genuinely spans
+        branches — lives outside all of them, which is exactly what Module 2&rsquo;s gate
+        enforces geometrically.
+      </p>
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: structure carries the discipline</strong>
+          <p>Nobody has to remember the isolation rule under deadline pressure — the gate checks the synthesis&rsquo;s location, the analysis notes&rsquo; links stay in-branch, and a violation blocks the run from finishing. Rules that matter get encoded where forgetting them is impossible.</p>
+        </div>
+      </div>
+      <p>
+        And how does the gate know cross-grounding actually happened? It looks for the receipt —
+        a formal analysis note in each branch. Here is that check, verbatim:
+      </p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — reorient/gates/reorient.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> hasAnalysisNote(dir) {</span>
+<span class="code-line">  <span class="code-keyword">let</span> entries = [];</span>
+<span class="code-line">  <span class="code-keyword">try</span> { entries = readdirSync(dir).filter((f) =&gt; /^Analysis-.*\.md$/.test(f)); } <span class="code-keyword">catch</span> { <span class="code-keyword">return false</span>; }</span>
+<span class="code-line">  <span class="code-keyword">return</span> entries.some((f) =&gt; {</span>
+<span class="code-line">    <span class="code-keyword">try</span> { <span class="code-keyword">return</span> /(^|\n)type:\s*analysis(\s|$)/.test(readFileSync(join(dir, f), <span class="code-string">"utf8"</span>)); } <span class="code-keyword">catch</span> { <span class="code-keyword">return false</span>; }</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">A yes/no question: does this branch folder hold its analysis note?</p>
+            <p class="tl">Start with an empty list of candidates.</p>
+            <p class="tl">List the folder&rsquo;s files and keep only ones named like &ldquo;Analysis-something.md&rdquo; — if the folder can&rsquo;t even be read, the answer is no.</p>
+            <p class="tl">Now check whether at least one candidate&hellip;</p>
+            <p class="tl">&hellip;declares itself a formal analysis in its header (an unreadable file counts as no) —</p>
+            <p class="tl">&hellip;that one match is enough.</p>
+            <p class="tl">End of the check: a filename pattern AND a self-declaration, or the gate refuses to close the run.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the lead spot-checks bold claims against the cited sources before relaying them. A refuted claim dies at the checkpoint; a confirmed one carries its verification with it."
+             data-explanation-wrong="Re-watch the chat: what did the lead do with the charge claim before putting the decision to the operator?">
+          <h3 class="quiz-question">An evaluator&rsquo;s draft makes a dramatic factual claim. What happens before the operator hears about it?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — evaluators are trusted specialists, and second-guessing them defeats the parallelism</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Another evaluator is spawned to independently re-derive the entire draft</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The lead spot-checks the claim against the cited source; only claims that survive are relayed</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — an honestly named unresolved conflict is recorded in the synthesis's Open Questions, parked to resurface when a decision needs it. Papering over it would be the actual failure."
+             data-explanation-wrong="The lead called that behavior 'correct' in the chat. reorient treats an unresolvable tension as a first-class output — where does it go?">
+          <h3 class="quiz-question">During cross-grounding, an evaluator finds a conflict between the branches that no available decision resolves. What&rsquo;s the right move?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Pick the more convincing side — a synthesis with open conflicts looks unfinished</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Name it explicitly; it lands in the synthesis&rsquo;s Open Questions as input for future decisions</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Escalate to a third evaluator as a tie-breaker vote</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — same agents, context intact, answers phrased as fixed constraints. Fresh agents would re-read everything and lose the converged state; suggestions would get re-litigated."
+             data-explanation-wrong="Two things matter: whose memory holds the branch, and how binding the answer is. The protocol is specific about both.">
+          <h3 class="quiz-question">The operator answers the evaluators&rsquo; questions. How do the answers travel?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Back into the same evaluator sessions, memory intact, phrased as fixed constraints to rework under</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Into brand-new evaluator sessions, so the answers arrive free of earlier bias</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>They&rsquo;re held back until the synthesis, so evaluators stay independent</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+      <p>
+        <em>That&rsquo;s the whole machine: grounded research in, steered judgment through,
+        durable artifacts out — and a gate at the door checking the receipts. It ran once as a
+        session; now it runs as a skill.</em>
+      </p>
+    </div>
+
+  </div>
+</section>
