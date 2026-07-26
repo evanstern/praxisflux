@@ -15,5 +15,6 @@
 
 ## Prove
 
-- [ ] T006 gates green: node --test, check-docs, wiki-freshness, bump gate
+- [x] T006 gates green: node --test 204/204 pass; check-docs in sync; wiki freshness
+  OK 28 notes, zero warnings; bump gate ok 0.22.0 → 0.23.0 (vs origin/main)
 - [ ] T007 board finalized; PR opened — serial merge recorded by the orchestrator
