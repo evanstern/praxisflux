@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 02:31'
-updated_date: '2026-07-26 05:10'
+updated_date: '2026-07-26 05:11'
 labels:
   - wiki-token-economy
 dependencies:
@@ -20,6 +20,8 @@ ordinal: 85000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Bring the repo's own grounding wiki into conformance with corpus-spec v2 (TASK-48) using the TASK-49 tooling: every description within capsule budget, oversized notes split summary-style (build-and-release.md at 12.7KB is 2.4x the mean), CAPSULES.md generated, all pins fresh, gates green.
+
+Spec: specs/005-wiki-v2-conformance
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -28,7 +30,12 @@ Bring the repo's own grounding wiki into conformance with corpus-spec v2 (TASK-4
 - [ ] #2 No note body exceeds the size cap; oversized notes (at minimum build-and-release.md) split per summary-style discipline with parent summaries + wikilinks
 - [ ] #3 docs/wiki/CAPSULES.md generated and committed; INDEX.md updated for any new child notes
 - [ ] #4 Wiki freshness gate and check-docs pass on the reworked corpus
+- [ ] #5 Spec phase: Spec
+- [ ] #6 Spec phase: Implement
+- [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
