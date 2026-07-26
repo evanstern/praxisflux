@@ -23,7 +23,8 @@
       a mutated target` (CLI, doc-1 repro) + `checkReview: .handoff transport residue never
       reads as target mutation — genuine changes still do` (gate unit).
 - [x] T005 versions: team-review skill 1.0.0 → 1.1.0 (self-review note added to SKILL.md);
-      marketplace + all plugin.json + action.yml pin → 0.16.0 via sync-version.mjs (R4)
+      marketplace + all plugin.json + action.yml pin → 0.17.0 via sync-version.mjs (R4;
+      re-bumped from 0.16.0 post-rebase after siblings released v0.16.0)
 - [x] T006 wiki: team-review-plugin note re-verified + re-pinned (two-step: body updated for
       the gate exemption, escalated WARN, self-review placement, skill 1.1.0 — then pinned);
       test-suite note re-verified (team-review bullet) within budget; lockstep-stamp stales
