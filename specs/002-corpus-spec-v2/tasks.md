@@ -12,7 +12,7 @@
 - [x] T004 corpus-spec.md: capsule tier + CAPSULES.md section (R2)
 - [x] T005 corpus-spec.md: size budget + split discipline section (R3)
 - [x] T006 corpus-spec.md: ## addressability rule in Note core (R4)
-- [ ] T007 wiki: re-verify + re-pin docs/wiki/grounded-corpus-spec.md (R6)
+- [x] T007 wiki: re-verify + re-pin docs/wiki/grounded-corpus-spec.md (R6)
 
 ## Prove
 
