@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.4.0
+version: 0.5.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -65,7 +65,12 @@ derive, in this order:
 
 1. **Lanes** — the dependency-ordered parallelism plan. The governing rule is
    **develop in parallel, merge serially**: parallel worktrees are cheap, but concurrent
-   PRs touching the same files tax every merge after the first. Construct lanes so that:
+   PRs touching the same files tax every merge after the first. First set aside what
+   isn't live: tasks carrying the `paused` label (see "Paused lanes" below) are
+   **excluded from lane conflict analysis** — their branches and worktrees are not
+   another session's live lane, so they contribute nothing to the drift/conflict
+   reasoning — and are listed in the runbook's state snapshot as **paused — untouched**.
+   Then construct lanes so that:
    - Hard dependencies (a task consuming another's contract/API) order the lanes.
    - **Contract-shaped work goes first** even when its full implementation can lag — a
      published interface unblocks consumers; its internals don't.
@@ -95,7 +100,8 @@ derive, in this order:
 Write it from `templates/runbook.md` (if the template is missing, hand-write the runbook
 with exactly the sections above plus an execution-log table) to
 `docs/design/<slug>-runbook.md` in the host project, with a **state snapshot** (date,
-what's already Done, what's in flight in other sessions) so staleness is detectable. Commit it — then **get operator sign-off on the
+what's already Done, what's in flight in other sessions, what's paused — untouched) so
+staleness is detectable. Commit it — then **get operator sign-off on the
 lanes** before executing. Lane construction is judgment, and it's the one place a wrong
 guess costs days instead of minutes.
 
@@ -157,6 +163,24 @@ must too:
   sessions rebase main frequently, and a moved base explains most surprises. A
   merge-drift gate's session mode answers this in one run: base lag, predicted
   conflicts, and which sibling branch they're with.
+
+### Paused lanes — the `paused` marker
+
+An operator can pause an In Progress task without moving it on the board. The marker is
+a **`paused` label on the task**, set and cleared **only** via
+`backlog task edit TASK-<n> --labels …` (never a hand edit), which makes the pause
+machine-findable: the label appears in the task file's frontmatter `labels:` list.
+Provenance rides an append-note written at pause time —
+`backlog task edit TASK-<n> --append-notes "paused by <who> <date>: <why>"` — so a stale
+pause is auditable; clearing the label gets a matching resume note.
+
+A paused task is **not a live lane**. Its branch and worktree are the pausing operator's
+parked state, so the sweep **never claims, rebases, or cleans a paused task's branches
+or worktrees** — not in janitor cleanup, not in conflict resolution, not in
+end-of-sweep hygiene — and runbook authoring excludes paused tasks from lane conflict
+analysis, listing them in the state snapshot as **paused — untouched** (Phase 1). Hosts
+that ship a merge-drift gate read the same label and downgrade a paused task's
+branch/worktree findings from blocking to info, with the pause cited as evidence.
 
 ### Operator checkpoints — never proceed silently past
 
