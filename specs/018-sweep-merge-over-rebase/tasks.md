@@ -2,8 +2,8 @@
 
 ## Spec
 
-- [ ] T000 claim: board TASK-57 → In Progress + spec dir, committed on the task branch
-- [ ] T001 spec.md / plan.md / tasks.md authored
+- [x] T000 claim: board TASK-57 → In Progress + spec dir, committed on the task branch
+- [x] T001 spec.md / plan.md / tasks.md authored
 
 ## Implement
 
