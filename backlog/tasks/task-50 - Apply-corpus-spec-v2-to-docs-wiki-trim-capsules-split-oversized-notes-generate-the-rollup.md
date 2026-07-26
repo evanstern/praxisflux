@@ -3,9 +3,11 @@ id: TASK-50
 title: >-
   Apply corpus-spec v2 to docs/wiki: trim capsules, split oversized notes,
   generate the rollup
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 02:31'
+updated_date: '2026-07-26 05:10'
 labels:
   - wiki-token-economy
 dependencies:
@@ -27,3 +29,18 @@ Bring the repo's own grounding wiki into conformance with corpus-spec v2 (TASK-4
 - [ ] #3 docs/wiki/CAPSULES.md generated and committed; INDEX.md updated for any new child notes
 - [ ] #4 Wiki freshness gate and check-docs pass on the reworked corpus
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 005-wiki-v2-conformance (hand-authored per host precedent)
+2. spec-bridge:link
+3. Dispatch implementation: trim all docs/wiki descriptions to <=500-char routing capsules; split build-and-release.md summary-style (only over-cap note, within the <=3-note checkpoint bound); generate docs/wiki/CAPSULES.md via grounding-wiki scripts/capsules.mjs (adoption flips enforcement to hard); INDEX gains child-note lines
+4. Gates green (freshness now hard-enforcing); per-task course; PR; merge; re-ground; sweep close
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 3 (docs/design/wiki-token-economy-runbook.md). Tier: default implementer (editorial splitting + mechanical conformance driven by TASK-49 tooling). Split fan-out checkpoint: one note over cap (build-and-release.md, 3742 over) — within the operator-approved bound.
+<!-- SECTION:NOTES:END -->
