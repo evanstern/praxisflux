@@ -10,7 +10,7 @@
 - [x] T002 build/README.md: stale scaffold claims gone; real story (skill-only, implement leg) (R2)
 - [x] T003 repo README build row matches; manifest description fixed + catalog regen if stale (R2)
 - [x] T004 versions: marketplace sync-version 0.19.0; implement SKILL.md untouched, no skill bump (R3)
-- [ ] T005 wiki re-pins per freshness gate; CAPSULES regen if needed
+- [x] T005 wiki re-pins per freshness gate; CAPSULES regen if needed
 
 ## Prove
 
