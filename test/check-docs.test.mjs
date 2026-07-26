@@ -47,6 +47,64 @@ test("check-docs: each omission is a named problem", () => {
   }
 });
 
+/* ── plugin census: README count/enumeration vs marketplace.json ─────────── */
+
+// Same shape as fixture(), but with two registered plugins so count claims are exercised.
+function censusFixture({ readme }) {
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-docs-census-"));
+  mkdirSync(join(root, ".claude-plugin"), { recursive: true });
+  mkdirSync(join(root, "lib"));
+  writeFileSync(join(root, ".claude-plugin", "marketplace.json"),
+    JSON.stringify({ plugins: [{ name: "alpha", source: "./alpha" }, { name: "beta", source: "./beta" }] }));
+  writeFileSync(join(root, "README.md"), readme);
+  writeFileSync(join(root, "CLAUDE.md"), "see docs/releasing.md\n");
+  return root;
+}
+
+const CENSUS_BASE = [
+  "| **alpha** | stuff |",
+  "| **beta** | stuff |",
+  "/plugin install alpha@praxisflux",
+  "/plugin install beta@praxisflux",
+].join("\n") + "\n";
+
+test("census: a README whose count claims match the marketplace passes (words and digits)", () => {
+  const root = censusFixture({ readme: `Two plugins are registered.\nAll 2 plugins install.\n${CENSUS_BASE}` });
+  try { assert.deepEqual(checkDocs(root), []); } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("census: a stale count claim is a named problem (the seven-vs-nine drift shape)", () => {
+  const cases = ["Seven plugins are registered in the marketplace.", "the 7 plugins below"];
+  for (const claim of cases) {
+    const root = censusFixture({ readme: `${claim}\n${CENSUS_BASE}` });
+    try {
+      const problems = checkDocs(root);
+      assert.equal(problems.length, 1, JSON.stringify(problems));
+      assert.match(problems[0], /but marketplace\.json registers 2/);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
+
+test("census: non-numeric words before 'plugins' are not count claims", () => {
+  const root = censusFixture({ readme: `A set of composable plugins. The plugins compose.\n${CENSUS_BASE}` });
+  try { assert.deepEqual(checkDocs(root), []); } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("census: enumeration is two-way — a row or install line for an unregistered plugin fails", () => {
+  const cases = [
+    { extra: "| **gamma** | ghost row |\n", expect: /plugins-table row for 'gamma'/ },
+    { extra: "/plugin install gamma@praxisflux\n", expect: /install line for 'gamma'/ },
+  ];
+  for (const c of cases) {
+    const root = censusFixture({ readme: CENSUS_BASE + c.extra });
+    try {
+      const problems = checkDocs(root);
+      assert.equal(problems.length, 1, JSON.stringify(problems));
+      assert.match(problems[0], c.expect);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
+
 test("check-docs: the praxisflux repo itself is in sync", () => {
   assert.deepEqual(checkDocs(repo), []);
 });
