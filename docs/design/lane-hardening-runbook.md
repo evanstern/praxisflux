@@ -8,7 +8,7 @@ description records it (TASK-43's dogfood findings for 53/54; the promptworld pa
 observation for 55; TASK-52's follow-on doctrine for 56). Plan-of-record is the board;
 this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-26
+**Status:** done · operator sign-off on lanes: 2026-07-26 · completed: 2026-07-26
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -118,3 +118,8 @@ this file's log complete and status flipped to done.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-26 | (setup) | #75 | 9237329 | signed-off runbook; TASK-55 both-legs decision recorded |
+| 2026-07-26 | TASK-53 | #76 | 9b49a75 | plant.mjs peersOmitted trace; 0.23.0; dogfood finding #1 closed |
+| 2026-07-26 | TASK-56 | #77 | 5863053 | reorient worktree-first begin + auditable override; 0.24.0 |
+| 2026-07-26 | TASK-55 | #78 | 641459c | paused-lane marker (praxis) + promptworld PR #117 / their TASK-155 (host gate downgrade); 0.25.0 |
+| 2026-07-26 | TASK-54 | #79 | 5b2a4d8 | plant.mjs sticky name + --name override; 0.26.0; dogfood finding #2 closed |
