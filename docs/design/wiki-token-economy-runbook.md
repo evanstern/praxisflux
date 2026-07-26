@@ -7,7 +7,7 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 `vault/Grounded-Wiki-Scaling/Analysis-Token-Economy-for-the-Grounding-Wiki.md` wins.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-26
+**Status:** done · operator sign-off on lanes: 2026-07-26 · completed: 2026-07-26
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -141,3 +141,8 @@ flipped to done.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-26 | (setup) | #56 | 1f53c2f | vault + runbook + TASK-48..51 land on main |
+| 2026-07-26 | TASK-48 | #57 | bb46fa9 | corpus-spec v2 (docs-only); grounded-corpus-spec re-pinned |
+| 2026-07-26 | TASK-51 | #58 | fe612b0 | consumer routing; marketplace 0.14.0; merged first of Lane 2 |
+| 2026-07-26 | TASK-49 | #59 | 49d9656 | capsules generator + gate; rebased, re-bumped 0.15.0 |
+| 2026-07-26 | TASK-50 | #60 | ab11f0d | docs/wiki conformance + CAPSULES.md adoption; hard enforcement green |
