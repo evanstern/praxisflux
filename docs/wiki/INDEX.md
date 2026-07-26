@@ -38,4 +38,6 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 ## Repo operations
 
 - [[build-and-release]] — repo-level tooling + CI/CD: vendoring lib/ into dist/, marketplace generation, version sync, the bump gate, and auto-published GitHub Releases
+- [[release-pipeline]] — the merge-to-main release mechanics: the version-bump gate, ci.yml's PR checks, and release.yml's npm-before-tag publish ordering
+- [[gates-consumption-surface]] — how consumer repos run the gates: the @praxisflux/gates npm package and the composite GitHub Action, pinned in lockstep
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams
