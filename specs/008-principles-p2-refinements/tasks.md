@@ -15,4 +15,5 @@
 ## Prove
 
 - [x] T006 gates green: node --test (167 pass), check-docs, wiki-freshness (27 fresh), bump gate 0.15.0 → 0.16.0; course deferred to the orchestrator per R5 (policy in flight in TASK-41)
-- [ ] T007 board finalized; PR opened — serial merge recorded by the orchestrator
+- [x] T007 board finalized (ACs checked, Done, final summary); PR + serial merge (after
+  TASK-41, per lane doctrine) recorded by the orchestrator in the runbook execution log
