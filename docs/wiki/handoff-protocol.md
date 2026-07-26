@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/handoff-protocol.md
   - lib/handoff.mjs
-verified_against: bb813579099e655a1c486e7a1921164058a03fb2
+verified_against: 20b3d21e47719d15d266a82dc80e1724542cec35
 ---
 
 # The handoff protocol
@@ -55,3 +55,6 @@ by envelope fields (e.g. `{to, kind, ref}`).
 - `markConsumed` returns `false` if the message is absent; `readHandoff` returns `null`.
 - Tracked evidence lives outside `.handoff/`, so a clean `git status` and an enforceable
   gate coexist.
+- The transport is unrelated to `docs/design-inputs/` (tracked session notes and vendored
+  design inputs, renamed from `docs/handoffs/` to end the name-stem collision): payloads
+  ride `.handoff/`, evidence and design inputs live tracked.
