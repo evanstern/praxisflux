@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 18:08'
-updated_date: '2026-07-26 19:54'
+updated_date: '2026-07-26 19:56'
 labels:
   - pdlc
   - gates
@@ -27,6 +27,8 @@ Implement a first-class paused/parked lane marker the tooling understands:
 - Pause provenance: who/when recorded on the card (append-note convention), so a stale pause is auditable.
 
 Related: the reorient run ownership/concurrency rethink tracked host-side as promptworld TASK-148 — same family (cross-session state needs origin-visible ownership/liveness), different artifact. Praxis laws apply: version-lockstep, merge-commit-only, per-task-course.
+
+Spec: specs/015-paused-lane-marker
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -35,7 +37,12 @@ Related: the reorient run ownership/concurrency rethink tracked host-side as pro
 - [ ] #2 check-merge-drift.mjs downgrades paused tasks' branch/worktree findings to non-blocking info in all three modes
 - [ ] #3 pdlc:sweep excludes paused tasks from lane conflict analysis and lists them as untouched in the runbook header
 - [ ] #4 Host repos pick the behavior up via a normal version bump (lockstep law)
+- [ ] #5 Spec phase: Spec
+- [ ] #6 Spec phase: Implement
+- [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
