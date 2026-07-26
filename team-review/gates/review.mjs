@@ -56,6 +56,23 @@ export function gitSnapshot(repo) {
   }
 }
 
+/** Drop `.handoff/` transport entries from a porcelain listing. The handoff transport is
+ *  transient plumbing by doctrine, and on a self-review (invoking root == reviewed target)
+ *  the plugin's own run records land inside the target — the paper trail must never read as
+ *  target mutation. Applied to BOTH sides of the snapshot comparison so records written at
+ *  any point (begin, a second run's begin, abandon, finish) — and old snapshots that already
+ *  captured residue — compare clean, while genuine target changes still differ. */
+export function stripHandoffEntries(porcelain) {
+  if (porcelain == null) return porcelain;
+  return porcelain
+    .split("\n")
+    .filter((line) => {
+      const p = line.slice(3).replace(/^"/, ""); // porcelain v1: XY, space, then the path
+      return !(p === ".handoff" || p.startsWith(".handoff/"));
+    })
+    .join("\n");
+}
+
 /** Extract candidate file citations (`path/to/file.ext` or `file.ext:123`) from report text. */
 export function citations(text) {
   const seen = new Set();
@@ -98,7 +115,7 @@ export function checkReview(run) {
 
   if (run.snapshot?.git) {
     const now = gitSnapshot(target);
-    if (now.head !== run.snapshot.head || now.porcelain !== run.snapshot.porcelain)
+    if (now.head !== run.snapshot.head || stripHandoffEntries(now.porcelain) !== stripHandoffEntries(run.snapshot.porcelain))
       problems.push(`target repo changed during the review (HEAD or working tree differs from the begin snapshot) — a review must be read-only`);
   }
   return problems;

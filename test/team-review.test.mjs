@@ -1,6 +1,7 @@
 // team-review: the read-only review gate (checkReview), the run lifecycle CLI (the only
 // writer), and the Stop-hook paths through the shared gate-runner. Run records are pointed
-// at a scratch dir via $TEAM_REVIEW_HOME so no test touches a real .handoff/.
+// at a scratch dir via $TEAM_REVIEW_HOME so no test touches a real .handoff/ (the
+// self-review tests write a .handoff/ INSIDE their own scratch target, deliberately).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, realpathSync } from "node:fs";
@@ -125,6 +126,24 @@ test("checkReview: a mutated target blocks; restoring it passes again", () => {
     assert.ok(problems.some((p) => /target repo changed during the review/.test(p)), problems.join("; "));
     git(target, "checkout", "--", ".");
     assert.deepEqual(checkReview(run), []);
+  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+});
+
+test("checkReview: .handoff transport residue never reads as target mutation — genuine changes still do", () => {
+  const target = makeTarget();
+  const outside = mkdtempSync(join(tmpdir(), "team-review-out-"));
+  const report = join(outside, "report.md");
+  writeFileSync(report, GOOD_REPORT);
+  const run = makeRun(target, report); // snapshot taken BEFORE any .handoff/ exists
+  try {
+    // self-review shape: run records land inside the target after the snapshot
+    mkdirSync(join(target, ".handoff", "team-review", "runs"), { recursive: true });
+    writeFileSync(join(target, ".handoff", "team-review", "runs", "r1.json"), "{}\n");
+    assert.deepEqual(checkReview(run), []);
+    // a genuine target mutation alongside the residue must still block
+    writeFileSync(join(target, "src", "app.mjs"), "export const a = 2;\n");
+    const problems = checkReview(run);
+    assert.ok(problems.some((p) => /target repo changed during the review/.test(p)), problems.join("; "));
   } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
 });
 
