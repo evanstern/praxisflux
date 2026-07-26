@@ -2,11 +2,14 @@
 //
 // A note is STALE when any path in its `sources:` frontmatter changed after its
 // `verified_against:` pin. Verified with git plumbing against the repo the corpus lives in.
+// Also enforces the v2 token-economy budgets (capsule tier + note size) via
+// ./capsules.mjs — hard once the corpus adopts CAPSULES.md, warn-only before.
 // Never writes to disk (gates/ contract).
-import { readdirSync, readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, isAbsolute, basename } from "node:path";
 import { execFileSync } from "node:child_process";
 import { parseFrontmatter, stripCode, extractWikilinks } from "../lib/markdown.mjs";
+import { checkCapsuleTier, noteFiles } from "./capsules.mjs";
 
 function git(repoRoot, args) {
   return execFileSync("git", args, { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -45,7 +48,7 @@ export function validateFreshness(repoRoot, corpusDir = "docs/wiki") {
     return { fails: [`not a corpus: ${join(dir, "INDEX.md")} missing`], warns, checked: 0 };
   }
 
-  const files = readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "INDEX.md").sort();
+  const files = noteFiles(dir); // INDEX.md and the generated CAPSULES.md are not notes
   const names = new Set(files.map((f) => basename(f, ".md")));
   let checked = 0;
 
@@ -87,6 +90,12 @@ export function validateFreshness(repoRoot, corpusDir = "docs/wiki") {
       if (!names.has(link)) warns.push(`${rel}: [[${link}]] does not resolve to a sibling note`);
     }
   }
+
+  // v2 token-economy budgets (capsule ≤500 chars, body ≤8,000 chars, CAPSULES.md currency):
+  // FAILs once the corpus has adopted CAPSULES.md, WARN-only notices before.
+  const tier = checkCapsuleTier(repoRoot, corpusDir);
+  fails.push(...tier.fails);
+  warns.push(...tier.warns);
 
   return { fails, warns, checked };
 }
@@ -131,7 +140,7 @@ export function planFreshness(repoRoot, corpusDir = "docs/wiki") {
   if (!existsSync(join(dir, "INDEX.md"))) return { head: "", entries, problems: [`not a corpus: ${join(dir, "INDEX.md")} missing`] };
   const head = git(repoRoot, ["rev-parse", "HEAD"]);
 
-  for (const file of readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "INDEX.md").sort()) {
+  for (const file of noteFiles(dir)) {
     const rel = `${corpusDir}/${file}`;
     const text = readFileSync(join(dir, file), "utf8");
     const pin = parseFrontmatter(text)?.verified_against;
