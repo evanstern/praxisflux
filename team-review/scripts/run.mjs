@@ -58,7 +58,24 @@ if (runAsCli(import.meta.url)) {
     if (existsSync(join(root, ".git"))) {
       let ignored = false;
       try { ignored = /(^|\n)\.handoff\/?(\n|$)/.test(readFileSync(join(root, ".gitignore"), "utf8")); } catch { /* no .gitignore */ }
-      if (!ignored) console.error(`warning: ${root}/.gitignore does not cover .handoff/ — add it (handoff transport must never clutter git status)`);
+      if (!ignored && root === target) {
+        // Self-review with the transport un-ignored: the run records land INSIDE the repo
+        // under review. Loud WARN, deliberately not a hard fail — the read-only gate ignores
+        // .handoff/ entries, and self-review must work in repos that never gitignored the
+        // transport; failing here would reintroduce the very block the gate exemption removes.
+        const bar = "!".repeat(76);
+        console.error([
+          bar,
+          "!! WARNING — SELF-REVIEW with .handoff/ not gitignored",
+          `!! Invoking root == reviewed target (${root}): this run's records land INSIDE`,
+          "!! the repo under review. The read-only gate ignores .handoff/ entries, so the",
+          `!! review can still pass — but add '.handoff/' to ${root}/.gitignore`,
+          "!! so the transport never clutters git status.",
+          bar,
+        ].join("\n"));
+      } else if (!ignored) {
+        console.error(`warning: ${root}/.gitignore does not cover .handoff/ — add it (handoff transport must never clutter git status)`);
+      }
     }
     console.log(`run ${id} in flight\n  target:   ${target} (${snapshot.git ? `git @ ${snapshot.head.slice(0, 7)}` : "not a git repo — untouched-check degraded to advisory"})\n  report:   ${report}\n  finish:   node ${process.argv[1]} finish ${id}`);
   } else if (cmd === "finish") {

@@ -25,7 +25,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 44d0a5fa58656651f026f912a84c0e78a433c753
+verified_against: 01939f93fd50929583a195f4a170a9c565e4718e
 ---
 
 # Test suite
@@ -101,8 +101,9 @@ What each file covers:
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
 - `test/team-review.test.mjs` — the review output gate (`checkReview`: sections, citation
   resolution with repeated-basename tolerance, report-inside-target rejection, untouched vs
-  mutated snapshot), the run lifecycle CLI (begin/finish/abandon, same-second id collision)
-  under `$TEAM_REVIEW_HOME`, and the Stop-hook paths through gate-runner `evaluate`.
+  mutated snapshot, `.handoff/` residue exempt), the run lifecycle CLI (begin/finish/abandon,
+  id collisions, the self-review regression — in-repo records pass, mutation still blocks),
+  and the Stop-hook paths through gate-runner `evaluate`.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure

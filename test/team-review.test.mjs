@@ -221,6 +221,39 @@ test("run lifecycle: a same-second begin never overwrites — ids stay distinct"
   } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
 });
 
+// Regression (doc-1): self-review — invoking root == target, .handoff/ NOT gitignored, so the
+// run record lands inside the repo under review. The plugin's own paper trail must not trip
+// its own read-only gate; a genuine target mutation still must.
+test("run lifecycle: self-review with in-repo run records passes untouched, still blocks a mutated target", () => {
+  const target = makeTarget();
+  const outside = mkdtempSync(join(tmpdir(), "team-review-out-"));
+  const report = join(outside, "report.md");
+  const env = { ...process.env };
+  delete env.TEAM_REVIEW_HOME; // records must land at the invoking root — which IS the target
+  delete env.CLAUDE_PROJECT_DIR;
+  try {
+    const begin = cli(env, target, "begin", target, "--report", report);
+    assert.equal(begin.status, 0, begin.stderr);
+    assert.match(begin.stderr, /SELF-REVIEW/, "begin must escalate the gitignore warning on self-review");
+    const id = begin.stdout.match(/run (\S+) in flight/)[1];
+    assert.ok(readdirSync(join(target, ".handoff", "team-review", "runs")).includes(`${id}.json`),
+      "run record must live inside the target repo");
+
+    writeFileSync(report, GOOD_REPORT);
+    const finish = cli(env, target, "finish", id);
+    assert.equal(finish.status, 0, `untouched self-review target must pass: ${finish.stderr}`);
+
+    // a second run over the same target: genuine mutation must still block
+    const begin2 = cli(env, target, "begin", target, "--report", report);
+    assert.equal(begin2.status, 0, begin2.stderr);
+    const id2 = begin2.stdout.match(/run (\S+) in flight/)[1];
+    writeFileSync(join(target, "src", "app.mjs"), "export const a = 2;\n");
+    const blocked = cli(env, target, "finish", id2);
+    assert.equal(blocked.status, 2, "a genuinely mutated target must still block");
+    assert.match(blocked.stderr, /target repo changed during the review/);
+  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+});
+
 // ---------- Stop hook through the shared gate-runner ----------
 
 test("stop hook: blocks an in-flight run in scope, with finish/abandon guidance", () => {
