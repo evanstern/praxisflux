@@ -7,8 +7,8 @@
 
 ## Implement
 
-- [ ] T002 build/README.md: stale scaffold claims gone; real story (skill-only, implement leg) (R2)
-- [ ] T003 repo README build row matches; manifest description fixed + catalog regen if stale (R2)
+- [x] T002 build/README.md: stale scaffold claims gone; real story (skill-only, implement leg) (R2)
+- [x] T003 repo README build row matches; manifest description fixed + catalog regen if stale (R2)
 - [ ] T004 versions: marketplace sync-version; skill bump only if edited (R3)
 - [ ] T005 wiki re-pins per freshness gate; CAPSULES regen if needed
 
