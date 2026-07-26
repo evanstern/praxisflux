@@ -9,8 +9,8 @@ import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { checkReorient, hasAnalysisNote, runsDirFor, reorientGate } from "../reorient/gates/reorient.mjs";
-import { classifyCorpus, detectGrounding } from "../reorient/scripts/run.mjs";
+import { checkReorient, hasAnalysisNote, runsDirFor, reorientGate, ownsRun, describeOwner } from "../reorient/gates/reorient.mjs";
+import { classifyCorpus, detectGrounding, heartbeatOwnedRuns } from "../reorient/scripts/run.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -227,6 +227,130 @@ test("run CLI: begin refuses a missing lens or empty corpus; abandon keeps resid
   assert.equal(run.reason, "user cancelled");
   assert.equal(readdirSync(home).length, 1, "residue kept");
   rmSync(root, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+});
+
+test("run CLI: begin stamps owner + heartbeat; synthesis is run-id-keyed so same-day runs never collide", () => {
+  const root = makeProject();
+  const { home, env } = scratchHome();
+  const envA = { ...env, CLAUDE_CODE_SESSION_ID: "sess-A" };
+  const beginArgs = [runMjs, "begin", root, "--lens", "x", "--corpus", join(root, "research", "Topic-A")];
+  const b1 = spawnSync("node", beginArgs, { encoding: "utf8", env: envA, cwd: root });
+  assert.equal(b1.status, 0, b1.stderr);
+  const id1 = b1.stdout.match(/run (\S+) in flight/)[1];
+  const r1 = JSON.parse(readFileSync(join(home, `${id1}.json`), "utf8"));
+  assert.equal(r1.owner.sessionId, "sess-A");
+  assert.ok(r1.owner.host, "owner records host provenance");
+  assert.ok(r1.heartbeatAt, "begin sets the first heartbeat");
+  assert.ok(r1.synthesis.endsWith(`reorient-${id1}.md`), `run-id-keyed synthesis: ${r1.synthesis}`);
+  assert.ok(b1.stdout.includes("sess-A"), "begin prints the owner");
+
+  // A second same-day run: distinct id, distinct synthesis target, and the collision is
+  // surfaced with the first run's owner + provenance.
+  const b2 = spawnSync("node", beginArgs, { encoding: "utf8", env: { ...env, CLAUDE_CODE_SESSION_ID: "sess-B" }, cwd: root });
+  assert.equal(b2.status, 0, b2.stderr);
+  const id2 = b2.stdout.match(/run (\S+) in flight/)[1];
+  assert.notEqual(id2, id1);
+  const r2 = JSON.parse(readFileSync(join(home, `${id2}.json`), "utf8"));
+  assert.notEqual(r2.synthesis, r1.synthesis, "same-day runs must not collide on one output path");
+  assert.ok(b2.stderr.includes("another run is already in flight") && b2.stderr.includes("sess-A"), b2.stderr);
+  rmSync(root, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+});
+
+test("reorientGate: blocks only the owning session; foreign runs warn only once the heartbeat is stale", () => {
+  const root = makeProject();
+  const { home } = scratchHome();
+  const prevHome = process.env.REORIENT_HOME;
+  const prevProj = process.env.CLAUDE_PROJECT_DIR;
+  process.env.REORIENT_HOME = home;
+  delete process.env.CLAUDE_PROJECT_DIR;
+  try {
+    const now = new Date().toISOString();
+    const run = { ...makeRun(root), id: "owned-1", owner: { sessionId: "sess-A", user: "ua", host: "ha" }, startedAt: now, heartbeatAt: now };
+    writeFileSync(join(home, "owned-1.json"), JSON.stringify(run));
+
+    assert.equal(ownsRun(run, "sess-A"), true);
+    assert.equal(ownsRun(run, "sess-B"), false);
+    assert.equal(ownsRun({ ...run, owner: {} }, "sess-A"), null, "legacy records are undecidable");
+    assert.ok(describeOwner(run).includes("sess-A") && describeOwner(run).includes("ua@ha"));
+
+    const asOwner = evaluate({ session_id: "sess-A" }, [reorientGate], { cwd: root });
+    assert.equal(asOwner.block, true, "the owner is nagged");
+
+    const asOther = evaluate({ session_id: "sess-B" }, [reorientGate], { cwd: root });
+    assert.equal(asOther.block, false, "someone else's run never blocks");
+    assert.equal(asOther.warnings, "", "fresh heartbeat → live elsewhere → silence");
+
+    run.heartbeatAt = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    writeFileSync(join(home, "owned-1.json"), JSON.stringify(run));
+    const asOtherStale = evaluate({ session_id: "sess-B" }, [reorientGate], { cwd: root });
+    assert.equal(asOtherStale.block, false, "even an orphan-looking run never blocks a non-owner");
+    assert.ok(asOtherStale.warnings.includes("orphaned") && asOtherStale.warnings.includes("sess-A"), asOtherStale.warnings);
+    assert.ok(asOtherStale.warnings.includes("takeover"), asOtherStale.warnings);
+
+    // A legacy record (no owner) keeps the old checkout-scoped blocking for every session.
+    writeFileSync(join(home, "owned-1.json"), JSON.stringify(makeRun(root)));
+    assert.equal(evaluate({ session_id: "sess-B" }, [reorientGate], { cwd: root }).block, true);
+  } finally {
+    if (prevHome === undefined) delete process.env.REORIENT_HOME; else process.env.REORIENT_HOME = prevHome;
+    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
+  }
+  rmSync(root, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+});
+
+test("run CLI: abandon is owner-only; takeover is explicit, prints provenance, and transfers ownership", () => {
+  const root = makeProject();
+  const { home, env } = scratchHome();
+  const envA = { ...env, CLAUDE_CODE_SESSION_ID: "sess-A" };
+  const envB = { ...env, CLAUDE_CODE_SESSION_ID: "sess-B" };
+  const begin = spawnSync("node", [runMjs, "begin", root, "--lens", "x", "--corpus", join(root, "research", "Topic-A")], { encoding: "utf8", env: envA, cwd: root });
+  const id = begin.stdout.match(/run (\S+) in flight/)[1];
+
+  const refused = spawnSync("node", [runMjs, "abandon", id, "looked", "orphaned"], { encoding: "utf8", env: envB });
+  assert.notEqual(refused.status, 0, "non-owner abandon must be refused");
+  assert.ok(refused.stderr.includes("owned by another session") && refused.stderr.includes("sess-A"), refused.stderr);
+  assert.ok(refused.stderr.includes("takeover"), refused.stderr);
+  assert.equal(JSON.parse(readFileSync(join(home, `${id}.json`), "utf8")).state, "in-flight", "refusal must not mutate the run");
+
+  const takeover = spawnSync("node", [runMjs, "takeover", id], { encoding: "utf8", env: envB });
+  assert.equal(takeover.status, 0, takeover.stderr);
+  assert.ok(takeover.stdout.includes("previously") && takeover.stdout.includes("sess-A"), takeover.stdout);
+  assert.equal(JSON.parse(readFileSync(join(home, `${id}.json`), "utf8")).owner.sessionId, "sess-B");
+
+  const abandon = spawnSync("node", [runMjs, "abandon", id, "adopted and closed"], { encoding: "utf8", env: envB });
+  assert.equal(abandon.status, 0, abandon.stderr);
+  assert.equal(JSON.parse(readFileSync(join(home, `${id}.json`), "utf8")).state, "abandoned");
+
+  const done = spawnSync("node", [runMjs, "takeover", id], { encoding: "utf8", env: envA });
+  assert.notEqual(done.status, 0, "only in-flight runs can be taken over");
+
+  const list = spawnSync("node", [runMjs, "list"], { encoding: "utf8", env: envA });
+  assert.ok(list.stdout.includes("sess-B") && list.stdout.includes("begun"), `list surfaces owner + provenance: ${list.stdout}`);
+  rmSync(root, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+});
+
+test("heartbeatOwnedRuns: refreshes only in-flight runs owned by the session", () => {
+  const { home } = scratchHome();
+  const prev = process.env.REORIENT_HOME;
+  process.env.REORIENT_HOME = home;
+  try {
+    const old = "2020-01-01T00:00:00.000Z";
+    const mk = (id, sessionId, state = "in-flight") =>
+      writeFileSync(join(home, `${id}.json`), JSON.stringify({ id, state, owner: { sessionId }, startedAt: old, heartbeatAt: old }));
+    mk("mine", "sess-A");
+    mk("theirs", "sess-B");
+    mk("mine-done", "sess-A", "done");
+    assert.equal(heartbeatOwnedRuns("/anywhere", "sess-A"), 1);
+    assert.notEqual(JSON.parse(readFileSync(join(home, "mine.json"), "utf8")).heartbeatAt, old, "owned in-flight run is refreshed");
+    assert.equal(JSON.parse(readFileSync(join(home, "theirs.json"), "utf8")).heartbeatAt, old, "foreign run untouched");
+    assert.equal(JSON.parse(readFileSync(join(home, "mine-done.json"), "utf8")).heartbeatAt, old, "closed run untouched");
+    assert.equal(heartbeatOwnedRuns("/anywhere", null), 0, "no session identity → no writes");
+  } finally {
+    if (prev === undefined) delete process.env.REORIENT_HOME; else process.env.REORIENT_HOME = prev;
+  }
   rmSync(home, { recursive: true, force: true });
 });
 

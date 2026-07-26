@@ -4,7 +4,7 @@ description: The shared Stop-hook harness in lib/gate-runner.mjs — reads Claud
 kind: component
 sources:
   - lib/gate-runner.mjs
-verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
+verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
 ---
 
 # Gate Runner
@@ -18,7 +18,11 @@ the runner runs that plugin's gates additively over every root they resolve.
 ## How it works
 
 A gate is a plain object:
-`{ name, resolveRoots(startDir) -> string[], check(root) -> string[] (problems), warn?(root) -> string[] (non-blocking notices) }`.
+`{ name, resolveRoots(startDir, ctx) -> string[], check(root, ctx) -> string[] (problems), warn?(root, ctx) -> string[] (non-blocking notices) }`.
+`ctx` is `{ sessionId, input }` — the invoking session's identity (hook input `session_id`,
+falling back to `$CLAUDE_CODE_SESSION_ID`, else `null`) plus the raw hook input. Gates that
+scope state to its owning session key off it (the [[reorient-plugin]] run registry); every
+other gate simply ignores the extra argument.
 
 Three exports:
 
@@ -31,18 +35,21 @@ Three exports:
     already re-firing after a block, and honoring this flag prevents infinite stop loops.
   - The start directory is resolved in priority order: `CLAUDE_PROJECT_DIR` env var, then
     `input.cwd` from the hook payload, then `process.cwd()`.
-  - For each gate it calls `resolveRoots(start)`; a throw or falsy result is coerced to `[]`,
-    and **a gate that resolves no roots is a no-op** ("this isn't its kind of project") — with
-    no roots anywhere, nothing blocks.
-  - For each resolved root it collects `check(root)` problems; a crashing `check` becomes the
-    problem string `[<gate name>] crashed on <root>: <message>` rather than a silent pass.
+  - For each gate it calls `resolveRoots(start, ctx)`; a throw or falsy result is coerced to
+    `[]`, and **a gate that resolves no roots is a no-op** ("this isn't its kind of project") —
+    with no roots anywhere, nothing blocks.
+  - For each resolved root it collects `check(root, ctx)` problems; a crashing `check` becomes
+    the problem string `[<gate name>] crashed on <root>: <message>` rather than a silent pass.
   - If the gate defines `warn`, its notices are collected too; a crashing `warn` is ignored
     (warnings are best-effort).
   - `block` is true iff any problems were collected; problems and warnings are each joined
     with newlines into `message` and `warnings`.
 
-- `runStopHook({ gates, exit = process.exit })` — the full harness: read stdin, `JSON.parse`
-  it (malformed or empty input degrades to `{}`), call `evaluate`, then exit.
+- `runStopHook({ gates, before, exit = process.exit })` — the full harness: read stdin,
+  `JSON.parse` it (malformed or empty input degrades to `{}`), call `evaluate`, then exit. The
+  optional `before(input)` callback runs after parsing and before the gates — the hook point
+  for a plugin's own writer module to do session-owned upkeep (reorient heartbeats its run
+  records here); it is awaited, best-effort, and a throw never blocks the stop.
 
 The exit/output contract Claude Code Stop hooks expect: **exit 0** allows the model to stop;
 **exit 2** blocks, and whatever was written to stderr becomes the message the model sees. On
@@ -60,7 +67,9 @@ every plugin as part of the [[chassis]]; covered by the [[test-suite]].
 
 ## Operational notes
 
-- Environment: `CLAUDE_PROJECT_DIR` overrides the hook payload's `cwd` as the search start.
+- Environment: `CLAUDE_PROJECT_DIR` overrides the hook payload's `cwd` as the search start;
+  `CLAUDE_CODE_SESSION_ID` supplies `ctx.sessionId` when the hook input carries no
+  `session_id`.
 - Failure posture is asymmetric by design: a crashing `check` **blocks** (surfaced as a
   problem), a crashing `warn` or `resolveRoots` does not.
 - `exit` is injectable for tests; default is `process.exit`.

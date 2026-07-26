@@ -1,6 +1,6 @@
 ---
 name: reorient-plugin
-description: The reorient plugin — a corpus-grounded reorientation loop where N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and one synthesis lands as board moves; proven by an output gate over per-branch analyses and merged synthesis sections, with a Stop hook over in-flight run records.
+description: The reorient plugin — a corpus-grounded reorientation loop where N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and one synthesis lands as board moves; proven by an output gate over per-branch analyses and merged synthesis sections. Runs are session-owned with run-id-keyed synthesis targets; the Stop gate nags only the owner (reorient-run-ownership).
 kind: component
 sources:
   - reorient/.claude-plugin/plugin.json
@@ -10,13 +10,13 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: dbd03352f4813fea7f87b54deea759eb9a7f414f
+verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
 ---
 
 # reorient plugin
 
 The `reorient` plugin (lockstep with the marketplace version; skill at its own
-`version: 0.2.0`) runs a **corpus-grounded reorientation** of a project's direction: the
+`version: 0.3.0`) runs a **corpus-grounded reorientation** of a project's direction: the
 lead takes N already-gathered corpus branches and a **lens** (the project's purpose
 statement), fans out one evaluator subagent per branch to judge the corpus against the
 project's wiki and board, checkpoints operator decisions between rounds, has the
@@ -44,13 +44,17 @@ README/docs; no board → board moves become a proposed-tasks list) and the gate
 its demands to the manifest — the "Board moves" synthesis section is only required when
 a board was detected, and only `vault-branch` entries must carry an analysis note.
 
-**The run record is the manifest the gate verifies against.** `scripts/run.mjs` (the
-plugin's only writer) opens a run with
-`begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>]`
+**The run record is the manifest the gate verifies against — and it is session-owned**
+([[reorient-run-ownership]] has the full model). `scripts/run.mjs` (the plugin's only
+writer) opens a run with
+`begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>]`
 — refusing an empty lens or corpus — and records lens, classified corpus, detected
-grounding, and the synthesis path (default `docs/design/reorient-<date>.md` under the
-root, else the root itself). `finish` runs the output gate and marks the run `done` only
-on pass; `abandon <id> <reason>` closes with durable residue; ids are
+grounding, the owner (session id + user@host provenance, with a heartbeat the owner's
+Stop hook keeps fresh), and the synthesis path (default `docs/design/reorient-<run-id>.md`
+under the root, else the root itself — **run-id-keyed, never date-keyed**, so concurrent
+same-day runs can't collide on one output). `finish` runs the output gate and marks the
+run `done` only on pass; `abandon <id> <reason>` (owner-only) closes with durable
+residue; `takeover <id>` explicitly adopts a foreign run; ids are
 `<root-basename>-<timestamp>` with a collision suffix. `$REORIENT_HOME` overrides the
 runs dir (tests).
 
@@ -64,13 +68,13 @@ required sections (TL;DR/verdict, Decisions, Course of action, Open questions, a
 moves when a board was detected); and the synthesis **names every corpus branch** — a
 merge that doesn't mention a branch didn't merge it.
 
-**Stop-hook enforcement.** `reorientGate` speaks the `@praxisflux/gates` contract:
-`resolveRoots(startDir)` returns in-flight run records scoped to the session's project
-dir (no runs in scope = no-op), and `check` maps `checkReorient` problems per run with
-finish/abandon guidance appended. `scripts/stop.mjs` is a thin
-`runStopHook({ gates: [reorientGate] })` entry wired through the standard `gate.sh` shim
-(`hooks/hooks.json`; node missing = one-time stderr notice, then exit 0) — an in-flight
-reorientation can't be silently walked away from.
+**Stop-hook enforcement scopes to the owner.** `reorientGate` consumes the
+[[gate-runner]] session `ctx`: an in-flight run blocks **only its owning session**
+(finish/abandon guidance appended); anyone else's run never blocks, at most drawing a
+non-blocking "looks orphaned" notice once its heartbeat goes stale. `scripts/stop.mjs`
+is a thin `runStopHook({ gates: [reorientGate], before })` entry — `before` heartbeats
+this session's runs — through the standard `gate.sh` shim (`hooks/hooks.json`; node
+missing = one-time stderr notice, then exit 0).
 
 **The skill** (`skills/reorient/SKILL.md`) walks six phases in the gate→work→gate shape:
 precondition gate (capture the lens, select corpus branches, detect grounding,
@@ -91,11 +95,10 @@ no-subagent fallback runs the evaluations sequentially in-session; every script 
 stated inline fallback so the skill works hand-copied.
 
 Since skill 0.2.0 the flow consumes the project wiki per [[grounded-corpus-spec]] v2:
-the lead's orientation skim and each evaluator's grounding take the `CAPSULES.md`
-whole-corpus view when present, loading full notes only for claims a report actually
-cites, with `INDEX.md`-first just-in-time loading as the v1 fallback (README/docs when
-no wiki at all). The skill also carries the open A/B question — capsule-only vs
-full-note evaluator grounding quality — for the next run to record findings on.
+orientation and evaluator grounding take the `CAPSULES.md` view when present, loading
+full notes only for cited claims, with `INDEX.md`-first just-in-time loading as the v1
+fallback (README/docs when no wiki at all). The skill carries the open A/B question —
+capsule-only vs full-note evaluator grounding — for the next run to record findings on.
 
 ## Connections
 
@@ -113,15 +116,15 @@ full-note evaluator grounding quality — for the next run to record findings on
 - Covered by the [[test-suite]] (`test/reorient.test.mjs` + the install-path tripping
   fixture).
 - Provenance: formalized from a live reorientation of the promptworld project
-  (2026-07-25) — two vault branches evaluated in parallel under a learning-game lens,
-  eight operator decisions steered mid-flight, cross-grounded analyses, one synthesis,
-  thirteen board moves.
+  (2026-07-25) — two vault branches, eight steered decisions, one synthesis, thirteen
+  board moves; run ownership followed from the 2026-07-26 concurrency incident
+  ([[reorient-run-ownership]]).
 
 ## Operational notes
 
 - Run lifecycle CLI: `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <root> --lens
-  "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] |
-  finish <id|root> | abandon <id|root> [reason] | list`.
+  "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>] |
+  finish <id|root> | abandon <id|root> [reason] | takeover <id|root> | list`.
 - Gate CLI (read-only): `node ${CLAUDE_PLUGIN_ROOT}/gates/reorient.mjs <run.json>` —
   exit 0 pass, 2 with problems on stderr.
 - The default synthesis path is under the project's `docs/design/`; `checkReorient`

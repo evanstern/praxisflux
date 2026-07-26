@@ -1,6 +1,6 @@
 ---
 name: reorient
-version: 0.2.0
+version: 0.3.0
 description: Corpus-grounded reorientation of a project's direction — N parallel evaluator subagents each judge one research branch under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and the lead merges everything into one decisions-and-course-of-action synthesis that executes onto the board. Use when the user wants to "reorient" a project against research, "evaluate the vault branches against our purpose", "merge these analyses into a plan", "run the research → evaluate → synthesize loop", or asks what a body of research means for the roadmap — not for reviewing code (team-review) or gathering new research (research-vault).
 ---
 
@@ -20,6 +20,15 @@ referenced here states an inline fallback — the skill still works hand-copied 
 `gates/` only verifies and never writes; `scripts/run.mjs` is the only state writer. Run
 records ride the gitignored `.handoff/reorient/runs/` transport at the project root —
 transient plumbing; the durable residue is the analyses, the synthesis, and the board.
+
+**Runs are session-owned.** `begin` stamps the manifest with the beginning session's
+identity plus user@host provenance, and the owning session's Stop hook heartbeats it every
+turn. The Stop gate nags **only the owner**; other sessions in the same checkout are never
+blocked by someone else's run — at most they see a non-blocking "looks orphaned" notice
+once the owner's heartbeat goes stale (>1h). `run.mjs list` shows owner, origin, and
+heartbeat age, so live-vs-orphaned is read off the registry, never guessed. Adopting a run
+begun elsewhere is always explicit: `run.mjs takeover <id>` (it prints who held the run,
+from where, since when) — `abandon` refuses a run owned by another session until then.
 
 ## Precondition gate — open the run
 
@@ -41,11 +50,15 @@ transient plumbing; the durable residue is the analyses, the synthesis, and the 
    proposed-tasks list in the synthesis instead of CLI executions.
 4. **Open the tracked run:**
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <project-root> --lens "<lens>" --corpus <branch> [--corpus <branch> ...] [--synthesis <path>]`
-   The default synthesis path is `docs/design/reorient-<date>.md` under the project root —
-   always OUTSIDE every corpus branch (vault isolation forbids the branches from holding
-   the cross-branch connective tissue). *Fallback if the script is missing:* note the
-   lens, corpus list, detected surfaces, and synthesis path in a scratch file yourself and
-   self-check the output gate's properties at the end.
+   The default synthesis path is `docs/design/reorient-<run-id>.md` under the project
+   root — keyed by run id, never by date, so concurrent same-day runs can't collide on
+   one output — and always OUTSIDE every corpus branch (vault isolation forbids the
+   branches from holding the cross-branch connective tissue). `begin` records this
+   session as the run's owner (pass `--session <id>` only when the harness doesn't
+   export `$CLAUDE_CODE_SESSION_ID`) and prints a notice if another run is already in
+   flight for the same root — read who owns it before proceeding. *Fallback if the
+   script is missing:* note the lens, corpus list, detected surfaces, and synthesis path
+   in a scratch file yourself and self-check the output gate's properties at the end.
 
 ## Phase 1 — lead orientation
 
@@ -169,8 +182,11 @@ machinery (specs, implementer dispatch, its constitution). Commit the durable re
 vault branch carries its analysis note, the synthesis exists outside the corpus with the
 required sections (board section only when a board was detected), and every corpus branch
 is named in it. If it blocks, **produce the missing artifact** — don't argue with the
-gate. If the user cancels midway: `run.mjs abandon <run-id> <reason>`. *Fallback if the
-script is missing:* self-check those properties by hand and say so.
+gate. If the user cancels midway: `run.mjs abandon <run-id> <reason>` — abandon is
+owner-only; for a run begun by another session, first `run.mjs takeover <run-id>`
+(explicit adoption, provenance printed) and only after confirming with the user that the
+run is genuinely orphaned (check `run.mjs list` heartbeat ages). *Fallback if the script
+is missing:* self-check those properties by hand and say so.
 
 ## Handing off
 
