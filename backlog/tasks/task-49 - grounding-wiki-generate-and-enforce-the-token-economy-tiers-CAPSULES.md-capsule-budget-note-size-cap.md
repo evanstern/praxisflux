@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 02:31'
-updated_date: '2026-07-26 04:40'
+updated_date: '2026-07-26 04:42'
 labels:
   - wiki-token-economy
 dependencies:
@@ -20,6 +20,8 @@ ordinal: 84000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Implement corpus-spec v2 (TASK-48) in the grounding-wiki plugin: wiki-build and wiki-update generate the CAPSULES.md rollup from note descriptions, and the freshness/corpus gate enforces the new budgets so token economy is a property, not a habit. Released surface: bump plugin skill versions + marketplace per docs/releasing.md.
+
+Spec: specs/003-wiki-capsules-enforcement
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -30,7 +32,12 @@ Implement corpus-spec v2 (TASK-48) in the grounding-wiki plugin: wiki-build and 
 - [ ] #4 CAPSULES.md staleness is detected by the freshness machinery (regenerating it is part of the update pass)
 - [ ] #5 node --test suite covers the new gate checks and rollup generation
 - [ ] #6 Skill version and marketplace version bumped per docs/releasing.md
+- [ ] #7 Spec phase: Spec
+- [ ] #8 Spec phase: Implement
+- [ ] #9 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
