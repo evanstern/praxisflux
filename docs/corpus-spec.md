@@ -25,6 +25,7 @@ External tools can ingest a corpus via a markdown parser and serve it over MCP.
 ```
 <corpus-root>/
   INDEX.md          # required: one line per note — the recall surface
+  CAPSULES.md       # optional, generated: the capsule rollup (see "The capsule tier")
   <name>.md         # one note per concept; filename = frontmatter name + .md
   ...
 ```
@@ -32,6 +33,21 @@ External tools can ingest a corpus via a markdown parser and serve it over MCP.
 A corpus is recognized by an `INDEX.md` whose siblings are frontmattered notes. Producers
 may add their own sentinel (research vaults use `.research-vault`); consumers must not
 require one beyond `INDEX.md`.
+
+## How consumers load a corpus
+
+A corpus grows linearly with its subject; a session's cost must grow only with its task.
+The default loading discipline for every consumer:
+
+1. **`INDEX.md` first, always** — it is the routing surface.
+2. **Notes just-in-time, individually** — route through the index (or the capsules, below)
+   and load only the notes the task needs. Bulk-loading a corpus is never default behavior.
+3. **Whole-corpus orientation reads `CAPSULES.md`**, not the note bodies. Tasks that
+   genuinely need the whole corpus (evaluation, architecture orientation) take the capsule
+   view; where a v1 corpus has no `CAPSULES.md`, fall back to `INDEX.md` plus just-in-time
+   notes.
+4. **Within a note, `##` sections are the addressable unit** — a consumer that needs one
+   aspect of a large note reads that section, not the file.
 
 ## Note core (all dialects)
 
@@ -52,6 +68,41 @@ symbol name, never line numbers.
 Rules:
 - `[[name]]` targets must resolve to a sibling note (or be intentionally reserved in INDEX.md).
 - One concept per note; the note's `description` is its retrieval handle — write it for recall.
+  It is also the note's capsule and carries a budget (see "The capsule tier").
+- Organize the body under `##` headings (a short preamble is allowed). A `##` section is the
+  **sub-note addressable unit**: consumers may load one section alone, so each must stand on
+  its own.
+
+## The capsule tier and CAPSULES.md
+
+Every note's `description:` is its **capsule**: at most 500 characters (~125 tokens),
+written for routing — what the note covers and when to load it — never as a teaser.
+
+`CAPSULES.md` is a **generated** corpus artifact beside `INDEX.md`: for each note, its
+INDEX.md line followed by its capsule. It is the cheap whole-corpus view (~10× cheaper
+than reading the note bodies at current corpus sizes) and is **optional for readers** —
+consumers must not require it (guardrail: a v1 corpus without one stays valid).
+
+`CAPSULES.md` is derived state. Producers regenerate it whenever any `description:`
+changes; hand-editing it is an error. It carries a header naming its generator and the
+corpus commit it was generated at (code dialect), so drift is detectable.
+
+Capsules are drift surfaces. A note edit that changes what the note covers must update
+its capsule in the same pass — the same re-verify discipline that governs pins.
+
+## Note size budget and summary-style splits
+
+A note body (everything below the frontmatter) must stay at or under **8,000 characters**
+(~2k tokens). The budget binds producers at write/update time; readers never reject an
+over-budget note.
+
+At the cap, split **summary-style**: move subtopics into new child notes. The parent
+keeps a one-paragraph summary of each child plus its `[[wikilink]]`; the child links back
+to the parent; `INDEX.md` gains one line per child.
+
+**Minimum-content counter-rule:** never split when the child would hold less than ~1,500
+characters of substance, or would merely duplicate the summary left behind. An over-cap
+parent with nothing splittable is acceptable — flag it, don't butcher it.
 
 ## Provenance dialects
 
@@ -100,4 +151,6 @@ consumers should degrade gracefully: use the note, surface its staleness.
 3. **Producers own their notes' truth.** A consumer that spots an error files it back to
    the producer's process (e.g. run `wiki-update`), it doesn't patch notes ad hoc.
 4. **Spec changes bump the version** in this file's title and must stay readable by
-   existing consumers (additive only within v1).
+   existing consumers. v2 keeps that promise the same way: its artifacts (`CAPSULES.md`)
+   are optional for readers, and its budgets (capsule, note size) bind producers at
+   write/update time — a v1 corpus remains a valid corpus.
