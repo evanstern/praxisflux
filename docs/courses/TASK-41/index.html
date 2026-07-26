@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-41 — The Last Mandatory Course</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #D4A843;
+      --color-accent-hover: #BF9530;
+      --color-accent-light: #FDF5E0;
+      --color-accent-muted: #E0C070;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-41 — The Last Mandatory Course</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="A Rule the Artifacts Outgrew" role="tab" aria-label="Module 1: A Rule the Artifacts Outgrew"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="One Choice, Made Once" role="tab" aria-label="Module 2: One Choice, Made Once"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Snapshots, Not Living Docs" role="tab" aria-label="Module 3: Snapshots, Not Living Docs"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>A Rule the Artifacts Outgrew</h1>
+      <p class="lead">
+        This project had a rule: every finished
+        <span class="term" data-definition="One unit of committed work on the project's kanban board — a card with a description, acceptance criteria, and a status that moves from To Do to Done.">task</span>
+        must leave behind an interactive course — a little teaching website like the one you
+        are reading right now. A lovely idea. This course is about how that rule died, and
+        what replaced it. Yes: you are reading a course about the decision to stop requiring
+        courses. It is the last one that was mandatory.
+      </p>
+      <p>
+        Think of a diary that solemnly promises &ldquo;an entry every single day.&rdquo; For
+        the first week, it delivers. Then life speeds up, entries get skipped — but the
+        promise on page one stays. The diary now <em>lies</em>. In this project, a lying
+        document is the one unforgivable thing.
+      </p>
+    </div>
+
+    <!-- Screen 2: the promise, verbatim -->
+    <div class="screen">
+      <h2>The promise, as written</h2>
+      <p>
+        Here is the actual opening of the old rulebook —
+        <span class="term" data-definition="A Markdown documentation file in this repository, docs/task-courses.md, that defined when and how courses get built. TASK-41 rewrote it.">docs/task-courses.md</span>
+        as it stood before this task. Read the very first word:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">DOC — docs/task-courses.md (before TASK-41)</span>
+          <pre><code>
+<span class="code-line">Every completed task (generally 1:1 with a merged PR) leaves behind a small interactive</span>
+<span class="code-line">course at `docs/courses/TASK-XX/`, built with the codebase-to-course chrome and scoped to</span>
+<span class="code-line">**just that task's work**: the question it answered, what was built, what was learned. The</span>
+<span class="code-line">pattern is borrowed from the-stacks, where it is already standing practice.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">EVERY finished task — no exceptions — must leave behind a small teaching website&hellip;</p>
+            <p class="tl">&hellip;stored in a folder named after the task, and built with the standard course toolkit&hellip;</p>
+            <p class="tl">&hellip;covering only what that one task did: the question, the work, the lessons.</p>
+            <p class="tl">We copied this habit from another project where it was already routine.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        &ldquo;Every completed task.&rdquo; Strong words. Now let&rsquo;s check them against
+        reality — this project has a habit of doing exactly that, because one of its founding
+        principles is that a claim is only worth the
+        <span class="term" data-definition="A durable, checkable output — a file, a folder, a passing test. In this project, artifacts are the proof that work actually happened; claims without artifacts don't count.">artifacts</span>
+        behind it.
+      </p>
+    </div>
+
+    <!-- Screen 3: the audit, as a chat -->
+    <div class="screen">
+      <h2>The audit</h2>
+      <p>
+        Picture the rulebook, the kanban board, and the courses folder having an honest
+        conversation. This is roughly what the review that triggered TASK-41 found. Play it:
+      </p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>Rule check! I promise readers that EVERY completed task leaves behind a course. Board, how many tasks are Done?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="board" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">The Board</span>
+              <p>Sixty-six tasks marked Done.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>Wonderful. Courses folder, you must hold sixty-six course directories then.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="folder" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">F</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">The Courses Folder</span>
+              <p>About ten.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="folder" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">F</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">The Courses Folder</span>
+              <p>In fairness, each course is around two megabytes of generated HTML. I am the heaviest ceremony in the whole methodology. Some tasks are one-line fixes.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>So I claim 66 and reality holds ~10. I am overclaiming — promising coverage the artifacts do not prove. In this repo that is the cardinal sin.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="board" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">The Board</span>
+              <p>Two honest ways out: enforce the rule until reality matches you — or change yourself to match reality. Filing that decision as TASK-41.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Docs drift toward fiction unless something pushes back</strong>
+          <p>Engineers call this <em>documentation drift</em>: the code and the docs describing it slowly diverge, because changing reality never automatically changes the text about it. Mature projects treat a doc&rsquo;s claims like a promise that must be either enforced or withdrawn — never left quietly false.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: why weaken, not enforce -->
+    <div class="screen">
+      <h2>Why weaken the rule instead of enforcing it?</h2>
+      <p>
+        &ldquo;Just follow the rule harder&rdquo; was on the table. Three facts killed it:
+      </p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🏋️</div>
+          <h4 class="pattern-title">Heaviest ceremony</h4>
+          <p class="pattern-desc">~2MB of generated HTML per course — the most expensive ritual in the methodology, demanded even for tiny tasks.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📉</div>
+          <h4 class="pattern-title">~10 of 66 complied</h4>
+          <p class="pattern-desc">When 85% of cases ignore a rule, the rule is not being broken — it is being voted out by the people doing the work.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">🦴</div>
+          <h4 class="pattern-title">Courses fossilize</h4>
+          <p class="pattern-desc">Old courses fail their own quality check whenever the course toolkit upgrades — a problem Module 3 unpacks.</p>
+        </div>
+      </div>
+
+      <p>
+        So the project owner decided: courses become <strong>opt-in</strong>. Not deleted,
+        not disgraced — just no longer demanded for every task. Module 2 shows the mechanism
+        that replaced the mandate.
+      </p>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. A doc that overclaims is treated like a bug: either enforce until reality matches the words, or rewrite the words to match reality. Leaving it quietly false is the one option this project forbids — and here, enforcement was judged too expensive, so the words changed."
+             data-explanation-wrong="Remember the audit chat: the Board named exactly two honest exits. Silently hoping nobody notices was not one of them.">
+          <h3 class="quiz-question">A project doc promises &ldquo;every release gets a demo video,&rdquo; but only 3 of 20 releases have one. Under this project&rsquo;s principles, what are the acceptable responses?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Leave the doc alone — it describes the ideal, and ideals are aspirational</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete the 3 existing videos so the doc and reality at least match at zero</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Either enforce the rule until artifacts match the claim, or rewrite the claim to tell the truth</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — cost versus compliance. When a ritual is the heaviest thing you ask of people and 85% of cases skip it, tightening enforcement punishes everyone for a rule that no longer fits. The cheaper honest fix is to change the rule."
+             data-explanation-wrong="Think about the three cards you just saw: what did the 2MB-per-course weight and the 10-of-66 compliance rate say about the rule itself?">
+          <h3 class="quiz-question">Why did the project weaken the course mandate rather than enforce it harder?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Courses turned out to have no teaching value after all</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The ritual was the methodology&rsquo;s most expensive, most tasks skipped it, and forcing it on every tiny task cost more than it taught</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The tooling for building courses was removed from the project</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>One Choice, Made Once</h1>
+      <p class="lead">
+        What replaces a mandate? The lazy answer is &ldquo;ask every time&rdquo; — and it was
+        explicitly rejected. Asking &ldquo;want a course for this one?&rdquo; at the end of
+        every task just converts a heavy ritual into a nagging one. Instead, each project
+        makes a <strong>standing choice</strong>: decide once, write it down, never get asked
+        again.
+      </p>
+      <p>
+        It works like a coffee subscription, not a coffee counter. You do not re-answer
+        &ldquo;beans or ground? how often?&rdquo; with every delivery — you set a preference
+        once, and every future delivery consults it. Change your mind? Edit the preference,
+        deliberately, once.
+      </p>
+    </div>
+
+    <!-- Screen 2: the three grains -->
+    <div class="screen">
+      <h2>Three grains to choose from</h2>
+      <p>
+        A project picks exactly one of three settings — the <em>grain</em> at which teaching
+        artifacts get made:
+      </p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🔬</div>
+          <h4 class="pattern-title">per-task</h4>
+          <p class="pattern-desc">The old rule, now voluntary: every completed task ships a course in a folder named for the task. Maximum coverage, maximum cost.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">per-feature</h4>
+          <p class="pattern-desc">One course per shipped feature — a whole epic or delivery, named for the feature. Individual tasks ship nothing.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">🚫</div>
+          <h4 class="pattern-title">none</h4>
+          <p class="pattern-desc">No courses at all. The board, the wiki, and git history remain the record. A legitimate choice, honestly stated.</p>
+        </div>
+      </div>
+
+      <p>
+        And the choice must live somewhere durable — a written
+        <span class="term" data-definition="A durable, checkable output — a file, a folder, a passing test. In this project, artifacts are the proof that work actually happened; claims without artifacts don't count.">artifact</span>,
+        not a memory. For most projects that is a <code>courses:</code> line in the project&rsquo;s
+        <span class="term" data-definition="The always-loaded instruction block planted into a project's CLAUDE.md file when it is set up for the praxis development lifecycle — the standing context every AI session reads before working there.">planted grounding block</span>.
+        For this repository itself, it is a &ldquo;Course policy&rdquo; stanza in
+        <code>docs/task-courses.md</code> plus a matching line in the repo&rsquo;s
+        <code>CLAUDE.md</code> workflow.
+      </p>
+    </div>
+
+    <!-- Screen 3: the lifecycle, animated -->
+    <div class="screen">
+      <h2>Watch the choice do its job</h2>
+      <p>
+        Here is the whole lifecycle under a <strong>per-feature</strong> choice — decided
+        once at setup, consulted automatically forever after. Step through it:
+      </p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Day one: the project records its standing choice in its grounding — per-feature"},
+        {"highlight":"flow-actor-2","label":"Months later, a feature ships. Nobody gets asked about courses"},
+        {"highlight":"flow-actor-1","label":"The finishing session consults the recorded choice","packet":true,"from":"actor-2","to":"actor-1"},
+        {"highlight":"flow-actor-1","label":"The grounding answers: per-feature — one course for this whole feature"},
+        {"highlight":"flow-actor-3","label":"A course named for the feature lands in docs/courses/","packet":true,"from":"actor-1","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The course gate checks it once, at build time — then it ships with the feature"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">📜</div>
+            <span>Project grounding</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🚀</div>
+            <span>Shipped feature</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🎓</div>
+            <span>docs/courses/</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: praxisflux's own choice, verbatim -->
+    <div class="screen">
+      <h2>This repo&rsquo;s own answer: per-feature</h2>
+      <p>
+        TASK-41 did not just design the mechanism — it used it. This repository recorded its
+        standing choice as <strong>per-feature</strong>, right in the workflow step that used
+        to carry the mandate. Here is the rewritten step 4 of the repo&rsquo;s
+        <code>CLAUDE.md</code>, exactly as committed:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">DOC — CLAUDE.md, workflow step 4 (after TASK-41)</span>
+          <pre><code>
+<span class="code-line">4. **Finalize** — all ACs checked + DoD checked, write `--final-summary`, set `-s "Done"`, and</span>
+<span class="code-line">   commit. (`backlog instructions task-finalization` is the full checklist.) Courses are</span>
+<span class="code-line">   opt-in, not per-task — praxisflux's standing choice is **per-feature**, a course per</span>
+<span class="code-line">   shipped feature on request (`docs/task-courses.md`).</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">To finish a task: confirm every acceptance box is ticked, write a closing summary, mark it Done&hellip;</p>
+            <p class="tl">&hellip;and commit. Then the sentence that used to demand a course now says: courses are voluntary&hellip;</p>
+            <p class="tl">&hellip;and this repo&rsquo;s recorded preference is one course per shipped feature&hellip;</p>
+            <p class="tl">&hellip;built when asked for — with a pointer to the full policy document.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Configuration over interrogation</strong>
+          <p>This is a classic engineering pattern: replace a repeated runtime question with a declared setting read from config. It kills decision fatigue, makes behavior predictable, and — because the setting is a committed file — leaves a paper trail when it changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — that is exactly the per-feature grain: one course per shipped feature, named for the feature, with individual tasks shipping nothing. Recorded once in the project's grounding, it never needs re-asking."
+             data-explanation-wrong="Look back at the three cards. The team wants teaching artifacts for big deliveries but not for every small card on the board — which grain matches that?">
+          <h3 class="quiz-question">A team wants a course when a major deliverable ships, but finds course-per-task absurd for typo fixes. Which standing choice should they record?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>per-task — and simply skip it for the small ones</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>per-feature — one course per shipped feature, tasks ship nothing</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>none — courses cannot be limited to big deliveries</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — option (a) re-creates per-task-style nagging in disguise. The whole design goal was a standing choice: decided once, written into a durable artifact, consulted silently, changed only deliberately."
+             data-explanation-wrong="Recall the coffee subscription: the point was to stop answering the same question with every delivery. Which option would put the question back?">
+          <h3 class="quiz-question">The mechanism explicitly rejects one design. Which of these would violate the standing-choice idea?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Prompting &ldquo;build a course for this one?&rdquo; at the end of every task</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Recording <code>courses: none</code> and shipping no courses at all</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Editing the recorded choice from per-feature to per-task in a deliberate commit</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Snapshots, Not Living Docs</h1>
+      <p class="lead">
+        One question remained: when a course gets old, must someone <em>maintain</em> it?
+        This project already keeps a set of documents eternally fresh — its
+        <span class="term" data-definition="The project's docs/wiki/ — a set of interlinked notes describing how the code currently works. Each note is pinned to the exact code version it was verified against, and an automated check flags it the moment that code changes.">wiki notes</span>
+        are pinned to code versions and automatically flagged the moment the code moves on.
+        Should courses live under the same regime?
+      </p>
+      <p>
+        TASK-41&rsquo;s answer: <strong>no</strong>. A course is a photograph, not a mirror.
+        A photo of your street in 2019 is not &ldquo;wrong&rdquo; because a bakery closed —
+        it is a true record of 2019. Demanding it stay current would mean re-shooting every
+        photo forever. Courses are declared <strong>snapshot-exempt</strong>: checked once
+        when built, never re-checked after.
+      </p>
+    </div>
+
+    <!-- Screen 2: why — the fossil mechanism, in real code -->
+    <div class="screen">
+      <h2>Why exempt them? Because of this code</h2>
+      <p>
+        The pressure was real, not hypothetical. Every course is checked by a
+        <span class="term" data-definition="An automated pass/fail check that proves an artifact meets its contract — here, that a built course has all required parts. Gates are how this project enforces that status never exceeds proven artifacts.">gate</span>,
+        and part of that gate inspects the
+        <span class="term" data-definition="The shared shell every course is built from — the stylesheet, the JavaScript engines, the page skeleton. Copied into each course folder and stamped with a generation number, like a car's model year.">chrome</span>
+        — the shared toolkit files inside the course folder. Here is the actual check,
+        verbatim from <code>validate.mjs</code>:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — codebase-to-course/skills/codebase-to-course/references/validate.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> STAMP = <span class="code-string">/chrome v(\d+)/</span>;</span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">checkChrome</span>(courseDir) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> fails = [];</span>
+<span class="code-line">  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> f <span class="code-keyword">of</span> [<span class="code-string">"styles.css"</span>, <span class="code-string">"main.js"</span>]) {</span>
+<span class="code-line">    <span class="code-keyword">const</span> p = <span class="code-function">join</span>(courseDir, f);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(p)) { fails.<span class="code-function">push</span>(<span class="code-string">`${f}: missing from ${courseDir}`</span>); <span class="code-keyword">continue</span>; }</span>
+<span class="code-line">    <span class="code-keyword">const</span> m = STAMP.<span class="code-function">exec</span>(<span class="code-function">readFileSync</span>(p, <span class="code-string">"utf8"</span>).<span class="code-function">slice</span>(0, 600));</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!m) fails.<span class="code-function">push</span>(<span class="code-string">`${f} has no chrome version stamp — that's v1, the retired side-by-side renderer. Upgrade: copy the plugin references/ files over this course dir and rebuild (gotchas.md "Stale Chrome").`</span>);</span>
+<span class="code-line">    <span class="code-keyword">else if</span> (+m[1] !== CHROME_VERSION) fails.<span class="code-function">push</span>(<span class="code-string">`${f} is chrome v${m[1]} but this validator is v${CHROME_VERSION} — mixed chrome. Re-copy ALL reference files together, then rebuild.`</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> fails;</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define the pattern to hunt for: a &ldquo;model year&rdquo; stamp like &ldquo;chrome v2&rdquo;.</p>
+            <p class="tl">This is the inspection: hand it a course folder and it reports problems.</p>
+            <p class="tl">Start with an empty list of complaints.</p>
+            <p class="tl">Inspect the two shared toolkit files every course carries: its stylesheet and its engine script.</p>
+            <p class="tl">Work out where that file should sit inside this course folder.</p>
+            <p class="tl">If the file is missing entirely, complain and move on to the next one.</p>
+            <p class="tl">Otherwise read the top of the file and look for the model-year stamp.</p>
+            <p class="tl">No stamp at all? That is the retired first generation — complain, and explain how to upgrade.</p>
+            <p class="tl">Stamp present but the wrong number? Mixed generations — complain about that too.</p>
+            <p class="tl">Close the loop over both files.</p>
+            <p class="tl">Hand back the list of complaints; an empty list means the chrome passes.</p>
+            <p class="tl">&hellip;and that is the whole inspection.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        See the trap? The stamp is compared against the <em>current</em> generation. The day
+        the toolkit bumps from v2 to v3, <strong>every course ever built fails this check</strong>
+        — including the one you are reading. Nothing about their content changed; the world
+        moved. That is a fossil, not a failure.
+      </p>
+    </div>
+
+    <!-- Screen 3: the two regimes, side by side -->
+    <div class="screen">
+      <h2>Two kinds of documents, two contracts</h2>
+      <p>
+        The policy draws one clean line, based on what each document <em>claims</em>:
+      </p>
+
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🪞</div>
+          <div>
+            <strong>Wiki notes — mirrors — must stay fresh</strong>
+            <p>They claim &ldquo;this is how the code is <em>now</em>.&rdquo; That claim rots the moment code changes, so every note is re-verified and re-pinned when its sources move.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">📸</div>
+          <div>
+            <strong>Courses — photographs — are snapshot-exempt</strong>
+            <p>They claim &ldquo;this is what one unit of work <em>was</em>.&rdquo; A claim about the past cannot go stale. The gate applies once, at build time, and never again.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Match the maintenance contract to the claim</strong>
+          <p>This is a deep documentation principle: a doc describing the <em>present</em> needs machinery to keep it true; a doc describing the <em>past</em> only needs to be kept intact. Forcing past-tense records through present-tense freshness checks is ceremony without a consumer — work nobody benefits from.</p>
+        </div>
+      </div>
+
+      <p>
+        The same honesty applies to history. Courses exist for only a <em>subset</em> of Done
+        tasks — the ones built while the old mandate was in force. The new policy does not
+        retroactively demand the missing ones, and it does not delete the existing ones. They
+        stand as what they are: snapshots of the mandate era. And this course —
+        <code>docs/courses/TASK-41/</code>, documenting the policy change itself — is the
+        last one built because a rule said so.
+      </p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. Courses are snapshot-exempt: the gate applies at build time only, so a fossil failing a later re-run is expected and fine. Old courses are neither re-chromed nor deleted — they remain true records of the work they describe."
+             data-explanation-wrong="Think of the photograph metaphor and the checkChrome code: the stamp comparison guarantees every old course fails after a bump. Did the policy treat that as damage to repair, or as expected behavior to stop measuring?">
+          <h3 class="quiz-question">The chrome toolkit bumps from v2 to v3, and all twenty existing courses now fail <code>checkChrome</code>. Under the new policy, what happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A sweep re-copies v3 chrome into all twenty courses and rebuilds them</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The failing courses are deleted — a red gate cannot be left in the repo</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — the gate only ever applied at build time, and the old courses stand as snapshots</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the wiki note claims to describe the present, so the code change makes it false and it must be re-verified and re-pinned. The course describes what the task's work was, a past-tense claim the refactor cannot invalidate."
+             data-explanation-wrong="Apply the mirror-versus-photograph line: which of the two documents claims to describe how the code is NOW?">
+          <h3 class="quiz-question">A refactor renames a module that both a wiki note and an old course mention. Which document must be updated, and why?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Both — every document mentioning the old name is now wrong</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the wiki note — it claims to describe the present; the course records the past</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the course — courses are the teaching artifact, so they take priority</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Screen 5: closing -->
+    <div class="screen">
+      <h2>What TASK-41 leaves behind</h2>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>An honest rulebook</strong>
+            <p><code>docs/task-courses.md</code> rewritten: opt-in via a standing per-project choice — per-task, per-feature, or none — with the historical gap stated plainly</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>A recorded choice</strong>
+            <p>This repo picked per-feature, written into the policy doc and the CLAUDE.md workflow — the mandate line is gone</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>A freshness stance</strong>
+            <p>Courses are snapshot-exempt: gated once at build time, never re-pinned, never deleted for aging</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>This course</strong>
+            <p>The last mandatory one — a snapshot of the moment the project decided snapshots were enough</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

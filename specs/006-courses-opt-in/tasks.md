@@ -15,6 +15,6 @@
 
 ## Prove
 
-- [ ] T007 docs/courses/TASK-41 built (last mandatory course), gate green
+- [x] T007 docs/courses/TASK-41 built (last mandatory course), gate green
 - [ ] T008 gates green: node --test, check-docs, wiki-freshness
 - [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator
