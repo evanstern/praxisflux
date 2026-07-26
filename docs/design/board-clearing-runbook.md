@@ -8,7 +8,7 @@ description records its ratified owner decision (team-review follow-ups of 2026-
 TASK-32's ratified refinements, the Coda upstream requests) — those win. Plan-of-record
 is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-26
+**Status:** done · operator sign-off on lanes: 2026-07-26 · completed: 2026-07-26
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -166,3 +166,12 @@ flipped to done.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-26 | (setup) | #62 | 8b218c5 | signed-off runbook lands on main |
+| 2026-07-26 | TASK-41 | #63 | 7a27021 | courses opt-in (per-feature for praxisflux); last mandatory course; docs-only |
+| 2026-07-26 | TASK-33 | #64 | 221c5b1 | P2 refinements + template sync; 0.16.0; clean rebase, pins re-stamped |
+| 2026-07-26 | TASK-42 | #65 | d70fa45 | team-review self-review fix; 0.17.0 after re-bump |
+| 2026-07-26 | TASK-43 | #66 | 989cae5 | bootstrap dogfood: planted block append-proven, .pdlc, .handoff ignored; self-review e2e |
+| 2026-07-26 | TASK-34 | #67 | 27b3764 | P3 + spec-bridge phase vocabulary (parity by construction); 0.18.0; Coda unblocked |
+| 2026-07-26 | TASK-37 | #68 | 8074491 | build/ stays listed, docs truthful; 0.19.0 |
+| 2026-07-26 | TASK-40 | #69 | e211912 | enforcement honesty: framing, column (5 Stop-hook plugins), gate.sh notice, census gate; 0.20.0 |
+| 2026-07-26 | TASK-38 | #70 | 543056b | docs/handoffs -> docs/design-inputs; transport untouched; 0.21.0 |
