@@ -24,9 +24,15 @@
       reads as target mutation — genuine changes still do` (gate unit).
 - [x] T005 versions: team-review skill 1.0.0 → 1.1.0 (self-review note added to SKILL.md);
       marketplace + all plugin.json + action.yml pin → 0.16.0 via sync-version.mjs (R4)
-- [ ] T006 wiki: team-review-plugin note re-verified + re-pinned (two-step); CAPSULES.md if needed
+- [x] T006 wiki: team-review-plugin note re-verified + re-pinned (two-step: body updated for
+      the gate exemption, escalated WARN, self-review placement, skill 1.1.0 — then pinned);
+      test-suite note re-verified (team-review bullet) within budget; lockstep-stamp stales
+      hand-reviewed (all quoted literals historical) and re-pinned; descriptions unchanged,
+      so CAPSULES.md needed no regeneration
 
 ## Prove
 
-- [ ] T007 gates green: node --test, check-docs, wiki-freshness (+ course iff policy in force demands)
+- [x] T007 gates green: node --test 169/169 pass, check-docs in sync, wiki-freshness OK 27
+      notes (course deliberately not built — orchestrator decides the obligation at merge
+      time per the in-flight policy change)
 - [ ] T008 board finalized; PR opened — serial merge recorded by the orchestrator
