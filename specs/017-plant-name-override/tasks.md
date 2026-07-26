@@ -47,11 +47,10 @@
 
 ## Prove
 
-- [x] T006 gates green: `node --test` 208/208 pass; check-docs "README.md and CLAUDE.md
-  are in sync with the repo"; wiki-freshness "OK: 28 note(s) fresh against their pinned
-  sources" with zero warnings; bump gate: every substantive check passes (released
-  surface touched ⇒ marketplace 0.23.0 → 0.24.0, bootstrap skill 0.4.0 → 0.5.0 — the
-  gate's ONLY complaint is "v0.24.0 is already released (tag exists)": TASK-56 merged
-  mid-flight and took 0.24.0, the exact sibling collision spec R3 pre-assigns to the
-  orchestrator's post-rebase re-bump; this branch stays internally consistent at 0.24.0)
+- [x] T006 gates green (post-rebase onto origin/main at 641459c, after TASK-56 v0.24.0
+  and TASK-55 v0.25.0): `node --test` 210/210 pass (main's 206 + this task's 4 net-new);
+  check-docs "README.md and CLAUDE.md are in sync with the repo"; wiki-freshness
+  "OK: 28 note(s) fresh against their pinned sources" with zero warnings; bump gate
+  "version bump ok: 0.25.0 → 0.26.0" (pre-rebase it had flagged the v0.24.0 tag
+  collision — resolved by this re-bump)
 - [ ] T007 board finalized; PR opened — serial merge recorded by the orchestrator
