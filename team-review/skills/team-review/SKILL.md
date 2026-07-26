@@ -1,6 +1,6 @@
 ---
 name: team-review
-version: 1.0.0
+version: 1.1.0
 description: Run a lead-engineer-plus-team architecture review of a codebase using parallel subagents, producing one consolidated, evidence-backed report — what's good, what could be improved, what should be removed, steal-worthy patterns, new ideas, and open questions. Use whenever the user asks to review, audit, assess, or critique a codebase, repo, or project ("what do you think of this code", "give me a code review of this repo", "fresh eyes on this", "what would you keep/change/remove", "what's worth stealing from this"), wants a second opinion on an architecture, or asks how well a codebase serves a stated product goal — even if they don't use the word "review". Not for reviewing a single diff or PR (use a diff-review flow for that).
 ---
 
@@ -20,7 +20,9 @@ Helper scripts live in this plugin's base directory (`${CLAUDE_PLUGIN_ROOT}`). E
 stated inline fallback — the skill must still work hand-copied without them. `gates/` only
 verifies and never writes; `scripts/run.mjs` is the only state writer. Run records ride the
 gitignored `.handoff/team-review/runs/` transport at the *invoking* project's root — transient
-plumbing, never inside the reviewed repo; the report is the durable residue.
+plumbing, never inside the reviewed repo; the report is the durable residue. Self-review
+(target == invoking root) is the sanctioned exception: records land in-repo, the read-only
+gate ignores `.handoff/` residue, and `begin` warns loudly if the transport isn't gitignored.
 
 ## Precondition gate — open the run
 

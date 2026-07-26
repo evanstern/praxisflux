@@ -22,7 +22,8 @@
       — `run lifecycle: self-review with in-repo run records passes untouched, still blocks
       a mutated target` (CLI, doc-1 repro) + `checkReview: .handoff transport residue never
       reads as target mutation — genuine changes still do` (gate unit).
-- [ ] T005 versions: team-review skill + marketplace sync-version (R4)
+- [x] T005 versions: team-review skill 1.0.0 → 1.1.0 (self-review note added to SKILL.md);
+      marketplace + all plugin.json + action.yml pin → 0.16.0 via sync-version.mjs (R4)
 - [ ] T006 wiki: team-review-plugin note re-verified + re-pinned (two-step); CAPSULES.md if needed
 
 ## Prove
