@@ -1,27 +1,18 @@
 ---
 name: build-and-release
-description: Repo-level tooling and CI/CD — packages each plugin self-contained into dist/, stages the @praxisflux/gates npm package, keeps catalog and versions consistent, enforces version bumps on released-surface PRs, and auto-publishes npm + a GitHub Release per merged version.
+description: Repo-level build tooling, the hub of the release story — packages each plugin self-contained into dist/ (build.mjs) and keeps the marketplace catalog, lockstep versions, stamped shared regions, and grounding docs consistent. Load for how in-repo plugin sources become installable packages; the merge-to-main release mechanics live in [[release-pipeline]] and the external npm-package/composite-action surface in [[gates-consumption-surface]].
 kind: pipeline
 sources:
   - scripts/build.mjs
-  - scripts/build-npm.mjs
-  - scripts/run-gates.mjs
-  - action.yml
-  - docs/consuming-gates.md
   - scripts/sync-shared.mjs
   - scripts/gen-marketplace.mjs
   - scripts/sync-version.mjs
-  - scripts/check-version-bump.mjs
   - scripts/check-docs.mjs
   - scripts/stop-docs.mjs
   - .claude/settings.json
   - .claude-plugin/marketplace.json
-  - .github/workflows/ci.yml
-  - .github/workflows/release.yml
   - .githooks/pre-commit
-  - .githooks/pre-push
-  - docs/releasing.md
-verified_against: 71583139458b731d017c367c5bd60686c6037790
+verified_against: 2fcc5f24a7e4e8e80b3ae189ee3d3a6b28fdfe2a
 ---
 
 # Build and release
@@ -52,17 +43,6 @@ dereferences marketplace-internal symlinks into the cache copy). A drift guard w
 top-level directory that has a `.claude-plugin/plugin.json` but is missing from
 marketplace.json, since it would silently not be built.
 
-**npm package staging** (`scripts/build-npm.mjs`, run as
-`node scripts/build-npm.mjs [--out <dir>]`, default `dist/npm/`). Carves the gate surface into
-an installable npm package (`PACKAGE_NAME`, `@praxisflux/gates`): the same `scripts/run-gates.mjs`
-the action uses, root `lib/`, each gate plugin's `gates/` dir, the plugin-local `lib` symlinks
-materialized as real copies (npm cannot pack symlinks — the build fails on any symlink in the
-output), and the course gate's `validate.mjs` reference. `package.json` is generated from
-`marketplace.json`, so the npm version is lockstep by construction; `docs/consuming-gates.md`
-ships as the README, root `LICENSE` (MIT) rides along, and the bin `praxisflux-gates` points at the
-runner. `test/build-npm.test.mjs` packs the tree and drives the bin through a
-`node_modules/.bin` symlink, asserting the contract exit codes.
-
 **Catalog consistency** (`scripts/gen-marketplace.mjs`). Generative, not just a re-sync: the
 exported `genMarketplace(repo)` regenerates each registered entry's `name` and `description`
 from that plugin's own `.claude-plugin/plugin.json` (preserving the marketplace's top-level
@@ -80,15 +60,13 @@ reports the pins it found — a vanished pin fails loudly in both modes. Version
 **lockstep**: the marketplace `version` is the single release version and everything else
 follows it.
 
-**Bump enforcement** (`scripts/check-version-bump.mjs`, `--base <ref>` defaulting to
-`origin/main`). Evaluates the committed range `merge-base(base, HEAD)..HEAD` with a pure
-`evaluate()` core over git-gathered data. If the diff touches **released surface** — any
-registered plugin dir, `lib/`, `scripts/`, or `.claude-plugin/` — the marketplace version must
-be a strict semver increase over the base's, and the tag `v<version>` must not already exist;
-`docs/`, `backlog/`, `test/`, `.github/`, `.githooks/`, and root markdown are exempt. A change
-under `<plugin>/skills/<skill>/` additionally requires that skill's SKILL.md frontmatter
-`version:` to increase (a skill gaining its first `version:` counts as bumped; a deleted skill
-is skipped). Every SKILL.md carries a `version:` for this purpose.
+**Release mechanics — [[release-pipeline]].** Merges to `main` release automatically, no
+manual step: CI verifies every PR, the bump gate (`scripts/check-version-bump.mjs`) refuses
+released-surface changes whose marketplace version didn't increase, and the release workflow
+publishes the npm package **before** creating the tag `v<version>` and its GitHub Release —
+so a released tag always resolves a live npm version. The workflows, the bump and skill-bump
+rules, OIDC trusted publishing, and the idempotent re-run behavior live in
+[[release-pipeline]].
 
 **Docs-sync enforcement** (`scripts/check-docs.mjs`, `scripts/stop-docs.mjs`). The grounding
 docs are treated as release artifacts too. `check-docs.mjs` verifies README.md names every
@@ -99,42 +77,12 @@ run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.m
 `lib/gate-runner`, wired by the tracked `.claude/settings.json`) that blocks ending a session
 turn while either fails.
 
-**CI and release workflows.** `.github/workflows/ci.yml` runs on every PR (and main):
-`node --test`, `gen-marketplace.mjs --check`, `sync-version.mjs --check`, a full `build.mjs`
-package run, `check-docs.mjs`, the wiki freshness gate, and — PRs only — the bump gate
-against `origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags
-resolve). A second job, `install-path`, re-runs `test/install-path.test.mjs` on its own:
-the marketplace install simulation that copies each hook-shipping plugin with its `lib`
-symlink dereferenced and spawns its Stop hook end-to-end — the file also runs inside the
-main `node --test` step, but the separate job keeps the install-path signal its own visible
-check. `.github/workflows/release.yml` runs on
-each push to `main`: it reads the marketplace version and, when tag `v<version>` is new,
-re-verifies, publishes the npm package, builds, zips each `dist/<plugin>` as
-`<plugin>-v<version>.zip`, and publishes a GitHub Release `v<version>` with generated notes
-(`gh release create`, `contents: write`). The npm step (`build-npm.mjs` then
-`npm publish --access public`, authenticated by **OIDC trusted publishing** — `id-token:
-write` plus the npmjs.com trusted-publisher entry for this repo/workflow, which also names
-the `npm` GitHub environment (the release job declares `environment: npm` so the OIDC token
-carries the matching claim); provenance is
-automatic, npm is upgraded in-step since trusted publishing needs >= 11.5.1, and a present
-`NPM_TOKEN` secret acts only as bootstrap/break-glass fallback) deliberately runs **before**
-the release step that creates the tag, so a released tag can never exist whose npm version
-isn't already live. When the tag already exists (a docs-only merge or re-run) it publishes nothing, and a
-re-run after a partial failure skips the npm half if that version is already on the registry —
-idempotent by construction. Bump-size guidance (patch/minor/major, the skill rule, recipes) lives in
-`docs/releasing.md`, linked from `CLAUDE.md`.
-
-**CI consumption surface** (`action.yml` + `scripts/run-gates.mjs` + `@praxisflux/gates`). The
-repo doubles as a composite GitHub Action: consumer repos run the gates at a pinned release
-tag with `uses: evanstern/praxisflux@v<version>` and a validated `gates:` input (`spec-bridge`,
-`wiki-freshness`, `course`; unknown names fail loudly). The action's internals run
-`npx --yes @praxisflux/gates@<pin>` — the npm package staged by `build-npm.mjs`, its pin stamped
-in lockstep by `sync-version.mjs` and guaranteed live before the tag exists by the release
-ordering above (the TASK-17 migration; the run-from-checkout era ended with it). Non-GitHub
-CI and local one-offs call `npx @praxisflux/gates` directly. Either way `run-gates.mjs` maps gate
-names onto the existing gate functions against the consumer workspace. Exit codes are the
-contract (0 pass · 1 gate failure · 2 usage error); `wiki-freshness` detects shallow clones
-and names the `fetch-depth: 0` fix. Consumer-facing docs: `docs/consuming-gates.md`.
+**External consumption — [[gates-consumption-surface]].** The gates run in repos that don't
+carry praxisflux: `scripts/build-npm.mjs` stages the `@praxisflux/gates` npm package
+(version lockstep by construction), and `action.yml` makes the repo double as a composite
+GitHub Action that runs `npx @praxisflux/gates@<pin>` at a pinned release tag. The shared
+runner (`scripts/run-gates.mjs`), the package contents, and the exit-code contract are
+described in [[gates-consumption-surface]].
 
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
@@ -157,12 +105,12 @@ nothing — it is throwaway build output, recreated from scratch on every `build
   [[pdlc-plugin]], and [[team-review-plugin]], as registered in the marketplace file.
 - The stamped theme regions originate in the HTML base described in [[chassis-utilities]];
   the tooltip regions come from the [[toolkit]].
-- Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`,
-  `test/version-bump.test.mjs` covers the bump gate (including an end-to-end run over a
-  throwaway git repo), the pre-commit hook runs the `--check` validators, and the pre-push
-  hook mirrors the bump gate locally (CI stays authoritative — `core.hooksPath` is per-clone).
-- The bump gate is the release-side instance of the [[gates-convention]] ("status can't
-  exceed proven artifacts", here: a release can't ship without its version bump).
+- Split summary-style per `docs/corpus-spec.md` v2: [[release-pipeline]] carries the bump
+  gate + CI + release workflows; [[gates-consumption-surface]] carries the npm package and
+  the composite action.
+- Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`, and the
+  pre-commit hook runs the `--check` validators (CI stays authoritative —
+  `core.hooksPath` is per-clone).
 - The repo-level-tooling rule itself is part of [[skill-patterns]].
 
 ## Operational notes
@@ -170,16 +118,12 @@ nothing — it is throwaway build output, recreated from scratch on every `build
 - All scripts are zero-dependency Node (`node:` builtins plus the `lib/` chassis) and locate
   the repo root relative to their own file, so they work from any cwd.
 - Every script's run-as-CLI entry uses `runAsCli` from `lib/cli.mjs`, which realpaths both
-  `import.meta.url` and `process.argv[1]` before comparing — Node resolves the former through
-  symlinks but leaves the latter as typed, so the naive equality check made any invocation
-  through a symlinked checkout path silently run zero of the CLI body (for `run-gates.mjs`,
-  a green exit having checked nothing). `test/run-gates.test.mjs` regression-covers the
-  symlinked invocation.
+  `import.meta.url` and `process.argv[1]` before comparing, so invocation through a
+  symlinked checkout path still runs the CLI body (the failure mode this fixed is detailed
+  in [[gates-consumption-surface]]).
 - Check modes for CI/hooks: `gen-marketplace.mjs --check`, `sync-version.mjs --check`,
   `sync-shared.mjs --check` — each exits 1 with a message naming the fix.
 - `build.mjs` exits 1 on an unknown `--plugin` name; the unregistered-plugin case only warns.
-- `check-version-bump.mjs` exits 0 on pass, 1 on failures (each error names the fix), 2 when
-  the base ref can't be resolved (fetch it first).
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
 - Marketplace version at any commit: `.claude-plugin/marketplace.json`'s `version` (`v0.2.0` was the pipeline's first
   self-published release; `0.5.0` is the first to publish `@praxisflux/gates` to npm).

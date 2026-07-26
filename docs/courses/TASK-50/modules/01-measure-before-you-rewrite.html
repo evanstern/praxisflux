@@ -1,0 +1,172 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">Measure Before You Rewrite</h1>
+      <p class="module-subtitle">The task everyone saw coming — and the audit that changed its shape</p>
+
+      <p>TASK-49 built the machinery: a generator for the wiki's summary binder
+      (<code>CAPSULES.md</code>) and size checks inside the project's
+      <span class="term" data-definition="An automated checkpoint that inspects work and refuses to let it pass while problems remain. This project runs gates before commits, before merges, and in CI.">gate</span> —
+      but it shipped with the safety on. Until a wiki generates its binder, the checks only
+      <em>warn</em>. TASK-50 is the adoption task: make this project's own wiki obey the two
+      size limits (every note blurb under 500 characters, every note body under 8,000), then
+      generate the binder and let enforcement go live.</p>
+
+      <p>The task's contract predicted the work: "several descriptions exceed the 500-char
+      budget, and <code>build-and-release.md</code> is 11,742 characters." So the first move
+      was not to start rewriting — it was to <strong>measure everything first</strong>, using
+      the exact same measuring functions the gate itself uses.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📏</div>
+        <div class="callout-content">
+          <strong class="callout-title">Same ruler as the referee</strong>
+          <p>The audit imported <code>noteBody</code> and the blurb-reading helper straight
+          from the gate's own module. If you measure with your own ruler, you can pass your
+          audit and still fail the referee's. Borrowing the enforcer's ruler makes that
+          disagreement impossible.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the audit code -->
+    <div class="screen">
+      <h2 class="screen-heading">The whole audit, six lines</h2>
+      <p>One small script walked all 25 notes and reported anything over either limit:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">the measurement pass (simplified)</span>
+          <pre><code>
+<span class="code-line">for (const file of noteFiles("docs/wiki")) {</span>
+<span class="code-line">  const note = read(file);</span>
+<span class="code-line">  const blurb = description(note).length;</span>
+<span class="code-line">  const body = noteBody(note).length;</span>
+<span class="code-line">  if (blurb &gt; 500 || body &gt; 8000) report(file, blurb, body);</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Go through every note in the wiki, one at a time — using the gate's
+            own list of what counts as a note.</p>
+            <p class="tl">Open the note.</p>
+            <p class="tl">Measure its blurb — the one-line description a reader skims to
+            decide whether the note is worth opening.</p>
+            <p class="tl">Measure its body — everything below the note's header block, again
+            with the gate's own definition of "body".</p>
+            <p class="tl">If either measurement breaks its limit — 500 characters for the
+            blurb, 8,000 for the body — write the note's name and numbers down.</p>
+            <p class="tl">Next note.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the finding, as a conversation -->
+    <div class="screen">
+      <h2 class="screen-heading">What the audit actually found</h2>
+      <p>The result reshaped the task:</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">O</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Task contract</span>
+              <p>Expect several oversized blurbs to rewrite, plus one 11,742-character note
+              to split.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Audit</span>
+              <p>Blurbs: zero over budget. The longest is 467 characters — under the
+              500 limit. All twenty-five pass as written.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Audit</span>
+              <p>Bodies: exactly one over — build-and-release.md at 11,742 characters,
+              3,742 past the cap. The next largest is 7,930, safely under.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">✓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">Gate</span>
+              <p>Confirmed — my warn-only run flags the same single note, and nothing else.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">✂️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The work shrank — honestly</strong>
+          <p>The contract's own rule settled what to do next: <em>notes within budget stay
+          untouched</em>. No rewriting blurbs that already pass, no "improving" things the
+          measurement cleared. The violation list — one note — became the whole of Module 2,
+          and the measurement itself was recorded in the task's paper trail.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the contract says conformant notes stay untouched, and the measurement (taken with the gate's own functions, confirmed by the gate's own run) is the evidence. Recording the finding keeps the paper trail honest; rewriting passing notes would be silent scope expansion."
+             data-explanation-wrong="The audit used the gate's own measuring functions and the gate's own run agreed with it. When the referee's ruler says everything passes, acting on the prediction instead of the measurement means editing 25 files for no reason.">
+          <h3 class="quiz-question">The task contract predicted several oversized blurbs;
+          careful measurement found zero. What is the right move?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Rewrite the longest blurbs anyway — the contract expected rewrites</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Record the measurement, touch nothing that passes, and move to the one real violation</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Lower the budget to 450 so the prediction becomes true</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

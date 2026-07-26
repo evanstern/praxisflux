@@ -1,0 +1,170 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: how to shrink a note without losing anything -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">One Note, Split Summary-Style</h1>
+      <p class="module-subtitle">The 11,742-character note becomes a hub and two children — nothing deleted, everything findable</p>
+
+      <p>The oversized note, <code>build-and-release.md</code>, described the project's
+      entire build-and-release story in one file: packaging, catalogs, version rules, CI,
+      publishing, and the surface other projects consume. The wiki contract's fix is called a
+      <span class="term" data-definition="The parent note keeps a one-paragraph summary of each moved subtopic plus a link to the new child note; the child links back; the wiki's table of contents gains one line per child.">summary-style split</span>:
+      move coherent subtopics into new child notes, and leave a short summary plus a link
+      where each one used to be.</p>
+
+      <p>The judgment call is the word <em>coherent</em>. You split by subject, not by
+      arithmetic — and the contract forbids children with less than about 1,500 characters of
+      real substance, so you can't hit the number by scattering confetti. Two natural
+      children emerged:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚀</div>
+          <h4 class="pattern-title">release-pipeline</h4>
+          <p class="pattern-desc">The merge-to-main mechanics: the version-bump rule on
+          changed code, the checks every proposal runs, and the publish-then-tag ordering
+          that makes releases safe to automate.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">gates-consumption-surface</h4>
+          <p class="pattern-desc">How <em>other</em> projects run this project's checks: the
+          installable package, the plug-in CI action, and the exit-code contract they share.</p>
+        </div>
+      </div>
+
+      <p>The parent kept everything else — packaging, catalog, version sync — plus one
+      summary paragraph and a link per child. Each child links back. The wiki's table of
+      contents gained exactly two lines, added without rearranging anything that existed.
+      After the split: parent 7,635 characters, children 4,437 and 3,494. All under the cap,
+      each child well over the substance floor.</p>
+    </div>
+
+    <!-- Screen 2: a child's passport -->
+    <div class="screen">
+      <h2 class="screen-heading">A child note is born with its own passport</h2>
+      <p>In this wiki, every note must prove itself: it lists the code files it describes and
+      the exact project snapshot its claims were last checked against. A child can't inherit
+      the parent's paperwork — it gets its own, listing only <em>its</em> files:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">release-pipeline.md — the header (abridged)</span>
+          <pre><code>
+<span class="code-line">name: release-pipeline</span>
+<span class="code-line">kind: pipeline</span>
+<span class="code-line">sources:</span>
+<span class="code-line">  - .github/workflows/release.yml</span>
+<span class="code-line">  - scripts/check-version-bump.mjs</span>
+<span class="code-line">verified_against: 2fcc5f24a7e4…</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">This note's identity — its filename and the name other notes use to
+            link to it.</p>
+            <p class="tl">What kind of thing it describes: a pipeline, a process that runs in
+            stages.</p>
+            <p class="tl">"Here are the exact files I make claims about" — the note's scope,
+            no more and no less.</p>
+            <p class="tl">The recipe that publishes a release…</p>
+            <p class="tl">…and the script that refuses code changes arriving without a
+            version bump. Only the files whose claims <em>moved here</em> — the parent keeps
+            listing the files it still describes.</p>
+            <p class="tl">"…and every claim above was checked against the project exactly as
+            it stood at this snapshot." This is the pin the freshness gate verifies forever
+            after: if either source file changes later, the gate flags this note as stale.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-content">
+          <strong class="callout-title">Verified means re-read, not copied</strong>
+          <p>Moving a paragraph is easy; the discipline is that every moved claim was
+          <em>re-checked against the actual code</em> before the child's pin was written.
+          The project's rule is blunt about why: a dishonest pin is worse than a stale note —
+          it converts "possibly outdated" into "certified wrong."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the two-step pin -->
+    <div class="screen">
+      <h2 class="screen-heading">Why the pin takes two commits</h2>
+      <p>There's a bootstrap problem hiding in that <code>verified_against</code> line. Step
+      through it:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The split is written: parent trimmed, two children created, table of contents updated"},
+        {"highlight":"flow-actor-1","label":"Problem: the children should be pinned to the snapshot that contains them — but that snapshot does not exist until the work is committed, and its id is unknowable in advance"},
+        {"highlight":"flow-actor-2","label":"Step one: commit the content, with the children temporarily pinned to the latest snapshot that already existed","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"The new commit now has an id: 2fcc5f24… — a real, permanent snapshot containing the split"},
+        {"highlight":"flow-actor-3","label":"Step two: a tiny follow-up commit re-points all three notes at that id","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The freshness gate stays green through BOTH commits — no moment of red was ever recorded"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">✍️</div>
+            <span>Split written</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">📸</div>
+            <span>Content commit</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📌</div>
+            <span>Honest pin</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — a commit's id is computed from its contents, so a note inside that commit can never name it in advance. Hence the two-step: commit the content first, then a small follow-up commit points the pins at the now-existing id. Both commits pass the gate."
+             data-explanation-wrong="It isn&#39;t about caution or review — the pin must name a snapshot that actually exists, and a snapshot&#39;s id only comes into existence when the commit is made. A note can&#39;t name the very commit it ships inside.">
+          <h3 class="quiz-question">Why couldn't the new child notes simply be created already
+          pinned to the commit that contains them — why the two-step dance?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Tradition — the project likes small commits</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>So a human can review the split before the pin makes it official</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A commit's id doesn't exist until the commit is made, so a note inside it can't name it — the pin has to land one commit later</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

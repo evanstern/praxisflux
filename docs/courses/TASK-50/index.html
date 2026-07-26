@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-50 — The Wiki Takes Its Own Medicine</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    CUSTOMIZE PER COURSE — change only the three accent variables below.
+    Options:
+      vermillion  #D94F30 / #C4432A / #FDEEE9 / #E8836C  (default)
+      coral       #E06B56 / #C85A47 / #FDECEA / #E89585
+      teal        #2A7B9B / #1F6280 / #E4F2F7 / #5A9DB8
+      amber       #D4A843 / #BF9530 / #FDF5E0 / #E0C070
+      forest      #2D8B55 / #226B41 / #E8F5EE / #5AAD7A
+  -->
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-50 — The Wiki Takes Its Own Medicine</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="Measure Before You Rewrite" role="tab" aria-label="Module 1: Measure Before You Rewrite"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="One Note, Split Summary-Style" role="tab" aria-label="Module 2: One Note, Split Summary-Style"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Flipping the Switch" role="tab" aria-label="Module 3: Flipping the Switch"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">Measure Before You Rewrite</h1>
+      <p class="module-subtitle">The task everyone saw coming — and the audit that changed its shape</p>
+
+      <p>TASK-49 built the machinery: a generator for the wiki's summary binder
+      (<code>CAPSULES.md</code>) and size checks inside the project's
+      <span class="term" data-definition="An automated checkpoint that inspects work and refuses to let it pass while problems remain. This project runs gates before commits, before merges, and in CI.">gate</span> —
+      but it shipped with the safety on. Until a wiki generates its binder, the checks only
+      <em>warn</em>. TASK-50 is the adoption task: make this project's own wiki obey the two
+      size limits (every note blurb under 500 characters, every note body under 8,000), then
+      generate the binder and let enforcement go live.</p>
+
+      <p>The task's contract predicted the work: "several descriptions exceed the 500-char
+      budget, and <code>build-and-release.md</code> is 11,742 characters." So the first move
+      was not to start rewriting — it was to <strong>measure everything first</strong>, using
+      the exact same measuring functions the gate itself uses.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📏</div>
+        <div class="callout-content">
+          <strong class="callout-title">Same ruler as the referee</strong>
+          <p>The audit imported <code>noteBody</code> and the blurb-reading helper straight
+          from the gate's own module. If you measure with your own ruler, you can pass your
+          audit and still fail the referee's. Borrowing the enforcer's ruler makes that
+          disagreement impossible.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the audit code -->
+    <div class="screen">
+      <h2 class="screen-heading">The whole audit, six lines</h2>
+      <p>One small script walked all 25 notes and reported anything over either limit:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">the measurement pass (simplified)</span>
+          <pre><code>
+<span class="code-line">for (const file of noteFiles("docs/wiki")) {</span>
+<span class="code-line">  const note = read(file);</span>
+<span class="code-line">  const blurb = description(note).length;</span>
+<span class="code-line">  const body = noteBody(note).length;</span>
+<span class="code-line">  if (blurb &gt; 500 || body &gt; 8000) report(file, blurb, body);</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Go through every note in the wiki, one at a time — using the gate's
+            own list of what counts as a note.</p>
+            <p class="tl">Open the note.</p>
+            <p class="tl">Measure its blurb — the one-line description a reader skims to
+            decide whether the note is worth opening.</p>
+            <p class="tl">Measure its body — everything below the note's header block, again
+            with the gate's own definition of "body".</p>
+            <p class="tl">If either measurement breaks its limit — 500 characters for the
+            blurb, 8,000 for the body — write the note's name and numbers down.</p>
+            <p class="tl">Next note.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the finding, as a conversation -->
+    <div class="screen">
+      <h2 class="screen-heading">What the audit actually found</h2>
+      <p>The result reshaped the task:</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">O</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Task contract</span>
+              <p>Expect several oversized blurbs to rewrite, plus one 11,742-character note
+              to split.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Audit</span>
+              <p>Blurbs: zero over budget. The longest is 467 characters — under the
+              500 limit. All twenty-five pass as written.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Audit</span>
+              <p>Bodies: exactly one over — build-and-release.md at 11,742 characters,
+              3,742 past the cap. The next largest is 7,930, safely under.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">✓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">Gate</span>
+              <p>Confirmed — my warn-only run flags the same single note, and nothing else.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">✂️</div>
+        <div class="callout-content">
+          <strong class="callout-title">The work shrank — honestly</strong>
+          <p>The contract's own rule settled what to do next: <em>notes within budget stay
+          untouched</em>. No rewriting blurbs that already pass, no "improving" things the
+          measurement cleared. The violation list — one note — became the whole of Module 2,
+          and the measurement itself was recorded in the task's paper trail.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — the contract says conformant notes stay untouched, and the measurement (taken with the gate's own functions, confirmed by the gate's own run) is the evidence. Recording the finding keeps the paper trail honest; rewriting passing notes would be silent scope expansion."
+             data-explanation-wrong="The audit used the gate's own measuring functions and the gate's own run agreed with it. When the referee's ruler says everything passes, acting on the prediction instead of the measurement means editing 25 files for no reason.">
+          <h3 class="quiz-question">The task contract predicted several oversized blurbs;
+          careful measurement found zero. What is the right move?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Rewrite the longest blurbs anyway — the contract expected rewrites</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Record the measurement, touch nothing that passes, and move to the one real violation</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Lower the budget to 450 so the prediction becomes true</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: how to shrink a note without losing anything -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">One Note, Split Summary-Style</h1>
+      <p class="module-subtitle">The 11,742-character note becomes a hub and two children — nothing deleted, everything findable</p>
+
+      <p>The oversized note, <code>build-and-release.md</code>, described the project's
+      entire build-and-release story in one file: packaging, catalogs, version rules, CI,
+      publishing, and the surface other projects consume. The wiki contract's fix is called a
+      <span class="term" data-definition="The parent note keeps a one-paragraph summary of each moved subtopic plus a link to the new child note; the child links back; the wiki's table of contents gains one line per child.">summary-style split</span>:
+      move coherent subtopics into new child notes, and leave a short summary plus a link
+      where each one used to be.</p>
+
+      <p>The judgment call is the word <em>coherent</em>. You split by subject, not by
+      arithmetic — and the contract forbids children with less than about 1,500 characters of
+      real substance, so you can't hit the number by scattering confetti. Two natural
+      children emerged:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚀</div>
+          <h4 class="pattern-title">release-pipeline</h4>
+          <p class="pattern-desc">The merge-to-main mechanics: the version-bump rule on
+          changed code, the checks every proposal runs, and the publish-then-tag ordering
+          that makes releases safe to automate.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">gates-consumption-surface</h4>
+          <p class="pattern-desc">How <em>other</em> projects run this project's checks: the
+          installable package, the plug-in CI action, and the exit-code contract they share.</p>
+        </div>
+      </div>
+
+      <p>The parent kept everything else — packaging, catalog, version sync — plus one
+      summary paragraph and a link per child. Each child links back. The wiki's table of
+      contents gained exactly two lines, added without rearranging anything that existed.
+      After the split: parent 7,635 characters, children 4,437 and 3,494. All under the cap,
+      each child well over the substance floor.</p>
+    </div>
+
+    <!-- Screen 2: a child's passport -->
+    <div class="screen">
+      <h2 class="screen-heading">A child note is born with its own passport</h2>
+      <p>In this wiki, every note must prove itself: it lists the code files it describes and
+      the exact project snapshot its claims were last checked against. A child can't inherit
+      the parent's paperwork — it gets its own, listing only <em>its</em> files:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">release-pipeline.md — the header (abridged)</span>
+          <pre><code>
+<span class="code-line">name: release-pipeline</span>
+<span class="code-line">kind: pipeline</span>
+<span class="code-line">sources:</span>
+<span class="code-line">  - .github/workflows/release.yml</span>
+<span class="code-line">  - scripts/check-version-bump.mjs</span>
+<span class="code-line">verified_against: 2fcc5f24a7e4…</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">This note's identity — its filename and the name other notes use to
+            link to it.</p>
+            <p class="tl">What kind of thing it describes: a pipeline, a process that runs in
+            stages.</p>
+            <p class="tl">"Here are the exact files I make claims about" — the note's scope,
+            no more and no less.</p>
+            <p class="tl">The recipe that publishes a release…</p>
+            <p class="tl">…and the script that refuses code changes arriving without a
+            version bump. Only the files whose claims <em>moved here</em> — the parent keeps
+            listing the files it still describes.</p>
+            <p class="tl">"…and every claim above was checked against the project exactly as
+            it stood at this snapshot." This is the pin the freshness gate verifies forever
+            after: if either source file changes later, the gate flags this note as stale.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-content">
+          <strong class="callout-title">Verified means re-read, not copied</strong>
+          <p>Moving a paragraph is easy; the discipline is that every moved claim was
+          <em>re-checked against the actual code</em> before the child's pin was written.
+          The project's rule is blunt about why: a dishonest pin is worse than a stale note —
+          it converts "possibly outdated" into "certified wrong."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the two-step pin -->
+    <div class="screen">
+      <h2 class="screen-heading">Why the pin takes two commits</h2>
+      <p>There's a bootstrap problem hiding in that <code>verified_against</code> line. Step
+      through it:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The split is written: parent trimmed, two children created, table of contents updated"},
+        {"highlight":"flow-actor-1","label":"Problem: the children should be pinned to the snapshot that contains them — but that snapshot does not exist until the work is committed, and its id is unknowable in advance"},
+        {"highlight":"flow-actor-2","label":"Step one: commit the content, with the children temporarily pinned to the latest snapshot that already existed","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"The new commit now has an id: 2fcc5f24… — a real, permanent snapshot containing the split"},
+        {"highlight":"flow-actor-3","label":"Step two: a tiny follow-up commit re-points all three notes at that id","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The freshness gate stays green through BOTH commits — no moment of red was ever recorded"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">✍️</div>
+            <span>Split written</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">📸</div>
+            <span>Content commit</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📌</div>
+            <span>Honest pin</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — a commit's id is computed from its contents, so a note inside that commit can never name it in advance. Hence the two-step: commit the content first, then a small follow-up commit points the pins at the now-existing id. Both commits pass the gate."
+             data-explanation-wrong="It isn&#39;t about caution or review — the pin must name a snapshot that actually exists, and a snapshot&#39;s id only comes into existence when the commit is made. A note can&#39;t name the very commit it ships inside.">
+          <h3 class="quiz-question">Why couldn't the new child notes simply be created already
+          pinned to the commit that contains them — why the two-step dance?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Tradition — the project likes small commits</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>So a human can review the split before the pin makes it official</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A commit's id doesn't exist until the commit is made, so a note inside it can't name it — the pin has to land one commit later</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: sequencing -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">Flipping the Switch</h1>
+      <p class="module-subtitle">Why the binder had to be generated last — and what changed the moment it landed</p>
+
+      <p>Remember the adoption rule from TASK-49: the size checks stay <em>warn-only</em>
+      until a wiki has a <code>CAPSULES.md</code>. The moment that file exists, the same
+      checks become hard failures. That makes the binder a live switch — and the order of
+      operations stops being a style choice:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">💥</div>
+          <h4 class="pattern-title">Generate first: red</h4>
+          <p class="pattern-desc">Adopt while the fat note still exists and the gate turns
+          strict immediately — every commit from then until the split lands is blocked.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">✅</div>
+          <h4 class="pattern-title">Conform first: green</h4>
+          <p class="pattern-desc">Measure, split, re-pin — all under warn-only rules — and
+          generate the binder as the <em>last</em> content step. Every intermediate commit
+          passes.</p>
+        </div>
+      </div>
+
+      <p>This matters because the project's own hooks run the full gate suite before
+      <em>every</em> commit. A sequencing mistake wouldn't just look bad in the history — it
+      would physically refuse to commit. TASK-50's slices were ordered so the wall never went
+      up in front of unfinished work: audit → split → honest pins → <em>then</em> adopt.</p>
+    </div>
+
+    <!-- Screen 2: the proof -->
+    <div class="screen">
+      <h2 class="screen-heading">The moment of adoption</h2>
+      <p>One command generated the binder — 27 entries now, including the two new children —
+      and the very next gate run was the strict one:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">generate, then prove (verbatim)</span>
+          <pre><code>
+<span class="code-line">$ node grounding-wiki/scripts/capsules.mjs . docs/wiki</span>
+<span class="code-line">regenerated docs/wiki/CAPSULES.md</span>
+<span class="code-line">$ node scripts/run-gates.mjs --gates wiki-freshness</span>
+<span class="code-line">[wiki-freshness] wiki-freshness ok: 27 note(s) fresh</span>
+<span class="code-line">    against their pinned sources</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Run the binder generator TASK-49 built — the one writer allowed to
+            touch this file.</p>
+            <p class="tl">It rebuilt CAPSULES.md: one blurb per note, in table-of-contents
+            order, stamped with the exact project snapshot it was generated at.</p>
+            <p class="tl">Now run the freshness gate — which, seeing the binder exists,
+            enforces every size budget as a hard rule for the first time.</p>
+            <p class="tl">All 27 notes pass: pins fresh, every blurb under 500 characters,
+            every body under 8,000, binder byte-identical to a fresh regeneration…</p>
+            <p class="tl">…and not a single warning line above it. Warned-but-green became
+            simply green — with the strict rules on.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🔒</div>
+        <div class="callout-content">
+          <strong class="callout-title">No exemptions spent</strong>
+          <p>The contract allows a note to declare itself size-exempt with a reason — an
+          escape hatch for the genuinely unsplittable. This wiki adopted with <strong>zero
+          exemptions</strong>: every note simply fits. The hatch stays unused, which is
+          exactly how you want an escape hatch to stay.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what changed for good -->
+    <div class="screen">
+      <h2 class="screen-heading">What is different now</h2>
+      <p>Before this task, the wiki's size budgets were advice from a document. After it,
+      they are physics: the machinery TASK-49 built now guards the very wiki that built the
+      machinery. Any future note edit in this project — by a person or an AI session — hits
+      hard enforcement: an oversized blurb blocks the commit, an oversized body points at the
+      split rule from Module 2, and a forgotten binder regeneration is caught by
+      rebuild-and-compare. The whole change shipped as documentation only: not a line of
+      tooling was touched, no version was bumped, and the checks proved it — the full test
+      suite, the docs-sync check, and the freshness gate, green at every one of the five
+      commits.</p>
+
+      <p>There is also a quieter payoff. The binder this wiki now maintains is the cheap
+      whole-corpus view the contract promised: a reader — human or AI — who needs to orient
+      across all 27 notes reads one small file instead of 130,000 characters of note bodies,
+      and routes to the two or three notes the task at hand actually needs.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — CAPSULES.md is the enforcement switch. Generating it while the wiki still had an over-budget note would have turned the gate strict against work that wasn't finished, and this repo's hooks run the gate before every commit — the wall would have gone up mid-task. Conform first, adopt last, and every commit stays green."
+             data-explanation-wrong="The order isn&#39;t about convenience — recall what the binder&#39;s existence means to the gate. Its presence is the opt-in that turns size warnings into hard failures, and this repo gates every single commit.">
+          <h3 class="quiz-question">Why did generating CAPSULES.md have to be the <em>last</em>
+          content step of this task, rather than the first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Its presence flips the gate from warn to fail — adopting before the wiki conformed would have blocked every commit until the split was done</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The generator is slow, so you run it as few times as possible</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alphabetical order — C for CAPSULES comes after the other files changed</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

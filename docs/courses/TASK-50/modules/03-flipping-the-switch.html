@@ -1,0 +1,135 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: sequencing -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">Flipping the Switch</h1>
+      <p class="module-subtitle">Why the binder had to be generated last — and what changed the moment it landed</p>
+
+      <p>Remember the adoption rule from TASK-49: the size checks stay <em>warn-only</em>
+      until a wiki has a <code>CAPSULES.md</code>. The moment that file exists, the same
+      checks become hard failures. That makes the binder a live switch — and the order of
+      operations stops being a style choice:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">💥</div>
+          <h4 class="pattern-title">Generate first: red</h4>
+          <p class="pattern-desc">Adopt while the fat note still exists and the gate turns
+          strict immediately — every commit from then until the split lands is blocked.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">✅</div>
+          <h4 class="pattern-title">Conform first: green</h4>
+          <p class="pattern-desc">Measure, split, re-pin — all under warn-only rules — and
+          generate the binder as the <em>last</em> content step. Every intermediate commit
+          passes.</p>
+        </div>
+      </div>
+
+      <p>This matters because the project's own hooks run the full gate suite before
+      <em>every</em> commit. A sequencing mistake wouldn't just look bad in the history — it
+      would physically refuse to commit. TASK-50's slices were ordered so the wall never went
+      up in front of unfinished work: audit → split → honest pins → <em>then</em> adopt.</p>
+    </div>
+
+    <!-- Screen 2: the proof -->
+    <div class="screen">
+      <h2 class="screen-heading">The moment of adoption</h2>
+      <p>One command generated the binder — 27 entries now, including the two new children —
+      and the very next gate run was the strict one:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">generate, then prove (verbatim)</span>
+          <pre><code>
+<span class="code-line">$ node grounding-wiki/scripts/capsules.mjs . docs/wiki</span>
+<span class="code-line">regenerated docs/wiki/CAPSULES.md</span>
+<span class="code-line">$ node scripts/run-gates.mjs --gates wiki-freshness</span>
+<span class="code-line">[wiki-freshness] wiki-freshness ok: 27 note(s) fresh</span>
+<span class="code-line">    against their pinned sources</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Run the binder generator TASK-49 built — the one writer allowed to
+            touch this file.</p>
+            <p class="tl">It rebuilt CAPSULES.md: one blurb per note, in table-of-contents
+            order, stamped with the exact project snapshot it was generated at.</p>
+            <p class="tl">Now run the freshness gate — which, seeing the binder exists,
+            enforces every size budget as a hard rule for the first time.</p>
+            <p class="tl">All 27 notes pass: pins fresh, every blurb under 500 characters,
+            every body under 8,000, binder byte-identical to a fresh regeneration…</p>
+            <p class="tl">…and not a single warning line above it. Warned-but-green became
+            simply green — with the strict rules on.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🔒</div>
+        <div class="callout-content">
+          <strong class="callout-title">No exemptions spent</strong>
+          <p>The contract allows a note to declare itself size-exempt with a reason — an
+          escape hatch for the genuinely unsplittable. This wiki adopted with <strong>zero
+          exemptions</strong>: every note simply fits. The hatch stays unused, which is
+          exactly how you want an escape hatch to stay.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what changed for good -->
+    <div class="screen">
+      <h2 class="screen-heading">What is different now</h2>
+      <p>Before this task, the wiki's size budgets were advice from a document. After it,
+      they are physics: the machinery TASK-49 built now guards the very wiki that built the
+      machinery. Any future note edit in this project — by a person or an AI session — hits
+      hard enforcement: an oversized blurb blocks the commit, an oversized body points at the
+      split rule from Module 2, and a forgotten binder regeneration is caught by
+      rebuild-and-compare. The whole change shipped as documentation only: not a line of
+      tooling was touched, no version was bumped, and the checks proved it — the full test
+      suite, the docs-sync check, and the freshness gate, green at every one of the five
+      commits.</p>
+
+      <p>There is also a quieter payoff. The binder this wiki now maintains is the cheap
+      whole-corpus view the contract promised: a reader — human or AI — who needs to orient
+      across all 27 notes reads one small file instead of 130,000 characters of note bodies,
+      and routes to the two or three notes the task at hand actually needs.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — CAPSULES.md is the enforcement switch. Generating it while the wiki still had an over-budget note would have turned the gate strict against work that wasn't finished, and this repo's hooks run the gate before every commit — the wall would have gone up mid-task. Conform first, adopt last, and every commit stays green."
+             data-explanation-wrong="The order isn&#39;t about convenience — recall what the binder&#39;s existence means to the gate. Its presence is the opt-in that turns size warnings into hard failures, and this repo gates every single commit.">
+          <h3 class="quiz-question">Why did generating CAPSULES.md have to be the <em>last</em>
+          content step of this task, rather than the first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Its presence flips the gate from warn to fail — adopting before the wiki conformed would have blocked every commit until the split was done</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The generator is slow, so you run it as few times as possible</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alphabetical order — C for CAPSULES comes after the other files changed</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
