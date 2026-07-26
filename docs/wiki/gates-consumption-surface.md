@@ -7,7 +7,7 @@ sources:
   - scripts/run-gates.mjs
   - action.yml
   - docs/consuming-gates.md
-verified_against: 54aa6006b262d931ab0e0a3241c98c105a459bf7
+verified_against: 61eee21352e7cc4638ef06eaaba119f96dc6bfcb
 ---
 
 # Gates consumption surface
@@ -52,7 +52,10 @@ consumer workspace. Exit codes are the contract (0 pass · 1 gate failure · 2 u
 - The publish-before-tag ordering that makes the pinned `npx` call race-free is
   [[release-pipeline]]'s invariant.
 - The gates the runner exposes are the [[gates-convention]] in consumer repos:
-  `spec-bridge`, `wiki-freshness` (see [[grounding-wiki-plugin]]), and `course`.
+  `spec-bridge`, `wiki-freshness` (see [[grounding-wiki-plugin]]), and `course`. The
+  `spec-bridge` gate honors the checked repo's own `.spec-bridge.json` — `strictDone` and
+  the opt-in phase-level `statusVocabulary` ([[spec-bridge-plugin]]) — so consumer boards
+  are judged at the granularity they opted into.
 - Guarded by the [[test-suite]]: `test/build-npm.test.mjs` (packed-tarball bin contract) and
   `test/run-gates.test.mjs` (gate registry ↔ action.yml agreement, shallow-clone failure,
   symlinked-checkout invocation).

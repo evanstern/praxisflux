@@ -13,7 +13,7 @@
 - [x] T005 consumer docs: phase-status contract + opt-in (R4)
 - [x] T006 tests additive: vocabulary derivation, phase-grain gate, config-absent parity
 - [x] T007 versions: spec-bridge skills touched + marketplace sync-version (R6)
-- [ ] T008 wiki re-pins per freshness gate; CAPSULES regen if needed
+- [x] T008 wiki re-pins per freshness gate; CAPSULES regen if needed
 
 ## Prove
 
