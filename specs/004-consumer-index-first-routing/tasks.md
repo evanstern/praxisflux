@@ -16,6 +16,6 @@
 
 ## Prove
 
-- [ ] T007 per-task course docs/courses/TASK-51/ — course gate green
-- [ ] T008 gates green: node --test, check-docs, wiki-freshness, course
+- [x] T007 per-task course docs/courses/TASK-51/ — course gate green
+- [x] T008 gates green: node --test, check-docs, wiki-freshness, course
 - [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator

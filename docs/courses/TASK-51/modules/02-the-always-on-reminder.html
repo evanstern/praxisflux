@@ -1,0 +1,145 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: what "planted grounding" is -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">The Always-On Reminder</h1>
+      <p class="module-subtitle">Four lines added to the note that every session reads before doing anything at all</p>
+
+      <p>Every project set up with this plugin suite carries a
+      <span class="term" data-definition="A CLAUDE.md file is the standing-instructions note an AI session reads automatically at the start of every conversation in a project — context that is 'always on' without anyone pasting it in.">CLAUDE.md</span>
+      — standing instructions the AI reads before every conversation. The suite's installer,
+      <span class="term" data-definition="The pdlc:bootstrap skill — the suite-level installer. It stamps a project folder with the always-on grounding block, records its choices in a sentinel file, and wires in peer tools like the task board.">bootstrap</span>,
+      <em>plants</em> a marked block into that file: the rules that hold even when no
+      specialized tool is running.</p>
+
+      <p>That block is the one place a rule is guaranteed to be in front of every session,
+      every time. So TASK-51's first change is the smallest and the most important: the
+      loading protocol, compressed to four lines, added to the planted block's
+      "rules that always hold."</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">⚖️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why only four lines?</strong>
+          <p>Always-on context is read every single session — it <em>pays its own token
+          cost</em> forever. A rule about saving tokens that itself burned hundreds of them
+          per session would be self-defeating. Compactness here isn't style; it's the rule
+          practicing what it preaches.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the lines themselves -->
+    <div class="screen">
+      <h2 class="screen-heading">The four lines, translated</h2>
+      <p>Here is the new rule exactly as it now appears in every bootstrapped project's
+      always-on block:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">PDLC/TEMPLATES/CLAUDE.MD — PLANTED BLOCK</span>
+          <pre><code>
+<span class="code-line">- Corpus loading: when a grounded corpus is present, load its</span>
+<span class="code-line">  INDEX.md first and route; load notes just-in-time — never bulk-load</span>
+<span class="code-line">  the corpus. Whole-corpus orientation reads CAPSULES.md when it</span>
+<span class="code-line">  exists; without one, INDEX plus just-in-time notes.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">If this project has a knowledge base, start every lookup at its
+            table of contents and let that route you.</p>
+            <p class="tl">Pull individual notes only at the moment you need them — reading
+            the whole library up front is never the default.</p>
+            <p class="tl">Need the full picture? Read the cheap summary sheet when the wiki
+            has one…</p>
+            <p class="tl">…and when it doesn't (older wikis), the table of contents plus
+            one-note-at-a-time is the correct fallback.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>One subtlety: the block is <em>machinery</em>, not just text. The installer stamps
+      it between markers, detects when a project's copy has drifted from the current
+      template, and never overwrites drifted text without consent. Editing the template
+      meant respecting those markers — the task's tests verify the block's structure
+      survives intact.</p>
+    </div>
+
+    <!-- Screen 3: how the rule travels -->
+    <div class="screen">
+      <h2 class="screen-heading">How four lines reach every future session</h2>
+      <p>The delivery path is the interesting part — one template edit propagates to every
+      project the suite ever bootstraps.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The rule is written once, into the plugin&apos;s template for the planted block"},
+        {"highlight":"flow-actor-1","label":"bootstrap plants or refreshes the block in a project&apos;s CLAUDE.md","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"The project now carries the rule in its always-on instructions"},
+        {"highlight":"flow-actor-2","label":"Every new session reads CLAUDE.md before doing anything","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The session routes through INDEX.md and loads notes just-in-time — the habit is finally where the reader is"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🌱</div>
+            <span>Plugin template</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">📋</div>
+            <span>Project CLAUDE.md</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🤖</div>
+            <span>Every session</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the planted block is read at the start of every session forever, so every extra line is a recurring cost. A token-economy rule that wasted tokens stating itself would undercut its own point."
+             data-explanation-wrong="Think about where this text lives: it is loaded automatically in every single session, for the life of every bootstrapped project. What does that imply about its length?">
+          <h3 class="quiz-question">Why was the loading rule deliberately squeezed into
+          just a few lines of the planted block?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The block has a hard technical size limit it was about to hit</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Longer rules are harder to translate into other languages</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Always-on context is re-read every session, so the rule pays its own token cost — a verbose token-saving rule would defeat itself</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

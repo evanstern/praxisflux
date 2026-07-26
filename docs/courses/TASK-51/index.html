@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-51 — Teaching the Readers to Skim</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #7A5C2A;
+      --color-accent-hover: #62491F;
+      --color-accent-light: #F5EEE0;
+      --color-accent-muted: #A8895A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-51 — Teaching the Readers to Skim</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="A Rule Nobody Read" role="tab" aria-label="Module 1: A Rule Nobody Read"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Always-On Reminder" role="tab" aria-label="Module 2: The Always-On Reminder"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Two Big Readers Learn to Skim" role="tab" aria-label="Module 3: Two Big Readers Learn to Skim"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">A Rule Nobody Read</h1>
+      <p class="module-subtitle">The rulebook said "don't read everything" — and every reader kept reading everything</p>
+
+      <p>The previous task in this story (TASK-48) fixed an expensive habit on paper. This
+      project keeps a
+      <span class="term" data-definition="A folder of interlinked Markdown notes documenting a codebase — one note per concept, each pinned to the exact code version it was checked against. In this project it lives at docs/wiki/.">grounding wiki</span>,
+      and its shared rulebook — the
+      <span class="term" data-definition="docs/corpus-spec.md — the contract every tool in this project reads and writes knowledge bases by. Tools never call each other directly; they only agree on this file format.">corpus spec</span> —
+      gained a whole section on <em>how readers should load</em> a wiki: start from the
+      table of contents, fetch only the notes you need, and take the cheap summary sheet
+      when you genuinely need the whole picture.</p>
+
+      <p>One problem. A rulebook only changes behavior when it's <em>in front of</em> the
+      reader at the moment they act. The readers here are AI sessions and two orchestration
+      tools — and none of their standing instructions said a word about the new protocol.
+      The rule existed; nothing delivered it.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📕</div>
+        <div class="callout-content">
+          <strong class="callout-title">TASK-51 in one sentence</strong>
+          <p>Take the loading protocol out of the rulebook nobody consults mid-task and
+          write it into the three places readers actually look: every project's always-on
+          instructions, and the two tools that read whole wikis for a living.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: watch the gap in action -->
+    <div class="screen">
+      <h2 class="screen-heading">The day after the rulebook changed</h2>
+      <p>Here is the gap, played out. The spec update has merged; watch what a session in
+      a bootstrapped project does anyway.</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+              <p>Before you start: get oriented on how this project fits together.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Sure — reading docs/wiki/. All 25 notes, tens of thousands of
+              <span class="term" data-definition="AI models read and write text in units called tokens (roughly three-quarters of a word each). Everything a session reads costs tokens, so loading more pages makes every question more expensive.">tokens</span>
+              loaded.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+              <p>Didn't the spec just add a loading protocol? Index first, notes
+              just-in-time?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>It did — inside docs/corpus-spec.md, which I had no reason to open. My
+              standing instructions say the wiki matters. They don't say how to read it.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">!</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">The gap</span>
+              <p>A contract consumers never see at run time is a wish. The fix isn't a
+              better rulebook — it's putting the rule where the reader already is.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the protocol itself -->
+    <div class="screen">
+      <h2 class="screen-heading">The rule that needed delivering</h2>
+      <p>This is the protocol the spec defines — the four habits every wiki reader is
+      supposed to have. TASK-51's whole job is making three real consumers state them.</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v2 — HOW CONSUMERS LOAD A CORPUS</span>
+          <pre><code>
+<span class="code-line">1. INDEX.md first, always — it is the routing surface.</span>
+<span class="code-line">2. Notes just-in-time, individually. Bulk-loading is never default behavior.</span>
+<span class="code-line">3. Whole-corpus orientation reads CAPSULES.md, not the note bodies;</span>
+<span class="code-line">   where a v1 corpus has no CAPSULES.md, fall back to INDEX + just-in-time.</span>
+<span class="code-line">4. Within a note, ## sections are the addressable unit.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Always open the table of contents first, and let it point you to
+            the right note.</p>
+            <p class="tl">Fetch notes one at a time, only when the task needs them — never
+            photocopy the whole library "to be safe."</p>
+            <p class="tl">When you genuinely need the whole picture, read the summary sheet —
+            CAPSULES.md, one capsule per note, roughly a tenth the cost of the full notes…</p>
+            <p class="tl">…and if an older wiki has no summary sheet yet, just use the table
+            of contents plus one-note-at-a-time. The protocol never requires the new file.</p>
+            <p class="tl">Inside a big note, you may read just the one section you need
+            instead of the whole file.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🧭</div>
+        <div class="callout-content">
+          <strong class="callout-title">Where the rule has to live</strong>
+          <p>Three consumers were named: the always-on instructions every bootstrapped
+          project carries, the <strong>sweep</strong> orchestrator, and the
+          <strong>reorient</strong> evaluation loop. The next two modules follow the rule
+          into each home.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. The protocol was already written — the failure was delivery. A rule changes behavior only when it sits in the instructions the reader actually has open at the moment of action."
+             data-explanation-wrong="Not quite. The spec section was finished and merged before this task started — re-read what the session in the chat said about why it still bulk-loaded.">
+          <h3 class="quiz-question">After spec v2 merged, sessions kept bulk-loading the
+          wiki. What was actually missing?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The protocol itself — the spec still had no loading rules</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delivery — no consumer's own instructions stated the protocol, so nothing changed at the moment of reading</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Tooling — a program to physically block sessions from opening notes</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: what "planted grounding" is -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">The Always-On Reminder</h1>
+      <p class="module-subtitle">Four lines added to the note that every session reads before doing anything at all</p>
+
+      <p>Every project set up with this plugin suite carries a
+      <span class="term" data-definition="A CLAUDE.md file is the standing-instructions note an AI session reads automatically at the start of every conversation in a project — context that is 'always on' without anyone pasting it in.">CLAUDE.md</span>
+      — standing instructions the AI reads before every conversation. The suite's installer,
+      <span class="term" data-definition="The pdlc:bootstrap skill — the suite-level installer. It stamps a project folder with the always-on grounding block, records its choices in a sentinel file, and wires in peer tools like the task board.">bootstrap</span>,
+      <em>plants</em> a marked block into that file: the rules that hold even when no
+      specialized tool is running.</p>
+
+      <p>That block is the one place a rule is guaranteed to be in front of every session,
+      every time. So TASK-51's first change is the smallest and the most important: the
+      loading protocol, compressed to four lines, added to the planted block's
+      "rules that always hold."</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">⚖️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why only four lines?</strong>
+          <p>Always-on context is read every single session — it <em>pays its own token
+          cost</em> forever. A rule about saving tokens that itself burned hundreds of them
+          per session would be self-defeating. Compactness here isn't style; it's the rule
+          practicing what it preaches.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the lines themselves -->
+    <div class="screen">
+      <h2 class="screen-heading">The four lines, translated</h2>
+      <p>Here is the new rule exactly as it now appears in every bootstrapped project's
+      always-on block:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">PDLC/TEMPLATES/CLAUDE.MD — PLANTED BLOCK</span>
+          <pre><code>
+<span class="code-line">- Corpus loading: when a grounded corpus is present, load its</span>
+<span class="code-line">  INDEX.md first and route; load notes just-in-time — never bulk-load</span>
+<span class="code-line">  the corpus. Whole-corpus orientation reads CAPSULES.md when it</span>
+<span class="code-line">  exists; without one, INDEX plus just-in-time notes.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">If this project has a knowledge base, start every lookup at its
+            table of contents and let that route you.</p>
+            <p class="tl">Pull individual notes only at the moment you need them — reading
+            the whole library up front is never the default.</p>
+            <p class="tl">Need the full picture? Read the cheap summary sheet when the wiki
+            has one…</p>
+            <p class="tl">…and when it doesn't (older wikis), the table of contents plus
+            one-note-at-a-time is the correct fallback.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>One subtlety: the block is <em>machinery</em>, not just text. The installer stamps
+      it between markers, detects when a project's copy has drifted from the current
+      template, and never overwrites drifted text without consent. Editing the template
+      meant respecting those markers — the task's tests verify the block's structure
+      survives intact.</p>
+    </div>
+
+    <!-- Screen 3: how the rule travels -->
+    <div class="screen">
+      <h2 class="screen-heading">How four lines reach every future session</h2>
+      <p>The delivery path is the interesting part — one template edit propagates to every
+      project the suite ever bootstraps.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"The rule is written once, into the plugin&apos;s template for the planted block"},
+        {"highlight":"flow-actor-1","label":"bootstrap plants or refreshes the block in a project&apos;s CLAUDE.md","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"The project now carries the rule in its always-on instructions"},
+        {"highlight":"flow-actor-2","label":"Every new session reads CLAUDE.md before doing anything","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The session routes through INDEX.md and loads notes just-in-time — the habit is finally where the reader is"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🌱</div>
+            <span>Plugin template</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">📋</div>
+            <span>Project CLAUDE.md</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🤖</div>
+            <span>Every session</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the planted block is read at the start of every session forever, so every extra line is a recurring cost. A token-economy rule that wasted tokens stating itself would undercut its own point."
+             data-explanation-wrong="Think about where this text lives: it is loaded automatically in every single session, for the life of every bootstrapped project. What does that imply about its length?">
+          <h3 class="quiz-question">Why was the loading rule deliberately squeezed into
+          just a few lines of the planted block?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The block has a hard technical size limit it was about to hit</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Longer rules are harder to translate into other languages</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Always-on context is re-read every session, so the rule pays its own token cost — a verbose token-saving rule would defeat itself</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the two whole-corpus readers -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">Two Big Readers Learn to Skim</h1>
+      <p class="module-subtitle">The tools that legitimately need the whole picture — and the summary sheet that makes that affordable</p>
+
+      <p>Most readers need two or three notes. Two tools in this suite are different —
+      their jobs genuinely start with the <em>whole</em> corpus:</p>
+
+      <p><strong>Sweep</strong> is the
+      <span class="term" data-definition="The pdlc:sweep skill — given a set of board tasks, it authors an ordered execution plan (a runbook), gets the operator's sign-off, then drives every task through spec, implementation, PR, and merge.">board-sweep orchestrator</span>.
+      Before it can plan a batch of tasks, it has to understand the project those tasks
+      touch — that's whole-corpus orientation, and it happens again after every merge, when
+      the orchestrator re-grounds.</p>
+
+      <p><strong>Reorient</strong> is the
+      <span class="term" data-definition="The reorient skill — it fans out one evaluator per research branch, each judging that research against the project's purpose, wiki, and task board, then merges their findings into one plan.">direction-evaluation loop</span>.
+      Every evaluator it dispatches must judge research <em>against the project as it
+      actually is</em> — which used to mean each of N parallel evaluators loading the wiki's
+      full note bodies. The corpus cost, multiplied by N, every round.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">💊</div>
+        <div class="callout-content">
+          <strong class="callout-title">The capsule bargain</strong>
+          <p>Spec v2's summary sheet — CAPSULES.md, one routing-grade capsule per note — is
+          about a tenth the cost of the full bodies. The new instruction in both tools:
+          take the capsule view for orientation, and open a full note only for what you
+          actually engage with — the concepts a task touches, the claims a report cites.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the evaluator's new marching orders -->
+    <div class="screen">
+      <h2 class="screen-heading">The evaluator's new marching orders</h2>
+      <p>Here is the changed instruction inside reorient — the "beat" every dispatched
+      evaluator follows. Sweep's orientation moments got the same treatment in its own
+      words.</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">REORIENT/SKILLS/REORIENT/SKILL.MD — THE BEAT</span>
+          <pre><code>
+<span class="code-line">ground against the project wiki via its CAPSULES.md when present —</span>
+<span class="code-line">the whole-corpus capsule view — loading a full note only for claims</span>
+<span class="code-line">the report actually cites; absent a rollup, route from INDEX.md and</span>
+<span class="code-line">load notes just-in-time (README/docs when no wiki at all)</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">When the project wiki has a summary sheet, that sheet is your view
+            of the whole project…</p>
+            <p class="tl">…and you only open a note in full when your report is about to
+            lean on it — a claim you cite deserves the full source; background doesn't.</p>
+            <p class="tl">On an older wiki with no summary sheet, fall back to the table of
+            contents and fetch notes one at a time as needed.</p>
+            <p class="tl">And in a project with no wiki at all, ground yourself on the
+            README and docs — the tool still works, just with weaker guarantees.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🔬</div>
+        <div class="callout-content">
+          <strong class="callout-title">An honestly open question</strong>
+          <p>Does an evaluator grounded on capsules judge as well as one that read every
+          full note? Nobody measured it yet. Rather than guess, the task parked the
+          question <em>inside the skill</em>: the next reorient run is told to record which
+          mode its evaluators used and any quality difference observed. A cheaper habit,
+          adopted with its eyes open.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: shipping it honestly -->
+    <div class="screen">
+      <h2 class="screen-heading">Shipping words like they were code</h2>
+      <p>Nothing in this task compiles — every change is instructions. The project ships
+      instruction changes with the same discipline as code:</p>
+
+      <p>Each edited skill's version number was bumped (sweep 0.3.0 → 0.4.0, reorient
+      0.1.0 → 0.2.0, bootstrap 0.1.0 → 0.2.0 as the template's owner), and the whole
+      marketplace released as 0.14.0 — a
+      <span class="term" data-definition="An automated check that fails the change if released files were edited without increasing the version numbers — so consumers can always tell 'something changed here' from the number alone.">version gate</span>
+      enforces this. And because the project's own wiki documents these tools, the notes
+      describing them were re-verified against the new text and
+      <span class="term" data-definition="Each wiki note records the exact commit its claims were last checked against. Re-pinning means re-reading the changed sources and updating that record — the freshness gate blocks work whose wiki lags behind it.">re-pinned</span>
+      in the same change — ten notes in all, most of them touched only by the version
+      stamp.</p>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div class="callout-content">
+          <strong class="callout-title">Where this leaves the story</strong>
+          <p>The protocol now lives in all three delivery points: every project's always-on
+          block, sweep's orientation moments, and reorient's evaluator briefs. A sibling
+          task builds the generator that gives every wiki its CAPSULES.md — and thanks to
+          the fallback wording, these consumers behave correctly whether or not that file
+          exists yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — orientation happens on the capsule sheet, and a full note is opened only for claims the evaluator's report actually cites. The whole-picture need is met at a tenth the cost, without giving up depth where it counts."
+             data-explanation-wrong="Not quite. The new rule doesn't forbid full notes — it changes when they're opened. Re-read the evaluator's marching orders: what earns a full-note read?">
+          <h3 class="quiz-question">Under the new instructions, a reorient evaluator needs
+          the whole-project picture AND wants to cite one wiki note's claim in its report.
+          What does it load?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Every note in full — evaluation is a whole-corpus job, so nothing less is safe</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>CAPSULES.md for the whole picture, plus the full text of just the note it cites</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Capsules only — full notes are no longer allowed in evaluations</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
