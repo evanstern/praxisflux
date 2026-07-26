@@ -17,4 +17,5 @@
 
 - [x] T007 docs/courses/TASK-41 built (last mandatory course), gate green
 - [x] T008 gates green: node --test, check-docs, wiki-freshness
-- [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator
+- [x] T009 board finalized (ACs checked, Done, final summary); PR opened — serial merge
+  (first of Lane 1) recorded by the orchestrator in the runbook execution log
