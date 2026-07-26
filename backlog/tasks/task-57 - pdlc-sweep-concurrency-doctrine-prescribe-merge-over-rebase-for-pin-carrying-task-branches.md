@@ -3,9 +3,11 @@ id: TASK-57
 title: >-
   pdlc:sweep concurrency doctrine: prescribe merge-over-rebase for pin-carrying
   task branches
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 21:08'
+updated_date: '2026-07-26 22:20'
 labels:
   - pdlc
   - sweep
@@ -21,3 +23,21 @@ Field evidence from the promptworld reorient 2026-07-26 sweep (runbook docs/desi
 
 Fix in the sweep skill (skills/sweep/SKILL.md + templates/runbook.md concurrency doctrine): pin-carrying branches reconcile by merging origin/main in and re-pinning conflicted pins to the merge commit; rebase remains fine for pin-free branches. Also close the sibling gate gap found on the same sweep: the merge-drift pr gate's player-docs-stale probe only fires when docs/wiki/ changed, but player pages also pin design-reference files (docs/design/tui/*) — a keymap.md-only change went stale invisibly; the freshness probe must be prescribed to run directly after every history move.
 <!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 sweep concurrency doctrine (SKILL.md + templates/runbook.md): pin-carrying task branches reconcile by MERGING origin/main in and re-pinning conflicted pins to the merge commit; squash/rebase/force-push named as pin-breaking; rebase stays for pin-free branches
+- [ ] #2 freshness probe prescribed directly after EVERY history move, not only when docs/wiki/ changed — pins also reference design-reference files, so a wiki-untouched diff can still be stale
+- [ ] #3 Versions bumped per docs/releasing.md (pdlc released surface: sweep SKILL.md + marketplace); wiki pdlc-plugin note re-verified + re-pinned
+<!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 018-sweep-merge-over-rebase (hand-authored: spec/plan/tasks)
+2. spec-bridge:link to TASK-57
+3. Implement: rewrite sweep SKILL.md step-7 + concurrency doctrine and templates/runbook.md doctrine — merge-over-rebase for pin-carrying branches, re-pin conflicts to the merge commit, freshness probe after every history move
+4. Versions: sweep SKILL.md 0.5.0→0.6.0, marketplace sync-version 0.27.0
+5. Re-ground: wiki-update re-pin pdlc-plugin (+ lockstep), CAPSULES if descriptions change
+6. Gates: check-docs.mjs, wiki freshness, tests; PR
+<!-- SECTION:PLAN:END -->
