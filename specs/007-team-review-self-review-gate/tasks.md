@@ -36,4 +36,5 @@
 - [x] T007 gates green: node --test 169/169 pass, check-docs in sync, wiki-freshness OK 27
       notes (course deliberately not built — orchestrator decides the obligation at merge
       time per the in-flight policy change)
-- [ ] T008 board finalized; PR opened — serial merge recorded by the orchestrator
+- [x] T008 board finalized (ACs checked, Done, final summary); PR opened — serial merge
+  (last of Lane 1) recorded by the orchestrator in the runbook execution log
