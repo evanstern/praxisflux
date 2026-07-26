@@ -1,0 +1,190 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">The Card-Catalog Rule</h1>
+      <p class="module-subtitle">Spec v2's first fix isn't a new format — it's a written rule for how readers behave</p>
+
+      <p>A good librarian never photocopies the encyclopedia. She checks the card catalog,
+      walks to one shelf, pulls one volume, and opens it to one chapter. The building can
+      hold a million books; your visit costs the same either way.</p>
+
+      <p>That behavior is what spec v2 writes into the contract. The single most important
+      change of TASK-48 is a new section called <strong>"How consumers load a corpus"</strong>
+      — a default loading discipline every reading tool is now expected to follow. The
+      research behind this task was blunt: a format change that halves note size saves money
+      <em>once</em>; a protocol change bounds cost <em>forever</em>, because the wiki can
+      double while a task touching three concepts still loads three notes.</p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the spec now says</h2>
+      <p>The four rules, copied from the new section of <code>docs/corpus-spec.md</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v2 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">1. **`INDEX.md` first, always** — it is the routing surface.</span>
+<span class="code-line">2. **Notes just-in-time, individually** — route through the index (or the capsules, below)</span>
+<span class="code-line">   and load only the notes the task needs. Bulk-loading a corpus is never default behavior.</span>
+<span class="code-line">3. **Whole-corpus orientation reads `CAPSULES.md`**, not the note bodies.</span>
+<span class="code-line">4. **Within a note, `##` sections are the addressable unit** — a consumer that needs one</span>
+<span class="code-line">   aspect of a large note reads that section, not the file.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Always start with the table of contents — it exists to route you to
+            the right note.</p>
+            <p class="tl">Then fetch notes one at a time, only as the task actually needs
+            them —</p>
+            <p class="tl">— and never default to "just read everything," no matter how
+            convenient it feels.</p>
+            <p class="tl">If your job genuinely is to survey the whole wiki, read the cheap
+            summary file (next screen) instead of every full note.</p>
+            <p class="tl">And inside a big note, the section headings are valid stopping
+            points — you may read just the one section you need —</p>
+            <p class="tl">— rather than the entire file, when one aspect is all the task
+            calls for.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: cost should scale with the task, not the library</strong>
+          <p>The corpus grows linearly with the project — that's fine and unavoidable. The
+          protocol's promise is that a <em>session's</em> cost grows only with what the
+          session is trying to do.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the capsule tier -->
+    <div class="screen">
+      <h2 class="screen-heading">Three sizes of the same knowledge</h2>
+      <p>Rule 3 mentions a new file. Spec v2 formalizes a <strong>capsule tier</strong>:
+      every note's one-line
+      <span class="term" data-definition="A small labeled block at the top of each note (between --- markers) holding its name, a one-line description, and provenance — machine-readable metadata about the note.">frontmatter</span>
+      description becomes its <em>capsule</em> — capped at 500 characters and written for
+      routing ("what's inside, when to load it"), never as a teaser. A generated file,
+      <code>CAPSULES.md</code>, collects every capsule in one place. The same knowledge now
+      comes in three sizes:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🗂️</div>
+          <h4 class="pattern-title">Index line</h4>
+          <p class="pattern-desc">One line in INDEX.md. A couple dozen tokens — enough to
+          decide "is this note even relevant?"</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">💊</div>
+          <h4 class="pattern-title">Capsule</h4>
+          <p class="pattern-desc">Up to 500 characters (~125 tokens) — what the note covers
+          and when to load it. All capsules together: the whole wiki, ~10× cheaper than the
+          full notes.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📖</div>
+          <h4 class="pattern-title">Full note</h4>
+          <p class="pattern-desc">The complete, provenance-pinned facts — loaded one at a
+          time, only when the task needs that concept.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">⚙️</div>
+        <div class="callout-content">
+          <strong class="callout-title">CAPSULES.md is generated, never hand-written</strong>
+          <p>The spec declares it <em>derived state</em>: producers regenerate it whenever any
+          description changes, hand-editing it is an error, and it carries a header naming
+          its generator and the exact
+          <span class="term" data-definition="A saved snapshot of the project at one moment, with a unique ID. Recording which commit a file was generated at makes it possible to detect when the file has fallen behind the things it summarizes.">commit</span>
+          it was generated at — so drift is detectable. It's also optional for readers: a
+          wiki without one is still a valid corpus.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: flow animation -->
+    <div class="screen">
+      <h2 class="screen-heading">Trace one question through the protocol</h2>
+      <p>Here's the route a well-behaved session now takes for a small question. Click
+      through each step.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Session loads INDEX.md — the card catalog. ~1,500 tokens, always the first read"},
+        {"highlight":"flow-actor-1","label":"The index routes the question to one note name","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Its capsule confirms: yes, this note covers version-bump rules"},
+        {"highlight":"flow-actor-2","label":"Session fetches just that note — and just the relevant ## section of it","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Answer delivered for a few thousand tokens — the other two dozen notes were never loaded"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🗂️</div>
+            <span>INDEX.md</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">💊</div>
+            <span>Capsule</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📖</div>
+            <span>One note, one section</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — whole-corpus orientation is the one job that legitimately needs everything, and CAPSULES.md exists exactly for it: the entire wiki in summary form, about a tenth the cost of the full notes."
+             data-explanation-wrong="Consider the job: it genuinely needs a view of the WHOLE wiki, not one topic. Which artifact gives that view without paying for every full note?">
+          <h3 class="quiz-question">An AI agent is asked to judge whether a proposed
+          architecture change fits the project — a job that needs a feel for the whole wiki,
+          not one topic. The wiki follows spec v2. What should the agent read?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>All the full notes — whole-corpus questions justify whole-corpus loads</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only INDEX.md — one line per note is all anyone ever needs</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>CAPSULES.md — the generated summary view of every note, then specific full notes only where the judgment needs depth</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

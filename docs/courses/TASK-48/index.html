@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-48 — Paying by the Page</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-48 — Paying by the Page</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="Paying by the Page" role="tab" aria-label="Module 1: Paying by the Page"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Card-Catalog Rule" role="tab" aria-label="Module 2: The Card-Catalog Rule"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Overstuffed Note" role="tab" aria-label="Module 3: The Overstuffed Note"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">Paying by the Page</h1>
+      <p class="module-subtitle">Why a knowledge base that grows with the project quietly makes every question more expensive</p>
+
+      <p>Imagine a reference library where you pay a photocopying fee for every page you
+      pull. You walk in with one small question — "what time does the ferry leave?" — and
+      the librarian, wanting to be thorough, photocopies the <em>entire transportation
+      encyclopedia</em> and hands you the stack. You pay for all of it. Every visit. And the
+      encyclopedia gets thicker every year.</p>
+
+      <p>That is roughly what was happening with this project's
+      <span class="term" data-definition="A folder of interlinked Markdown notes that documents a codebase — one note per concept, each note 'pinned' to the exact code version it was checked against. In this project it lives at docs/wiki/.">grounding wiki</span>.
+      AI sessions answering questions about the project would load
+      <span class="term" data-definition="AI models read and write text in units called tokens (roughly three-quarters of a word each). Everything the model reads costs tokens — so the more pages loaded, the higher the cost of every single question.">tokens</span>
+      by the tens of thousands — often most of the wiki — to answer questions that touched
+      three or four notes.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📏</div>
+        <div class="callout-content">
+          <strong class="callout-title">The measured starting point</strong>
+          <p>When this task began, the wiki held 26 notes totalling roughly 34,000 tokens.
+          Loading "a few dozen pages" meant paying near-whole-corpus cost per session — and
+          the corpus grows every time the project does.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: watch the overload happen -->
+    <div class="screen">
+      <h2 class="screen-heading">Watch the overload happen</h2>
+      <p>Step through a session doing what used to be normal: a small question, answered the
+      expensive way.</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+              <p>Quick one: how does the release process decide when to bump the version?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Let me get oriented. Reading docs/wiki/… all 26 notes. That's ~34,000 tokens
+              loaded.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Answer found — it was in two notes: the release doc and the gates doc. The
+              other 24 notes weren't needed.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">!</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">The bill</span>
+              <p>~34,000 tokens paid to use ~2,500. And next quarter, when the wiki has 40
+              notes, the same small question costs even more.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">It's not just money — it's accuracy</strong>
+          <p>Research this task drew on found that over-loading is a <em>quality</em> problem
+          too: stuffing an AI's
+          <span class="term" data-definition="The working memory of an AI session — everything it has read so far. It has a hard size limit, and answer quality measurably degrades as it fills with material irrelevant to the question ('context rot').">context window</span>
+          with irrelevant pages measurably degrades its answers. The expensive habit was also
+          the worse-performing one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what the contract used to say -->
+    <div class="screen">
+      <h2 class="screen-heading">The contract that said nothing about cost</h2>
+      <p>Every wiki in this ecosystem follows one written contract — the
+      <span class="term" data-definition="docs/corpus-spec.md — the shared rulebook every tool in this project reads and writes knowledge bases by. Tools never call each other directly; they only agree on this file format.">corpus spec</span>.
+      Version 1 defined the shape precisely. Here is its entire layout rule:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v1 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">&lt;corpus-root&gt;/</span>
+<span class="code-line">  INDEX.md          # required: one line per note — the recall surface</span>
+<span class="code-line">  &lt;name&gt;.md         # one note per concept; filename = frontmatter name + .md</span>
+<span class="code-line">  ...</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">A knowledge base is just a folder.</p>
+            <p class="tl">It must contain a table of contents — INDEX.md — with one line per
+            note, so anything looking for a topic can find the right file.</p>
+            <p class="tl">Then one file per concept, named after the concept it covers.</p>
+            <p class="tl">…and that's the whole layout. Notice what's missing: not a word
+            about how much of this a reader should load, or how big any note may grow.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>Structure and provenance were contract; <strong>cost was habit</strong>. Nothing
+      stopped a note from growing without bound, and nothing told a consumer "don't read
+      everything." TASK-48's job was to close exactly that gap — by amending the contract,
+      not by building new machinery.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — under bulk-loading, cost tracks the size of the library, not the size of the question. That's the broken property: the corpus doubles, and every question silently doubles in price with it."
+             data-explanation-wrong="Not quite. The question didn't change at all — think about what the session loads before answering, and what that load is proportional to.">
+          <h3 class="quiz-question">A project's wiki grows from 30 notes to 60 over a year.
+          A teammate's AI session answers the same small question — "where is the deploy
+          config?" — the old bulk-loading way, once at the start of the year and once at the
+          end. What happens to the cost of that question?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It stays the same — the question is the same size, so the cost is too</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It roughly doubles — the session pays for the whole library, and the library doubled</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It goes down — more notes means the answer is easier to find</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">The Card-Catalog Rule</h1>
+      <p class="module-subtitle">Spec v2's first fix isn't a new format — it's a written rule for how readers behave</p>
+
+      <p>A good librarian never photocopies the encyclopedia. She checks the card catalog,
+      walks to one shelf, pulls one volume, and opens it to one chapter. The building can
+      hold a million books; your visit costs the same either way.</p>
+
+      <p>That behavior is what spec v2 writes into the contract. The single most important
+      change of TASK-48 is a new section called <strong>"How consumers load a corpus"</strong>
+      — a default loading discipline every reading tool is now expected to follow. The
+      research behind this task was blunt: a format change that halves note size saves money
+      <em>once</em>; a protocol change bounds cost <em>forever</em>, because the wiki can
+      double while a task touching three concepts still loads three notes.</p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the spec now says</h2>
+      <p>The four rules, copied from the new section of <code>docs/corpus-spec.md</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v2 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">1. **`INDEX.md` first, always** — it is the routing surface.</span>
+<span class="code-line">2. **Notes just-in-time, individually** — route through the index (or the capsules, below)</span>
+<span class="code-line">   and load only the notes the task needs. Bulk-loading a corpus is never default behavior.</span>
+<span class="code-line">3. **Whole-corpus orientation reads `CAPSULES.md`**, not the note bodies.</span>
+<span class="code-line">4. **Within a note, `##` sections are the addressable unit** — a consumer that needs one</span>
+<span class="code-line">   aspect of a large note reads that section, not the file.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Always start with the table of contents — it exists to route you to
+            the right note.</p>
+            <p class="tl">Then fetch notes one at a time, only as the task actually needs
+            them —</p>
+            <p class="tl">— and never default to "just read everything," no matter how
+            convenient it feels.</p>
+            <p class="tl">If your job genuinely is to survey the whole wiki, read the cheap
+            summary file (next screen) instead of every full note.</p>
+            <p class="tl">And inside a big note, the section headings are valid stopping
+            points — you may read just the one section you need —</p>
+            <p class="tl">— rather than the entire file, when one aspect is all the task
+            calls for.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Key insight: cost should scale with the task, not the library</strong>
+          <p>The corpus grows linearly with the project — that's fine and unavoidable. The
+          protocol's promise is that a <em>session's</em> cost grows only with what the
+          session is trying to do.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: the capsule tier -->
+    <div class="screen">
+      <h2 class="screen-heading">Three sizes of the same knowledge</h2>
+      <p>Rule 3 mentions a new file. Spec v2 formalizes a <strong>capsule tier</strong>:
+      every note's one-line
+      <span class="term" data-definition="A small labeled block at the top of each note (between --- markers) holding its name, a one-line description, and provenance — machine-readable metadata about the note.">frontmatter</span>
+      description becomes its <em>capsule</em> — capped at 500 characters and written for
+      routing ("what's inside, when to load it"), never as a teaser. A generated file,
+      <code>CAPSULES.md</code>, collects every capsule in one place. The same knowledge now
+      comes in three sizes:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🗂️</div>
+          <h4 class="pattern-title">Index line</h4>
+          <p class="pattern-desc">One line in INDEX.md. A couple dozen tokens — enough to
+          decide "is this note even relevant?"</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">💊</div>
+          <h4 class="pattern-title">Capsule</h4>
+          <p class="pattern-desc">Up to 500 characters (~125 tokens) — what the note covers
+          and when to load it. All capsules together: the whole wiki, ~10× cheaper than the
+          full notes.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">📖</div>
+          <h4 class="pattern-title">Full note</h4>
+          <p class="pattern-desc">The complete, provenance-pinned facts — loaded one at a
+          time, only when the task needs that concept.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">⚙️</div>
+        <div class="callout-content">
+          <strong class="callout-title">CAPSULES.md is generated, never hand-written</strong>
+          <p>The spec declares it <em>derived state</em>: producers regenerate it whenever any
+          description changes, hand-editing it is an error, and it carries a header naming
+          its generator and the exact
+          <span class="term" data-definition="A saved snapshot of the project at one moment, with a unique ID. Recording which commit a file was generated at makes it possible to detect when the file has fallen behind the things it summarizes.">commit</span>
+          it was generated at — so drift is detectable. It's also optional for readers: a
+          wiki without one is still a valid corpus.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: flow animation -->
+    <div class="screen">
+      <h2 class="screen-heading">Trace one question through the protocol</h2>
+      <p>Here's the route a well-behaved session now takes for a small question. Click
+      through each step.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Session loads INDEX.md — the card catalog. ~1,500 tokens, always the first read"},
+        {"highlight":"flow-actor-1","label":"The index routes the question to one note name","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Its capsule confirms: yes, this note covers version-bump rules"},
+        {"highlight":"flow-actor-2","label":"Session fetches just that note — and just the relevant ## section of it","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Answer delivered for a few thousand tokens — the other two dozen notes were never loaded"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">🗂️</div>
+            <span>INDEX.md</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">💊</div>
+            <span>Capsule</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">📖</div>
+            <span>One note, one section</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — whole-corpus orientation is the one job that legitimately needs everything, and CAPSULES.md exists exactly for it: the entire wiki in summary form, about a tenth the cost of the full notes."
+             data-explanation-wrong="Consider the job: it genuinely needs a view of the WHOLE wiki, not one topic. Which artifact gives that view without paying for every full note?">
+          <h3 class="quiz-question">An AI agent is asked to judge whether a proposed
+          architecture change fits the project — a job that needs a feel for the whole wiki,
+          not one topic. The wiki follows spec v2. What should the agent read?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>All the full notes — whole-corpus questions justify whole-corpus loads</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only INDEX.md — one line per note is all anyone ever needs</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>CAPSULES.md — the generated summary view of every note, then specific full notes only where the judgment needs depth</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">The Overstuffed Note</h1>
+      <p class="module-subtitle">A size budget, a splitting rule borrowed from Wikipedia — and a counter-rule that stops the budget from doing harm</p>
+
+      <p>A filing cabinet works because no folder is allowed to become a box. When one
+      folder starts bulging, an organized person doesn't cram harder — they split its
+      contents into labeled sub-folders and leave a note in the original saying where
+      everything went.</p>
+
+      <p>Wikis have the same failure mode: growth concentrates in a few hot pages. In this
+      project's wiki, the largest note had already grown to about 2.4× the average. Left
+      alone, "just add it to the existing note" always wins — and the just-in-time protocol
+      from Module 2 stops paying off, because even <em>one</em> note becomes a heavy read.</p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the spec now says</h2>
+      <p>Spec v2 adds a hard budget, and — just as important — a rule about when
+      <em>not</em> to act on it. Copied from <code>docs/corpus-spec.md</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v2 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">A note body (everything below the frontmatter) must stay at or under **8,000 characters**</span>
+<span class="code-line">(~2k tokens). The budget binds producers at write/update time; readers never reject an</span>
+<span class="code-line">over-budget note.</span>
+<span class="code-line">**Minimum-content counter-rule:** never split when the child would hold less than ~1,500</span>
+<span class="code-line">characters of substance, or would merely duplicate the summary left behind. An over-cap</span>
+<span class="code-line">parent with nothing splittable is acceptable — flag it, don't butcher it.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">No note's content may grow past about 8,000 characters — roughly
+            2,000 tokens, a comfortable single read.</p>
+            <p class="tl">The rule binds whoever WRITES the note, at writing time. Readers
+            never refuse an oversized note —</p>
+            <p class="tl">— an over-budget note is a producer's problem to fix, never a
+            reader's reason to fail.</p>
+            <p class="tl">But there's a floor as well as a ceiling: never carve out a child
+            note that would hold less than about 1,500 characters of real substance —</p>
+            <p class="tl">— or one that would just restate the summary you'd leave behind in
+            the parent.</p>
+            <p class="tl">If a big note has nothing genuinely splittable, leaving it over
+            budget is the correct call: mark it, don't mangle it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">📚</div>
+        <div class="callout-content">
+          <strong class="callout-title">Borrowed from a 20-year precedent</strong>
+          <p>This is Wikipedia's "summary style" discipline, imported: absorb growth by
+          adding <em>depth</em> (child pages), not by inflating pages — with an explicit
+          threshold and a minimum-content rule so nobody splits a page into useless stubs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: how a split works -->
+    <div class="screen">
+      <h2 class="screen-heading">Anatomy of a summary-style split</h2>
+      <p>When a note hits the cap and genuinely has subtopics, the split follows four
+      steps:</p>
+
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Move the subtopic out</strong>
+            <p>The bulging section's content becomes a new child note — one concept per
+            note, as always.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Leave a summary behind</strong>
+            <p>The parent keeps a one-paragraph summary of the child plus a
+            <span class="term" data-definition="A link written as [[note-name]] that jumps to a sibling note in the same wiki — the connective tissue of the corpus.">wikilink</span>
+            to it — the reader still gets the gist without leaving the page.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Link back</strong>
+            <p>The child links to its parent, so neither direction dead-ends.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Register the child</strong>
+            <p>INDEX.md gains one line for the new note — the card catalog stays complete.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>And because Module 2 made every note's description a routed-to capsule, spec v2
+      closes the loop on honesty: capsules are <strong>drift surfaces</strong>. A note edit
+      that changes what the note covers must update its capsule in the same pass — the same
+      re-verify discipline the wiki already applies to its provenance
+      <span class="term" data-definition="Each wiki note records the exact project snapshot (commit) its facts were last checked against. When the underlying files change, the note is 'stale' until someone re-verifies it and updates the pin. A gate — an automated check — blocks merges while notes are stale.">pins</span>.</p>
+    </div>
+
+    <!-- Screen 4: what was deliberately left out -->
+    <div class="screen">
+      <h2 class="screen-heading">What TASK-48 deliberately did not do</h2>
+      <p>This task changed one prose file — the contract. Everything mechanical was left to
+      its successors, and two whole approaches were rejected outright by the research:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+          <div class="pattern-icon" style="background: var(--color-accent)">⏭️</div>
+          <h4 class="pattern-title">Deferred, on purpose</h4>
+          <p class="pattern-desc">Enforcement tooling (gate checks, the CAPSULES.md
+          generator), reworking the existing wiki to conform, and updating consumer tools —
+          each is its own follow-up task. Spec first, machinery second.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🚫</div>
+          <h4 class="pattern-title">Rejected, with reasons</h4>
+          <p class="pattern-desc">Search-engine-style retrieval infrastructure (earns its
+          keep only on far larger corpora) and load-time text compression (the wiki is read
+          by humans too, and its plain Markdown is the very artifact the gates pin).</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🤝</div>
+        <div class="callout-content">
+          <strong class="callout-title">The compatibility promise</strong>
+          <p>Every v1 wiki remains readable under v2. The new file is optional for readers;
+          the new budgets bind <em>producers</em> when they write or update. Nothing that
+          consumed a corpus yesterday breaks today — the contract grew, it didn't turn.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the counter-rule exists for this case. Three ~700-character stubs would each be below the ~1,500-character substance floor, costing readers extra hops for nothing. Over-cap-but-unsplittable is an accepted, flagged state."
+             data-explanation-wrong="Re-read the counter-rule: the cap has a floor under it. What would each of those three child notes actually hold, and does that clear the minimum-substance bar?">
+          <h3 class="quiz-question">A note runs to 9,000 characters — over budget. Its
+          content could only be carved into three children of roughly 700 characters each,
+          and each child would mostly restate the summary the parent would keep. Under spec
+          v2, what should the producer do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split anyway — 8,000 characters is a hard cap and caps exist to be obeyed</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Leave it whole and flag it — the children would fall below the minimum-content floor and merely duplicate the summaries</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete the least important 1,000 characters so the note squeezes under the cap</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>
