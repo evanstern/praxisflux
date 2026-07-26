@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 16:31'
-updated_date: '2026-07-26 17:53'
+updated_date: '2026-07-26 17:59'
 labels:
   - reorient
   - design
@@ -24,9 +24,9 @@ Observed live in promptworld 2026-07-26 (see promptworld TASK-148 for the incide
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Run manifests carry ownership (session identity) and the Stop gate nags only the owning session/checkout
-- [ ] #2 Synthesis target paths are unique per run (run-id-keyed), never date-keyed
-- [ ] #3 begin/list/abandon surface owner + provenance so orphan-vs-live is decidable; takeover is explicit
+- [x] #1 Run manifests carry ownership (session identity) and the Stop gate nags only the owning session/checkout
+- [x] #2 Synthesis target paths are unique per run (run-id-keyed), never date-keyed
+- [x] #3 begin/list/abandon surface owner + provenance so orphan-vs-live is decidable; takeover is explicit
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,3 +41,9 @@ Observed live in promptworld 2026-07-26 (see promptworld TASK-148 for the incide
 7. Tests — reorient.test.mjs: owner+heartbeat recorded, run-id-keyed synthesis (two same-day runs don't collide), gate blocks owner only, non-owner not nagged, stale non-owned run warns, abandon-by-non-owner refused until takeover, heartbeat refresh; chassis.test.mjs: evaluate threads ctx.
 8. Versions — sync-version to 0.22.0 (minor), skill 0.3.0; wiki-update pass (reorient-plugin.md, gate-runner note) + check-docs; PR per one-task-one-PR. Aware TASK-53/54 (pdlc) are in flight — marketplace version bumps will need serial merge ordering.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented: manifests carry owner {sessionId,user,host} + heartbeatAt (begin stamps, owner's Stop hook refreshes via run.mjs heartbeatOwnedRuns); gate-runner threads ctx {sessionId,input} to resolveRoots/check/warn; reorient gate blocks only the owning session (legacy checkout scoping when identity unknown), non-owned runs warn non-blockingly once heartbeat >1h stale; synthesis default now docs/design/reorient-<run-id>.md; begin/list/abandon print owner+provenance; abandon owner-only; explicit takeover command. 201 tests pass incl. 5 new. Release 0.22.0, skill 0.3.0.
+<!-- SECTION:NOTES:END -->

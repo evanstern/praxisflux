@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: fffb44a983e81ad9483339b13700213879f89e0f
+verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
 ---
 
 # Gates convention
@@ -30,13 +30,17 @@ required artifacts, such as handoff evidence for a delegated build. Vocabulary s
 (educate: scaffolded…done; research: branch → analyzed → rendered); only the mechanism is shared.
 
 **Stop-hook enforcement** (`lib/gate-runner.mjs`). A gate is
-`{ name, resolveRoots(startDir) -> string[], check(root) -> problems[], warn?(root) -> notices[] }`.
-The pure core `evaluate(input, gates)` returns `{ block, message, warnings }`; the harness
-`runStopHook({ gates })` reads the Stop-hook JSON from stdin and exits 0 (allow) or 2 (block,
-problems on stderr). Key behaviors:
+`{ name, resolveRoots(startDir, ctx) -> string[], check(root, ctx) -> problems[], warn?(root, ctx) -> notices[] }`,
+where `ctx` is `{ sessionId, input }` — the invoking session's identity for gates that scope
+state to its owner (reorient's run registry); other gates ignore it. The pure core
+`evaluate(input, gates)` returns `{ block, message, warnings }`; the harness
+`runStopHook({ gates, before? })` reads the Stop-hook JSON from stdin, runs the optional
+best-effort `before(input)` upkeep callback, and exits 0 (allow) or 2 (block, problems on
+stderr). Key behaviors:
 
 - Honors `stop_hook_active: true` — never blocks a second time, preventing loops.
-- The start directory is `CLAUDE_PROJECT_DIR`, else the hook input's `cwd`, else `process.cwd()`.
+- The start directory is `CLAUDE_PROJECT_DIR`, else the hook input's `cwd`, else `process.cwd()`;
+  `ctx.sessionId` is the input's `session_id`, else `$CLAUDE_CODE_SESSION_ID`, else null.
 - **A gate that resolves no roots is a no-op** — the hook never fires outside its own project
   type, so each plugin ships its own hook and gates compose additively across installed plugins.
 - A crashing `check` becomes a blocking problem naming the gate and root; `warn` notices are
@@ -75,8 +79,8 @@ the most-skipped step can't be rubber-stamped by setting a boolean.
 
 ## Operational notes
 
-- Stop-hook contract: stdin JSON `{ stop_hook_active, cwd, … }`; exit 0 allows the stop, exit 2
-  blocks with stderr as the message the model sees.
+- Stop-hook contract: stdin JSON `{ stop_hook_active, session_id, cwd, … }`; exit 0 allows the
+  stop, exit 2 blocks with stderr as the message the model sees.
 - `CLAUDE_PROJECT_DIR`, when set, overrides the hook input's `cwd` as the search start.
 - `readStdin` resolves to an empty string on a TTY, so a hook entry is safe to run by hand.
 - Warnings never block: blocking problems win, otherwise warnings print to stderr and the hook
