@@ -12,7 +12,7 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: fffb44a983e81ad9483339b13700213879f89e0f
+verified_against: dbd03352f4813fea7f87b54deea759eb9a7f414f
 ---
 
 # team-review plugin
