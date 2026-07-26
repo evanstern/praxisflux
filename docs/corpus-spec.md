@@ -1,10 +1,19 @@
-# The grounded corpus — praxisflux's interchange contract (spec v1)
+# The grounded corpus — praxisflux's interchange contract (spec v2)
 
 A **grounded corpus** is a directory of interlinked Markdown notes that praxisflux tools
 produce and consume. It is the *only* way praxisflux tools compose around knowledge: producers
 write the format, consumers read it, and **no tool ever invokes another**. Anything that can
 write this format participates in the ecosystem; anything that can read it benefits from
 every producer.
+
+**v2 additions** — v1 defined structure and provenance; v2 adds the token economy. Every
+v1 corpus remains readable; the new artifacts are optional for readers, and the new
+budgets bind producers at write/update time:
+
+- a **consumption protocol** — how consumers load a corpus (index-first, just-in-time);
+- a **capsule tier** — capped `description:` capsules and a generated `CAPSULES.md`;
+- a **note size budget** with summary-style split discipline;
+- **section addressability** — `##` sections are the sub-note addressable unit.
 
 Known producers: `research-vault` (web-grounded branches), `grounding-wiki` (code-grounded
 wikis). Known consumers: `analyze-vault` (Q&A/synthesis), `vault-artifact` (render),

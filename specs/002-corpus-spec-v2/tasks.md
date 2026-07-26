@@ -7,7 +7,7 @@
 
 ## Implement
 
-- [ ] T002 corpus-spec.md: retitle v2 + changelog block (R5)
+- [x] T002 corpus-spec.md: retitle v2 + changelog block (R5)
 - [ ] T003 corpus-spec.md: consumption-protocol section (R1)
 - [ ] T004 corpus-spec.md: capsule tier + CAPSULES.md section (R2)
 - [ ] T005 corpus-spec.md: size budget + split discipline section (R3)
