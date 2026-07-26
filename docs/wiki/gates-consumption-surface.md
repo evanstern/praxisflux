@@ -7,7 +7,7 @@ sources:
   - scripts/run-gates.mjs
   - action.yml
   - docs/consuming-gates.md
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: a29e223193f49fe6699f86501c2851ee82fe1ee0
 ---
 
 # Gates consumption surface
@@ -15,7 +15,11 @@ verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
 The consumption half of [[build-and-release]]: how repos that don't carry praxisflux run its
 gates. One runner (`scripts/run-gates.mjs`) is shipped two ways — as the bin of the
 `@praxisflux/gates` npm package and behind the repo's composite GitHub Action — and the
-consumer-facing contract is documented in `docs/consuming-gates.md`.
+consumer-facing contract is documented in `docs/consuming-gates.md`. That doc opens with
+the enforcement split the suite delivers: installed Stop hooks are advisory/opt-in by
+design (never blocking over a missing runtime), while this CI surface at a pinned release
+is the authoritative enforcement point — gates make dishonest status expensive locally and
+impossible in CI.
 
 ## npm package staging
 

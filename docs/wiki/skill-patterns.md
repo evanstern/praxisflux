@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: f7d977059e0b48f45ac95c26f392a08126cba585
+verified_against: a29e223193f49fe6699f86501c2851ee82fe1ee0
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -67,7 +67,8 @@ not just re-syncs — see [[build-and-release]]); skills in the gate→work→ga
 `scripts/new-plugin.mjs <name> [--with-gate]` (`scaffoldPlugin`): it stamps the drift-gated
 surface in one shot — plugin.json in version lockstep, the SKILL.md skeleton with the
 frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace entry, and
-the README row + install line — plus, with `--with-gate`, the Stop-hook trio
+the README table row (whose enforcement cell reads "Stop hook (advisory)" with
+`--with-gate`, "Skill-only: none." without) + install line — plus, with `--with-gate`, the Stop-hook trio
 (`gates/<name>.mjs` stub resolving no roots, `scripts/{stop.mjs,gate.sh}`,
 `hooks/hooks.json`). It refuses to overwrite an existing plugin dir.
 
