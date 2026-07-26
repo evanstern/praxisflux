@@ -3,9 +3,11 @@ id: TASK-42
 title: >-
   team-review: self-review-safe output gate (.handoff residue must not trip the
   read-only check)
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-23 17:28'
+updated_date: '2026-07-26 14:14'
 labels: []
 dependencies: []
 references:
@@ -28,3 +30,18 @@ Team-review finding #1 (doc-1), repro'd live on 2026-07-23: when the invoking ro
 - [ ] #2 run.mjs begin escalates its gitignore warning for the self-review case (invoking root == target and .handoff/ not ignored): a clear notice or hard fail, decided and recorded in the task
 - [ ] #3 A regression test covers self-review: begin with invoking root == target, run record in-repo, finish passes on an untouched target and still blocks on a genuinely mutated one
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 007-team-review-self-review-gate (hand-authored)
+2. spec-bridge:link
+3. Dispatch: fix run.mjs begin ordering / gates/review.mjs comparison so self-review (root==target) passes with un-gitignored .handoff run records; regression test reproducing doc-1
+4. Version bumps (team-review skill + marketplace); wiki re-pin team-review-plugin note; course per policy in force at merge; PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/board-clearing-runbook.md). Tier: default implementer (scoped plugin bugfix + tests).
+<!-- SECTION:NOTES:END -->
