@@ -3,9 +3,11 @@ id: TASK-34
 title: >-
   P3 + phase-status gates: artifact-gated seams as a praxis principle;
   spec-bridge speaks phase-level status
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-18 02:37'
+updated_date: '2026-07-26 14:38'
 labels: []
 dependencies: []
 priority: high
@@ -32,3 +34,18 @@ First consumer: Coda (kofile/coda) — its per-phase board-status task depends o
 - [ ] #4 Consumer-facing docs (consuming-gates.md and/or spec-bridge README) document the phase-status contract and the opt-in
 - [ ] #5 Cross-reference recorded: Coda's workflow-split epic names this task as its upstream blocker
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 009-p3-phase-status-gates (hand-authored)
+2. spec-bridge:link
+3. Dispatch (session tier): P3 artifact-gated seams into docs/principles.md (canonical + reference-and-apply); spec-bridge derivation gains opt-in phase-level status vocabulary derived from spec artifacts; bridge gate enforces exceeds at phase granularity; 3-status boards unchanged; consumer docs; Coda cross-ref note
+4. Tests; versions; wiki re-pins; PR; serial merge vs TASK-43
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 2 (docs/design/board-clearing-runbook.md). Tier: session-tier (canonical principle prose + gate design; biggest slice, HIGH, Coda-blocking). Backward-compat checkpoint armed: any design where a 3-status board changes behavior stops the lane.
+<!-- SECTION:NOTES:END -->
