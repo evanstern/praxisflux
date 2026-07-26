@@ -8,6 +8,10 @@
 // --force — the skill shows the diff and gets consent first. Also stamps the `.pdlc` sentinel
 // and gitignores `.handoff/`. Writes nothing in --check mode.
 //
+// Absent peers leave a deterministic trace: the sentinel records the known peers NOT opted
+// in under `peersOmitted`, and the CLI prints a one-line stderr notice per omitted peer
+// naming its stripped block — omission stays the opt-out, but never a silent one.
+//
 //   node plant.mjs --root <dir> [--peer backlog] [--peer spec-kit] [--check] [--force]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
@@ -48,8 +52,9 @@ export function extractBlock(text) {
 
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
- * Returns { mode, claudeMd, gitignore, pdlcFile, missing } — claudeMd is one of
- * created | appended | replaced | unchanged | drifted.
+ * Returns { mode, claudeMd, gitignore, pdlcFile, peersOmitted, missing } — claudeMd is one
+ * of created | appended | replaced | unchanged | drifted; peersOmitted lists the known
+ * peers not opted in at plant time (their blocks were stripped from the rendered grounding).
  */
 export function plant(root, { peers = [], check = false, force = false, templatePath, version } = {}) {
   root = resolve(root);
@@ -57,6 +62,8 @@ export function plant(root, { peers = [], check = false, force = false, template
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
   const unknown = peers.filter((p) => !PEERS.includes(p));
   if (unknown.length) throw new Error(`unknown peer(s): ${unknown.join(", ")} (known: ${PEERS.join(", ")})`);
+  // The deterministic absent-peer trace: known peers not opted in, in KNOWN-peer order.
+  const peersOmitted = PEERS.filter((p) => !peers.includes(p));
 
   const expected = renderGrounding(readFileSync(templatePath, "utf8"), {
     projectName: basename(root), version, peers,
@@ -90,9 +97,11 @@ export function plant(root, { peers = [], check = false, force = false, template
     : ensureGitignore(root, ".handoff/") ? "added" : "present";
 
   const sentinelPath = join(root, SENTINEL);
-  const desired = { planted: "pdlc:bootstrap", version, peers: [...peers].sort() };
+  const desired = { planted: "pdlc:bootstrap", version, peers: [...peers].sort(), peersOmitted };
   let existing = null;
   try { existing = JSON.parse(readFileSync(sentinelPath, "utf8")); } catch { /* absent or invalid */ }
+  // peersOmitted is derived from peers, so comparing version + peers is enough — and it is
+  // exactly what keeps legacy sentinels (written before the field existed) "unchanged".
   const same = existing && existing.version === desired.version &&
     JSON.stringify([...(existing.peers || [])].sort()) === JSON.stringify(desired.peers);
   // A drifted, unconfirmed block means nothing was planted — don't advance the sentinel past it.
@@ -103,7 +112,7 @@ export function plant(root, { peers = [], check = false, force = false, template
   }
 
   const missing = check ? [] : verifyPresent(root, ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, pdlcFile, missing };
+  return { mode, claudeMd, gitignore, pdlcFile, peersOmitted, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -120,6 +129,9 @@ if (runAsCli(import.meta.url)) {
   const peers = args.flatMap((a, i) => (a === "--peer" ? [args[i + 1]] : []));
   const check = args.includes("--check");
   const report = plant(root, { peers, check, force: args.includes("--force") });
+  for (const p of report.peersOmitted) {
+    console.error(`plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in ${SENTINEL} peersOmitted)`);
+  }
   console.log(JSON.stringify(report, null, 2));
   const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged" || report.gitignore !== "present";
   if (check && pending) process.exit(1); // --check: nonzero when planting would change something

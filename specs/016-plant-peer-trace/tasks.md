@@ -7,7 +7,7 @@
 
 ## Implement
 
-- [ ] T002 sentinel peersOmitted field + stderr notice; idempotence + legacy sentinels
+- [x] T002 sentinel peersOmitted field + stderr notice; idempotence + legacy sentinels
   hold; tests (R1)
 - [ ] T003 bootstrap SKILL.md references the trace (R2)
 - [ ] T004 versions: bootstrap skill + marketplace sync-version (R3)

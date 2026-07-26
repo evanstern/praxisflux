@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -154,6 +154,68 @@ test("check mode writes nothing and the CLI exits nonzero while planting is pend
     execFileSync(process.execPath, [cli, "--root", root]); // plant for real
     execFileSync(process.execPath, [cli, "--root", root, "--check"]); // now clean → exit 0
     assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("pdlc:grounding BEGIN"));
+  } finally { done(); }
+});
+
+// --- absent-peer trace (spec 016) ---
+
+test("sentinel records peersOmitted — known peers not opted in at plant time — and idempotence holds", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts({ peers: ["backlog"] }));
+    assert.deepEqual(r.peersOmitted, ["spec-kit"]);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, ["spec-kit"]);
+
+    const before = readFileSync(join(root, SENTINEL), "utf8");
+    const again = plant(root, opts({ peers: ["backlog"] }));
+    assert.equal(again.claudeMd, "unchanged");
+    assert.equal(again.pdlcFile, "unchanged", "re-plant with the same peers must stay idempotent");
+    assert.equal(readFileSync(join(root, SENTINEL), "utf8"), before, "sentinel bytes must not churn");
+
+    const all = plant(root, opts({ peers: [...PEERS], force: true }));
+    assert.deepEqual(all.peersOmitted, [], "nothing omitted when every known peer is opted in");
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, []);
+  } finally { done(); }
+});
+
+test("CLI emits a one-line stderr notice naming each omitted peer's stripped block", () => {
+  const a = proj(), b = proj();
+  try {
+    const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+    const r = spawnSync(process.execPath, [cli, "--root", a.root, "--peer", "backlog"], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.deepEqual(r.stderr.trim().split("\n"), [
+      'plant: peer "spec-kit" omitted — pdlc:peer:spec-kit block stripped (recorded in .pdlc peersOmitted)',
+    ]);
+
+    const none = spawnSync(process.execPath, [cli, "--root", b.root], { encoding: "utf8" });
+    assert.equal(none.status, 0);
+    assert.deepEqual(none.stderr.trim().split("\n"), PEERS.map(
+      (p) => `plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in .pdlc peersOmitted)`,
+    ), "one line per omitted peer, in known-peer order");
+
+    const both = spawnSync(process.execPath, [cli, "--root", a.root, "--peer", "backlog", "--peer", "spec-kit", "--force"], { encoding: "utf8" });
+    assert.equal(both.stderr, "", "no notice when every known peer is opted in");
+  } finally { a.done(); b.done(); }
+});
+
+test("legacy sentinels without peersOmitted stay readable and re-plant as unchanged", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts({ peers: ["backlog"] }));
+    const sentinelPath = join(root, SENTINEL);
+    const legacy = JSON.parse(readFileSync(sentinelPath, "utf8"));
+    delete legacy.peersOmitted; // what a pre-trace plant wrote
+    writeFileSync(sentinelPath, JSON.stringify(legacy, null, 2) + "\n");
+
+    const r = plant(root, opts({ peers: ["backlog"] }));
+    assert.equal(r.claudeMd, "unchanged");
+    assert.equal(r.pdlcFile, "unchanged", "matching version+peers must not rewrite a legacy sentinel");
+    assert.ok(!("peersOmitted" in JSON.parse(readFileSync(sentinelPath, "utf8"))), "legacy sentinel left as-is");
+
+    const upgraded = plant(root, opts({ peers: ["backlog"], version: "10.0.0", force: true }));
+    assert.equal(upgraded.pdlcFile, "updated");
+    assert.deepEqual(JSON.parse(readFileSync(sentinelPath, "utf8")).peersOmitted, ["spec-kit"], "a real update gains the field");
   } finally { done(); }
 });
 
