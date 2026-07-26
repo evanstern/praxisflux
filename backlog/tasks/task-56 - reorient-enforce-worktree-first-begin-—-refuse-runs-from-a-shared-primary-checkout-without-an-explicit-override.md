@@ -3,9 +3,11 @@ id: TASK-56
 title: >-
   reorient: enforce worktree-first begin — refuse runs from a shared primary
   checkout without an explicit override
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 18:11'
+updated_date: '2026-07-26 19:53'
 labels:
   - reorient
   - gates
@@ -28,3 +30,18 @@ Follow-on to TASK-52 (session-owned runs, PR #74). The worktree doctrine — beg
 - [ ] #3 SKILL.md documents worktree-first as the default doctrine and the explicit override path
 - [ ] #4 Versions bumped per docs/releasing.md (reorient released surface; skill version bump)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 014-reorient-worktree-first (hand-authored)
+2. spec-bridge:link
+3. Dispatch: run.mjs begin refuses shared-primary-checkout registry roots (.git dir vs gitdir: file detection) unless --shared-checkout (and/or project marker) given; override recorded on manifest, surfaced by list/provenance; SKILL.md states worktree-first doctrine + override; tests incl. worktree case
+4. Versions (reorient skill + marketplace); wiki re-pin reorient-plugin; PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/lane-hardening-runbook.md). Tier: default implementer. Follow-on to TASK-52 (0.22.0).
+<!-- SECTION:NOTES:END -->
