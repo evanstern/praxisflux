@@ -7,7 +7,7 @@
 
 ## Implement
 
-- [ ] T002 pdlc/templates/CLAUDE.md: wiki-loading protocol in the planted block (plant
+- [x] T002 pdlc/templates/CLAUDE.md: wiki-loading protocol in the planted block (plant
   mechanics intact; fixtures updated if they assert content)
 - [ ] T003 pdlc/skills/sweep/SKILL.md: capsule-first whole-corpus orientation
 - [ ] T004 reorient/skills/reorient/SKILL.md: evaluators capsule-first + A/B note

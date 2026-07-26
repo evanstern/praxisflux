@@ -54,6 +54,10 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   Payloads ride the gitignored `.handoff/` transport; evidence lives in tracked state.
 - **Grounding freshness:** `docs/wiki/` is load-bearing, not decoration. Changes that touch
   pinned sources aren't done until the wiki is re-pinned (`/grounding-wiki:wiki-update`).
+- **Corpus loading:** when a grounded corpus is present (`docs/wiki/` or similar), load its
+  `INDEX.md` first and route; load notes just-in-time — never bulk-load the corpus.
+  Whole-corpus orientation reads `CAPSULES.md` when it exists; without one, INDEX plus
+  just-in-time notes.
 
 <!-- pdlc:peer:backlog BEGIN -->
 ## Backlog.md — the board (officially supported peer)
