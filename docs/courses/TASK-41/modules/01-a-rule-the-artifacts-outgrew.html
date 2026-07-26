@@ -1,0 +1,236 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1>A Rule the Artifacts Outgrew</h1>
+      <p class="lead">
+        This project had a rule: every finished
+        <span class="term" data-definition="One unit of committed work on the project's kanban board — a card with a description, acceptance criteria, and a status that moves from To Do to Done.">task</span>
+        must leave behind an interactive course — a little teaching website like the one you
+        are reading right now. A lovely idea. This course is about how that rule died, and
+        what replaced it. Yes: you are reading a course about the decision to stop requiring
+        courses. It is the last one that was mandatory.
+      </p>
+      <p>
+        Think of a diary that solemnly promises &ldquo;an entry every single day.&rdquo; For
+        the first week, it delivers. Then life speeds up, entries get skipped — but the
+        promise on page one stays. The diary now <em>lies</em>. In this project, a lying
+        document is the one unforgivable thing.
+      </p>
+    </div>
+
+    <!-- Screen 2: the promise, verbatim -->
+    <div class="screen">
+      <h2>The promise, as written</h2>
+      <p>
+        Here is the actual opening of the old rulebook —
+        <span class="term" data-definition="A Markdown documentation file in this repository, docs/task-courses.md, that defined when and how courses get built. TASK-41 rewrote it.">docs/task-courses.md</span>
+        as it stood before this task. Read the very first word:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">DOC — docs/task-courses.md (before TASK-41)</span>
+          <pre><code>
+<span class="code-line">Every completed task (generally 1:1 with a merged PR) leaves behind a small interactive</span>
+<span class="code-line">course at `docs/courses/TASK-XX/`, built with the codebase-to-course chrome and scoped to</span>
+<span class="code-line">**just that task's work**: the question it answered, what was built, what was learned. The</span>
+<span class="code-line">pattern is borrowed from the-stacks, where it is already standing practice.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">EVERY finished task — no exceptions — must leave behind a small teaching website&hellip;</p>
+            <p class="tl">&hellip;stored in a folder named after the task, and built with the standard course toolkit&hellip;</p>
+            <p class="tl">&hellip;covering only what that one task did: the question, the work, the lessons.</p>
+            <p class="tl">We copied this habit from another project where it was already routine.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        &ldquo;Every completed task.&rdquo; Strong words. Now let&rsquo;s check them against
+        reality — this project has a habit of doing exactly that, because one of its founding
+        principles is that a claim is only worth the
+        <span class="term" data-definition="A durable, checkable output — a file, a folder, a passing test. In this project, artifacts are the proof that work actually happened; claims without artifacts don't count.">artifacts</span>
+        behind it.
+      </p>
+    </div>
+
+    <!-- Screen 3: the audit, as a chat -->
+    <div class="screen">
+      <h2>The audit</h2>
+      <p>
+        Picture the rulebook, the kanban board, and the courses folder having an honest
+        conversation. This is roughly what the review that triggered TASK-41 found. Play it:
+      </p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>Rule check! I promise readers that EVERY completed task leaves behind a course. Board, how many tasks are Done?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="board" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">The Board</span>
+              <p>Sixty-six tasks marked Done.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>Wonderful. Courses folder, you must hold sixty-six course directories then.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="folder" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">F</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">The Courses Folder</span>
+              <p>About ten.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="4" data-sender="folder" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">F</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">The Courses Folder</span>
+              <p>In fairness, each course is around two megabytes of generated HTML. I am the heaviest ceremony in the whole methodology. Some tasks are one-line fixes.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="5" data-sender="doc" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">The Doc</span>
+              <p>So I claim 66 and reality holds ~10. I am overclaiming — promising coverage the artifacts do not prove. In this repo that is the cardinal sin.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="6" data-sender="board" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">The Board</span>
+              <p>Two honest ways out: enforce the rule until reality matches you — or change yourself to match reality. Filing that decision as TASK-41.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-module1-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module1-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Docs drift toward fiction unless something pushes back</strong>
+          <p>Engineers call this <em>documentation drift</em>: the code and the docs describing it slowly diverge, because changing reality never automatically changes the text about it. Mature projects treat a doc&rsquo;s claims like a promise that must be either enforced or withdrawn — never left quietly false.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: why weaken, not enforce -->
+    <div class="screen">
+      <h2>Why weaken the rule instead of enforcing it?</h2>
+      <p>
+        &ldquo;Just follow the rule harder&rdquo; was on the table. Three facts killed it:
+      </p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🏋️</div>
+          <h4 class="pattern-title">Heaviest ceremony</h4>
+          <p class="pattern-desc">~2MB of generated HTML per course — the most expensive ritual in the methodology, demanded even for tiny tasks.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📉</div>
+          <h4 class="pattern-title">~10 of 66 complied</h4>
+          <p class="pattern-desc">When 85% of cases ignore a rule, the rule is not being broken — it is being voted out by the people doing the work.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">🦴</div>
+          <h4 class="pattern-title">Courses fossilize</h4>
+          <p class="pattern-desc">Old courses fail their own quality check whenever the course toolkit upgrades — a problem Module 3 unpacks.</p>
+        </div>
+      </div>
+
+      <p>
+        So the project owner decided: courses become <strong>opt-in</strong>. Not deleted,
+        not disgraced — just no longer demanded for every task. Module 2 shows the mechanism
+        that replaced the mandate.
+      </p>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. A doc that overclaims is treated like a bug: either enforce until reality matches the words, or rewrite the words to match reality. Leaving it quietly false is the one option this project forbids — and here, enforcement was judged too expensive, so the words changed."
+             data-explanation-wrong="Remember the audit chat: the Board named exactly two honest exits. Silently hoping nobody notices was not one of them.">
+          <h3 class="quiz-question">A project doc promises &ldquo;every release gets a demo video,&rdquo; but only 3 of 20 releases have one. Under this project&rsquo;s principles, what are the acceptable responses?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Leave the doc alone — it describes the ideal, and ideals are aspirational</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete the 3 existing videos so the doc and reality at least match at zero</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Either enforce the rule until artifacts match the claim, or rewrite the claim to tell the truth</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — cost versus compliance. When a ritual is the heaviest thing you ask of people and 85% of cases skip it, tightening enforcement punishes everyone for a rule that no longer fits. The cheaper honest fix is to change the rule."
+             data-explanation-wrong="Think about the three cards you just saw: what did the 2MB-per-course weight and the 10-of-66 compliance rate say about the rule itself?">
+          <h3 class="quiz-question">Why did the project weaken the course mandate rather than enforce it harder?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Courses turned out to have no teaching value after all</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The ritual was the methodology&rsquo;s most expensive, most tasks skipped it, and forcing it on every tiny task cost more than it taught</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The tooling for building courses was removed from the project</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

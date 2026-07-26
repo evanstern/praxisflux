@@ -1,0 +1,212 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1>Snapshots, Not Living Docs</h1>
+      <p class="lead">
+        One question remained: when a course gets old, must someone <em>maintain</em> it?
+        This project already keeps a set of documents eternally fresh — its
+        <span class="term" data-definition="The project's docs/wiki/ — a set of interlinked notes describing how the code currently works. Each note is pinned to the exact code version it was verified against, and an automated check flags it the moment that code changes.">wiki notes</span>
+        are pinned to code versions and automatically flagged the moment the code moves on.
+        Should courses live under the same regime?
+      </p>
+      <p>
+        TASK-41&rsquo;s answer: <strong>no</strong>. A course is a photograph, not a mirror.
+        A photo of your street in 2019 is not &ldquo;wrong&rdquo; because a bakery closed —
+        it is a true record of 2019. Demanding it stay current would mean re-shooting every
+        photo forever. Courses are declared <strong>snapshot-exempt</strong>: checked once
+        when built, never re-checked after.
+      </p>
+    </div>
+
+    <!-- Screen 2: why — the fossil mechanism, in real code -->
+    <div class="screen">
+      <h2>Why exempt them? Because of this code</h2>
+      <p>
+        The pressure was real, not hypothetical. Every course is checked by a
+        <span class="term" data-definition="An automated pass/fail check that proves an artifact meets its contract — here, that a built course has all required parts. Gates are how this project enforces that status never exceeds proven artifacts.">gate</span>,
+        and part of that gate inspects the
+        <span class="term" data-definition="The shared shell every course is built from — the stylesheet, the JavaScript engines, the page skeleton. Copied into each course folder and stamped with a generation number, like a car's model year.">chrome</span>
+        — the shared toolkit files inside the course folder. Here is the actual check,
+        verbatim from <code>validate.mjs</code>:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE — codebase-to-course/skills/codebase-to-course/references/validate.mjs</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> STAMP = <span class="code-string">/chrome v(\d+)/</span>;</span>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">checkChrome</span>(courseDir) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> fails = [];</span>
+<span class="code-line">  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> f <span class="code-keyword">of</span> [<span class="code-string">"styles.css"</span>, <span class="code-string">"main.js"</span>]) {</span>
+<span class="code-line">    <span class="code-keyword">const</span> p = <span class="code-function">join</span>(courseDir, f);</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">existsSync</span>(p)) { fails.<span class="code-function">push</span>(<span class="code-string">`${f}: missing from ${courseDir}`</span>); <span class="code-keyword">continue</span>; }</span>
+<span class="code-line">    <span class="code-keyword">const</span> m = STAMP.<span class="code-function">exec</span>(<span class="code-function">readFileSync</span>(p, <span class="code-string">"utf8"</span>).<span class="code-function">slice</span>(0, 600));</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!m) fails.<span class="code-function">push</span>(<span class="code-string">`${f} has no chrome version stamp — that's v1, the retired side-by-side renderer. Upgrade: copy the plugin references/ files over this course dir and rebuild (gotchas.md "Stale Chrome").`</span>);</span>
+<span class="code-line">    <span class="code-keyword">else if</span> (+m[1] !== CHROME_VERSION) fails.<span class="code-function">push</span>(<span class="code-string">`${f} is chrome v${m[1]} but this validator is v${CHROME_VERSION} — mixed chrome. Re-copy ALL reference files together, then rebuild.`</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> fails;</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define the pattern to hunt for: a &ldquo;model year&rdquo; stamp like &ldquo;chrome v2&rdquo;.</p>
+            <p class="tl">This is the inspection: hand it a course folder and it reports problems.</p>
+            <p class="tl">Start with an empty list of complaints.</p>
+            <p class="tl">Inspect the two shared toolkit files every course carries: its stylesheet and its engine script.</p>
+            <p class="tl">Work out where that file should sit inside this course folder.</p>
+            <p class="tl">If the file is missing entirely, complain and move on to the next one.</p>
+            <p class="tl">Otherwise read the top of the file and look for the model-year stamp.</p>
+            <p class="tl">No stamp at all? That is the retired first generation — complain, and explain how to upgrade.</p>
+            <p class="tl">Stamp present but the wrong number? Mixed generations — complain about that too.</p>
+            <p class="tl">Close the loop over both files.</p>
+            <p class="tl">Hand back the list of complaints; an empty list means the chrome passes.</p>
+            <p class="tl">&hellip;and that is the whole inspection.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        See the trap? The stamp is compared against the <em>current</em> generation. The day
+        the toolkit bumps from v2 to v3, <strong>every course ever built fails this check</strong>
+        — including the one you are reading. Nothing about their content changed; the world
+        moved. That is a fossil, not a failure.
+      </p>
+    </div>
+
+    <!-- Screen 3: the two regimes, side by side -->
+    <div class="screen">
+      <h2>Two kinds of documents, two contracts</h2>
+      <p>
+        The policy draws one clean line, based on what each document <em>claims</em>:
+      </p>
+
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-1)">🪞</div>
+          <div>
+            <strong>Wiki notes — mirrors — must stay fresh</strong>
+            <p>They claim &ldquo;this is how the code is <em>now</em>.&rdquo; That claim rots the moment code changes, so every note is re-verified and re-pinned when its sources move.</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-actor-2)">📸</div>
+          <div>
+            <strong>Courses — photographs — are snapshot-exempt</strong>
+            <p>They claim &ldquo;this is what one unit of work <em>was</em>.&rdquo; A claim about the past cannot go stale. The gate applies once, at build time, and never again.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Match the maintenance contract to the claim</strong>
+          <p>This is a deep documentation principle: a doc describing the <em>present</em> needs machinery to keep it true; a doc describing the <em>past</em> only needs to be kept intact. Forcing past-tense records through present-tense freshness checks is ceremony without a consumer — work nobody benefits from.</p>
+        </div>
+      </div>
+
+      <p>
+        The same honesty applies to history. Courses exist for only a <em>subset</em> of Done
+        tasks — the ones built while the old mandate was in force. The new policy does not
+        retroactively demand the missing ones, and it does not delete the existing ones. They
+        stand as what they are: snapshots of the mandate era. And this course —
+        <code>docs/courses/TASK-41/</code>, documenting the policy change itself — is the
+        last one built because a rule said so.
+      </p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. Courses are snapshot-exempt: the gate applies at build time only, so a fossil failing a later re-run is expected and fine. Old courses are neither re-chromed nor deleted — they remain true records of the work they describe."
+             data-explanation-wrong="Think of the photograph metaphor and the checkChrome code: the stamp comparison guarantees every old course fails after a bump. Did the policy treat that as damage to repair, or as expected behavior to stop measuring?">
+          <h3 class="quiz-question">The chrome toolkit bumps from v2 to v3, and all twenty existing courses now fail <code>checkChrome</code>. Under the new policy, what happens?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A sweep re-copies v3 chrome into all twenty courses and rebuilds them</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The failing courses are deleted — a red gate cannot be left in the repo</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — the gate only ever applied at build time, and the old courses stand as snapshots</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the wiki note claims to describe the present, so the code change makes it false and it must be re-verified and re-pinned. The course describes what the task's work was, a past-tense claim the refactor cannot invalidate."
+             data-explanation-wrong="Apply the mirror-versus-photograph line: which of the two documents claims to describe how the code is NOW?">
+          <h3 class="quiz-question">A refactor renames a module that both a wiki note and an old course mention. Which document must be updated, and why?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Both — every document mentioning the old name is now wrong</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the wiki note — it claims to describe the present; the course records the past</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only the course — courses are the teaching artifact, so they take priority</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Screen 5: closing -->
+    <div class="screen">
+      <h2>What TASK-41 leaves behind</h2>
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>An honest rulebook</strong>
+            <p><code>docs/task-courses.md</code> rewritten: opt-in via a standing per-project choice — per-task, per-feature, or none — with the historical gap stated plainly</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>A recorded choice</strong>
+            <p>This repo picked per-feature, written into the policy doc and the CLAUDE.md workflow — the mandate line is gone</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>A freshness stance</strong>
+            <p>Courses are snapshot-exempt: gated once at build time, never re-pinned, never deleted for aging</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>This course</strong>
+            <p>The last mandatory one — a snapshot of the moment the project decided snapshots were enough</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

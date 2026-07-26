@@ -1,0 +1,197 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1>One Choice, Made Once</h1>
+      <p class="lead">
+        What replaces a mandate? The lazy answer is &ldquo;ask every time&rdquo; — and it was
+        explicitly rejected. Asking &ldquo;want a course for this one?&rdquo; at the end of
+        every task just converts a heavy ritual into a nagging one. Instead, each project
+        makes a <strong>standing choice</strong>: decide once, write it down, never get asked
+        again.
+      </p>
+      <p>
+        It works like a coffee subscription, not a coffee counter. You do not re-answer
+        &ldquo;beans or ground? how often?&rdquo; with every delivery — you set a preference
+        once, and every future delivery consults it. Change your mind? Edit the preference,
+        deliberately, once.
+      </p>
+    </div>
+
+    <!-- Screen 2: the three grains -->
+    <div class="screen">
+      <h2>Three grains to choose from</h2>
+      <p>
+        A project picks exactly one of three settings — the <em>grain</em> at which teaching
+        artifacts get made:
+      </p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🔬</div>
+          <h4 class="pattern-title">per-task</h4>
+          <p class="pattern-desc">The old rule, now voluntary: every completed task ships a course in a folder named for the task. Maximum coverage, maximum cost.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📦</div>
+          <h4 class="pattern-title">per-feature</h4>
+          <p class="pattern-desc">One course per shipped feature — a whole epic or delivery, named for the feature. Individual tasks ship nothing.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">🚫</div>
+          <h4 class="pattern-title">none</h4>
+          <p class="pattern-desc">No courses at all. The board, the wiki, and git history remain the record. A legitimate choice, honestly stated.</p>
+        </div>
+      </div>
+
+      <p>
+        And the choice must live somewhere durable — a written
+        <span class="term" data-definition="A durable, checkable output — a file, a folder, a passing test. In this project, artifacts are the proof that work actually happened; claims without artifacts don't count.">artifact</span>,
+        not a memory. For most projects that is a <code>courses:</code> line in the project&rsquo;s
+        <span class="term" data-definition="The always-loaded instruction block planted into a project's CLAUDE.md file when it is set up for the praxis development lifecycle — the standing context every AI session reads before working there.">planted grounding block</span>.
+        For this repository itself, it is a &ldquo;Course policy&rdquo; stanza in
+        <code>docs/task-courses.md</code> plus a matching line in the repo&rsquo;s
+        <code>CLAUDE.md</code> workflow.
+      </p>
+    </div>
+
+    <!-- Screen 3: the lifecycle, animated -->
+    <div class="screen">
+      <h2>Watch the choice do its job</h2>
+      <p>
+        Here is the whole lifecycle under a <strong>per-feature</strong> choice — decided
+        once at setup, consulted automatically forever after. Step through it:
+      </p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Day one: the project records its standing choice in its grounding — per-feature"},
+        {"highlight":"flow-actor-2","label":"Months later, a feature ships. Nobody gets asked about courses"},
+        {"highlight":"flow-actor-1","label":"The finishing session consults the recorded choice","packet":true,"from":"actor-2","to":"actor-1"},
+        {"highlight":"flow-actor-1","label":"The grounding answers: per-feature — one course for this whole feature"},
+        {"highlight":"flow-actor-3","label":"A course named for the feature lands in docs/courses/","packet":true,"from":"actor-1","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"The course gate checks it once, at build time — then it ships with the feature"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">📜</div>
+            <span>Project grounding</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🚀</div>
+            <span>Shipped feature</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">🎓</div>
+            <span>docs/courses/</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: praxisflux's own choice, verbatim -->
+    <div class="screen">
+      <h2>This repo&rsquo;s own answer: per-feature</h2>
+      <p>
+        TASK-41 did not just design the mechanism — it used it. This repository recorded its
+        standing choice as <strong>per-feature</strong>, right in the workflow step that used
+        to carry the mandate. Here is the rewritten step 4 of the repo&rsquo;s
+        <code>CLAUDE.md</code>, exactly as committed:
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">DOC — CLAUDE.md, workflow step 4 (after TASK-41)</span>
+          <pre><code>
+<span class="code-line">4. **Finalize** — all ACs checked + DoD checked, write `--final-summary`, set `-s "Done"`, and</span>
+<span class="code-line">   commit. (`backlog instructions task-finalization` is the full checklist.) Courses are</span>
+<span class="code-line">   opt-in, not per-task — praxisflux's standing choice is **per-feature**, a course per</span>
+<span class="code-line">   shipped feature on request (`docs/task-courses.md`).</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">To finish a task: confirm every acceptance box is ticked, write a closing summary, mark it Done&hellip;</p>
+            <p class="tl">&hellip;and commit. Then the sentence that used to demand a course now says: courses are voluntary&hellip;</p>
+            <p class="tl">&hellip;and this repo&rsquo;s recorded preference is one course per shipped feature&hellip;</p>
+            <p class="tl">&hellip;built when asked for — with a pointer to the full policy document.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Configuration over interrogation</strong>
+          <p>This is a classic engineering pattern: replace a repeated runtime question with a declared setting read from config. It kills decision fatigue, makes behavior predictable, and — because the setting is a committed file — leaves a paper trail when it changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2>Check your instincts</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right — that is exactly the per-feature grain: one course per shipped feature, named for the feature, with individual tasks shipping nothing. Recorded once in the project's grounding, it never needs re-asking."
+             data-explanation-wrong="Look back at the three cards. The team wants teaching artifacts for big deliveries but not for every small card on the board — which grain matches that?">
+          <h3 class="quiz-question">A team wants a course when a major deliverable ships, but finds course-per-task absurd for typo fixes. Which standing choice should they record?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>per-task — and simply skip it for the small ones</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>per-feature — one course per shipped feature, tasks ship nothing</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>none — courses cannot be limited to big deliveries</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — option (a) re-creates per-task-style nagging in disguise. The whole design goal was a standing choice: decided once, written into a durable artifact, consulted silently, changed only deliberately."
+             data-explanation-wrong="Recall the coffee subscription: the point was to stop answering the same question with every delivery. Which option would put the question back?">
+          <h3 class="quiz-question">The mechanism explicitly rejects one design. Which of these would violate the standing-choice idea?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Prompting &ldquo;build a course for this one?&rdquo; at the end of every task</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Recording <code>courses: none</code> and shipping no courses at all</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Editing the recorded choice from per-feature to per-task in a deliberate commit</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
