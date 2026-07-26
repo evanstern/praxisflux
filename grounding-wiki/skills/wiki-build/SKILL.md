@@ -1,6 +1,6 @@
 ---
 name: wiki-build
-version: 0.1.2
+version: 0.2.0
 description: Generate a code-grounded corpus (docs/wiki) for a codebase — per-concept MD notes pinned to the current commit, interlinked and indexed, passing the freshness gate. Use when the user wants a grounding wiki, a queryable knowledge base for a repo, or says "build a wiki for this codebase" / "ground this repo".
 ---
 
@@ -32,11 +32,22 @@ files whose change invalidates it.
    - Neutral, factual tone. File paths + symbol names, never line numbers. Short verbatim
      snippets only where load-bearing. 40–90 lines. `[[links]]` only to notes on the list.
    - `sources:` lists every file whose change should invalidate the note — no more, no less.
+   - **Token budgets** (corpus-spec v2): `description:` is the note's capsule — ≤500 chars,
+     written for routing (what the note covers, when to load it), never a teaser. The body
+     stays ≤8,000 chars; at the cap split summary-style into child notes (parent keeps a
+     one-paragraph summary + `[[wikilink]]` per child) — but never split a child under
+     ~1,500 chars of substance; an unsplittable over-cap note gets
+     `size_budget_exempt: <reason>` in its frontmatter instead.
+4. **Generate the capsule rollup** — `CAPSULES.md` is part of every build pass:
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/capsules.mjs <repo-root> docs/wiki`. It is derived
+   state (never hand-edit it), and its presence turns the freshness gate's budget checks
+   from warnings into failures — that is the point.
 
 ## Output gate
 
 Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs freshness <repo-root> docs/wiki` — must exit 0
-(all notes pinned + fresh, all `[[links]]` resolving; warnings are yours to judge).
+(all notes pinned + fresh, all `[[links]]` resolving, capsules and bodies within the v2
+budgets, `CAPSULES.md` current; warnings are yours to judge).
 
 ## Handing off
 

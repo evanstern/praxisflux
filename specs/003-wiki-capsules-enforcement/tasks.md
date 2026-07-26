@@ -8,7 +8,7 @@
 ## Implement
 
 - [x] T002 CAPSULES.md generator module + CLI (deterministic, header, INDEX order)
-- [ ] T003 wiki-build + wiki-update SKILL.md: regeneration wired into the pass
+- [x] T003 wiki-build + wiki-update SKILL.md: regeneration wired into the pass
 - [x] T004 gate: adoption-keyed budget enforcement (capsule 500, body 8000, exempt key)
 - [x] T005 gate: CAPSULES.md staleness via regenerate-and-compare; unadopted → warn-only
 - [x] T006 tests: generator + gate fixtures (adopted/unadopted/exempt/determinism)
