@@ -11,7 +11,7 @@
   hold; tests (R1)
 - [x] T003 bootstrap SKILL.md references the trace (R2)
 - [x] T004 versions: bootstrap skill + marketplace sync-version (R3)
-- [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
+- [x] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
 
 ## Prove
 
