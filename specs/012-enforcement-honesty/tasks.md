@@ -7,17 +7,17 @@
 
 ## Implement
 
-- [ ] T002 hooks audit recorded; README table gains the enforcement column (R2)
-- [ ] T003 framing: advisory-local / CI-authoritative in README, CLAUDE (hand-written
+- [x] T002 hooks audit recorded; README table gains the enforcement column (R2)
+- [x] T003 framing: advisory-local / CI-authoritative in README, CLAUDE (hand-written
   section), consuming-gates (R1)
-- [ ] T004 gate.sh one-time non-blocking node-missing notice, in canonical source +
+- [x] T004 gate.sh one-time non-blocking node-missing notice, in canonical source +
   synced copies (R3)
-- [ ] T005 check-docs mechanical census vs marketplace.json + fixtures; seven-vs-nine
+- [x] T005 check-docs mechanical census vs marketplace.json + fixtures; seven-vs-nine
   drift fixed incl. status blockquote (R4)
-- [ ] T006 versions: marketplace sync-version (R5)
-- [ ] T007 wiki re-pins per freshness gate; CAPSULES regen if needed
+- [x] T006 versions: marketplace sync-version (R5)
+- [x] T007 wiki re-pins per freshness gate; CAPSULES regen if needed
 
 ## Prove
 
-- [ ] T008 gates green: node --test, check-docs, wiki-freshness, bump gate
+- [x] T008 gates green: node --test, check-docs, wiki-freshness, bump gate
 - [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator
