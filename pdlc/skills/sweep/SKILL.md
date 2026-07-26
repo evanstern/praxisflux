@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.3.0
+version: 0.4.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -57,7 +57,11 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
 
 Read every input task (`backlog task view <id> --plain`), the synthesis/design doc that
 produced them, and the project's own gate machinery (check scripts, freshness gates,
-constitution/tier rubric). Then derive, in this order:
+constitution/tier rubric). Orient on the project's grounded corpus (`docs/wiki/` or
+similar) capsule-first: read `CAPSULES.md` — not the note bodies — for the whole-corpus
+view, loading full notes only for the specific concepts the scoped tasks actually touch;
+when no `CAPSULES.md` exists, route from `INDEX.md` and load notes just-in-time. Then
+derive, in this order:
 
 1. **Lanes** — the dependency-ordered parallelism plan. The governing rule is
    **develop in parallel, merge serially**: parallel worktrees are cheap, but concurrent
@@ -128,7 +132,9 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    anything; then remove the worktree, delete the branch, ff-pull root. Never
    delete+recreate a closed PR's head branch — open a fresh PR instead.
 9. **Re-ground — the merge is not the end:** `spec-bridge:sync`; tick the spec's tasks.md
-   at root; refresh the wiki when the merge touched any note's sources; run the project's
+   at root; refresh the wiki when the merge touched any note's sources — re-orienting
+   capsule-first: `CAPSULES.md` when present for the whole-corpus view, full notes only
+   for the concepts the merge touched (else INDEX + just-in-time); run the project's
    downstream doc skills if their freshness checks say stale; mark the task Done with a
    final summary.
 10. **Log it:** append one line to the runbook's execution log (task, PR, merge sha,
