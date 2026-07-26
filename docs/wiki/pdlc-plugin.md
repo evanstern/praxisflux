@@ -10,17 +10,17 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 013fbc137d04777b0057cead9a3e003c839ed9be
+verified_against: a4862009d6789e31b8ac0fa237feb1ac8f5819e0
 ---
 
 # pdlc plugin
 
 The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level installer plus
-the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder — brand-new or an
-existing codebase — as a **praxis-development-lifecycle project** whose always-on context
+the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing
+codebase) as a **praxis-development-lifecycle project** whose always-on context
 knows the whole loop, the suite-wide application of the [[skill-patterns]] rule "plant a
-project CLAUDE.md" (a plugin has no always-on slot). Since 0.12.0 the plugin carries a
-second skill, `sweep`, that runs the lifecycle it installs (below).
+project CLAUDE.md" (a plugin has no always-on slot); since 0.12.0 a second skill, `sweep`,
+runs the lifecycle it installs (below).
 
 ## pdlc:sweep — the board-sweep orchestrator
 
@@ -75,64 +75,71 @@ direction (that arrives from reorient/team-review/the operator) and writes no co
 
 ## The planted grounding is a marked block, not a file
 
-Everything pdlc plants rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
-`pdlc/templates/CLAUDE.md`. That one decision buys the three behaviors the skill needs:
+Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
+`pdlc/templates/CLAUDE.md` — one decision buying three behaviors:
 
-- **Compose with an existing `CLAUDE.md`** — appended after the user's content, never clobbering it.
+- **Compose with an existing `CLAUDE.md`** — appended after the user's content, never clobbered.
 - **Refresh wholesale on update** — the block is boilerplate; user edits belong *outside* the markers.
 - **Honest drift handling** — a block differing from the current render reports `drifted`
-  and is never overwritten without `--force`; the skill diffs and gets consent first.
+  and is never overwritten without `--force`; the skill diffs and gets consent.
 
-Peer conventions are nested `<!-- pdlc:peer:backlog -->` / `<!-- pdlc:peer:spec-kit -->` sub-blocks,
-stripped at render time unless opted in.
+Peer conventions are nested `pdlc:peer:backlog` / `pdlc:peer:spec-kit` sub-blocks, stripped
+at render time unless opted in.
 
 The block's "Rules that always hold" carry the foundational ("101") praxis principles from
-`docs/principles.md` — **artifact-grounded action** (never act without a durable paper trail
-and/or gating on real physical evidence) and **one TASK, one PR** (a SUBTASK never gets its own
-PR) — so every bootstrapped project inherits them; each peer sub-block adds that system's
-mapping (Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR
-boundaries). Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements — the
-three-tier model (an EPIC gets no PR of its own) and the reason-to-approve test (a PR
-exists only where it gives a human a stated reason to approve; too-small work merges into
-the deliverable it serves); `test/pdlc.test.mjs` asserts both. Since 0.14.0 the rules also
-carry a compact **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption made
-always-on: `INDEX.md`-first routing, notes just-in-time, never bulk-load, whole-corpus
-orientation via `CAPSULES.md` when it exists.
+`docs/principles.md` — **artifact-grounded action** (no action without a durable paper
+trail / real evidence) and **one TASK, one PR** (a SUBTASK never gets its own PR) — so
+every
+bootstrapped project inherits them; each peer sub-block adds that system's mapping
+(Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR boundaries).
+Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements — the three-tier
+model and the reason-to-approve test (no PR without a stated reason for a human to
+approve); `test/pdlc.test.mjs` asserts both. Since 0.14.0 the rules
+also carry a **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption always-on
+(INDEX-first routing, just-in-time notes, `CAPSULES.md` orientation).
 
 ## Deterministic core: scripts/plant.mjs
 
-A dual-use module (library + CLI, guarded by [[chassis-utilities]]' `runAsCli`) built on the
-[[installer]] chassis (`ensureGitignore`, `verifyPresent`) and `template.mjs`. One invocation:
+A dual-use module (library + CLI, [[chassis-utilities]]' `runAsCli`) on the [[installer]]
+chassis and `template.mjs`. One invocation:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--peer backlog] [--peer spec-kit] [--check] [--force]
+node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--check] [--force]
 ```
 
 renders the expected block and lands it (`created` | `appended` | `replaced` | `unchanged` |
 `drifted`), gitignores `.handoff/` (the [[handoff-protocol]] transport), and stamps the `.pdlc`
-sentinel — a JSON record of plugin version + peer choices that `installMode` keys fresh-vs-update
-on. Two safety properties are load-bearing: the sentinel never advances past an unconfirmed drifted
-block, and `--check` writes nothing and exits 1 while planting is pending (the skill's output gate).
+sentinel — a JSON record of version + resolved name + peer choices that fresh-vs-update
+keys on. Two load-bearing properties: the sentinel never advances past an unconfirmed
+drifted block; `--check` writes nothing and exits 1 while planting is pending (the skill's
+output gate).
 
-Since 0.23.0 absent peers leave a **deterministic trace** (the TASK-43 dogfood finding:
-omission stays the opt-out, never a silent one): the sentinel records every known peer not
-opted in under `peersOmitted`, and the CLI prints a one-line stderr notice per omitted peer
-naming its stripped `pdlc:peer:<name>` block. `peersOmitted` derives from the peer choices,
-so a same-peers re-plant stays `unchanged`; legacy sentinels without the field stay
-readable, never rewritten just to gain it.
+Since 0.23.0 absent peers leave a **deterministic trace** (TASK-43 finding #1: omission
+stays the opt-out, never silent): the sentinel records not-opted-in peers under
+`peersOmitted`, and the CLI prints one stderr notice per omitted peer naming its stripped
+block. `peersOmitted` derives from the peer choices, so a same-peers re-plant stays
+`unchanged`.
+
+Since 0.26.0 the rendered PROJECT_NAME stops trusting `basename(root)` (TASK-43 finding #2:
+a worktree plant bakes the worktree's name into the heading; the real root then spuriously
+drifts). Ladder: `--name` > the sentinel-recorded name > a worktree's PRIMARY
+checkout basename (from its `gitdir:` pointer) > `basename(root)`. The recorded `name` is
+sticky — a re-plant from a differently-named checkout stays `unchanged`; only `--name`
+changes it, as honest drift. Legacy sentinels missing either field are never rewritten to
+gain it.
 
 ## Peer utilities are first-class, not assumed
 
 Backlog.md and GitHub Spec Kit are **officially supported peers**: the skill detects their
-CLIs (`backlog`, `specify`); when absent it recommends installation and points at the
-plant's deterministic trace as the durable record, when present it asks per-peer opt-in
-and, on opt-in, runs the peer's own init (`backlog init` / `specify init --here`), skipping
-if already initialized. Opt-ins select the planted convention blocks and are recorded in
-`.pdlc`, so an update re-presents them as defaults.
+CLIs (`backlog`, `specify`); when absent it recommends installation (the plant's trace is
+the durable record), when present it asks opt-in per peer and runs its init
+(`backlog init` / `specify init --here`), skipping if already initialized. Opt-ins
+select the planted convention blocks and are recorded in `.pdlc`; an update re-presents
+them as defaults.
 
 ## What it deliberately does not do
 
 Phase separation ([[skill-patterns]]) holds: bootstrap creates no `docs/wiki/`
 ([[grounding-wiki-plugin]]) and no `docs/course/` ([[codebase-to-course-plugin]]), and never
 invokes sibling skills — it sets the table and hands off. No Stop hook: pdlc has no
-lifecycle of its own; the plugins it wires in bring their own gates ([[gates-convention]]).
+lifecycle of its own; the wired-in plugins bring their own gates ([[gates-convention]]).

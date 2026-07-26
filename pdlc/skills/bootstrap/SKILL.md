@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.4.0
+version: 0.5.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
 ---
 
@@ -66,27 +66,37 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
 ## Plant
 
 1. Preview first: run
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--peer backlog] [--peer spec-kit] --check`
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] --check`
    (one `--peer` per opt-in). The JSON report says what would happen: `created`, `appended`
    (existing `CLAUDE.md` gains the marked block at the end), `replaced`, `unchanged`, or
    `drifted`.
-2. **`drifted`** means the on-disk block differs from what this plugin version plants —
+2. **Project name.** The block's heading never blindly trusts the folder name. The planter
+   resolves it (reported as `projectName`): an explicit `--name <name>` wins > the name
+   `.pdlc` recorded at a previous plant > when `<root>` is a **git worktree** (`.git` is a
+   `gitdir:` file), the **primary checkout's** basename > `basename(<root>)` as the last
+   fallback. Pass `--name` whenever the folder name is not the project's name (scratch
+   dirs, CI checkouts). **Doctrine: once planted, the name is sticky** — a re-plant from a
+   differently-named checkout of the same project (a worktree, a renamed clone) reports
+   `unchanged`, never spuriously `drifted`; only `--name` changes the name, and that
+   change surfaces as honest drift handled per the next step.
+3. **`drifted`** means the on-disk block differs from what this plugin version plants —
    either a plugin upgrade or user edits inside the markers. Diff the block against the
    rendered template, show the user what would change, and get explicit consent. Carry any
    project-specific edits **outside** the markers (that's their supported home), then re-run
    with `--force`. Never silently discard user text.
-3. Run the plant for real (same command without `--check`, plus `--force` only after the
-   consent above). This writes the `CLAUDE.md` block, the `.pdlc` sentinel (version + peer
-   choices), and gitignores `.handoff/` — all idempotent.
+4. Run the plant for real (same command without `--check`, plus `--force` only after the
+   consent above). This writes the `CLAUDE.md` block, the `.pdlc` sentinel (version +
+   resolved name + peer choices), and gitignores `.handoff/` — all idempotent.
 
 ## Output gate
 
 1. Re-run with `--check`: it must exit 0 (nothing left to change) and report
    `claudeMd: unchanged`.
 2. Verify on disk — never claim success without looking: `<root>/CLAUDE.md` contains the
-   `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), `<root>/.pdlc` records
-   the right peers (and each declined peer under `peersOmitted`), `.gitignore` contains
-   `.handoff/`.
+   `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), the heading names
+   the **project** (not a worktree/scratch folder), `<root>/.pdlc` records the resolved
+   `name` and the right peers (each declined peer under `peersOmitted`), `.gitignore`
+   contains `.handoff/`.
 3. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
    skipped because `backlog/` existed), and **left untouched** (everything outside the
    markers; all user content).

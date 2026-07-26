@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { plant, renderGrounding, extractBlock, PEERS, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, SENTINEL } from "../pdlc/scripts/plant.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "CLAUDE.md"), "utf8");
@@ -217,6 +217,93 @@ test("legacy sentinels without peersOmitted stay readable and re-plant as unchan
     assert.equal(upgraded.pdlcFile, "updated");
     assert.deepEqual(JSON.parse(readFileSync(sentinelPath, "utf8")).peersOmitted, ["spec-kit"], "a real update gains the field");
   } finally { done(); }
+});
+
+// --- name resolution (spec 017) ---
+
+/** A real primary checkout named `primaryName` plus a git worktree named `wtName`. */
+function gitPair(primaryName, wtName) {
+  const base = mkdtempSync(join(tmpdir(), "pdlc-wt-"));
+  const primary = join(base, primaryName);
+  mkdirSync(primary);
+  const git = (cwd, ...args) =>
+    execFileSync("git", ["-c", "user.email=t@t", "-c", "user.name=t", ...args], { cwd, encoding: "utf8" });
+  git(primary, "init", "-q");
+  writeFileSync(join(primary, "seed"), "seed\n");
+  git(primary, "add", "seed");
+  git(primary, "commit", "-qm", "seed");
+  const wt = join(base, wtName);
+  git(primary, "worktree", "add", "-q", "-b", `${wtName}-branch`, wt);
+  return { primary, wt, done: () => rmSync(base, { recursive: true, force: true }) };
+}
+
+test("resolveProjectName ladder: override > recorded > worktree gitdir parse > basename", () => {
+  const { root, done } = proj();
+  try {
+    assert.equal(resolveProjectName(root), basename(root), "non-git dir keeps basename");
+    writeFileSync(join(root, ".git"), "gitdir: /elsewhere/my-primary/.git/worktrees/task-1\n");
+    assert.equal(resolveProjectName(root), "my-primary", "absolute gitdir pointer → primary basename");
+    writeFileSync(join(root, ".git"), "gitdir: ../rel-primary/.git/worktrees/task-1\n");
+    assert.equal(resolveProjectName(root), "rel-primary", "relative pointers resolve against root");
+    writeFileSync(join(root, ".git"), "gitdir: ../super/.git/modules/sub\n");
+    assert.equal(resolveProjectName(root), basename(root), "non-worktree pointer (submodule) falls back");
+    assert.equal(resolveProjectName(root, { recorded: "kept" }), "kept", "sentinel name beats derivation");
+    assert.equal(resolveProjectName(root, { name: "flag", recorded: "kept" }), "flag", "--name beats everything");
+  } finally { done(); }
+});
+
+test("worktree plant renders the PRIMARY checkout's name; re-plants from either side stay unchanged, never drifted", () => {
+  const { primary, wt, done } = gitPair("primary-proj", "task-999-elsewhere");
+  try {
+    const r = plant(wt, opts({ peers: [] }));
+    assert.equal(r.projectName, "primary-proj");
+    assert.ok(readFileSync(join(wt, "CLAUDE.md"), "utf8").includes("# primary-proj — praxis development lifecycle"));
+    assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "primary-proj");
+
+    const again = plant(wt, opts({ peers: [], check: true }));
+    assert.equal(again.claudeMd, "unchanged", "re-plant from the same worktree must be a no-op");
+
+    // the branch merges: the planted files land in the primary checkout byte-identical
+    for (const f of ["CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(wt, f), join(primary, f));
+    const back = plant(primary, opts({ peers: [], check: true }));
+    assert.equal(back.claudeMd, "unchanged", "re-plant from the primary must not spuriously drift");
+    assert.equal(back.pdlcFile, "unchanged");
+  } finally { done(); }
+});
+
+test("--name beats derivation, is recorded in the sentinel, and a later rename is honest drift", () => {
+  const { wt, done } = gitPair("primary-two", "task-1000");
+  try {
+    const r = plant(wt, opts({ peers: [], name: "flux" }));
+    assert.equal(r.projectName, "flux");
+    assert.ok(readFileSync(join(wt, "CLAUDE.md"), "utf8").includes("# flux — praxis development lifecycle"));
+    assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "flux");
+
+    const again = plant(wt, opts({ peers: [] }));
+    assert.equal(again.claudeMd, "unchanged", "re-plant without --name reuses the recorded name");
+    assert.equal(again.pdlcFile, "unchanged");
+
+    const renamed = plant(wt, opts({ peers: [], name: "flux2" }));
+    assert.equal(renamed.claudeMd, "drifted", "a rename never lands silently");
+    const forced = plant(wt, opts({ peers: [], name: "flux2", force: true }));
+    assert.equal(forced.claudeMd, "replaced");
+    assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "flux2", "the sentinel follows the rename");
+  } finally { done(); }
+});
+
+test("plain dirs keep basename(root); the CLI accepts --name and reports the resolved name", () => {
+  const a = proj(), b = proj();
+  try {
+    const r = plant(a.root, opts({ peers: [] }));
+    assert.equal(r.projectName, basename(a.root));
+    assert.ok(readFileSync(join(a.root, "CLAUDE.md"), "utf8").includes(`# ${basename(a.root)} — praxis development lifecycle`));
+
+    const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+    const out = spawnSync(process.execPath, [cli, "--root", b.root, "--name", "acme"], { encoding: "utf8" });
+    assert.equal(out.status, 0);
+    assert.equal(JSON.parse(out.stdout).projectName, "acme");
+    assert.ok(readFileSync(join(b.root, "CLAUDE.md"), "utf8").includes("# acme — praxis development lifecycle"));
+  } finally { a.done(); b.done(); }
 });
 
 test("unknown peers are rejected", () => {
