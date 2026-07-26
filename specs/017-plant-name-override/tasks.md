@@ -7,8 +7,22 @@
 
 ## Implement
 
-- [ ] T002 --name flag wins; worktree-aware derivation (primary checkout's name);
-  basename fallback; tests incl. worktree round-trip not spuriously drifted (R1)
+- [x] T002 --name flag wins; worktree-aware derivation (primary checkout's name);
+  basename fallback; tests incl. worktree round-trip not spuriously drifted (R1).
+  **Design decision — `.pdlc` DOES store the resolved name** (`name` field), and it
+  sits in the ladder: `--name` > sentinel-recorded name > worktree `gitdir:` parse
+  (`…/.git/worktrees/<x>` → the primary checkout's basename) > `basename(root)`.
+  Rationale: recording makes the name *sticky*, which is the drift semantics R1 asks
+  for — once planted, a re-plant from ANY differently-named checkout (worktree, renamed
+  clone) reproduces the same block → `unchanged`; the name changes only when `--name`
+  says so, and that change surfaces as honest `drifted` + `--force`, mirroring every
+  other block change. Legacy sentinels without the field are tolerated exactly like
+  pre-`peersOmitted` ones: never rewritten just to gain it; a real update gains it.
+  Tests: resolveProjectName ladder (incl. relative gitdir + submodule fallback), real
+  git-worktree round-trip (plant in worktree → primary's name; `--check` re-plant from
+  worktree AND from primary after "merge" both `unchanged`), `--name` beats derivation +
+  rename-is-honest-drift, plain-dir basename + CLI `--name`; TASK-53 peersOmitted tests
+  untouched and green (18/18 in test/pdlc.test.mjs)
 - [ ] T003 bootstrap SKILL.md documents override + derivation (R2)
 - [ ] T004 versions: bootstrap skill + marketplace sync-version (R3)
 - [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
