@@ -12,7 +12,7 @@
 - [x] T003 pdlc/skills/sweep/SKILL.md: capsule-first whole-corpus orientation
 - [x] T004 reorient/skills/reorient/SKILL.md: evaluators capsule-first + A/B note
 - [x] T005 versions: owning skill bumps + marketplace sync-version
-- [ ] T006 wiki: re-verify + re-pin pdlc-plugin.md and reorient-plugin.md (two-step)
+- [x] T006 wiki: re-verify + re-pin pdlc-plugin.md and reorient-plugin.md (two-step)
 
 ## Prove
 
