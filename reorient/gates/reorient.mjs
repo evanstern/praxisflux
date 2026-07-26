@@ -48,13 +48,15 @@ export function ownsRun(run, sessionId) {
 }
 
 /** Ownership provenance in one line: who began the run, from where, and when — the facts
- *  that make orphan-vs-live decidable instead of guesswork. */
+ *  that make orphan-vs-live decidable instead of guesswork. A run begun in a shared
+ *  primary checkout via --shared-checkout carries that deliberate choice here too. */
 export function describeOwner(run) {
   const o = run.owner || {};
   const who = o.sessionId ? `session ${o.sessionId}` : "an unrecorded session";
   const origin = [o.user, o.host].filter(Boolean).join("@");
   const hb = run.heartbeatAt || run.startedAt;
   return `${who}${origin ? ` (${origin})` : ""}, begun ${run.startedAt || "?"} from ${run.cwd || "?"}` +
+    (run.sharedCheckout ? " (--shared-checkout: shared primary checkout)" : "") +
     (hb ? `, last heartbeat ${hb}` : "");
 }
 

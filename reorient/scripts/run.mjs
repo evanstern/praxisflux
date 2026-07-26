@@ -14,14 +14,18 @@
 // owner's Stop hook keeps fresh — so the Stop gate nags only the owner, `list` makes
 // orphan-vs-live decidable, and adopting someone else's run is an explicit `takeover`.
 //
+// Runs are WORKTREE-FIRST: begin refuses a registry root that is a shared primary checkout
+// (`.git` is a directory; a worktree carries a `gitdir:` file) unless --shared-checkout is
+// given — the override lands on the manifest and is surfaced by list/owner provenance.
+//
 //   begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...]
-//                [--synthesis <path>] [--session <id>]
+//                [--synthesis <path>] [--session <id>] [--shared-checkout]
 //   finish <id|root>                 run the output gate; pass -> state done; fail -> exit 2
 //   abandon <id|root> [reason...]    close without a synthesis, keeping durable residue
 //                                    (owner-only: take over a foreign run first)
 //   takeover <id|root>               explicitly adopt an in-flight run begun elsewhere
 //   list                             show runs, states, owners, and heartbeat ages
-import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { join, resolve, relative, basename, dirname } from "node:path";
 import { hostname, userInfo } from "node:os";
 import { checkReorient, runsDirFor, ownsRun, describeOwner } from "../gates/reorient.mjs";
@@ -121,6 +125,25 @@ if (runAsCli(import.meta.url)) {
   if (cmd === "begin") {
     const root = resolve(key || ".");
     if (!existsSync(root)) { console.error(`no such project root: ${root}`); process.exit(1); }
+    // Worktree-first doctrine: the runs registry is shared mutable state at the registry
+    // root, so a shared PRIMARY checkout — `.git` is a DIRECTORY there; a worktree carries
+    // a `gitdir:` FILE instead — is refused by default (session ownership is defense-in-
+    // depth, not isolation). `--shared-checkout` is the explicit, manifest-recorded
+    // exception; non-git registry roots are untouched by this check.
+    const registryRoot = dirname(dirname(dirname(RUNS)));
+    const sharedCheckoutFlag = rest.includes("--shared-checkout");
+    let checkoutKind = null; // "primary" | "worktree" | null (registry root is not a git checkout)
+    try { checkoutKind = statSync(join(registryRoot, ".git")).isDirectory() ? "primary" : "worktree"; } catch { /* not a git checkout */ }
+    if (checkoutKind === "primary" && !sharedCheckoutFlag) {
+      console.error(
+        `begin refused: registry root ${registryRoot} is a shared primary checkout (.git is a directory), so every session working here would share one .handoff/ run registry.\n` +
+          `  Worktree-first: begin the run from inside a git worktree so the registry stays lane-local —\n` +
+          `    git worktree add .worktrees/<name> -b <branch>\n` +
+          `  To deliberately run in this shared checkout anyway, re-run with --shared-checkout;\n` +
+          `  the override is recorded on the run manifest and surfaced by list/owner provenance.`,
+      );
+      process.exit(1);
+    }
     const flag = (name) => { const i = rest.indexOf(name); return i >= 0 ? rest[i + 1] : undefined; };
     const lens = flag("--lens");
     if (!lens || !lens.trim()) { console.error("begin requires --lens \"<the purpose statement everything gets pressure-tested against>\""); process.exit(1); }
@@ -147,12 +170,15 @@ if (runAsCli(import.meta.url)) {
     for (const other of loadRuns().filter((r) => r.state === "in-flight" && r.root === root))
       console.error(`note: another run is already in flight for this root — ${other.id}, owned by ${describeOwner(other)} (heartbeat ${ago(other.heartbeatAt || other.startedAt)})`);
     const startedAt = new Date().toISOString();
-    save({ id, state: "in-flight", root, lens, corpus, grounding, synthesis, cwd: process.cwd(), owner, startedAt, heartbeatAt: startedAt });
-    const handoffRoot = dirname(dirname(dirname(RUNS)));
-    if (existsSync(join(handoffRoot, ".git"))) {
+    // The override is recorded ONLY when it actually permitted a shared primary checkout —
+    // the manifest field is the audit trail of that deliberate choice (surfaced by
+    // list/describeOwner); a no-op flag in a worktree leaves no false claim behind.
+    const sharedCheckout = checkoutKind === "primary" && sharedCheckoutFlag;
+    save({ id, state: "in-flight", root, lens, corpus, grounding, synthesis, cwd: process.cwd(), owner, startedAt, heartbeatAt: startedAt, ...(sharedCheckout ? { sharedCheckout: true } : {}) });
+    if (checkoutKind !== null) {
       let ignored = false;
-      try { ignored = /(^|\n)\.handoff\/?(\n|$)/.test(readFileSync(join(handoffRoot, ".gitignore"), "utf8")); } catch { /* no .gitignore */ }
-      if (!ignored) console.error(`warning: ${handoffRoot}/.gitignore does not cover .handoff/ — add it (handoff transport must never clutter git status)`);
+      try { ignored = /(^|\n)\.handoff\/?(\n|$)/.test(readFileSync(join(registryRoot, ".gitignore"), "utf8")); } catch { /* no .gitignore */ }
+      if (!ignored) console.error(`warning: ${registryRoot}/.gitignore does not cover .handoff/ — add it (handoff transport must never clutter git status)`);
     }
     console.log(
       `run ${id} in flight\n` +
@@ -160,6 +186,7 @@ if (runAsCli(import.meta.url)) {
         corpus.map((c) => `  corpus:    ${c.path} (${c.kind})`).join("\n") + "\n" +
         `  grounding: vault=${grounding.vault} wiki=${grounding.wiki || "none"} board=${grounding.board}\n` +
         `  owner:     ${owner.sessionId ? `session ${owner.sessionId}` : "no session identity (Stop gate falls back to checkout scoping)"} (${[owner.user, owner.host].filter(Boolean).join("@")})\n` +
+        (sharedCheckout ? `  registry:  shared primary checkout — --shared-checkout override recorded on the manifest\n` : "") +
         `  synthesis: ${synthesis}\n` +
         `  finish:    node ${process.argv[1]} finish ${id}`,
     );
@@ -205,10 +232,11 @@ if (runAsCli(import.meta.url)) {
       const o = r.owner || {};
       const who = `${[o.user, o.host].filter(Boolean).join("@") || "?"} ${o.sessionId ? `session ${o.sessionId.slice(0, 8)}…` : "no-session"}`;
       const hb = r.state === "in-flight" ? `, heartbeat ${ago(r.heartbeatAt || r.startedAt)}` : "";
-      console.log(`${r.state.padEnd(9)} ${r.id}  [${who}, begun ${r.startedAt || "?"}${hb}]  →  ${r.synthesis}`);
+      const shared = r.sharedCheckout ? ", --shared-checkout" : "";
+      console.log(`${r.state.padEnd(9)} ${r.id}  [${who}, begun ${r.startedAt || "?"}${hb}${shared}]  →  ${r.synthesis}`);
     }
   } else {
-    console.error('usage: run.mjs begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>] | finish <id|root> | abandon <id|root> [reason] | takeover <id|root> | list');
+    console.error('usage: run.mjs begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>] [--shared-checkout] | finish <id|root> | abandon <id|root> [reason] | takeover <id|root> | list');
     process.exit(1);
   }
 }

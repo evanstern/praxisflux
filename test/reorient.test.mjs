@@ -4,7 +4,7 @@
 // $REORIENT_HOME so no test touches a real .handoff/.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, realpathSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, realpathSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -228,6 +228,86 @@ test("run CLI: begin refuses a missing lens or empty corpus; abandon keeps resid
   assert.equal(readdirSync(home).length, 1, "residue kept");
   rmSync(root, { recursive: true, force: true });
   rmSync(home, { recursive: true, force: true });
+});
+
+/** A controlled registry root: $REORIENT_HOME points inside it, so run.mjs resolves it as
+ *  the registry root whose `.git` shape the worktree-first check inspects. */
+function scratchRegistry() {
+  const reg = realpathSync(mkdtempSync(join(tmpdir(), "reorient-reg-")));
+  const home = join(reg, ".handoff", "reorient", "runs");
+  return { reg, home, env: { ...process.env, REORIENT_HOME: home } };
+}
+
+test("run CLI: worktree-first — begin refuses a shared primary checkout (.git dir), accepts worktrees (.git file), non-git roots, and the override", () => {
+  const root = makeProject();
+  const { reg, home, env } = scratchRegistry();
+  const beginArgs = [runMjs, "begin", root, "--lens", "x", "--corpus", join(root, "research", "Topic-A")];
+
+  // Shared primary checkout: .git is a DIRECTORY → refused, actionable, nothing written.
+  mkdirSync(join(reg, ".git"));
+  const refused = spawnSync("node", beginArgs, { encoding: "utf8", env, cwd: root });
+  assert.notEqual(refused.status, 0, "a shared primary checkout must be refused");
+  assert.ok(refused.stderr.includes("shared primary checkout"), refused.stderr);
+  assert.ok(refused.stderr.includes("git worktree add .worktrees/<name> -b <branch>"), "refusal names the worktree recipe: " + refused.stderr);
+  assert.ok(refused.stderr.includes("--shared-checkout"), "refusal names the override: " + refused.stderr);
+  assert.equal(existsSync(home), false, "refusal must not create a run record");
+
+  // Worktree: .git is a `gitdir:` FILE → accepted with no override, nothing extra recorded.
+  rmSync(join(reg, ".git"), { recursive: true, force: true });
+  writeFileSync(join(reg, ".git"), "gitdir: /elsewhere/.git/worktrees/lane\n");
+  const wt = spawnSync("node", beginArgs, { encoding: "utf8", env, cwd: root });
+  assert.equal(wt.status, 0, wt.stderr);
+  const wtRun = JSON.parse(readFileSync(join(home, `${wt.stdout.match(/run (\S+) in flight/)[1]}.json`), "utf8"));
+  assert.equal(wtRun.sharedCheckout, undefined, "a worktree begin records no override");
+
+  // A no-op --shared-checkout in a worktree leaves no false audit claim behind.
+  const wtFlag = spawnSync("node", [...beginArgs, "--shared-checkout"], { encoding: "utf8", env, cwd: root });
+  assert.equal(wtFlag.status, 0, wtFlag.stderr);
+  const wtFlagRun = JSON.parse(readFileSync(join(home, `${wtFlag.stdout.match(/run (\S+) in flight/)[1]}.json`), "utf8"));
+  assert.equal(wtFlagRun.sharedCheckout, undefined, "the flag records nothing when it overrode nothing");
+
+  // Non-git registry root: today's behavior unchanged — begin passes.
+  rmSync(join(reg, ".git"), { force: true });
+  const nogit = spawnSync("node", beginArgs, { encoding: "utf8", env, cwd: root });
+  assert.equal(nogit.status, 0, nogit.stderr);
+
+  // The explicit override on a primary checkout: accepted and recorded (R2's audit trail).
+  mkdirSync(join(reg, ".git"));
+  const over = spawnSync("node", [...beginArgs, "--shared-checkout"], { encoding: "utf8", env, cwd: root });
+  assert.equal(over.status, 0, over.stderr);
+  assert.ok(over.stdout.includes("--shared-checkout override recorded"), over.stdout);
+  const overRun = JSON.parse(readFileSync(join(home, `${over.stdout.match(/run (\S+) in flight/)[1]}.json`), "utf8"));
+  assert.equal(overRun.sharedCheckout, true, "the override that permitted the run is on the manifest");
+  rmSync(root, { recursive: true, force: true });
+  rmSync(reg, { recursive: true, force: true });
+});
+
+test("run CLI: the recorded --shared-checkout override is surfaced by list and owner provenance", () => {
+  const root = makeProject();
+  const { reg, home, env } = scratchRegistry();
+  mkdirSync(join(reg, ".git")); // shared primary checkout
+  const begin = spawnSync(
+    "node",
+    [runMjs, "begin", root, "--lens", "x", "--corpus", join(root, "research", "Topic-A"), "--shared-checkout"],
+    { encoding: "utf8", env: { ...env, CLAUDE_CODE_SESSION_ID: "sess-A" }, cwd: root },
+  );
+  assert.equal(begin.status, 0, begin.stderr);
+  const id = begin.stdout.match(/run (\S+) in flight/)[1];
+  const run = JSON.parse(readFileSync(join(home, `${id}.json`), "utf8"));
+
+  const list = spawnSync("node", [runMjs, "list"], { encoding: "utf8", env });
+  assert.ok(list.stdout.includes("--shared-checkout"), `list surfaces the override: ${list.stdout}`);
+  assert.ok(describeOwner(run).includes("--shared-checkout"), `provenance surfaces the override: ${describeOwner(run)}`);
+  assert.ok(describeOwner(run).includes("shared primary checkout"), describeOwner(run));
+
+  // A run without the override keeps both surfaces clean.
+  rmSync(join(reg, ".git"), { recursive: true, force: true });
+  writeFileSync(join(reg, ".git"), "gitdir: /elsewhere/.git/worktrees/lane\n");
+  const wt = spawnSync("node", [runMjs, "begin", root, "--lens", "x", "--corpus", join(root, "research", "Topic-A")], { encoding: "utf8", env, cwd: root });
+  const wtRun = JSON.parse(readFileSync(join(home, `${wt.stdout.match(/run (\S+) in flight/)[1]}.json`), "utf8"));
+  assert.ok(!describeOwner(wtRun).includes("--shared-checkout"), describeOwner(wtRun));
+  rmSync(root, { recursive: true, force: true });
+  rmSync(reg, { recursive: true, force: true });
 });
 
 test("run CLI: begin stamps owner + heartbeat; synthesis is run-id-keyed so same-day runs never collide", () => {

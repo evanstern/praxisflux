@@ -3,9 +3,11 @@ id: TASK-56
 title: >-
   reorient: enforce worktree-first begin — refuse runs from a shared primary
   checkout without an explicit override
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-07-26 18:11'
+updated_date: '2026-07-26 20:18'
 labels:
   - reorient
   - gates
@@ -19,12 +21,40 @@ ordinal: 91000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Follow-on to TASK-52 (session-owned runs, PR #74). The worktree doctrine — begin reorient runs from inside a git worktree so the gitignored .handoff/ registry stays lane-local — is currently untraceable prose: it lived only in TASK-52's description, was never planted in SKILL.md, and nothing in run.mjs or the gate checks where a run is begun. Ownership scoping (TASK-52) is defense-in-depth, not a replacement: the registry in a shared primary checkout is still shared mutable state, and with no session identity available the gate degrades to checkout-wide nagging. Observed live: TASK-52 itself was implemented from the praxis primary checkout while two other sessions were mid-flight in it. Make the default enforceable and the exception explicit: begin detects a shared primary checkout deterministically (.git is a directory at the registry root; in a worktree it is a gitdir: file) and refuses by default with an actionable message naming the worktree recipe; an explicit override (--shared-checkout flag and/or a project-level marker) permits it, is recorded on the run manifest, and is surfaced by list/describeOwner so the deliberate choice is auditable. SKILL.md states worktree-first as the default doctrine and names the override. Same family as TASK-55 and promptworld TASK-148: cross-session state needs origin-visible, enforced posture — not judgment.
+
+Spec: specs/014-reorient-worktree-first
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 run.mjs begin refuses to open a run whose registry root is a shared primary checkout (.git directory) unless an explicit override is given; the refusal names the worktree recipe and the override; covered by tests including the worktree (.git file) case
-- [ ] #2 The override is recorded on the run manifest and surfaced by list/provenance output, covered by tests
-- [ ] #3 SKILL.md documents worktree-first as the default doctrine and the explicit override path
-- [ ] #4 Versions bumped per docs/releasing.md (reorient released surface; skill version bump)
+- [x] #1 run.mjs begin refuses to open a run whose registry root is a shared primary checkout (.git directory) unless an explicit override is given; the refusal names the worktree recipe and the override; covered by tests including the worktree (.git file) case
+- [x] #2 The override is recorded on the run manifest and surfaced by list/provenance output, covered by tests
+- [x] #3 SKILL.md documents worktree-first as the default doctrine and the explicit override path
+- [x] #4 Versions bumped per docs/releasing.md (reorient released surface; skill version bump)
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 014-reorient-worktree-first (hand-authored)
+2. spec-bridge:link
+3. Dispatch: run.mjs begin refuses shared-primary-checkout registry roots (.git dir vs gitdir: file detection) unless --shared-checkout (and/or project marker) given; override recorded on manifest, surfaced by list/provenance; SKILL.md states worktree-first doctrine + override; tests incl. worktree case
+4. Versions (reorient skill + marketplace); wiki re-pin reorient-plugin; PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/lane-hardening-runbook.md). Tier: default implementer. Follow-on to TASK-52 (0.22.0).
+
+Implemented: begin detects the registry root's .git shape (directory = shared primary checkout -> refuse, exit 1, message names the worktree recipe + --shared-checkout; gitdir: file = worktree -> proceed; non-git unchanged); the override records sharedCheckout: true on the manifest ONLY when it actually overrode (never a false audit claim) and is surfaced by begin stdout, list, and describeOwner provenance. SKILL.md states worktree-first doctrine + override. reorient 0.4.0, marketplace 0.24.0 after post-rebase re-bump (53 took 0.23.0). reorient-plugin trimmed summary-style to 7976/8000 (detail moved to reorient-run-ownership child note), no exemption. 206 tests, check-docs, wiki-freshness, bump gate green.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+The worktree-first doctrine is now enforced, not prose: reorient's begin deterministically detects a shared primary checkout (.git directory vs a worktree's gitdir: file) and refuses with an actionable message naming the worktree recipe, unless --shared-checkout is given — and that override is recorded on the run manifest only when it genuinely overrode, surfaced by list and owner provenance so the deliberate exception stays auditable. SKILL.md states the doctrine and the override path. reorient 0.4.0, marketplace 0.24.0. The exact failure TASK-52 was implemented under (runs from the shared praxis checkout with sessions mid-flight) can no longer happen silently.
+<!-- SECTION:FINAL_SUMMARY:END -->
