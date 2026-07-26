@@ -34,6 +34,30 @@ export function runsDirFor(dir) {
   return join(d, ".handoff", "reorient", "runs");
 }
 
+/** A non-owned in-flight run whose heartbeat is older than this is flagged as possibly
+ *  orphaned (non-blocking warn). The owner's Stop hook refreshes the heartbeat every turn,
+ *  so an hour of silence means the owning session is likely gone. */
+export const STALE_HEARTBEAT_MS = 60 * 60 * 1000;
+
+/** Does this run belong to `sessionId`? Returns true/false when both sides recorded an
+ *  identity, else null (undecidable — legacy records or a session without an id; callers
+ *  fall back to checkout scoping). */
+export function ownsRun(run, sessionId) {
+  if (!run?.owner?.sessionId || !sessionId) return null;
+  return run.owner.sessionId === sessionId;
+}
+
+/** Ownership provenance in one line: who began the run, from where, and when — the facts
+ *  that make orphan-vs-live decidable instead of guesswork. */
+export function describeOwner(run) {
+  const o = run.owner || {};
+  const who = o.sessionId ? `session ${o.sessionId}` : "an unrecorded session";
+  const origin = [o.user, o.host].filter(Boolean).join("@");
+  const hb = run.heartbeatAt || run.startedAt;
+  return `${who}${origin ? ` (${origin})` : ""}, begun ${run.startedAt || "?"} from ${run.cwd || "?"}` +
+    (hb ? `, last heartbeat ${hb}` : "");
+}
+
 /** Sections the synthesis must carry, matched case-insensitively against headings/bold leads.
  *  `when` gates conditional sections on the run's recorded grounding (everything-optional
  *  posture: a section is only demanded when the surface it reports on was available). */
@@ -95,11 +119,16 @@ export function checkReorient(run) {
   return problems;
 }
 
-/** @praxisflux/gates gate over the runs registry: roots are the in-flight run records scoped to
- *  the session's project dir; no runs in scope = no roots = no-op. */
+const runnerPath = () => join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "run.mjs");
+
+/** @praxisflux/gates gate over the runs registry. Ownership scopes the nag: an in-flight run
+ *  BLOCKS only the session that owns it (manifest owner.sessionId vs ctx.sessionId); other
+ *  sessions in the same checkout are never blocked by someone else's run — at most they get a
+ *  non-blocking orphan notice once the owner's heartbeat goes stale. Records without an owner
+ *  (or a session without an identity) fall back to the legacy checkout scoping. */
 export const reorientGate = {
   name: "reorient",
-  resolveRoots: (startDir) => {
+  resolveRoots: (startDir, ctx) => {
     const runsDir = runsDirFor(startDir);
     let entries = [];
     try { entries = readdirSync(runsDir).filter((f) => f.endsWith(".json")); } catch { return []; }
@@ -107,23 +136,41 @@ export const reorientGate = {
     for (const f of entries) {
       try {
         const run = JSON.parse(readFileSync(join(runsDir, f), "utf8"));
-        if (run.state === "in-flight" && startDir && (startDir === run.cwd || startDir.startsWith(run.cwd + sep)))
-          roots.push(join(runsDir, f));
+        if (run.state !== "in-flight") continue;
+        const owned = ownsRun(run, ctx?.sessionId);
+        const inCheckout = !!startDir && !!run.cwd && (startDir === run.cwd || startDir.startsWith(run.cwd + sep));
+        // Owned runs always resolve (the owner is nagged wherever it stops); everything else
+        // stays checkout-scoped — undecidable ones to block (legacy behavior), foreign ones
+        // so warn() can surface staleness.
+        if (owned === true || inCheckout) roots.push(join(runsDir, f));
       } catch { /* unreadable run records never block */ }
     }
     return roots;
   },
-  check: (runFile) => {
+  check: (runFile, ctx) => {
     const run = JSON.parse(readFileSync(runFile, "utf8"));
+    if (ownsRun(run, ctx?.sessionId) === false) return []; // someone else's run never blocks
     const problems = checkReorient(run).map((p) => `[${run.id}] ${p}`);
     if (problems.length) {
-      const runner = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "run.mjs");
+      const runner = runnerPath();
       problems.push(
         `[${run.id}] finish it (land the analyses + synthesis, then \`node ${runner} finish ${run.id}\`) ` +
           `or close it with residue (\`node ${runner} abandon ${run.id} <reason>\`)`,
       );
     }
     return problems;
+  },
+  warn: (runFile, ctx) => {
+    const run = JSON.parse(readFileSync(runFile, "utf8"));
+    if (ownsRun(run, ctx?.sessionId) !== false) return []; // owned/undecidable runs block instead
+    const hb = Date.parse(run.heartbeatAt || run.startedAt || "");
+    if (Number.isFinite(hb) && Date.now() - hb < STALE_HEARTBEAT_MS) return []; // live elsewhere: silence
+    const runner = runnerPath();
+    return [
+      `[${run.id}] in-flight reorient run owned by another session looks orphaned — ${describeOwner(run)}. ` +
+        `It never blocks this session; to adopt it run \`node ${runner} takeover ${run.id}\` ` +
+        `(then finish or abandon it), or leave it for its owner.`,
+    ];
   },
 };
 

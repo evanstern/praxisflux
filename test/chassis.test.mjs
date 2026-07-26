@@ -109,3 +109,17 @@ test("gate-runner: additive evaluate, stop_hook_active guard, no-op", () => {
   assert.equal(evaluate({}, [inert]).block, false);                  // resolves no roots → no-op
   assert.equal(evaluate({ stop_hook_active: true }, [failing]).block, false); // loop guard
 });
+
+test("gate-runner: session context threads through resolveRoots, check, and warn", () => {
+  const seen = [];
+  const gate = {
+    name: "ctx",
+    resolveRoots: (start, ctx) => { seen.push(["roots", ctx?.sessionId]); return ["/x"]; },
+    check: (root, ctx) => { seen.push(["check", ctx?.sessionId]); return []; },
+    warn: (root, ctx) => { seen.push(["warn", ctx?.sessionId]); return ["notice"]; },
+  };
+  const verdict = evaluate({ session_id: "sess-123" }, [gate]);
+  assert.equal(verdict.block, false);
+  assert.equal(verdict.warnings, "notice");
+  assert.deepEqual(seen, [["roots", "sess-123"], ["check", "sess-123"], ["warn", "sess-123"]]);
+});

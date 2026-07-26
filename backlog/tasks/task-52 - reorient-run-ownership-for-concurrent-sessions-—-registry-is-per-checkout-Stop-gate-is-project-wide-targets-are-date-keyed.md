@@ -3,9 +3,11 @@ id: TASK-52
 title: >-
   reorient: run ownership for concurrent sessions — registry is per-checkout,
   Stop gate is project-wide, targets are date-keyed
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 16:31'
+updated_date: '2026-07-26 17:53'
 labels:
   - reorient
   - design
@@ -26,3 +28,16 @@ Observed live in promptworld 2026-07-26 (see promptworld TASK-148 for the incide
 - [ ] #2 Synthesis target paths are unique per run (run-id-keyed), never date-keyed
 - [ ] #3 begin/list/abandon surface owner + provenance so orphan-vs-live is decidable; takeover is explicit
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Branch task-52-reorient-run-ownership off main.
+2. lib/gate-runner.mjs — additive gate-contract extension: evaluate() builds ctx { sessionId (input.session_id || $CLAUDE_CODE_SESSION_ID || null), input } and passes it to resolveRoots(start, ctx), check(root, ctx), warn(root, ctx); add optional before(input) callback to runStopHook so a plugin's stop entry can do owned-state upkeep (writes stay in the plugin's writer module). Existing gates ignore the extra args — backward compatible.
+3. reorient/scripts/run.mjs — begin records owner { sessionId, user, host } + heartbeatAt on the manifest (--session overrides env), prints owner/provenance, and lists any other in-flight runs for the same root with owner + heartbeat age; default synthesis path becomes run-id-keyed docs/design/reorient-<run-id>.md (never date-keyed); list shows owner, origin, started, heartbeat age; abandon refuses a run owned by a different live-identifiable session and points at the new explicit `takeover <id>` command (which reassigns ownership and prints who held it, from where, since when); finish prints an ownership note; export heartbeat helper for the stop path.
+4. reorient/gates/reorient.mjs — resolveRoots returns all in-flight runs under the checkout; check(root, ctx) blocks ONLY the owning session (fallback to legacy cwd-scoping when either session id is unknown); new warn(root, ctx) emits a non-blocking orphan notice for non-owned runs whose heartbeat is stale (>60 min), naming owner, origin, began-at, heartbeat age, and the takeover/abandon commands.
+5. reorient/scripts/stop.mjs — before gating, refresh heartbeatAt on runs owned by this session (via run.mjs export through runStopHook's before hook).
+6. SKILL.md — document ownership, provenance, takeover, run-id-keyed synthesis; bump skill version 0.2.0 -> 0.3.0.
+7. Tests — reorient.test.mjs: owner+heartbeat recorded, run-id-keyed synthesis (two same-day runs don't collide), gate blocks owner only, non-owner not nagged, stale non-owned run warns, abandon-by-non-owner refused until takeover, heartbeat refresh; chassis.test.mjs: evaluate threads ctx.
+8. Versions — sync-version to 0.22.0 (minor), skill 0.3.0; wiki-update pass (reorient-plugin.md, gate-runner note) + check-docs; PR per one-task-one-PR. Aware TASK-53/54 (pdlc) are in flight — marketplace version bumps will need serial merge ordering.
+<!-- SECTION:PLAN:END -->

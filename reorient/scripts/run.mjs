@@ -9,13 +9,22 @@
 // transport at the invoking project's root (transient plumbing, gitignored); the durable
 // residue is the analyses + synthesis themselves. $REORIENT_HOME overrides the location (tests).
 //
-//   begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>]
+// Runs are OWNED: begin stamps the manifest with the beginning session's identity
+// ($CLAUDE_CODE_SESSION_ID, or --session) plus user@host provenance and a heartbeat the
+// owner's Stop hook keeps fresh — so the Stop gate nags only the owner, `list` makes
+// orphan-vs-live decidable, and adopting someone else's run is an explicit `takeover`.
+//
+//   begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...]
+//                [--synthesis <path>] [--session <id>]
 //   finish <id|root>                 run the output gate; pass -> state done; fail -> exit 2
 //   abandon <id|root> [reason...]    close without a synthesis, keeping durable residue
-//   list                             show runs and states
+//                                    (owner-only: take over a foreign run first)
+//   takeover <id|root>               explicitly adopt an in-flight run begun elsewhere
+//   list                             show runs, states, owners, and heartbeat ages
 import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve, relative, basename, dirname } from "node:path";
-import { checkReorient, runsDirFor } from "../gates/reorient.mjs";
+import { hostname, userInfo } from "node:os";
+import { checkReorient, runsDirFor, ownsRun, describeOwner } from "../gates/reorient.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
 const RUNS = runsDirFor(process.cwd());
@@ -66,6 +75,46 @@ export function detectGrounding(root, corpus) {
 
 const save = (run) => { mkdirSync(RUNS, { recursive: true }); writeFileSync(runPath(run.id), JSON.stringify(run, null, 2) + "\n"); };
 
+/** The invoking session's identity, if the harness exposes one. */
+export const currentSessionId = (explicit) => explicit || process.env.CLAUDE_CODE_SESSION_ID || null;
+
+/** Owner stamp for a manifest: session identity + user@host provenance. */
+export function makeOwner(sessionId) {
+  let user = null;
+  try { user = userInfo().username; } catch { user = process.env.USER || null; }
+  return { sessionId: sessionId || null, user, host: hostname() };
+}
+
+/** Compact "how long ago" for heartbeat display. */
+export const ago = (iso) => {
+  const t = Date.parse(iso || "");
+  if (!Number.isFinite(t)) return "unknown";
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? "<1m ago" : m < 60 ? `${m}m ago` : `${Math.round(m / 60)}h ago`;
+};
+
+/** Refresh heartbeatAt on every in-flight run under `startDir`'s registry owned by
+ *  `sessionId`. The owner's Stop hook calls this each turn (via stop.mjs), keeping
+ *  liveness observable from other sessions; writes stay in this module — the only writer.
+ *  Returns the number of runs touched. */
+export function heartbeatOwnedRuns(startDir, sessionId) {
+  if (!sessionId) return 0;
+  const dir = runsDirFor(startDir);
+  let entries = [];
+  try { entries = readdirSync(dir).filter((f) => f.endsWith(".json")); } catch { return 0; }
+  let touched = 0;
+  for (const f of entries) {
+    try {
+      const run = JSON.parse(readFileSync(join(dir, f), "utf8"));
+      if (run.state !== "in-flight" || ownsRun(run, sessionId) !== true) continue;
+      run.heartbeatAt = new Date().toISOString();
+      writeFileSync(join(dir, f), JSON.stringify(run, null, 2) + "\n");
+      touched++;
+    } catch { /* unreadable records are never touched */ }
+  }
+  return touched;
+}
+
 if (runAsCli(import.meta.url)) {
   const [cmd, key, ...rest] = process.argv.slice(2);
 
@@ -86,11 +135,19 @@ if (runAsCli(import.meta.url)) {
     const stamp = new Date().toISOString().replace(/[:T]/g, "-").slice(0, 19);
     let id = `${basename(root)}-${stamp}`;
     while (existsSync(runPath(id))) id += "x"; // never overwrite an existing run record
+    // Synthesis default is keyed by RUN ID, never by date — two same-day runs must never
+    // collide on one output path.
     const synthesis = resolve(
       flag("--synthesis") ||
-        (existsSync(join(root, "docs")) ? join(root, "docs", "design", `reorient-${stamp.slice(0, 10)}.md`) : join(root, `reorient-${stamp.slice(0, 10)}.md`)),
+        (existsSync(join(root, "docs")) ? join(root, "docs", "design", `reorient-${id}.md`) : join(root, `reorient-${id}.md`)),
     );
-    save({ id, state: "in-flight", root, lens, corpus, grounding, synthesis, cwd: process.cwd(), startedAt: new Date().toISOString() });
+    const owner = makeOwner(currentSessionId(flag("--session")));
+    // Concurrent-session visibility: an existing in-flight run for this root is not an
+    // error (runs are session-owned), but the operator must see whose it is.
+    for (const other of loadRuns().filter((r) => r.state === "in-flight" && r.root === root))
+      console.error(`note: another run is already in flight for this root — ${other.id}, owned by ${describeOwner(other)} (heartbeat ${ago(other.heartbeatAt || other.startedAt)})`);
+    const startedAt = new Date().toISOString();
+    save({ id, state: "in-flight", root, lens, corpus, grounding, synthesis, cwd: process.cwd(), owner, startedAt, heartbeatAt: startedAt });
     const handoffRoot = dirname(dirname(dirname(RUNS)));
     if (existsSync(join(handoffRoot, ".git"))) {
       let ignored = false;
@@ -102,12 +159,15 @@ if (runAsCli(import.meta.url)) {
         `  lens:      ${lens}\n` +
         corpus.map((c) => `  corpus:    ${c.path} (${c.kind})`).join("\n") + "\n" +
         `  grounding: vault=${grounding.vault} wiki=${grounding.wiki || "none"} board=${grounding.board}\n` +
+        `  owner:     ${owner.sessionId ? `session ${owner.sessionId}` : "no session identity (Stop gate falls back to checkout scoping)"} (${[owner.user, owner.host].filter(Boolean).join("@")})\n` +
         `  synthesis: ${synthesis}\n` +
         `  finish:    node ${process.argv[1]} finish ${id}`,
     );
   } else if (cmd === "finish") {
     const run = findRun(key || ".");
     if (!run) { console.error(`no run matching '${key}' — see: run.mjs list`); process.exit(1); }
+    if (ownsRun(run, currentSessionId()) === false)
+      console.error(`note: finishing a run begun by another session — ${describeOwner(run)}`);
     const problems = checkReorient(run);
     if (problems.length) { console.error(`reorient gate BLOCKED for ${run.id}:\n` + problems.map((p) => `  - ${p}`).join("\n")); process.exit(2); }
     run.state = "done";
@@ -117,16 +177,38 @@ if (runAsCli(import.meta.url)) {
   } else if (cmd === "abandon") {
     const run = findRun(key || ".");
     if (!run) { console.error(`no run matching '${key}'`); process.exit(1); }
+    if (ownsRun(run, currentSessionId()) === false) {
+      // Abandoning someone else's live-looking run is exactly the incident this guards
+      // against: adoption must be explicit, with provenance in front of the operator.
+      console.error(
+        `run ${run.id} is owned by another session — ${describeOwner(run)} (heartbeat ${ago(run.heartbeatAt || run.startedAt)})\n` +
+          `  take it over explicitly first: node ${process.argv[1]} takeover ${run.id}`,
+      );
+      process.exit(1);
+    }
     run.state = "abandoned";
     run.finishedAt = new Date().toISOString();
     run.reason = rest.join(" ") || "unspecified";
     save(run);
     console.log(`run ${run.id} abandoned (${run.reason}) — residue kept at ${runPath(run.id)}`);
+  } else if (cmd === "takeover") {
+    const run = findRun(key || ".");
+    if (!run) { console.error(`no run matching '${key}'`); process.exit(1); }
+    if (run.state !== "in-flight") { console.error(`run ${run.id} is ${run.state} — only in-flight runs can be taken over`); process.exit(1); }
+    const previously = describeOwner(run);
+    run.owner = makeOwner(currentSessionId());
+    run.heartbeatAt = new Date().toISOString();
+    save(run);
+    console.log(`run ${run.id} taken over — now owned by ${describeOwner(run)}\n  previously: ${previously}`);
   } else if (cmd === "list") {
-    for (const r of loadRuns().sort((a, b) => (a.startedAt < b.startedAt ? -1 : 1)))
-      console.log(`${r.state.padEnd(9)} ${r.id}  →  ${r.synthesis}`);
+    for (const r of loadRuns().sort((a, b) => (a.startedAt < b.startedAt ? -1 : 1))) {
+      const o = r.owner || {};
+      const who = `${[o.user, o.host].filter(Boolean).join("@") || "?"} ${o.sessionId ? `session ${o.sessionId.slice(0, 8)}…` : "no-session"}`;
+      const hb = r.state === "in-flight" ? `, heartbeat ${ago(r.heartbeatAt || r.startedAt)}` : "";
+      console.log(`${r.state.padEnd(9)} ${r.id}  [${who}, begun ${r.startedAt || "?"}${hb}]  →  ${r.synthesis}`);
+    }
   } else {
-    console.error('usage: run.mjs begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] | finish <id|root> | abandon <id|root> [reason] | list');
+    console.error('usage: run.mjs begin <root> --lens "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>] | finish <id|root> | abandon <id|root> [reason] | takeover <id|root> | list');
     process.exit(1);
   }
 }
