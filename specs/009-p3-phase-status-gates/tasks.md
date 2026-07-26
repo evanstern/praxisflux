@@ -17,6 +17,6 @@
 
 ## Prove
 
-- [ ] T009 gates green: node --test, check-docs, wiki-freshness, bump gate
+- [x] T009 gates green: node --test, check-docs, wiki-freshness, bump gate
 - [ ] T010 board finalized (incl. Coda cross-ref note, R5); PR opened — serial merge
   recorded by the orchestrator
