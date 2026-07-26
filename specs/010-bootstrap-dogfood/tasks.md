@@ -42,7 +42,16 @@
     named `praxis` pointing at this worktree (`path.resolve` is lexical, so
     `basename` sees the project name while all writes land here). A `--name` flag
     (or deriving the name from git remote/package metadata) would remove the trap.
-- [ ] T006 self-review begin → finish clean; run id + exit codes recorded here (R3)
+- [x] T006 self-review begin → finish clean; run id + exit codes recorded here (R3):
+  - run id `task-43-2026-07-26-14-48-50`, invoking root == target == the TASK-43
+    worktree (git @ 57afc9e), report written OUTSIDE the reviewed repo (the gate
+    rejects in-repo reports).
+  - `run.mjs begin` exit **0**; `run.mjs finish` exit **0** ("done — report proven"),
+    target untouched (clean porcelain before and after).
+  - The escalated SELF-REVIEW warning did **not** fire — correct per team-review
+    1.1.0: it triggers only when `.handoff/` is NOT gitignored at the invoking root,
+    and R1 gitignored it; run records rode the ignored `.handoff/` transport without
+    cluttering status, which is the fixed behavior working as designed.
 
 ## Prove
 
