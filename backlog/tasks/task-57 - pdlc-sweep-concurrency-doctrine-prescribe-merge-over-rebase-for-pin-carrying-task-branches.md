@@ -3,11 +3,11 @@ id: TASK-57
 title: >-
   pdlc:sweep concurrency doctrine: prescribe merge-over-rebase for pin-carrying
   task branches
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-26 21:08'
-updated_date: '2026-07-26 22:29'
+updated_date: '2026-07-26 22:30'
 labels:
   - pdlc
   - sweep
@@ -31,9 +31,9 @@ Spec: specs/018-sweep-merge-over-rebase
 - [x] #1 sweep concurrency doctrine (SKILL.md + templates/runbook.md): pin-carrying task branches reconcile by MERGING origin/main in and re-pinning conflicted pins to the merge commit; squash/rebase/force-push named as pin-breaking; rebase stays for pin-free branches
 - [x] #2 freshness probe prescribed directly after EVERY history move, not only when docs/wiki/ changed — pins also reference design-reference files, so a wiki-untouched diff can still be stale
 - [x] #3 Versions bumped per docs/releasing.md (pdlc released surface: sweep SKILL.md + marketplace); wiki pdlc-plugin note re-verified + re-pinned
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -54,3 +54,9 @@ Doctrine rewritten in SKILL.md (step 7 + concurrency doctrine) and templates/run
 
 Wiki re-ground: 9 stamp-only re-pins executed verbatim; build-and-release/reorient/team-review literals verified then re-pinned; pdlc-plugin re-verified against the doctrine diff. Body went 753 over the 8000-char budget (note was at 7,996 pre-task) — split summary-style per corpus spec: sweep coverage moved to new note pdlc-sweep (own sources: skills/sweep/*), pdlc-plugin keeps a routed summary; INDEX line added, CAPSULES regenerated. Freshness gate: 29 notes fresh, plan empty.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Sweep concurrency doctrine rewritten in pdlc/skills/sweep/SKILL.md (step 7 + doctrine section) and templates/runbook.md: reconciliation now splits by what the branch carries — a pin-carrying branch merges origin/main in and re-pins conflicted pins to the merge commit (squash/rebase/force-push named as the three pin-breaking moves; PRs land as merge commits, never squash), while pin-free branches keep the rebase rule. The freshness probe is prescribed unconditionally after every history move, closing the gap where pins on design-reference files outside docs/wiki/ went stale invisibly. Versions: sweep skill 0.5.0→0.6.0, marketplace 0.27.0. Wiki re-ground split sweep coverage into a new pdlc-sweep note (pdlc-plugin was at its 8,000-char budget). Verified: 210/210 tests, check-docs, wiki freshness (29 notes, plan empty), bump gate 0.26.0→0.27.0.
+<!-- SECTION:FINAL_SUMMARY:END -->
