@@ -1,9 +1,11 @@
 ---
 id: TASK-33
 title: 'P2 refinements: reason-to-approve test + the EPIC tier in docs/principles.md'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-17 14:36'
+updated_date: '2026-07-26 14:14'
 labels: []
 dependencies: []
 priority: medium
@@ -31,3 +33,18 @@ Reason to approve (the human decision this PR carries): ratifying an amendment t
 - [ ] #3 The pdlc bootstrap grounding block reflects the refinements if it restates P2
 - [ ] #4 Wiki notes sourcing docs/principles.md re-pinned
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 008-principles-p2-refinements (hand-authored)
+2. spec-bridge:link
+3. Dispatch: fold the two TASK-32-ratified refinements into docs/principles.md P2 — reason-to-approve test + the EPIC tier (EPIC groups TASKs, no PR; TASK = one deliverable one PR; SUBTASK never a PR); sync the pdlc template's stamped principles region (test-asserted)
+4. Wiki re-pins as flagged; version bump if template touched; course per policy in force at merge; PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/board-clearing-runbook.md). Tier: default implementer (canonical prose amendment, small).
+<!-- SECTION:NOTES:END -->
