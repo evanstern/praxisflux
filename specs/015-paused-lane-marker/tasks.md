@@ -18,5 +18,5 @@
 ## Prove
 
 - [x] T007 praxis gates green: node --test, check-docs, wiki-freshness, bump gate
-- [ ] T008 board finalized; praxis PR + promptworld PR — both merges recorded by the
-  orchestrator
+- [x] T008 board finalized (ACs checked, Done, final summary); praxis PR opened —
+  both merges (praxis PR + promptworld PR #117) recorded in the runbook execution log
