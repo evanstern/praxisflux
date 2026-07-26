@@ -7,13 +7,13 @@
 
 ## Implement
 
-- [ ] T002 git mv docs/handoffs → docs/design-inputs; transport untouched (R1)
-- [ ] T003 live references updated (grep clean outside backlog/); wiki sources: lists
+- [x] T002 git mv docs/handoffs → docs/design-inputs; transport untouched (R1)
+- [x] T003 live references updated (grep clean outside backlog/); wiki sources: lists
   fixed + notes re-verified/re-pinned (R2)
-- [ ] T004 distinction stated: design-inputs README + handoff-protocol reciprocal line (R3)
-- [ ] T005 versions: marketplace sync-version (R4)
+- [x] T004 distinction stated: design-inputs README + handoff-protocol reciprocal line (R3)
+- [x] T005 versions: marketplace sync-version (R4)
 
 ## Prove
 
-- [ ] T006 gates green: node --test, check-docs, wiki-freshness, bump gate
+- [x] T006 gates green: node --test, check-docs, wiki-freshness, bump gate
 - [ ] T007 board finalized; PR opened — serial merge recorded by the orchestrator
