@@ -9,7 +9,7 @@
 
 - [x] T002 sentinel peersOmitted field + stderr notice; idempotence + legacy sentinels
   hold; tests (R1)
-- [ ] T003 bootstrap SKILL.md references the trace (R2)
+- [x] T003 bootstrap SKILL.md references the trace (R2)
 - [ ] T004 versions: bootstrap skill + marketplace sync-version (R3)
 - [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
 

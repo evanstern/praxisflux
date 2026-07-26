@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.3.0
+version: 0.4.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
 ---
 
@@ -46,6 +46,11 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
    - Spec Kit: `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git`
    Offer to wait while they install (re-run detection afterwards); declining is fine — the
    grounding is planted without that peer's block and opting in later is one re-run away.
+   Either way the outcome is deterministically traced, not left to this conversation:
+   `plant.mjs` records every known-but-not-opted-in peer in the `.pdlc` sentinel's
+   `peersOmitted` field and prints a one-line stderr notice per omitted peer naming its
+   stripped `pdlc:peer:<name>` block. Point the user at that trace as the durable record
+   of what the grounding does NOT carry.
 3. **Present →** ask whether to opt this project in (one question per peer; in update mode,
    present the previous choice from `.pdlc` as the default). Opting in means bootstrap does
    the setup:
@@ -80,7 +85,8 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
    `claudeMd: unchanged`.
 2. Verify on disk — never claim success without looking: `<root>/CLAUDE.md` contains the
    `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), `<root>/.pdlc` records
-   the right peers, `.gitignore` contains `.handoff/`.
+   the right peers (and each declined peer under `peersOmitted`), `.gitignore` contains
+   `.handoff/`.
 3. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
    skipped because `backlog/` existed), and **left untouched** (everything outside the
    markers; all user content).
