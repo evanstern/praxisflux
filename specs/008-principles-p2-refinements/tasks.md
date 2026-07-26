@@ -7,8 +7,8 @@
 
 ## Implement
 
-- [ ] T002 P2: reason-to-approve test stated canonically (R1)
-- [ ] T003 P2: three-tier model (EPIC/TASK/SUBTASK), task-system-agnostic (R2)
+- [x] T002 P2: reason-to-approve test stated canonically (R1)
+- [x] T003 P2: three-tier model (EPIC/TASK/SUBTASK), task-system-agnostic (R2)
 - [ ] T004 pdlc template stamped region synced (or finding recorded); versions bumped if touched (R3)
 - [ ] T005 wiki re-pins per freshness gate; CAPSULES.md regen if needed (R4)
 
