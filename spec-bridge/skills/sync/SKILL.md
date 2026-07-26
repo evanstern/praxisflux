@@ -1,6 +1,6 @@
 ---
 name: sync
-version: 0.1.1
+version: 0.2.0
 description: Catch the Backlog board up to what the Spec Kit artifacts prove — move each linked task's status, re-mirror phase acceptance criteria from tasks.md, and record progress notes. Use after working a spec, when the user says "sync the board", "update the kanban from the specs", or when the spec-bridge Stop gate warns a task lags its spec.
 ---
 
@@ -41,7 +41,7 @@ prints nothing. `plan` never executes anything; running the commands is this ski
 3. **Execute verbatim, in order** — the order is load-bearing (removals are emitted
    highest-index-first; check/uncheck indexes assume the removals and additions already ran).
    Do not reorder, dedupe, or "improve" the commands.
-4. **Skipped tasks** — `plan` reports tasks with a status outside To Do/In Progress/Done on
+4. **Skipped tasks** — `plan` reports tasks with a status outside the board's vocabulary on
    stderr (`# <id>: … not planned`). Don't guess — surface them to the user unchanged.
 5. **Strict mode** (`.spec-bridge.json` has `"strictDone": true`): the derivation demands
    `analysis.md` in the spec dir with no unresolved CRITICAL findings before Done. If `state`
@@ -49,6 +49,12 @@ prints nothing. `plan` never executes anything; running the commands is this ski
    and **save its report as `<specDir>/analysis.md`** — the gate reads artifacts, not chat
    output. Resolving a CRITICAL means fixing it in the spec workflow and re-saving the
    report, never editing the board.
+6. **Phase-level vocabulary** (`.spec-bridge.json` has `"statusVocabulary"`): plan targets
+   the board's own stage names (see the README's "Phase-level status" contract). If
+   `reviewing` is mapped (e.g. "In Review"), an all-checked spec plans to that status and
+   **plan will not emit `-s Done`** — moving to Done is a deliberate act the gate accepts
+   there; left unmapped, Done-eligible still plans `-s 'Done'` with the derived final
+   summary as before.
 
 ## Output gate
 

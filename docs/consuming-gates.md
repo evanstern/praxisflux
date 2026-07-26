@@ -43,6 +43,9 @@ Dependabot's `github-actions` ecosystem automates that.
 
 - **`spec-bridge`** — every Backlog task linked to a Spec Kit spec dir carries a status its
   spec artifacts prove (needs a `backlog/` dir; passes trivially with zero linked tasks).
+  The gate honors the checked repo's own `.spec-bridge.json`: `strictDone` (analyze-gated
+  Done) and `statusVocabulary` (opt-in phase-level status names, enforced at that finer
+  granularity). The contract for both lives in `spec-bridge/README.md`.
 - **`wiki-freshness`** — every `docs/wiki` note is fresh against its `verified_against` pin
   (needs full git history: `fetch-depth: 0`; a shallow clone fails with exactly that fix).
 - **`course`** — a built codebase-to-course course passes its output gate (self-contained,

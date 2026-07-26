@@ -1,6 +1,6 @@
 ---
 name: spec-bridge-plugin
-description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs), link/sync skills, and a Stop-hook gate blocking status that exceeds spec artifacts.
+description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs), link/sync skills, a Stop-hook gate blocking status that exceeds spec artifacts, and an opt-in phase-level status vocabulary judged on the same derivation.
 kind: component
 sources:
   - spec-bridge/.claude-plugin/plugin.json
@@ -13,7 +13,7 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 54aa6006b262d931ab0e0a3241c98c105a459bf7
+verified_against: 42f0e457bda98735a60b4deacd935f56b50a7a0b
 ---
 
 # spec-bridge plugin
@@ -72,6 +72,20 @@ durable artifact, not chat output) with no unresolved CRITICAL findings — the 
 line-based, a `CRITICAL` line counting unless it says `resolved` or carries a checked box.
 Missing or malformed config means checkbox-only mode.
 
+**Phase-level status (opt-in).** The derivation always names a finer *stage* under the
+3-status collapse — `specifying` → `planning` → `implementing` → `validating` (only
+`tasks.md`'s final phase unchecked, needing ≥2 phases, or all boxes checked with strict-mode
+analysis outstanding) → `reviewing` (identical to Done-eligible; `coarseStatus` is the fixed
+collapse). A `statusVocabulary` map in `.spec-bridge.json` (stage → the board's own status
+name; partial maps overlay the defaults; malformed or rename-free maps opt out) makes the
+board speak that ladder: `stageVerdict` ranks the same four verdicts on stage spans (a name
+covering several stages spans all of them; "Done" always covers the top stage, so
+Done-eligibility is unchanged), and plan targets the mapped names — a *mapped* `reviewing`
+(say "In Review") is planned instead of auto-Done, moving to Done staying a deliberate act
+the gate accepts. Absent the config, every path is bit-for-bit the 3-status contract — this
+is praxis P3 (artifact-gated seams, `docs/principles.md`) applied to the board as a
+pipeline's observability surface.
+
 ## Connections
 
 - The plugin's whole premise is the [[gates-convention]] applied to Spec Kit artifacts; the
@@ -79,9 +93,11 @@ Missing or malformed config means checkbox-only mode.
   derivation layer `spec-derive.mjs` also lives.
 - Skills follow [[skill-patterns]] (link and sync are phase-separated; gates read, the
   `backlog` CLI writes); packaged by [[build-and-release]].
-- Covered by the [[test-suite]] (`test/spec-derive.test.mjs`, `test/spec-bridge.test.mjs`).
+- Covered by the [[test-suite]] (`test/spec-derive.test.mjs`, `test/spec-bridge.test.mjs`,
+  `test/phase-status.test.mjs`).
 - Unlike [[research-plugin]]/[[educate-plugin]] lifecycles, the state vocabulary here is
-  Backlog.md's own (To Do / In Progress / Done) judged against derived Spec Kit stages.
+  Backlog.md's own (To Do / In Progress / Done by default; optionally the board's own
+  phase-level names) judged against derived Spec Kit stages.
 
 ## Operational notes
 

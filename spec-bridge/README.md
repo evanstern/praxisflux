@@ -33,6 +33,53 @@ read, not chat output — with no unresolved CRITICAL findings (line-based: a li
 `CRITICAL` counts unless that line says `resolved` or carries a checked box). Without the
 config, checkbox-only mode is unchanged.
 
+### Phase-level status (opt-in)
+
+The 3-status vocabulary collapses everything between "spec started" and "all proven" into
+one In Progress — fine for small boards, blind for a board that is a pipeline's
+observability surface. Underneath it, the derivation always names a finer **stage**, still
+derived only from the spec artifacts:
+
+| stage | proven by |
+|---|---|
+| `specifying` | nothing yet (no `spec.md`) |
+| `planning` | `spec.md` present, no `plan.md` |
+| `implementing` | `plan.md` present; unchecked work outside `tasks.md`'s final phase |
+| `validating` | only the final phase still unchecked (≥2 phases), or all boxes checked with strict-mode analysis outstanding |
+| `reviewing` | everything proven — identical to Done-eligible |
+
+A board MAY opt into speaking that ladder by mapping stages to its own status names in
+`.spec-bridge.json`:
+
+```json
+{
+  "statusVocabulary": {
+    "planning": "Planning",
+    "validating": "Validating",
+    "reviewing": "In Review"
+  }
+}
+```
+
+Partial maps are fine — unmapped stages keep their defaults (`specifying` → To Do;
+`planning`/`implementing`/`validating` → In Progress; `reviewing` → Done). Under the opt-in:
+
+- **The gate enforces at phase granularity** — same verdicts, finer ruler. A status naming a
+  later stage than the artifacts prove (say "Validating" while earlier phases have unchecked
+  tasks) **blocks**, naming the task, the spec dir, and the shortfall; a lagging status
+  warns to run sync; agreement is silent; a status outside the vocabulary is never guessed.
+- **Sync speaks the board's names** — `plan` targets the mapped stage names. If `reviewing`
+  is mapped (e.g. "In Review"), an all-checked spec is planned to that status and **moving
+  to Done stays a deliberate act** (the gate accepts Done there — Done-eligibility is
+  unchanged); left unmapped, `reviewing` plans `-s Done` with the derived final summary,
+  exactly as without the config.
+- **Backward compatibility is absolute**: no `statusVocabulary` (or a malformed/rename-free
+  one) is bit-for-bit the 3-status behavior above.
+
+This is [praxis P3 — artifact-gated seams](../docs/principles.md) applied to the board: the
+finer statuses are still *derived from durable artifacts*, never asserted, so the board can
+serve as a pipeline's observability surface without ever outrunning the evidence.
+
 ## Parts
 
 - **link** (skill) — attach exactly one Backlog task to a spec dir: plants the `Spec: <dir>`
