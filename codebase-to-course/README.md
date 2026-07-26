@@ -15,7 +15,7 @@ visualizations, group-chat explainers, and quizzes that test application, not me
   1:1 note pairing + bracket balance — then reassembles), fix what's flagged, re-run the gate.
 
 Ported from the standalone repo `github.com/evanstern/codebase-to-course` (see
-`docs/handoffs/codebase-to-course-plugin.md` for the migration plan). Upcoming slices make the
+`docs/design-inputs/codebase-to-course-plugin.md` for the migration plan). Upcoming slices make the
 analysis corpus-aware (reads a `docs/wiki/` grounded corpus per
 [`docs/corpus-spec.md`](../docs/corpus-spec.md) when present) and add a chassis output gate.
 

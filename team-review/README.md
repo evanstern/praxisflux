@@ -38,5 +38,5 @@ in flight without a proven report.
 The skill was developed and eval-hardened standalone (three graded iterations, finishing 10/10
 unshepherded), then transplanted here. Its own review of this repo — which specified the
 transplant — is vendored as spec input at
-[`docs/handoffs/team-review-iteration-3-review.md`](../docs/handoffs/team-review-iteration-3-review.md)
+[`docs/design-inputs/team-review-iteration-3-review.md`](../docs/design-inputs/team-review-iteration-3-review.md)
 (process log alongside it).
