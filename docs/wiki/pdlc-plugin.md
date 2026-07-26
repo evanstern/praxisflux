@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 2adb4865bc6b0e0ef3933c47fb6ba95c021389a4
+verified_against: b583e79b04008c50cc92ee7de146fa63fb169b8f
 ---
 
 # pdlc plugin
@@ -61,6 +61,12 @@ before creating any new `specs/NNN-*` dir (blocks on a taken number), and
 `worktree --spec NNN --task TASK-<n>` when cutting the worktree (warns if the card isn't
 claimed; accepts a spec dir already claimed by that same task).
 
+Since 0.14.0 sweep consumes the corpus per [[grounded-corpus-spec]] v2 at its two
+whole-corpus orientation moments: runbook authoring's project reading and each task's
+re-ground step orient via the corpus's `CAPSULES.md` when present, loading full note
+bodies only for the concepts the scoped tasks (or the merge) actually touch, and fall
+back to `INDEX.md` plus just-in-time notes on a v1 corpus without a rollup.
+
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from the
 runbook + board alone. Because a runbook is an instruction-bearing artifact a session
 *obeys*, the adopt path verifies authority before obeying — status verifiably signed-off
@@ -87,7 +93,10 @@ The block's "Rules that always hold" carry the foundational ("101") praxis princ
 and/or gating on real physical evidence) and **one TASK, one PR** (a SUBTASK never gets its own
 PR) — so every bootstrapped project inherits them; each peer sub-block adds that system's
 mapping (Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR
-boundaries). `test/pdlc.test.mjs` asserts the template carries both.
+boundaries). `test/pdlc.test.mjs` asserts the template carries both. Since 0.14.0 the
+rules also carry a compact **corpus-loading** rule — the [[grounded-corpus-spec]] v2
+consumption protocol made always-on: `INDEX.md`-first routing, notes just-in-time, never
+bulk-load, whole-corpus orientation via `CAPSULES.md` when it exists.
 
 ## Deterministic core: scripts/plant.mjs
 

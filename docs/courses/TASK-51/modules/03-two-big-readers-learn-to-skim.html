@@ -1,0 +1,145 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the two whole-corpus readers -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">Two Big Readers Learn to Skim</h1>
+      <p class="module-subtitle">The tools that legitimately need the whole picture — and the summary sheet that makes that affordable</p>
+
+      <p>Most readers need two or three notes. Two tools in this suite are different —
+      their jobs genuinely start with the <em>whole</em> corpus:</p>
+
+      <p><strong>Sweep</strong> is the
+      <span class="term" data-definition="The pdlc:sweep skill — given a set of board tasks, it authors an ordered execution plan (a runbook), gets the operator's sign-off, then drives every task through spec, implementation, PR, and merge.">board-sweep orchestrator</span>.
+      Before it can plan a batch of tasks, it has to understand the project those tasks
+      touch — that's whole-corpus orientation, and it happens again after every merge, when
+      the orchestrator re-grounds.</p>
+
+      <p><strong>Reorient</strong> is the
+      <span class="term" data-definition="The reorient skill — it fans out one evaluator per research branch, each judging that research against the project's purpose, wiki, and task board, then merges their findings into one plan.">direction-evaluation loop</span>.
+      Every evaluator it dispatches must judge research <em>against the project as it
+      actually is</em> — which used to mean each of N parallel evaluators loading the wiki's
+      full note bodies. The corpus cost, multiplied by N, every round.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">💊</div>
+        <div class="callout-content">
+          <strong class="callout-title">The capsule bargain</strong>
+          <p>Spec v2's summary sheet — CAPSULES.md, one routing-grade capsule per note — is
+          about a tenth the cost of the full bodies. The new instruction in both tools:
+          take the capsule view for orientation, and open a full note only for what you
+          actually engage with — the concepts a task touches, the claims a report cites.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the evaluator's new marching orders -->
+    <div class="screen">
+      <h2 class="screen-heading">The evaluator's new marching orders</h2>
+      <p>Here is the changed instruction inside reorient — the "beat" every dispatched
+      evaluator follows. Sweep's orientation moments got the same treatment in its own
+      words.</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">REORIENT/SKILLS/REORIENT/SKILL.MD — THE BEAT</span>
+          <pre><code>
+<span class="code-line">ground against the project wiki via its CAPSULES.md when present —</span>
+<span class="code-line">the whole-corpus capsule view — loading a full note only for claims</span>
+<span class="code-line">the report actually cites; absent a rollup, route from INDEX.md and</span>
+<span class="code-line">load notes just-in-time (README/docs when no wiki at all)</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">When the project wiki has a summary sheet, that sheet is your view
+            of the whole project…</p>
+            <p class="tl">…and you only open a note in full when your report is about to
+            lean on it — a claim you cite deserves the full source; background doesn't.</p>
+            <p class="tl">On an older wiki with no summary sheet, fall back to the table of
+            contents and fetch notes one at a time as needed.</p>
+            <p class="tl">And in a project with no wiki at all, ground yourself on the
+            README and docs — the tool still works, just with weaker guarantees.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🔬</div>
+        <div class="callout-content">
+          <strong class="callout-title">An honestly open question</strong>
+          <p>Does an evaluator grounded on capsules judge as well as one that read every
+          full note? Nobody measured it yet. Rather than guess, the task parked the
+          question <em>inside the skill</em>: the next reorient run is told to record which
+          mode its evaluators used and any quality difference observed. A cheaper habit,
+          adopted with its eyes open.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: shipping it honestly -->
+    <div class="screen">
+      <h2 class="screen-heading">Shipping words like they were code</h2>
+      <p>Nothing in this task compiles — every change is instructions. The project ships
+      instruction changes with the same discipline as code:</p>
+
+      <p>Each edited skill's version number was bumped (sweep 0.3.0 → 0.4.0, reorient
+      0.1.0 → 0.2.0, bootstrap 0.1.0 → 0.2.0 as the template's owner), and the whole
+      marketplace released as 0.14.0 — a
+      <span class="term" data-definition="An automated check that fails the change if released files were edited without increasing the version numbers — so consumers can always tell 'something changed here' from the number alone.">version gate</span>
+      enforces this. And because the project's own wiki documents these tools, the notes
+      describing them were re-verified against the new text and
+      <span class="term" data-definition="Each wiki note records the exact commit its claims were last checked against. Re-pinning means re-reading the changed sources and updating that record — the freshness gate blocks work whose wiki lags behind it.">re-pinned</span>
+      in the same change — ten notes in all, most of them touched only by the version
+      stamp.</p>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div class="callout-content">
+          <strong class="callout-title">Where this leaves the story</strong>
+          <p>The protocol now lives in all three delivery points: every project's always-on
+          block, sweep's orientation moments, and reorient's evaluator briefs. A sibling
+          task builds the generator that gives every wiki its CAPSULES.md — and thanks to
+          the fallback wording, these consumers behave correctly whether or not that file
+          exists yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — orientation happens on the capsule sheet, and a full note is opened only for claims the evaluator's report actually cites. The whole-picture need is met at a tenth the cost, without giving up depth where it counts."
+             data-explanation-wrong="Not quite. The new rule doesn't forbid full notes — it changes when they're opened. Re-read the evaluator's marching orders: what earns a full-note read?">
+          <h3 class="quiz-question">Under the new instructions, a reorient evaluator needs
+          the whole-project picture AND wants to cite one wiki note's claim in its report.
+          What does it load?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Every note in full — evaluation is a whole-corpus job, so nothing less is safe</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>CAPSULES.md for the whole picture, plus the full text of just the note it cites</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Capsules only — full notes are no longer allowed in evaluations</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

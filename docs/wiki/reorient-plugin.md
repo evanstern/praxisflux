@@ -10,13 +10,13 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: 2adb4865bc6b0e0ef3933c47fb6ba95c021389a4
+verified_against: b583e79b04008c50cc92ee7de146fa63fb169b8f
 ---
 
 # reorient plugin
 
 The `reorient` plugin (lockstep with the marketplace version; skill at its own
-`version: 0.1.0`) runs a **corpus-grounded reorientation** of a project's direction: the
+`version: 0.2.0`) runs a **corpus-grounded reorientation** of a project's direction: the
 lead takes N already-gathered corpus branches and a **lens** (the project's purpose
 statement), fans out one evaluator subagent per branch to judge the corpus against the
 project's wiki and board, checkpoints operator decisions between rounds, has the
@@ -74,9 +74,10 @@ finish/abandon guidance appended. `scripts/stop.mjs` is a thin
 **The skill** (`skills/reorient/SKILL.md`) walks six phases in the gate→work→gate shape:
 precondition gate (capture the lens, select corpus branches, detect grounding,
 `run.mjs begin`); Phase 1 lead orientation (the lead reads the briefs/groundings itself —
-the deepest finding is often a mismatch between the corpus's original framing and the
-lens); Phase 2 evaluate ×N (one read-only subagent per branch, dispatched in one message,
-each with persona, the verbatim lens, its beat, and a fixed report structure ending in
+skimming the wiki's `CAPSULES.md`, or `INDEX.md` when no rollup exists — the deepest
+finding is often a mismatch between the corpus's original framing and the lens); Phase 2
+evaluate ×N (one read-only subagent per branch, dispatched in one message, each with
+persona, the verbatim lens, its beat, and a fixed report structure ending in
 **open questions for the operator**); Phase 3 steer (checkpointed relay: digest, spot-check
 bold claims, put decisions to the user, relay answers into the *same* agents as fixed
 constraints, record each decision durably as it's made); Phase 4 cross-ground (each
@@ -87,6 +88,13 @@ merge document, never an agent); Phase 6 execute (sign-off, then board moves via
 `backlog` CLI only, implementation handed to the host project's own machinery). A
 no-subagent fallback runs the evaluations sequentially in-session; every script has a
 stated inline fallback so the skill works hand-copied.
+
+Since skill 0.2.0 the flow consumes the project wiki per [[grounded-corpus-spec]] v2:
+the lead's orientation skim and each evaluator's grounding take the `CAPSULES.md`
+whole-corpus view when present, loading full notes only for claims a report actually
+cites, with `INDEX.md`-first just-in-time loading as the v1 fallback (README/docs when
+no wiki at all). The skill also carries the open A/B question — capsule-only vs
+full-note evaluator grounding quality — for the next run to record findings on.
 
 ## Connections
 

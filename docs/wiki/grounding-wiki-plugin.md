@@ -9,7 +9,7 @@ sources:
   - grounding-wiki/gates/freshness.mjs
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/templates/note.md
-verified_against: 2adb4865bc6b0e0ef3933c47fb6ba95c021389a4
+verified_against: b583e79b04008c50cc92ee7de146fa63fb169b8f
 ---
 
 # Grounding-wiki plugin
