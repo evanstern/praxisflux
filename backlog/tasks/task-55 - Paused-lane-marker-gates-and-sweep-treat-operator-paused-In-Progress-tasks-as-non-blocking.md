@@ -3,9 +3,11 @@ id: TASK-55
 title: >-
   Paused-lane marker: gates and sweep treat operator-paused In Progress tasks as
   non-blocking
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 18:08'
+updated_date: '2026-07-26 19:54'
 labels:
   - pdlc
   - gates
@@ -34,3 +36,19 @@ Related: the reorient run ownership/concurrency rethink tracked host-side as pro
 - [ ] #3 pdlc:sweep excludes paused tasks from lane conflict analysis and lists them as untouched in the runbook header
 - [ ] #4 Host repos pick the behavior up via a normal version bump (lockstep law)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 015-paused-lane-marker (hand-authored)
+2. spec-bridge:link
+3. Dispatch praxis leg: documented CLI-set paused label convention (+ provenance append-note convention); pdlc:sweep SKILL.md + runbook template exclude paused tasks from lane conflict analysis, list them 'paused — untouched' in a runbook header slot
+4. Cross-repo leg (operator-approved at sign-off): promptworld PR — check-merge-drift.mjs downgrades paused tasks' branch/worktree findings to info in session/worktree/pr modes, under promptworld's own gates
+5. Versions (pdlc sweep skill + marketplace); wiki re-pins; praxis PR; serial merge; task Done only when BOTH legs merged
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/lane-hardening-runbook.md). Tier: default implementer. Decision at sign-off: gate stays host-side (consume-when-present, TASK-46); both legs ship in this task.
+<!-- SECTION:NOTES:END -->
