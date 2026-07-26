@@ -12,20 +12,75 @@
 //   ok      — they agree.
 //   unknown — the task uses a status outside To Do / In Progress / Done (custom workflow);
 //             the bridge doesn't guess, so it neither blocks nor warns.
+//
+// A project MAY opt into a finer, phase-level status vocabulary via `statusVocabulary` in
+// `.spec-bridge.json` (see vocabularyProfile): the same four verdicts, ranked on the
+// derivation-stage ladder against the board's own status names. Absent that config, every
+// path below behaves exactly as described above.
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { deriveSpecState, STATUS } from "../lib/spec-derive.mjs";
+import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import { hasChild, findRootsDownwards } from "../lib/project-root.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
- * `{ "strictDone": true }` turns on analyze-gated Done (see lib/spec-derive.mjs). Missing or
- * malformed config means checkbox-only mode — strictness is opt-in.
+ * `{ "strictDone": true }` turns on analyze-gated Done (see lib/spec-derive.mjs);
+ * `"statusVocabulary"` opts the board into phase-level status names (see
+ * vocabularyProfile below). Missing or malformed config means checkbox-only mode with the
+ * 3-status vocabulary — everything finer is opt-in.
  */
 export function loadBridgeConfig(root) {
   try { return JSON.parse(readFileSync(join(root, ".spec-bridge.json"), "utf8")) ?? {}; }
   catch { return {}; }
+}
+
+/**
+ * What each derivation stage is called on a board that has NOT renamed it. This is exactly
+ * the 3-status collapse ("reviewing" is named Done because the sync skill's only move from
+ * there is `-s Done`), which is why a statusVocabulary that renames nothing behaves
+ * bit-for-bit like no statusVocabulary at all.
+ */
+export const DEFAULT_STAGE_NAMES = {
+  [STAGE.SPECIFYING]: "To Do",
+  [STAGE.PLANNING]: "In Progress",
+  [STAGE.IMPLEMENTING]: "In Progress",
+  [STAGE.VALIDATING]: "In Progress",
+  [STAGE.REVIEWING]: "Done",
+};
+
+/**
+ * The opt-in phase-level vocabulary, normalized. `.spec-bridge.json` may carry
+ *   { "statusVocabulary": { "<stage>": "<board status name>", ... } }
+ * mapping any of the derivation stages (specifying / planning / implementing / validating /
+ * reviewing) to the consumer board's own status names; unmapped stages keep their
+ * DEFAULT_STAGE_NAMES. Returns null — 3-status behavior, unchanged — unless at least one
+ * stage is validly renamed (string values only; unknown keys ignored).
+ *
+ * The profile carries:
+ *   names — stage → board status name (defaults overlaid with the config)
+ *   cover — lowercase board status name → { min, max } span of stage ranks it stands for
+ *           (a name used for several stages honestly covers all of them; "Done" always
+ *           covers at least the top stage, so Done-eligibility is unchanged by opting in)
+ */
+export function vocabularyProfile(config) {
+  const raw = config?.statusVocabulary;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const names = { ...DEFAULT_STAGE_NAMES };
+  let renamed = false;
+  for (const key of STAGES) {
+    if (typeof raw[key] === "string" && raw[key].trim()) { names[key] = raw[key].trim(); renamed = true; }
+  }
+  if (!renamed) return null;
+  const top = STAGES.length - 1;
+  const cover = new Map([["done", { min: top, max: top }]]);
+  STAGES.forEach((stageKey, rank) => {
+    const name = names[stageKey].toLowerCase();
+    const c = cover.get(name);
+    if (!c) cover.set(name, { min: rank, max: rank });
+    else { c.min = Math.min(c.min, rank); c.max = Math.max(c.max, rank); }
+  });
+  return { names, cover };
 }
 
 const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
@@ -79,6 +134,20 @@ export function verdict(taskStatus, derivedStatus) {
   return t > d ? "exceeds" : t < d ? "lags" : "ok";
 }
 
+/**
+ * The same comparison at phase grain, against an opted-in vocabulary profile: a board status
+ * exceeds when even the EARLIEST stage it stands for is later than the derived stage, lags
+ * when even the LATEST is earlier, is ok anywhere inside its span, and is unknown when the
+ * status isn't in the vocabulary (custom workflow: don't guess) — verdict()'s semantics,
+ * finer ruler.
+ */
+export function stageVerdict(taskStatus, derivedStage, profile) {
+  const c = profile.cover.get(String(taskStatus).toLowerCase());
+  const d = STAGES.indexOf(derivedStage);
+  if (!c || d < 0) return "unknown";
+  return c.min > d ? "exceeds" : c.max < d ? "lags" : "ok";
+}
+
 /** One human sentence on why a spec dir doesn't prove more than its derived status. */
 function shortfall(root, specDir, derived) {
   const missing = ["spec.md", "plan.md"].filter((f) => !existsSync(join(root, specDir, f)));
@@ -105,19 +174,24 @@ export function checkBridge(root) {
   const links = [];
   const problems = [];
   const warnings = [];
-  const requireAnalysis = loadBridgeConfig(root).strictDone === true;
+  const config = loadBridgeConfig(root);
+  const requireAnalysis = config.strictDone === true;
+  const profile = vocabularyProfile(config);
   for (const task of findLinkedTasks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
-    const v = verdict(task.status, derived.status);
+    // Opted-in boards are judged on the stage ladder against their own status names;
+    // everyone else gets the 3-status comparison, untouched.
+    const v = profile ? stageVerdict(task.status, derived.stage, profile) : verdict(task.status, derived.status);
+    const proven = profile ? profile.names[derived.stage] : derived.status;
     links.push({ ...task, derived, verdict: v });
     if (v === "exceeds") {
       problems.push(
-        `[spec-bridge] ${task.id} is "${task.status}" but ${task.specDir} only proves "${derived.status}": ` +
+        `[spec-bridge] ${task.id} is "${task.status}" but ${task.specDir} only proves "${proven}": ` +
         `${shortfall(root, task.specDir, derived)}. Finish the spec work or set the task back (backlog task edit ${task.id} -s "...").`
       );
     } else if (v === "lags") {
       warnings.push(
-        `[spec-bridge] ${task.id} is "${task.status}" but ${task.specDir} already derives "${derived.status}" — run the spec-bridge sync skill to catch the board up.`
+        `[spec-bridge] ${task.id} is "${task.status}" but ${task.specDir} already derives "${proven}" — run the spec-bridge sync skill to catch the board up.`
       );
     } else if (
       // Strict-mode near-miss: the status is honest ("ok"), every checkbox is checked, and
@@ -156,13 +230,22 @@ const sq = (s) => `'${String(s).replace(/'/g, "'\\''")}'`;
  * removals (highest index first, so earlier indexes stay valid) → phase-AC additions →
  * check/uncheck at post-edit indexes → one progress note (only when something changed).
  * ACs that don't start with "Spec phase: " are human-authored and are never touched.
+ *
+ * With an opted-in vocabulary profile (third argument), status targets are the profile's
+ * stage names instead of the 3-status collapse. Done keeps its meaning: a board that leaves
+ * "reviewing" at its default still plans `-s Done` with the derived final summary; a board
+ * that names it (say "In Review") is planned to that name, and moving to Done stays a
+ * human/consumer act the gate already accepts (Done never exceeds a fully-proven spec).
  */
-export function planLinkedTask(task, derived) {
+export function planLinkedTask(task, derived, profile = null) {
   const cmds = [];
   const edit = (args) => cmds.push(`backlog task edit ${task.id} ${args}`);
 
   // Status — Done-eligible is the only path to Done and carries the derived final summary.
-  const target = derived.status === STATUS.DONE_ELIGIBLE ? "Done" : derived.status;
+  const mapped = profile ? profile.names[derived.stage] : null;
+  const target = derived.status === STATUS.DONE_ELIGIBLE
+    ? (mapped && mapped.toLowerCase() !== "done" ? mapped : "Done")
+    : (mapped ?? derived.status);
   const statusChanged = String(task.status).toLowerCase() !== target.toLowerCase();
   if (statusChanged) {
     if (target === "Done")
@@ -218,11 +301,14 @@ export function planLinkedTask(task, derived) {
 export function planBridge(root) {
   const commands = [];
   const skipped = [];
-  const requireAnalysis = loadBridgeConfig(root).strictDone === true;
+  const config = loadBridgeConfig(root);
+  const requireAnalysis = config.strictDone === true;
+  const profile = vocabularyProfile(config);
   for (const task of findLinkedTasks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
-    if (verdict(task.status, derived.status) === "unknown") { skipped.push({ id: task.id, status: task.status }); continue; }
-    commands.push(...planLinkedTask(task, derived));
+    const v = profile ? stageVerdict(task.status, derived.stage, profile) : verdict(task.status, derived.status);
+    if (v === "unknown") { skipped.push({ id: task.id, status: task.status }); continue; }
+    commands.push(...planLinkedTask(task, derived, profile));
   }
   return { commands, skipped };
 }
