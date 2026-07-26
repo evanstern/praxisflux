@@ -12,7 +12,7 @@
 - [x] T004 gate: adoption-keyed budget enforcement (capsule 500, body 8000, exempt key)
 - [x] T005 gate: CAPSULES.md staleness via regenerate-and-compare; unadopted → warn-only
 - [x] T006 tests: generator + gate fixtures (adopted/unadopted/exempt/determinism)
-- [ ] T007 versions: wiki-build + wiki-update SKILL.md bumps + marketplace sync-version
+- [x] T007 versions: wiki-build + wiki-update SKILL.md bumps + marketplace sync-version
 - [ ] T008 wiki: re-verify + re-pin grounding-wiki-plugin.md (two-step)
 
 ## Prove
