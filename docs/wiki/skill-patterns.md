@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: 2c689f828be6a90e751074d19a14c15fdcbb1887
+verified_against: fffb44a983e81ad9483339b13700213879f89e0f
 ---
 
 # Skill patterns — how praxisflux plugins are authored

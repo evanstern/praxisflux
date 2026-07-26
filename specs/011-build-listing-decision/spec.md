@@ -3,7 +3,7 @@
 Board: TASK-37 · Sweep: `docs/design/board-clearing-runbook.md` (Lane 3, before TASK-40) ·
 Direction: operator decision at sweep sign-off 2026-07-26 — **(a) keep build/ listed as a
 skill-only plugin; fix both READMEs to describe what actually ships.** The task executes
-the choice; the review's open question (docs/handoffs/team-review-iteration-3-review.md,
+the choice; the review's open question (docs/design-inputs/team-review-iteration-3-review.md,
 "What should be removed" + open question 1) is answered by it.
 
 ## Problem

@@ -12,7 +12,7 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: ea32ac6fb792f9664f30c5aaea903ed588ac9f56
+verified_against: dbd03352f4813fea7f87b54deea759eb9a7f414f
 ---
 
 # team-review plugin
@@ -84,7 +84,7 @@ engagement), Phase 4 synthesis to the run's report path, then the output gate vi
   it exports no repo-consumable CI gate.
 - Covered by the [[test-suite]] (`test/team-review.test.mjs`).
 - Provenance: developed and eval-hardened standalone, then transplanted; its own review of
-  this repo is vendored as spec input at `docs/handoffs/team-review-iteration-3-review.md`.
+  this repo is vendored as spec input at `docs/design-inputs/team-review-iteration-3-review.md`.
 
 ## Operational notes
 

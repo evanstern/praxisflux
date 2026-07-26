@@ -114,7 +114,7 @@ custom-property *names* and the same dark-mode contract (light default; dark via
 research share the praxisflux palette; codebase-to-course keeps its warm palette and its documented
 Google Fonts exception. Toolkit snippets are written against the token names only, so they inherit
 whichever palette the consuming page defines. HTML page *shells* remain per-plugin — the earlier
-decision (docs/handoffs/codebase-to-course-plugin.md) not to fold the course's `_base.html` into
+decision (docs/design-inputs/codebase-to-course-plugin.md) not to fold the course's `_base.html` into
 `lib/html/base.html` stands; what's shared is the token schema and the content modules, not the
 page skeleton.
 

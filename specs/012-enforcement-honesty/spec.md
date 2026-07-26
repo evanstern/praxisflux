@@ -62,7 +62,7 @@ test fixture, matching the existing check-docs test style).
 ## Non-goals
 
 Changing any gate's blocking behavior; adding hooks to plugins that ship none; the
-docs/handoffs rename (TASK-38).
+docs/design-inputs rename (TASK-38).
 
 ## Acceptance
 

@@ -17,6 +17,9 @@ A handoff message is *plumbing*, not a work product — it must not clutter `git
 - **Durable residue** (what was actually learned/produced) lands in the normal tracked artifacts
   (a lesson's `guide.md` / `raw-notes.md`), not in the handoff.
 
+The gitignored `.handoff/` transport is unrelated to `docs/design-inputs/` (tracked session
+notes and vendored design inputs — see its README): payloads ride here, evidence lives there.
+
 ## The envelope (shared)
 
 Frontmatter on each `.handoff/<id>.md`:
