@@ -8,7 +8,7 @@ sources:
   - .github/workflows/release.yml
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: d6de219323cd3fced956450848ddf3e27b199701
+verified_against: 2fcc5f24a7e4e8e80b3ae189ee3d3a6b28fdfe2a
 ---
 
 # Release pipeline
