@@ -14,7 +14,7 @@
 - [x] T004 freshness probe prescribed after every history move, unconditional, both
   files (R2)
 - [x] T005 versions: sweep skill 0.5.0 → 0.6.0; marketplace sync-version 0.27.0 (R3)
-- [ ] T006 wiki: pdlc-plugin re-verified + re-pinned; lockstep stales re-pinned;
+- [x] T006 wiki: pdlc-plugin re-verified + re-pinned; lockstep stales re-pinned;
   CAPSULES if description changed (R3)
 
 ## Prove

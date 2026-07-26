@@ -1,16 +1,14 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); sweep authors a dependency-laned, operator-signed-off runbook over a set of board tasks and executes them through spec → PR → merge → re-ground.
+description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); the second skill, sweep, is covered by its own note (pdlc-sweep).
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
   - pdlc/README.md
   - pdlc/skills/bootstrap/SKILL.md
-  - pdlc/skills/sweep/SKILL.md
-  - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: a4862009d6789e31b8ac0fa237feb1ac8f5819e0
+verified_against: cc5cfd891c924159fc04e1c63a54912287a98d98
 ---
 
 # pdlc plugin
@@ -19,59 +17,15 @@ The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level i
 the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing
 codebase) as a **praxis-development-lifecycle project** whose always-on context
 knows the whole loop, the suite-wide application of the [[skill-patterns]] rule "plant a
-project CLAUDE.md" (a plugin has no always-on slot); since 0.12.0 a second skill, `sweep`,
-runs the lifecycle it installs (below).
+project CLAUDE.md" (a plugin has no always-on slot); since 0.12.0 a second skill,
+[[pdlc-sweep]], runs the lifecycle it installs.
 
-## pdlc:sweep — the board-sweep orchestrator
+## pdlc:sweep — covered in its own note
 
-`skills/sweep/SKILL.md` (with `skills/sweep/templates/runbook.md`) orchestrates a **set of
-board tasks** into merged PRs. Two phases, gate → work → gate:
-
-- **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered **lanes**
-  (the governing rule is *develop in parallel, merge serially*; contract-shaped work
-  leads — a published interface unblocks consumers), per-task model
-  tiers from the host rubric, the project's per-PR gates enumerated, concurrency doctrine
-  with named hotspots, operator checkpoints, and a done-means — written to
-  `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on the
-  lanes.
-- **Execute:** per task, the host PDLC loop instantiated — **claim before work** (the
-  first commit claims the task — board card → In Progress plus the spec number's
-  directory; push immediately, never force-push a claim; a
-  rejected push means the race was lost: re-read the board/`specs/`, surface
-  genuinely contended work to the operator, rebase-and-repush otherwise), Spec Kit
-  cycle, `spec-bridge:link`, worktree, delegated implementation (never inline), per-PR
-  gates, rebase, PR, serial merge with verify-merged-before-cleanup, re-ground, one
-  execution-log line.
-
-Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
-finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern —
-`session`/`worktree`/`pr` modes): `session` at sweep start subsumes the root fetch/ff-pull
-and feeds its drift matrix into lane construction, `worktree [--spec NNN]` mechanizes the
-fresh-root and spec-number checks, and `pr` blocks each
-`gh pr create` (re-run after every rebase) on predicted conflicts. The runbook records the
-probe result; with no gate the raw git doctrine stands. Since 0.13.0 the runbook template's
-concurrency doctrine carries the fuller claim-before-work doctrine above and names the
-gate's mechanical checks (`claim --dir NNN-slug` before creating any new `specs/NNN-*`
-dir; `worktree --spec NNN --task TASK-<n>` when cutting the worktree).
-
-Since 0.14.0 sweep's two whole-corpus orientation moments (runbook authoring's project
-reading, each task's re-ground) consume the corpus per [[grounded-corpus-spec]] v2 —
-`CAPSULES.md` when present, full note bodies only for touched concepts, `INDEX.md` plus
-just-in-time notes on a v1 corpus without a rollup.
-
-Since 0.25.0, a **paused-lane marker**: a task labeled `paused`
-(set/cleared only via `backlog task edit --labels`, provenance as a
-"paused by \<who\> \<date\>: \<why\>" append-note, machine-findable in frontmatter
-`labels:`) is not a live lane — authoring excludes it from lane conflict analysis,
-lists it "paused — untouched"; execution never claims, rebases, or cleans its
-branches/worktrees; merge-drift hosts downgrade its findings to info.
-
-The runbook is the **session-portable contract**: a fresh session resumes the sweep from
-it plus the board alone. Because a runbook is an instruction-bearing artifact a session
-*obeys*, the adopt path verifies authority before obeying — status verifiably signed-off
-(only the operator flips draft → signed-off), committed, and board-backed — refusing
-anything unverifiable. Phase separation holds: sweep decides no
-direction (that arrives from reorient/team-review/the operator) and writes no code.
+The plugin's second skill, `sweep`, orchestrates a set of board tasks into merged PRs
+(authored, operator-signed-off runbook; parallel lanes, serial merges; claim-before-work,
+paused-lane markers, merge-drift gate consumption, pin-aware reconciliation). Its full
+coverage — and the pins on `skills/sweep/*` — live in [[pdlc-sweep]].
 
 ## The planted grounding is a marked block, not a file
 

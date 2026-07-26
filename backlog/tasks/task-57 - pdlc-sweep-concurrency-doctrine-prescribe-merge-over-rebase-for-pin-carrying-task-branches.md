@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 21:08'
-updated_date: '2026-07-26 22:24'
+updated_date: '2026-07-26 22:29'
 labels:
   - pdlc
   - sweep
@@ -30,7 +30,7 @@ Spec: specs/018-sweep-merge-over-rebase
 <!-- AC:BEGIN -->
 - [x] #1 sweep concurrency doctrine (SKILL.md + templates/runbook.md): pin-carrying task branches reconcile by MERGING origin/main in and re-pinning conflicted pins to the merge commit; squash/rebase/force-push named as pin-breaking; rebase stays for pin-free branches
 - [x] #2 freshness probe prescribed directly after EVERY history move, not only when docs/wiki/ changed — pins also reference design-reference files, so a wiki-untouched diff can still be stale
-- [ ] #3 Versions bumped per docs/releasing.md (pdlc released surface: sweep SKILL.md + marketplace); wiki pdlc-plugin note re-verified + re-pinned
+- [x] #3 Versions bumped per docs/releasing.md (pdlc released surface: sweep SKILL.md + marketplace); wiki pdlc-plugin note re-verified + re-pinned
 - [ ] #4 Spec phase: Spec
 - [ ] #5 Spec phase: Implement
 - [ ] #6 Spec phase: Prove
@@ -51,4 +51,6 @@ Spec: specs/018-sweep-merge-over-rebase
 
 <!-- SECTION:NOTES:BEGIN -->
 Doctrine rewritten in SKILL.md (step 7 + concurrency doctrine) and templates/runbook.md: pin-carrying branches merge origin/main in and re-pin conflicts to the merge commit; squash/rebase/force-push named as the three pin-breaking moves; PR lands as merge commit never squash; rebase kept for pin-free branches. Freshness probe prescribed unconditionally after every history move in both files. Versions: sweep skill 0.5.0→0.6.0, marketplace 0.26.0→0.27.0.
+
+Wiki re-ground: 9 stamp-only re-pins executed verbatim; build-and-release/reorient/team-review literals verified then re-pinned; pdlc-plugin re-verified against the doctrine diff. Body went 753 over the 8000-char budget (note was at 7,996 pre-task) — split summary-style per corpus spec: sweep coverage moved to new note pdlc-sweep (own sources: skills/sweep/*), pdlc-plugin keeps a routed summary; INDEX line added, CAPSULES regenerated. Freshness gate: 29 notes fresh, plan empty.
 <!-- SECTION:NOTES:END -->
