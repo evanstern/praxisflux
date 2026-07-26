@@ -15,5 +15,5 @@
 ## Prove
 
 - [x] T006 gates green: node --test (186 pass), check-docs, wiki-freshness (27 fresh, zero warnings), bump gate 0.18.0 → 0.19.0
-- [ ] T007 board finalized (decision + rationale recorded, R1); PR opened — serial merge
-  recorded by the orchestrator
+- [x] T007 board finalized (decision + rationale recorded, R1; ACs checked, Done, final
+  summary); PR opened — serial merge recorded in the runbook execution log
