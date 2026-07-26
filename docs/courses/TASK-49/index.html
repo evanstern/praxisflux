@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK-49 — The Summary Shelf Gets Built</title>
+
+  <!-- Set the theme before first paint so dark mode never flashes white.
+       main.js owns the toggle + persistence; this only picks the initial value.
+       Copy as-is — no per-course customization needed. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('course-theme');
+        document.documentElement.dataset.theme =
+          t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">TASK-49 — The Summary Shelf Gets Built</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="Building the Summary Binder" role="tab" aria-label="Module 1: Building the Summary Binder"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Gate Grows Teeth" role="tab" aria-label="Module 2: The Gate Grows Teeth"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Adoption Switch" role="tab" aria-label="Module 3: The Adoption Switch"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">Building the Summary Binder</h1>
+      <p class="module-subtitle">The previous task wrote the rule; this task built the machine that keeps the rule true</p>
+
+      <p>TASK-48 amended this project's knowledge-base contract: every wiki should offer a
+      cheap summary file, <code>CAPSULES.md</code> — one short blurb per note, so a reader
+      who needs the <em>whole picture</em> can skim the binder instead of photocopying every
+      book. The contract also set two size limits: each blurb stays under 500 characters,
+      each note body under 8,000.</p>
+
+      <p>But a contract with no machinery is a wish. Nothing <em>generated</em> the binder,
+      and nothing <em>checked</em> the limits. TASK-49 built both halves: a
+      <span class="term" data-definition="A small program that reads every note in the wiki and writes CAPSULES.md automatically — the same input always produces exactly the same output, byte for byte.">generator</span>
+      that produces CAPSULES.md mechanically, and new checks inside the project's existing
+      <span class="term" data-definition="An automated checkpoint that inspects work and refuses to let it pass while problems remain. This project runs gates before commits, before merges, and in CI.">gate</span>
+      so the limits are enforced rather than remembered.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🗜️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Derived state, never hand-written</strong>
+          <p>CAPSULES.md is like the index of a book: you never edit the index by hand and
+          hope the page numbers stay right — you regenerate it from the book. The spec calls
+          this <em>derived state</em>; hand-editing it is defined as an error.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: what the generator writes -->
+    <div class="screen">
+      <h2 class="screen-heading">What the generated file looks like</h2>
+      <p>The generator (<code>grounding-wiki/scripts/capsules.mjs</code>) reads the wiki's
+      table of contents and every note, then writes this — always in the same order, always
+      byte-identical for the same input:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CAPSULES.md (generated)</span>
+          <pre><code>
+<span class="code-line"># Capsules — the corpus rollup</span>
+<span class="code-line">Generated by grounding-wiki scripts/capsules.mjs at corpus commit 46128dc…</span>
+<span class="code-line">- [[overview]] — what praxisflux is: a plugin marketplace on a shared chassis</span>
+<span class="code-line">  What the note covers and when to load it — its full 500-character-max capsule.</span>
+<span class="code-line">- [[gate-runner]] — the Stop-hook harness: resolves roots, runs gate fns</span>
+<span class="code-line">  The next capsule, and so on — one pair of lines per note, in index order.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">A title announcing what this file is: the summary binder.</p>
+            <p class="tl">A stamped header naming which program wrote the file and the exact
+            project snapshot it was written at — so anyone can later detect whether the
+            binder has fallen behind the notes.</p>
+            <p class="tl">Then, for each note: first its one-liner copied straight from the
+            table of contents…</p>
+            <p class="tl">…followed by its capsule — the short "what is in this note and when
+            should you open it" blurb from the note itself.</p>
+            <p class="tl">The next note gets the same two-line treatment…</p>
+            <p class="tl">…all the way down, in exactly the order the table of contents lists
+            them. Same wiki in, same binder out, every single time.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">🔁</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why "byte-identical" matters</strong>
+          <p>Because the output is perfectly predictable, a checker can regenerate the file
+          in memory and compare it to what is on disk. Any difference — a note edited without
+          refreshing the binder, or someone hand-tweaking it — is caught mechanically.
+          Module 2 shows that trick in action.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: wired into the routine -->
+    <div class="screen">
+      <h2 class="screen-heading">Regeneration becomes part of the routine</h2>
+      <p>A generator nobody runs is as useless as a rule nobody checks. So the two wiki
+      skills — the instructions AI sessions follow when they build or refresh a wiki — now
+      make regeneration a standard step. Here is how a wiki-refresh session ends today:</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">O</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+              <p>The release code changed — can you bring the wiki up to date?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Done — two notes re-verified against the new code, and one description
+              updated to say what the note now actually covers.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>A description changed, so the binder is stale. Regenerating: <em>node
+              scripts/capsules.mjs . docs/wiki</em> — CAPSULES.md rewritten.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">✓</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">Gate</span>
+              <p>Freshness gate: 26 notes fresh, capsules within budget, CAPSULES.md matches
+              a fresh regeneration. Pass.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — CAPSULES.md is derived state, like a book's index. You fix the source (the note's description) and rerun the generator; the stamped, deterministic output means the checker can always tell a properly regenerated binder from a hand-patched one."
+             data-explanation-wrong="Remember what the spec calls this file: derived state, generated from the notes. Editing generated output by hand is exactly the drift the header stamp exists to catch.">
+          <h3 class="quiz-question">You spot a typo in one blurb inside CAPSULES.md. What is
+          the correct fix?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Edit CAPSULES.md directly — it is the file with the typo</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete CAPSULES.md — better no binder than a wrong one</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Fix the description in the note itself, then rerun the generator</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <!-- Screen 1: from habit to hard rule -->
+    <div class="screen">
+      <span class="module-number">Module 2</span>
+      <h1 class="module-title">The Gate Grows Teeth</h1>
+      <p class="module-subtitle">Size limits that live in a checker can't be forgotten — three new failure conditions in the freshness gate</p>
+
+      <p>This project already had a <strong>freshness gate</strong>: an automated check that
+      fails whenever a wiki note's underlying code changed after the note was last verified.
+      It runs before every commit, before every push, and in
+      <span class="term" data-definition="Continuous Integration — an automated service that runs a project's checks on every proposed change, so nothing broken can be merged unnoticed.">CI</span>.
+      TASK-49 taught that same gate the new size rules, so the token budgets stop being a
+      habit and become a checkpoint.</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">💊</div>
+          <h4 class="pattern-title">Capsule too long</h4>
+          <p class="pattern-desc">A note's blurb over 500 characters fails, naming the note
+          and exactly how far over it is.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">📚</div>
+          <h4 class="pattern-title">Note too big</h4>
+          <p class="pattern-desc">A body over 8,000 characters fails, pointing at the spec's
+          split rule — break the note into summary-plus-children.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-3)">
+          <div class="pattern-icon" style="background: var(--color-actor-3)">🗂️</div>
+          <h4 class="pattern-title">Binder out of date</h4>
+          <p class="pattern-desc">A CAPSULES.md that no longer matches a fresh regeneration —
+          stale or hand-edited — fails, naming the exact command that fixes it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: the code -->
+    <div class="screen">
+      <h2 class="screen-heading">The checks, in miniature</h2>
+      <p>The heart of the enforcement, simplified from
+      <code>grounding-wiki/gates/capsules.mjs</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">gates/capsules.mjs (simplified)</span>
+          <pre><code>
+<span class="code-line">const adopted = existsSync(join(dir, "CAPSULES.md"));</span>
+<span class="code-line">if (desc.length &gt; CAPSULE_BUDGET) fail("over the 500-char capsule budget");</span>
+<span class="code-line">if (body.length &gt; NOTE_BODY_BUDGET)</span>
+<span class="code-line">  exempt ? warn(reason) : fail("split summary-style");</span>
+<span class="code-line">if (renderCapsules(commitFromHeader) !== existing)</span>
+<span class="code-line">  fail("stale — regenerate: node scripts/capsules.mjs");</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">First, look whether this wiki has a summary binder at all — that
+            single fact decides how strict everything below will be (Module 3 explains why).</p>
+            <p class="tl">Measure every blurb: longer than 500 characters means the check
+            fails and the message names the guilty note and the overage.</p>
+            <p class="tl">Measure every note body against the 8,000-character cap…</p>
+            <p class="tl">…but a note formally marked "exempt, here is why" only draws a
+            warning — the spec accepts that some notes genuinely cannot be split, it just
+            insists the exception be declared, not silent.</p>
+            <p class="tl">Finally, rebuild the binder in memory — at the very project
+            snapshot its header claims — and compare it to the file on disk…</p>
+            <p class="tl">…any mismatch fails, and the error message contains the exact
+            command that regenerates it. Every failure names its own fix.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-content">
+          <strong class="callout-title">The regenerate-and-compare trick</strong>
+          <p>This is why Module 1 insisted on byte-identical output. The checker never
+          "reads" the binder for meaning — it simply rebuilds it and compares bytes. Stale
+          content, a missing note, a hand-edit: all become the same detectable thing,
+          <em>a difference</em>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: flow animation -->
+    <div class="screen">
+      <h2 class="screen-heading">Follow one note through the gate</h2>
+      <p>Step through what happens when a commit touches the wiki.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"A note is edited — its body grows to 9,200 characters"},
+        {"highlight":"flow-actor-1","label":"The commit hands the wiki to the freshness gate","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-2","label":"Gate: pins fresh? yes. Capsule under 500? yes. Body under 8,000? NO — 1,200 over"},
+        {"highlight":"flow-actor-2","label":"The failure points at the split rule: move subtopics into child notes","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-3","label":"Author splits the note (or declares size_budget_exempt with a reason), regenerates CAPSULES.md, commits — gate passes"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">✍️</div>
+            <span>Edited note</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">🚦</div>
+            <span>Freshness gate</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">✅</div>
+            <span>Fixed + passing</span>
+          </div>
+        </div>
+
+        <div class="flow-packet" id="flow-packet"></div>
+
+        <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the escape hatch is a declared exemption. The note keeps a size_budget_exempt tag with the reason, and the gate downgrades that one failure to a warning. The rule stays enforced everywhere else, and the exception is visible instead of silent."
+             data-explanation-wrong="The spec anticipated this case — 'an over-cap parent with nothing splittable is acceptable — flag it, don&#39;t butcher it.' Look for the option that keeps the note whole while leaving a visible, declared trace.">
+          <h3 class="quiz-question">A note is 9,000 characters, but it is one long reference
+          table — splitting it would just scatter the table. The wiki has adopted the binder,
+          so the gate would normally fail. What does the design expect you to do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split it anyway — rules are rules, even if the pieces make less sense</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Mark it size_budget_exempt with the reason — the gate warns instead of failing, and the exception stays on the record</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete CAPSULES.md so the whole wiki drops back to warnings</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the chicken-and-egg problem -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">The Adoption Switch</h1>
+      <p class="module-subtitle">How to turn on strict enforcement without breaking every wiki that predates the rule</p>
+
+      <p>Here is the trap TASK-49 had to avoid. The moment the gate starts <em>failing</em>
+      oversized notes, every wiki written before the rule existed — including this very
+      project's own wiki, which has one note at 11,742 characters — would go red. Builds
+      would block on work that hasn't been scheduled yet. The classic migration problem:
+      you want the new law enforced, but you can't arrest everyone retroactively.</p>
+
+      <p>The solution: enforcement is keyed on <strong>adoption</strong>, and the adoption
+      signal is simply <em>whether the wiki has a CAPSULES.md</em>. No new setting, no
+      config file — the artifact the spec already defines doubles as the switch.</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔔</div>
+          <h4 class="pattern-title">No binder yet: warnings</h4>
+          <p class="pattern-desc">The same checks run, but only as notices — visibility
+          during adoption, nothing blocks. Legacy wikis stay green.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚨</div>
+          <h4 class="pattern-title">Binder present: failures</h4>
+          <p class="pattern-desc">Generating CAPSULES.md is opting in. From then on,
+          over-budget capsules and bodies, and a stale binder, block the gate.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: what the warning looks like -->
+    <div class="screen">
+      <h2 class="screen-heading">This repo, today: warned but green</h2>
+      <p>This project's own wiki hasn't adopted yet — that conversion is the <em>next</em>
+      task, TASK-50. So its gate output today looks like this:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">gate output on this repo (today)</span>
+          <pre><code>
+<span class="code-line">warn: v2 budget (warn-only until this corpus adopts CAPSULES.md):</span>
+<span class="code-line">  docs/wiki/build-and-release.md: body is 11742 chars — 3742 over</span>
+<span class="code-line">  the 8000-char note budget; split summary-style, or add</span>
+<span class="code-line">  size_budget_exempt if nothing is splittable</span>
+<span class="code-line">wiki-freshness ok: 25 notes fresh against their pinned sources</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">"Heads up — this wiki hasn't switched the strict rules on yet, so
+            what follows is advice, not a blockade."</p>
+            <p class="tl">One note is 11,742 characters — 3,742 over the cap. The exact debt
+            TASK-50 will pay down is already measured and named.</p>
+            <p class="tl">And the fix is spelled out: split the note summary-style…</p>
+            <p class="tl">…or, if it genuinely can't be split, declare a formal exemption.</p>
+            <p class="tl">Meanwhile the gate still passes: everything else about the wiki is
+            fresh and verified. Warned, but green — exactly the migration posture.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this ordering is deliberate</strong>
+          <p>TASK-49 ships the machinery with the safety on. TASK-50 will trim the oversized
+          descriptions, split the fat note, and generate this wiki's real CAPSULES.md — and
+          the moment that file lands, the very machinery built here starts holding the line
+          for good.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: proof it all works -->
+    <div class="screen">
+      <h2 class="screen-heading">How you know it works</h2>
+      <p>None of this shipped on trust. The task added a dedicated test file that builds
+      throwaway wikis and proves every behavior: the generator writes byte-identical output
+      with the right header and index order; an adopted wiki fails on an oversized capsule,
+      an oversized body, and a hand-edited binder; a declared exemption downgrades to a
+      warning; an unadopted wiki only warns; and the gate's original duties are untouched.
+      The full suite — 167 tests — runs before every commit to this repository.</p>
+
+      <p>Because the gate and the two wiki skills changed behavior, the plugin's skills were
+      version-bumped and the whole marketplace released as 0.14.0 — with the project's own
+      wiki notes re-verified and re-pinned against the change, per the project's rule that
+      <em>documentation claims must always name the exact code version they were checked
+      against</em>.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — generating CAPSULES.md IS the opt-in. The gate keys strictness on that file's existence, so a brand-new wiki built by the current tooling (which generates the binder as a standard step) is born with enforcement on, while old wikis stay green until someone deliberately adopts."
+             data-explanation-wrong="There is no settings file or flag anywhere in this design — that was the point. Think about what single, already-defined artifact separates a wiki that has adopted v2 from one that hasn't.">
+          <h3 class="quiz-question">A team wants strict budget enforcement on their wiki.
+          According to this design, what do they do to turn it on?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Generate CAPSULES.md — the binder's presence is itself the switch</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Set strict_budgets: true in a configuration file</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — enforcement turned on for every wiki the day the gate shipped</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

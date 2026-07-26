@@ -1,6 +1,6 @@
 ---
 name: wiki-update
-version: 0.1.1
+version: 0.2.0
 description: Refresh a code-grounded corpus (docs/wiki) in place after code changes — plan the reconciliation (computed re-pins vs review work), re-verify what needs judgment against the actual diff, and re-pin. Use when the user asks to update/refresh/sync the wiki, when the freshness gate fails, or before merging changes that touch files listed in any note's sources.
 ---
 
@@ -42,6 +42,16 @@ Structural drift:
   `[[name]]` from related notes, add its INDEX.md line.
 - **Deleted subsystem** → remove its note + INDEX line; mention the removal in notes that
   linked to it.
+
+3. **Regenerate the capsule rollup.** Capsules are drift surfaces: an edit that changes what
+   a note covers must update its `description:` in the same pass (≤500 chars, written for
+   routing), and `CAPSULES.md` is derived from those descriptions. If the corpus has a
+   `CAPSULES.md`, finish every update pass with
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/capsules.mjs <repo-root> docs/wiki` — never hand-edit
+   it. If it has none, the corpus predates corpus-spec v2: offer to adopt (generate it once),
+   noting that adoption flips the gate's budget checks from warnings to failures. Keep note
+   bodies ≤8,000 chars while editing — split summary-style at the cap, or mark an
+   unsplittable note `size_budget_exempt: <reason>`.
 
 Hard rule: **never bump a pin without reading the diff — except through plan's RE-PIN-ONLY
 lines, whose whole point is that the planner proved the diff couldn't invalidate prose.**

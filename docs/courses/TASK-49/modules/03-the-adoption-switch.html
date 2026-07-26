@@ -1,0 +1,130 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the chicken-and-egg problem -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">The Adoption Switch</h1>
+      <p class="module-subtitle">How to turn on strict enforcement without breaking every wiki that predates the rule</p>
+
+      <p>Here is the trap TASK-49 had to avoid. The moment the gate starts <em>failing</em>
+      oversized notes, every wiki written before the rule existed — including this very
+      project's own wiki, which has one note at 11,742 characters — would go red. Builds
+      would block on work that hasn't been scheduled yet. The classic migration problem:
+      you want the new law enforced, but you can't arrest everyone retroactively.</p>
+
+      <p>The solution: enforcement is keyed on <strong>adoption</strong>, and the adoption
+      signal is simply <em>whether the wiki has a CAPSULES.md</em>. No new setting, no
+      config file — the artifact the spec already defines doubles as the switch.</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🔔</div>
+          <h4 class="pattern-title">No binder yet: warnings</h4>
+          <p class="pattern-desc">The same checks run, but only as notices — visibility
+          during adoption, nothing blocks. Legacy wikis stay green.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🚨</div>
+          <h4 class="pattern-title">Binder present: failures</h4>
+          <p class="pattern-desc">Generating CAPSULES.md is opting in. From then on,
+          over-budget capsules and bodies, and a stale binder, block the gate.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: what the warning looks like -->
+    <div class="screen">
+      <h2 class="screen-heading">This repo, today: warned but green</h2>
+      <p>This project's own wiki hasn't adopted yet — that conversion is the <em>next</em>
+      task, TASK-50. So its gate output today looks like this:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">gate output on this repo (today)</span>
+          <pre><code>
+<span class="code-line">warn: v2 budget (warn-only until this corpus adopts CAPSULES.md):</span>
+<span class="code-line">  docs/wiki/build-and-release.md: body is 11742 chars — 3742 over</span>
+<span class="code-line">  the 8000-char note budget; split summary-style, or add</span>
+<span class="code-line">  size_budget_exempt if nothing is splittable</span>
+<span class="code-line">wiki-freshness ok: 25 notes fresh against their pinned sources</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">"Heads up — this wiki hasn't switched the strict rules on yet, so
+            what follows is advice, not a blockade."</p>
+            <p class="tl">One note is 11,742 characters — 3,742 over the cap. The exact debt
+            TASK-50 will pay down is already measured and named.</p>
+            <p class="tl">And the fix is spelled out: split the note summary-style…</p>
+            <p class="tl">…or, if it genuinely can't be split, declare a formal exemption.</p>
+            <p class="tl">Meanwhile the gate still passes: everything else about the wiki is
+            fresh and verified. Warned, but green — exactly the migration posture.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this ordering is deliberate</strong>
+          <p>TASK-49 ships the machinery with the safety on. TASK-50 will trim the oversized
+          descriptions, split the fat note, and generate this wiki's real CAPSULES.md — and
+          the moment that file lands, the very machinery built here starts holding the line
+          for good.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: proof it all works -->
+    <div class="screen">
+      <h2 class="screen-heading">How you know it works</h2>
+      <p>None of this shipped on trust. The task added a dedicated test file that builds
+      throwaway wikis and proves every behavior: the generator writes byte-identical output
+      with the right header and index order; an adopted wiki fails on an oversized capsule,
+      an oversized body, and a hand-edited binder; a declared exemption downgrades to a
+      warning; an unadopted wiki only warns; and the gate's original duties are untouched.
+      The full suite — 167 tests — runs before every commit to this repository.</p>
+
+      <p>Because the gate and the two wiki skills changed behavior, the plugin's skills were
+      version-bumped and the whole marketplace released as 0.14.0 — with the project's own
+      wiki notes re-verified and re-pinned against the change, per the project's rule that
+      <em>documentation claims must always name the exact code version they were checked
+      against</em>.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — generating CAPSULES.md IS the opt-in. The gate keys strictness on that file's existence, so a brand-new wiki built by the current tooling (which generates the binder as a standard step) is born with enforcement on, while old wikis stay green until someone deliberately adopts."
+             data-explanation-wrong="There is no settings file or flag anywhere in this design — that was the point. Think about what single, already-defined artifact separates a wiki that has adopted v2 from one that hasn't.">
+          <h3 class="quiz-question">A team wants strict budget enforcement on their wiki.
+          According to this design, what do they do to turn it on?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Generate CAPSULES.md — the binder's presence is itself the switch</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Set strict_budgets: true in a configuration file</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — enforcement turned on for every wiki the day the gate shipped</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

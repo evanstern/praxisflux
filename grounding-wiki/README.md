@@ -10,7 +10,14 @@ to the source paths whose change invalidates it (`sources:`). Format:
   each against the actual diff, re-pin.
 - **`gates/freshness.mjs`** (+ `gates/cli.mjs freshness <repo-root> [corpus-dir]`) — the
   read-only staleness check: exit 1 listing every note whose sources changed after its pin.
+  Also enforces the corpus-spec v2 token budgets (`description:` capsule ≤500 chars, note
+  body ≤8,000 chars, `CAPSULES.md` currency via regenerate-and-compare) — hard failures
+  once a corpus has a `CAPSULES.md`, warn-only notices before it adopts one.
   Drop-in usable as a pre-commit hook or CI pre-merge gate.
+- **`scripts/capsules.mjs <repo-root> [corpus-dir]`** — (re)generate `CAPSULES.md`, the
+  corpus's capsule rollup (each note's INDEX line + its `description:`, in INDEX order,
+  headered with the generator and corpus commit). Derived state: both skills regenerate it
+  whenever any description changes; hand-editing it fails the gate.
 
 Reference deployment: a local reference repo's `docs/wiki/` (22 notes + a repo-local bash port
 of the gate). Downstream consumers: analyze-vault (Q&A), codebase-to-course (brief grounding),
