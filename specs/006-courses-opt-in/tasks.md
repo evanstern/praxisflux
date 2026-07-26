@@ -11,7 +11,7 @@
 - [x] T003 historical gap reconciled honestly; CLAUDE.md step-4 line updated (R2)
 - [x] T004 freshness stance stated: snapshot-exempt (R3)
 - [x] T005 praxisflux's standing choice recorded: per-feature (R4)
-- [ ] T006 wiki re-pins + CAPSULES.md regen as gate demands
+- [x] T006 wiki re-pins + CAPSULES.md regen as gate demands
 
 ## Prove
 
