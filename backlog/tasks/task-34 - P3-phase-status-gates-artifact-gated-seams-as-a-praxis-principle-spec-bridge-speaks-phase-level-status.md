@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-18 02:37'
-updated_date: '2026-07-26 14:38'
+updated_date: '2026-07-26 14:40'
 labels: []
 dependencies: []
 priority: high
@@ -24,6 +24,8 @@ Leg 1 — principles.md gains P3 (artifact-gated seams). The colleague design ch
 Leg 2 — praxisflux gate support for phase-level status. The colleague design's Jira flow (Design → Planning → In Progress → Validation → Ready for PR → Merge Check → Deploying → Done) makes the board the pipeline's observability surface. praxis boards collapse all of that into 'In Progress', and the spec-bridge gate only knows the 3-status vocabulary. Extend spec-bridge (derivation module + bridge gate, TASK-9.x lineage) so a consumer board MAY opt into a finer phase-status vocabulary derived from spec artifacts (spec.md exists → past Specifying; plan.md → past Planning; tasks.md ticked → Implementing/Validating; PR open → in review; merged → Done), with the bridge gate enforcing status-never-exceeds-artifacts at that granularity. Must stay backward compatible: 3-status boards keep working unchanged.
 
 First consumer: Coda (kofile/coda) — its per-phase board-status task depends on this landing.
+
+Spec: specs/009-p3-phase-status-gates
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -33,7 +35,12 @@ First consumer: Coda (kofile/coda) — its per-phase board-status task depends o
 - [ ] #3 The bridge gate (status-never-exceeds-artifacts) enforces at phase granularity when the finer vocabulary is opted into
 - [ ] #4 Consumer-facing docs (consuming-gates.md and/or spec-bridge README) document the phase-status contract and the opt-in
 - [ ] #5 Cross-reference recorded: Coda's workflow-split epic names this task as its upstream blocker
+- [ ] #6 Spec phase: Spec
+- [ ] #7 Spec phase: Implement
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
