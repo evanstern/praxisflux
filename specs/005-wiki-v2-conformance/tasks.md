@@ -7,8 +7,8 @@
 
 ## Implement
 
-- [ ] T002 measure: capsule + body sizes for all notes; violation list recorded
-- [ ] T003 capsules: every description ≤500 chars, written for routing
+- [x] T002 measure: capsule + body sizes for all notes; violation list recorded
+- [x] T003 capsules: every description ≤500 chars, written for routing
 - [ ] T004 split: build-and-release.md summary-style children + INDEX lines + honest pins
 - [ ] T005 adopt: docs/wiki/CAPSULES.md generated via scripts/capsules.mjs (last step)
 
