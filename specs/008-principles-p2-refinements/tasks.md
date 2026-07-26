@@ -14,5 +14,5 @@
 
 ## Prove
 
-- [ ] T006 gates green: node --test, check-docs, wiki-freshness (+ course iff policy demands)
+- [x] T006 gates green: node --test (167 pass), check-docs, wiki-freshness (27 fresh), bump gate 0.15.0 → 0.16.0; course deferred to the orchestrator per R5 (policy in flight in TASK-41)
 - [ ] T007 board finalized; PR opened — serial merge recorded by the orchestrator
