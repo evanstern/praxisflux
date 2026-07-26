@@ -23,7 +23,10 @@
   worktree AND from primary after "merge" both `unchanged`), `--name` beats derivation +
   rename-is-honest-drift, plain-dir basename + CLI `--name`; TASK-53 peersOmitted tests
   untouched and green (18/18 in test/pdlc.test.mjs)
-- [ ] T003 bootstrap SKILL.md documents override + derivation (R2)
+- [x] T003 bootstrap SKILL.md documents override + derivation (R2): Plant step 2 states
+  the full ladder + when to pass `--name`, and the sticky-name doctrine (re-plant from a
+  differently-named checkout is never spuriously drifted); output gate verifies the
+  heading names the project and `.pdlc` records `name`. Skill 0.4.0 → 0.5.0
 - [ ] T004 versions: bootstrap skill + marketplace sync-version (R3)
 - [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
 
