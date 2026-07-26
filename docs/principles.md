@@ -16,7 +16,10 @@ enforcement on top.)
 Provenance: owner directives (2026-07-17), stated as foundational — "101" — for both the
 methodology (praxis) and its consuming projects; encoded by TASK-32. P2's refinements — the
 reason-to-approve test and the EPIC tier — are owner refinements ratified the same day while
-restructuring a consumer's board (Coda TASK-0003); encoded by TASK-33.
+restructuring a consumer's board (Coda TASK-0003); encoded by TASK-33. P3 is generalized
+from a colleague-authored 9-workflow n8n SDLC design during Coda's evaluation of it
+(2026-07-18) — the same bet as praxis decision-1 and Coda's constitution Principle IV;
+encoded by TASK-34.
 
 ## P1 — Artifact-grounded action (evidentiary primacy)
 
@@ -75,6 +78,37 @@ Consequences, independent of tooling:
   branch mechanics restructure the plan of record.
 - Conversely, a TASK too large to land as one reviewable PR is mis-scoped as a task, not an
   excuse for multi-PR tasks: split the TASK.
+
+## P3 — Artifact-gated seams (pipeline-stage autonomy)
+
+**A pipeline SHOULD be split into single-responsibility stages, and every stage boundary
+MUST re-derive its state from durable artifacts** — git, the board, spec dirs, run records —
+never from what arrived with the invocation. **The trigger is a doorbell, never a contract;
+a payload is an untrusted hint.**
+
+A doorbell says *look now*; it does not say *what you will find*. A stage that is woken — by
+an orchestrator, a webhook, a cron, a human retry — may use the payload to decide where to
+look, but everything it acts on it reads back from the artifacts: per
+[P1](#p1--artifact-grounded-action-evidentiary-primacy), state is derived from what exists,
+never from a caller's claim. If the payload disagrees with the artifacts, the artifacts win;
+if the payload is stale, duplicated, or fabricated, the stage still does the right thing,
+because it never believed it.
+
+The payoff is structural, and it is the point:
+
+- **Independently re-runnable.** Any stage can be invoked again at any time — a retry, a
+  replay, a manual poke — and converges on the same answer, because its input is the world,
+  not the call.
+- **Replaceable.** A stage that owns one responsibility and derives its own state can be
+  swapped out — rewritten, upgraded, moved to another runtime — without renegotiating a
+  payload contract with its neighbors.
+- **Orchestrator-agnostic.** Chained by n8n, Temporal, GitHub Actions, a shell script, or a
+  human working a checklist, the pipeline behaves identically, because no sequencing layer
+  carries state any stage depends on.
+
+This is P1 applied to orchestration seams. A caller-trusting pipeline couples every stage to
+its predecessor's honesty; artifact-gated stages compose the way praxis plugins compose —
+through files and gates, never through calls that testify.
 
 ## Where these live
 

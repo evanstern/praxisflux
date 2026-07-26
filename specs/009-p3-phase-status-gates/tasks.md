@@ -7,7 +7,7 @@
 
 ## Implement
 
-- [ ] T002 P3 canonical statement in docs/principles.md (R1)
+- [x] T002 P3 canonical statement in docs/principles.md (R1)
 - [ ] T003 derivation: opt-in statusVocabulary via .spec-bridge.json; absent = unchanged (R2)
 - [ ] T004 checkBridge enforces exceeds/lags/agrees at phase grain under opt-in (R3)
 - [ ] T005 consumer docs: phase-status contract + opt-in (R4)
