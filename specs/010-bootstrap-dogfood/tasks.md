@@ -55,5 +55,10 @@
 
 ## Prove
 
-- [ ] T007 gates green: node --test, check-docs, wiki-freshness (re-pins as flagged)
+- [x] T007 gates green: `node --test` 169/169 pass; `scripts/check-docs.mjs` in
+  sync; wiki freshness OK 27 notes, zero warnings (overview re-pinned
+  39d5de7bdf2c → 9c64f26f680c after re-verification). Diff vs merge-base touches
+  only `.gitignore`, `.pdlc`, `CLAUDE.md`, `docs/wiki/overview.md`, `specs/010-*`,
+  and the backlog task file — no plugin dirs, `lib/`, `scripts/`, or
+  `.claude-plugin/`, so no version bumps (docs+config-only diff).
 - [ ] T008 board finalized; PR opened — serial merge recorded by the orchestrator
