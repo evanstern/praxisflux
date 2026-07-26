@@ -1,12 +1,12 @@
 ---
 name: build-plugin
-description: Implementation-leg plugin (scaffold) — picks up a SPEC handed off via .handoff/, builds and verifies it, and returns findings as a response handoff for educate to fold back in.
+description: Implementation-leg plugin — picks up a SPEC handed off via .handoff/, builds and verifies it by exercising the result, and returns findings as a response handoff for educate to fold back in. Skill-only by design (no gates, scripts, or hooks — the pdlc precedent); the round trip is enforced on the educate side.
 kind: component
 sources:
   - build/.claude-plugin/plugin.json
   - build/README.md
   - build/skills/implement/SKILL.md
-verified_against: e5d08425392393a089ef7e769d3ae8954cba1b85
+verified_against: 83b9ced1cf5c71aa0cd9860c44b190c56ee80ad7
 ---
 
 # build plugin
@@ -37,11 +37,13 @@ Explicit non-goals, stated in the skill: it does not teach, plan lessons, write 
 guide, or mark the lesson done — educate closes the loop, and educate's DoD gate checks that
 the fold-in actually happened.
 
-**Scaffold status.** The README states plainly: "Scaffold — not yet implemented." What exists
-today is the plugin manifest, the README, and the `implement` skill prose. The skill
-references the shared transport `lib/handoff.mjs` (write/read/list/consume `.handoff/`
-payloads) as a library, noting it is not a CLI; the plugin ships no gates, hooks, scripts, or
-templates of its own yet.
+**Skill-only by design.** The plugin ships the manifest, the README, and the `implement`
+skill — no gates, hooks, scripts, or templates. The README states this is deliberate, a
+supported shape in the suite (like `pdlc`): build has no lifecycle of its own to gate, so
+enforcement of the round trip lives on the educate side, whose DoD gate holds the evidence
+that the SPEC went out and the findings came back. The skill references the shared
+transport `lib/handoff.mjs` (write/read/list/consume `.handoff/` payloads) as a library,
+noting it is not a CLI.
 
 ## Connections
 

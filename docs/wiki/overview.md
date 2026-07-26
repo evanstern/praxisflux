@@ -5,15 +5,15 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 9c64f26f680c55efec0d6dc0114eb991c6e010d0
+verified_against: 83b9ced1cf5c71aa0cd9860c44b190c56ee80ad7
 ---
 
 # praxisflux — system overview
 
 praxisflux is a Claude Code **plugin marketplace** that unifies composable knowledge-work
 plugins on one shared, zero-dependency Node chassis (`lib/`). Nine plugins are registered
-in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`
-(a scaffold), `codebase-to-course`, `spec-bridge`, `pdlc`, `team-review`, and `reorient`. Each is
+in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`,
+`codebase-to-course`, `spec-bridge`, `pdlc`, `team-review`, and `reorient`. Each is
 independently installable and mutually aware, but plugins never call each other — they
 compose only through files and gates.
 

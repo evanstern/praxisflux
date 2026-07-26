@@ -28,7 +28,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[research-plugin]] — thinking-vault branches: EMBED → QUERY → RENDER skills with per-phase gates
 - [[grounding-wiki-plugin]] — builds/updates code-grounded corpora; ships the freshness gate
 - [[educate-plugin]] — Socratic learning projects: lesson lifecycle, DoD gate, teach→build seam
-- [[build-plugin]] — implements a handed-off SPEC and returns findings (scaffold split from educate)
+- [[build-plugin]] — skill-only implementation leg: implements a handed-off SPEC and returns findings for educate to fold in
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
 - [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
 - [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit); sweep runs a signed-off runbook of board tasks through spec → PR → merge → re-ground
