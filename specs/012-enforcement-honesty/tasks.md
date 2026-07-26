@@ -20,4 +20,5 @@
 ## Prove
 
 - [x] T008 gates green: node --test, check-docs, wiki-freshness, bump gate
-- [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator
+- [x] T009 board finalized (ACs checked, Done, final summary); PR opened — serial merge
+  (last of Lane 3) recorded in the runbook execution log
