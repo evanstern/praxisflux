@@ -27,17 +27,23 @@
   the full ladder + when to pass `--name`, and the sticky-name doctrine (re-plant from a
   differently-named checkout is never spuriously drifted); output gate verifies the
   heading names the project and `.pdlc` records `name`. Skill 0.4.0 → 0.5.0
-- [x] T004 versions: bootstrap skill 0.4.0 → 0.5.0; `node scripts/sync-version.mjs 0.24.0`
-  (marketplace + all nine plugin.json + action.yml npx pin; 0.23.0 was released —
-  sibling-collision re-bump after TASK-56/55 merge is the orchestrator's) (R3)
-- [x] T005 wiki: pdlc-plugin re-verified against the new plant.mjs + SKILL.md (0.24.0
-  paragraph added; body trimmed 7,998 → 7,990/8,000 without touching sweep content — no
-  summary-style split, no exemption) and re-pinned via honest two-step pins
-  (5007567 → 377c9a2 → 61885dd as each source commit landed); the 10 lockstep stales
-  from sync-version (educate/build/codebase-to-course/grounding-wiki/spec-bridge/
-  research/team-review/reorient plugins, build-and-release, gates-consumption-surface)
-  verified stamp-only (`version`/npx-pin lines only, no falsified semver literals) and
-  re-pinned to 61885dd. CAPSULES.md untouched — no note description or INDEX change
+- [x] T004 versions: bootstrap skill 0.4.0 → 0.5.0 (still an increase over main's 0.4.0
+  after rebase); marketplace first synced to 0.24.0 per spec, then — TASK-56 (0.24.0) and
+  TASK-55 (0.25.0) merged ahead — post-rebase re-bump `node scripts/sync-version.mjs
+  0.26.0` (marketplace + all nine plugin.json + action.yml npx pin) (R3)
+- [x] T005 wiki: pdlc-plugin re-verified against the new plant.mjs + SKILL.md. On the
+  post-rebase pass the rebase conflict was resolved by taking MAIN's twice-re-condensed
+  body wholesale (TASK-53's 0.23.0 trace paragraph and TASK-55's 0.25.0 paused-lane
+  paragraph intact, sweep sections byte-identical to main) and re-inserting only the
+  name-override paragraph, re-cited to 0.26.0 — the release it actually ships in; the
+  three Since citations (0.23.0 trace / 0.25.0 paused / 0.26.0 name) each name their
+  real release. Budget funded by bootstrap-side condensation only: 7,996/8,000, no
+  summary-style split, no exemption. Honest pins stepped through real post-rebase
+  commits (cdaddc5 → 4014fad → final bump commit); the 10 lockstep stales from
+  sync-version (educate/build/codebase-to-course/grounding-wiki/spec-bridge/research/
+  team-review/reorient plugins, build-and-release, gates-consumption-surface) verified
+  stamp-only per note (`version`/npx-pin lines only, no falsified semver literals) and
+  re-pinned. CAPSULES.md untouched — no note description or INDEX change
 
 ## Prove
 

@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: cdaddc5dec5235db58e2ecdc4f649604174bf7b7
+verified_against: 4014fadd85cec9acc9fd46f96828fc212bb093cf
 ---
 
 # pdlc plugin
