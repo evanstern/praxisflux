@@ -10,7 +10,7 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: 2c689f828be6a90e751074d19a14c15fdcbb1887
 ---
 
 # reorient plugin
@@ -69,7 +69,8 @@ merge that doesn't mention a branch didn't merge it.
 dir (no runs in scope = no-op), and `check` maps `checkReorient` problems per run with
 finish/abandon guidance appended. `scripts/stop.mjs` is a thin
 `runStopHook({ gates: [reorientGate] })` entry wired through the standard `gate.sh` shim
-(`hooks/hooks.json`) — an in-flight reorientation can't be silently walked away from.
+(`hooks/hooks.json`; node missing = one-time stderr notice, then exit 0) — an in-flight
+reorientation can't be silently walked away from.
 
 **The skill** (`skills/reorient/SKILL.md`) walks six phases in the gate→work→gate shape:
 precondition gate (capture the lens, select corpus branches, detect grounding,

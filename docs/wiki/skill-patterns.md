@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: a29e223193f49fe6699f86501c2851ee82fe1ee0
+verified_against: 2c689f828be6a90e751074d19a14c15fdcbb1887
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -70,7 +70,10 @@ frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace 
 the README table row (whose enforcement cell reads "Stop hook (advisory)" with
 `--with-gate`, "Skill-only: none." without) + install line — plus, with `--with-gate`, the Stop-hook trio
 (`gates/<name>.mjs` stub resolving no roots, `scripts/{stop.mjs,gate.sh}`,
-`hooks/hooks.json`). It refuses to overwrite an existing plugin dir.
+`hooks/hooks.json`). The `gate.sh` template is the canonical text of the shared shim: it
+resolves `node` via `command -v` with a login-shell fallback and, when node is missing,
+emits a one-time stderr notice (suite-wide sentinel under `TMPDIR`) before exiting 0 —
+local Stop hooks stay advisory by design. It refuses to overwrite an existing plugin dir.
 
 ## Connections
 

@@ -13,7 +13,7 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: 2c689f828be6a90e751074d19a14c15fdcbb1887
 ---
 
 # spec-bridge plugin
@@ -62,7 +62,8 @@ verbatim, so "Done is out of reach" is never a silent state; **unknown** (a stat
 To Do / In Progress / Done) neither blocks nor warns.
 A linked task whose spec dir was deleted derives `To Do` and blocks anything above it.
 `hooks/hooks.json` wires the Stop hook through the standard `gate.sh` shim (node resolved
-via `command -v` with a login-shell fallback, no-op when unavailable) into `scripts/stop.mjs`
+via `command -v` with a login-shell fallback; when unavailable, a one-time stderr notice
+then exit 0) into `scripts/stop.mjs`
 on `runStopHook`; the gate is a no-op in projects with no `backlog/` dir or no linked tasks.
 
 **Strict Done (opt-in).** Checked boxes are necessary but weak proof. With
