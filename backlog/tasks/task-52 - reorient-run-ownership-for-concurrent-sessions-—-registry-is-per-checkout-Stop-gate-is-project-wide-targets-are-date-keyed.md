@@ -3,11 +3,11 @@ id: TASK-52
 title: >-
   reorient: run ownership for concurrent sessions — registry is per-checkout,
   Stop gate is project-wide, targets are date-keyed
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-26 16:31'
-updated_date: '2026-07-26 17:59'
+updated_date: '2026-07-26 18:06'
 labels:
   - reorient
   - design
@@ -47,3 +47,9 @@ Observed live in promptworld 2026-07-26 (see promptworld TASK-148 for the incide
 <!-- SECTION:NOTES:BEGIN -->
 Implemented: manifests carry owner {sessionId,user,host} + heartbeatAt (begin stamps, owner's Stop hook refreshes via run.mjs heartbeatOwnedRuns); gate-runner threads ctx {sessionId,input} to resolveRoots/check/warn; reorient gate blocks only the owning session (legacy checkout scoping when identity unknown), non-owned runs warn non-blockingly once heartbeat >1h stale; synthesis default now docs/design/reorient-<run-id>.md; begin/list/abandon print owner+provenance; abandon owner-only; explicit takeover command. 201 tests pass incl. 5 new. Release 0.22.0, skill 0.3.0.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Reorient runs are now session-owned. begin stamps the manifest with owner (sessionId from $CLAUDE_CODE_SESSION_ID or --session, plus user@host provenance) and heartbeatAt, which the owning session's Stop hook refreshes every turn (heartbeatOwnedRuns via runStopHook's new before hook — writes stay in run.mjs). The gate-runner threads ctx {sessionId, input} to resolveRoots/check/warn (additive contract change); reorientGate blocks only the owning session, keeps legacy checkout scoping for ownerless records/identity-less sessions, and emits a non-blocking 'looks orphaned' warn with full provenance once a foreign run's heartbeat is >1h stale. Synthesis defaults are run-id-keyed (docs/design/reorient-<run-id>.md), never date-keyed. begin/list/abandon surface owner+provenance+heartbeat age; abandon is owner-only; takeover <id> is the explicit adoption path and prints who held the run, from where, since when. Verified with 5 new reorient tests + 1 gate-runner ctx test (201 total pass), bump gate ok (0.21.0→0.22.0, skill 0.3.0), wiki re-grounded (new reorient-run-ownership note, 28 notes fresh).
+<!-- SECTION:FINAL_SUMMARY:END -->
