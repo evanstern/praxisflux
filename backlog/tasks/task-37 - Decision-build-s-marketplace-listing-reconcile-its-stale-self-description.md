@@ -1,9 +1,11 @@
 ---
 id: TASK-37
 title: 'Decision: build/''s marketplace listing + reconcile its stale self-description'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-23 16:59'
+updated_date: '2026-07-26 15:05'
 labels: []
 dependencies: []
 priority: low
@@ -22,3 +24,18 @@ From TASK-35's vendored spec input (docs/handoffs/team-review-iteration-3-review
 - [ ] #2 build/README.md no longer claims 'not yet implemented' anything that TASK-29 shipped; the repo README row matches
 - [ ] #3 Marketplace catalog, check-docs, and version bump (per docs/releasing.md if released surface changes) all green after the change
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 011-build-listing-decision (hand-authored)
+2. spec-bridge:link
+3. Dispatch: record the operator decision (keep listed as skill-only plugin, per sweep sign-off 2026-07-26) with rationale referencing the review's open question; fix build/README.md (drop stale scaffold claims for what TASK-29 shipped) + repo README row to one consistent story
+4. Version bump (build/README.md is released surface -> marketplace 0.19.0); gates; wiki re-pins; PR; merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 3 (docs/design/board-clearing-runbook.md), serial before TASK-40. Tier: default implementer (decision execution + doc fixes). Decision was made by the operator at sweep sign-off: keep listed, fix docs (pdlc skill-only precedent).
+<!-- SECTION:NOTES:END -->
