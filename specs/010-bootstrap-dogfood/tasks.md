@@ -7,7 +7,8 @@
 
 ## Implement
 
-- [ ] T002 .handoff/ gitignored; tracked residue untracked if any (R1)
+- [x] T002 .handoff/ gitignored; no tracked residue existed (`git ls-files` shows no
+  `.handoff/` paths — nothing to untrack) (R1)
 - [ ] T003 plant run: marked block appended, hand-written CLAUDE.md byte-preserved
   (diff verified), .pdlc sentinel present (R2)
 - [ ] T004 idempotence proven: second plant run = no diff (R2)
