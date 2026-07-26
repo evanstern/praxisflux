@@ -27,7 +27,9 @@
   the full ladder + when to pass `--name`, and the sticky-name doctrine (re-plant from a
   differently-named checkout is never spuriously drifted); output gate verifies the
   heading names the project and `.pdlc` records `name`. Skill 0.4.0 → 0.5.0
-- [ ] T004 versions: bootstrap skill + marketplace sync-version (R3)
+- [x] T004 versions: bootstrap skill 0.4.0 → 0.5.0; `node scripts/sync-version.mjs 0.24.0`
+  (marketplace + all nine plugin.json + action.yml npx pin; 0.23.0 was released —
+  sibling-collision re-bump after TASK-56/55 merge is the orchestrator's) (R3)
 - [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
 
 ## Prove
