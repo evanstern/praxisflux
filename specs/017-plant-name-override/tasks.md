@@ -30,7 +30,14 @@
 - [x] T004 versions: bootstrap skill 0.4.0 → 0.5.0; `node scripts/sync-version.mjs 0.24.0`
   (marketplace + all nine plugin.json + action.yml npx pin; 0.23.0 was released —
   sibling-collision re-bump after TASK-56/55 merge is the orchestrator's) (R3)
-- [ ] T005 wiki: pdlc-plugin re-verified + re-pinned; CAPSULES if needed
+- [x] T005 wiki: pdlc-plugin re-verified against the new plant.mjs + SKILL.md (0.24.0
+  paragraph added; body trimmed 7,998 → 7,990/8,000 without touching sweep content — no
+  summary-style split, no exemption) and re-pinned via honest two-step pins
+  (5007567 → 377c9a2 → 61885dd as each source commit landed); the 10 lockstep stales
+  from sync-version (educate/build/codebase-to-course/grounding-wiki/spec-bridge/
+  research/team-review/reorient plugins, build-and-release, gates-consumption-surface)
+  verified stamp-only (`version`/npx-pin lines only, no falsified semver literals) and
+  re-pinned to 61885dd. CAPSULES.md untouched — no note description or INDEX change
 
 ## Prove
 
