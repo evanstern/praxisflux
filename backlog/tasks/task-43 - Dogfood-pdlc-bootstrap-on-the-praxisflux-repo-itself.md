@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-23 17:28'
-updated_date: '2026-07-26 14:39'
+updated_date: '2026-07-26 14:41'
 labels: []
 dependencies: []
 references:
@@ -20,6 +20,8 @@ ordinal: 78000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Team-review gap #2 (doc-1): the suite enforces its tenets downstream more strictly than at home — praxis has no .pdlc sentinel, a hand-rolled CLAUDE.md, and an un-gitignored .handoff/ despite CLAUDE.md claiming the transport is gitignored. Running the bootstrap on the marketplace repo is also the strongest proof of its idempotent-append claim (plant markers into an existing, heavily customized CLAUDE.md without clobbering it). Related: the self-review gate fix task removes the sharpest symptom, but the root cause is this un-bootstrapped state.
+
+Spec: specs/010-bootstrap-dogfood
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -27,7 +29,12 @@ Team-review gap #2 (doc-1): the suite enforces its tenets downstream more strict
 - [ ] #1 .handoff/ is gitignored at the repo root (transport never clutters git status), making the CLAUDE.md claim true
 - [ ] #2 pdlc:bootstrap has been run on the repo: .pdlc sentinel present, PDLC grounding block planted into the existing CLAUDE.md with all hand-written content preserved (append, never clobber)
 - [ ] #3 A team-review self-review of praxis completes begin -> finish cleanly as the end-to-end verification (pairs with the gate-fix task if it lands first)
+- [ ] #4 Spec phase: Spec
+- [ ] #5 Spec phase: Implement
+- [ ] #6 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
