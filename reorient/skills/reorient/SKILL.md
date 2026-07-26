@@ -1,6 +1,6 @@
 ---
 name: reorient
-version: 0.3.0
+version: 0.4.0
 description: Corpus-grounded reorientation of a project's direction — N parallel evaluator subagents each judge one research branch under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and the lead merges everything into one decisions-and-course-of-action synthesis that executes onto the board. Use when the user wants to "reorient" a project against research, "evaluate the vault branches against our purpose", "merge these analyses into a plan", "run the research → evaluate → synthesize loop", or asks what a body of research means for the roadmap — not for reviewing code (team-review) or gathering new research (research-vault).
 ---
 
@@ -30,6 +30,16 @@ heartbeat age, so live-vs-orphaned is read off the registry, never guessed. Adop
 begun elsewhere is always explicit: `run.mjs takeover <id>` (it prints who held the run,
 from where, since when) — `abandon` refuses a run owned by another session until then.
 
+**Runs are worktree-first — the default doctrine.** The run registry is shared mutable
+state at the registry root, so `begin` **refuses** to open a run when that root is a
+shared primary checkout — detected deterministically: `.git` there is a *directory*
+(a worktree carries a `gitdir:` file instead). Begin runs from inside a git worktree
+(`git worktree add .worktrees/<name> -b <branch>`) so the registry stays lane-local;
+session ownership above is defense-in-depth, not isolation. The explicit exception is
+the `--shared-checkout` flag: it permits the shared checkout, is recorded on the run
+manifest (`sharedCheckout: true`), and is surfaced by `run.mjs list` and owner
+provenance — use it only when the operator deliberately wants a checkout-wide run.
+
 ## Precondition gate — open the run
 
 1. **Capture the lens.** The lens is the purpose statement every evaluation pressure-tests
@@ -49,7 +59,10 @@ from where, since when) — `abandon` refuses a run owned by another session unt
    evaluators ground against README/docs and say so; no board → "board moves" become a
    proposed-tasks list in the synthesis instead of CLI executions.
 4. **Open the tracked run:**
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <project-root> --lens "<lens>" --corpus <branch> [--corpus <branch> ...] [--synthesis <path>]`
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <project-root> --lens "<lens>" --corpus <branch> [--corpus <branch> ...] [--synthesis <path>] [--shared-checkout]`
+   Worktree-first (above): if `begin` refuses because the registry root is a shared
+   primary checkout, move into a worktree (the refusal prints the recipe) or — only on
+   a deliberate operator choice — re-run with `--shared-checkout`.
    The default synthesis path is `docs/design/reorient-<run-id>.md` under the project
    root — keyed by run id, never by date, so concurrent same-day runs can't collide on
    one output — and always OUTSIDE every corpus branch (vault isolation forbids the
