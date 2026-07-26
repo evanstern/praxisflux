@@ -7,7 +7,7 @@ sources:
   - reorient/gates/reorient.mjs
   - reorient/scripts/stop.mjs
   - lib/gate-runner.mjs
-verified_against: 219842a4050be245cd2308020883fc99d4cc0526
+verified_against: 53c3f7ddccbe016fb220565b4eb6b728818c05c3
 ---
 
 # reorient run ownership
