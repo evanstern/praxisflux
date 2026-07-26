@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 12bb89ad5e2ada97b9b8a9ea4d656b2d795ab6fc
 ---
 
 # pdlc plugin
@@ -36,36 +36,29 @@ board tasks** into merged PRs. Two phases, gate → work → gate:
   `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on the
   lanes.
 - **Execute:** per task, the host PDLC loop instantiated — **claim before work** (the
-  first commit claims the task: board card → In Progress and the spec number's
+  first commit claims the task — board card → In Progress plus the spec number's
   directory — before any authoring; push immediately, never force-push a claim; a
-  rejected push means the race was lost — fetch and re-read the board/`specs/` before
-  assuming, then stop the lane and surface it to the operator if genuinely contended, or
-  rebase-and-repush if the rejection was unrelated), Spec Kit cycle, `spec-bridge:link`,
-  worktree, delegated implementation (never inline), per-PR gates, rebase, PR, serial
-  merge with verify-merged-before-cleanup, re-ground, one execution-log line.
+  rejected push means the race was lost: fetch, re-read the board/`specs/`, surface
+  genuinely contended work to the operator, rebase-and-repush otherwise), Spec Kit
+  cycle, `spec-bridge:link`, worktree, delegated implementation (never inline), per-PR
+  gates, rebase, PR, serial merge with verify-merged-before-cleanup, re-ground, one
+  execution-log line.
 
 Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
 finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern —
-`session`/`worktree`/`pr` modes, 0/1/2 exit codes): `session` at sweep start subsumes the
-root fetch/ff-pull, prescribes janitor cleanup, and feeds its n-way drift matrix into lane
-construction; `worktree [--spec NNN]` mechanizes the fresh-root and spec-number checks
-before each `git worktree add`; `pr` blocks each `gh pr create` (and re-runs after every
-rebase) on predicted conflicts, its overlap warnings doubling as the same-PR companion
-checklist. The runbook template records the probe result so adopting sessions don't
-re-derive it. When no gate ships, the raw git doctrine stands unchanged.
+`session`/`worktree`/`pr` modes): `session` at sweep start subsumes the root fetch/ff-pull
+and feeds its drift matrix into lane construction, `worktree [--spec NNN]` mechanizes the
+fresh-root and spec-number checks before each `git worktree add`, and `pr` blocks each
+`gh pr create` (re-run after every rebase) on predicted conflicts. The runbook records the
+probe result; with no gate the raw git doctrine stands. Since 0.13.0 the runbook template's
+concurrency doctrine carries the fuller claim-before-work doctrine above and names the
+gate's mechanical checks (`claim --dir NNN-slug` before creating any new `specs/NNN-*`
+dir; `worktree --spec NNN --task TASK-<n>` when cutting the worktree).
 
-Since 0.13.0 the runbook template's concurrency doctrine replaces the bare
-spec-number-collision check with the fuller claim-before-work doctrine above, and names
-the mechanical checks for hosts that ship a merge-drift gate: `claim --dir NNN-slug`
-before creating any new `specs/NNN-*` dir (blocks on a taken number), and
-`worktree --spec NNN --task TASK-<n>` when cutting the worktree (warns if the card isn't
-claimed; accepts a spec dir already claimed by that same task).
-
-Since 0.14.0 sweep consumes the corpus per [[grounded-corpus-spec]] v2 at its two
-whole-corpus orientation moments: runbook authoring's project reading and each task's
-re-ground step orient via the corpus's `CAPSULES.md` when present, loading full note
-bodies only for the concepts the scoped tasks (or the merge) actually touch, and fall
-back to `INDEX.md` plus just-in-time notes on a v1 corpus without a rollup.
+Since 0.14.0 sweep's two whole-corpus orientation moments (runbook authoring's project
+reading, each task's re-ground) consume the corpus per [[grounded-corpus-spec]] v2 —
+`CAPSULES.md` when present, full note bodies only for touched concepts, `INDEX.md` plus
+just-in-time notes on a v1 corpus without a rollup.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from the
 runbook + board alone. Because a runbook is an instruction-bearing artifact a session
@@ -118,13 +111,22 @@ sentinel — a JSON record of plugin version + peer choices that `installMode` k
 on. Two safety properties are load-bearing: the sentinel never advances past an unconfirmed drifted
 block, and `--check` writes nothing and exits 1 while planting is pending (the skill's output gate).
 
+Since 0.23.0 absent peers leave a **deterministic trace** (the TASK-43 dogfood finding:
+omission stays the opt-out, never a silent one): the sentinel records every known peer not
+opted in under `peersOmitted`, and the CLI prints a one-line stderr notice per omitted peer
+naming its stripped `pdlc:peer:<name>` block. `peersOmitted` derives from the peer choices,
+so a same-peers re-plant stays `unchanged`; legacy sentinels without the field stay
+readable and are never rewritten just to gain it.
+
 ## Peer utilities are first-class, not assumed
 
 Backlog.md and GitHub Spec Kit are **officially supported peers**: the skill detects their CLIs
-(`backlog`, `specify`); when absent it recommends installation, when present it asks per-peer
-opt-in and, on opt-in, runs the peer's own init (`backlog init` / `specify init --here`), skipping
-when `backlog/` or `.specify/` already exist. Opt-ins select the planted convention blocks and are
-recorded in `.pdlc`, so an update re-presents them as defaults.
+(`backlog`, `specify`); when absent it recommends installation and points at the plant's
+deterministic trace (`peersOmitted` + the stderr notice) as the durable record, when present
+it asks per-peer opt-in and, on opt-in, runs the peer's own init (`backlog init` /
+`specify init --here`), skipping when `backlog/` or `.specify/` already exist. Opt-ins select
+the planted convention blocks and are recorded in `.pdlc`, so an update re-presents them as
+defaults.
 
 ## What it deliberately does not do
 
