@@ -18,5 +18,5 @@
 ## Prove
 
 - [x] T009 gates green: node --test, check-docs, wiki-freshness, bump gate
-- [ ] T010 board finalized (incl. Coda cross-ref note, R5); PR opened — serial merge
-  recorded by the orchestrator
+- [x] T010 board finalized (ACs checked, Coda cross-ref recorded, Done, final summary);
+  PR opened — serial merge (last of Lane 2) recorded in the runbook execution log
