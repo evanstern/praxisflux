@@ -1,11 +1,11 @@
 ---
 id: TASK-43
 title: 'Dogfood pdlc:bootstrap on the praxisflux repo itself'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-23 17:28'
-updated_date: '2026-07-26 14:41'
+updated_date: '2026-07-26 14:51'
 labels: []
 dependencies: []
 references:
@@ -26,15 +26,13 @@ Spec: specs/010-bootstrap-dogfood
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 .handoff/ is gitignored at the repo root (transport never clutters git status), making the CLAUDE.md claim true
-- [ ] #2 pdlc:bootstrap has been run on the repo: .pdlc sentinel present, PDLC grounding block planted into the existing CLAUDE.md with all hand-written content preserved (append, never clobber)
-- [ ] #3 A team-review self-review of praxis completes begin -> finish cleanly as the end-to-end verification (pairs with the gate-fix task if it lands first)
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #1 .handoff/ is gitignored at the repo root (transport never clutters git status), making the CLAUDE.md claim true
+- [x] #2 pdlc:bootstrap has been run on the repo: .pdlc sentinel present, PDLC grounding block planted into the existing CLAUDE.md with all hand-written content preserved (append, never clobber)
+- [x] #3 A team-review self-review of praxis completes begin -> finish cleanly as the end-to-end verification (pairs with the gate-fix task if it lands first)
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -49,4 +47,12 @@ Spec: specs/010-bootstrap-dogfood
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep Lane 2 (docs/design/board-clearing-runbook.md). Tier: default implementer (dogfood run + reconciliation). Checkpoint armed: if the plant would rewrite existing CLAUDE.md prose beyond appending its marked block, STOP and surface the diff to the operator.
+
+Implemented: .handoff/ gitignored (no tracked residue existed); plant.mjs --peer backlog appended the pdlc:grounding block (byte-level append proven: original 5452 bytes identical as prefix; +83/-0), .pdlc sentinel {0.17.0, backlog}; second run idempotent (unchanged/unchanged, --check exit 0); self-review task-43-2026-07-26-14-48-50 begin/finish both exit 0 on untouched target (escalated WARN correctly absent — .handoff now ignored); overview.md re-verified + re-pinned. Dogfood findings recorded in spec tasks.md: (1) deterministic planter is peer-silent (absent-peer recommendation lives only in SKILL.md prose, no deterministic trace); (2) PROJECT_NAME from basename(root) with no --name override — worktree plants would bake the wrong name (worked around via scratch symlink). 169 tests, check-docs, wiki-freshness green; docs+config-only diff, no bumps.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+praxis is now itself PDLC-bootstrapped: .handoff/ gitignored (the CLAUDE.md claim is finally true), the pdlc:grounding block planted into the hand-rolled CLAUDE.md with byte-level append-only proof (+83/-0, original preserved as identical prefix) and second-run idempotence, .pdlc sentinel {0.17.0, peers: [backlog]}, and an end-to-end team-review self-review (task-43-2026-07-26-14-48-50) completing begin->finish exit 0 — exercising the TASK-42 fix. Two dogfood findings recorded in specs/010 tasks.md for possible follow-ups: the deterministic planter is peer-silent about absent Spec Kit, and PROJECT_NAME derives from basename(root) with no override (worktree-plant trap). Docs+config-only, no bumps.
+<!-- SECTION:FINAL_SUMMARY:END -->

@@ -61,4 +61,5 @@
   only `.gitignore`, `.pdlc`, `CLAUDE.md`, `docs/wiki/overview.md`, `specs/010-*`,
   and the backlog task file — no plugin dirs, `lib/`, `scripts/`, or
   `.claude-plugin/`, so no version bumps (docs+config-only diff).
-- [ ] T008 board finalized; PR opened — serial merge recorded by the orchestrator
+- [x] T008 board finalized (ACs checked, Done, final summary); PR opened — serial merge
+  (first of Lane 2) recorded by the orchestrator in the runbook execution log
