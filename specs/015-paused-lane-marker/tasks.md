@@ -11,8 +11,9 @@
 - [x] T003 sweep SKILL.md + runbook template: exclusion + paused-untouched header (R2)
 - [x] T004 versions: sweep skill + marketplace sync-version (R3)
 - [x] T005 wiki re-pins; CAPSULES if needed (CAPSULES unchanged — no descriptions edited)
-- [ ] T006 promptworld leg: claim (card + spec stub), check-merge-drift downgrades
-  paused findings to info in session/worktree/pr, proven; their gates green
+- [x] T006 promptworld leg: claim (card + spec stub), check-merge-drift downgrades
+  paused findings to info in session/worktree/pr, proven; their gates green — merged
+  as promptworld PR #117 (TASK-155 Done, spec 080-paused-label-lanes)
 
 ## Prove
 
