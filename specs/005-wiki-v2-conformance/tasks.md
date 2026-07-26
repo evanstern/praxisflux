@@ -15,6 +15,6 @@
 ## Prove
 
 - [x] T006 wiki-freshness green with ZERO v2-budget warnings (hard enforcement on)
-- [ ] T007 per-task course docs/courses/TASK-50/ — course gate green
-- [ ] T008 gates green: node --test, check-docs, course
+- [x] T007 per-task course docs/courses/TASK-50/ — course gate green
+- [x] T008 gates green: node --test, check-docs, course
 - [ ] T009 board finalized; PR opened — serial merge recorded by the orchestrator
