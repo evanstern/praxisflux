@@ -1,9 +1,11 @@
 ---
 id: TASK-54
 title: 'pdlc plant.mjs: PROJECT_NAME from basename(root) — add an override'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-26 17:47'
+updated_date: '2026-07-26 20:11'
 labels:
   - pdlc
   - dogfood
@@ -24,3 +26,18 @@ TASK-43 dogfood finding #2 (specs/010-bootstrap-dogfood/tasks.md T005): plant.mj
 - [ ] #2 bootstrap SKILL.md documents the override; re-plant from a differently-named checkout is not spuriously drifted
 - [ ] #3 Versions bumped per docs/releasing.md (pdlc released surface)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 017-plant-name-override (hand-authored)
+2. spec-bridge:link
+3. Dispatch: plant.mjs --name override (or metadata-derived name with basename fallback); worktree-case test; re-plant from a differently-named checkout not spuriously drifted; bootstrap SKILL.md documents it
+4. Versions (bootstrap skill + marketplace); wiki re-pin pdlc-plugin; PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 2 (docs/design/lane-hardening-runbook.md), after TASK-53 (same files). Tier: default implementer. From TASK-43 dogfood finding #2 — the trap fired twice live during the planted-artifact refresh.
+<!-- SECTION:NOTES:END -->
