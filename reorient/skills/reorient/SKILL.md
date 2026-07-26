@@ -1,6 +1,6 @@
 ---
 name: reorient
-version: 0.1.0
+version: 0.2.0
 description: Corpus-grounded reorientation of a project's direction — N parallel evaluator subagents each judge one research branch under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and the lead merges everything into one decisions-and-course-of-action synthesis that executes onto the board. Use when the user wants to "reorient" a project against research, "evaluate the vault branches against our purpose", "merge these analyses into a plan", "run the research → evaluate → synthesize loop", or asks what a body of research means for the roadmap — not for reviewing code (team-review) or gathering new research (research-vault).
 ---
 
@@ -49,7 +49,8 @@ transient plumbing; the durable residue is the analyses, the synthesis, and the 
 
 ## Phase 1 — lead orientation
 
-Read the corpus briefs/groundings and skim the wiki index yourself before delegating —
+Read the corpus briefs/groundings and skim the wiki's `CAPSULES.md` (or its `INDEX.md`
+when no rollup exists) yourself before delegating —
 you need an independent opinion strong enough to pressure-test what evaluators report,
 and to spot the strategic tension the branches might each only half-see (in practice the
 deepest finding is often a mismatch between the corpus's original framing and the lens).
@@ -68,8 +69,11 @@ concurrently in the background). Each evaluator prompt must include:
    including the corpus's own framing ("where the branch's original brief conflicts with
    the lens, the lens wins; call out where the framing needs updating").
 3. **The beat**: read ALL notes in its branch (`_grounding.md` is the cited
-   source-of-truth); ground against the named wiki notes (or README/docs when no wiki);
-   scan the board via `backlog task list --plain` / `task view` (skip when no board).
+   source-of-truth); ground against the project wiki via its `CAPSULES.md` when present —
+   the whole-corpus capsule view — loading a full note only for claims the report
+   actually cites; absent a rollup, route from `INDEX.md` and load notes just-in-time
+   (README/docs when no wiki at all); scan the board via `backlog task list --plain` /
+   `task view` (skip when no board).
 4. **The report structure** (dense, evidence-backed, ~1500 words):
    - **Verdict** — how well the project serves the lens, and the single biggest gap.
    - **Patterns that fit** — which corpus findings map onto WHICH existing pieces (cite
@@ -85,6 +89,10 @@ concurrently in the background). Each evaluator prompt must include:
 **No-subagent fallback:** run the evaluations sequentially yourself in-session, one branch
 at a time, writing each draft to a scratch file before starting the next — never blend two
 branches' evaluations in one pass.
+
+Open A/B question — capsule-only vs full-note evaluator grounding quality is unmeasured;
+the next reorient run should record which mode its evaluators used and any observed
+quality difference (do not run the experiment as part of a reorientation).
 
 ## Phase 3 — steer (the operator is part of the loop)
 
