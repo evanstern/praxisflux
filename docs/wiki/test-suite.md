@@ -67,11 +67,9 @@ What each file covers:
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
 - `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
-  generation (deterministic, headered with generator + corpus commit, INDEX-ordered,
-  markdown-link and reserved-name INDEX lines, unindexed-note rollup) and the freshness
-  gate's adoption-keyed budget enforcement (over-budget capsule/body failures,
-  `size_budget_exempt` downgrade, stale/hand-edited rollup detection, warn-only before
-  adoption).
+  generation (deterministic, headered, INDEX-ordered) and the freshness gate's
+  adoption-keyed budget enforcement (capsule/body overages, `size_budget_exempt`
+  downgrade, stale/hand-edited rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
   truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
