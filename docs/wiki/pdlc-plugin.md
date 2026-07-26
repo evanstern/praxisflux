@@ -10,7 +10,7 @@ sources:
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 71583139458b731d017c367c5bd60686c6037790
+verified_against: 287b6b0ba8970dfcbfa3c86ee63bf03743ffb745
 ---
 
 # pdlc plugin
@@ -93,7 +93,12 @@ The block's "Rules that always hold" carry the foundational ("101") praxis princ
 and/or gating on real physical evidence) and **one TASK, one PR** (a SUBTASK never gets its own
 PR) — so every bootstrapped project inherits them; each peer sub-block adds that system's
 mapping (Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR
-boundaries). `test/pdlc.test.mjs` asserts the template carries both. Since 0.14.0 the
+boundaries). Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements: the
+three-tier model (an EPIC groups deliverable TASKs and gets no PR of its own) and the
+reason-to-approve test (a PR exists only where it gives a human a stated reason to
+approve — never a diff for its own sake; work too small for a real reviewer decision
+merges into the deliverable it serves). `test/pdlc.test.mjs` asserts the template carries
+both principles. Since 0.14.0 the
 rules also carry a compact **corpus-loading** rule — the [[grounded-corpus-spec]] v2
 consumption protocol made always-on: `INDEX.md`-first routing, notes just-in-time, never
 bulk-load, whole-corpus orientation via `CAPSULES.md` when it exists.
