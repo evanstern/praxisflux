@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 39d5de7bdf2ca8b5d3fc6968a00e74f3fceb02a2
+verified_against: 9c64f26f680c55efec0d6dc0114eb991c6e010d0
 ---
 
 # praxisflux — system overview
@@ -88,6 +88,9 @@ at the invoking root.
 - The flow also runs under external orchestration with humans only at the approval seam:
   `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
   pilot — workflow, host runner service, run log, orchestrator findings).
+- The repo is itself PDLC-bootstrapped (dogfood): its own `CLAUDE.md` ends with the planted
+  `pdlc:grounding` block (Backlog.md peer opted in; Spec Kit not — specs are hand-authored),
+  the `.pdlc` sentinel records the plant, and `.handoff/` is gitignored at the root.
 - Foundational ("101") principles (`docs/principles.md`, the canonical statement, planted
   into every bootstrapped project by [[pdlc-plugin]]): **artifact-grounded action** — never
   act without a durable paper trail and/or gating on real physical evidence — and **one
