@@ -9,6 +9,7 @@ sources:
   - test/codebase-to-course.validate.test.mjs
   - test/educate-deck-selfcontained.test.mjs
   - test/gen-marketplace.test.mjs
+  - test/grounding-wiki.capsules.test.mjs
   - test/grounding-wiki.freshness.test.mjs
   - test/handoff.test.mjs
   - test/html-base.test.mjs
@@ -24,7 +25,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 5682f89e7ffc438a965ca1b17c5f8049fba413a6
+verified_against: 46128dc79f5b0630a863cfb3c99c833135263d8e
 ---
 
 # Test suite
@@ -65,6 +66,12 @@ What each file covers:
 - `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
+- `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
+  generation (deterministic, headered with generator + corpus commit, INDEX-ordered,
+  markdown-link and reserved-name INDEX lines, unindexed-note rollup) and the freshness
+  gate's adoption-keyed budget enforcement (over-budget capsule/body failures,
+  `size_budget_exempt` downgrade, stale/hand-edited rollup detection, warn-only before
+  adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
   truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,

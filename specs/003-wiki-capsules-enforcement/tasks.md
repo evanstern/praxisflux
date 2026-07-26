@@ -13,7 +13,7 @@
 - [x] T005 gate: CAPSULES.md staleness via regenerate-and-compare; unadopted → warn-only
 - [x] T006 tests: generator + gate fixtures (adopted/unadopted/exempt/determinism)
 - [x] T007 versions: wiki-build + wiki-update SKILL.md bumps + marketplace sync-version
-- [ ] T008 wiki: re-verify + re-pin grounding-wiki-plugin.md (two-step)
+- [x] T008 wiki: re-verify + re-pin grounding-wiki-plugin.md (two-step)
 
 ## Prove
 
