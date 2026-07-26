@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 83b9ced1cf5c71aa0cd9860c44b190c56ee80ad7
+verified_against: a29e223193f49fe6699f86501c2851ee82fe1ee0
 ---
 
 # praxisflux — system overview
@@ -100,3 +100,11 @@ at the invoking root.
   phase-separated skills; plant a project `CLAUDE.md` (plugins have no always-on slot);
   gates enforce "status can't exceed proven artifacts"; handoffs use a shared transport
   with evidence in tracked state.
+- Enforcement is split by design (`README.md`, `CLAUDE.md`): local Stop hooks are
+  advisory/opt-in — present only where a plugin is installed and `node` resolves — while
+  CI (the composite action / `@praxisflux/gates`, see [[gates-consumption-surface]]) is
+  authoritative. The tenet: gates make dishonest status expensive locally and impossible
+  in CI. The README plugin table records each plugin's actual enforcement surface in an
+  Enforcement column: Stop hook (research, educate, spec-bridge — which also has a CI
+  gate — team-review, reorient), CLI/CI gate only (grounding-wiki, codebase-to-course),
+  skill-only/none (build, pdlc).

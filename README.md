@@ -6,24 +6,29 @@ each is independently installable, aware of the others, and composes only throug
 gates — never by calling each other directly.
 
 > Status: **under construction.** The plan lives in Backlog (`backlog task list --plain`).
-> Seven plugins are registered in the marketplace: `research`, `grounding-wiki`, `educate`,
-> `build` (a scaffold), `codebase-to-course`, `spec-bridge`, and `pdlc`. This repo is the unification
-> target for the standalone `research` skills, the `educate` plugin, and the
-> `codebase-to-course` skill.
+> Nine plugins are registered in the marketplace — the table below is the catalog. This repo
+> is the unification target for the standalone `research` skills, the `educate` plugin, and
+> the `codebase-to-course` skill.
 
 ## Plugins
 
-| Plugin | Role | Placement |
-|---|---|---|
-| **research** | Gather cited facts into an isolated, interlinked Markdown "thinking vault" branch (EMBED → QUERY → RENDER). Neutral notes, then opinionated analysis, then an optional rendered page. | **Drop-anywhere** — a vault can live in any folder. |
-| **grounding-wiki** | Build and maintain a **code-grounded corpus** (`docs/wiki/`) for a codebase: per-concept notes pinned to the commit they were verified against, a freshness gate, and an in-place update loop. | **Runs on a target codebase.** |
-| **educate** | Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson `done` on auditable artifacts. | **Favored home folder** (detected via a `topics/` marker). |
-| **build** | Implement a SPEC handed off via `.handoff/` (`/build:implement`): build it, verify by exercising the result, and return findings for the lesson to fold back in. Skill-only plugin — no gates of its own; the round trip is enforced on the educate side. | Runs where the work is. |
-| **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | **Runs on a target codebase** (course lands in `docs/course/`). |
-| **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | **Runs on a project with `backlog/` + `specs/`.** |
-| **pdlc** | Bootstrap a new **or existing** project for the praxis development lifecycle: plant the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignore the `.handoff/` transport, and opt into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in. | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
-| **team-review** | Lead-engineer-plus-team architecture review via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched). | **Caller-supplied target** — reviews a repo the caller names; state stays at the invoking root. |
-| **reorient** | Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground, and one synthesis lands as board moves — proven by an output gate (per-branch analyses + merged synthesis). | **Runs on the project it reorients** — run state at the invoking root; vault/wiki/board grounding auto-detected, each optional. |
+The **Enforcement** column states each plugin's actual gate wiring. Local Stop hooks are
+**advisory and opt-in by design** — they run only where the plugin is installed and `node`
+resolves; the **authoritative** enforcement point is CI (the composite action /
+[`@praxisflux/gates`](docs/consuming-gates.md)). The delivered tenet: **gates make dishonest
+status expensive locally and impossible in CI.**
+
+| Plugin | Role | Enforcement | Placement |
+|---|---|---|---|
+| **research** | Gather cited facts into an isolated, interlinked Markdown "thinking vault" branch (EMBED → QUERY → RENDER). Neutral notes, then opinionated analysis, then an optional rendered page. | Stop hook (advisory): vault self-containment. | **Drop-anywhere** — a vault can live in any folder. |
+| **grounding-wiki** | Build and maintain a **code-grounded corpus** (`docs/wiki/`) for a codebase: per-concept notes pinned to the commit they were verified against, a freshness gate, and an in-place update loop. | CLI/CI gate only (`wiki-freshness`); no Stop hook. | **Runs on a target codebase.** |
+| **educate** | Turn a folder into a Socratic learning project: teach, author a build SPEC, and gate each lesson `done` on auditable artifacts. | Stop hook (advisory): lesson Definition-of-Done. | **Favored home folder** (detected via a `topics/` marker). |
+| **build** | Implement a SPEC handed off via `.handoff/` (`/build:implement`): build it, verify by exercising the result, and return findings for the lesson to fold back in. Skill-only plugin — no gates of its own; the round trip is enforced on the educate side. | Skill-only: none. | Runs where the work is. |
+| **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | CLI/CI gate only (`course`); no Stop hook. | **Runs on a target codebase** (course lands in `docs/course/`). |
+| **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | Stop hook (advisory) + CI gate (`spec-bridge`). | **Runs on a project with `backlog/` + `specs/`.** |
+| **pdlc** | Bootstrap a new **or existing** project for the praxis development lifecycle: plant the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignore the `.handoff/` transport, and opt into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in. | Skill-only: none. | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
+| **team-review** | Lead-engineer-plus-team architecture review via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched). | Stop hook (advisory): in-flight run gate. | **Caller-supplied target** — reviews a repo the caller names; state stays at the invoking root. |
+| **reorient** | Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground, and one synthesis lands as board moves — proven by an output gate (per-branch analyses + merged synthesis). | Stop hook (advisory): in-flight run gate. | **Runs on the project it reorients** — run state at the invoking root; vault/wiki/board grounding auto-detected, each optional. |
 
 ## The loop
 
@@ -62,7 +67,10 @@ Suite-design principles:
 - **Shared plumbing, domain-specific content** — plugins share the chassis, not their vocabularies.
 - **Phase-separated skills** that know nothing of each other; they compose through files + gates.
 - **Plant a project `CLAUDE.md`** — a plugin has no always-on slot, so it installs one.
-- **Gates enforce "status can't exceed proven artifacts."**
+- **Gates enforce "status can't exceed proven artifacts"** — with a deliberate enforcement
+  split: local Stop hooks are advisory/opt-in (they float with plugin updates and skip when
+  `node` is absent, after a one-time notice); CI at a pinned release is authoritative.
+  Dishonest status is expensive locally, impossible in CI.
 - **Handoffs** ride a shared transport (gitignored `.handoff/` payloads, evidence in tracked
   state); payload schemas stay plugin-specific.
 
@@ -109,7 +117,10 @@ Each plugin is independently installable — take only the legs of the loop you 
 copies the plugin into Claude Code's cache with the `lib -> ../lib` symlink dereferenced into a
 real directory; CI proves that exact path end-to-end on every PR (`test/install-path.test.mjs`
 simulates the dereferenced copy, spawns each plugin's Stop hook the way Claude Code does, and
-asserts the gates fire).
+asserts the gates fire). Note that installing buys you the **advisory** half of enforcement —
+the Stop hooks listed in the table above, which nudge as you work; authoritative enforcement
+is the CI surface ([`docs/consuming-gates.md`](docs/consuming-gates.md)), which needs no
+install at all.
 
 **Per-plugin zips** — each GitHub Release `v<version>` attaches `<plugin>-v<version>.zip`,
 packaged by `scripts/build.mjs` with the symlink already dereferenced.

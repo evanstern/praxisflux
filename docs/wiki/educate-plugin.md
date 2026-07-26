@@ -15,7 +15,7 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: ea32ac6fb792f9664f30c5aaea903ed588ac9f56
 ---
 
 # educate plugin
@@ -71,8 +71,10 @@ relative Markdown links, never wikilinks, so corpora stay isolated.
 execs `scripts/stop.mjs`; that entry uses `runStopHook` from `lib/gate-runner.mjs` with one
 gate — `check` = DoD problems (blocking), `warn` = `wikiStalenessWarnings` (advisory only).
 Because Stop hooks run in a minimal non-login shell, the shim resolves `node` via
-`command -v` with a login-shell fallback (`$SHELL -lc`), and exits 0 (no-op) when node is
-genuinely unavailable — the gate never blocks Stop over a missing runtime.
+`command -v` with a login-shell fallback (`$SHELL -lc`); when node is genuinely
+unavailable it emits a one-time stderr notice (deduped by a suite-wide sentinel file
+under `TMPDIR`) and still exits 0 — advisory by design, the gate never blocks Stop over
+a missing runtime.
 
 ## Connections
 

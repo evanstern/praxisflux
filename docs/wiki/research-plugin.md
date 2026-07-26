@@ -16,7 +16,7 @@ sources:
   - research/hooks/hooks.json
   - research/scripts/gate.sh
   - research/scripts/stop.mjs
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: ea32ac6fb792f9664f30c5aaea903ed588ac9f56
 ---
 
 # Research plugin
@@ -57,9 +57,9 @@ and `_templates/` (moc, note, grounding, analysis). Gates stay plugin-hosted in
 - `cli.mjs` prints warns, exits 1 on any fail, 2 on usage error.
 
 **Stop hook.** `hooks.json` wires a `Stop` hook (matcher `*`) to `scripts/gate.sh`, a shim that
-execs `scripts/stop.mjs` — resolving `node` via `command -v` with a login-shell fallback, and
-no-opping (exit 0) when node is unavailable, so the gate never blocks Stop over a missing
-runtime. That script runs `runStopHook` from `lib/gate-runner.mjs` with one
+execs `scripts/stop.mjs` — resolving `node` via `command -v` with a login-shell fallback;
+when node is unavailable it emits a one-time stderr notice (suite-wide `TMPDIR` sentinel)
+and still exits 0, so the gate never blocks Stop over a missing runtime. That script runs `runStopHook` from `lib/gate-runner.mjs` with one
 gate: find vault roots downwards from cwd via `findRootsDownwards(startDir, hasChild(".research-vault"))`
 from `lib/project-root.mjs`, then check every `.html` under each vault (depth ≤ 8, skipping
 dotfiles and `node_modules`) with `validateArtifact`. Only self-containment blocks Stop — the

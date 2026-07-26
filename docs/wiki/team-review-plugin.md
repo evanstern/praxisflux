@@ -12,7 +12,7 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: ea32ac6fb792f9664f30c5aaea903ed588ac9f56
 ---
 
 # team-review plugin
@@ -61,7 +61,8 @@ outright.
 scoped to the session's project dir (no runs in scope = no-op), and `check` maps
 `checkReview` problems per run, appending finish/abandon guidance. `scripts/stop.mjs` is a
 thin `runStopHook({ gates: [reviewGate] })` entry wired through the standard `gate.sh` shim
-(`hooks/hooks.json`) — an in-flight review can't be silently walked away from.
+(`hooks/hooks.json`; node missing = one-time stderr notice, then exit 0) — an in-flight
+review can't be silently walked away from.
 
 **The skill** (`skills/team-review/SKILL.md`) follows the gate→work→gate shape: precondition
 gate (confirm a whole-repo ask, capture the review *lens* — the user's stated goal — and

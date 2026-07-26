@@ -5,6 +5,7 @@ kind: pattern
 sources:
   - test/chassis.test.mjs
   - test/check-docs.test.mjs
+  - test/gate-shim.test.mjs
   - test/codebase-to-course.course-gate.test.mjs
   - test/codebase-to-course.validate.test.mjs
   - test/educate-deck-selfcontained.test.mjs
@@ -25,7 +26,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 9c20f0a3974c1676bf649b7ff185627ac6846240
+verified_against: 7e32e336e186de8cb98fd96ae740e016ef24e5a7
 ---
 
 # Test suite
@@ -50,8 +51,13 @@ Conventions shared across the files:
 What each file covers:
 
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
-  (missing plugin row / install line / chassis module / releasing link) plus "the praxisflux
-  repo itself is in sync".
+  (missing plugin row / install line / chassis module / releasing link), the plugin census
+  ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
+  install lines for unregistered names), plus "the praxisflux repo itself is in sync".
+- `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
+  (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
+  one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
+  plugins' shims — silent.
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
   helpers, and gate-runner `evaluate`.
@@ -59,8 +65,8 @@ What each file covers:
   against minimal fixture HTML with modules, quizzes, and translation blocks.
 - `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
   (`references/validate.mjs`): translation-block pairing, bracket balance, `--fix`
-  auto-close, the chrome version-stamp checks, and the orphan-content repros (panels
-  outside any block, unclosed block opens) field-reported by the-stacks.
+  auto-close, chrome version-stamp checks, and the orphan-content repros field-reported
+  by the-stacks.
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
   self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
 - `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
@@ -74,57 +80,53 @@ What each file covers:
   `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
   truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
   fresh-corpus silence, repin refusals).
-- `test/handoff.test.mjs` — the shared handoff transport (write/read round-trip, opaque body,
+- `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
   self-contained verifier with zero warnings (theme-aware, has a data table).
 - `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin
-  shipping `hooks/hooks.json` (catalog-derived), simulate an install (copy with the
-  `lib -> ../lib` symlink dereferenced, assert no symlink survives), then spawn the exact
-  Stop command from hooks.json with fake hook JSON on stdin — exit 0 on a clean fixture,
-  exit 2 with the gate's message on a per-plugin violating fixture, exit 0 again under
-  `stop_hook_active`. The one file that runs hooks the way Claude Code spawns them rather
-  than importing gate modules in-process; also run as its own CI job.
+  shipping `hooks/hooks.json` (catalog-derived), simulate an install (`lib -> ../lib`
+  dereferenced, no symlink survives), then spawn the exact Stop command from hooks.json
+  with fake hook JSON on stdin — exit 0 clean, exit 2 with the gate's message on a
+  per-plugin violating fixture, exit 0 under `stop_hook_active`. Runs hooks the way Claude
+  Code spawns them rather than importing gate modules in-process; also its own CI job.
 - `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
 - `test/return-leg.test.mjs` — at `done`, a delegated build needs `foldedIn` evidence AND
   durable on-disk residue; a flag alone can't rubber-stamp the return leg.
-- `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (including the task's
-  AC block), exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
-  `strictDone` mode (including the near-miss warning when only the analysis requirement
-  blocks Done), and the deterministic `plan` command (status move, Done summary,
-  post-regeneration re-mirror, no-op board, shell quoting).
+- `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (incl. the AC block),
+  exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
+  `strictDone` mode (incl. the analysis-only near-miss warning), and the deterministic
+  `plan` command (status move, Done summary, re-mirror, no-op board, shell quoting).
 - `test/spec-derive.test.mjs` — pure Spec Kit derivation: lifecycle stages → status,
   per-phase checkbox counts, regenerated `tasks.md` re-deriving fresh, strict-mode
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
 - `test/team-review.test.mjs` — the review output gate (`checkReview`: sections, citation
-  resolution with repeated-basename tolerance, report-inside-target rejection, untouched vs
-  mutated snapshot, `.handoff/` residue exempt), the run lifecycle CLI (begin/finish/abandon,
-  id collisions, the self-review regression — in-repo records pass, mutation still blocks),
-  and the Stop-hook paths through gate-runner `evaluate`.
+  resolution with repeated-basename tolerance, report-inside-target rejection, untouched
+  vs mutated snapshot, `.handoff/` residue exempt), the run lifecycle CLI
+  (begin/finish/abandon, id collisions, the self-review regression), and the Stop-hook
+  paths through gate-runner `evaluate`.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
   `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases) plus an end-to-end
   run of the git wrapper over a throwaway git repo.
 - `test/wiki.test.mjs` — educate's corpus-index roll-up (`topics/<topic>/WIKI.md` +
-  `topics/WIKI.md`): table parsing, rendering, and staleness warnings.
+  `topics/WIKI.md`): parsing, rendering, staleness warnings.
 
 **Hook and CI enforcement.** A tracked hook at `.githooks/pre-commit` (enabled once per clone
 with `git config core.hooksPath .githooks`) runs, in order: `node --test` (wrapped in
-`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE` — in a worktree checkout git hands hooks
-an absolute `GIT_DIR` that the suite's tmpdir fixture repos would otherwise inherit,
-committing onto the real branch), then
+`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE` so worktree checkouts don't leak an
+absolute `GIT_DIR` into the suite's tmpdir fixture repos), then
 `node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`, then
-`node scripts/check-docs.mjs` — "keep the suite green and the catalog honest before every
-commit." It is `set -e`, so any failure blocks the commit. A sibling `.githooks/pre-push`
-runs the version-bump gate (`scripts/check-version-bump.mjs --base origin/main`) and the
-wiki freshness gate before every push. Because
-`core.hooksPath` is per-clone, the authoritative layer is CI: `.github/workflows/ci.yml`
-repeats the suite, both `--check` validators, `check-docs.mjs`, the wiki freshness gate, a
-full package build, and the bump gate on every PR (see [[build-and-release]]).
+`node scripts/check-docs.mjs`; it is `set -e`, so any failure blocks the commit. A sibling
+`.githooks/pre-push` runs the version-bump gate (`check-version-bump.mjs --base
+origin/main`) and the wiki freshness gate. Because `core.hooksPath` is per-clone, the
+authoritative layer is CI: `.github/workflows/ci.yml` repeats the suite, both `--check`
+validators, `check-docs.mjs`, the wiki freshness gate, a full package build, and the bump
+gate on every PR (see [[build-and-release]]).
 
 ## Connections
 

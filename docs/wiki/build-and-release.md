@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 988c275ab79f3db8bc4d878f8f52c46f8157eac4
+verified_against: ea32ac6fb792f9664f30c5aaea903ed588ac9f56
 ---
 
 # Build and release
@@ -71,7 +71,10 @@ rules, OIDC trusted publishing, and the idempotent re-run behavior live in
 **Docs-sync enforcement** (`scripts/check-docs.mjs`, `scripts/stop-docs.mjs`). The grounding
 docs are treated as release artifacts too. `check-docs.mjs` verifies README.md names every
 marketplace plugin (table row + `/plugin install` line) and every `lib/*.mjs` chassis module,
-and that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate
+runs a two-way plugin census (a row or install line for a name `marketplace.json` doesn't
+register is a problem, and every `<N> plugins` count claim in README prose — digits or
+number words — must equal the registered count, so count drift fails the gate), and checks
+that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate
 (`node grounding-wiki/gates/cli.mjs freshness . docs/wiki`) covers the semantic half. Both
 run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
 `lib/gate-runner`, wired by the tracked `.claude/settings.json`) that blocks ending a session
