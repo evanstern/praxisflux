@@ -16,6 +16,6 @@
 
 ## Prove
 
-- [ ] T008 per-task course docs/courses/TASK-48/ — course gate green
+- [x] T008 per-task course docs/courses/TASK-48/ — course gate green
 - [ ] T009 gates green: node --test, check-docs, wiki-freshness
 - [ ] T010 PR opened; merged via merge commit; board Done + final summary

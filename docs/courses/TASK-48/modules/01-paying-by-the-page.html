@@ -1,0 +1,176 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: the hook -->
+    <div class="screen">
+      <span class="module-number">Module 1</span>
+      <h1 class="module-title">Paying by the Page</h1>
+      <p class="module-subtitle">Why a knowledge base that grows with the project quietly makes every question more expensive</p>
+
+      <p>Imagine a reference library where you pay a photocopying fee for every page you
+      pull. You walk in with one small question — "what time does the ferry leave?" — and
+      the librarian, wanting to be thorough, photocopies the <em>entire transportation
+      encyclopedia</em> and hands you the stack. You pay for all of it. Every visit. And the
+      encyclopedia gets thicker every year.</p>
+
+      <p>That is roughly what was happening with this project's
+      <span class="term" data-definition="A folder of interlinked Markdown notes that documents a codebase — one note per concept, each note 'pinned' to the exact code version it was checked against. In this project it lives at docs/wiki/.">grounding wiki</span>.
+      AI sessions answering questions about the project would load
+      <span class="term" data-definition="AI models read and write text in units called tokens (roughly three-quarters of a word each). Everything the model reads costs tokens — so the more pages loaded, the higher the cost of every single question.">tokens</span>
+      by the tens of thousands — often most of the wiki — to answer questions that touched
+      three or four notes.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">📏</div>
+        <div class="callout-content">
+          <strong class="callout-title">The measured starting point</strong>
+          <p>When this task began, the wiki held 26 notes totalling roughly 34,000 tokens.
+          Loading "a few dozen pages" meant paying near-whole-corpus cost per session — and
+          the corpus grows every time the project does.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: watch the overload happen -->
+    <div class="screen">
+      <h2 class="screen-heading">Watch the overload happen</h2>
+      <p>Step through a session doing what used to be normal: a small question, answered the
+      expensive way.</p>
+
+      <div class="chat-window" id="chat-module1">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="user" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Operator</span>
+              <p>Quick one: how does the release process decide when to bump the version?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Let me get oriented. Reading docs/wiki/… all 26 notes. That's ~34,000 tokens
+              loaded.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="session" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Session</span>
+              <p>Answer found — it was in two notes: the release doc and the gates doc. The
+              other 24 notes weren't needed.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="system" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-text-muted)">!</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-text-muted)">The bill</span>
+              <p>~34,000 tokens paid to use ~2,500. And next quarter, when the wiki has 40
+              notes, the same small question costs even more.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">It's not just money — it's accuracy</strong>
+          <p>Research this task drew on found that over-loading is a <em>quality</em> problem
+          too: stuffing an AI's
+          <span class="term" data-definition="The working memory of an AI session — everything it has read so far. It has a hard size limit, and answer quality measurably degrades as it fills with material irrelevant to the question ('context rot').">context window</span>
+          with irrelevant pages measurably degrades its answers. The expensive habit was also
+          the worse-performing one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: what the contract used to say -->
+    <div class="screen">
+      <h2 class="screen-heading">The contract that said nothing about cost</h2>
+      <p>Every wiki in this ecosystem follows one written contract — the
+      <span class="term" data-definition="docs/corpus-spec.md — the shared rulebook every tool in this project reads and writes knowledge bases by. Tools never call each other directly; they only agree on this file format.">corpus spec</span>.
+      Version 1 defined the shape precisely. Here is its entire layout rule:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v1 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">&lt;corpus-root&gt;/</span>
+<span class="code-line">  INDEX.md          # required: one line per note — the recall surface</span>
+<span class="code-line">  &lt;name&gt;.md         # one note per concept; filename = frontmatter name + .md</span>
+<span class="code-line">  ...</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">A knowledge base is just a folder.</p>
+            <p class="tl">It must contain a table of contents — INDEX.md — with one line per
+            note, so anything looking for a topic can find the right file.</p>
+            <p class="tl">Then one file per concept, named after the concept it covers.</p>
+            <p class="tl">…and that's the whole layout. Notice what's missing: not a word
+            about how much of this a reader should load, or how big any note may grow.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>Structure and provenance were contract; <strong>cost was habit</strong>. Nothing
+      stopped a note from growing without bound, and nothing told a consumer "don't read
+      everything." TASK-48's job was to close exactly that gap — by amending the contract,
+      not by building new machinery.</p>
+    </div>
+
+    <!-- Screen 4: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — under bulk-loading, cost tracks the size of the library, not the size of the question. That's the broken property: the corpus doubles, and every question silently doubles in price with it."
+             data-explanation-wrong="Not quite. The question didn't change at all — think about what the session loads before answering, and what that load is proportional to.">
+          <h3 class="quiz-question">A project's wiki grows from 30 notes to 60 over a year.
+          A teammate's AI session answers the same small question — "where is the deploy
+          config?" — the old bulk-loading way, once at the start of the year and once at the
+          end. What happens to the cost of that question?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It stays the same — the question is the same size, so the cost is too</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It roughly doubles — the session pays for the whole library, and the library doubled</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>It goes down — more notes means the answer is easier to find</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>

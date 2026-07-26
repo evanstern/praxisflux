@@ -1,0 +1,185 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <!-- Screen 1: metaphor -->
+    <div class="screen">
+      <span class="module-number">Module 3</span>
+      <h1 class="module-title">The Overstuffed Note</h1>
+      <p class="module-subtitle">A size budget, a splitting rule borrowed from Wikipedia — and a counter-rule that stops the budget from doing harm</p>
+
+      <p>A filing cabinet works because no folder is allowed to become a box. When one
+      folder starts bulging, an organized person doesn't cram harder — they split its
+      contents into labeled sub-folders and leave a note in the original saying where
+      everything went.</p>
+
+      <p>Wikis have the same failure mode: growth concentrates in a few hot pages. In this
+      project's wiki, the largest note had already grown to about 2.4× the average. Left
+      alone, "just add it to the existing note" always wins — and the just-in-time protocol
+      from Module 2 stops paying off, because even <em>one</em> note becomes a heavy read.</p>
+    </div>
+
+    <!-- Screen 2: the actual new text -->
+    <div class="screen">
+      <h2 class="screen-heading">What the spec now says</h2>
+      <p>Spec v2 adds a hard budget, and — just as important — a rule about when
+      <em>not</em> to act on it. Copied from <code>docs/corpus-spec.md</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">SPEC v2 (docs/corpus-spec.md)</span>
+          <pre><code>
+<span class="code-line">A note body (everything below the frontmatter) must stay at or under **8,000 characters**</span>
+<span class="code-line">(~2k tokens). The budget binds producers at write/update time; readers never reject an</span>
+<span class="code-line">over-budget note.</span>
+<span class="code-line">**Minimum-content counter-rule:** never split when the child would hold less than ~1,500</span>
+<span class="code-line">characters of substance, or would merely duplicate the summary left behind. An over-cap</span>
+<span class="code-line">parent with nothing splittable is acceptable — flag it, don't butcher it.</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">No note's content may grow past about 8,000 characters — roughly
+            2,000 tokens, a comfortable single read.</p>
+            <p class="tl">The rule binds whoever WRITES the note, at writing time. Readers
+            never refuse an oversized note —</p>
+            <p class="tl">— an over-budget note is a producer's problem to fix, never a
+            reader's reason to fail.</p>
+            <p class="tl">But there's a floor as well as a ceiling: never carve out a child
+            note that would hold less than about 1,500 characters of real substance —</p>
+            <p class="tl">— or one that would just restate the summary you'd leave behind in
+            the parent.</p>
+            <p class="tl">If a big note has nothing genuinely splittable, leaving it over
+            budget is the correct call: mark it, don't mangle it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <div class="callout-icon">📚</div>
+        <div class="callout-content">
+          <strong class="callout-title">Borrowed from a 20-year precedent</strong>
+          <p>This is Wikipedia's "summary style" discipline, imported: absorb growth by
+          adding <em>depth</em> (child pages), not by inflating pages — with an explicit
+          threshold and a minimum-content rule so nobody splits a page into useless stubs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: how a split works -->
+    <div class="screen">
+      <h2 class="screen-heading">Anatomy of a summary-style split</h2>
+      <p>When a note hits the cap and genuinely has subtopics, the split follows four
+      steps:</p>
+
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Move the subtopic out</strong>
+            <p>The bulging section's content becomes a new child note — one concept per
+            note, as always.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Leave a summary behind</strong>
+            <p>The parent keeps a one-paragraph summary of the child plus a
+            <span class="term" data-definition="A link written as [[note-name]] that jumps to a sibling note in the same wiki — the connective tissue of the corpus.">wikilink</span>
+            to it — the reader still gets the gist without leaving the page.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Link back</strong>
+            <p>The child links to its parent, so neither direction dead-ends.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Register the child</strong>
+            <p>INDEX.md gains one line for the new note — the card catalog stays complete.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>And because Module 2 made every note's description a routed-to capsule, spec v2
+      closes the loop on honesty: capsules are <strong>drift surfaces</strong>. A note edit
+      that changes what the note covers must update its capsule in the same pass — the same
+      re-verify discipline the wiki already applies to its provenance
+      <span class="term" data-definition="Each wiki note records the exact project snapshot (commit) its facts were last checked against. When the underlying files change, the note is 'stale' until someone re-verifies it and updates the pin. A gate — an automated check — blocks merges while notes are stale.">pins</span>.</p>
+    </div>
+
+    <!-- Screen 4: what was deliberately left out -->
+    <div class="screen">
+      <h2 class="screen-heading">What TASK-48 deliberately did not do</h2>
+      <p>This task changed one prose file — the contract. Everything mechanical was left to
+      its successors, and two whole approaches were rejected outright by the research:</p>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top: 3px solid var(--color-accent)">
+          <div class="pattern-icon" style="background: var(--color-accent)">⏭️</div>
+          <h4 class="pattern-title">Deferred, on purpose</h4>
+          <p class="pattern-desc">Enforcement tooling (gate checks, the CAPSULES.md
+          generator), reworking the existing wiki to conform, and updating consumer tools —
+          each is its own follow-up task. Spec first, machinery second.</p>
+        </div>
+        <div class="pattern-card" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">🚫</div>
+          <h4 class="pattern-title">Rejected, with reasons</h4>
+          <p class="pattern-desc">Search-engine-style retrieval infrastructure (earns its
+          keep only on far larger corpora) and load-time text compression (the wiki is read
+          by humans too, and its plain Markdown is the very artifact the gates pin).</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🤝</div>
+        <div class="callout-content">
+          <strong class="callout-title">The compatibility promise</strong>
+          <p>Every v1 wiki remains readable under v2. The new file is optional for readers;
+          the new budgets bind <em>producers</em> when they write or update. Nothing that
+          consumed a corpus yesterday breaks today — the contract grew, it didn't turn.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: quiz -->
+    <div class="screen">
+      <h2 class="screen-heading">Quick check</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — the counter-rule exists for this case. Three ~700-character stubs would each be below the ~1,500-character substance floor, costing readers extra hops for nothing. Over-cap-but-unsplittable is an accepted, flagged state."
+             data-explanation-wrong="Re-read the counter-rule: the cap has a floor under it. What would each of those three child notes actually hold, and does that clear the minimum-substance bar?">
+          <h3 class="quiz-question">A note runs to 9,000 characters — over budget. Its
+          content could only be carved into three children of roughly 700 characters each,
+          and each child would mostly restate the summary the parent would keep. Under spec
+          v2, what should the producer do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split anyway — 8,000 characters is a hard cap and caps exist to be obeyed</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Leave it whole and flag it — the children would fall below the minimum-content floor and merely duplicate the summaries</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Delete the least important 1,000 characters so the note squeezes under the cap</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</section>
