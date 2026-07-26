@@ -9,6 +9,6 @@ specs, READMEs, and wiki notes, and are never regenerated or consumed.
 project root is the *gitignored runtime transport* for inter-plugin handoff payloads
 (`lib/handoff.mjs`): transient plumbing that must not clutter `git status`, defined by
 [`docs/handoff-protocol.md`](../handoff-protocol.md). The two are unrelated — this
-directory was renamed from `docs/handoffs/` (TASK-38) precisely so a grep for one no
-longer finds the other. Rule of thumb: **evidence and design inputs live here, tracked;
+directory's name was chosen (TASK-38) precisely so a grep for one no longer finds the
+other. Rule of thumb: **evidence and design inputs live here, tracked;
 payloads ride `.handoff/`, ignored.**

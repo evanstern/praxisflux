@@ -56,5 +56,5 @@ by envelope fields (e.g. `{to, kind, ref}`).
 - Tracked evidence lives outside `.handoff/`, so a clean `git status` and an enforceable
   gate coexist.
 - The transport is unrelated to `docs/design-inputs/` (tracked session notes and vendored
-  design inputs, renamed from `docs/handoffs/` to end the name-stem collision): payloads
+  design inputs; that dir was renamed in TASK-38 to end a name-stem collision): payloads
   ride `.handoff/`, evidence and design inputs live tracked.
