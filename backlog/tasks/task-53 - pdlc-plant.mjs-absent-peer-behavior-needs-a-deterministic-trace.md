@@ -1,11 +1,11 @@
 ---
 id: TASK-53
 title: 'pdlc plant.mjs: absent-peer behavior needs a deterministic trace'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-26 17:47'
-updated_date: '2026-07-26 19:56'
+updated_date: '2026-07-26 20:10'
 labels:
   - pdlc
   - dogfood
@@ -24,15 +24,13 @@ Spec: specs/016-plant-peer-trace
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 plant.mjs leaves a deterministic trace of peers considered and omitted (sentinel field and/or stderr notice), covered by tests
-- [ ] #2 bootstrap SKILL.md references the trace instead of relying on untraceable judgment
-- [ ] #3 Versions bumped per docs/releasing.md (pdlc released surface)
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #1 plant.mjs leaves a deterministic trace of peers considered and omitted (sentinel field and/or stderr notice), covered by tests
+- [x] #2 bootstrap SKILL.md references the trace instead of relying on untraceable judgment
+- [x] #3 Versions bumped per docs/releasing.md (pdlc released surface)
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -47,4 +45,12 @@ Spec: specs/016-plant-peer-trace
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep Lane 1 (docs/design/lane-hardening-runbook.md). Tier: default implementer. From TASK-43 dogfood finding #1.
+
+Implemented: .pdlc sentinel gains peersOmitted (known peers not opted in, deterministic order); plant emits a one-line stderr notice per omitted peer naming the stripped block; idempotence + legacy-sentinel tolerance proven by tests (3 new, house style); bootstrap SKILL.md recommend-when-absent now points at the trace and the output gate verifies declined peers under peersOmitted. bootstrap 0.4.0, marketplace 0.23.0. pdlc-plugin note re-verified (trace section, trimmed back under the 8000 budget); 11 lockstep re-pins honest. 204 tests, check-docs, wiki-freshness, bump gate green.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+The planter's absent-peer behavior now has a deterministic trace: .pdlc records peersOmitted (known peers not opted in at plant time) and the CLI notices once per omitted peer on stderr, naming the stripped block — so the recommend-when-absent contract finally has an artifact instead of untraceable prose. Idempotence and legacy-sentinel tolerance hold by test. bootstrap 0.4.0, marketplace 0.23.0. Closes TASK-43 dogfood finding #1; finding #2 is TASK-54, next lane on the same files.
+<!-- SECTION:FINAL_SUMMARY:END -->
