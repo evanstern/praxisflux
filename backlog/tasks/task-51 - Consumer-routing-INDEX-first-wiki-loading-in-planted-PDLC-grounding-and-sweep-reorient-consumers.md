@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-26 02:31'
-updated_date: '2026-07-26 04:40'
+updated_date: '2026-07-26 04:43'
 labels:
   - wiki-token-economy
 dependencies:
@@ -20,6 +20,8 @@ ordinal: 86000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Make the corpus-spec v2 consumption protocol (TASK-48) binding on consumers: the pdlc-planted CLAUDE.md block instructs INDEX-first, just-in-time wiki loading (never bulk-load), and sweep/reorient skills orient whole-corpus work on the CAPSULES.md rollup instead of full note bodies. Released surfaces: pdlc + reorient plugins; bump versions per docs/releasing.md. Flagged experiment from the analysis: reorient evaluators fed the capsule rollup instead of note bodies should be A/B-checked for quality loss during the next reorient run (record as a note on this task, not new scope).
+
+Spec: specs/004-consumer-index-first-routing
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -28,7 +30,12 @@ Make the corpus-spec v2 consumption protocol (TASK-48) binding on consumers: the
 - [ ] #2 sweep SKILL.md orients on CAPSULES.md (when present) for whole-corpus grounding steps
 - [ ] #3 reorient SKILL.md/evaluator prompts prefer the capsule rollup for corpus-wide orientation, full notes on demand
 - [ ] #4 Skill and marketplace versions bumped per docs/releasing.md
+- [ ] #5 Spec phase: Spec
+- [ ] #6 Spec phase: Implement
+- [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
