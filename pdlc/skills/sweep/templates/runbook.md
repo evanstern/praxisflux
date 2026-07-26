@@ -22,6 +22,9 @@ win. Plan-of-record is the board; this file carries only ordering, doctrine, and
 
 - **Done already:** {{...}}
 - **In flight in other sessions (do not duplicate; expect their merges):** {{...}}
+- **Paused — untouched (`paused` label in the task's frontmatter `labels:`; excluded
+  from lane conflict analysis; never claim, rebase, or clean their
+  branches/worktrees):** {{task ids + pause provenance from their append-notes, or "none"}}
 - **Queued (this runbook's scope):** {{task ids in execution order}}
 
 ## Execution lanes (dependency-ordered; parallelize within a lane)
@@ -56,6 +59,10 @@ Record the model tier + rubric justification on each board task at dispatch
 ## Concurrency & conflict doctrine
 
 - **Hotspots:** {{actual paths concurrent work fights over}}
+- **Paused tasks are not live lanes:** a task labeled `paused` (set/cleared only via
+  `backlog task edit --labels`, provenance in its append-notes) is listed in the state
+  snapshot above and NEVER claimed, rebased, or cleaned — its branches and worktrees
+  belong to the pausing operator.
 - Rebase, never merge-commit into a task branch; take main's side for anything you didn't
   deliberately change; re-run gates after every rebase.
 - Two hotspot-heavy PRs never merge within one re-ground cycle without a rebase between.
