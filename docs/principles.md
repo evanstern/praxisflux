@@ -14,7 +14,9 @@ Principle VIII, which applies P1 to a pipeline product and adds deterministic-ga
 enforcement on top.)
 
 Provenance: owner directives (2026-07-17), stated as foundational — "101" — for both the
-methodology (praxis) and its consuming projects; encoded by TASK-32.
+methodology (praxis) and its consuming projects; encoded by TASK-32. P2's refinements — the
+reason-to-approve test and the EPIC tier — are owner refinements ratified the same day while
+restructuring a consumer's board (Coda TASK-0003); encoded by TASK-33.
 
 ## P1 — Artifact-grounded action (evidentiary primacy)
 
@@ -43,9 +45,12 @@ are applications; P1 is the principle they instantiate.
 
 ## P2 — One TASK, one PR (work-breakdown granularity)
 
-Every task system distinguishes, by whatever name, two levels of work. The invariant is the
-relationship between them:
+Every task system distinguishes, by whatever name, up to three tiers of work. The invariant
+is the relationship between them:
 
+- An **EPIC** is a grouping of deliverable TASKs — however the system spells it: a parent
+  card, an initiative, a milestone, an epic link. **An EPIC gets no PR of its own.** It is
+  delivered by its TASKs' PRs, one each, and is done when they have all landed.
 - A **TASK** is a top-level deliverable — a unit of committed, reviewable work. **A TASK
   maps 1:1 to a pull request**: one TASK, one branch, one PR that lands it.
 - A **SUBTASK** is internal work breakdown *of* a TASK — however the system spells it:
@@ -53,6 +58,12 @@ relationship between them:
   sub-tasks (Jira), phases within a spec (Spec Kit). **A SUBTASK never gets its own PR.**
   Subtasks land as commits on the parent TASK's single branch and merge together in that
   TASK's one PR.
+
+What earns a PR is the **reason-to-approve test**: a PR exists only where it carries a
+stated reason for a human to approve — a policy ratified, a posture changed, a contract
+made binding — never a diff for its own sake. A work item too small to give a reviewer a
+real decision is not a TASK: it merges into the deliverable it serves rather than being
+carded as its own TASK/PR.
 
 Consequences, independent of tooling:
 

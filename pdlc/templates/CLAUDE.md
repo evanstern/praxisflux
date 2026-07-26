@@ -44,9 +44,13 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   produce NEW artifacts; a question an existing artifact or principle already answers is
   resolved from it, not re-asked as a preference.
 - **One TASK, one PR:** a TASK is a top-level deliverable and maps 1:1 to a pull request —
-  one task, one branch, one PR. A SUBTASK (whatever the task system calls it) is internal
-  work breakdown and never gets its own PR: subtasks land as commits on the parent TASK's
-  single branch and merge together in that TASK's one PR.
+  one task, one branch, one PR. An EPIC (whatever the task system calls it) groups
+  deliverable TASKs and gets no PR of its own; a SUBTASK is internal work breakdown and
+  never gets its own PR: subtasks land as commits on the parent TASK's single branch and
+  merge together in that TASK's one PR. A PR exists only where it carries a stated reason
+  for a human to approve (a policy ratified, a posture changed, a contract made binding) —
+  never a diff for its own sake; work too small to give a reviewer a real decision merges
+  into the deliverable it serves.
 - **Gates:** a status can never exceed the artifacts that prove it. Plugins ship Stop hooks
   that enforce this; when a gate blocks, produce the missing artifact — don't argue with the
   gate or edit derived state by hand.
