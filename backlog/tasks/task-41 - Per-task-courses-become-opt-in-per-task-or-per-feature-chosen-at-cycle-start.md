@@ -1,9 +1,11 @@
 ---
 id: TASK-41
 title: 'Per-task courses become opt-in: per-task or per-feature, chosen at cycle start'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-23 17:26'
+updated_date: '2026-07-26 14:13'
 labels: []
 dependencies: []
 references:
@@ -27,3 +29,18 @@ Owner decision (2026-07-23, team-review follow-up): weaken the per-task course m
 - [ ] #3 The existing course gap (10 of 66 Done tasks) is reconciled with the new policy so no doc claims more than the artifacts prove
 - [ ] #4 A freshness stance for opt-in courses is stated (pinned like the wiki, or explicitly snapshot-exempt per task-courses.md option 2)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Spec 006-courses-opt-in (hand-authored)
+2. spec-bridge:link
+3. Dispatch: rewrite docs/task-courses.md to opt-in (standing per-project choice: per-task | per-feature | none, recorded in project grounding), fix the 'every completed task' overclaim, state freshness stance for opt-in courses; update repo CLAUDE.md mandate line; record praxisflux's own standing choice
+4. Gates; course for THIS task (mandate in force until merge); PR; serial merge
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep Lane 1 (docs/design/board-clearing-runbook.md). Tier: default implementer (ratified-decision docs rewrite). Operator decision at sign-off: standing per-project choice, no per-cycle prompt.
+<!-- SECTION:NOTES:END -->
