@@ -18,4 +18,5 @@
 
 - [x] T008 per-task course docs/courses/TASK-48/ — course gate green
 - [x] T009 gates green: node --test, check-docs, wiki-freshness
-- [ ] T010 PR opened; merged via merge commit; board Done + final summary
+- [x] T010 board finalized (ACs checked, Done, final summary); PR opened — serial merge
+  recorded by the orchestrator in docs/design/wiki-token-economy-runbook.md's execution log
