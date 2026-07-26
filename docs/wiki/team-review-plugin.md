@@ -12,13 +12,13 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: 7f987f610789afe3dcb0512c4eb807795e582fb3
+verified_against: 54aa6006b262d931ab0e0a3241c98c105a459bf7
 ---
 
 # team-review plugin
 
 The `team-review` plugin (lockstep with the marketplace version; skill at its own
-`version: 1.0.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
+`version: 1.1.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
 the lead orients, fans out specialist subagents in parallel (seniors for depth, scouts for
 breadth, team sized by the target's non-test line count), spot-checks their claims, and
 synthesizes one consolidated, evidence-backed report. The engagement is **read-only by
@@ -28,16 +28,20 @@ snapshot taken when the run opened.
 It is the suite's first **caller-supplied target** plugin (the third placement model in
 [[skill-patterns]]): it operates on a root the caller names but stores all state at the
 *invoking* project's root — run records ride the gitignored `.handoff/team-review/runs/`
-transport there, never inside the target, and nothing (no hook, no CLAUDE.md) is ever
-installed into the target. It deliberately ships **no lifecycle and no planted CLAUDE.md**;
-the gate is in-skill plus an invoking-side Stop hook.
+transport there, and nothing (no hook, no CLAUDE.md) is ever installed into the target.
+Self-review (invoking root == target) is sanctioned: the records then land inside the
+target, and the gate treats that residue as transport, never as mutation. It deliberately
+ships **no lifecycle and no planted CLAUDE.md**; the gate is in-skill plus an invoking-side
+Stop hook.
 
 ## How it works
 
 **The run record is the evidence base.** `scripts/run.mjs` (the plugin's only writer) opens
 a run with `begin <target> [--report <path>]`: it snapshots the target (`gitSnapshot` —
 HEAD + `status --porcelain`; non-git targets degrade the untouched-check to advisory),
-records target/report/cwd, and warns if the invoking root's `.gitignore` misses `.handoff/`.
+records target/report/cwd, and warns if the invoking root's `.gitignore` misses `.handoff/`
+(escalated to a prominent multi-line WARN — never a hard fail — when the invoking root IS
+the target, since the records then land inside the repo under review).
 `finish` runs the output gate and marks the run `done` only on pass; `abandon <id> <reason>`
 closes with durable residue; ids are `<target-basename>-<timestamp>` with a collision
 suffix so a record is never overwritten. `$TEAM_REVIEW_HOME` overrides the runs dir (tests).
@@ -47,7 +51,9 @@ suffix so a record is never overwritten. `$TEAM_REVIEW_HOME` overrides the runs 
 report has all required sections (TL;DR, What we like, What could be improved, What should
 be removed, Stealing for later, Questions), at least 5 backticked file citations resolve to
 real files in the target (tolerating a repeated repo-basename prefix), and the target's git
-snapshot is unchanged since `begin`. A report written *inside* the target is rejected
+snapshot is unchanged since `begin` — with `.handoff/` entries stripped from both sides of
+the porcelain comparison (`stripHandoffEntries`), so the plugin's own run records never trip
+the read-only check on a self-review. A report written *inside* the target is rejected
 outright.
 
 **Stop-hook enforcement.** `reviewGate` speaks the `@praxisflux/gates` contract: its
