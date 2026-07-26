@@ -1,13 +1,13 @@
 ---
 name: reorient-run-ownership
-description: How reorient run records are owned by the session that began them — owner + heartbeat on the manifest, Stop gate nagging only the owner, non-blocking orphan notices for stale foreign runs, run-id-keyed synthesis targets, and explicit takeover/abandon semantics for concurrent sessions in one checkout.
+description: How reorient runs stay safe across concurrent sessions — worktree-first begin (a shared primary checkout is refused unless the recorded --shared-checkout override is given), owner + heartbeat on the manifest, Stop gate nagging only the owner, non-blocking orphan notices for stale foreign runs, run-id-keyed synthesis targets, and explicit takeover/abandon semantics.
 kind: component
 sources:
   - reorient/scripts/run.mjs
   - reorient/gates/reorient.mjs
   - reorient/scripts/stop.mjs
   - lib/gate-runner.mjs
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 219842a4050be245cd2308020883fc99d4cc0526
 ---
 
 # reorient run ownership
@@ -22,6 +22,17 @@ gate nagged non-owning sessions until an operator abandoned a live run believing
 orphaned.
 
 ## How it works
+
+**Worktree-first begin.** Isolation comes first: `begin` refuses to open a run whose
+registry root is a **shared primary checkout**, detected deterministically — `.git` at
+the registry root is a *directory*, while a worktree carries a `gitdir:` *file* (non-git
+registry roots keep their old behavior). The refusal is actionable: it names the recipe
+(`git worktree add .worktrees/<name> -b <branch>`) and the override. `--shared-checkout`
+permits the shared checkout deliberately; the override is recorded on the manifest
+(`sharedCheckout: true` — only when it actually overrode a primary checkout, so a no-op
+flag in a worktree leaves no false claim) and surfaced by `list` and `describeOwner`, so
+the choice stays auditable. Ownership (below) is defense-in-depth for the permitted
+shared case, not a substitute for lane-local registries.
 
 **Owner + heartbeat on the manifest.** `run.mjs begin` stamps `owner` — `sessionId`
 (`--session` flag, else `$CLAUDE_CODE_SESSION_ID`, else null), plus `user` and `host`
@@ -66,9 +77,12 @@ ownership on stderr.
 
 ## Operational notes
 
-- CLI: `begin … [--session <id>] | finish <id|root> | abandon <id|root> [reason] |
-  takeover <id|root> | list`; `$REORIENT_HOME` overrides the registry dir (tests).
+- CLI: `begin … [--session <id>] [--shared-checkout] | finish <id|root> |
+  abandon <id|root> [reason] | takeover <id|root> | list`; `$REORIENT_HOME` overrides
+  the registry dir (tests) — begin treats the dir three levels above the runs dir
+  (where `.handoff/` sits) as the registry root for the worktree-first check.
 - With no session identity anywhere (no `session_id` in hook input, no
   `$CLAUDE_CODE_SESSION_ID`), everything degrades to the pre-ownership checkout scoping —
-  the interim doctrine of beginning runs from inside a worktree still isolates fully.
+  which worktree-first begin now bounds: reaching that degraded shared state requires the
+  recorded `--shared-checkout` override in the first place.
 - `STALE_HEARTBEAT_MS` = 1h, exported from `reorient/gates/reorient.mjs`.
