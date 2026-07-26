@@ -5,9 +5,15 @@ carry praxisflux itself. There are two enforcement points, deliberately split th
 splits them for its own development:
 
 - **Locally / interactively**: the installed plugins' Stop hooks run the gates as you work.
-  These float with plugin updates and are advisory.
+  These float with plugin updates and are **advisory and opt-in by design** — they exist
+  only where a plugin is installed, and they never block over a missing runtime (a `gate.sh`
+  that can't find `node` notices once on stderr, then no-ops).
 - **In CI**: the composite GitHub Action runs the same gates at a **pinned release**. CI is
-  authoritative. Pin drift between local and CI is fine by design.
+  **authoritative**. Pin drift between local and CI is fine by design.
+
+The tenet this split delivers: **gates make dishonest status expensive locally and
+impossible in CI.** Local hooks raise the cost of overstating what's proven while you work;
+the CI surface below is where an overstated status actually cannot land.
 
 ## The action
 

@@ -155,7 +155,7 @@ export function scaffoldPlugin(repo, name, { withGate = false } = {}) {
   const readmePath = join(repo, "README.md");
   let readme = readFileSync(readmePath, "utf8");
   readme = insertAfterLast(readme, /^\| \*\*[a-z0-9-]+\*\* \|/,
-    `| **${name}** | ${pj.description} | TODO: placement model (docs/skill-patterns.md §6). |`,
+    `| **${name}** | ${pj.description} | ${withGate ? "Stop hook (advisory): TODO — name the invariant." : "Skill-only: none."} | TODO: placement model (docs/skill-patterns.md §6). |`,
     "the plugins table");
   readme = insertAfterLast(readme, /^\/plugin install [a-z0-9-]+@praxisflux$/,
     `/plugin install ${name}@praxisflux`, "the install block");

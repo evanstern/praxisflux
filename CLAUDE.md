@@ -13,6 +13,11 @@ evidence in tracked state. The foundational ("101") rules — **artifact-grounde
 one PR** (subtasks never get their own PR) — are stated canonically in `docs/principles.md`
 and bind this repo's own workflow too.
 
+**Enforcement is split by design:** the Stop hooks plugins ship are advisory/opt-in — local
+pressure while you work, never guaranteed present; CI (the composite action /
+`@praxisflux/gates`, `docs/consuming-gates.md`) is the authoritative enforcement point.
+Gates make dishonest status expensive locally and impossible in CI.
+
 Authoring a plugin/skill? Read `docs/skill-patterns.md` (shared patterns) and
 `docs/handoff-protocol.md` (inter-plugin handoffs) first.
 
