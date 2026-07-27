@@ -27,6 +27,14 @@
       "taskIds": ["task-1", "task-2", "task-3"],
       "liveTask": "task-3",
       "narrative": "Work is planned as specs: a Backlog board with three tasks, each linked to a hand-authored Spec Kit spec dir (specs/001-003) via spec-bridge, plus a signed-off mini sweep runbook. task-3 (--version flag, one file) is the live demo thread — pre-specced and UNMERGED here."
+    },
+    {
+      "n": 3,
+      "tag": "stage-3",
+      "title": "swept",
+      "gates": ["wiki-freshness", "spec-bridge", "app-test"],
+      "prNumbers": [1, 2, 3],
+      "narrative": "The sweep ran for real: PRs #1-#3 merged on the sandbox (rename, mood emoji, --version — the live task's canned twin), board synced to Done via spec-bridge's derived plan, the three touched wiki notes re-verified against the diffs and re-pinned, runbook log complete. History carries the merge commits."
     }
   ],
   "ladder": [
@@ -50,6 +58,34 @@
       "sync": [""],
       "tag": "stage-2",
       "message": "plan: board + specs 001-003 linked via spec-bridge, mini sweep runbook signed off"
+    },
+    {
+      "label": "pr-1",
+      "from": "prs/pr-1",
+      "sync": ["src/pet.mjs", "bin/pet.mjs", "test/pet.test.mjs", "specs/001-rename-command/tasks.md"],
+      "pr": { "number": 1, "branch": "task-1-rename-command", "title": "task-1: add a rename command" },
+      "message": "task-1: add rename command — rename(pet, name) in the state machine, CLI wiring, tests"
+    },
+    {
+      "label": "pr-2",
+      "from": "prs/pr-2",
+      "sync": ["src/pet.mjs", "bin/pet.mjs", "test/pet.test.mjs", "specs/002-mood-emoji/tasks.md"],
+      "pr": { "number": 2, "branch": "task-2-mood-emoji", "title": "task-2: show mood as an emoji in status" },
+      "message": "task-2: mood as an emoji — moodFace(pet) mapping in the state machine, status line renders it, tests"
+    },
+    {
+      "label": "pr-3",
+      "from": "prs/pr-3",
+      "sync": ["bin/pet.mjs", "specs/003-version-flag/tasks.md"],
+      "pr": { "number": 3, "branch": "task-3-version-flag", "title": "task-3: add a --version flag" },
+      "message": "task-3: add --version flag — CLI prints praxis-pet <version> from package.json, no pet required"
+    },
+    {
+      "label": "stage-3",
+      "from": "stage-3",
+      "sync": [""],
+      "tag": "stage-3",
+      "message": "re-ground: board synced to Done via spec-bridge, wiki re-verified and re-pinned, runbook log complete"
     }
   ]
 }
