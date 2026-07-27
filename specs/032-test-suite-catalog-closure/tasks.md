@@ -14,5 +14,5 @@
 
 ## Prove
 
-- [ ] T006 gates green in worktree (node --test, check-docs, freshness); no version bump needed (wiki-only)
-- [ ] T007 board finalized (ACs checked, Done, final summary); PR opened
+- [x] T006 gates green in worktree (node --test, check-docs, freshness); no version bump needed (wiki-only)
+- [x] T007 board finalized (ACs checked, Done, final summary); PR opened
