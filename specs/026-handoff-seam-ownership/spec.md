@@ -35,6 +35,29 @@ the choice and rationale in the spec/PR. **Checkpoint: escalate to the operator 
 if the chosen owner would require machinery that contradicts build's skill-only
 doctrine.**
 
+**R1 DECISION (recorded): educate owns the write.** The lesson skill's return leg —
+on resuming a lesson at `spec'd`, finding the pending `kind: response` addressed to
+educate — records `handoff.returned=true` and status `built` in `progress.json`
+before folding findings in. Build's implement skill stays transport-only and now
+states explicitly that it never touches the producer's ledger. Rationale:
+1. The canonical protocol (`docs/handoff-protocol.md`, `lib/handoff.mjs` header)
+   already rules that evidence is recorded by the CONSUMER in its OWN tracked state —
+   for the findings response the consumer is educate, and `progress.json` is
+   educate's ledger ("the chassis never edits a plugin's ledger" generalizes:
+   neither does a peer plugin).
+2. Build is generic by contract ("handed off from a learning lesson **or any
+   producer**") — an educate-specific `topics/<topic>/progress.json` write inside
+   build's skill would couple it to educate's schema and break for non-educate
+   producers.
+3. It matches build's own recorded non-goals ("does not edit the lesson / mark it
+   done") and the settled precedent that round-trip enforcement lives educate-side.
+4. No machinery: a text instruction in educate's lesson skill (which runs in the
+   lesson project, `progress.json` in reach at return time). No escalation needed.
+5. No deadlock: the gate blocks status ≥ `built` without `handoff.returned`; educate
+   sets both in the same return-leg step, gated on the response payload actually
+   existing in `.handoff/`. The lesson honestly stays `spec'd` until educate has
+   verifiably received the findings.
+
 R2 (AC #2) — handoff artifact doctrine is `.handoff/`-only and internally consistent
 across the lesson SKILL, the planted template, and `dod.mjs`'s artifact derivation:
 either the loose-file names disappear from doctrine AND derivation (durable evidence
