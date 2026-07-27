@@ -93,6 +93,15 @@ if (runAsCli(import.meta.url)) {
   } else { // --check
     for (const topic of topics) {
       const topicDir = join(TOPICS_DIR, topic);
+      // Vault-count guard, mirroring syncTopicWiki's "skipped": a vault-less topic has no
+      // WIKI.md to derive and --sync would never write one, so calling it stale here would
+      // point at a remedy that can't converge (check 1 → sync skipped → check 1, forever).
+      // Distinct verdict, not stale. (--all pre-filters to vaulted topics, so this only
+      // ever fires for a named topic.)
+      if (!topicVaults(topicDir).length) {
+        console.log(`[${topic}] WIKI.md — no research vaults (nothing to derive; --sync skips it)`);
+        continue;
+      }
       const bad = isStale(join(topicDir, "WIKI.md"), renderTopicWiki(topicDir, topic));
       if (bad) stale++;
       console.log(`[${topic}] WIKI.md ${bad ? "✗ stale (run --sync)" : "✓ current"}`);
