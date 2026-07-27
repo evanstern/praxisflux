@@ -3,11 +3,11 @@ id: TASK-61
 title: >-
   team-review: self-review deadlocked by its own default report path; same-day
   report collisions
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:57'
-updated_date: '2026-07-27 02:33'
+updated_date: '2026-07-27 02:57'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,13 +25,13 @@ Spec: specs/021-team-review-report-path
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 begin . resolves the default report path outside the target and finish passes on a self-review
-- [ ] #2 SKILL.md report-path claim matches actual behavior
-- [ ] #3 Default report filenames are unique per run (run-id or equivalent), not date-keyed
-- [ ] #4 Self-review round-trip covered by a test
-- [ ] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #1 begin . resolves the default report path outside the target and finish passes on a self-review
+- [x] #2 SKILL.md report-path claim matches actual behavior
+- [x] #3 Default report filenames are unique per run (run-id or equivalent), not date-keyed
+- [x] #4 Self-review round-trip covered by a test
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -47,3 +47,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane C): tier = default implementer — scoped script/gate fix with a live repro; reorient's run-id-keyed pattern is the named prior art.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Self-review deadlock closed (branch task-61-team-review-report-path; PR pending merge). team-review's default report path now resolves under the runs home via a new exported reportsDirFor(dir) (reports/ beside the runs registry; $TEAM_REVIEW_HOME/reports when overridden) with a run-id-keyed filename (reorient prior art) — begin . then finish passes on pure defaults, live-verified and covered by a round-trip test; two same-day runs never collide. The review gate's in-target block now exempts the target's .handoff/ transport (consistent with the porcelain strip's transport doctrine); reports anywhere else inside the target still block. SKILL.md report-path claims rewritten to match (v1.2.0). Reconciled with post-TASK-58 main by merge-in (20b5049): lockstep to 0.29.0, wiki pin conflicts classified against the main-side diff (11 stamp-only, kept content-superseding pins; no mechanical bump). Gates green at HEAD: node --test 212-213/pass, check-docs, wiki freshness (29 notes), bump gate 0.28.0 → 0.29.0. Noted for follow-up (not in scope): default self-review reports now live under the gitignored transport — if durable residue must be tracked, that is a policy question for a future card.
+<!-- SECTION:FINAL_SUMMARY:END -->
