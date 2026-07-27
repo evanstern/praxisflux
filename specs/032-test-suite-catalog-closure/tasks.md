@@ -7,9 +7,9 @@
 
 ## Implement
 
-- [ ] T002 execution-time enumeration recorded; missing files identified (R1)
-- [ ] T003 per-file bullets + sources for every missing file (R1)
-- [ ] T004 summary-style split: both parts within budget, cross-linked, INDEX + CAPSULES updated (R2)
+- [x] T002 execution-time enumeration recorded; missing files identified (R1)
+- [x] T003 per-file bullets + sources for every missing file (R1)
+- [x] T004 summary-style split: both parts within budget, cross-linked, INDEX + CAPSULES updated (R2)
 - [ ] T005 honest pins on all split parts; freshness green with expanded sources (R3)
 
 ## Prove
