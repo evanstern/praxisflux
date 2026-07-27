@@ -88,6 +88,21 @@ test("evaluate: a skill gaining its first version counts as bumped; missing vers
   assert.match(evaluate({ ...base, changedFiles: files, headVersion: "0.2.0", skills: [missing] })[0], /no semver `version:`/);
 });
 
+test("evaluate: a non-semver base skill version fails loudly instead of skipping the bump check", () => {
+  const files = ["educate/skills/lesson/SKILL.md"];
+  const skill = { dir: "educate/skills/lesson", headExists: true, baseVersion: "v0.1.0", headVersion: "0.2.0" };
+  // Even a valid, higher-looking head must not silently pass over an unevaluable base.
+  const errs = evaluate({ ...base, changedFiles: files, headVersion: "0.2.0", skills: [skill] });
+  assert.equal(errs.length, 1);
+  assert.match(errs[0], /base version "v0\.1\.0" is not x\.y\.z semver/);
+  assert.match(errs[0], /fix the frontmatter/);
+  // Non-semver at head is still the head-side named problem, not the base-side one.
+  assert.match(
+    evaluate({ ...base, changedFiles: files, headVersion: "0.2.0", skills: [{ ...skill, headVersion: "v0.2.0" }] })[0],
+    /no semver `version:`/,
+  );
+});
+
 test("evaluate: a deleted skill is not checked", () => {
   const gone = { dir: "educate/skills/lesson", headExists: false, baseVersion: "0.1.0", headVersion: null };
   assert.deepEqual(

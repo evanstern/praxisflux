@@ -11,8 +11,8 @@
 - [x] T003 build.mjs: scoped --plugin clean; missing argv value → usage (R2)
 - [x] T004 new-plugin.mjs: count claims updated at scaffold time; fixture README carries
   a count claim; header contract true (R3)
-- [ ] T005 check-version-bump.mjs: non-semver base fails loudly (R4)
-- [ ] T006 tests for all four
+- [x] T005 check-version-bump.mjs: non-semver base fails loudly (R4)
+- [x] T006 tests for all four
 - [ ] T007 versions: marketplace sync-version (verify next free)
 - [ ] T008 wiki: build-and-release, release-pipeline, skill-patterns, gates-convention
   (+ hooks.json-listing notes) re-verified + re-pinned; lockstep stales classified;

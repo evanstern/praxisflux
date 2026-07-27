@@ -11,6 +11,7 @@
 //     .github/, root markdown, …) is exempt: no bump required.
 //   - Any change under <plugin>/skills/<skill>/ additionally requires that skill's SKILL.md
 //     frontmatter `version:` to increase (a skill gaining its first version counts as a bump).
+//     A non-semver base version (e.g. "v0.1.0") is a named failure, never a silent skip.
 //
 // Bump-size guidance and the release pipeline this feeds live in docs/releasing.md.
 import { execFileSync } from "node:child_process";
@@ -74,7 +75,14 @@ export function evaluate({ changedFiles, pluginSrcs, baseVersion, headVersion, t
     if (!s.headExists) continue; // skill deleted
     if (!semverParse(s.headVersion)) {
       errors.push(`${s.dir}/SKILL.md changed but has no semver \`version:\` frontmatter — add/bump it`);
-    } else if (s.baseVersion != null && semverParse(s.baseVersion) && !semverGt(s.headVersion, s.baseVersion)) {
+    } else if (s.baseVersion != null && !semverParse(s.baseVersion)) {
+      // A non-semver base (e.g. "v0.1.0") must fail loudly as its own named problem —
+      // silently skipping the increase check would let such a skill change with no bump.
+      errors.push(
+        `${s.dir}/SKILL.md base version ${JSON.stringify(s.baseVersion)} is not x.y.z semver — ` +
+        `the increase requirement cannot be evaluated; fix the frontmatter (head ${s.headVersion})`,
+      );
+    } else if (s.baseVersion != null && !semverGt(s.headVersion, s.baseVersion)) {
       errors.push(
         `${s.dir}/ changed but its SKILL.md version did not increase ` +
         `(base ${s.baseVersion}, head ${s.headVersion}) — bump it`,
