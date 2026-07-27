@@ -3,11 +3,11 @@ id: TASK-64
 title: >-
   reorient: run registry keyed to invoking cwd, not the target root — Stop gate
   and finish never see the run
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:58'
-updated_date: '2026-07-27 02:35'
+updated_date: '2026-07-27 03:30'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,13 +25,13 @@ Spec: specs/023-reorient-target-root
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Run manifests are written under the resolved target root, regardless of invoking cwd
-- [ ] #2 The dangling-run Stop gate fires for a session in the target project
-- [ ] #3 finish run from the target resolves the run; worktree-first refusal evaluates the target checkout
-- [ ] #4 Cross-directory begin/finish covered by a test
-- [ ] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #1 Run manifests are written under the resolved target root, regardless of invoking cwd
+- [x] #2 The dangling-run Stop gate fires for a session in the target project
+- [x] #3 finish run from the target resolves the run; worktree-first refusal evaluates the target checkout
+- [x] #4 Cross-directory begin/finish covered by a test
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -47,3 +47,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane E): tier = default implementer — cwd-vs-target resolution fix with a live repro, isolated to reorient/.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Reorient registry re-keyed to the target root (branch task-64-reorient-target-root; PR pending merge). reorient/scripts/run.mjs no longer captures runsDirFor(process.cwd()) at module load: begin resolves the registry from the resolved target root, and finish/abandon/takeover/list resolve via a registryFor(key) helper; REORIENT_HOME semantics unchanged; list gained an optional [root]. gates/reorient.mjs resolveRoots scopes runs to run.root (target) with run.cwd kept as legacy fallback + provenance — the dangling-run Stop gate now fires for sessions working in the target. The worktree-first refusal inspects the TARGET's checkout shape (worktree→primary refused without the recorded --shared-checkout override; primary→worktree accepted). SKILL.md's records-live-at-the-project-root claim is now true (v0.5.0). Cross-directory tests: begin-from-elsewhere lands under the target, gate blocks in-target, finish resolves by root key and bare id, refusal keyed both directions; original live repro re-run green against the fix. Documented consequence (deliberate): owner heartbeat/Stop-nag flow only while the owner works in the target. Reconciled with post-58/61/62/65/59 main by merge-in (86f675a): 0.33.0, honest pin classification (7 computed, 5 reviewed incl. a real gate-runner-diff review for reorient-run-ownership). Gates green at HEAD: node --test 230/230, check-docs, wiki freshness, bump gate 0.32.0 → 0.33.0. Flagged for operator (not carded): test-suite-catalog.md omits test/reorient.test.mjs from its sources (pre-existing).
+<!-- SECTION:FINAL_SUMMARY:END -->
