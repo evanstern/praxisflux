@@ -9,7 +9,7 @@ synthesis; each carries the incident, origin trail, and ACs from the downstream-
 sweep's parked findings. Plan-of-record is the board; this file carries only ordering,
 doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -140,8 +140,10 @@ Record the model tier + rubric justification on each board task at dispatch
   report as the review's durable deliverable, so self-review defaults should land it
   in a tracked location (or copy-on-finish) without reintroducing the TASK-61 gate
   deadlock. Operator may instead bless (a) current-behavior-as-recorded-rule; the
-  sign-off answer is recorded on the card and binds the implementer. → **pending —
-  record the operator's choice here at sign-off.**
+  sign-off answer is recorded on the card and binds the implementer. → **Operator
+  chose (b) at sign-off (2026-07-27): self-review report defaults route to a TRACKED
+  location (or copy-on-finish) — evidence lives in tracked state — without
+  reintroducing the TASK-61 gate deadlock.**
 - Dropping TASK-71 (tail) — droppable by construction, but only with operator say-so.
 - Tier escalations; lane amendments (amend this file, note why, tell the operator).
 
