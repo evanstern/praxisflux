@@ -7,7 +7,7 @@
 
 ## Implement
 
-- [ ] T002 demo app + generator skeleton: deterministic replay engine, tags, --stage/--reset, outside-checkout isolation, optional --remote (R1, R3-wiring)
+- [x] T002 demo app + generator skeleton: deterministic replay engine, tags, --stage/--reset, outside-checkout isolation, optional --remote (R1, R3-wiring)
 - [ ] T003 capture run stage-0..2: app baseline; real vault+wiki-build; board+specs+links+signed-off mini runbook; live-thread task pre-specced unmerged (R2, R4)
 - [ ] T004 capture run stage-3..4 against the operator-named sandbox: real mini-sweep with merged PRs + live task's merged twin; headless refactor-triage record + debt cards; fixtures + manifest snapshotted (R2, R3, R4)
 - [ ] T005 per-stage gate matrix (--check) green on a fresh generate: freshness at 1/3/4, spec-bridge at 2/3, app tests at 0 (R2)
