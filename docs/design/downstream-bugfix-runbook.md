@@ -212,3 +212,4 @@ done. Anything short of that is reported as exactly what remains.
 | 2026-07-26 | TASK-58 | #83 | 7c2b6cd | honest re-pin doctrine; sweep skill 0.7.0; marketplace 0.28.0; Lane A opener — remaining lanes now follow the amended text |
 | 2026-07-26 | TASK-61 | #84 | 4cd0834 | team-review self-review-safe default report path, run-id-keyed; skill 1.2.0; 0.29.0; in-target block now exempts the .handoff transport (posture change noted in PR); follow-up policy question on gitignored residue parked on the card |
 | 2026-07-26 | TASK-62 | #85 | 649adf8 | educate vault-less --check converges; decksRequired tolerance; render-at-plant template; start 0.2.0; 0.30.0; corpus: test-suite split summary-style (+test-suite-catalog) — Lane D second (63) unblocked |
+| 2026-07-26 | TASK-65 | #86 | c7488d2 | chassis contracts: throwing gate exits 1 (0/1/2 intact), stop-docs realpath+boundary, resolveRoots crash blocks; 0.31.0 |
