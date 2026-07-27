@@ -21,6 +21,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/sync-shared.test.mjs
+  - test/sync-version.test.mjs
   - test/team-review.test.mjs
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
@@ -57,7 +58,7 @@ One bullet per `test/*.test.mjs` file:
   auto-close, chrome version-stamp checks, and the orphan-content repros field-reported
   by the-stacks.
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
-  self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
+  self-contained file, no CDN" contract via the DoD gate's shared verifier.
   Also the deck-requirement config: `decksStandardForEveryLesson` is array-or-flag
   tolerant like `isDelegated` (an empty array requires no deck+guide, end to end
   through the gate).
@@ -72,11 +73,11 @@ One bullet per `test/*.test.mjs` file:
   rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
-  staleness-check identically; a source path missing from the working tree blocks naming
-  note + path, including rename-after-pin) against a throwaway git repo, plus the plan
-  loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
-  code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
-  repin refusals).
+  staleness-check identically; missing/renamed source paths block naming note + path)
+  against a throwaway git repo, plus the plan loop (`classifyNote` truth table,
+  stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
+  fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
+  and notes outside git, note untouched).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
   delegated round trip with each leg doing exactly what its skill instructs: build writes
@@ -90,8 +91,8 @@ One bullet per `test/*.test.mjs` file:
   with fake hook JSON on stdin — exit 0 clean, exit 2 with the gate's message on a
   per-plugin violating fixture, exit 0 under `stop_hook_active`, and exit 0 from an
   install path containing a space (the hooks.json command must quote the
-  `${CLAUDE_PLUGIN_ROOT}` expansion). Runs hooks the way Claude Code spawns them rather
-  than importing gate modules in-process; also its own CI job.
+  `${CLAUDE_PLUGIN_ROOT}` expansion). Runs hooks as Claude Code spawns them, not
+  in-process; also its own CI job.
   Plus educate's plant simulation: the rendered `templates/CLAUDE.md` (placeholders
   substituted as `educate:start` instructs) leaves no `{{…}}`/`${CLAUDE_PLUGIN_ROOT}`
   behind, and every planted command runs as written from a user project with
@@ -108,13 +109,14 @@ One bullet per `test/*.test.mjs` file:
   per-phase checkbox counts, regenerated `tasks.md` re-deriving fresh, strict-mode
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
-  canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
+  canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
+- `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
+  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
 - `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
   resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
-  the run CLI (begin/finish/abandon, id collisions, self-review regressions incl. the
-  default-report round trip, same-day default uniqueness, and the tracked-copy policy:
-  pure-defaults self-review finish lands `docs/reviews/` evidence recorded on the run,
-  `--report` never copies), and the Stop-hook paths through gate-runner `evaluate`.
+  the run CLI (begin/finish/abandon, id collisions, self-review regressions: default-report
+  round trip, same-day uniqueness, tracked-copy policy — pure-defaults finish lands
+  `docs/reviews/`, `--report` never copies), and the Stop-hook paths via gate-runner.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure

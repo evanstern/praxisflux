@@ -10,8 +10,9 @@ sources:
   - grounding-wiki/gates/capsules.mjs
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/scripts/capsules.mjs
+  - grounding-wiki/scripts/repin.mjs
   - grounding-wiki/templates/note.md
-verified_against: 2beb547dd95154a58ae232117524244405349810
+verified_against: b6694ccfcd7454466df1e0afb6250febe1023b34
 ---
 
 # Grounding-wiki plugin
@@ -50,8 +51,9 @@ on the raw body since notes quote versions in backticks) print runnable
 (`git diff P..HEAD -- <sources>`), updates every claim to match current source, then re-pins
 via `repin.mjs` — the hard rule is **never bump a pin without reading the diff**, except
 through plan's RE-PIN-ONLY lines whose point is that the planner proved the diff safe.
-`scripts/repin.mjs` is the pin loop's one writer (full 40-char hashes only, refuses pinless or
-missing notes); the planner itself stays read-only. Update passes end by regenerating
+`scripts/repin.mjs` is the pin loop's one writer (full 40-char hashes only, which must name a
+real commit in the note's repo — probed with `git cat-file -e` before any write — and refuses
+pinless or missing notes, or a note outside any git repo); the planner itself stays read-only. Update passes end by regenerating
 `CAPSULES.md` when the corpus has one (a corpus without one predates v2; the skill offers
 adoption, noting it flips budget enforcement on).
 

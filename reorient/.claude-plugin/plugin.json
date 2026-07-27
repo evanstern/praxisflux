@@ -1,6 +1,6 @@
 {
   "name": "reorient",
-  "version": "0.36.0",
+  "version": "0.38.0",
   "description": "Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and one synthesis lands as concrete board moves — proven by an output gate (per-branch analyses + merged synthesis sections).",
   "author": {
     "name": "praxisflux maintainers"
