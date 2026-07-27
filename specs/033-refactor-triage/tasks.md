@@ -15,5 +15,5 @@
 
 ## Prove
 
-- [ ] T007 gates green in worktree (node --test, check-docs, freshness); sync-version 0.40.0 + skill version bumps; new wiki note + INDEX + CAPSULES; pdlc-plugin/pdlc-sweep NEEDS-REVIEW re-pins (R9)
+- [x] T007 gates green in worktree (node --test, check-docs, freshness); sync-version 0.40.0 + skill version bumps; new wiki note + INDEX + CAPSULES; pdlc-plugin/pdlc-sweep NEEDS-REVIEW re-pins (R9)
 - [ ] T008 board finalized (ACs checked; Done via spec-bridge:sync); PR opened
