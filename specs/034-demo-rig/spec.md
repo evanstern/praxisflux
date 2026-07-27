@@ -36,8 +36,8 @@ status exceeding artifacts) at stages 2/3 — assertable via this repo's
 `scripts/run-gates.mjs` pointed at the generated repo.
 
 R3 (AC #3) — scratch GitHub sandbox remote wired: the reset command force-pushes stage
-state to a sandbox repo the OPERATOR names before anything is created (runbook
-checkpoint — outward-facing act); the canned stage-3 history carries the real merged
+state to the operator-named sandbox — **`evanstern/praxisflux-demo-sandbox`** (private;
+created 2026-07-27 at the runbook checkpoint, operator-confirmed); the canned stage-3 history carries the real merged
 PRs from the one genuine capture run, and the live demo task opens a genuine PR
 there. Remote wiring is presenter tooling behind an explicit flag/config — never a CI
 step, never default-on.

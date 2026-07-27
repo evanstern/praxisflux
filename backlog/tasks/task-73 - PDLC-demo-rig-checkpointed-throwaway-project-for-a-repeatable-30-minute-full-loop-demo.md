@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 16:42'
+updated_date: '2026-07-27 16:44'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -41,4 +41,6 @@ Spec: specs/034-demo-rig
 
 <!-- SECTION:NOTES:BEGIN -->
 sweep dispatch (2026-07-27): tier = default implementer — design operator-ratified with 8 explicit ACs, no open architecture decisions; flagged in runbook as largest single-task footprint (fixture capture drives real plugin runs); escalation is an operator checkpoint. Spec: specs/034-demo-rig, runbook docs/design/demo-rig-runbook.md (signed off 2026-07-27).
+
+operator checkpoint resolved (2026-07-27): sandbox remote = evanstern/praxisflux-demo-sandbox (private, created via gh; throwaway, force-pushed on reset). CI never touches it.
 <!-- SECTION:NOTES:END -->
