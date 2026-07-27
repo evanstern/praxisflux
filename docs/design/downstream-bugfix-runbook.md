@@ -215,3 +215,4 @@ done. Anything short of that is reported as exactly what remains.
 | 2026-07-26 | TASK-65 | #86 | c7488d2 | chassis contracts: throwing gate exits 1 (0/1/2 intact), stop-docs realpath+boundary, resolveRoots crash blocks; 0.31.0 |
 | 2026-07-26 | TASK-59 | #87 | de9c341 | freshness gate: missing sources block, inline-array sources parsed, CAPSULES corpusDir-invariant; 0.32.0; hardening candidate surfaced (repin.mjs hash-existence check) — needs operator approval to card |
 | 2026-07-26 | TASK-64 | #88 | 40f2f5a | reorient registry keyed to target root; skill 0.5.0; 0.33.0; heartbeat-flows-in-target consequence documented; pre-existing source omission flagged (test-suite-catalog vs test/reorient.test.mjs) |
+| 2026-07-26 | TASK-60 | #89 | 54e45f6 | sweep doctrine reconciled: claim step, merge-based remedy, 4-mode gate, ticks-before-sync, ship-real hook claims; sweep 0.8.0, bootstrap 0.6.0; 0.34.0; follow-up flagged: bootstrap replant of this repo's planted block |
