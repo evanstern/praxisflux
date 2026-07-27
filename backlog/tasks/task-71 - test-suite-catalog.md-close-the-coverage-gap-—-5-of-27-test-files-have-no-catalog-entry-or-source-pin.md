@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 04:34'
-updated_date: '2026-07-27 14:16'
+updated_date: '2026-07-27 14:17'
 labels:
   - sweep-followup
 dependencies: []
@@ -19,6 +19,8 @@ ordinal: 106000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 docs/wiki/test-suite-catalog.md (created by TASK-62's summary-style split, extended by 65/59/63/66) covers only 22 of 27 test files: build-npm, new-plugin, pdlc, phase-status, reorient, and run-gates test files have no bullets and are missing from the note's sources — inherited from the old pre-split test-suite.md source list, so changes to those suites never stale the catalog (TASK-64 hit exactly this: test/reorient.test.mjs gained cross-directory tests invisibly). Add the missing per-file entries and sources; verify the note stays within the 8000-char body budget (split again summary-style if it cannot); regenerate CAPSULES if the description changes. Count the actual test-file set at execution time rather than trusting the 22/27 snapshot. Origin: gaps flagged by TASK-64's and TASK-66's implementers during the downstream-bugfix sweep (runbook docs/design/downstream-bugfix-runbook.md); carding approved by operator 2026-07-27.
+
+Spec: specs/032-test-suite-catalog-closure
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -26,7 +28,12 @@ docs/wiki/test-suite-catalog.md (created by TASK-62's summary-style split, exten
 - [ ] #1 Every test/*.test.mjs file has a catalog entry and appears in the catalog note's sources (set enumerated at execution time)
 - [ ] #2 Note body within the 8000-char budget (further summary-style split if needed); INDEX/CAPSULES consistent
 - [ ] #3 Wiki freshness gate green with the expanded source list
+- [ ] #4 Spec phase: Spec
+- [ ] #5 Spec phase: Implement
+- [ ] #6 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
