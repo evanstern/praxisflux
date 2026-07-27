@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 copy-on-finish for pure-default self-reviews: tracked report location, run record carries both paths (R2)
-- [ ] T003 --report unchanged; non-self-review flow unchanged; begin WARN names the durable destination (R2)
-- [ ] T004 the ONE rule recorded in SKILL.md + docs/wiki/team-review-plugin.md (R1)
-- [ ] T005 TASK-61 tests green; new pure-defaults self-review round-trip test with tracked copy (R3)
+- [x] T002 copy-on-finish for pure-default self-reviews: tracked report location, run record carries both paths (R2)
+- [x] T003 --report unchanged; non-self-review flow unchanged; begin WARN names the durable destination (R2)
+- [x] T004 the ONE rule recorded in SKILL.md + docs/wiki/team-review-plugin.md (R1)
+- [x] T005 TASK-61 tests green; new pure-defaults self-review round-trip test with tracked copy (R3)
 
 ## Prove
 

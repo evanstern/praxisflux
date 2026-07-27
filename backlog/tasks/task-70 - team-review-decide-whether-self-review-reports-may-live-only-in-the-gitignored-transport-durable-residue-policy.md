@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 04:33'
-updated_date: '2026-07-27 13:48'
+updated_date: '2026-07-27 13:59'
 labels:
   - sweep-followup
 dependencies: []
@@ -25,15 +25,13 @@ Spec: specs/031-team-review-residue-policy
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The residue policy is decided and recorded (SKILL.md + docs/wiki/team-review-plugin.md state one rule)
-- [ ] #2 Behavior matches the recorded rule; if (b), the self-review round trip still passes on pure defaults (no gate deadlock regression)
-- [ ] #3 Existing TASK-61 tests stay green; any new behavior is covered by a test
+- [x] #1 The residue policy is decided and recorded (SKILL.md + docs/wiki/team-review-plugin.md state one rule)
+- [x] #2 Behavior matches the recorded rule; if (b), the self-review round trip still passes on pure defaults (no gate deadlock regression)
+- [x] #3 Existing TASK-61 tests stay green; any new behavior is covered by a test
 - [ ] #4 Spec phase: Spec
 - [ ] #5 Spec phase: Implement
 - [ ] #6 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -45,4 +43,6 @@ Spec: specs/031-team-review-residue-policy
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep dispatch (runbook docs/design/sweep-followups-runbook.md): model tier = default implementer — policy recording + small routing change; the policy itself was decided by the operator at lane sign-off (choice b, tracked-by-default).
+
+Implemented policy (b), tracked-by-default: pure-defaults self-review copy-on-finish — begin records trackedReport (docs/reviews/team-review-<run-id>.md), names it in stdout + the self-review WARN; finish copies strictly AFTER the output gate passes (TASK-61 deadlock fix intact) and records both paths. --report always wins (no copy); non-self-review flow unchanged; run records stay on the transport. Rule recorded in SKILL.md + docs/wiki/team-review-plugin.md. Tests: TASK-61 suite green; new test 'pure-defaults self-review lands a tracked copy on finish, recorded on the run; --report never copies'. Wiki honestly re-pinned (team-review-plugin -> 5b590ea, test-suite-catalog -> 541b28d). Version bumps deliberately left to the orchestrator.
 <!-- SECTION:NOTES:END -->
