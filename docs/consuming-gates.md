@@ -73,7 +73,8 @@ codes, same failure lines.
 
 ## The contract
 
-Gate names, inputs, and exit codes (0 all pass · 1 any gate failed · 2 usage error) are
+Gate names, inputs, and exit codes (0 all pass · 1 any gate failed — a gate that crashes
+while running counts as failed · 2 usage error) are
 praxisflux's versioned consumer interface, released and semver-bumped like everything else
 (`docs/releasing.md`); each failure line names its fix. You can also invoke the runner
 directly from any praxisflux checkout:

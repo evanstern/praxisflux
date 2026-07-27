@@ -4,7 +4,7 @@ description: The shared Stop-hook harness in lib/gate-runner.mjs — reads Claud
 kind: component
 sources:
   - lib/gate-runner.mjs
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
 ---
 
 # Gate Runner
@@ -35,9 +35,11 @@ Three exports:
     already re-firing after a block, and honoring this flag prevents infinite stop loops.
   - The start directory is resolved in priority order: `CLAUDE_PROJECT_DIR` env var, then
     `input.cwd` from the hook payload, then `process.cwd()`.
-  - For each gate it calls `resolveRoots(start, ctx)`; a throw or falsy result is coerced to
-    `[]`, and **a gate that resolves no roots is a no-op** ("this isn't its kind of project") —
-    with no roots anywhere, nothing blocks.
+  - For each gate it calls `resolveRoots(start, ctx)`; a falsy result is coerced to `[]`, and
+    **a gate that resolves no roots is a no-op** ("this isn't its kind of project") — with no
+    roots anywhere, nothing blocks. A **crashing** `resolveRoots`, by contrast, becomes the
+    blocking problem `[<gate name>] resolveRoots crashed on <start>: <message>` — swallowing
+    it as zero roots would turn a gate bug into permanent silent non-enforcement.
   - For each resolved root it collects `check(root, ctx)` problems; a crashing `check` becomes
     the problem string `[<gate name>] crashed on <root>: <message>` rather than a silent pass.
   - If the gate defines `warn`, its notices are collected too; a crashing `warn` is ignored
@@ -70,8 +72,8 @@ every plugin as part of the [[chassis]]; covered by the [[test-suite]].
 - Environment: `CLAUDE_PROJECT_DIR` overrides the hook payload's `cwd` as the search start;
   `CLAUDE_CODE_SESSION_ID` supplies `ctx.sessionId` when the hook input carries no
   `session_id`.
-- Failure posture is asymmetric by design: a crashing `check` **blocks** (surfaced as a
-  problem), a crashing `warn` or `resolveRoots` does not.
+- Failure posture: a crashing `check` or `resolveRoots` **blocks** (surfaced as a problem
+  naming the gate); only a crashing `warn` is swallowed — warnings are best-effort by design.
 - `exit` is injectable for tests; default is `process.exit`.
 - Because a no-root gate no-ops, installing a plugin in an unrelated repo costs nothing at
   stop time beyond the root walk.

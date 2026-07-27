@@ -81,6 +81,48 @@ test("renderCapsules: unindexed notes are appended; reserved INDEX names are ski
   assert.ok(out.includes("- [[gamma]] (not in INDEX.md)\n  capsule for gamma"), "on-disk notes missing from INDEX still roll up");
 });
 
+test("renderCapsules: corpusDir-spelling-invariant — relative, trailing slash, absolute all byte-identical", (t) => {
+  const { repo, pin } = makeRepo();
+  t.after(() => rmSync(repo, { recursive: true, force: true }));
+
+  const canonical = renderCapsules(repo, "docs/wiki", { commit: pin });
+  for (const spelling of ["docs/wiki/", "./docs/wiki", join(repo, "docs", "wiki"), join(repo, "docs", "wiki") + "/"])
+    assert.equal(renderCapsules(repo, spelling, { commit: pin }), canonical, `spelling: ${spelling}`);
+  assert.ok(canonical.includes("<repo-root> docs/wiki\n"), "header embeds the normalized relative spelling");
+});
+
+test("CAPSULES.md generated with an absolute/trailing-slash corpusDir passes the default-spelling check", (t) => {
+  const { repo } = makeRepo();
+  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  writeCapsules(repo, join(repo, "docs", "wiki") + "/", { commit: git(repo, "rev-parse", "HEAD") });
+
+  const r = validateFreshness(repo, "docs/wiki");
+  assert.deepEqual(r.fails, [], JSON.stringify(r.fails));
+  assert.deepEqual(r.warns, [], JSON.stringify(r.warns));
+});
+
+test("pre-normalization header (old spelling, current content) degrades to a WARN with regeneration guidance", (t) => {
+  const { repo } = makeRepo();
+  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  const path = adopt(repo);
+
+  // simulate a pre-fix file: the header command line embeds the invoking absolute spelling
+  const preFix = readFileSync(path, "utf8")
+    .replace("<repo-root> docs/wiki\n", `<repo-root> ${join(repo, "docs", "wiki")}/\n`);
+  writeFileSync(path, preFix);
+
+  const r = validateFreshness(repo, "docs/wiki");
+  assert.deepEqual(r.fails, [], "current content behind an old header must not false-block");
+  assert.ok(r.warns.some((w) => w.includes("pre-normalization corpusDir spelling") && w.includes("scripts/capsules.mjs")),
+    JSON.stringify(r.warns));
+
+  // a genuinely stale pre-fix file still fails as stale
+  writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
+    note({ name: "alpha", pin: git(repo, "rev-parse", "HEAD"), description: "a NEW capsule for alpha" }));
+  const r2 = validateFreshness(repo, "docs/wiki");
+  assert.ok(r2.fails.some((f) => f.includes("CAPSULES.md: stale")), JSON.stringify(r2.fails));
+});
+
 test("indexLineTarget + noteBody primitives", () => {
   assert.equal(indexLineTarget("- [[overview]] — what it is"), "overview");
   assert.equal(indexLineTarget("- [alpha](alpha.md) — md link"), "alpha");
