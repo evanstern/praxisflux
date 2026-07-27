@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.6.0
+version: 0.7.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -128,8 +128,15 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
 7. Reconcile with fresh `origin/main` per the concurrency doctrine below: a
-   **pin-carrying branch merges main in** (re-pinning conflicted pins to the merge
-   commit); a pin-free branch rebases. Re-run tests, gates, and the freshness probe
+   **pin-carrying branch merges main in**; a pin-free branch rebases. The merge-in
+   itself licenses no pin bump — route the staleness it creates through the
+   wiki-update plan loop (the "honest re-pins" rule below): classify every stale or
+   conflicted pin against the main-side diff over the note's sources
+   (`git diff <old-pin>..<merge-commit> -- <sources>`) as **RE-PIN-ONLY** (the diff
+   provably can't invalidate prose) or **NEEDS-REVIEW** (re-verify the note's prose
+   against that diff and amend it BEFORE bumping). The merge commit is the *target*
+   of an honest re-pin, never the *justification* for one. Re-run tests, gates, and
+   the freshness probe
    AFTER every history move — unconditionally, not only when the move touched
    `docs/wiki/` (sibling merges change tripwires, and pins reference sources outside
    the wiki). With a merge-drift gate, `node scripts/check-merge-drift.mjs pr` from
@@ -159,12 +166,33 @@ must too:
 - Reconcile by what the branch carries. A **pin-carrying branch** — one whose own
   commits are referenced by re-pins it carries (wiki notes, design-reference pins;
   routine on hosts with a wiki-in-PR lifecycle) — **merges `origin/main` into the
-  branch** and re-pins conflicted pins to the merge commit. All three
-  history-rewriting moves break pins the same way: **squash, rebase, and force-push**
-  rewrite the branch's hashes and stale every pin it carries at once; only a merge
-  commit keeps the old hashes reachable — which is also why such a branch's PR must
-  land as a merge commit, never a squash. A **pin-free branch rebases**, as before.
-  Either way, take main's side for anything you didn't deliberately change.
+  branch**. All three history-rewriting moves break pins the same way: **squash,
+  rebase, and force-push** rewrite the branch's hashes and stale every pin it
+  carries at once; only a merge commit keeps the old hashes reachable — which is
+  also why such a branch's PR must land as a merge commit, never a squash. A
+  **pin-free branch rebases**, as before. Either way, take main's side for anything
+  you didn't deliberately change.
+- **Honest re-pins only — a merge-in never justifies a pin bump.** The freshness
+  probe checks `git log <pin>..HEAD -- <sources>`, so setting pin = merge commit
+  empties that range *by construction*: a mechanical merge-commit re-pin turns the
+  gate green while the note may contradict code that landed on main. After a
+  merge-in, route every stale or conflicted pin through the **wiki-update plan
+  loop's classifier**: read the main-side diff over the note's sources
+  (`git diff <old-pin>..<merge-commit> -- <sources>`) and classify it
+  **RE-PIN-ONLY** (the diff provably can't invalidate prose — version stamps,
+  no-op churn) or **NEEDS-REVIEW** (re-verify every claim in the note against that
+  diff, amend the prose, then re-pin). Never bump a pin without reading the diff it
+  covers — a dishonest pin is worse than a stale note. Once a note is verified, the
+  merge commit is the correct *target* for its re-pin; it is never the
+  *justification* for one.
+- **Downstream hosts that inherited the older convention** — a recorded
+  "merge main in and re-pin conflicted pins to the merge commit" rule, from the
+  doctrine as it stood before this rewrite — should treat that rule as superseded:
+  keep the merge-in (it is still what preserves pinned hashes), drop the mechanical
+  re-pin, and apply the classify-then-pin procedure above to every pin the merge
+  staled or conflicted. Pins already bumped under the old convention are suspect:
+  at the next update pass, re-verify each such note against
+  `git diff <previous-pin>..<current-pin> -- <sources>` before trusting it.
 - **After every history move — merge-in or rebase — re-run the gates AND the freshness
   probe, unconditionally.** Never gate the probe on whether `docs/wiki/` changed: pins
   also reference design-reference files outside the wiki, so a wiki-untouched diff can
