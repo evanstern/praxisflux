@@ -11,7 +11,7 @@
   write (handoff.returned + status); the other side's text stops contradicting (R1)
 - [x] T003 doctrine .handoff/-only: lesson SKILL + planted template consistent; dod.mjs
   derivation off loose filenames (R2)
-- [ ] T004 handoff-protocol refs resolve from an installed plugin context (stamped
+- [x] T004 handoff-protocol refs resolve from an installed plugin context (stamped
   shared copy or valid target) (R3)
 - [ ] T005 delegated-build round-trip test: gate passes at built with the R1 write,
   still blocks without it (R4)

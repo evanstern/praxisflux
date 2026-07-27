@@ -4,7 +4,9 @@
 //
 // Some shared content must live INSIDE consumer files as a literal copy (a planted template
 // can't import at runtime): the theme contract from lib/html/base.html, the tooltip snippet
-// from lib/toolkit/tooltip.md. Each canonical source wraps its shareable body in marker lines
+// from lib/toolkit/tooltip.md, the handoff protocol from docs/handoff-protocol.md (shipped on
+// the lib/ chassis so skills can reference it at install time). Each canonical source wraps
+// its shareable body in marker lines
 // (`<name>:start` / `<name>:end`); consumers carry the same markers, and this script re-stamps
 // the bodies so they can never drift by hand-maintenance. test/sync-shared.test.mjs runs the
 // same comparison, so drift fails the pre-commit suite.
@@ -25,6 +27,11 @@ export const SYNCS = [
   { source: "lib/toolkit/tooltip.md",
     regions: ["praxisflux:tooltip-css", "praxisflux:tooltip-js"],
     consumers: ["educate/templates/.template/deck.html"] },
+  // The handoff protocol: canonical at repo root (docs/), stamped onto the lib/ chassis so
+  // `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md` resolves from every installed plugin.
+  { source: "docs/handoff-protocol.md",
+    regions: ["praxisflux:handoff-protocol"],
+    consumers: ["lib/handoff-protocol.md"] },
 ];
 
 /** The text between the `<name>:start` and `<name>:end` marker lines (markers excluded). */
