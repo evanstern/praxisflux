@@ -16,7 +16,7 @@
 - [x] T006 planted CLAUDE.md enforcement claims match shipped hooks (R5)
 - [x] T007 versions: sweep skill bump (+ bootstrap as the template's owning skill,
   TASK-51 precedent) + marketplace sync-version 0.30.0
-- [ ] T008 wiki: pdlc-sweep + pdlc-plugin re-verified + re-pinned; lockstep stales
+- [x] T008 wiki: pdlc-sweep + pdlc-plugin re-verified + re-pinned; lockstep stales
   classified; CAPSULES if descriptions changed
 
 ## Prove

@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 562743bc08e4f5ec8cd3ee049e7b7cdacd24d449
+verified_against: 228c4694aa16c7f35b3f9ef0230691ad68d4f122
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
