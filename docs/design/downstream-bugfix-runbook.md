@@ -210,3 +210,4 @@ done. Anything short of that is reported as exactly what remains.
 |------|------|----|-------|-------|
 | 2026-07-26 | (setup) | #82 | 18f8100 | signed-off runbook; gh-pr-merge permission arranged with operator |
 | 2026-07-26 | TASK-58 | #83 | 7c2b6cd | honest re-pin doctrine; sweep skill 0.7.0; marketplace 0.28.0; Lane A opener — remaining lanes now follow the amended text |
+| 2026-07-26 | TASK-61 | #84 | 4cd0834 | team-review self-review-safe default report path, run-id-keyed; skill 1.2.0; 0.29.0; in-target block now exempts the .handoff transport (posture change noted in PR); follow-up policy question on gitignored residue parked on the card |
