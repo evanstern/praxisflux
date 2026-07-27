@@ -1,9 +1,11 @@
 ---
 id: TASK-72
 title: 'pdlc: refactor-triage skill — eval merged work, card debt tasks onto the board'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 14:29'
+updated_date: '2026-07-27 14:48'
 labels: []
 dependencies: []
 ordinal: 107000
