@@ -1,6 +1,6 @@
 ---
 name: reorient-plugin
-description: The reorient plugin — a corpus-grounded reorientation loop where N parallel evaluators judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and one synthesis lands as board moves; proven by an output gate over per-branch analyses and merged synthesis sections. Runs are session-owned and worktree-first — shared primary checkouts need the --shared-checkout override (reorient-run-ownership).
+description: The reorient plugin — a corpus-grounded reorientation loop where N parallel evaluators judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, and one synthesis lands as board moves; proven by an output gate over per-branch analyses and synthesis sections. Runs are session-owned, worktree-first, and target-rooted — records live at the TARGET project's root, wherever the CLI is invoked from (reorient-run-ownership).
 kind: component
 sources:
   - reorient/.claude-plugin/plugin.json
@@ -10,13 +10,13 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
+verified_against: 86f675a77bb977e7406b25d9bed9b44d949f203e
 ---
 
 # reorient plugin
 
 The `reorient` plugin (lockstep with the marketplace version; skill at its own
-`version: 0.4.0`) runs a **corpus-grounded reorientation** of a project's direction: the
+`version: 0.5.0`) runs a **corpus-grounded reorientation** of a project's direction: the
 lead takes N already-gathered corpus branches and a **lens** (the project's purpose
 statement), fans out one evaluator subagent per branch to judge the corpus against the
 project's wiki and board, checkpoints operator decisions between rounds, has the
@@ -29,9 +29,10 @@ names that phase when the corpus is missing (phase-separated composition through
 Unlike [[team-review-plugin]] — its closest structural relative — reorient operates **on
 the invoking project itself and is allowed to write into it** (analysis notes into vault
 branches, the synthesis into the project's docs). Its gate therefore proves
-**presence-and-merge, not untouched-ness**. Run records still ride the gitignored
-`.handoff/reorient/runs/` transport at the invoking root; the durable residue is the
-analyses, the synthesis, and the board.
+**presence-and-merge, not untouched-ness**. Run records ride the gitignored
+`.handoff/reorient/runs/` transport at the **target project's root**, never the
+invoking cwd — so the run is visible to the target's sessions and their Stop gates;
+the durable residue is the analyses, the synthesis, and the board.
 
 ## How it works
 
@@ -48,10 +49,10 @@ a board was detected, and only `vault-branch` entries must carry an analysis not
 worktree-first** ([[reorient-run-ownership]] has the full model). `scripts/run.mjs` (the
 plugin's only writer) opens a run with
 `begin <root> --lens "<purpose>" --corpus <path> [...] [--shared-checkout]`
-— refusing an empty lens or corpus, and refusing a registry root that is a **shared
-primary checkout** (`.git` there is a directory; a worktree carries a `gitdir:` file)
-unless `--shared-checkout` is given — the override lands on the manifest and rides
-`list`/owner-provenance output. It records lens, classified corpus, detected
+— every subcommand resolves the runs registry from the **resolved target root** —
+refusing an empty lens or corpus, and refusing a TARGET whose registry root is a
+shared primary checkout unless `--shared-checkout` is given (the override lands on
+the manifest and rides `list`/owner provenance). It records lens, classified corpus, detected
 grounding, the owner (session id + user@host, heartbeat kept fresh by the owner's
 Stop hook), and the synthesis path (default `docs/design/reorient-<run-id>.md` —
 **run-id-keyed, never date-keyed**, so same-day runs can't collide). `finish` runs the
@@ -92,14 +93,14 @@ cross-branch wikilinks — writes its branch's analysis note, and names any conf
 cannot reconcile rather than papering over it); Phase 5 synthesize (the lead writes the
 merge document, never an agent); Phase 6 execute (sign-off, then board moves via the
 `backlog` CLI only, implementation handed to the host project's own machinery). A
-no-subagent fallback runs the evaluations sequentially in-session; every script has a
-stated inline fallback so the skill works hand-copied.
+no-subagent fallback runs evaluations sequentially in-session; every script states an
+inline fallback.
 
 Since skill 0.2.0 the flow consumes the project wiki per [[grounded-corpus-spec]] v2:
 orientation and evaluator grounding take the `CAPSULES.md` view when present, loading
 full notes only for cited claims, with `INDEX.md`-first just-in-time loading as the v1
-fallback (README/docs when no wiki at all). The skill carries the open A/B question —
-capsule-only vs full-note evaluator grounding — for the next run to record findings on.
+fallback (README/docs when no wiki at all). The skill carries the open A/B question
+(capsule-only vs full-note evaluator grounding) for the next run to record.
 
 ## Connections
 
@@ -107,25 +108,23 @@ capsule-only vs full-note evaluator grounding — for the next run to record fin
   produced (the `.research-vault` sentinel, `_grounding.md`, neutral notes) and writes
   `analyze-vault`-conventional `Analysis-*.md` notes those gates can verify — never
   invokes a sibling skill ([[skill-patterns]] §1, [[research-plugin]]).
-- Placement is a deliberate variation on [[team-review-plugin]]'s caller-supplied-target
-  model: same `.handoff/` run-record shape at the invoking root, but the target IS the
-  invoking project and writes into it are the point, so the gate proves artifacts exist
-  rather than that the target is untouched.
+- A deliberate variation on [[team-review-plugin]]'s caller-supplied-target model:
+  same `.handoff/` run-record shape at the target root, but writes into the target are
+  the point, so the gate proves artifacts exist rather than untouched-ness.
 - The gate rides [[gate-runner]] and the run-as-CLI guard from [[chassis-utilities]];
   packaged by [[build-and-release]], registered generatively by `gen-marketplace.mjs`.
 - Instantiates the [[gates-convention]] per run rather than per project state.
-- Covered by the [[test-suite]] (`test/reorient.test.mjs` + the install-path tripping
-  fixture).
-- Provenance: formalized from a live promptworld reorientation (2026-07-25); run
-  ownership and worktree-first enforcement followed from the 2026-07-26 concurrency
-  incident ([[reorient-run-ownership]]).
+- Covered by [[test-suite]] (`test/reorient.test.mjs` + the install-path fixture).
+- Provenance: formalized from a live promptworld reorientation (2026-07-25); ownership
+  and worktree-first followed from the 2026-07-26 concurrency incident
+  ([[reorient-run-ownership]]).
 
 ## Operational notes
 
 - Run lifecycle CLI: `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <root> --lens
   "<purpose>" --corpus <path> [--corpus <path> ...] [--synthesis <path>] [--session <id>]
   [--shared-checkout] | finish <id|root> | abandon <id|root> [reason] |
-  takeover <id|root> | list`.
+  takeover <id|root> | list [root]`; a directory key selects that target's registry.
 - Gate CLI (read-only): `node ${CLAUDE_PLUGIN_ROOT}/gates/reorient.mjs <run.json>` —
   exit 0 pass, 2 with problems on stderr.
 - The default synthesis path is under the project's `docs/design/`; `checkReorient`

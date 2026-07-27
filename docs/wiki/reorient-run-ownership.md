@@ -1,20 +1,23 @@
 ---
 name: reorient-run-ownership
-description: How reorient runs stay safe across concurrent sessions — worktree-first begin (a shared primary checkout is refused unless the recorded --shared-checkout override is given), owner + heartbeat on the manifest, Stop gate nagging only the owner, non-blocking orphan notices for stale foreign runs, run-id-keyed synthesis targets, and explicit takeover/abandon semantics.
+description: How reorient runs stay safe across concurrent sessions — the registry lives at the TARGET root each subcommand resolves (never the invoking cwd), worktree-first begin keyed to the target checkout (a shared primary checkout target is refused unless the recorded --shared-checkout override is given), owner + heartbeat on the manifest, Stop gate nagging only the owner, non-blocking orphan notices for stale foreign runs, run-id-keyed synthesis targets, and explicit takeover/abandon semantics.
 kind: component
 sources:
   - reorient/scripts/run.mjs
   - reorient/gates/reorient.mjs
   - reorient/scripts/stop.mjs
   - lib/gate-runner.mjs
-verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
+verified_against: 86f675a77bb977e7406b25d9bed9b44d949f203e
 ---
 
 # reorient run ownership
 
-The reorient run registry (`.handoff/reorient/runs/` at the invoking root) is
-**per-checkout shared mutable state**: every session working in the checkout sees the same
-records. Ownership makes that safe for concurrent sessions — each run belongs to the
+The reorient run registry (`.handoff/reorient/runs/` at the **target root** — the root
+each `run.mjs` subcommand resolves from its arguments, never the invoking cwd) is
+**per-checkout shared mutable state**: every session working in that checkout sees the
+same records. A run begun from anywhere targeting root R lands its manifest under R, so
+R's sessions — and their Stop gates — can see it; the begin-time cwd is kept on the
+manifest as provenance only. Ownership makes that safe for concurrent sessions — each run belongs to the
 session that began it, liveness is observable, and adopting someone else's run is always
 an explicit act. Formalized from a live incident (promptworld 2026-07-26, praxis TASK-52):
 two same-day runs collided on one date-keyed synthesis path while the checkout-wide Stop
@@ -24,9 +27,12 @@ orphaned.
 ## How it works
 
 **Worktree-first begin.** Isolation comes first: `begin` refuses to open a run whose
-registry root is a **shared primary checkout**, detected deterministically — `.git` at
-the registry root is a *directory*, while a worktree carries a `gitdir:` *file* (non-git
-registry roots keep their old behavior). The refusal is actionable: it names the recipe
+registry root — resolved from the TARGET root it was given, not from wherever it was
+invoked — is a **shared primary checkout**, detected deterministically: `.git` at that
+registry root is a *directory*, while a worktree carries a `gitdir:` *file* (non-git
+registry roots keep their old behavior). Beginning from a worktree while targeting a
+shared primary checkout is therefore refused; targeting a worktree is accepted from
+anywhere. The refusal is actionable: it names the recipe
 (`git worktree add .worktrees/<name> -b <branch>`) and the override. `--shared-checkout`
 permits the shared checkout deliberately; the override is recorded on the manifest
 (`sharedCheckout: true` — only when it actually overrode a primary checkout, so a no-op
@@ -41,12 +47,18 @@ session's Stop hook refreshes the heartbeat every turn: `stop.mjs` passes a `bef
 callback to `runStopHook` that calls `heartbeatOwnedRuns(startDir, sessionId)` —
 in-flight runs owned by that session get a fresh `heartbeatAt`; foreign, closed, or
 unreadable records are never touched. Writes stay in `run.mjs`, the plugin's only writer.
+Because the registry lives at the target, the heartbeat (like the owner's Stop-gate nag)
+only flows while the owning session works in the target — an owner who begins from
+elsewhere and never enters the target leaves the run aging toward the orphan notice.
 
 **The Stop gate nags only the owner.** `reorientGate` consumes the [[gate-runner]]
 session context: `ownsRun(run, ctx.sessionId)` returns true/false/null (null = legacy
 record or identity-less session). `resolveRoots(startDir, ctx)` returns runs owned by
-this session (always) plus checkout-scoped ones; `check(runFile, ctx)` blocks only owned
-or undecidable runs — undecidable keeps the legacy checkout-wide behavior. A run owned by
+this session (always) plus target-scoped ones — scoping keys on the run's recorded
+`root` (the target, where the registry lives), so a run begun from anywhere targeting
+root R resolves for sessions working in R; `check(runFile, ctx)` blocks only owned
+or undecidable runs — undecidable keeps the legacy checkout-wide behavior, now scoped
+to the target checkout. A run owned by
 another session **never blocks**; `warn(runFile, ctx)` emits a non-blocking notice once
 its heartbeat is older than `STALE_HEARTBEAT_MS` (1h): "looks orphaned", with
 `describeOwner` provenance (who, from where, begun when, last heartbeat) and the takeover
@@ -78,7 +90,9 @@ ownership on stderr.
 ## Operational notes
 
 - CLI: `begin … [--session <id>] [--shared-checkout] | finish <id|root> |
-  abandon <id|root> [reason] | takeover <id|root> | list`; `$REORIENT_HOME` overrides
+  abandon <id|root> [reason] | takeover <id|root> | list [root]` — a directory key
+  selects that target's registry; a bare run id falls back to the invoking cwd's
+  registry (which, after begin, IS the target's). `$REORIENT_HOME` overrides
   the registry dir (tests) — begin treats the dir three levels above the runs dir
   (where `.handoff/` sits) as the registry root for the worktree-first check.
 - With no session identity anywhere (no `session_id` in hook input, no
