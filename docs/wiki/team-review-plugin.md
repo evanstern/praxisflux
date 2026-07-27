@@ -18,7 +18,7 @@ verified_against: 97f5ebad382636841423c5b88ee65546cd48066b
 # team-review plugin
 
 The `team-review` plugin (lockstep with the marketplace version; skill at its own
-`version: 1.2.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
+`version: 1.3.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
 the lead orients, fans out specialist subagents in parallel (seniors for depth, scouts for
 breadth, team sized by the target's non-test line count), spot-checks their claims, and
 synthesizes one consolidated, evidence-backed report. The engagement is **read-only by

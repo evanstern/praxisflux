@@ -1,6 +1,6 @@
 ---
 name: team-review
-version: 1.2.0
+version: 1.3.0
 description: Run a lead-engineer-plus-team architecture review of a codebase using parallel subagents, producing one consolidated, evidence-backed report — what's good, what could be improved, what should be removed, steal-worthy patterns, new ideas, and open questions. Use whenever the user asks to review, audit, assess, or critique a codebase, repo, or project ("what do you think of this code", "give me a code review of this repo", "fresh eyes on this", "what would you keep/change/remove", "what's worth stealing from this"), wants a second opinion on an architecture, or asks how well a codebase serves a stated product goal — even if they don't use the word "review". Not for reviewing a single diff or PR (use a diff-review flow for that).
 ---
 
