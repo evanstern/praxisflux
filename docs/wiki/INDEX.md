@@ -44,4 +44,5 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[release-pipeline]] — the merge-to-main release mechanics: the version-bump gate, ci.yml's PR checks, and release.yml's npm-before-tag publish ordering
 - [[gates-consumption-surface]] — how consumer repos run the gates: the @praxisflux/gates npm package and the composite GitHub Action, pinned in lockstep
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams
-- [[test-suite-catalog]] — per-file coverage catalog of the suite: what each test/*.test.mjs pins down, one bullet per file
+- [[test-suite-catalog]] — per-file coverage catalog, repo-tooling half: chassis, packaging, scaffolding, docs-drift, install-path, and CI-runner test files, one bullet per file
+- [[test-suite-catalog-plugins]] — per-file coverage catalog, plugin half: plugin-gate and cross-plugin-seam test files, one bullet per file

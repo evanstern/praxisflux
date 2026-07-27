@@ -1,39 +1,50 @@
 ---
 name: test-suite-catalog
-description: Per-file coverage catalog of the node --test suite — what each test/*.test.mjs file pins down, from chassis smoke tests and plugin gates to the install-path e2e and release tooling.
+description: Per-file coverage catalog of the node --test suite, repo-tooling half — what each chassis, packaging, scaffolding, docs-drift, install-path, and CI-runner test file pins down, one bullet per file. Plugin-gate and cross-plugin-seam suites are cataloged in test-suite-catalog-plugins.
 kind: pattern
 sources:
   - test/build.test.mjs
+  - test/build-npm.test.mjs
   - test/chassis.test.mjs
   - test/check-docs.test.mjs
   - test/gate-shim.test.mjs
-  - test/codebase-to-course.course-gate.test.mjs
-  - test/codebase-to-course.validate.test.mjs
-  - test/educate-deck-selfcontained.test.mjs
   - test/gen-marketplace.test.mjs
-  - test/grounding-wiki.capsules.test.mjs
-  - test/grounding-wiki.freshness.test.mjs
-  - test/handoff.test.mjs
   - test/html-base.test.mjs
   - test/install-path.test.mjs
-  - test/research-gates.test.mjs
-  - test/return-leg.test.mjs
-  - test/spec-bridge.test.mjs
-  - test/spec-derive.test.mjs
+  - test/new-plugin.test.mjs
+  - test/run-gates.test.mjs
   - test/sync-shared.test.mjs
   - test/sync-version.test.mjs
-  - test/team-review.test.mjs
-  - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
-  - test/wiki.test.mjs
-verified_against: 97f5ebad382636841423c5b88ee65546cd48066b
+verified_against: 6d39b8d0406b331df38aff625654d5dd1e38f253
 ---
 
-# Test suite — per-file coverage catalog
+# Test suite — per-file coverage catalog (chassis, tooling & release)
 
-The per-file map of the [[test-suite]] (conventions, hook and CI enforcement live there).
+The per-file map of the [[test-suite]] (conventions, hook and CI enforcement live there),
+split summary-style across two notes. This half: the repo's own machinery — the shared
+chassis, packaging and release tooling, docs drift, scaffolding, the CI gate runner, and
+the marketplace install path. The plugin-gate and cross-plugin-seam suites (spec-bridge,
+grounding-wiki, educate/build, codebase-to-course, research, reorient, team-review, pdlc)
+are cataloged one-bullet-per-file in [[test-suite-catalog-plugins]].
+
 One bullet per `test/*.test.mjs` file:
 
+- `test/build.test.mjs` — `scripts/build.mjs` packaging (`buildPlugins`): full builds wipe
+  `dist/` and dereference `lib`; `--plugin` cleans only its target (siblings and `dist/npm`
+  survive, stale target files don't); unknown plugins throw before cleaning; a bare
+  `--plugin` exits 2 with usage, never a TypeError.
+- `test/build-npm.test.mjs` — `scripts/build-npm.mjs` (the `@praxisflux/gates` carve): the
+  staging tree is symlink-free, lockstep-versioned, and carries the contract files;
+  `stampNpxPin` rewrites only the named package's pins, and action.yml's npx pin matches
+  the marketplace version; the integration proof packs the staging tree, lays the tarball
+  out exactly as npm install would, and drives the bin through a `node_modules/.bin`
+  symlink — usage exit 2, a passing gate exit 0 (proving the whole packed import graph
+  resolves), a failing gate exit 1 with the fix named.
+- `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
+  frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
+  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
+  named problems).
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
   (missing plugin row / install line / chassis module / releasing link), the plugin census
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
@@ -43,46 +54,9 @@ One bullet per `test/*.test.mjs` file:
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
   plugins' shims — silent.
-- `test/build.test.mjs` — `scripts/build.mjs` packaging (`buildPlugins`): full builds wipe
-  `dist/` and dereference `lib`; `--plugin` cleans only its target (siblings and `dist/npm`
-  survive, stale target files don't); unknown plugins throw before cleaning; a bare
-  `--plugin` exits 2 with usage, never a TypeError.
-- `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
-  frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
-  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
-  named problems).
-- `test/codebase-to-course.course-gate.test.mjs` — the course output gate (`validateCourse`)
-  against minimal fixture HTML with modules, quizzes, and translation blocks.
-- `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
-  (`references/validate.mjs`): translation-block pairing, bracket balance, `--fix`
-  auto-close, chrome version-stamp checks, and the orphan-content repros field-reported
-  by the-stacks.
-- `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
-  self-contained file, no CDN" contract via the DoD gate's shared verifier.
-  Also the deck-requirement config: `decksStandardForEveryLesson` is array-or-flag
-  tolerant like `isDelegated` (an empty array requires no deck+guide, end to end
-  through the gate).
 - `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
-- `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
-  generation (deterministic, headered, INDEX-ordered, corpusDir-spelling-invariant across
-  relative/absolute/trailing-slash invocations, pre-normalization headers degrading to a
-  WARN with regeneration guidance) and the freshness gate's adoption-keyed budget
-  enforcement (capsule/body overages, `size_budget_exempt` downgrade, stale/hand-edited
-  rollup, warn-only before adoption).
-- `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
-  `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
-  staleness-check identically; missing/renamed source paths block naming note + path)
-  against a throwaway git repo, plus the plan loop (`classifyNote` truth table,
-  stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
-  fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
-  and notes outside git, note untouched).
-- `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
-  gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
-  delegated round trip with each leg doing exactly what its skill instructs: build writes
-  only the response, and the gate stays blocked at `built` until educate's return-leg
-  evidence write (`handoff.returned`) lands — TASK-63 seam ownership.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
   self-contained verifier with zero warnings (theme-aware, has a data table).
 - `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin
@@ -97,42 +71,36 @@ One bullet per `test/*.test.mjs` file:
   substituted as `educate:start` instructs) leaves no `{{…}}`/`${CLAUDE_PLUGIN_ROOT}`
   behind, and every planted command runs as written from a user project with
   `CLAUDE_PLUGIN_ROOT` scrubbed from the environment.
-- `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
-  `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
-- `test/return-leg.test.mjs` — at `done`, a delegated build needs `foldedIn` evidence AND
-  durable on-disk residue; a flag alone can't rubber-stamp the return leg.
-- `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (incl. the AC block),
-  exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
-  `strictDone` mode (incl. the analysis-only near-miss warning), and the deterministic
-  `plan` command (status move, Done summary, re-mirror, no-op board, shell quoting).
-- `test/spec-derive.test.mjs` — pure Spec Kit derivation: lifecycle stages → status,
-  per-phase checkbox counts, regenerated `tasks.md` re-deriving fresh, strict-mode
-  `analysis.md` requirements, and graceful degradation on malformed files.
+- `test/new-plugin.test.mjs` — `scripts/new-plugin.mjs` scaffolding: the stamped plugin
+  passes `checkDocs` unmodified (README row + install line inserted, "<N> plugins" count
+  claims rewritten in words and digits) and `genMarketplace` regenerates as a no-op;
+  the plugin version rides the marketplace's (sync-version lockstep), SKILL.md carries
+  the frontmatter the bump gate keys on plus the gate→work→gate sections, and the
+  `lib -> ../lib` symlink is committed; rerunning fails safely instead of clobbering,
+  `--with-gate` stamps the Stop-hook trio as a safe no-op (quoted `${CLAUDE_PLUGIN_ROOT}`
+  expansion, executable `gate.sh`, dependency-free stub gate resolving no roots), and
+  non-kebab-case names are rejected before touching disk.
+- `test/run-gates.test.mjs` — `scripts/run-gates.mjs` (the CI consumption surface behind
+  action.yml): unknown or empty gate lists are usage errors (exit 2), never silent skips;
+  the praxisflux repo passes its own spec-bridge + wiki-freshness gates; failures name the
+  fix (course's missing index.html, shallow clone → `fetch-depth: 0`); an exception thrown
+  WHILE a gate runs exits 1 (gate failure), never 2; the `GATES` registry and action.yml's
+  documented gate list are drift-checked against each other; and the realpathed run-as-CLI
+  guard fires through a symlinked checkout — no silent zero-gate pass.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
 - `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
   files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
-- `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
-  resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
-  the run CLI (begin/finish/abandon, id collisions, self-review regressions: default-report
-  round trip, same-day uniqueness, tracked-copy policy — pure-defaults finish lands
-  `docs/reviews/`, `--report` never copies), and the Stop-hook paths via gate-runner.
-- `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
-  reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
   `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases, incl. a non-semver
   base skill version failing loudly instead of skipping the increase check) plus an
   end-to-end run of the git wrapper over a throwaway git repo.
-- `test/wiki.test.mjs` — educate's corpus-index roll-up (`topics/<topic>/WIKI.md` +
-  `topics/WIKI.md`): parsing, rendering, staleness warnings; plus the spawned wiki CLI's
-  check/sync contract — a vault-less single-topic `--check` converges with `--sync`
-  (distinct no-vaults verdict, exit 0), a vaulted stale topic still exits 1 and is fixed
-  by the `--sync` its message names.
 
 ## Connections
 
 - Parent note: [[test-suite]] — conventions, pre-commit/pre-push hooks, and the CI layer.
-- `handoff.test.mjs` and `return-leg.test.mjs` pin down the [[handoff-protocol]] transport and
-  its evidence-plus-residue return leg.
+- Sibling half: [[test-suite-catalog-plugins]] — the plugin-gate and cross-plugin-seam files.
 - `sync-shared.test.mjs` imports `driftReport` from the [[build-and-release]] tooling, so
   hand-edited region drift fails the same suite the pre-commit hook runs.
+- `build-npm.test.mjs` and `run-gates.test.mjs` pin the [[gates-consumption-surface]] — the
+  npm package and composite action consumers run.
