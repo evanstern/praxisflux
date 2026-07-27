@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 freshness.mjs: missing source path is a blocking finding naming note + path (R1)
-- [ ] T003 freshness.mjs: inline-array sources parsed + staleness-checked like block lists,
+- [x] T002 freshness.mjs: missing source path is a blocking finding naming note + path (R1)
+- [x] T003 freshness.mjs: inline-array sources parsed + staleness-checked like block lists,
   aligned with lib/markdown.mjs parseFrontmatter (R2)
-- [ ] T004 capsules.mjs: corpusDir normalized before embed + compare; spelling-invariant
+- [x] T004 capsules.mjs: corpusDir normalized before embed + compare; spelling-invariant
   regenerate-and-compare; pre-fix headers degrade to regeneration guidance (R3)
 - [ ] T005 regression tests: missing source, inline array, corpusDir spellings (R4)
 - [ ] T006 versions: skill version bump(s) + marketplace sync-version
