@@ -13,7 +13,7 @@
   derivation off loose filenames (R2)
 - [x] T004 handoff-protocol refs resolve from an installed plugin context (stamped
   shared copy or valid target) (R3)
-- [ ] T005 delegated-build round-trip test: gate passes at built with the R1 write,
+- [x] T005 delegated-build round-trip test: gate passes at built with the R1 write,
   still blocks without it (R4)
 - [ ] T006 versions: lesson/implement skill bumps + marketplace sync-version
 - [ ] T007 wiki: educate-plugin + build-plugin + handoff-protocol re-verified +

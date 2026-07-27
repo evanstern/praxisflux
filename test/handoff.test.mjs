@@ -45,6 +45,40 @@ function delegatedProject(lesson) {
   return root;
 }
 
+// The delegated round trip, each leg doing EXACTLY what its skill instructs (TASK-63 seam
+// ownership): educate hands off the SPEC; build writes only the .handoff/ response (never the
+// producer's ledger); educate's return leg owns the evidence write (handoff.returned + built).
+test("delegated round trip: educate hands off, build returns, educate's return-leg write unblocks the gate", () => {
+  const root = scratch();
+  mkdirSync(join(root, "topics", "t", "101"), { recursive: true });
+  writeFileSync(join(root, "topics", "t", "101", "checklist.md"), "");
+  writeFileSync(join(root, "topics", "t", "101", "raw-notes.md"), "# notes\n");
+  const progressPath = join(root, "topics", "t", "progress.json");
+  const write = (lesson) => writeFileSync(progressPath, JSON.stringify(
+    { definitionOfDone: { delegatedBuild: ["spec->build->fold"] }, lessons: [{ id: "101", artifacts: {}, ...lesson }] }));
+
+  // 1. educate hands off: SPEC request + its own evidence write (handoff.specd, status spec'd)
+  writeHandoff(root, { id: "spec-101", kind: "request", from: "educate", to: "build", title: "SPEC", body: "## SPEC\n- do X\n" });
+  write({ status: "spec'd", handoff: { specd: true } });
+  assert.deepEqual(gateProblemsForProject(root), []);
+
+  // 2. build returns exactly as its skill instructs: the correlated response — and NOTHING else
+  //    (no progress.json write; the ledger is educate's)
+  writeHandoff(root, { id: "resp-101", kind: "response", from: "build", to: "educate", ref: "spec-101", title: "findings", body: "## Findings\n- learned Y\n" });
+  assert.equal(JSON.parse(readFileSync(progressPath, "utf8")).lessons[0].handoff.returned, undefined);
+
+  // WITHOUT the owner's write, built is still blocked — the old hole stays a hole if skipped
+  write({ status: "built", handoff: { specd: true } });
+  assert.ok(gateProblemsForProject(root).some((p) => p.includes("handoff.returned")));
+
+  // 3. educate's return leg (the owner): find the pending response, record the evidence FIRST
+  const pending = listHandoffs(root, { to: "educate", kind: "response", ref: "spec-101" });
+  assert.equal(pending.length, 1);
+  write({ status: "built", handoff: { specd: true, returned: true } });
+  assert.equal(markConsumed(root, "resp-101"), true);
+  assert.deepEqual(gateProblemsForProject(root), []); // gate passes at built
+});
+
 test("delegated-build evidence gate reads progress.json, not loose files", () => {
   // built with no returned-evidence -> blocked
   assert.ok(gateProblemsForProject(delegatedProject({ status: "built" })).some((p) => p.includes("handoff.returned")));
