@@ -23,6 +23,7 @@ function makeRepo() {
   git(repo, "init", "-q");
   mkdirSync(join(repo, "src"), { recursive: true });
   writeFileSync(join(repo, "src", "a.txt"), "one\n");
+  writeFileSync(join(repo, "src", "b.txt"), "stable\n");
   git(repo, "add", ".");
   git(repo, "commit", "-qm", "c1");
   mkdirSync(join(repo, "docs", "wiki"), { recursive: true });
@@ -50,7 +51,7 @@ test("a note goes stale when its sources change after the pin", (t) => {
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"] }));
   writeFileSync(join(repo, "docs", "wiki", "beta.md"),
-    note({ name: "beta", pin, sources: ["src/other.txt"] }));
+    note({ name: "beta", pin, sources: ["src/b.txt"] }));
 
   writeFileSync(join(repo, "src", "a.txt"), "two\n");
   git(repo, "add", ".");

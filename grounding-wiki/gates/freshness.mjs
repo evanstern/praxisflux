@@ -35,6 +35,17 @@ export function parseSourcesBlock(text) {
 }
 
 /**
+ * A note's `sources:` paths — both sanctioned spellings, one truth: inline `sources: [a, b]`
+ * arrays come from lib/markdown.mjs `parseFrontmatter` (already parsed on `fm`), YAML block
+ * lists from parseSourcesBlock above. Aligning on parseFrontmatter for the inline form keeps
+ * this from growing a second frontmatter dialect.
+ */
+export function noteSources(text, fm = parseFrontmatter(text)) {
+  if (Array.isArray(fm?.sources)) return fm.sources;
+  return parseSourcesBlock(text);
+}
+
+/**
  * Check every note in a corpus for staleness against the repo's git history.
  * corpusDir is relative to repoRoot unless absolute. Returns { fails, warns, checked };
  * fails non-empty ⇒ the corpus is stale (or malformed) and the gate should block.
@@ -69,10 +80,14 @@ export function validateFreshness(repoRoot, corpusDir = "docs/wiki") {
       continue;
     }
 
-    const sources = parseSourcesBlock(text);
+    const sources = noteSources(text, fm);
     if (sources.length === 0) {
       warns.push(`${rel}: no sources listed — staleness is unverifiable`);
     } else {
+      // A source path absent from the working tree is vanished proof, not freshness: git log
+      // over a nonexistent pathspec is silently empty, which would report FRESH forever.
+      for (const s of sources.filter((s) => !existsSync(join(repoRoot, s))))
+        fails.push(`${rel}: source missing from the working tree: ${s} — renamed, deleted, or a typo; fix the note's sources`);
       let changed = "";
       try {
         changed = git(repoRoot, ["log", "--oneline", `${pin}..HEAD`, "--", ...sources]);
@@ -143,12 +158,19 @@ export function planFreshness(repoRoot, corpusDir = "docs/wiki") {
   for (const file of noteFiles(dir)) {
     const rel = `${corpusDir}/${file}`;
     const text = readFileSync(join(dir, file), "utf8");
-    const pin = parseFrontmatter(text)?.verified_against;
+    const fm = parseFrontmatter(text);
+    const pin = fm?.verified_against;
     if (!pin) { problems.push(`${rel}: no verified_against pin`); continue; }
     try { git(repoRoot, ["cat-file", "-e", `${pin}^{commit}`]); }
     catch { problems.push(`${rel}: pin ${pin} is not a known commit`); continue; }
-    const sources = parseSourcesBlock(text);
+    const sources = noteSources(text, fm);
     if (!sources.length) continue; // unverifiable — the freshness gate already warns
+    const missing = sources.filter((s) => !existsSync(join(repoRoot, s)));
+    if (missing.length) {
+      // The freshness gate blocks on these; plan doesn't paper over them with a re-pin.
+      problems.push(`${rel}: source missing from the working tree: ${missing.join(", ")} — fix the note's sources first`);
+      continue;
+    }
 
     const log = git(repoRoot, ["log", "--oneline", `${pin}..HEAD`, "--", ...sources]);
     if (!log) continue; // fresh
