@@ -21,11 +21,12 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/sync-shared.test.mjs
+  - test/sync-version.test.mjs
   - test/team-review.test.mjs
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 5f10003d2e75c2c5c581481d03983fc57276c275
+verified_against: f2e0a36739fa245f912ef2a566236f093ea3a6e7
 ---
 
 # Test suite — per-file coverage catalog
@@ -109,6 +110,8 @@ One bullet per `test/*.test.mjs` file:
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
+- `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
+  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
 - `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
   resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
   the run CLI (begin/finish/abandon, id collisions, self-review regressions incl. the
