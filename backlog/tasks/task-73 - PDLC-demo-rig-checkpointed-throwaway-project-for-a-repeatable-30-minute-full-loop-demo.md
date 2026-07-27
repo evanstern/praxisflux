@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 17:21'
+updated_date: '2026-07-27 17:24'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -24,14 +24,14 @@ Spec: specs/034-demo-rig
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A single generator/reset command materializes the demo project from tracked fixtures as a fresh git repo with a tag per PDLC stage (0 bare, 1 grounded, 2 planned, 3 swept, 4 triaged) and can jump to any stage in seconds
-- [ ] #2 Every stage's artifacts are real captures from genuine plugin runs, and each stage passes its own gates when checked out (freshness gate green at stages 1/3/4; spec-bridge derivation consistent at 2/3)
-- [ ] #3 Scratch GitHub sandbox remote wired: reset force-pushes stage state, canned history carries real merged PRs, and the live sweep opens a genuine PR there
-- [ ] #4 Live-thread support: one tiny pre-specced one-file task exists unmerged at stage-2 ready to sweep live, and stage-3 contains the same task merged as the canned fallback
-- [ ] #5 A 30-minute runsheet doc scripts the demo: stage walk order, the live gate-break and spec-bridge-block moments, the background live task kickoff and close, refactor-triage (headless policy run or live debt-carding), and the fallback pivot per live moment
-- [ ] #6 A CI test regenerates the demo repo and asserts the stage tags exist and per-stage gates pass, so the demo cannot rot silently
-- [ ] #7 A docs/wiki note pins the rig (generator, fixtures, runsheet) listing the demoed skill files as sources, so the freshness gate flags the demo when those skills change
-- [ ] #8 Repeatability proven: two consecutive resets yield identical stage state (same demo-board task IDs, same tags, same narrative)
+- [x] #1 A single generator/reset command materializes the demo project from tracked fixtures as a fresh git repo with a tag per PDLC stage (0 bare, 1 grounded, 2 planned, 3 swept, 4 triaged) and can jump to any stage in seconds
+- [x] #2 Every stage's artifacts are real captures from genuine plugin runs, and each stage passes its own gates when checked out (freshness gate green at stages 1/3/4; spec-bridge derivation consistent at 2/3)
+- [x] #3 Scratch GitHub sandbox remote wired: reset force-pushes stage state, canned history carries real merged PRs, and the live sweep opens a genuine PR there
+- [x] #4 Live-thread support: one tiny pre-specced one-file task exists unmerged at stage-2 ready to sweep live, and stage-3 contains the same task merged as the canned fallback
+- [x] #5 A 30-minute runsheet doc scripts the demo: stage walk order, the live gate-break and spec-bridge-block moments, the background live task kickoff and close, refactor-triage (headless policy run or live debt-carding), and the fallback pivot per live moment
+- [x] #6 A CI test regenerates the demo repo and asserts the stage tags exist and per-stage gates pass, so the demo cannot rot silently
+- [x] #7 A docs/wiki note pins the rig (generator, fixtures, runsheet) listing the demoed skill files as sources, so the freshness gate flags the demo when those skills change
+- [x] #8 Repeatability proven: two consecutive resets yield identical stage state (same demo-board task IDs, same tags, same narrative)
 - [ ] #9 Spec phase: Spec
 - [ ] #10 Spec phase: Implement
 - [ ] #11 Spec phase: Prove
@@ -45,4 +45,6 @@ sweep dispatch (2026-07-27): tier = default implementer — design operator-rati
 operator checkpoint resolved (2026-07-27): sandbox remote = evanstern/praxisflux-demo-sandbox (private, created via gh; throwaway, force-pushed on reset). CI never touches it.
 
 implementer (2026-07-27): T002-T007 complete on task-73-demo-rig. Rig: demo/generate.mjs (deterministic replay, stage-0..4 tags, --stage/--reset/--check/--remote/--snapshot), fixtures captured from genuine plugin runs (wiki-build, research-vault, spec-bridge link/sync, real mini-sweep = sandbox PRs #1-#3 merged incl. live task-3's twin, headless refactor-triage -> demo debt cards task-4/5). Gate matrix green on fresh generate (app-test 0/3, wiki-freshness 1/3/4, spec-bridge 2/3/4); double-generate ref-identical (R8). test/demo-rig.test.mjs rides node --test (253/253) + catalog bullet; RUNSHEET.md rehearsed (both live gate moments verified verbatim). demo-rig wiki note pinned w/ demoed skills as sources; README updated. check-docs green, freshness 34/34, check-version-bump: no bump required.
+
+orchestrator verification (2026-07-27): node --test 253/253 (incl. demo-rig test), check-docs green, no bump required (verdict believed), wiki-freshness 34 fresh, spec-bridge 34 ok; demo --check matrix all stages green on fresh generate; sandbox PRs #1-#3 merged + stage-0..4 tags verified via gh. T008 ticked.
 <!-- SECTION:NOTES:END -->

@@ -16,5 +16,5 @@
 
 ## Prove
 
-- [ ] T008 gates green in worktree (node --test, check-docs, freshness, version-bump verdict); new wiki note demo-rig + INDEX + CAPSULES; README updated (R7)
+- [x] T008 gates green in worktree (node --test, check-docs, freshness, version-bump verdict); new wiki note demo-rig + INDEX + CAPSULES; README updated (R7)
 - [ ] T009 board finalized (ACs checked; Done via spec-bridge:sync); PR opened and merged
