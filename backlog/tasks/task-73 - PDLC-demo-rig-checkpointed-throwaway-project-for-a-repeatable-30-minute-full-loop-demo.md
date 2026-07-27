@@ -3,9 +3,11 @@ id: TASK-73
 title: >-
   PDLC demo rig: checkpointed throwaway project for a repeatable 30-minute
   full-loop demo
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 16:17'
+updated_date: '2026-07-27 16:39'
 labels: []
 dependencies: []
 ordinal: 108000
