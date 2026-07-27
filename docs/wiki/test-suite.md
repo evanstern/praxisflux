@@ -26,7 +26,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 9e845bc8733ff57013b089a4bb81da81f6b65d29
 ---
 
 # Test suite
