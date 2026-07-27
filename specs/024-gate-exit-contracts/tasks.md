@@ -15,10 +15,10 @@
 - [x] T006 regression tests: throwing gate → exit 1; symlinked launch fires stop-docs,
   sibling dir never matches; resolveRoots throw surfaces
 - [x] T007 versions: marketplace sync-version (released surface)
-- [ ] T008 wiki: gate-runner + gates-consumption-surface + test-suite re-verified +
+- [x] T008 wiki: gate-runner + gates-consumption-surface + test-suite re-verified +
   re-pinned; CAPSULES if descriptions changed
 
 ## Prove
 
-- [ ] T009 gates green: node --test, check-docs, wiki freshness, bump gate
+- [x] T009 gates green: node --test, check-docs, wiki freshness, bump gate
 - [ ] T010 board finalized (ACs checked, Done, final summary); PR opened
