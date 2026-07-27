@@ -51,7 +51,8 @@ Record the model tier + rubric justification on each board task at dispatch
 - **Merge-drift gate: {{present at scripts/check-merge-drift.mjs | absent}}.** When
   present, mandatory at every choke point: `session` at sweep start (janitor + drift
   matrix), `worktree [--spec NNN]` before every `git worktree add`, `pr` from the
-  worktree before every `gh pr create` AND after every rebase — nonzero exit blocks.
+  worktree before every `gh pr create` AND after every history move (merge-in or
+  rebase) — nonzero exit blocks.
 - {{gate 1 — e.g. `node scripts/<check>.mjs --changed` before any PR touching <path>}}
 - {{gate 2 — e.g. same-PR amendment of <reference doc>, status flips, pin bumps}}
 - {{re-ground obligations — wiki refresh triggers, downstream doc freshness checks}}
@@ -63,9 +64,17 @@ Record the model tier + rubric justification on each board task at dispatch
   `backlog task edit --labels`, provenance in its append-notes) is listed in the state
   snapshot above and NEVER claimed, rebased, or cleaned — its branches and worktrees
   belong to the pausing operator.
-- Rebase, never merge-commit into a task branch; take main's side for anything you didn't
-  deliberately change; re-run gates after every rebase.
-- Two hotspot-heavy PRs never merge within one re-ground cycle without a rebase between.
+- Reconcile by what the branch carries: a **pin-carrying branch** (its own commits are
+  referenced by re-pins it carries — wiki notes, design-reference pins) **merges
+  `origin/main` in** and re-pins conflicted pins to the merge commit — squash, rebase,
+  and force-push all rewrite the branch's hashes and stale every carried pin, so its PR
+  also lands as a merge commit, never a squash; a **pin-free branch rebases**. Take
+  main's side for anything you didn't deliberately change.
+- After every history move (merge-in or rebase): re-run gates AND the freshness probe
+  unconditionally — never gated on whether `docs/wiki/` changed; pins also reference
+  design-reference files outside the wiki, so a wiki-untouched diff can still be stale.
+- Two hotspot-heavy PRs never merge within one re-ground cycle without a reconcile
+  between (merge-in or rebase per the pin rule).
 - Conflicting with a sibling session's open PR → the smaller PR merges first.
 - **Claim before work:** the FIRST commit of any task claims it — board card →
   In Progress AND the spec number's directory (a stub claims the number) — before any

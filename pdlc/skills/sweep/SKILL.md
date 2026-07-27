@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.5.0
+version: 0.6.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -127,12 +127,16 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    tier + justification on the board task.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
-7. Rebase onto fresh `origin/main`; re-run tests and gates AFTER the rebase (sibling
-   merges change tripwires). With a merge-drift gate,
-   `node scripts/check-merge-drift.mjs pr` from the worktree is the last gate before
-   `gh pr create` — and again after every rebase; a nonzero exit blocks the PR, and its
-   semantic-overlap warnings (board files, wiki-pinned sources, design surfaces) are the
-   same-PR companion-artifact checklist. Then open the PR from the worktree.
+7. Reconcile with fresh `origin/main` per the concurrency doctrine below: a
+   **pin-carrying branch merges main in** (re-pinning conflicted pins to the merge
+   commit); a pin-free branch rebases. Re-run tests, gates, and the freshness probe
+   AFTER every history move — unconditionally, not only when the move touched
+   `docs/wiki/` (sibling merges change tripwires, and pins reference sources outside
+   the wiki). With a merge-drift gate, `node scripts/check-merge-drift.mjs pr` from
+   the worktree is the last gate before `gh pr create` — and again after every history
+   move; a nonzero exit blocks the PR, and its semantic-overlap warnings (board files,
+   wiki-pinned sources, design surfaces) are the same-PR companion-artifact checklist.
+   Then open the PR from the worktree.
 8. **Merge serially:** before merging, confirm the branch still sits on current
    `origin/main`; after merging, verify (`gh api ... --jq .merged`) BEFORE deleting
    anything; then remove the worktree, delete the branch, ff-pull root. Never
@@ -152,15 +156,27 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
 Other agents are working the same repo — the runbook's authoring assumed it; execution
 must too:
 
-- On conflict: **rebase** (never merge-commit into a task branch), take main's side for
-  anything you didn't deliberately change, then re-run gates — a rebase can silently
-  invalidate a design-doc amendment or a pinned reference.
+- Reconcile by what the branch carries. A **pin-carrying branch** — one whose own
+  commits are referenced by re-pins it carries (wiki notes, design-reference pins;
+  routine on hosts with a wiki-in-PR lifecycle) — **merges `origin/main` into the
+  branch** and re-pins conflicted pins to the merge commit. All three
+  history-rewriting moves break pins the same way: **squash, rebase, and force-push**
+  rewrite the branch's hashes and stale every pin it carries at once; only a merge
+  commit keeps the old hashes reachable — which is also why such a branch's PR must
+  land as a merge commit, never a squash. A **pin-free branch rebases**, as before.
+  Either way, take main's side for anything you didn't deliberately change.
+- **After every history move — merge-in or rebase — re-run the gates AND the freshness
+  probe, unconditionally.** Never gate the probe on whether `docs/wiki/` changed: pins
+  also reference design-reference files outside the wiki, so a wiki-untouched diff can
+  still be stale (field case: a keymap-doc-only change staled a pinned page invisibly
+  because the probe fired only on wiki diffs).
 - Two PRs heavy in the same hotspot must not merge within one re-ground cycle without a
-  rebase between them, or the grounding gates thrash.
+  reconcile between them (merge-in or rebase per the pin rule), or the grounding gates
+  thrash.
 - When your open PR conflicts with a sibling session's, let the **smaller** one merge
   first, regardless of whose it is.
 - Before diagnosing "my branch broke," fetch and diff against `origin/main` — concurrent
-  sessions rebase main frequently, and a moved base explains most surprises. A
+  sessions land merges on main frequently, and a moved base explains most surprises. A
   merge-drift gate's session mode answers this in one run: base lag, predicted
   conflicts, and which sibling branch they're with.
 
