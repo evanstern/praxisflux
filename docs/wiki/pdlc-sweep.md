@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: cad8211058c905136a438e0bdaf13de6ced4fcf5
+verified_against: 5e30077defa6672b38ad105cb766cfffa8a36f2f
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -97,6 +97,11 @@ both files; and the **re-ground step orders ticks before sync** — tick the spe
 tasks.md at root, then `spec-bridge:sync`, whose derived plan is the only path that
 moves a linked task to Done ([[spec-bridge-plugin]] doctrine) — the sweep never
 hand-sets Done on a linked task.
+
+Since 0.40.0 (skill 0.9.0) Handing off names `pdlc:refactor-triage` as the post-sweep
+review step — evaluate the merged range for tech debt and intent drift, card accepted
+findings back onto the board ([[pdlc-refactor-triage]]) — closing the loop sweep →
+refactor-triage → debt tasks → next sweep.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from
 it plus the board alone. Because a runbook is an instruction-bearing artifact a session

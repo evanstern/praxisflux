@@ -38,6 +38,30 @@ test("bootstrap SKILL.md has the frontmatter the bump gate keys on", () => {
   assert.match(skill, /^---\nname: bootstrap\nversion: \d+\.\d+\.\d+\n/);
 });
 
+// --- refactor-triage skill (spec 033) ---
+
+test("refactor-triage SKILL.md has the frontmatter the bump gate keys on", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "refactor-triage", "SKILL.md"), "utf8");
+  assert.match(skill, /^---\nname: refactor-triage\nversion: \d+\.\d+\.\d+\n/);
+  assert.match(skill, /^description: \S/m, "description (the trigger surface) must be present");
+});
+
+test("refactor-triage names all three entry modes and carries an output gate", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "refactor-triage", "SKILL.md"), "utf8");
+  assert.match(skill, /--range/, "range mode (post-sweep) must be named");
+  assert.match(skill, /[Ww]hole-repo/, "whole-repo mode (periodic) must be named");
+  assert.match(skill, /[Hh]eadless/, "headless/harness mode must be named");
+  assert.match(skill, /declared triage policy/i, "headless mode rides a declared policy");
+  assert.match(skill, /^## Output gate$/m, "the gate→work→gate shape needs an output gate");
+});
+
+test("sweep's Handing off names refactor-triage as the post-sweep review step", () => {
+  const sweep = readFileSync(join(repo, "pdlc", "skills", "sweep", "SKILL.md"), "utf8");
+  const handingOff = sweep.split(/^## Handing off$/m)[1];
+  assert.ok(handingOff, "sweep SKILL.md must have a Handing off section");
+  assert.match(handingOff, /refactor-triage/, "post-sweep review step must be named");
+});
+
 // --- template shape ---
 
 test("template markers are well-formed: one grounding block, both peer blocks inside it", () => {

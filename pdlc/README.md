@@ -1,8 +1,10 @@
 # pdlc — bootstrap a project for the praxis development lifecycle, then run it
 
-The suite-level installer plus the lifecycle's orchestrator. Two skills:
+The suite-level installer plus the lifecycle's orchestrator. Three skills:
 `bootstrap` stamps a **new or existing** folder as a PDLC project; `sweep` runs a set of
-that project's board tasks through the whole lifecycle automatically.
+that project's board tasks through the whole lifecycle automatically; `refactor-triage`
+closes the loop after a sweep — evaluate the merged work for debt and drift, triage the
+findings, and card accepted items back onto the board as sweepable tasks.
 
 `bootstrap`:
 
@@ -43,5 +45,23 @@ signed-off, committed, and board-backed.
 /pdlc:sweep docs/design/payments-runbook.md    # adopt + execute a signed-off runbook
 ```
 
+`refactor-triage` — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage
+→ debt tasks → next sweep. Three entry modes — a commit **range** (post-sweep), **whole-repo**
+(periodic), or **headless** with a declared triage policy in place of conversation. It
+orchestrates `team-review:team-review` as the evaluation engine when installed (the range
+and drift framing ride in through the lens; an inline eval pass when absent — team-review
+itself is unchanged), and range mode adds an intent-drift pass against the sweep runbook,
+merged PR specs, and pinned `docs/wiki/` notes. Every finding gets an accept / reject /
+defer disposition with rationale in a tracked triage record
+(`docs/reviews/refactor-triage-<run-id>.md`); accepted findings become labeled,
+finding-citing backlog tasks via the CLI — immediately sweepable.
+
+```
+/pdlc:refactor-triage --range v0.38.0..v0.39.0   # post-sweep: triage the merged range
+/pdlc:refactor-triage                            # periodic whole-repo debt pass
+```
+
 No lifecycle of its own, so no Stop hook — the plugins it wires in bring their own gates
-(and `sweep` defers to the host project's own gates per task).
+(and `sweep` defers to the host project's own gates per task; `refactor-triage` ships a
+prose output gate: no created task without a cited finding, no "triage done" without the
+report + triage record on disk).
