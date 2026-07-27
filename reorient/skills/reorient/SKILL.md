@@ -1,6 +1,6 @@
 ---
 name: reorient
-version: 0.4.0
+version: 0.5.0
 description: Corpus-grounded reorientation of a project's direction — N parallel evaluator subagents each judge one research branch under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and the lead merges everything into one decisions-and-course-of-action synthesis that executes onto the board. Use when the user wants to "reorient" a project against research, "evaluate the vault branches against our purpose", "merge these analyses into a plan", "run the research → evaluate → synthesize loop", or asks what a body of research means for the roadmap — not for reviewing code (team-review) or gathering new research (research-vault).
 ---
 
@@ -18,8 +18,10 @@ what research-vault produced and writes analyses/synthesis those plugins' gates 
 Helper scripts live in this plugin's base directory (`${CLAUDE_PLUGIN_ROOT}`). Every script
 referenced here states an inline fallback — the skill still works hand-copied without them.
 `gates/` only verifies and never writes; `scripts/run.mjs` is the only state writer. Run
-records ride the gitignored `.handoff/reorient/runs/` transport at the project root —
-transient plumbing; the durable residue is the analyses, the synthesis, and the board.
+records ride the gitignored `.handoff/reorient/runs/` transport at the **target project's
+root** — the `<root>` each subcommand is given, never the directory you happen to invoke
+from — so the run is visible to sessions (and their Stop gates) working in the target.
+Transient plumbing; the durable residue is the analyses, the synthesis, and the board.
 
 **Runs are session-owned.** `begin` stamps the manifest with the beginning session's
 identity plus user@host provenance, and the owning session's Stop hook heartbeats it every
@@ -31,14 +33,15 @@ begun elsewhere is always explicit: `run.mjs takeover <id>` (it prints who held 
 from where, since when) — `abandon` refuses a run owned by another session until then.
 
 **Runs are worktree-first — the default doctrine.** The run registry is shared mutable
-state at the registry root, so `begin` **refuses** to open a run when that root is a
-shared primary checkout — detected deterministically: `.git` there is a *directory*
-(a worktree carries a `gitdir:` file instead). Begin runs from inside a git worktree
-(`git worktree add .worktrees/<name> -b <branch>`) so the registry stays lane-local;
-session ownership above is defense-in-depth, not isolation. The explicit exception is
-the `--shared-checkout` flag: it permits the shared checkout, is recorded on the run
-manifest (`sharedCheckout: true`), and is surfaced by `run.mjs list` and owner
-provenance — use it only when the operator deliberately wants a checkout-wide run.
+state at the registry root — resolved from the TARGET root, so it is the target's
+checkout that is judged, wherever you invoke from — and `begin` **refuses** to open a
+run when that root is a shared primary checkout, detected deterministically: `.git`
+there is a *directory* (a worktree carries a `gitdir:` file instead). Point runs at a
+git worktree (`git worktree add .worktrees/<name> -b <branch>`) so the registry stays
+lane-local; session ownership above is defense-in-depth, not isolation. The explicit
+exception is the `--shared-checkout` flag: it permits the shared checkout, is recorded
+on the run manifest (`sharedCheckout: true`), and is surfaced by `run.mjs list` and
+owner provenance — use it only when the operator deliberately wants a checkout-wide run.
 
 ## Precondition gate — open the run
 
@@ -60,9 +63,9 @@ provenance — use it only when the operator deliberately wants a checkout-wide 
    proposed-tasks list in the synthesis instead of CLI executions.
 4. **Open the tracked run:**
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <project-root> --lens "<lens>" --corpus <branch> [--corpus <branch> ...] [--synthesis <path>] [--shared-checkout]`
-   Worktree-first (above): if `begin` refuses because the registry root is a shared
-   primary checkout, move into a worktree (the refusal prints the recipe) or — only on
-   a deliberate operator choice — re-run with `--shared-checkout`.
+   Worktree-first (above): if `begin` refuses because the TARGET's registry root is a
+   shared primary checkout, target a worktree (the refusal prints the recipe) or — only
+   on a deliberate operator choice — re-run with `--shared-checkout`.
    The default synthesis path is `docs/design/reorient-<run-id>.md` under the project
    root — keyed by run id, never by date, so concurrent same-day runs can't collide on
    one output — and always OUTSIDE every corpus branch (vault isolation forbids the
