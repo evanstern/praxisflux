@@ -7,9 +7,9 @@
 
 ## Implement
 
-- [ ] T002 repin() existence probe before write; named errors; note untouched on refusal (R1)
-- [ ] T003 existing refusals + CLI contract unchanged (R2)
-- [ ] T004 regression test: nonexistent-commit refusal + note byte-identical (R3)
+- [x] T002 repin() existence probe before write; named errors; note untouched on refusal (R1)
+- [x] T003 existing refusals + CLI contract unchanged (R2)
+- [x] T004 regression test: nonexistent-commit refusal + note byte-identical (R3)
 
 ## Prove
 
