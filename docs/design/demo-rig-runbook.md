@@ -9,7 +9,7 @@ agreed architecture (generator → tagged-stage git history → live-thread + ca
 sandbox remote → self-gating CI + wiki pin) and its eight ACs bound the deliverable.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
