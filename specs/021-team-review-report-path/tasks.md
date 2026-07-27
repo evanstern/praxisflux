@@ -13,7 +13,7 @@
 - [x] T004 SKILL.md report-path claim matches the new rule (R2)
 - [x] T005 tests: self-review round trip passes on defaults; same-day uniqueness (R4)
 - [x] T006 versions: team-review skill bump + marketplace sync-version
-- [ ] T007 wiki: team-review-plugin re-verified + re-pinned; CAPSULES if description
+- [x] T007 wiki: team-review-plugin re-verified + re-pinned; CAPSULES if description
   changed
 
 ## Prove
