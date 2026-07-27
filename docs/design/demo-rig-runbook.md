@@ -9,7 +9,7 @@ agreed architecture (generator → tagged-stage git history → live-thread + ca
 sandbox remote → self-gating CI + wiki pin) and its eight ACs bound the deliverable.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-27
+**Status:** done · operator sign-off on lanes: 2026-07-27 · completed: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -183,3 +183,4 @@ flipped to done.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-27 | TASK-73 | #98 | 52b5abd | demo rig shipped in demo/ (no released surface — no bump; gate verdict believed); sandbox evanstern/praxisflux-demo-sandbox created at checkpoint, PRs #1–#3 merged there; capture run genuine, replay deterministic (double-generate identical); new wiki note demo-rig + catalog bullet; no reconcile needed (main never moved); Done via spec-bridge:sync |

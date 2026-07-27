@@ -3,11 +3,11 @@ id: TASK-73
 title: >-
   PDLC demo rig: checkpointed throwaway project for a repeatable 30-minute
   full-loop demo
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 17:24'
+updated_date: '2026-07-27 17:26'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -32,9 +32,9 @@ Spec: specs/034-demo-rig
 - [x] #6 A CI test regenerates the demo repo and asserts the stage tags exist and per-stage gates pass, so the demo cannot rot silently
 - [x] #7 A docs/wiki note pins the rig (generator, fixtures, runsheet) listing the demoed skill files as sources, so the freshness gate flags the demo when those skills change
 - [x] #8 Repeatability proven: two consecutive resets yield identical stage state (same demo-board task IDs, same tags, same narrative)
-- [ ] #9 Spec phase: Spec
-- [ ] #10 Spec phase: Implement
-- [ ] #11 Spec phase: Prove
+- [x] #9 Spec phase: Spec
+- [x] #10 Spec phase: Implement
+- [x] #11 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -47,4 +47,12 @@ operator checkpoint resolved (2026-07-27): sandbox remote = evanstern/praxisflux
 implementer (2026-07-27): T002-T007 complete on task-73-demo-rig. Rig: demo/generate.mjs (deterministic replay, stage-0..4 tags, --stage/--reset/--check/--remote/--snapshot), fixtures captured from genuine plugin runs (wiki-build, research-vault, spec-bridge link/sync, real mini-sweep = sandbox PRs #1-#3 merged incl. live task-3's twin, headless refactor-triage -> demo debt cards task-4/5). Gate matrix green on fresh generate (app-test 0/3, wiki-freshness 1/3/4, spec-bridge 2/3/4); double-generate ref-identical (R8). test/demo-rig.test.mjs rides node --test (253/253) + catalog bullet; RUNSHEET.md rehearsed (both live gate moments verified verbatim). demo-rig wiki note pinned w/ demoed skills as sources; README updated. check-docs green, freshness 34/34, check-version-bump: no bump required.
 
 orchestrator verification (2026-07-27): node --test 253/253 (incl. demo-rig test), check-docs green, no bump required (verdict believed), wiki-freshness 34 fresh, spec-bridge 34 ok; demo --check matrix all stages green on fresh generate; sandbox PRs #1-#3 merged + stage-0..4 tags verified via gh. T008 ticked.
+
+spec-bridge sync: Spec: 2/2 · Implement: 6/6 · Prove: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 6/6 · Prove: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
