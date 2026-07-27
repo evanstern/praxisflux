@@ -27,7 +27,7 @@ Spec: specs/032-test-suite-catalog-closure
 <!-- AC:BEGIN -->
 - [x] #1 Every test/*.test.mjs file has a catalog entry and appears in the catalog note's sources (set enumerated at execution time)
 - [x] #2 Note body within the 8000-char budget (further summary-style split if needed); INDEX/CAPSULES consistent
-- [ ] #3 Wiki freshness gate green with the expanded source list
+- [x] #3 Wiki freshness gate green with the expanded source list
 - [ ] #4 Spec phase: Spec
 - [ ] #5 Spec phase: Implement
 - [ ] #6 Spec phase: Prove
@@ -47,4 +47,6 @@ Sweep dispatch (runbook docs/design/sweep-followups-runbook.md): model tier = de
 Enumeration (execution time, worktree task-71): 29 test/*.test.mjs files; catalog sources listed 23. Missing from bullets+sources: test/build-npm.test.mjs, test/new-plugin.test.mjs, test/pdlc.test.mjs, test/phase-status.test.mjs, test/reorient.test.mjs, test/run-gates.test.mjs (6 files — matches the spec's dispatch snapshot). Catalog body measured 7996/8000 chars → summary-style split required.
 
 Split landed: test-suite-catalog.md (repo-tooling half, 13 files, body 6383 chars) + new test-suite-catalog-plugins.md (plugin half, 16 files, body 7424 chars), cross-linked; INDEX.md row added; CAPSULES.md regenerated. 6 missing files now cataloged with sources: build-npm, new-plugin, run-gates (tooling half); pdlc, phase-status, reorient (plugin half).
+
+Both split parts re-pinned to the content commit 6d39b8d0406b331df38aff625654d5dd1e38f253; freshness gate green: 32 note(s) fresh against their pinned sources.
 <!-- SECTION:NOTES:END -->

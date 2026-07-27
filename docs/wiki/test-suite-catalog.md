@@ -16,7 +16,7 @@ sources:
   - test/sync-shared.test.mjs
   - test/sync-version.test.mjs
   - test/version-bump.test.mjs
-verified_against: f2ef6028fa0d973b48812d5619a65672e735c12c
+verified_against: 6d39b8d0406b331df38aff625654d5dd1e38f253
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
