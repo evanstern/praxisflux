@@ -13,4 +13,4 @@
 
 ## Prove
 
-- [ ] T005 board finalized (ACs checked, Done, final summary); PR opened
+- [x] T005 board finalized (ACs checked, Done, final summary); PR opened
