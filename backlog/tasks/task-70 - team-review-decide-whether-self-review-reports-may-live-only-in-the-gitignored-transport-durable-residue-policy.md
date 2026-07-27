@@ -3,9 +3,11 @@ id: TASK-70
 title: >-
   team-review: decide whether self-review reports may live only in the
   gitignored transport (durable-residue policy)
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 04:33'
+updated_date: '2026-07-27 13:42'
 labels:
   - sweep-followup
 dependencies: []
@@ -25,3 +27,15 @@ TASK-61 (PR #84) moved team-review's default report path under the runs home —
 - [ ] #2 Behavior matches the recorded rule; if (b), the self-review round trip still passes on pure defaults (no gate deadlock regression)
 - [ ] #3 Existing TASK-61 tests stay green; any new behavior is covered by a test
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Author spec 031-team-review-residue-policy (spec/plan/tasks). 2. Implement the operator-decided policy (b), sign-off 2026-07-27 (runbook docs/design/sweep-followups-runbook.md): self-review report defaults route to a TRACKED location (or copy-on-finish) — evidence lives in tracked state — without reintroducing the TASK-61 in-target gate deadlock. 3. Record the rule in team-review SKILL.md + docs/wiki/team-review-plugin.md. 4. TASK-61 tests stay green; new behavior covered by a test; gates + version bump + same-PR wiki re-pins.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep dispatch (runbook docs/design/sweep-followups-runbook.md): model tier = default implementer — policy recording + small routing change; the policy itself was decided by the operator at lane sign-off (choice b, tracked-by-default).
+<!-- SECTION:NOTES:END -->
