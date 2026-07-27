@@ -161,3 +161,4 @@ execution-time test-file set with sources; no stale sweep worktrees in
 |------|------|----|-------|-------|
 | 2026-07-27 | TASK-68 | #93 | 0c4f7ca | repin existence probe; v0.37.0; grounding-wiki-plugin note gained missing repin.mjs source |
 | 2026-07-27 | TASK-69 | #94 | 317c14c | sync-version argv guard, bare mode removed; v0.38.0; catalog trimmed back under budget at merge reconcile |
+| 2026-07-27 | TASK-70 | #95 | c310805 | policy (b) shipped: tracked-by-default self-review reports (copy-on-finish); v0.39.0 + skill 1.3.0 |
