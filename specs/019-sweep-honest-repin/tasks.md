@@ -7,13 +7,14 @@
 
 ## Implement
 
-- [ ] T002 SKILL.md: step 7 + concurrency doctrine — post-merge-in staleness routed
+- [x] T002 SKILL.md: step 7 + concurrency doctrine — post-merge-in staleness routed
   through the wiki-update plan loop (RE-PIN-ONLY vs NEEDS-REVIEW against the main-side
   diff); no mechanical merge-commit re-pin text remains (R1, R2)
-- [ ] T003 templates/runbook.md: reconcile bullet mirrors the same procedure (R1, R2)
-- [ ] T004 downstream-host paragraph: safe procedure stated for hosts that inherited
+- [x] T003 templates/runbook.md: reconcile bullet mirrors the same procedure (R1, R2)
+- [x] T004 downstream-host paragraph: safe procedure stated for hosts that inherited
   the TASK-57 convention (R2)
-- [ ] T005 versions: sweep SKILL.md version bump + marketplace sync-version (R3)
+- [x] T005 versions: sweep SKILL.md version bump (0.6.0 → 0.7.0) + marketplace
+  sync-version 0.28.0 (R3)
 - [ ] T006 wiki: docs/wiki/pdlc-sweep.md re-verified + re-pinned; CAPSULES if the
   description changed (R3)
 

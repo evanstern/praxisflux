@@ -66,10 +66,19 @@ Record the model tier + rubric justification on each board task at dispatch
   belong to the pausing operator.
 - Reconcile by what the branch carries: a **pin-carrying branch** (its own commits are
   referenced by re-pins it carries — wiki notes, design-reference pins) **merges
-  `origin/main` in** and re-pins conflicted pins to the merge commit — squash, rebase,
-  and force-push all rewrite the branch's hashes and stale every carried pin, so its PR
-  also lands as a merge commit, never a squash; a **pin-free branch rebases**. Take
-  main's side for anything you didn't deliberately change.
+  `origin/main` in** — squash, rebase, and force-push all rewrite the branch's hashes
+  and stale every carried pin, so its PR also lands as a merge commit, never a squash;
+  a **pin-free branch rebases**. Take main's side for anything you didn't deliberately
+  change.
+- **Honest re-pins only — a merge-in never justifies a pin bump** (pin = merge commit
+  empties the freshness probe's `git log <pin>..HEAD -- <sources>` range by
+  construction). Route every pin the merge staled or conflicted through the
+  wiki-update plan loop: read the main-side diff over the note's sources
+  (`git diff <old-pin>..<merge-commit> -- <sources>`), classify **RE-PIN-ONLY**
+  (provably prose-safe) vs **NEEDS-REVIEW** (re-verify and amend the note's prose
+  against that diff BEFORE bumping). Never bump a pin without reading the diff it
+  covers; the merge commit is the re-pin *target* once the note is verified, never
+  the *justification*.
 - After every history move (merge-in or rebase): re-run gates AND the freshness probe
   unconditionally — never gated on whether `docs/wiki/` changed; pins also reference
   design-reference files outside the wiki, so a wiki-untouched diff can still be stale.
