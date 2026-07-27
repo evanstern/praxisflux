@@ -3,11 +3,11 @@ id: TASK-65
 title: >-
   gate chassis enforcement contracts: run-gates exit codes, stop-docs root
   matching, gate-runner resolveRoots swallow
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:58'
-updated_date: '2026-07-27 02:36'
+updated_date: '2026-07-27 03:13'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,12 +25,12 @@ Spec: specs/024-gate-exit-contracts
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An exception thrown during gate execution exits 1 (or a distinct documented code), never 2; docs/consuming-gates.md stays accurate; regression test with a throwing gate
-- [ ] #2 stop-docs root comparison realpaths both sides and requires a path-separator boundary (symlinked launch fires the gate; sibling dirs never match)
-- [ ] #3 A crashing resolveRoots surfaces as a problem instead of resolving to zero roots
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #1 An exception thrown during gate execution exits 1 (or a distinct documented code), never 2; docs/consuming-gates.md stays accurate; regression test with a throwing gate
+- [x] #2 stop-docs root comparison realpaths both sides and requires a path-separator boundary (symlinked launch fires the gate; sibling dirs never match)
+- [x] #3 A crashing resolveRoots surfaces as a problem instead of resolving to zero roots
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -46,3 +46,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane F): tier = default implementer — enforcement-contract fixes bounded by the documented 0/1/2 consumer contract. Checkpoint: if the exit-code contract cannot be kept intact for CI consumers, STOP and surface (outward-facing contract change).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Chassis enforcement contracts fixed (branch task-65-gate-exit-contracts; PR pending merge). (1) scripts/run-gates.mjs: gate execution moved outside the usage try/catch — new exported validateGateNames() is the only exit-2 path; an exception thrown while a gate runs becomes that gate's failure result and exits 1, live-reproduced via a broken-symlink wiki note through the CLI. The 0/1/2 consumer contract survived intact (no new codes; crash reclassified 2 → 1, the documented gate-failed meaning); docs/consuming-gates.md amended minimally. (2) scripts/stop-docs.mjs: new exported underRepo() realpaths both sides and requires a path-separator boundary — symlinked launches (macOS /tmp vs /private/tmp) now fire the repo's docs-sync Stop gate (live-verified; was silent exit 0), and sibling dirs like praxis-anything never match; hook body runAsCli-guarded, behavior through .claude/settings.json unchanged. (3) lib/gate-runner.mjs: a crashing resolveRoots surfaces as a blocking problem in the same shape as a crashing check, never roots=[] silence. Regression tests for all three across run-gates/check-docs/chassis suites. Reconciled with post-58/61/62 main by merge-in (63f01e0): 0.31.0, honest pin classification (7 RE-PIN-ONLY, 4 stamp-verified, test-suite-catalog prose re-verified; superseding pins kept where sources untouched). Gates green at HEAD: node --test 221/221, check-docs, wiki freshness 30/30, bump gate 0.30.0 → 0.31.0.
+<!-- SECTION:FINAL_SUMMARY:END -->

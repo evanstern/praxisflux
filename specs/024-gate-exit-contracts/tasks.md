@@ -21,4 +21,4 @@
 ## Prove
 
 - [x] T009 gates green: node --test, check-docs, wiki freshness, bump gate
-- [ ] T010 board finalized (ACs checked, Done, final summary); PR opened
+- [x] T010 board finalized (ACs checked, Done, final summary); PR opened
