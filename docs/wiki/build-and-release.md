@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 5aa19b1e260add0148f1767b8bb2d759a95a6745
+verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
 ---
 
 # Build and release
@@ -91,7 +91,9 @@ described in [[gates-consumption-surface]].
 literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
 table maps canonical sources to consumers: the `praxisflux:tokens` and `praxisflux:theme` regions of
 `lib/html/base.html`, and the `praxisflux:tooltip-css`/`praxisflux:tooltip-js` regions of
-`lib/toolkit/tooltip.md`, all stamped into `educate/templates/.template/deck.html`. Regions are
+`lib/toolkit/tooltip.md`, stamped into `educate/templates/.template/deck.html`; and
+`praxisflux:handoff-protocol` (`docs/handoff-protocol.md` → `lib/handoff-protocol.md`).
+Regions are
 delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampRegion` copy the
 body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
 on any byte difference.

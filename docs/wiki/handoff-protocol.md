@@ -5,14 +5,16 @@ kind: pattern
 sources:
   - docs/handoff-protocol.md
   - lib/handoff.mjs
-verified_against: 20b3d21e47719d15d266a82dc80e1724542cec35
+verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
 ---
 
 # The handoff protocol
 
 How one praxisflux plugin hands work to another. The **transport is shared** (`lib/handoff.mjs`
 on the chassis); the **payload semantics are per plugin pair**. The protocol reference is
-`docs/handoff-protocol.md`.
+`docs/handoff-protocol.md` (canonical, at repo root); a stamped copy ships on the chassis as
+`lib/handoff-protocol.md` — re-stamped by `scripts/sync-shared.mjs`, drift-tested — so skills
+can cite it as `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md` from an installed plugin.
 
 ## How it works
 
@@ -37,8 +39,10 @@ by envelope fields (e.g. `{to, kind, ref}`).
 **Known instances:**
 
 - educate → build: a `request` carrying a **SPEC**. Evidence: `handoff.specd`.
-- build → educate: a `response` carrying **findings**. Evidence: `handoff.returned`, then
-  `handoff.foldedIn` once folded into the lesson (gated at `done`).
+- build → educate: a `response` carrying **findings**. Evidence: `handoff.returned` —
+  recorded by **educate's return leg** when it picks the response up (build writes only the
+  payload, never the producer's ledger; TASK-63 fixed the seam so exactly one side owns this
+  write) — then `handoff.foldedIn` once folded into the lesson (gated at `done`).
 - educate → research: a `request` to ground a topic/lesson.
 
 ## Connections
