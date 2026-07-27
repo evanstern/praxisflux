@@ -9,7 +9,7 @@ evidence, and the ACs from the promptworld downstream bug-find sweep (2026-07-27
 against praxis decaa14/v0.27.0). Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** executing · operator sign-off on lanes: 2026-07-26
+**Status:** done · operator sign-off on lanes: 2026-07-26 · completed: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -217,3 +217,5 @@ done. Anything short of that is reported as exactly what remains.
 | 2026-07-26 | TASK-64 | #88 | 40f2f5a | reorient registry keyed to target root; skill 0.5.0; 0.33.0; heartbeat-flows-in-target consequence documented; pre-existing source omission flagged (test-suite-catalog vs test/reorient.test.mjs) |
 | 2026-07-26 | TASK-60 | #89 | 54e45f6 | sweep doctrine reconciled: claim step, merge-based remedy, 4-mode gate, ticks-before-sync, ship-real hook claims; sweep 0.8.0, bootstrap 0.6.0; 0.34.0; follow-up flagged: bootstrap replant of this repo's planted block |
 | 2026-07-26 | TASK-63 | #90 | 677e047 | handoff seam: educate owns the evidence write (R1 recorded in spec 026); .handoff/-only doctrine; stamped lib/handoff-protocol.md; lesson+implement 0.2.0; 0.35.0; follow-up flagged: sync-version argv validation |
+| 2026-07-27 | TASK-66 | #91 | 0260d13 | tooling hygiene: hook quoting, scoped build --plugin, truthful scaffolder count claims, semver-strict bump gate; 0.36.0; corpus: build-and-release split (+dist-packaging); follow-up flagged: test-suite-catalog covers 22/27 test files |
+| 2026-07-27 | (close) | — | — | output gate proven: To Do empty (9/9 Done via merged PRs #83–#91), CI+release green on main (v0.36.0 published), check-docs + wiki freshness 31/31 + spec-bridge 27-linked green at root, worktree list clean. Follow-up candidates awaiting operator carding decision: team-review gitignored self-review residue policy (61) · repin.mjs hash-existence validation (59) · sync-version.mjs argv validation (63) · pdlc:bootstrap replant of this repo's planted block for the corrected enforcement sentence (60) · test-suite-catalog coverage gap (66) |
