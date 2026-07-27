@@ -7,9 +7,9 @@
 
 ## Implement
 
-- [ ] T002 old-render diff: hand edits isolated from template drift; relocated if any (R2)
-- [ ] T003 re-plant: block matches 0.6.0 render, sentinel advanced, check clean (R1)
-- [ ] T004 gates green + any staled notes re-pinned (R3)
+- [x] T002 old-render diff: hand edits isolated from template drift; relocated if any (R2)
+- [x] T003 re-plant: block matches 0.6.0 render, sentinel advanced, check clean (R1)
+- [x] T004 gates green + any staled notes re-pinned (R3)
 
 ## Prove
 
