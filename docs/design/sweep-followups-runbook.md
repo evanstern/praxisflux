@@ -9,7 +9,7 @@ synthesis; each carries the incident, origin trail, and ACs from the downstream-
 sweep's parked findings. Plan-of-record is the board; this file carries only ordering,
 doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-27
+**Status:** done · operator sign-off on lanes: 2026-07-27 · completed: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -162,3 +162,4 @@ execution-time test-file set with sources; no stale sweep worktrees in
 | 2026-07-27 | TASK-68 | #93 | 0c4f7ca | repin existence probe; v0.37.0; grounding-wiki-plugin note gained missing repin.mjs source |
 | 2026-07-27 | TASK-69 | #94 | 317c14c | sync-version argv guard, bare mode removed; v0.38.0; catalog trimmed back under budget at merge reconcile |
 | 2026-07-27 | TASK-70 | #95 | c310805 | policy (b) shipped: tracked-by-default self-review reports (copy-on-finish); v0.39.0 + skill 1.3.0 |
+| 2026-07-27 | TASK-71 | #96 | 5add011 | catalog closure at 29 files; summary-style split (catalog + catalog-plugins); wiki-only, no bump |
