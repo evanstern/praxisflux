@@ -67,8 +67,6 @@
             "properties": {
               "checklist": { "type": "boolean" },
               "rawNotes": { "type": "boolean" },
-              "handoff": { "type": "boolean" },
-              "postBuild": { "type": "boolean" },
               "deck": { "type": "boolean" },
               "guide": { "type": "boolean" }
             }
@@ -78,7 +76,7 @@
             "description": "Delegated-build EVIDENCE (durable, tracked). The SPEC and findings payloads themselves are transient in a gitignored .handoff/; these booleans are the record the DoD gate reads (see the praxisflux handoff protocol).",
             "properties": {
               "specd": { "type": "boolean", "description": "A SPEC was handed to the build plugin." },
-              "returned": { "type": "boolean", "description": "The build returned its findings." },
+              "returned": { "type": "boolean", "description": "The build's findings response arrived — recorded by educate's return leg (educate owns this write; build never touches this file)." },
               "foldedIn": { "type": "boolean", "description": "The return leg was folded back into the lesson (durable residue in guide/raw-notes)." }
             }
           },

@@ -9,7 +9,7 @@
 
 - [x] T002 seam owner decided + recorded; owning skill instructs the progress.json
   write (handoff.returned + status); the other side's text stops contradicting (R1)
-- [ ] T003 doctrine .handoff/-only: lesson SKILL + planted template consistent; dod.mjs
+- [x] T003 doctrine .handoff/-only: lesson SKILL + planted template consistent; dod.mjs
   derivation off loose filenames (R2)
 - [ ] T004 handoff-protocol refs resolve from an installed plugin context (stamped
   shared copy or valid target) (R3)

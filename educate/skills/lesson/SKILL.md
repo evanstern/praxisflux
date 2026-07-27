@@ -51,8 +51,9 @@ model recall. This composes with the **research** plugin through files, never by
 `scaffolded` -> `taught` -> `spec'd` -> `built` -> `decked` -> `done`
 - **scaffolded** — folder copied from `.template/`.
 - **taught** — Socratic session complete; every checklist item demonstrated.
-- **spec'd** — `HANDOFF.md` written (delegated builds only).
-- **built** — the build plugin (`build:implement`) implemented it; `POST_BUILD_HANDOFF.md` returned.
+- **spec'd** — the SPEC handed off as a `.handoff/` request; `handoff.specd=true` (delegated builds only).
+- **built** — the build plugin (`build:implement`) returned its findings response via `.handoff/`
+  and this skill recorded it (`handoff.returned=true`).
 - **decked** — `deck.html` (built FROM the deck template) + `guide.md` produced.
 - **done** — all required artifacts exist AND verified on disk.
 

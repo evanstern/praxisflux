@@ -9,12 +9,12 @@ import { join, resolve } from "node:path";
 import { createLifecycle } from "../lib/lifecycle.mjs";
 import { checkHtml } from "../lib/selfcontained.mjs";
 
-// artifact key in progress.json  ->  filename on disk
+// artifact key in progress.json  ->  filename on disk. Handoff payloads are deliberately
+// absent: they are transient files in the gitignored `.handoff/`, never lesson artifacts —
+// their durable evidence is the progress.json `handoff` booleans (delegated-build checks below).
 export const ARTIFACT_FILES = {
   checklist: "checklist.md",
   rawNotes: "raw-notes.md",
-  handoff: "HANDOFF.md",
-  postBuild: "POST_BUILD_HANDOFF.md",
   deck: "deck.html",
   guide: "guide.md",
 };
@@ -25,8 +25,8 @@ export const STATES = ["planned", "scaffolded", "taught", "spec'd", "built", "de
 export function requiredArtifacts(progress) {
   const req = new Set(["checklist", "rawNotes"]);
   if (decksRequired(progress)) { req.add("deck"); req.add("guide"); }
-  // handoff/postBuild are NOT required files — they're transient .handoff/ payloads; their evidence
-  // lives in progress.json and is checked below (delegated-build evidence).
+  // handoff evidence is never a file requirement — payloads are transient .handoff/ messages;
+  // the evidence lives in progress.json and is checked below (delegated-build evidence).
   return req;
 }
 
