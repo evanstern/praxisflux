@@ -19,7 +19,7 @@ sources:
   - test/team-review.test.mjs
   - test/toolkit-borrow.test.mjs
   - test/wiki.test.mjs
-verified_against: 6d39b8d0406b331df38aff625654d5dd1e38f253
+verified_against: 3bc4899531e62df1b3f0442fec753bf30023f8b0
 ---
 
 # Test suite — per-file coverage catalog (plugin gates & seams)
@@ -64,9 +64,11 @@ per `test/*.test.mjs` file:
   overwritten without `--force` (the sentinel doesn't advance past drift), peer-change
   drift, `--check` writing nothing and exiting 1 while pending; the `peersOmitted` trace
   (sentinel field, one stderr notice per omitted peer, legacy sentinels stay readable);
-  and the `resolveProjectName` ladder — override > recorded > worktree gitdir parse >
+  the `resolveProjectName` ladder — override > recorded > worktree gitdir parse >
   basename — so worktree plants render the PRIMARY checkout's name and re-plants from
-  either side stay unchanged, never drifted.
+  either side stay unchanged, never drifted; and the refactor-triage skill shape (spec
+  033) — frontmatter the bump gate keys on, the three entry modes + declared-policy
+  headless rule + output gate present, sweep's Handing off naming refactor-triage.
 - `test/phase-status.test.mjs` — the opt-in phase-grain status vocabulary (additive to the
   spec-derive/spec-bridge suites): the five-stage derivation ladder (specifying →
   planning → implementing → validating → reviewing, incl. single-phase tasks.md and
