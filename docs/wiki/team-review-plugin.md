@@ -12,13 +12,13 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: 92ab11992084a733a670fe95b2fc7d0a2a5a3b7d
+verified_against: b16a7507fecba4274c8b784898cf182f517b41de
 ---
 
 # team-review plugin
 
 The `team-review` plugin (lockstep with the marketplace version; skill at its own
-`version: 1.1.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
+`version: 1.2.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
 the lead orients, fans out specialist subagents in parallel (seniors for depth, scouts for
 breadth, team sized by the target's non-test line count), spot-checks their claims, and
 synthesizes one consolidated, evidence-backed report. The engagement is **read-only by
@@ -29,8 +29,9 @@ It is the suite's first **caller-supplied target** plugin (the third placement m
 [[skill-patterns]]): it operates on a root the caller names but stores all state at the
 *invoking* project's root — run records ride the gitignored `.handoff/team-review/runs/`
 transport there, and nothing (no hook, no CLAUDE.md) is ever installed into the target.
-Self-review (invoking root == target) is sanctioned: the records then land inside the
-target, and the gate treats that residue as transport, never as mutation. It deliberately
+Self-review (invoking root == target) is sanctioned: the records — and the default report —
+then land inside the target's `.handoff/` transport, and the gate treats that residue as
+transport, never as mutation. It deliberately
 ships **no lifecycle and no planted CLAUDE.md**; the gate is in-skill plus an invoking-side
 Stop hook.
 
@@ -44,17 +45,23 @@ records target/report/cwd, and warns if the invoking root's `.gitignore` misses 
 the target, since the records then land inside the repo under review).
 `finish` runs the output gate and marks the run `done` only on pass; `abandon <id> <reason>`
 closes with durable residue; ids are `<target-basename>-<timestamp>` with a collision
-suffix so a record is never overwritten. `$TEAM_REVIEW_HOME` overrides the runs dir (tests).
+suffix so a record is never overwritten. The default report path is
+`reports/team-review-<run-id>.md` beside the runs registry (`reportsDirFor`) — run-id-keyed
+so two same-day runs of one target never collide on one report path (reorient's prior art),
+and never bare cwd, so a self-review's default can't land on the target's own content.
+`$TEAM_REVIEW_HOME` overrides both the runs dir and the reports dir (tests).
 
 **The output gate never writes.** `gates/review.mjs` exports the pure pieces
-(`runsDirFor`, `gitSnapshot`, `citations`, `checkReview`) and checks three things: the
+(`runsDirFor`, `reportsDirFor`, `gitSnapshot`, `citations`, `checkReview`) and checks three
+things: the
 report has all required sections (TL;DR, What we like, What could be improved, What should
 be removed, Stealing for later, Questions), at least 5 backticked file citations resolve to
 real files in the target (tolerating a repeated repo-basename prefix), and the target's git
 snapshot is unchanged since `begin` — with `.handoff/` entries stripped from both sides of
 the porcelain comparison (`stripHandoffEntries`), so the plugin's own run records never trip
-the read-only check on a self-review. A report written *inside* the target is rejected
-outright.
+the read-only check on a self-review. A report written *inside* the target is rejected —
+except under the target's `.handoff/` transport, the same exemption as the porcelain strip
+(and where the default lands when the runs home root IS the target, i.e. self-review).
 
 **Stop-hook enforcement.** `reviewGate` speaks the `@praxisflux/gates` contract: its
 `resolveRoots(startDir)` returns the in-flight run records under `runsDirFor(startDir)`
@@ -92,5 +99,7 @@ engagement), Phase 4 synthesis to the run's report path, then the output gate vi
   begin <target> [--report <path>] | finish <id|target> | abandon <id|target> [reason] | list`.
 - Gate CLI (read-only): `node ${CLAUDE_PLUGIN_ROOT}/gates/review.mjs <run.json>` — exit 0
   pass, 2 with problems on stderr.
-- The default report path is the invoking cwd, never inside the target; `checkReview`
-  enforces the outside-the-target rule even when a caller overrides it.
+- The default report path is `.handoff/team-review/reports/team-review-<run-id>.md` under
+  the runs home, never on the target's content; `checkReview` enforces the
+  outside-the-target rule (with only the `.handoff/` transport exempt) even when a caller
+  overrides the path with `--report`.
