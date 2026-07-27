@@ -13,8 +13,8 @@
 - [x] T004 capsules.mjs: corpusDir normalized before embed + compare; spelling-invariant
   regenerate-and-compare; pre-fix headers degrade to regeneration guidance (R3)
 - [x] T005 regression tests: missing source, inline array, corpusDir spellings (R4)
-- [ ] T006 versions: skill version bump(s) + marketplace sync-version
-- [ ] T007 wiki: grounding-wiki-plugin re-verified + re-pinned; CAPSULES if description
+- [x] T006 versions: skill version bump(s) + marketplace sync-version
+- [x] T007 wiki: grounding-wiki-plugin re-verified + re-pinned; CAPSULES if description
   changed
 
 ## Prove
