@@ -1,0 +1,25 @@
+{
+  "name": "praxis-pet",
+  "sandbox": "evanstern/praxisflux-demo-sandbox",
+  "identity": { "name": "Praxis Demo", "email": "praxis-demo@praxisflux.invalid" },
+  "baseDate": "2026-06-01T09:00:00Z",
+  "stepSeconds": 3600,
+  "stages": [
+    {
+      "n": 0,
+      "tag": "stage-0",
+      "title": "bare app",
+      "gates": ["app-test"],
+      "narrative": "praxis-pet exists: a tiny tamagotchi CLI with unit tests and nothing else — no grounding, no board, no specs. This is any real project the day before the PDLC arrives."
+    }
+  ],
+  "ladder": [
+    {
+      "label": "stage-0",
+      "from": "stage-0",
+      "sync": [""],
+      "tag": "stage-0",
+      "message": "praxis-pet: tiny tamagotchi CLI — state machine, JSON store, node:test suite"
+    }
+  ]
+}
