@@ -1,11 +1,11 @@
 ---
 name: pdlc-sweep
-description: The pdlc:sweep skill — the board-sweep orchestrator; authors a dependency-laned, operator-signed-off runbook over a set of board tasks, then executes each through spec → link → worktree → delegated implementation → PR → serial merge → re-ground, under concurrency doctrine for shared repos — claim-before-work, paused-lane markers, merge-drift gate consumption, and pin-aware reconciliation (pin-carrying branches merge origin/main in; pin-free branches rebase).
+description: The pdlc:sweep skill — the board-sweep orchestrator; authors a dependency-laned, operator-signed-off runbook over board tasks, then executes each through spec → link → worktree → delegated implementation → PR → serial merge → re-ground, under concurrency doctrine for shared repos — claim-before-work, paused-lane markers, merge-drift gates, pin-aware reconciliation (pin-carrying branches merge main in; pin-free rebase), and honest post-merge-in re-pins classified against the main-side diff.
 kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: cc5cfd891c924159fc04e1c63a54912287a98d98
+verified_against: 92ab11992084a733a670fe95b2fc7d0a2a5a3b7d
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -57,14 +57,27 @@ findings to info.
 Since 0.27.0 the concurrency doctrine splits reconciliation by what the branch carries
 (promptworld field evidence, operator-ratified): a **pin-carrying branch** — one whose
 own commits are referenced by re-pins it carries, routine on wiki-in-PR hosts — **merges
-`origin/main` into the branch** and re-pins conflicted pins to the merge commit, because
-squash, rebase, and force-push all rewrite the branch's hashes and stale every carried
-pin at once; only a merge commit keeps the old hashes reachable, which is also why such
-a branch's PR lands as a merge commit, never a squash. **Pin-free branches still
-rebase.** And after every history move — merge-in or rebase — the gates AND the
-freshness probe re-run unconditionally, never gated on whether `docs/wiki/` changed:
-pins also reference design-reference files outside the wiki, so a wiki-untouched diff
-can still be stale.
+`origin/main` into the branch**, because squash, rebase, and force-push all rewrite the
+branch's hashes and stale every carried pin at once; only a merge commit keeps the old
+hashes reachable, which is also why such a branch's PR lands as a merge commit, never a
+squash. **Pin-free branches still rebase.** And after every history move — merge-in or
+rebase — the gates AND the freshness probe re-run unconditionally, never gated on
+whether `docs/wiki/` changed: pins also reference design-reference files outside the
+wiki, so a wiki-untouched diff can still be stale.
+
+Since 0.28.0 (skill 0.7.0) the re-pin leg is honest by doctrine: 0.27.0's mechanical
+"re-pin conflicted pins to the merge commit" instruction is superseded — pin = merge
+commit empties the freshness probe's `git log <pin>..HEAD -- <sources>` range by
+construction, so it could green the gate over a note contradicting main-side code. A
+merge-in licenses no pin bump; every stale or conflicted pin routes through the
+wiki-update plan loop's classifier ([[grounding-wiki-plugin]]) against the main-side
+diff over the note's sources (`git diff <old-pin>..<merge-commit> -- <sources>`):
+**RE-PIN-ONLY** where the diff provably can't invalidate prose, **NEEDS-REVIEW** where
+the prose is re-verified and amended before any bump. The merge commit remains the
+*target* of an honest re-pin, never its *justification*. Both files also state the safe
+procedure for downstream hosts that inherited the old convention: keep the merge-in,
+drop the mechanical re-pin, classify-then-pin, and treat pins already bumped under it
+as suspect at the next update pass.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from
 it plus the board alone. Because a runbook is an instruction-bearing artifact a session

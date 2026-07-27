@@ -49,9 +49,12 @@ A lesson is `done` only when every required artifact exists on disk. Enforced by
 script, not by git:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/progress.mjs --root <thisProjectRoot> <topic> --sync   # start & end of each lesson
-node ${CLAUDE_PLUGIN_ROOT}/scripts/progress.mjs --root <thisProjectRoot> <topic> --check  # validate
+node {{EDUCATE_PLUGIN_ROOT}}/scripts/progress.mjs <topic> --sync   # start & end of each lesson
+node {{EDUCATE_PLUGIN_ROOT}}/scripts/progress.mjs <topic> --check  # validate
 ```
+
+(Run from inside this project — the script finds the root by walking up to `topics/`; from
+elsewhere, add `--root <projectRoot>`.)
 
 `topics/<topic>/progress.json` is the machine-readable source of truth (schema:
 `topics/progress.schema.json`). Its per-lesson `artifacts` map is DERIVED from disk by the
@@ -71,9 +74,12 @@ trunk. To navigate the whole corpus, educate derives a roll-up index, kept fresh
 Both are **DERIVED from disk** — never hand-edit them; regenerate with the script:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <thisProjectRoot> --all --sync    # rebuild all WIKI.md
-node ${CLAUDE_PLUGIN_ROOT}/scripts/wiki.mjs --root <thisProjectRoot> --all --check   # report staleness
+node {{EDUCATE_PLUGIN_ROOT}}/scripts/wiki.mjs --all --sync    # rebuild all WIKI.md
+node {{EDUCATE_PLUGIN_ROOT}}/scripts/wiki.mjs --all --check   # report staleness
 ```
+
+(Same root resolution as the progress script: run from inside the project, or add
+`--root <projectRoot>`.)
 
 `progress.mjs --sync` regenerates them as part of the start/end-of-lesson ritual, and the `Stop`
 hook **warns** (never blocks) when a `WIKI.md` has drifted. Crucially, `WIKI.md` uses plain relative

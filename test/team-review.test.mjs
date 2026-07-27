@@ -104,13 +104,18 @@ test("checkReview: citations must resolve — repeated repo-basename prefix tole
   } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
 });
 
-test("checkReview: a report inside the reviewed repo is rejected", () => {
+test("checkReview: a report inside the reviewed repo is rejected — except under the .handoff transport", () => {
   const target = makeTarget();
   const report = join(target, "report.md");
   writeFileSync(report, GOOD_REPORT);
   try {
     const problems = checkReview(makeRun(target, report, { snapshot: undefined }));
     assert.ok(problems.some((p) => /report lives INSIDE the reviewed repo/.test(p)), problems.join("; "));
+    // the transport is exempted plumbing — the self-review default report lands there
+    const inTransport = join(target, ".handoff", "team-review", "reports", "team-review-r1.md");
+    mkdirSync(dirname(inTransport), { recursive: true });
+    writeFileSync(inTransport, GOOD_REPORT);
+    assert.deepEqual(checkReview(makeRun(target, inTransport, { snapshot: undefined })), []);
   } finally { rmSync(target, { recursive: true, force: true }); }
 });
 
@@ -252,6 +257,47 @@ test("run lifecycle: self-review with in-repo run records passes untouched, stil
     assert.equal(blocked.status, 2, "a genuinely mutated target must still block");
     assert.match(blocked.stderr, /target repo changed during the review/);
   } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+});
+
+// Regression (TASK-61): self-review on DEFAULTS must not deadlock. `begin .` used to default
+// the report to cwd — inside the target — which finish unconditionally blocked; the only
+// escape was --report up front. The default now resolves under the runs home (the exempted
+// .handoff/ transport on a self-review), so begin -> write default -> finish round-trips.
+test("run lifecycle: self-review round trip passes on the DEFAULT report path — no --report needed", () => {
+  const target = makeTarget();
+  const env = { ...process.env };
+  delete env.TEAM_REVIEW_HOME; // the real self-review shape: runs home root == the target
+  delete env.CLAUDE_PROJECT_DIR;
+  try {
+    const begin = cli(env, target, "begin", ".");
+    assert.equal(begin.status, 0, begin.stderr);
+    const id = begin.stdout.match(/run (\S+) in flight/)[1];
+    const report = begin.stdout.match(/report:\s+(\S+)/)[1];
+    assert.ok(report.startsWith(join(target, ".handoff") + "/"),
+      `default report must land in the target's .handoff transport, got ${report}`);
+    assert.ok(report.includes(id), `default report must be run-id-keyed, got ${report}`);
+
+    writeFileSync(report, GOOD_REPORT); // begin already created the reports dir
+    const finish = cli(env, target, "finish", id);
+    assert.equal(finish.status, 0, `self-review on defaults must not deadlock: ${finish.stderr}`);
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+// Regression (TASK-61): the old default was date-keyed — two same-day runs of one target
+// collided on a single report path. Run-id keying (reorient's prior art) makes them unique.
+test("run lifecycle: two same-day begins default to DISTINCT report paths", () => {
+  const target = makeTarget();
+  const { home, env } = scratchHome();
+  try {
+    const reports = [];
+    for (let i = 0; i < 2; i++) {
+      const begin = cli(env, home, "begin", target);
+      assert.equal(begin.status, 0, begin.stderr);
+      reports.push(begin.stdout.match(/report:\s+(\S+)/)[1]);
+      assert.ok(reports[i].startsWith(home + "/"), `default must live under the runs home, got ${reports[i]}`);
+    }
+    assert.notEqual(reports[0], reports[1], "same-day default report paths must never collide");
+  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
 });
 
 // ---------- Stop hook through the shared gate-runner ----------
