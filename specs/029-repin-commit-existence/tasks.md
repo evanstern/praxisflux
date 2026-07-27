@@ -13,5 +13,5 @@
 
 ## Prove
 
-- [ ] T005 gates green in worktree (node --test, check-docs, freshness) + version bump + staled notes re-pinned
-- [ ] T006 board finalized (ACs checked, Done, final summary); PR opened
+- [x] T005 gates green in worktree (node --test, check-docs, freshness) + version bump + staled notes re-pinned
+- [x] T006 board finalized (ACs checked, Done, final summary); PR opened
