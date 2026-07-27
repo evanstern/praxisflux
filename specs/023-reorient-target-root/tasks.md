@@ -7,12 +7,12 @@
 
 ## Implement
 
-- [ ] T002 run.mjs: registry resolved from the target root per command; no module-load
+- [x] T002 run.mjs: registry resolved from the target root per command; no module-load
   cwd capture (R1)
-- [ ] T003 run.mjs: worktree-first refusal evaluates the target checkout (R3)
-- [ ] T004 gate visibility: resolveRoots sees target-rooted runs from a session in the
+- [x] T003 run.mjs: worktree-first refusal evaluates the target checkout (R3)
+- [x] T004 gate visibility: resolveRoots sees target-rooted runs from a session in the
   target (R2)
-- [ ] T005 tests: cross-directory begin/finish + refusal-keyed-to-target (R4)
+- [x] T005 tests: cross-directory begin/finish + refusal-keyed-to-target (R4)
 - [ ] T006 SKILL.md records-location claim true; versions: reorient bump +
   marketplace sync-version
 - [ ] T007 wiki: reorient-plugin + reorient-run-ownership re-verified + re-pinned;
