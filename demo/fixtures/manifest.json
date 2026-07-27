@@ -11,6 +11,13 @@
       "title": "bare app",
       "gates": ["app-test"],
       "narrative": "praxis-pet exists: a tiny tamagotchi CLI with unit tests and nothing else — no grounding, no board, no specs. This is any real project the day before the PDLC arrives."
+    },
+    {
+      "n": 1,
+      "tag": "stage-1",
+      "title": "grounded",
+      "gates": ["wiki-freshness"],
+      "narrative": "The project is grounded: a research vault branch (research/Virtual-Pet-Mechanics — cited, neutral notes on the domain) and a code-grounded wiki (docs/wiki — 5 notes pinned to the stage-0 commit, CAPSULES rollup). The freshness gate now guards prose against code drift."
     }
   ],
   "ladder": [
@@ -20,6 +27,13 @@
       "sync": [""],
       "tag": "stage-0",
       "message": "praxis-pet: tiny tamagotchi CLI — state machine, JSON store, node:test suite"
+    },
+    {
+      "label": "stage-1",
+      "from": "stage-1",
+      "sync": [""],
+      "tag": "stage-1",
+      "message": "ground: research vault (Virtual-Pet-Mechanics) + docs/wiki built, pinned to stage-0"
     }
   ]
 }
