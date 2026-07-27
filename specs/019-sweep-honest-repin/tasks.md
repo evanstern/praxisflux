@@ -15,10 +15,10 @@
   the TASK-57 convention (R2)
 - [x] T005 versions: sweep SKILL.md version bump (0.6.0 → 0.7.0) + marketplace
   sync-version 0.28.0 (R3)
-- [ ] T006 wiki: docs/wiki/pdlc-sweep.md re-verified + re-pinned; CAPSULES if the
+- [x] T006 wiki: docs/wiki/pdlc-sweep.md re-verified + re-pinned; CAPSULES if the
   description changed (R3)
 
 ## Prove
 
-- [ ] T007 gates green: node --test, check-docs, wiki freshness, bump gate
+- [x] T007 gates green: node --test, check-docs, wiki freshness, bump gate
 - [ ] T008 board finalized (ACs checked, Done, final summary); PR opened
