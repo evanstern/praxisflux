@@ -15,7 +15,7 @@
   shared copy or valid target) (R3)
 - [x] T005 delegated-build round-trip test: gate passes at built with the R1 write,
   still blocks without it (R4)
-- [ ] T006 versions: lesson/implement skill bumps + marketplace sync-version
+- [x] T006 versions: lesson/implement skill bumps + marketplace sync-version
 - [ ] T007 wiki: educate-plugin + build-plugin + handoff-protocol re-verified +
   re-pinned; lockstep stales classified; CAPSULES if descriptions changed
 
