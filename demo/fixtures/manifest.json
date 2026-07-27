@@ -18,6 +18,15 @@
       "title": "grounded",
       "gates": ["wiki-freshness"],
       "narrative": "The project is grounded: a research vault branch (research/Virtual-Pet-Mechanics — cited, neutral notes on the domain) and a code-grounded wiki (docs/wiki — 5 notes pinned to the stage-0 commit, CAPSULES rollup). The freshness gate now guards prose against code drift."
+    },
+    {
+      "n": 2,
+      "tag": "stage-2",
+      "title": "planned",
+      "gates": ["spec-bridge"],
+      "taskIds": ["task-1", "task-2", "task-3"],
+      "liveTask": "task-3",
+      "narrative": "Work is planned as specs: a Backlog board with three tasks, each linked to a hand-authored Spec Kit spec dir (specs/001-003) via spec-bridge, plus a signed-off mini sweep runbook. task-3 (--version flag, one file) is the live demo thread — pre-specced and UNMERGED here."
     }
   ],
   "ladder": [
@@ -34,6 +43,13 @@
       "sync": [""],
       "tag": "stage-1",
       "message": "ground: research vault (Virtual-Pet-Mechanics) + docs/wiki built, pinned to stage-0"
+    },
+    {
+      "label": "stage-2",
+      "from": "stage-2",
+      "sync": [""],
+      "tag": "stage-2",
+      "message": "plan: board + specs 001-003 linked via spec-bridge, mini sweep runbook signed off"
     }
   ]
 }
