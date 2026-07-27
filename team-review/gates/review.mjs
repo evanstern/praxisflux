@@ -38,7 +38,10 @@ export function runsDirFor(dir) {
  *  when set, else `<root>/.handoff/team-review/reports`. Keyed off the runs home (never bare
  *  cwd) so a self-review (`begin .` from inside the target) can never default the report onto
  *  the target's own content: on a self-review this resolves into the target's `.handoff/`
- *  transport, which `checkReview` exempts — transport residue is never target content. */
+ *  transport, which `checkReview` exempts — transport residue is never target content. The
+ *  transport copy is plumbing, not the durable home: on a pure-defaults self-review,
+ *  scripts/run.mjs copies the proven report to tracked `docs/reviews/` on finish, after this
+ *  gate passes (a report is evidence and lives in tracked state — TASK-70 policy). */
 export function reportsDirFor(dir) {
   if (process.env.TEAM_REVIEW_HOME) return join(process.env.TEAM_REVIEW_HOME, "reports");
   return join(dirname(runsDirFor(dir)), "reports");

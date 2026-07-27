@@ -5,14 +5,19 @@
 // gate verifies against ("a status can't exceed the artifacts that prove it"). Records ride the
 // `.handoff/` transport at the INVOKING project's root (transient plumbing, gitignored, never
 // inside the reviewed repo — reviews are read-only by doctrine; skill-patterns §6, third
-// placement model); the durable residue is the report itself. $TEAM_REVIEW_HOME overrides the
+// placement model); the durable residue is the report itself. A report is EVIDENCE and lives in
+// tracked state (TASK-70 policy): on a SELF-REVIEW (invoking root == target) begun on the
+// default report path, `finish` copies the proven report to a tracked, run-id-keyed location in
+// the target (`docs/reviews/team-review-<run-id>.md`) AFTER the output gate passes — so the
+// untouched-target check never sees the copy — and records both paths. Explicit `--report`
+// always wins (no copy); run records stay on the transport. $TEAM_REVIEW_HOME overrides the
 // location (tests).
 //
 //   begin <target> [--report <path>]   snapshot the repo, open an in-flight run, print its id
 //   finish <id|target>                 run the output gate; pass -> state done; fail -> exit 2
 //   abandon <id|target> [reason...]    close without a report, keeping durable residue
 //   list                               show runs and states
-import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve, basename, dirname } from "node:path";
 import { checkReview, gitSnapshot, runsDirFor, reportsDirFor } from "../gates/review.mjs";
 import { runAsCli } from "../lib/cli.mjs";
@@ -57,9 +62,14 @@ if (runAsCli(import.meta.url)) {
     // path; reorient's synthesis default is the prior art).
     const report = resolve(ri >= 0 ? rest[ri + 1] : join(reportsDirFor(process.cwd()), `team-review-${id}.md`));
     if (ri < 0) mkdirSync(dirname(report), { recursive: true }); // the default dir must exist for the lead to write into
-    const snapshot = gitSnapshot(target);
-    save({ id, state: "in-flight", target, report, cwd: process.cwd(), startedAt: new Date().toISOString(), snapshot });
     const root = dirname(dirname(dirname(RUNS)));
+    // Self-review on the DEFAULT report path: the transport-side report is untracked residue,
+    // but a report is EVIDENCE and lives in tracked state — so `finish` copies the proven
+    // report to this tracked, run-id-keyed location (copy-on-finish, after the gate passes,
+    // so the untouched-target check never sees it). Explicit --report always wins: no copy.
+    const trackedReport = ri < 0 && root === target ? join(target, "docs", "reviews", `team-review-${id}.md`) : undefined;
+    const snapshot = gitSnapshot(target);
+    save({ id, state: "in-flight", target, report, trackedReport, cwd: process.cwd(), startedAt: new Date().toISOString(), snapshot });
     if (existsSync(join(root, ".git"))) {
       let ignored = false;
       try { ignored = /(^|\n)\.handoff\/?(\n|$)/.test(readFileSync(join(root, ".gitignore"), "utf8")); } catch { /* no .gitignore */ }
@@ -76,22 +86,34 @@ if (runAsCli(import.meta.url)) {
           "!! the repo under review. The read-only gate ignores .handoff/ entries, so the",
           `!! review can still pass — but add '.handoff/' to ${root}/.gitignore`,
           "!! so the transport never clutters git status.",
+          ...(trackedReport ? [
+            "!! The report is EVIDENCE: on finish the proven report is copied to tracked",
+            `!! state at ${trackedReport}.`,
+          ] : []),
           bar,
         ].join("\n"));
       } else if (!ignored) {
         console.error(`warning: ${root}/.gitignore does not cover .handoff/ — add it (handoff transport must never clutter git status)`);
       }
     }
-    console.log(`run ${id} in flight\n  target:   ${target} (${snapshot.git ? `git @ ${snapshot.head.slice(0, 7)}` : "not a git repo — untouched-check degraded to advisory"})\n  report:   ${report}\n  finish:   node ${process.argv[1]} finish ${id}`);
+    console.log(`run ${id} in flight\n  target:   ${target} (${snapshot.git ? `git @ ${snapshot.head.slice(0, 7)}` : "not a git repo — untouched-check degraded to advisory"})\n  report:   ${report}${trackedReport ? `\n  tracked:  ${trackedReport} (self-review: the proven report is copied here on finish — a report is evidence and lives tracked)` : ""}\n  finish:   node ${process.argv[1]} finish ${id}`);
   } else if (cmd === "finish") {
     const run = findRun(key || ".");
     if (!run) { console.error(`no run matching '${key}' — see: run.mjs list`); process.exit(1); }
     const problems = checkReview(run);
     if (problems.length) { console.error(`review gate BLOCKED for ${run.id}:\n` + problems.map((p) => `  - ${p}`).join("\n")); process.exit(2); }
+    if (run.trackedReport) {
+      // Copy-on-finish, strictly AFTER the gate passed: the untouched-target check compared
+      // snapshots before this copy exists, so landing tracked evidence can never re-open the
+      // in-target deadlock the run-id-keyed default fixed. A copy failure leaves the run
+      // in-flight — evidence that didn't land durably isn't done.
+      mkdirSync(dirname(run.trackedReport), { recursive: true });
+      copyFileSync(run.report, run.trackedReport);
+    }
     run.state = "done";
     run.finishedAt = new Date().toISOString();
     save(run);
-    console.log(`run ${run.id} done — report proven at ${run.report}`);
+    console.log(`run ${run.id} done — report proven at ${run.report}` + (run.trackedReport ? `\n  tracked copy landed at ${run.trackedReport} — commit it (a review report is evidence)` : ""));
   } else if (cmd === "abandon") {
     const run = findRun(key || ".");
     if (!run) { console.error(`no run matching '${key}'`); process.exit(1); }
