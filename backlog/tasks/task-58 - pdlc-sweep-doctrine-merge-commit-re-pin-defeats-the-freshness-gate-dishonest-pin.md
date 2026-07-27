@@ -3,11 +3,11 @@ id: TASK-58
 title: >-
   pdlc:sweep doctrine: merge-commit re-pin defeats the freshness gate (dishonest
   pin)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:57'
-updated_date: '2026-07-27 02:29'
+updated_date: '2026-07-27 02:46'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,12 +25,12 @@ Spec: specs/019-sweep-honest-repin
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Sweep doctrine routes post-merge-in staleness through the wiki-update plan loop (RE-PIN-ONLY vs NEEDS-REVIEW classified against the main-side diff) instead of mechanical merge-commit re-pins
-- [ ] #2 No text in sweep SKILL.md or templates/runbook.md instructs bumping a pin without reading the covered diff
-- [ ] #3 docs/wiki/pdlc-sweep.md re-grounded to the amended doctrine
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #1 Sweep doctrine routes post-merge-in staleness through the wiki-update plan loop (RE-PIN-ONLY vs NEEDS-REVIEW classified against the main-side diff) instead of mechanical merge-commit re-pins
+- [x] #2 No text in sweep SKILL.md or templates/runbook.md instructs bumping a pin without reading the covered diff
+- [x] #3 docs/wiki/pdlc-sweep.md re-grounded to the amended doctrine
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -46,3 +46,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane A): tier = default implementer — prose/doctrine amendment, well-scoped by three ACs; no code paths touched beyond skill text and wiki note.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Sweep doctrine amended to honest re-pins (PR pending merge; branch task-58-sweep-honest-repin). pdlc/skills/sweep/SKILL.md step 7 + concurrency doctrine and templates/runbook.md no longer instruct mechanical merge-commit re-pins: post-merge-in staleness now routes through the wiki-update plan loop — every stale/conflicted pin classified against the main-side diff over the note's sources as RE-PIN-ONLY vs NEEDS-REVIEW (prose re-verified before any bump); the merge commit stays the re-pin target, never the justification. Downstream-host paragraph states the same safe procedure for hosts that inherited the TASK-57 convention (promptworld sibling: their TASK-162). docs/wiki/pdlc-sweep.md re-grounded to the amended doctrine and re-pinned to 92ab119; the lockstep version bump staled 11 sibling notes, all classified and re-pinned per the new doctrine itself (7 RE-PIN-ONLY, 4 NEEDS-REVIEW re-verified). Versions: sweep skill 0.6.0 → 0.7.0, marketplace 0.28.0. Gates green at HEAD: node --test 210/210, check-docs, wiki freshness (29 notes), bump gate.
+<!-- SECTION:FINAL_SUMMARY:END -->
