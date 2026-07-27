@@ -93,7 +93,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.21.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.36.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -146,9 +146,11 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   for a human to approve (a policy ratified, a posture changed, a contract made binding) —
   never a diff for its own sake; work too small to give a reviewer a real decision merges
   into the deliverable it serves.
-- **Gates:** a status can never exceed the artifacts that prove it. Plugins ship Stop hooks
-  that enforce this; when a gate blocks, produce the missing artifact — don't argue with the
-  gate or edit derived state by hand.
+- **Gates:** a status can never exceed the artifacts that prove it. Enforcement is
+  per-plugin: spec-bridge, educate, research, reorient, and team-review ship Stop hooks;
+  grounding-wiki's freshness gate runs as check scripts and CI, not a hook. When a gate
+  blocks, produce the missing artifact — don't argue with the gate or edit derived state
+  by hand.
 - **Handoffs:** plugins compose only through files + gates, never by calling each other.
   Payloads ride the gitignored `.handoff/` transport; evidence lives in tracked state.
 - **Grounding freshness:** `docs/wiki/` is load-bearing, not decoration. Changes that touch
@@ -175,4 +177,5 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
+
 
