@@ -15,10 +15,10 @@
 - [x] T005 tests: cross-directory begin/finish + refusal-keyed-to-target (R4)
 - [x] T006 SKILL.md records-location claim true; versions: reorient bump +
   marketplace sync-version
-- [ ] T007 wiki: reorient-plugin + reorient-run-ownership re-verified + re-pinned;
+- [x] T007 wiki: reorient-plugin + reorient-run-ownership re-verified + re-pinned;
   CAPSULES if descriptions changed
 
 ## Prove
 
-- [ ] T008 gates green: node --test, check-docs, wiki freshness, bump gate
+- [x] T008 gates green: node --test, check-docs, wiki freshness, bump gate
 - [ ] T009 board finalized (ACs checked, Done, final summary); PR opened
