@@ -25,7 +25,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 5f10003d2e75c2c5c581481d03983fc57276c275
+verified_against: abadcf4f08acde96dc6635afc05eb7535dbd771e
 ---
 
 # Test suite — per-file coverage catalog
@@ -76,7 +76,8 @@ One bullet per `test/*.test.mjs` file:
   note + path, including rename-after-pin) against a throwaway git repo, plus the plan
   loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
   code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
-  repin refusals).
+  repin refusals — including a format-valid hash naming no commit, refused with the
+  note left byte-identical, and a note outside any git repo).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
   delegated round trip with each leg doing exactly what its skill instructs: build writes
