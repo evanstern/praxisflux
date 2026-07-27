@@ -73,11 +73,11 @@ One bullet per `test/*.test.mjs` file:
   rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
-  staleness-check identically; a source path missing from the working tree blocks naming
-  note + path, including rename-after-pin) against a throwaway git repo, plus the plan
-  loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
-  code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
-  repin refusals).
+  staleness-check identically; missing/renamed source paths block naming note + path)
+  against a throwaway git repo, plus the plan loop (`classifyNote` truth table,
+  stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
+  fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
+  and notes outside git, note untouched).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
   delegated round trip with each leg doing exactly what its skill instructs: build writes

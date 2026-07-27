@@ -1,7 +1,7 @@
 // grounding-wiki.freshness.test.mjs — the freshness gate against a throwaway git repo.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -233,4 +233,37 @@ test("repin: refuses short hashes, missing notes, and pinless files", (t) => {
   assert.throws(() => repin(join(repo, "nope.md"), pin), /no such note/);
   writeFileSync(join(repo, "docs", "wiki", "raw.md"), "no frontmatter");
   assert.throws(() => repin(join(repo, "docs", "wiki", "raw.md"), pin), /no verified_against/);
+});
+
+/* ── repin: commit-existence probe (TASK-68) ──────────────────── */
+
+test("repin: refuses a well-formed hash naming no commit; note left byte-identical", (t) => {
+  const repo = makeRepo();
+  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  const pin = git(repo, "rev-parse", "HEAD");
+  const notePath = join(repo, "docs", "wiki", "alpha.md");
+  writeFileSync(notePath, note({ name: "alpha", pin, sources: ["src/a.txt"] }));
+  const before = readFileSync(notePath, "utf8");
+
+  const ghost = "deadbeef".repeat(5); // format-valid, names no commit
+  assert.throws(() => repin(notePath, ghost), new RegExp(ghost), "error must carry the hash");
+  assert.equal(readFileSync(notePath, "utf8"), before, "refusal must leave the note byte-identical");
+
+  // a real commit still repins: probe blocks ghosts, not the loop
+  writeFileSync(join(repo, "src", "a.txt"), "two\n");
+  git(repo, "add", "."); git(repo, "commit", "-qm", "c2");
+  const head = git(repo, "rev-parse", "HEAD");
+  assert.equal(repin(notePath, head), pin);
+  assert.match(readFileSync(notePath, "utf8"), new RegExp(`verified_against: ${head}`));
+});
+
+test("repin: refuses a note that sits outside any git repo", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "gw-norepo-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const notePath = join(dir, "alpha.md");
+  writeFileSync(notePath, note({ name: "alpha", pin: "f".repeat(40), sources: ["src/a.txt"] }));
+  const before = readFileSync(notePath, "utf8");
+
+  assert.throws(() => repin(notePath, "a".repeat(40)), /not inside a git repo/);
+  assert.equal(readFileSync(notePath, "utf8"), before, "refusal must leave the note byte-identical");
 });

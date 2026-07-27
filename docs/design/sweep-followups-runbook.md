@@ -159,3 +159,4 @@ execution-time test-file set with sources; no stale sweep worktrees in
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-27 | TASK-68 | #93 | 0c4f7ca | repin existence probe; v0.37.0; grounding-wiki-plugin note gained missing repin.mjs source |
