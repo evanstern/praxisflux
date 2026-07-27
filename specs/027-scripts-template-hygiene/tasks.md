@@ -13,7 +13,7 @@
   a count claim; header contract true (R3)
 - [x] T005 check-version-bump.mjs: non-semver base fails loudly (R4)
 - [x] T006 tests for all four
-- [ ] T007 versions: marketplace sync-version (verify next free)
+- [x] T007 versions: marketplace sync-version (verify next free)
 - [ ] T008 wiki: build-and-release, release-pipeline, skill-patterns, gates-convention
   (+ hooks.json-listing notes) re-verified + re-pinned; lockstep stales classified;
   CAPSULES if descriptions changed
