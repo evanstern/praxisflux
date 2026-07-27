@@ -12,13 +12,13 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: b6694ccfcd7454466df1e0afb6250febe1023b34
+verified_against: 35985729c422454e14473b32eeb00239354e6056
 ---
 
 # team-review plugin
 
 The `team-review` plugin (lockstep with the marketplace version; skill at its own
-`version: 1.2.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
+`version: 1.3.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
 the lead orients, fans out specialist subagents in parallel (seniors for depth, scouts for
 breadth, team sized by the target's non-test line count), spot-checks their claims, and
 synthesizes one consolidated, evidence-backed report. The engagement is **read-only by
@@ -31,7 +31,11 @@ It is the suite's first **caller-supplied target** plugin (the third placement m
 transport there, and nothing (no hook, no CLAUDE.md) is ever installed into the target.
 Self-review (invoking root == target) is sanctioned: the records — and the default report —
 then land inside the target's `.handoff/` transport, and the gate treats that residue as
-transport, never as mutation. It deliberately
+transport, never as mutation. **The residue rule (TASK-70, operator-decided):** a review
+report is evidence and lives in tracked state; the transport is transient plumbing — so a
+pure-defaults self-review copies the proven report to tracked
+`docs/reviews/team-review-<run-id>.md` in the target on `finish` (run records stay on the
+transport). It deliberately
 ships **no lifecycle and no planted CLAUDE.md**; the gate is in-skill plus an invoking-side
 Stop hook.
 
@@ -49,6 +53,11 @@ suffix so a record is never overwritten. The default report path is
 `reports/team-review-<run-id>.md` beside the runs registry (`reportsDirFor`) — run-id-keyed
 so two same-day runs of one target never collide on one report path (reorient's prior art),
 and never bare cwd, so a self-review's default can't land on the target's own content.
+On a pure-defaults self-review (runs home root == target, no `--report`), `begin` records a
+`trackedReport` destination — `docs/reviews/team-review-<run-id>.md` in the target — names it
+in its output and the WARN, and `finish` copies the proven report there strictly AFTER the
+output gate passes, so the untouched-target check never sees the copy (the TASK-61 deadlock
+fix holds); the run record then names both paths. Explicit `--report` always wins: no copy.
 `$TEAM_REVIEW_HOME` overrides both the runs dir and the reports dir (tests).
 
 **The output gate never writes.** `gates/review.mjs` exports the pure pieces
@@ -103,3 +112,6 @@ engagement), Phase 4 synthesis to the run's report path, then the output gate vi
   the runs home, never on the target's content; `checkReview` enforces the
   outside-the-target rule (with only the `.handoff/` transport exempt) even when a caller
   overrides the path with `--report`.
+- Self-review on pure defaults ends with TWO copies of the report: the transport one the
+  gate verified, and the tracked one at `docs/reviews/team-review-<run-id>.md` for the
+  operator to commit — evidence lives in tracked state.

@@ -283,6 +283,51 @@ test("run lifecycle: self-review round trip passes on the DEFAULT report path �
   } finally { rmSync(target, { recursive: true, force: true }); }
 });
 
+// Policy (TASK-70): a review report is EVIDENCE and lives in tracked state; the transport is
+// transient plumbing. On a pure-defaults self-review, finish — after the gate passes — copies
+// the proven report to a tracked, run-id-keyed location in the target and records both paths.
+// Explicit --report always wins: no copy, no trackedReport on the record.
+test("run lifecycle: pure-defaults self-review lands a tracked copy on finish, recorded on the run; --report never copies", () => {
+  const target = makeTarget();
+  const env = { ...process.env };
+  delete env.TEAM_REVIEW_HOME; // the real self-review shape: runs home root == the target
+  delete env.CLAUDE_PROJECT_DIR;
+  const outside = mkdtempSync(join(tmpdir(), "team-review-out-"));
+  try {
+    const begin = cli(env, target, "begin", ".");
+    assert.equal(begin.status, 0, begin.stderr);
+    const id = begin.stdout.match(/run (\S+) in flight/)[1];
+    const report = begin.stdout.match(/report:\s+(\S+)/)[1];
+    const tracked = begin.stdout.match(/tracked:\s+(\S+)/)[1];
+    assert.equal(tracked, join(target, "docs", "reviews", `team-review-${id}.md`),
+      "begin must name the tracked, run-id-keyed destination");
+
+    writeFileSync(report, GOOD_REPORT);
+    const finish = cli(env, target, "finish", id);
+    assert.equal(finish.status, 0, `copy-on-finish must not re-open the in-target deadlock: ${finish.stderr}`);
+    assert.equal(readFileSync(tracked, "utf8"), GOOD_REPORT, "the proven report must land tracked, on disk");
+    const rec = JSON.parse(readFileSync(join(target, ".handoff", "team-review", "runs", `${id}.json`), "utf8"));
+    assert.equal(rec.state, "done");
+    assert.equal(rec.report, report, "run record must keep the transport path");
+    assert.equal(rec.trackedReport, tracked, "run record must name the tracked copy");
+
+    // explicit --report wins: a second self-review run over the same target (its docs/reviews
+    // residue now in the begin snapshot) round-trips with NO copy and no trackedReport field
+    const report2 = join(outside, "report2.md");
+    const begin2 = cli(env, target, "begin", ".", "--report", report2);
+    assert.equal(begin2.status, 0, begin2.stderr);
+    assert.ok(!/tracked:/.test(begin2.stdout), "--report must suppress the tracked-copy plan");
+    const id2 = begin2.stdout.match(/run (\S+) in flight/)[1];
+    writeFileSync(report2, GOOD_REPORT);
+    const finish2 = cli(env, target, "finish", id2);
+    assert.equal(finish2.status, 0, finish2.stderr);
+    const rec2 = JSON.parse(readFileSync(join(target, ".handoff", "team-review", "runs", `${id2}.json`), "utf8"));
+    assert.equal(rec2.trackedReport, undefined, "explicit --report must never copy");
+    assert.deepEqual(readdirSync(join(target, "docs", "reviews")), [`team-review-${id}.md`],
+      "no second tracked file may appear");
+  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+});
+
 // Regression (TASK-61): the old default was date-keyed — two same-day runs of one target
 // collided on a single report path. Run-id keying (reorient's prior art) makes them unique.
 test("run lifecycle: two same-day begins default to DISTINCT report paths", () => {
