@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 16:39'
+updated_date: '2026-07-27 16:42'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -16,7 +16,10 @@ ordinal: 108000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+<!-- SECTION:DESCRIPTION:BEGIN -->
 A demo rig that shows the entire PDLC to a coworker in ~30 minutes without waiting on live sweeps. Design (operator-ratified 2026-07-27): a generator script in this repo materializes a throwaway demo project (tiny Node CLI app, tamagotchi for continuity with TASK-25) as a real git repo whose HISTORY is the demo — one tag per stage: stage-0 bare app → stage-1 grounded (research vault branch + docs/wiki built and pinned) → stage-2 planned (board tasks, Spec Kit specs, spec-bridge links, signed-off sweep runbook) → stage-3 swept (merged PRs, board synced, wiki re-pinned) → stage-4 triaged (refactor-triage record + debt cards). The presenter time-travels between stages in seconds; every artifact at every stage is real, captured once from genuine plugin runs. Live moments are the fast deterministic ones: break the freshness gate on camera, have the spec-bridge gate block a dishonest status, card a debt finding. One tiny pre-specced task sweeps for REAL in the background during the demo (kicked off ~minute 5, its merged-PR twin already exists in stage-3 as the canned fallback). Remote: a scratch GitHub sandbox repo the reset script force-pushes, so live PRs are genuine. The rig hooks into the PDLC itself: CI regenerates the demo and asserts each stage passes its own gates; a wiki note pins the rig with the demoed skills as sources so the freshness gate flags drift. Rationale: repeatable (reset = regenerate, identical task IDs and narrative every run), re-demo-able without re-orientation, and drift-proof because the repo's own enforcement covers it.
+
+Spec: specs/034-demo-rig
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -29,4 +32,13 @@ A demo rig that shows the entire PDLC to a coworker in ~30 minutes without waiti
 - [ ] #6 A CI test regenerates the demo repo and asserts the stage tags exist and per-stage gates pass, so the demo cannot rot silently
 - [ ] #7 A docs/wiki note pins the rig (generator, fixtures, runsheet) listing the demoed skill files as sources, so the freshness gate flags the demo when those skills change
 - [ ] #8 Repeatability proven: two consecutive resets yield identical stage state (same demo-board task IDs, same tags, same narrative)
+- [ ] #9 Spec phase: Spec
+- [ ] #10 Spec phase: Implement
+- [ ] #11 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+sweep dispatch (2026-07-27): tier = default implementer — design operator-ratified with 8 explicit ACs, no open architecture decisions; flagged in runbook as largest single-task footprint (fixture capture drives real plugin runs); escalation is an operator checkpoint. Spec: specs/034-demo-rig, runbook docs/design/demo-rig-runbook.md (signed off 2026-07-27).
+<!-- SECTION:NOTES:END -->
