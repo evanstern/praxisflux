@@ -24,7 +24,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # Test suite — per-file coverage catalog
