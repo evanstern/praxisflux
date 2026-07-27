@@ -3,11 +3,11 @@ id: TASK-70
 title: >-
   team-review: decide whether self-review reports may live only in the
   gitignored transport (durable-residue policy)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 04:33'
-updated_date: '2026-07-27 13:59'
+updated_date: '2026-07-27 14:15'
 labels:
   - sweep-followup
 dependencies: []
@@ -28,9 +28,9 @@ Spec: specs/031-team-review-residue-policy
 - [x] #1 The residue policy is decided and recorded (SKILL.md + docs/wiki/team-review-plugin.md state one rule)
 - [x] #2 Behavior matches the recorded rule; if (b), the self-review round trip still passes on pure defaults (no gate deadlock regression)
 - [x] #3 Existing TASK-61 tests stay green; any new behavior is covered by a test
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -45,4 +45,12 @@ Spec: specs/031-team-review-residue-policy
 Sweep dispatch (runbook docs/design/sweep-followups-runbook.md): model tier = default implementer — policy recording + small routing change; the policy itself was decided by the operator at lane sign-off (choice b, tracked-by-default).
 
 Implemented policy (b), tracked-by-default: pure-defaults self-review copy-on-finish — begin records trackedReport (docs/reviews/team-review-<run-id>.md), names it in stdout + the self-review WARN; finish copies strictly AFTER the output gate passes (TASK-61 deadlock fix intact) and records both paths. --report always wins (no copy); non-self-review flow unchanged; run records stay on the transport. Rule recorded in SKILL.md + docs/wiki/team-review-plugin.md. Tests: TASK-61 suite green; new test 'pure-defaults self-review lands a tracked copy on finish, recorded on the run; --report never copies'. Wiki honestly re-pinned (team-review-plugin -> 5b590ea, test-suite-catalog -> 541b28d). Version bumps deliberately left to the orchestrator.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 2/2). Derived Done by spec-bridge sync. Shipped policy (b), operator-decided at sweep sign-off: a review report is evidence and lives tracked — pure-defaults self-review finish copies the proven report to docs/reviews/team-review-<run-id>.md after the output gate passes (no TASK-61 deadlock regression), --report never copies, rule recorded in SKILL.md (1.3.0) + team-review-plugin wiki note; delivered via PR on branch task-70-team-review-residue.
+<!-- SECTION:FINAL_SUMMARY:END -->
