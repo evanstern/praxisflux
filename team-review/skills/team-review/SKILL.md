@@ -1,6 +1,6 @@
 ---
 name: team-review
-version: 1.1.0
+version: 1.2.0
 description: Run a lead-engineer-plus-team architecture review of a codebase using parallel subagents, producing one consolidated, evidence-backed report — what's good, what could be improved, what should be removed, steal-worthy patterns, new ideas, and open questions. Use whenever the user asks to review, audit, assess, or critique a codebase, repo, or project ("what do you think of this code", "give me a code review of this repo", "fresh eyes on this", "what would you keep/change/remove", "what's worth stealing from this"), wants a second opinion on an architecture, or asks how well a codebase serves a stated product goal — even if they don't use the word "review". Not for reviewing a single diff or PR (use a diff-review flow for that).
 ---
 
@@ -20,9 +20,11 @@ Helper scripts live in this plugin's base directory (`${CLAUDE_PLUGIN_ROOT}`). E
 stated inline fallback — the skill must still work hand-copied without them. `gates/` only
 verifies and never writes; `scripts/run.mjs` is the only state writer. Run records ride the
 gitignored `.handoff/team-review/runs/` transport at the *invoking* project's root — transient
-plumbing, never inside the reviewed repo; the report is the durable residue. Self-review
-(target == invoking root) is the sanctioned exception: records land in-repo, the read-only
-gate ignores `.handoff/` residue, and `begin` warns loudly if the transport isn't gitignored.
+plumbing, never inside the reviewed repo; the report is the durable residue (default:
+`.handoff/team-review/reports/`, run-id-keyed). Self-review (target == invoking root) is the
+sanctioned exception: records and the default report land in-repo inside the exempted
+`.handoff/` transport, the read-only gate ignores that residue, and `begin` warns loudly if
+the transport isn't gitignored.
 
 ## Precondition gate — open the run
 
@@ -35,8 +37,11 @@ gate ignores `.handoff/` residue, and `begin` warns loudly if the transport isn'
 3. Open the tracked run — the durable record that a review is in flight, and the evidence base
    (git snapshot) the output gate later checks the read-only rule against:
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs begin <target-repo>` (add `--report <path>` to
-   choose where the report file lands; the default is the current directory, never inside the
-   target).
+   choose where the report file lands; the default is
+   `.handoff/team-review/reports/team-review-<run-id>.md` under the invoking project's root —
+   run-id-keyed so same-day runs never collide, and never on the target's own content: on a
+   self-review it lands in the target's exempted `.handoff/` transport, so `finish` still
+   passes).
    *Fallback if the script is missing:* note the target's `git rev-parse HEAD` + `git status
    --porcelain` yourself and pick a report path outside the target; self-check at the end.
 
@@ -123,7 +128,9 @@ agent must cost the review a section, never the whole engagement.
 
 ## Phase 4 — synthesize
 
-Write the report to the run's report path (never inside the target repo). Selective rather than
+Write the report to the run's report path (never onto the target repo's content — the only
+sanctioned in-target location is the exempted `.handoff/` transport, where the self-review
+default lands). Selective rather than
 exhaustive — include a finding only if it would change what the reader does next. Keep file:line
 citations on load-bearing claims (the gate requires them to resolve to real files). Structure:
 
