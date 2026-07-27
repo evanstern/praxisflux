@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 SKILL.md: frontmatter + precondition gate + Scope phase with the three entry modes (R1, R2)
-- [ ] T003 Evaluate phase: team-review orchestration via lens, inline degradation, range-mode intent-drift pass (R3, R4)
-- [ ] T004 Triage + Execute phases: tracked run-id-keyed triage record; accepted findings → cited, labeled backlog tasks (R5, R6)
-- [ ] T005 prose output gate + Handing off; sweep SKILL.md Handing off names refactor-triage, version bumped (R7, R8)
+- [x] T002 SKILL.md: frontmatter + precondition gate + Scope phase with the three entry modes (R1, R2)
+- [x] T003 Evaluate phase: team-review orchestration via lens, inline degradation, range-mode intent-drift pass (R3, R4)
+- [x] T004 Triage + Execute phases: tracked run-id-keyed triage record; accepted findings → cited, labeled backlog tasks (R5, R6)
+- [x] T005 prose output gate + Handing off; sweep SKILL.md Handing off names refactor-triage, version bumped (R7, R8)
 - [ ] T006 tests extended in test/pdlc.test.mjs; pdlc/README.md updated (R1, R9)
 
 ## Prove
