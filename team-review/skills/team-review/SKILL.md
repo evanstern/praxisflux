@@ -21,10 +21,15 @@ stated inline fallback — the skill must still work hand-copied without them. `
 verifies and never writes; `scripts/run.mjs` is the only state writer. Run records ride the
 gitignored `.handoff/team-review/runs/` transport at the *invoking* project's root — transient
 plumbing, never inside the reviewed repo; the report is the durable residue (default:
-`.handoff/team-review/reports/`, run-id-keyed). Self-review (target == invoking root) is the
-sanctioned exception: records and the default report land in-repo inside the exempted
-`.handoff/` transport, the read-only gate ignores that residue, and `begin` warns loudly if
-the transport isn't gitignored.
+`.handoff/team-review/reports/`, run-id-keyed). **The residue rule: a review report is evidence
+and lives in tracked state; the transport is transient plumbing.** Self-review (target ==
+invoking root) is the sanctioned exception to read-only placement: records and the default
+report land in-repo inside the exempted `.handoff/` transport, the read-only gate ignores that
+residue, and `begin` warns loudly if the transport isn't gitignored — and because the target's
+transport is gitignored plumbing, `finish` then copies the proven report to a tracked,
+run-id-keyed location in the target (`docs/reviews/team-review-<run-id>.md`), after the output
+gate passes, recording both paths on the run. Explicit `--report` always wins (no copy); run
+records stay on the transport either way.
 
 ## Precondition gate — open the run
 
@@ -41,7 +46,9 @@ the transport isn't gitignored.
    `.handoff/team-review/reports/team-review-<run-id>.md` under the invoking project's root —
    run-id-keyed so same-day runs never collide, and never on the target's own content: on a
    self-review it lands in the target's exempted `.handoff/` transport, so `finish` still
-   passes).
+   passes — and `finish` then copies the proven report to tracked
+   `docs/reviews/team-review-<run-id>.md` in the target, the durable home `begin` names
+   up front).
    *Fallback if the script is missing:* note the target's `git rev-parse HEAD` + `git status
    --porcelain` yourself and pick a report path outside the target; self-check at the end.
 
@@ -155,7 +162,9 @@ reuses) rather than proposing greenfield rewrites.
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/run.mjs finish <run-id>` — verifies the report has all
 sections, its citations resolve into the target repo, and the target is byte-for-byte untouched
-since `begin`. If it blocks, **produce the missing artifact** (fix the report, investigate any
+since `begin`. On a pure-defaults self-review, a passing `finish` also lands the proven report
+at the tracked `docs/reviews/` path it prints — tell the user to commit it (evidence lives in
+tracked state). If it blocks, **produce the missing artifact** (fix the report, investigate any
 repo mutation) — don't argue with the gate. If the user cancels the review midway, close with
 residue: `run.mjs abandon <run-id> <reason>`. *Fallback if the script is missing:* self-check the
 same three properties by hand and say so.
