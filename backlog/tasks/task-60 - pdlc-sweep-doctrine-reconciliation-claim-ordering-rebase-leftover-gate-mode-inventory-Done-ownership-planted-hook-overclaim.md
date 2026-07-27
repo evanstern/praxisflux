@@ -3,11 +3,11 @@ id: TASK-60
 title: >-
   pdlc:sweep doctrine reconciliation: claim ordering, rebase leftover, gate-mode
   inventory, Done ownership, planted-hook overclaim
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:57'
-updated_date: '2026-07-27 02:55'
+updated_date: '2026-07-27 03:35'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,14 +25,14 @@ Spec: specs/025-sweep-doctrine-reconcile
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 SKILL Phase 2 loop and runbook claim protocol state one consistent ordering (claim commit precedes spec authoring), and the SKILL loop contains an explicit claim step
-- [ ] #2 Rejected-claim-push remedy is merge-based, executable under a repo-wide rebase ban, and never requires a force-push; wiki and template agree
-- [ ] #3 Drift-gate mode inventory is identical between SKILL and runbook (all four modes, probed for)
-- [ ] #4 Re-ground step order makes the sync call effective (ticks before sync) and Done ownership matches spec-bridge doctrine
-- [ ] #5 Planted CLAUDE.md enforcement claims match what plugins actually ship
-- [ ] #6 Spec phase: Spec
-- [ ] #7 Spec phase: Implement
-- [ ] #8 Spec phase: Prove
+- [x] #1 SKILL Phase 2 loop and runbook claim protocol state one consistent ordering (claim commit precedes spec authoring), and the SKILL loop contains an explicit claim step
+- [x] #2 Rejected-claim-push remedy is merge-based, executable under a repo-wide rebase ban, and never requires a force-push; wiki and template agree
+- [x] #3 Drift-gate mode inventory is identical between SKILL and runbook (all four modes, probed for)
+- [x] #4 Re-ground step order makes the sync call effective (ticks before sync) and Done ownership matches spec-bridge doctrine
+- [x] #5 Planted CLAUDE.md enforcement claims match what plugins actually ship
+- [x] #6 Spec phase: Spec
+- [x] #7 Spec phase: Implement
+- [x] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -48,3 +48,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane A second, after TASK-58 merged — same files): tier = default implementer — five bounded text reconciliations across the sweep doctrine set.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Sweep doctrine set reconciled to one story (branch task-60-sweep-doctrine-reconcile; PR pending merge). (1) The SKILL Phase 2 loop gained an explicit claim step: worktree cut from origin/main (stated outright that it does not yet contain the spec); first commit = board In Progress + spec dir stub, push -u, never force-push; Spec Kit cycle authored on the claimed branch; runbook claim paragraph aligned. (2) Rejected-claim remedy in both files is merge-based (fetch + merge origin/main + plain re-push) — rebase-ban-safe, no force-push; wiki states the same rule. (3) Drift-gate inventory identical in both files: four modes (session/claim/worktree/pr) probed at the precondition gate, invocations verbatim. (4) Re-ground order: tick tasks.md at root FIRST, then spec-bridge:sync — sync's derived plan named the only path to Done; hand-set-Done phrasing removed. (5) Planted CLAUDE.md Gates rule states ship-reality (spec-bridge/educate/research/reorient/team-review ship Stop hooks; grounding-wiki freshness is check-scripts/CI; build/codebase-to-course/pdlc ship none — verified against each hooks/hooks.json). Versions: sweep skill 0.8.0, bootstrap 0.6.0 (template's owning skill per TASK-51 precedent), marketplace 0.34.0. Wiki: pdlc-sweep + pdlc-plugin re-grounded with Since-0.34.0 phrasing; 11 lockstep notes classified per the honest-re-pin loop (dogfooding the amended doctrine); CAPSULES regenerated. Reconciled with post-61/62/65/59/64 main by merge-in (a7fab09). Gates green at HEAD: node --test 230/230, check-docs, wiki freshness 30 notes under the stricter TASK-59 gate, bump gate 0.33.0 → 0.34.0. Post-merge follow-up flagged (needs operator approval): pdlc:bootstrap replant so the repo's own planted CLAUDE.md block picks up the corrected enforcement sentence.
+<!-- SECTION:FINAL_SUMMARY:END -->
