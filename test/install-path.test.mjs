@@ -158,6 +158,40 @@ test("every Stop-hook plugin is covered: catalog-derived list is complete and ha
     );
 });
 
+test("install path e2e [educate]: planted CLAUDE.md commands run as written in a user project", () => {
+  const installed = installPlugin({ name: "educate", source: "educate" });
+
+  // Simulate the plant exactly as educate:start instructs: render the template's two
+  // placeholders (lib/template.mjs contract) — PROJECT_NAME and the plugin root resolved
+  // at plant time, since a user project's shell has no ${CLAUDE_PLUGIN_ROOT}.
+  const template = readFileSync(join(installed, "templates", "CLAUDE.md"), "utf8");
+  const planted = template
+    .replaceAll("{{PROJECT_NAME}}", "learnings")
+    .replaceAll("{{EDUCATE_PLUGIN_ROOT}}", installed);
+  assert.doesNotMatch(planted, /\{\{\s*[A-Z0-9_]+\s*\}\}/, "no template placeholder may survive a plant");
+  assert.doesNotMatch(planted, /\$\{?CLAUDE_PLUGIN_ROOT/, "no shell var undefined in a user project may survive a plant");
+
+  // A minimal but valid project (one topic, empty lesson list), planted CLAUDE.md at root.
+  const project = fixtureDir();
+  mkdirSync(join(project, "topics", "demo"), { recursive: true });
+  writeFileSync(join(project, "topics", "demo", "progress.json"),
+    JSON.stringify({ definitionOfDone: {}, lessons: [] }));
+  writeFileSync(join(project, "CLAUDE.md"), planted);
+
+  // Every `node …` command the planted file tells the user to run must (a) point at a script
+  // that exists in the installed copy and (b) exit 0 as written — cwd inside the project,
+  // CLAUDE_PLUGIN_ROOT scrubbed from the environment, only <topic> filled in by the user.
+  const commands = [...planted.matchAll(/^node (\S+).*$/gm)];
+  assert.ok(commands.length >= 4, `template lost its gate/wiki commands? found ${commands.length}`);
+  const { CLAUDE_PLUGIN_ROOT: _scrubbed, ...env } = process.env;
+  for (const [line, script] of commands) {
+    assert.ok(existsSync(script), `planted command names a missing script: ${script}`);
+    const cmd = line.replaceAll("<topic>", "demo");
+    const r = spawnSync("bash", ["-c", cmd], { cwd: project, encoding: "utf8", env });
+    assert.equal(r.status, 0, `planted command failed as written: ${cmd}\nstderr: ${r.stderr}\nstdout: ${r.stdout}`);
+  }
+});
+
 for (const plugin of HOOK_PLUGINS) {
   test(`install path e2e [${plugin.name}]: dereferenced copy runs its Stop hook; gate fires and honors the loop guard`, () => {
     const installed = installPlugin(plugin);

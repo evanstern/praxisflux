@@ -14,7 +14,7 @@
 //   list                               show runs and states
 import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve, basename, dirname } from "node:path";
-import { checkReview, gitSnapshot, runsDirFor } from "../gates/review.mjs";
+import { checkReview, gitSnapshot, runsDirFor, reportsDirFor } from "../gates/review.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
 const RUNS = runsDirFor(process.cwd());
@@ -51,7 +51,12 @@ if (runAsCli(import.meta.url)) {
     let id = `${basename(target)}-${stamp}`;
     while (existsSync(runPath(id))) id += "x"; // never overwrite an existing run record
     const ri = rest.indexOf("--report");
-    const report = resolve(ri >= 0 ? rest[ri + 1] : join(process.cwd(), `team-review-${basename(target)}-${stamp.slice(0, 10)}.md`));
+    // Default report path lives under the runs home, keyed by RUN ID — never bare cwd (a
+    // self-review's cwd IS the target, and the gate rightly blocks reports on the target's
+    // content), and never date-keyed (two same-day runs must never collide on one report
+    // path; reorient's synthesis default is the prior art).
+    const report = resolve(ri >= 0 ? rest[ri + 1] : join(reportsDirFor(process.cwd()), `team-review-${id}.md`));
+    if (ri < 0) mkdirSync(dirname(report), { recursive: true }); // the default dir must exist for the lead to write into
     const snapshot = gitSnapshot(target);
     save({ id, state: "in-flight", target, report, cwd: process.cwd(), startedAt: new Date().toISOString(), snapshot });
     const root = dirname(dirname(dirname(RUNS)));
