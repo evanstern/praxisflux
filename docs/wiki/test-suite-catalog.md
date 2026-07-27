@@ -25,7 +25,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 5f10003d2e75c2c5c581481d03983fc57276c275
+verified_against: 541b28d4e68f9d216fac5e44a15b6ed80a482142
 ---
 
 # Test suite — per-file coverage catalog
@@ -112,8 +112,9 @@ One bullet per `test/*.test.mjs` file:
 - `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
   resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
   the run CLI (begin/finish/abandon, id collisions, self-review regressions incl. the
-  default-report round trip, same-day default uniqueness), and the Stop-hook paths
-  through gate-runner `evaluate`.
+  default-report round trip, same-day default uniqueness, and the tracked-copy policy:
+  pure-defaults self-review finish lands `docs/reviews/` evidence recorded on the run,
+  `--report` never copies), and the Stop-hook paths through gate-runner `evaluate`.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
