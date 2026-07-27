@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 04:33'
-updated_date: '2026-07-27 13:48'
+updated_date: '2026-07-27 14:00'
 labels:
   - sweep-followup
 dependencies: []
@@ -25,15 +25,13 @@ Spec: specs/030-sync-version-argv
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Non-semver or missing argv (incl. --help style flags) prints usage and exits nonzero without touching any file
-- [ ] #2 Valid x.y.z behavior unchanged (all 11 files stamped, sync --check unchanged)
-- [ ] #3 Regression test covers the refusal and the no-files-touched guarantee
+- [x] #1 Non-semver or missing argv (incl. --help style flags) prints usage and exits nonzero without touching any file
+- [x] #2 Valid x.y.z behavior unchanged (all 11 files stamped, sync --check unchanged)
+- [x] #3 Regression test covers the refusal and the no-files-touched guarantee
 - [ ] #4 Spec phase: Spec
 - [ ] #5 Spec phase: Implement
 - [ ] #6 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -45,4 +43,10 @@ Spec: specs/030-sync-version-argv
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep dispatch (runbook docs/design/sweep-followups-runbook.md): model tier = default implementer — argv-guard pattern already established by TASK-66 for build.mjs; bounded, three ACs.
+
+Call-site audit (T002, grep across .githooks, .github/workflows, scripts, docs, test, specs): every live invocation is either --check or an explicit x.y.z — .githooks/pre-commit:15 (--check), .github/workflows/ci.yml:27 (--check), .github/workflows/release.yml:46 (--check), scripts/new-plugin.mjs:216 (advises --check), scripts/check-version-bump.mjs:68 (advises 'sync-version.mjs <new>'), docs/releasing.md:48 (example '0.3.0'), runbooks/specs all cite explicit-version runs. test/build-npm.test.mjs imports stampNpxPin only (library, not CLI). NOTHING consumes the bare no-arg mode; only docs/wiki/build-and-release.md describes it — prose updated + re-pinned in this branch. Safe to remove.
+
+Implemented in f2e0a36: argv validated before any file read/write — exactly one arg, --check or strict /^\d+\.\d+\.\d+$/; refusals print USAGE to stderr and exit 2 (build.mjs pattern), zero files written. Bare no-arg mode removed; header comment updated; --check drift hint now names an explicit-version rerun. Decision (recorded in spec 030): <=current targets allowed, no flag. New test/sync-version.test.mjs (4 tests, runs a COPY of the real script in a temp fixture repo so a stamping regression can never touch this repo): refusal matrix (missing arg, --help, -h, 1.2, v1.2.3, 1.2.3-beta, extra args) exit 2 + usage + version files byte-identical; valid 0.2.0 stamps marketplace + every plugin.json + action.yml pin; downgrade allowed; --check clean=0/drift=1 and never writes. Full suite 246 pass.
+
+Wiki re-ground (496ff9e): build-and-release prose re-verified against the f2e0a36 diff — version-consistency paragraph now states the validated argv contract and drops the bare no-arg mode; test-suite-catalog gains the test/sync-version.test.mjs bullet + source (body 7995/8000 chars). Both re-pinned to f2e0a36. No description: changes, CAPSULES untouched. Gate status in worktree: node --test 246/246, check-docs OK, freshness 31/31 fresh, sync-version --check clean. Push pending: pre-push's check-version-bump fails (scripts/ changed, base=head 0.36.0) because the lockstep bump is the orchestrator's serialized merge-readiness step per the sweep dispatch — branch fully committed locally at 496ff9e; orchestrator to bump then push.
 <!-- SECTION:NOTES:END -->
