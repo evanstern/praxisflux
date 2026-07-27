@@ -9,7 +9,8 @@
 // Stamps: <name>/.claude-plugin/plugin.json (version in lockstep with the marketplace),
 // skills/<name>/SKILL.md skeleton (frontmatter the bump gate keys on + the gate→work→gate
 // shape), the lib -> ../lib symlink, the marketplace entry (via gen-marketplace), and the
-// README table row + install line check-docs.mjs requires. --with-gate adds the Stop-hook
+// README surface check-docs.mjs requires: table row, install line, and every "<N> plugins"
+// count claim rewritten to the new catalog count. --with-gate adds the Stop-hook
 // trio (gates/<name>.mjs + scripts/{stop.mjs,gate.sh} + hooks/hooks.json) per
 // skill-patterns §5; the stub gate resolves no roots, so it is a safe no-op until wired.
 // Refuses to run if <name>/ already exists — rerunning never clobbers.
@@ -117,6 +118,32 @@ const hooksJson = (name) => JSON.stringify({
   },
 }, null, 2) + "\n";
 
+// Number words check-docs.mjs's census accepts in "<N> plugins" count claims — the same
+// table, so what this scaffolder writes is exactly what that gate reads.
+const NUMBER_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+  "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen",
+  "nineteen", "twenty",
+];
+
+/** Rewrite every "<N> plugins" count claim in `text` to `count`, preserving each claim's
+ *  style (digits stay digits; number words stay words, capitalization kept; a count past
+ *  the word table falls back to digits). Non-numeric words ("the plugins") are untouched.
+ *  Mirrors the census in check-docs.mjs — scaffolding must keep that gate green. */
+export function updateCountClaims(text, count) {
+  return text.replace(/\b([A-Za-z]+|\d+)(\s+plugins\b)/g, (whole, num, tail) => {
+    let repl;
+    if (/^\d+$/.test(num)) {
+      repl = String(count);
+    } else {
+      if (!NUMBER_WORDS.includes(num.toLowerCase())) return whole; // not a count claim
+      repl = count < NUMBER_WORDS.length ? NUMBER_WORDS[count] : String(count);
+      if (/^[A-Z]/.test(num)) repl = repl[0].toUpperCase() + repl.slice(1);
+    }
+    return repl + tail;
+  });
+}
+
 /** Insert `line` after the last line of `text` matching `anchorRe`; throw if none matches. */
 function insertAfterLast(text, anchorRe, line, what) {
   const lines = text.split("\n");
@@ -157,8 +184,12 @@ export function scaffoldPlugin(repo, name, { withGate = false } = {}) {
   const mpPath = join(repo, ".claude-plugin", "marketplace.json");
   writeFileSync(mpPath, JSON.stringify(genMarketplace(repo), null, 2) + "\n");
 
-  // … and the README surface check-docs.mjs demands: a plugins-table row + an install line.
+  // … and the README surface check-docs.mjs demands: a plugins-table row, an install line,
+  // and every "<N> plugins" count claim rewritten to the new catalog count (the census gates
+  // count claims against marketplace.json — leaving "Nine plugins" over a ten-plugin catalog
+  // would fail check-docs, breaking this script's header contract).
   const pj = JSON.parse(readFileSync(join(dir, ".claude-plugin", "plugin.json"), "utf8"));
+  const count = JSON.parse(readFileSync(mpPath, "utf8")).plugins.length;
   const readmePath = join(repo, "README.md");
   let readme = readFileSync(readmePath, "utf8");
   readme = insertAfterLast(readme, /^\| \*\*[a-z0-9-]+\*\* \|/,
@@ -166,6 +197,7 @@ export function scaffoldPlugin(repo, name, { withGate = false } = {}) {
     "the plugins table");
   readme = insertAfterLast(readme, /^\/plugin install [a-z0-9-]+@praxisflux$/,
     `/plugin install ${name}@praxisflux`, "the install block");
+  readme = updateCountClaims(readme, count);
   writeFileSync(readmePath, readme);
 
   return dir;

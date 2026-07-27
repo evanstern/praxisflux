@@ -9,7 +9,7 @@
 
 - [x] T002 hook quoting: five hooks.json + scaffold template; shim/e2e tests green (R1)
 - [x] T003 build.mjs: scoped --plugin clean; missing argv value → usage (R2)
-- [ ] T004 new-plugin.mjs: count claims updated at scaffold time; fixture README carries
+- [x] T004 new-plugin.mjs: count claims updated at scaffold time; fixture README carries
   a count claim; header contract true (R3)
 - [ ] T005 check-version-bump.mjs: non-semver base fails loudly (R4)
 - [ ] T006 tests for all four
