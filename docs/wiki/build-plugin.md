@@ -6,7 +6,7 @@ sources:
   - build/.claude-plugin/plugin.json
   - build/README.md
   - build/skills/implement/SKILL.md
-verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
+verified_against: 2beb547dd95154a58ae232117524244405349810
 ---
 
 # build plugin

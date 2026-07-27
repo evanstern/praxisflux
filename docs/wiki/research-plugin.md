@@ -16,7 +16,7 @@ sources:
   - research/hooks/hooks.json
   - research/scripts/gate.sh
   - research/scripts/stop.mjs
-verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
+verified_against: 2beb547dd95154a58ae232117524244405349810
 ---
 
 # Research plugin

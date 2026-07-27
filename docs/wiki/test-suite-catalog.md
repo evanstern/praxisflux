@@ -3,6 +3,7 @@ name: test-suite-catalog
 description: Per-file coverage catalog of the node --test suite — what each test/*.test.mjs file pins down, from chassis smoke tests and plugin gates to the install-path e2e and release tooling.
 kind: pattern
 sources:
+  - test/build.test.mjs
   - test/chassis.test.mjs
   - test/check-docs.test.mjs
   - test/gate-shim.test.mjs
@@ -24,7 +25,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
+verified_against: 5f10003d2e75c2c5c581481d03983fc57276c275
 ---
 
 # Test suite — per-file coverage catalog
@@ -41,6 +42,10 @@ One bullet per `test/*.test.mjs` file:
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
   plugins' shims — silent.
+- `test/build.test.mjs` — `scripts/build.mjs` packaging (`buildPlugins`): full builds wipe
+  `dist/` and dereference `lib`; `--plugin` cleans only its target (siblings and `dist/npm`
+  survive, stale target files don't); unknown plugins throw before cleaning; a bare
+  `--plugin` exits 2 with usage, never a TypeError.
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
   helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
@@ -83,8 +88,10 @@ One bullet per `test/*.test.mjs` file:
   shipping `hooks/hooks.json` (catalog-derived), simulate an install (`lib -> ../lib`
   dereferenced, no symlink survives), then spawn the exact Stop command from hooks.json
   with fake hook JSON on stdin — exit 0 clean, exit 2 with the gate's message on a
-  per-plugin violating fixture, exit 0 under `stop_hook_active`. Runs hooks the way Claude
-  Code spawns them rather than importing gate modules in-process; also its own CI job.
+  per-plugin violating fixture, exit 0 under `stop_hook_active`, and exit 0 from an
+  install path containing a space (the hooks.json command must quote the
+  `${CLAUDE_PLUGIN_ROOT}` expansion). Runs hooks the way Claude Code spawns them rather
+  than importing gate modules in-process; also its own CI job.
   Plus educate's plant simulation: the rendered `templates/CLAUDE.md` (placeholders
   substituted as `educate:start` instructs) leaves no `{{…}}`/`${CLAUDE_PLUGIN_ROOT}`
   behind, and every planted command runs as written from a user project with
@@ -110,8 +117,9 @@ One bullet per `test/*.test.mjs` file:
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
-  `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases) plus an end-to-end
-  run of the git wrapper over a throwaway git repo.
+  `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases, incl. a non-semver
+  base skill version failing loudly instead of skipping the increase check) plus an
+  end-to-end run of the git wrapper over a throwaway git repo.
 - `test/wiki.test.mjs` — educate's corpus-index roll-up (`topics/<topic>/WIKI.md` +
   `topics/WIKI.md`): parsing, rendering, staleness warnings; plus the spawned wiki CLI's
   check/sync contract — a vault-less single-topic `--check` converges with `--sync`

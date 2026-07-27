@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
+verified_against: 2beb547dd95154a58ae232117524244405349810
 ---
 
 # Build and release
@@ -32,15 +32,12 @@ the marketplace version.
 `plugins[]` array (one entry per plugin dir) drives every script below; registering a plugin
 there is enough to have it packaged.
 
-**Packaging** (`scripts/build.mjs`, run as `node scripts/build.mjs [--plugin <name>|all]`).
-Deletes `dist/` outright, then for each target: copies the plugin sources to `dist/<plugin>/`
-and swaps the copied `lib` symlink for a real copy of repo-root `lib/` (explicitly — Node's
-`cpSync` `dereference` option doesn't materialize directory symlinks met mid-recursion). No
-import rewriting: plugin code already imports `../lib/…`, which resolves identically through
-the in-repo symlink, the packaged copy, and a marketplace install (the plugins spec
-dereferences marketplace-internal symlinks into the cache copy). A drift guard warns about any
-top-level directory that has a `.claude-plugin/plugin.json` but is missing from
-marketplace.json, since it would silently not be built.
+**Packaging — [[dist-packaging]].** `scripts/build.mjs` (exported core
+`buildPlugins(repo, only)`) copies each target plugin to gitignored `dist/<plugin>/` with
+the `lib` symlink dereferenced into a real copy of the chassis. Cleaning is scoped: a full
+build wipes `dist/` first, while `--plugin <name>` cleans and rebuilds only that plugin's
+dir (sibling packages and `dist/npm` survive). The mechanics, the drift warning, and the
+argv/exit-code contract live in [[dist-packaging]].
 
 **Catalog consistency** (`scripts/gen-marketplace.mjs`). Generative, not just a re-sync: the
 exported `genMarketplace(repo)` regenerates each registered entry's `name` and `description`
@@ -99,9 +96,6 @@ delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampR
 body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
 on any byte difference.
 
-**dist/ is not committed.** `dist/` is gitignored — throwaway build output, recreated from
-scratch on every `build.mjs` run.
-
 ## Connections
 
 - Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by dereferencing each
@@ -111,9 +105,9 @@ scratch on every `build.mjs` run.
   [[pdlc-plugin]], and [[team-review-plugin]], as registered in the marketplace file.
 - The stamped theme regions originate in the HTML base described in [[chassis-utilities]];
   the tooltip regions come from the [[toolkit]].
-- Split summary-style per `docs/corpus-spec.md` v2: [[release-pipeline]] carries the bump
-  gate + CI + release workflows; [[gates-consumption-surface]] carries the npm package and
-  the composite action.
+- Split summary-style per `docs/corpus-spec.md` v2: [[dist-packaging]] carries the
+  build.mjs packaging mechanics; [[release-pipeline]] carries the bump gate + CI + release
+  workflows; [[gates-consumption-surface]] carries the npm package and the composite action.
 - Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`, and the
   pre-commit hook runs the `--check` validators (CI stays authoritative —
   `core.hooksPath` is per-clone).
@@ -129,7 +123,6 @@ scratch on every `build.mjs` run.
   in [[gates-consumption-surface]]).
 - Check modes for CI/hooks: `gen-marketplace.mjs --check`, `sync-version.mjs --check`,
   `sync-shared.mjs --check` — each exits 1 with a message naming the fix.
-- `build.mjs` exits 1 on an unknown `--plugin` name; the unregistered-plugin case only warns.
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
 - Marketplace version at any commit: `.claude-plugin/marketplace.json`'s `version` (`v0.2.0` was the pipeline's first
   self-published release; `0.5.0` is the first to publish `@praxisflux/gates` to npm).
