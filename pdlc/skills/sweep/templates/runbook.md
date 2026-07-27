@@ -87,7 +87,9 @@ Record the model tier + rubric justification on each board task at dispatch
 - Conflicting with a sibling session's open PR → the smaller PR merges first.
 - **Claim before work:** the FIRST commit of any task claims it — board card →
   In Progress AND the spec number's directory (a stub claims the number) — before any
-  spec authoring or code. Push immediately (`git push -u origin <branch>` on first
+  spec authoring or code. The claim rides the task branch, cut from `origin/main`
+  (which does not contain the spec yet — the spec is authored on that branch, after
+  the claim). Push immediately (`git push -u origin <branch>` on first
   commit, so in-flight work is auditable from any clone); never force-push a claim.
 - **A rejected push means you lost the race:** fetch, re-read the board and `specs/`.
   If another session now holds that task or number, STOP the lane and surface it to
