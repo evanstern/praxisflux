@@ -8,7 +8,7 @@ sources:
   - .github/workflows/release.yml
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 2fcc5f24a7e4e8e80b3ae189ee3d3a6b28fdfe2a
+verified_against: 5f10003d2e75c2c5c581481d03983fc57276c275
 ---
 
 # Release pipeline
@@ -29,7 +29,8 @@ over the base's, and the tag `v<version>` must not already exist; `docs/`, `back
 `test/`, `.github/`, `.githooks/`, and root markdown are exempt. A change under
 `<plugin>/skills/<skill>/` additionally requires that skill's SKILL.md frontmatter
 `version:` to increase (a skill gaining its first `version:` counts as bumped; a deleted
-skill is skipped). Every SKILL.md carries a `version:` for this purpose. Bump-size guidance
+skill is skipped; a non-semver base version like `v0.1.0` is a named failure — never a
+silent skip of the increase check). Every SKILL.md carries a `version:` for this purpose. Bump-size guidance
 (patch/minor/major, the skill rule, recipes) lives in `docs/releasing.md`, linked from
 `CLAUDE.md`.
 

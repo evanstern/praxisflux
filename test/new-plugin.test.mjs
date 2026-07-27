@@ -27,6 +27,9 @@ function fixture() {
   mkdirSync(join(root, "lib")); // empty chassis: checkDocs then demands no module mentions
   writeFileSync(join(root, "README.md"), [
     "# fixture", "",
+    // Count claims in both styles the check-docs census reads — scaffolding must rewrite
+    // them (the real README's "Nine plugins are registered" shape).
+    "One plugins are registered in the marketplace (yes, 1 plugins). The plugins are:", "",
     "| Plugin | Role | Placement |", "|---|---|---|",
     "| **alpha** | existing plugin | anywhere |", "",
     "```", "/plugin install alpha@praxisflux", "```", "",
@@ -40,8 +43,15 @@ test("scaffold: the stamped plugin passes the drift checks unmodified", () => {
   try {
     scaffoldPlugin(root, "newbie");
 
-    // check-docs: README row + install line were inserted.
+    // check-docs: README row + install line were inserted AND the count claims were
+    // rewritten — the census gates "<N> plugins" prose against the marketplace count, so
+    // this deepEqual is what keeps the header contract ("passes check-docs.mjs
+    // unmodified") true.
     assert.deepEqual(checkDocs(root), []);
+    const readme = readFileSync(join(root, "README.md"), "utf8");
+    assert.match(readme, /Two plugins are registered/, "word count claim must be rewritten, capitalization kept");
+    assert.match(readme, /yes, 2 plugins/, "digit count claim must stay digits");
+    assert.match(readme, /The plugins are:/, "non-numeric words before 'plugins' are not count claims");
 
     // gen-marketplace: the entry is registered and regeneration is a no-op.
     const mpStr = readFileSync(join(root, ".claude-plugin", "marketplace.json"), "utf8");
@@ -93,7 +103,8 @@ test("scaffold: --with-gate stamps the Stop-hook trio as a safe no-op", async ()
     scaffoldPlugin(root, "two-word", { withGate: true });
 
     const hooks = JSON.parse(readFileSync(join(root, "two-word", "hooks", "hooks.json"), "utf8"));
-    assert.equal(hooks.hooks.Stop[0].hooks[0].command, "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh");
+    // The expansion must be quoted — a spaced install path word-splits an unquoted command.
+    assert.equal(hooks.hooks.Stop[0].hooks[0].command, 'bash "${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"');
     assert.ok(statSync(join(root, "two-word", "scripts", "gate.sh")).mode & 0o100, "gate.sh must be executable");
     assert.ok(readFileSync(join(root, "two-word", "scripts", "stop.mjs"), "utf8").includes("twoWordGate"));
 

@@ -6,7 +6,7 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
+verified_against: 25d53c222befab08aa10e8ef18463c2efe4df314
 ---
 
 # Chassis
@@ -31,12 +31,11 @@ worlds:
   A path escaping the plugin root (the old `../../lib/…` imports) would not survive that copy —
   that was exactly the shipped-plugin `ERR_MODULE_NOT_FOUND` bug fixed in 0.3.2.
 - **When packaged**, `node scripts/build.mjs [--plugin <name>|all]` (plugin list derived from
-  `.claude-plugin/marketplace.json`, the single source of truth) copies each plugin to
+  `.claude-plugin/marketplace.json`, the single source of truth) copies each target to
   `dist/<plugin>/` and swaps the copied `lib` symlink for a real copy of the chassis — Node's
   `cpSync` `dereference` option doesn't materialize directory symlinks met mid-recursion, so
-  the script does the swap explicitly. It wipes `dist/` before building and warns about drift:
-  any top-level directory with a `.claude-plugin/plugin.json` that is not registered in
-  `marketplace.json` would silently not be built.
+  the script does the swap explicitly. A full build wipes `dist/` first; `--plugin` cleans
+  only its own target dir. Scoped-clean, drift-warning, and argv details: [[dist-packaging]].
 
 The module roster in `lib/`:
 
