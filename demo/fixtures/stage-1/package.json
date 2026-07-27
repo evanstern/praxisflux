@@ -1,0 +1,9 @@
+{
+  "name": "praxis-pet",
+  "version": "0.1.0",
+  "description": "A tiny tamagotchi-style virtual pet CLI — the praxisflux PDLC demo app.",
+  "type": "module",
+  "bin": { "praxis-pet": "./bin/pet.mjs" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

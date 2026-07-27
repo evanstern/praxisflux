@@ -44,6 +44,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[dist-packaging]] — build.mjs packaging mechanics: full vs --plugin scoped cleans, the lib-symlink dereference, and the argv/exit-code contract
 - [[release-pipeline]] — the merge-to-main release mechanics: the version-bump gate, ci.yml's PR checks, and release.yml's npm-before-tag publish ordering
 - [[gates-consumption-surface]] — how consumer repos run the gates: the @praxisflux/gates npm package and the composite GitHub Action, pinned in lockstep
+- [[demo-rig]] — the PDLC demo rig: deterministic replay of a captured five-stage demo project (praxis-pet), per-stage gate matrix, 30-minute runsheet, CI-tested repeatability
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams
 - [[test-suite-catalog]] — per-file coverage catalog, repo-tooling half: chassis, packaging, scaffolding, docs-drift, install-path, and CI-runner test files, one bullet per file
 - [[test-suite-catalog-plugins]] — per-file coverage catalog, plugin half: plugin-gate and cross-plugin-seam test files, one bullet per file

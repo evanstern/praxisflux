@@ -1,0 +1,21 @@
+// store.mjs — load/save the pet as JSON. The store path defaults to .pet.json in the
+// working directory; PET_STORE overrides it (tests point it at a temp file).
+
+import { readFileSync, writeFileSync } from "node:fs";
+
+export function storePath() {
+  return process.env.PET_STORE || ".pet.json";
+}
+
+export function loadPet() {
+  try {
+    return JSON.parse(readFileSync(storePath(), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+export function savePet(pet) {
+  writeFileSync(storePath(), JSON.stringify(pet, null, 2) + "\n");
+  return pet;
+}

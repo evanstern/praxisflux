@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+// pet.mjs — the praxis-pet CLI: praxis-pet <new|status|feed|play|rest|tick> [name]
+
+import { newPet, feed, play, rest, tick, mood, moodFace, rename } from "../src/pet.mjs";
+import { loadPet, savePet } from "../src/store.mjs";
+
+function statusLine(pet) {
+  return (
+    `${pet.name} — mood: ${moodFace(pet)} ${mood(pet)} · ` +
+    `hunger ${pet.hunger} · happiness ${pet.happiness} · energy ${pet.energy} · age ${pet.age}`
+  );
+}
+
+function requirePet() {
+  const pet = loadPet();
+  if (!pet) {
+    console.error("no pet yet — run: praxis-pet new [name]");
+    process.exit(1);
+  }
+  return pet;
+}
+
+const VERBS = { feed, play, rest, tick };
+const [cmd, arg] = process.argv.slice(2);
+
+if (cmd === "new") {
+  const pet = savePet(newPet(arg));
+  console.log(`welcome, ${pet.name}!`);
+  console.log(statusLine(pet));
+} else if (cmd === "status") {
+  console.log(statusLine(requirePet()));
+} else if (cmd === "rename") {
+  if (!arg || !arg.trim()) {
+    console.error("usage: praxis-pet rename <name>");
+    process.exit(2);
+  }
+  const pet = requirePet();
+  if (!pet.alive) {
+    console.error(`${pet.name} is beyond renaming...`);
+    process.exit(1);
+  }
+  console.log(statusLine(savePet(rename(pet, arg))));
+} else if (VERBS[cmd]) {
+  const pet = savePet(VERBS[cmd](requirePet()));
+  console.log(statusLine(pet));
+  if (!pet.alive) console.log(`${pet.name} has wandered off... (praxis-pet new to start over)`);
+} else {
+  console.error("usage: praxis-pet <new|status|rename|feed|play|rest|tick> [name]");
+  process.exit(2);
+}
