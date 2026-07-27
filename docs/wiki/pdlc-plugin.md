@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 86f675a77bb977e7406b25d9bed9b44d949f203e
+verified_against: a7fab09d261e567e0601c9928d94f123643df30a
 ---
 
 # pdlc plugin
@@ -50,7 +50,12 @@ Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements — the 
 model and the reason-to-approve test (no PR without a stated reason for a human to
 approve); `test/pdlc.test.mjs` asserts both. Since 0.14.0 the rules
 also carry a **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption always-on
-(INDEX-first routing, just-in-time notes, `CAPSULES.md` orientation).
+(INDEX-first routing, just-in-time notes, `CAPSULES.md` orientation). Since 0.34.0
+(bootstrap 0.6.0) the **Gates** rule states ship-reality instead of the blanket
+"plugins ship Stop hooks" overclaim (TASK-60): spec-bridge, educate, research,
+reorient, and team-review ship Stop hooks; grounding-wiki's freshness gate runs as
+check scripts and CI, not a hook — so a bootstrapped host is never told a gate exists
+that nothing installs.
 
 ## Deterministic core: scripts/plant.mjs
 

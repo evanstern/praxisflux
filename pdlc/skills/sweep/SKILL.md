@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.7.0
+version: 0.8.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -37,8 +37,13 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
 2. **Root discipline holds:** repo root is on the default branch and clean
    (`git fetch origin && git pull --ff-only`); branch work happens only in worktrees.
 3. **Probe for a merge-drift gate** — hosts following the spec-051 pattern (promptworld)
-   ship `scripts/check-merge-drift.mjs` with `session` / `worktree` / `pr` modes and
-   0 pass / 1 blocked / 2 env-error exit codes. When present it is **mandatory at its
+   ship `scripts/check-merge-drift.mjs` with four modes — `session` / `claim` /
+   `worktree` / `pr` — and 0 pass / 1 blocked / 2 env-error exit codes. Probe for all
+   four here; the four invocations the sweep uses, recorded verbatim in the runbook:
+   `node scripts/check-merge-drift.mjs session` ·
+   `node scripts/check-merge-drift.mjs claim --dir <NNN>-<slug>` ·
+   `node scripts/check-merge-drift.mjs worktree [--spec <NNN>] [--task TASK-<n>]` ·
+   `node scripts/check-merge-drift.mjs pr`. When present the gate is **mandatory at its
    choke points for the whole sweep**, not a runbook-author judgment call: run
    `node scripts/check-merge-drift.mjs session` now — it subsumes the fetch/ff-pull
    above, prescribes janitor cleanup of merged worktrees, and emits the n-way drift
@@ -87,8 +92,9 @@ derive, in this order:
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
    for them in the project CLAUDE.md, design-doc INDEX files, and `scripts/`. Record
-   the merge-drift probe's result here (present/absent; when present, the three
-   invocations verbatim) so an adopting session doesn't re-derive it.
+   the merge-drift probe's result here (present/absent; when present, the four
+   invocations — session / claim / worktree / pr — verbatim) so an adopting session
+   doesn't re-derive it.
 4. **Concurrency doctrine** — the repo's conflict hotspots (name actual paths) and the
    rebase/merge rules (see Execute below), written down because the next session won't
    have watched this session's conflicts happen.
@@ -113,16 +119,30 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
 1. Root freshness (`git fetch origin && git pull --ff-only` at root; with a merge-drift
    gate, `node scripts/check-merge-drift.mjs session` — apply its janitor prescriptions
    for merged leftovers before starting new work).
-2. Spec Kit cycle (specify → clarify only if ambiguous → plan → tasks). **Check for spec
-   number collisions against `origin/main` before claiming an NNN** — concurrent sessions
-   take numbers constantly; renumber on conflict. With a merge-drift gate this check is
-   mechanical: `node scripts/check-merge-drift.mjs worktree --spec <NNN>` blocks on a
-   taken number and names the next free one.
-3. `spec-bridge:link` the spec to the board task BEFORE implementation.
-4. With a merge-drift gate, `node scripts/check-merge-drift.mjs worktree` must exit 0
-   first (fresh root at origin/main tip). Then
-   `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main`. One task, one
-   worktree, one branch, one PR — subtasks are commits, never their own PRs.
+2. **Claim before any spec authoring** — the first commit of the task claims it. Pick
+   the spec number: **check for collisions against `origin/main` before claiming an
+   NNN** — concurrent sessions take numbers constantly; renumber on conflict. With a
+   merge-drift gate the checks are mechanical:
+   `node scripts/check-merge-drift.mjs claim --dir <NNN>-<slug>` blocks on a taken
+   number and names the next free one, and
+   `node scripts/check-merge-drift.mjs worktree --spec <NNN> --task TASK-<n>` must
+   exit 0 (fresh root at origin/main tip) before cutting. Then cut the worktree:
+   `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main` — the branch
+   starts at the `origin/main` tip, which does **not** contain the spec yet; the spec
+   is authored on this branch, after the claim. Make the claim the branch's FIRST
+   commit — board card → In Progress plus the spec number's directory (a stub claims
+   the number) — and push immediately (`git push -u origin <branch>`), so in-flight
+   work is auditable from any clone; never force-push a claim. A rejected push means
+   you lost the race: fetch and re-read the board and `specs/`; if another session now
+   holds that task or number, STOP the lane and surface it to the operator; on an
+   unrelated rejection (e.g. a board-notes push) with the task+number still free,
+   merge `origin/main` into the claim branch and re-push — a plain push (the
+   merge-based remedy stays executable under a repo-wide rebase ban and never needs
+   the force-push a claim forbids; rebasing an already-pushed claim would). One task,
+   one worktree, one branch, one PR — subtasks are commits, never their own PRs.
+3. Spec Kit cycle (specify → clarify only if ambiguous → plan → tasks), authored in the
+   worktree on the claimed branch — commits on top of the claim.
+4. `spec-bridge:link` the spec to the board task BEFORE implementation.
 5. Dispatch implementation to the host's implementer agent at the runbook's tier; record
    tier + justification on the board task.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
@@ -148,12 +168,15 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    `origin/main`; after merging, verify (`gh api ... --jq .merged`) BEFORE deleting
    anything; then remove the worktree, delete the branch, ff-pull root. Never
    delete+recreate a closed PR's head branch — open a fresh PR instead.
-9. **Re-ground — the merge is not the end:** `spec-bridge:sync`; tick the spec's tasks.md
-   at root; refresh the wiki when the merge touched any note's sources — re-orienting
-   capsule-first: `CAPSULES.md` when present for the whole-corpus view, full notes only
-   for the concepts the merge touched (else INDEX + just-in-time); run the project's
-   downstream doc skills if their freshness checks say stale; mark the task Done with a
-   final summary.
+9. **Re-ground — the merge is not the end:** tick the spec's tasks.md at root FIRST,
+   then `spec-bridge:sync` — sync derives the board from the spec artifacts, so it must
+   see the ticked boxes, and per spec-bridge doctrine its derived plan is the ONLY path
+   that moves a linked task to Done (it emits `-s Done` with the derived final summary);
+   the sweep never hand-sets Done on a linked task. Refresh the wiki when the merge
+   touched any note's sources — re-orienting capsule-first: `CAPSULES.md` when present
+   for the whole-corpus view, full notes only for the concepts the merge touched (else
+   INDEX + just-in-time); run the project's downstream doc skills if their freshness
+   checks say stale.
 10. **Log it:** append one line to the runbook's execution log (task, PR, merge sha,
     date). Board hygiene throughout: add specific task files to git, never `backlog/`
     wholesale; run board/spec commands from root, never inside a worktree.
