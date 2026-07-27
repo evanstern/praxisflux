@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { gateProblemsForProject } from "../educate/gates/dod.mjs";
+import { gateProblemsForProject, decksRequired, isDelegated, requiredArtifacts } from "../educate/gates/dod.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -35,4 +35,31 @@ test("deck gate: a deck with an external script/font fails as not self-contained
 test("deck gate: the planted template deck passes clean", () => {
   const tpl = readFileSync(join(here, "..", "educate", "templates", ".template", "deck.html"), "utf8");
   assert.deepEqual(gateProblemsForProject(project(tpl)), []);
+});
+
+test("deck requirement: decksStandardForEveryLesson is array-or-flag tolerant, like isDelegated", () => {
+  // an empty array must NOT read as "decks required" — same tolerance isDelegated already has
+  const empty = { definitionOfDone: { decksStandardForEveryLesson: [] } };
+  assert.equal(decksRequired(empty), false);
+  assert.equal(isDelegated({ definitionOfDone: { delegatedBuild: [] } }), false); // the consistency anchor
+  assert.deepEqual([...requiredArtifacts(empty)].sort(), ["checklist", "rawNotes"]);
+  // a plain flag and a non-empty array still require deck+guide
+  for (const v of [true, ["every lesson ships a deck"]]) {
+    const p = { definitionOfDone: { decksStandardForEveryLesson: v } };
+    assert.equal(decksRequired(p), true, JSON.stringify(v));
+    assert.ok(requiredArtifacts(p).has("deck") && requiredArtifacts(p).has("guide"));
+  }
+});
+
+test("deck requirement: done lesson without deck+guide passes under an empty-array decks config", () => {
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-deck-"));
+  const ldir = join(root, "topics", "t", "101");
+  mkdirSync(ldir, { recursive: true });
+  writeFileSync(join(ldir, "checklist.md"), "");
+  writeFileSync(join(ldir, "raw-notes.md"), "# notes\n");
+  writeFileSync(join(root, "topics", "t", "progress.json"), JSON.stringify({
+    definitionOfDone: { decksStandardForEveryLesson: [] },
+    lessons: [{ id: "101", status: "done", artifacts: {} }],
+  }));
+  assert.deepEqual(gateProblemsForProject(root), []); // [] used to demand deck.html + guide.md here
 });

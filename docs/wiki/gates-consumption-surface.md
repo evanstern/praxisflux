@@ -7,7 +7,7 @@ sources:
   - scripts/run-gates.mjs
   - action.yml
   - docs/consuming-gates.md
-verified_against: cad8211058c905136a438e0bdaf13de6ced4fcf5
+verified_against: 86f675a77bb977e7406b25d9bed9b44d949f203e
 ---
 
 # Gates consumption surface
@@ -45,8 +45,9 @@ stamped in lockstep by `sync-version.mjs` and guaranteed live before the tag exi
 release ordering in [[release-pipeline]] (the TASK-17 migration; the run-from-checkout era
 ended with it). Non-GitHub CI and local one-offs call `npx @praxisflux/gates` directly.
 Either way `run-gates.mjs` maps gate names onto the existing gate functions against the
-consumer workspace. Exit codes are the contract (0 pass · 1 gate failure · 2 usage error);
-`wiki-freshness` detects shallow clones and names the `fetch-depth: 0` fix.
+consumer workspace. Exit codes are the contract (0 pass · 1 gate failure — a gate that
+crashes while running counts as failed · 2 usage error); `wiki-freshness` detects shallow
+clones and names the `fetch-depth: 0` fix.
 
 ## Connections
 
@@ -62,7 +63,7 @@ consumer workspace. Exit codes are the contract (0 pass · 1 gate failure · 2 u
   are judged at the granularity they opted into.
 - Guarded by the [[test-suite]]: `test/build-npm.test.mjs` (packed-tarball bin contract) and
   `test/run-gates.test.mjs` (gate registry ↔ action.yml agreement, shallow-clone failure,
-  symlinked-checkout invocation).
+  symlinked-checkout invocation, crash-during-run exit code).
 
 ## Operational notes
 
@@ -72,4 +73,10 @@ consumer workspace. Exit codes are the contract (0 pass · 1 gate failure · 2 u
   invocation through a symlinked checkout path silently run zero of the CLI body (a green
   exit having checked nothing). `test/run-gates.test.mjs` regression-covers the symlinked
   invocation.
-- An empty or unknown `--gates` list is a usage error (exit 2), never a silent skip.
+- An empty or unknown `--gates` list is a usage error (exit 2), never a silent skip —
+  `validateGateNames` throws these, and they are the ONLY exit-2 paths.
+- An exception thrown WHILE a gate runs is that gate's failure (exit 1), never usage:
+  `runGates` converts the throw into a problem naming the gate and the error. The CLI's
+  usage try/catch wraps validation only — gate execution sits outside it, so a crashing
+  gate can't masquerade as exit 2 (it once did: execution ran inside the usage catch, and
+  a broken-symlink wiki note walked a real CI consumer into "usage error: ENOENT").

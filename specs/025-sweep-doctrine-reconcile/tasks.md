@@ -15,8 +15,8 @@
 - [x] T005 re-ground order: ticks before sync; Done ownership per spec-bridge doctrine (R4)
 - [x] T006 planted CLAUDE.md enforcement claims match shipped hooks (R5)
 - [x] T007 versions: sweep skill bump (+ bootstrap as the template's owning skill,
-  TASK-51 precedent) + marketplace sync-version 0.31.0 (0.30.0 taken by PR #85
-  mid-work)
+  TASK-51 precedent) + marketplace sync-version 0.34.0 (0.30.0-0.33.0 taken by
+  sibling merges mid-work; landed at reconcile)
 - [x] T008 wiki: pdlc-sweep + pdlc-plugin re-verified + re-pinned; lockstep stales
   classified; CAPSULES if descriptions changed
 

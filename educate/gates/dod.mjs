@@ -23,12 +23,18 @@ export const ARTIFACT_FILES = {
 export const STATES = ["planned", "scaffolded", "taught", "spec'd", "built", "decked", "done"];
 
 export function requiredArtifacts(progress) {
-  const dod = progress.definitionOfDone ?? {};
   const req = new Set(["checklist", "rawNotes"]);
-  if (dod.decksStandardForEveryLesson) { req.add("deck"); req.add("guide"); }
+  if (decksRequired(progress)) { req.add("deck"); req.add("guide"); }
   // handoff/postBuild are NOT required files — they're transient .handoff/ payloads; their evidence
   // lives in progress.json and is checked below (delegated-build evidence).
   return req;
+}
+
+/** Are deck+guide required for every lesson? (definitionOfDone.decksStandardForEveryLesson,
+ *  array-or-flag tolerant like isDelegated — an empty array must not read as "required".) */
+export function decksRequired(progress) {
+  const d = (progress.definitionOfDone ?? {}).decksStandardForEveryLesson;
+  return Array.isArray(d) ? d.length > 0 : Boolean(d);
 }
 
 /** Is this a delegated-build topic? (definitionOfDone.delegatedBuild set, array-or-flag tolerant.) */
@@ -53,9 +59,8 @@ export function hasReturnLegResidue(lessonDir) {
 
 /** Build the lifecycle for a topic from its definitionOfDone config. */
 export function lifecycleFor(progress) {
-  const dod = progress.definitionOfDone ?? {};
   const requires = { done: [...requiredArtifacts(progress)] };
-  if (dod.decksStandardForEveryLesson) requires.decked = ["deck", "guide"];
+  if (decksRequired(progress)) requires.decked = ["deck", "guide"];
   return createLifecycle({ states: STATES, artifacts: ARTIFACT_FILES, requires });
 }
 

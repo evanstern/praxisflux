@@ -110,6 +110,19 @@ test("gate-runner: additive evaluate, stop_hook_active guard, no-op", () => {
   assert.equal(evaluate({ stop_hook_active: true }, [failing]).block, false); // loop guard
 });
 
+// Regression: a crashing resolveRoots was swallowed into `roots = []` — the shape of "not my
+// kind of project" — turning a gate bug into permanent silent non-enforcement. It must block
+// in the same shape as a crashing check right below it.
+test("gate-runner: a crashing resolveRoots surfaces as a blocking problem, never a silent no-op", () => {
+  const crashing = { name: "g", resolveRoots: () => { throw new Error("boom"); }, check: () => [] };
+  const verdict = evaluate({ cwd: "/start" }, [crashing]);
+  assert.equal(verdict.block, true);
+  assert.match(verdict.message, /\[g\] resolveRoots crashed on .*: boom/);
+  // and a crashing check still blocks too — the two crash paths stay the same shape
+  const checkCrash = { name: "c", resolveRoots: () => ["/x"], check: () => { throw new Error("kaboom"); } };
+  assert.match(evaluate({}, [checkCrash]).message, /\[c\] crashed on \/x: kaboom/);
+});
+
 test("gate-runner: session context threads through resolveRoots, check, and warn", () => {
   const seen = [];
   const gate = {

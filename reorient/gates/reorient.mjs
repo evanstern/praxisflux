@@ -19,8 +19,10 @@ import { fileURLToPath } from "node:url";
 import { runAsCli } from "../lib/cli.mjs";
 
 /** Where a project's reorient run records live: the gitignored `.handoff/` transport at the
- *  INVOKING project's root (nearest ancestor holding `.git` or an existing `.handoff`;
- *  fallback `dir`). $REORIENT_HOME overrides everything (tests). Read-only resolver —
+ *  project root resolved from `dir` (nearest ancestor holding `.git` or an existing
+ *  `.handoff`; fallback `dir`). run.mjs seeds this with the RESOLVED TARGET root, the gate
+ *  with the session's start dir — so records land at, and are found at, the target project,
+ *  never the invoking cwd. $REORIENT_HOME overrides everything (tests). Read-only resolver —
  *  creating the directory is scripts/run.mjs's job. */
 export function runsDirFor(dir) {
   if (process.env.REORIENT_HOME) return process.env.REORIENT_HOME;
@@ -140,11 +142,16 @@ export const reorientGate = {
         const run = JSON.parse(readFileSync(join(runsDir, f), "utf8"));
         if (run.state !== "in-flight") continue;
         const owned = ownsRun(run, ctx?.sessionId);
-        const inCheckout = !!startDir && !!run.cwd && (startDir === run.cwd || startDir.startsWith(run.cwd + sep));
+        // Scoping keys on the run's TARGET root (run.root — where the registry lives and the
+        // work lands), not the cwd begin happened to be invoked from: a run begun from
+        // anywhere targeting root R is visible to sessions working in R. run.cwd stays as a
+        // provenance fallback for legacy records.
+        const scope = run.root || run.cwd;
+        const inTarget = !!startDir && !!scope && (startDir === scope || startDir.startsWith(scope + sep));
         // Owned runs always resolve (the owner is nagged wherever it stops); everything else
-        // stays checkout-scoped — undecidable ones to block (legacy behavior), foreign ones
+        // stays target-scoped — undecidable ones to block (legacy behavior), foreign ones
         // so warn() can surface staleness.
-        if (owned === true || inCheckout) roots.push(join(runsDir, f));
+        if (owned === true || inTarget) roots.push(join(runsDir, f));
       } catch { /* unreadable run records never block */ }
     }
     return roots;

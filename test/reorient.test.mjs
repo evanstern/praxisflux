@@ -434,6 +434,112 @@ test("heartbeatOwnedRuns: refreshes only in-flight runs owned by the session", (
   rmSync(home, { recursive: true, force: true });
 });
 
+/** Env for the cross-directory tests: $REORIENT_HOME must NOT leak in — these tests prove
+ *  the real target-root resolution, not the override. */
+function envWithoutHome(extra = {}) {
+  const env = { ...process.env, ...extra };
+  delete env.REORIENT_HOME;
+  return env;
+}
+
+test("run CLI: registry lives at the TARGET root, not the invoking cwd — begin elsewhere, gate + finish in-target", () => {
+  const dirA = realpathSync(mkdtempSync(join(tmpdir(), "reorient-elsewhere-"))); // invoking cwd
+  const rootB = makeProject(); // the target
+  // Worktree-shaped target (`gitdir:` FILE): begin is accepted and runsDirFor roots at B.
+  writeFileSync(join(rootB, ".git"), "gitdir: /elsewhere/.git/worktrees/lane\n");
+  const env = envWithoutHome({ CLAUDE_CODE_SESSION_ID: "sess-A" });
+
+  const begin = spawnSync(
+    "node",
+    [runMjs, "begin", rootB, "--lens", "the lens", "--corpus", join(rootB, "research", "Topic-A")],
+    { encoding: "utf8", env, cwd: dirA },
+  );
+  assert.equal(begin.status, 0, begin.stderr);
+  const id = begin.stdout.match(/run (\S+) in flight/)[1];
+
+  // R1: the manifest landed under the TARGET's registry; the invoking cwd got nothing.
+  const targetRuns = join(rootB, ".handoff", "reorient", "runs");
+  const run = JSON.parse(readFileSync(join(targetRuns, `${id}.json`), "utf8"));
+  assert.equal(existsSync(join(dirA, ".handoff")), false, "invoking cwd must not grow a registry");
+  assert.equal(run.root, rootB, "manifest records the resolved target root");
+  assert.equal(run.cwd, dirA, "manifest keeps the invoking cwd as provenance");
+
+  // R2: the Stop gate resolves the run for sessions working in the target...
+  // (evaluate() falls back to $CLAUDE_CODE_SESSION_ID, so the harness's own id must not leak in)
+  const prevHome = process.env.REORIENT_HOME;
+  const prevProj = process.env.CLAUDE_PROJECT_DIR;
+  const prevSess = process.env.CLAUDE_CODE_SESSION_ID;
+  delete process.env.REORIENT_HOME;
+  delete process.env.CLAUDE_PROJECT_DIR;
+  delete process.env.CLAUDE_CODE_SESSION_ID;
+  try {
+    assert.equal(reorientGate.resolveRoots(rootB, {}).length, 1, "a session in the target sees the run");
+    assert.equal(evaluate({}, [reorientGate], { cwd: rootB }).block, true, "undecidable ownership blocks in-target (legacy scoping)");
+    assert.equal(evaluate({ session_id: "sess-A" }, [reorientGate], { cwd: rootB }).block, true, "the owner is nagged in the target");
+    assert.equal(evaluate({ session_id: "sess-B" }, [reorientGate], { cwd: rootB }).block, false, "someone else's run never blocks");
+    // ...and NOT at the invoking cwd — the registry (and the run) belong to the target.
+    assert.equal(reorientGate.resolveRoots(dirA, { sessionId: "sess-B" }).length, 0, "the invoking dir's registry is empty");
+  } finally {
+    if (prevHome !== undefined) process.env.REORIENT_HOME = prevHome;
+    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
+    if (prevSess !== undefined) process.env.CLAUDE_CODE_SESSION_ID = prevSess;
+  }
+
+  // R2/R4: finish run FROM the target resolves the run — by root key and by bare id.
+  const blocked = spawnSync("node", [runMjs, "finish", rootB], { encoding: "utf8", env, cwd: rootB });
+  assert.equal(blocked.status, 2, `finish must find the run and block on missing artifacts: ${blocked.stderr}`);
+  landArtifacts(rootB, run);
+  const finished = spawnSync("node", [runMjs, "finish", id], { encoding: "utf8", env, cwd: rootB });
+  assert.equal(finished.status, 0, finished.stderr);
+  assert.equal(JSON.parse(readFileSync(join(targetRuns, `${id}.json`), "utf8")).state, "done");
+
+  // list from the target sees it too.
+  const list = spawnSync("node", [runMjs, "list"], { encoding: "utf8", env, cwd: rootB });
+  assert.ok(list.stdout.includes(id), `in-target list surfaces the run: ${list.stdout}`);
+  rmSync(dirA, { recursive: true, force: true });
+  rmSync(rootB, { recursive: true, force: true });
+});
+
+test("run CLI: worktree-first refusal is keyed to the TARGET checkout, not the invoking one", () => {
+  const env = envWithoutHome();
+
+  // Invoking from a worktree, targeting a shared PRIMARY checkout → refused (no override).
+  const wtDir = realpathSync(mkdtempSync(join(tmpdir(), "reorient-wt-")));
+  writeFileSync(join(wtDir, ".git"), "gitdir: /elsewhere/.git/worktrees/lane\n");
+  const primRoot = makeProject();
+  mkdirSync(join(primRoot, ".git"));
+  const beginArgs = [runMjs, "begin", primRoot, "--lens", "x", "--corpus", join(primRoot, "research", "Topic-A")];
+  const refused = spawnSync("node", beginArgs, { encoding: "utf8", env, cwd: wtDir });
+  assert.notEqual(refused.status, 0, "targeting a shared primary checkout must be refused regardless of the invoking checkout");
+  assert.ok(refused.stderr.includes("shared primary checkout"), refused.stderr);
+  assert.ok(refused.stderr.includes(primRoot), `the refusal names the TARGET's registry root: ${refused.stderr}`);
+  assert.equal(existsSync(join(primRoot, ".handoff")), false, "refusal must not create a run record");
+  assert.equal(existsSync(join(wtDir, ".handoff")), false, "refusal must not touch the invoking dir either");
+
+  // Same shape with the explicit override → accepted, recorded on the manifest under the target.
+  const over = spawnSync("node", [...beginArgs, "--shared-checkout"], { encoding: "utf8", env, cwd: wtDir });
+  assert.equal(over.status, 0, over.stderr);
+  const overId = over.stdout.match(/run (\S+) in flight/)[1];
+  const overRun = JSON.parse(readFileSync(join(primRoot, ".handoff", "reorient", "runs", `${overId}.json`), "utf8"));
+  assert.equal(overRun.sharedCheckout, true, "the override that permitted the run is on the manifest");
+
+  // Invoking from a shared PRIMARY checkout, targeting a worktree → accepted, no override needed.
+  const primDir = realpathSync(mkdtempSync(join(tmpdir(), "reorient-prim-")));
+  mkdirSync(join(primDir, ".git"));
+  const wtRoot = makeProject();
+  writeFileSync(join(wtRoot, ".git"), "gitdir: /elsewhere/.git/worktrees/lane\n");
+  const wt = spawnSync(
+    "node",
+    [runMjs, "begin", wtRoot, "--lens", "x", "--corpus", join(wtRoot, "research", "Topic-A")],
+    { encoding: "utf8", env, cwd: primDir },
+  );
+  assert.equal(wt.status, 0, `targeting a worktree is accepted from anywhere: ${wt.stderr}`);
+  const wtId = wt.stdout.match(/run (\S+) in flight/)[1];
+  const wtRun = JSON.parse(readFileSync(join(wtRoot, ".handoff", "reorient", "runs", `${wtId}.json`), "utf8"));
+  assert.equal(wtRun.sharedCheckout, undefined, "a worktree target records no override");
+  for (const d of [wtDir, primRoot, primDir, wtRoot]) rmSync(d, { recursive: true, force: true });
+});
+
 test("runsDirFor: honors $REORIENT_HOME and roots at .git/.handoff ancestors", () => {
   const { home, env } = scratchHome();
   const prev = process.env.REORIENT_HOME;
