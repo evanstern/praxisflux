@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 92ab11992084a733a670fe95b2fc7d0a2a5a3b7d
+verified_against: cad8211058c905136a438e0bdaf13de6ced4fcf5
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -22,25 +22,31 @@ phases, gate → work → gate:
   hotspots, operator checkpoints, and a done-means — written to
   `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on
   the lanes.
-- **Execute:** per task, the host PDLC loop instantiated — **claim before work** (the
-  first commit claims the task — board card → In Progress plus the spec number's
-  directory; push immediately, never force-push a claim; a rejected push means the race
-  was lost: re-read the board/`specs/`, surface genuinely contended work to the
-  operator, reconcile-and-repush otherwise), Spec Kit cycle, `spec-bridge:link`,
-  worktree, delegated implementation (never inline), per-PR gates, reconcile with
-  `origin/main` (see the pin rule below), PR, serial merge with
-  verify-merged-before-cleanup, re-ground, one execution-log line.
+- **Execute:** per task, the host PDLC loop instantiated — root freshness, then
+  **claim before any spec authoring** (an explicit loop step: cut the worktree from
+  `origin/main` — which does not yet contain the spec; the spec is authored on the
+  branch, after the claim — then the branch's first commit claims the task: board
+  card → In Progress plus the spec number's directory stub; push -u immediately,
+  never force-push a claim; a rejected push means the race was lost: re-read the
+  board/`specs/`, surface genuinely contended work to the operator, otherwise merge
+  `origin/main` into the claim branch and plain re-push — rebase-ban-safe, never a
+  force-push), Spec Kit cycle on the claimed branch, `spec-bridge:link`, delegated
+  implementation (never inline), per-PR gates, reconcile with `origin/main` (see the
+  pin rule below), PR, serial merge with verify-merged-before-cleanup, re-ground
+  (ticks before sync — see below), one execution-log line.
 
 Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
-finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern —
-`session`/`worktree`/`pr` modes): `session` at sweep start subsumes the root
-fetch/ff-pull and feeds its drift matrix into lane construction, `worktree [--spec NNN]`
-mechanizes the fresh-root and spec-number checks, and `pr` blocks each `gh pr create`
-(re-run after every history move) on predicted conflicts. The runbook records the probe
-result; with no gate the raw git doctrine stands. Since 0.13.0 the runbook template's
-concurrency doctrine carries the fuller claim-before-work doctrine above and names the
-gate's mechanical checks (`claim --dir NNN-slug` before creating any new `specs/NNN-*`
-dir; `worktree --spec NNN --task TASK-<n>` when cutting the worktree).
+finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern; since
+0.34.0 the probed inventory is four modes — `session`/`claim`/`worktree`/`pr` —
+identical in SKILL and runbook template, with the four invocations recorded verbatim):
+`session` at sweep start subsumes the root fetch/ff-pull and feeds its drift matrix
+into lane construction, `claim --dir <NNN>-<slug>` blocks on a taken spec number
+before any new `specs/NNN-*` dir, `worktree [--spec <NNN>] [--task TASK-<n>]`
+mechanizes the fresh-root and spec-number checks when cutting the worktree, and `pr`
+blocks each `gh pr create` (re-run after every history move) on predicted conflicts.
+The runbook records the probe result; with no gate the raw git doctrine stands. Since
+0.13.0 the runbook template's concurrency doctrine carries the fuller
+claim-before-work doctrine above and names the gate's mechanical checks.
 
 Since 0.14.0 sweep's two whole-corpus orientation moments (runbook authoring's project
 reading, each task's re-ground) consume the corpus per [[grounded-corpus-spec]] v2 —
@@ -78,6 +84,19 @@ the prose is re-verified and amended before any bump. The merge commit remains t
 procedure for downstream hosts that inherited the old convention: keep the merge-in,
 drop the mechanical re-pin, classify-then-pin, and treat pins already bumped under it
 as suspect at the next update pass.
+
+Since 0.34.0 (skill 0.8.0) the doctrine set is internally reconciled (TASK-60): the
+Phase 2 loop carries an **explicit claim step** stating the one ordering both files
+share — the claim commit (board → In Progress + spec dir stub, pushed -u) precedes
+spec authoring, and the worktree-cut instruction says outright that `origin/main`
+does not yet contain the spec; the **rejected-claim remedy is merge-based** (fetch +
+merge `origin/main` into the claim branch + plain re-push — executable under a
+repo-wide rebase ban, never needing the force-push a claim forbids) in SKILL,
+template, and this note alike; the drift-gate inventory is the same four modes in
+both files; and the **re-ground step orders ticks before sync** — tick the spec's
+tasks.md at root, then `spec-bridge:sync`, whose derived plan is the only path that
+moves a linked task to Done ([[spec-bridge-plugin]] doctrine) — the sweep never
+hand-sets Done on a linked task.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from
 it plus the board alone. Because a runbook is an instruction-bearing artifact a session

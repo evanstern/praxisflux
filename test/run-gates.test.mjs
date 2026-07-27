@@ -1,7 +1,7 @@
 // Tests for scripts/run-gates.mjs — the CI consumption surface (action.yml's runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, symlinkSync, readFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, symlinkSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -42,6 +42,27 @@ test("run-gates: wiki-freshness on a shallow clone fails with the fetch-depth fi
   const [r] = runGates(["wiki-freshness"], opts(join(dst, "clone")));
   assert.equal(r.problems.length, 1);
   assert.match(r.problems[0], /shallow clone.*fetch-depth: 0/);
+});
+
+// Regression: gate execution used to run inside the CLI's usage-error try/catch, so an
+// exception thrown WHILE a gate ran exited 2 "usage error" instead of 1 — misdirecting CI
+// consumers that branch on the documented 0/1/2 contract (docs/consuming-gates.md). A
+// broken-symlink wiki note makes wiki-freshness throw ENOENT mid-run: that must be a gate
+// failure (exit 1) naming the gate, never usage (exit 2).
+test("run-gates: an exception thrown while a gate runs exits 1 (gate failure), never 2", () => {
+  const dir = mkdtempSync(join(tmpdir(), "run-gates-crash-"));
+  mkdirSync(join(dir, "docs", "wiki"), { recursive: true });
+  writeFileSync(join(dir, "docs", "wiki", "INDEX.md"), "# index\n");
+  symlinkSync(join(dir, "no-such-target.md"), join(dir, "docs", "wiki", "broken.md"));
+  const r = spawnSync(
+    process.execPath,
+    [join(repo, "scripts", "run-gates.mjs"), "--gates", "wiki-freshness", "--path", dir],
+    { encoding: "utf8" },
+  );
+  assert.equal(r.status, 1, `expected gate-failure exit 1, got ${r.status}\n${r.stdout}${r.stderr}`);
+  assert.match(r.stdout, /\[wiki-freshness\] GATE FAILED/);
+  assert.match(r.stdout, /gate "wiki-freshness" crashed while running: ENOENT/);
+  assert.doesNotMatch(`${r.stdout}${r.stderr}`, /usage error/);
 });
 
 // The GATES map and action.yml's documented gate list are hand-maintained in parallel — this

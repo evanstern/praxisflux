@@ -24,7 +24,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
+verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
 ---
 
 # Test suite — per-file coverage catalog
@@ -35,14 +35,16 @@ One bullet per `test/*.test.mjs` file:
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
   (missing plugin row / install line / chassis module / releasing link), the plugin census
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
-  install lines for unregistered names), plus "the praxisflux repo itself is in sync".
+  install lines for unregistered names), "the praxisflux repo itself is in sync", and
+  stop-docs' `underRepo` root match (symlinked launch fires; siblings never match).
 - `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
   plugins' shims — silent.
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
-  helpers, and gate-runner `evaluate`.
+  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
+  named problems).
 - `test/codebase-to-course.course-gate.test.mjs` — the course output gate (`validateCourse`)
   against minimal fixture HTML with modules, quizzes, and translation blocks.
 - `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
@@ -58,13 +60,18 @@ One bullet per `test/*.test.mjs` file:
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
 - `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
-  generation (deterministic, headered, INDEX-ordered) and the freshness gate's
-  adoption-keyed budget enforcement (capsule/body overages, `size_budget_exempt`
-  downgrade, stale/hand-edited rollup, warn-only before adoption).
+  generation (deterministic, headered, INDEX-ordered, corpusDir-spelling-invariant across
+  relative/absolute/trailing-slash invocations, pre-normalization headers degrading to a
+  WARN with regeneration guidance) and the freshness gate's adoption-keyed budget
+  enforcement (capsule/body overages, `size_budget_exempt` downgrade, stale/hand-edited
+  rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
-  `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
-  truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
-  fresh-corpus silence, repin refusals).
+  `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
+  staleness-check identically; a source path missing from the working tree blocks naming
+  note + path, including rename-after-pin) against a throwaway git repo, plus the plan
+  loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
+  code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
+  repin refusals).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
   delegated round trip with each leg doing exactly what its skill instructs: build writes

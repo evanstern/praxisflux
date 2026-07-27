@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
+verified_against: a7fab09d261e567e0601c9928d94f123643df30a
 ---
 
 # Build and release
@@ -29,9 +29,8 @@ the marketplace version.
 ## How it works
 
 **Plugin discovery** — `.claude-plugin/marketplace.json` is the single source of truth. Its
-`plugins[]` array (one entry per plugin dir, each with `name`, `source`, `description`,
-`category`, `tags`) drives every script below; registering
-a plugin there is enough to have it packaged.
+`plugins[]` array (one entry per plugin dir) drives every script below; registering a plugin
+there is enough to have it packaged.
 
 **Packaging** (`scripts/build.mjs`, run as `node scripts/build.mjs [--plugin <name>|all]`).
 Deletes `dist/` outright, then for each target: copies the plugin sources to `dist/<plugin>/`
@@ -78,7 +77,9 @@ that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate
 (`node grounding-wiki/gates/cli.mjs freshness . docs/wiki`) covers the semantic half. Both
 run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
 `lib/gate-runner`, wired by the tracked `.claude/settings.json`) that blocks ending a session
-turn while either fails.
+turn while either fails. The Stop gate's `underRepo` (exported for tests) realpaths both
+sides and requires a separator boundary: symlinked launches still fire; `praxis-anything`
+siblings don't.
 
 **External consumption — [[gates-consumption-surface]].** The gates run in repos that don't
 carry praxisflux: `scripts/build-npm.mjs` stages the `@praxisflux/gates` npm package
@@ -98,8 +99,8 @@ delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampR
 body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
 on any byte difference.
 
-**dist/ is not committed.** `dist/` is listed in `.gitignore` and `git ls-files dist` returns
-nothing — it is throwaway build output, recreated from scratch on every `build.mjs` run.
+**dist/ is not committed.** `dist/` is gitignored — throwaway build output, recreated from
+scratch on every `build.mjs` run.
 
 ## Connections
 

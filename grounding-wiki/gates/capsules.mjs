@@ -6,7 +6,7 @@
 // renders through this module — so the gate's regenerate-and-compare check and the
 // regeneration command can never drift apart.
 import { readdirSync, readFileSync, existsSync } from "node:fs";
-import { join, isAbsolute, basename, dirname } from "node:path";
+import { join, isAbsolute, basename, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { parseFrontmatter, extractWikilinks } from "../lib/markdown.mjs";
@@ -21,6 +21,17 @@ function git(repoRoot, args) {
 
 function corpusPath(repoRoot, corpusDir) {
   return isAbsolute(corpusDir) ? corpusDir : join(repoRoot, corpusDir);
+}
+
+/**
+ * The one canonical spelling of a corpus dir: repo-relative, forward slashes, no trailing
+ * slash — whatever spelling the caller used (absolute path, trailing slash, `./` prefix).
+ * CAPSULES.md embeds corpusDir in its header, and the freshness gate re-renders and
+ * byte-compares; both sides normalizing here makes regenerate-and-compare invariant to how
+ * the generator happened to be invoked.
+ */
+export function normalizeCorpusDir(repoRoot, corpusDir = "docs/wiki") {
+  return relative(repoRoot, corpusPath(repoRoot, corpusDir)).split(sep).join("/");
 }
 
 /** Every note file in the corpus dir — INDEX.md and the generated CAPSULES.md are not notes. */
@@ -55,6 +66,7 @@ export function indexLineTarget(line) {
  * corpus state (and commit) → byte-identical output. Read-only — scripts/capsules.mjs writes.
  */
 export function renderCapsules(repoRoot, corpusDir = "docs/wiki", { commit } = {}) {
+  corpusDir = normalizeCorpusDir(repoRoot, corpusDir); // header embeds it — one spelling only
   const dir = corpusPath(repoRoot, corpusDir);
   const indexPath = join(dir, "INDEX.md");
   if (!existsSync(indexPath)) throw new Error(`not a corpus: ${indexPath} missing`);
@@ -107,6 +119,7 @@ export function renderCapsules(repoRoot, corpusDir = "docs/wiki", { commit } = {
  * validateFreshness already fails them as not-a-corpus-note.
  */
 export function checkCapsuleTier(repoRoot, corpusDir = "docs/wiki") {
+  corpusDir = normalizeCorpusDir(repoRoot, corpusDir); // match renderCapsules' spelling
   const dir = corpusPath(repoRoot, corpusDir);
   if (!existsSync(join(dir, "INDEX.md"))) return { adopted: false, fails: [], warns: [] };
   const adopted = existsSync(join(dir, "CAPSULES.md"));
@@ -142,10 +155,25 @@ export function checkCapsuleTier(repoRoot, corpusDir = "docs/wiki") {
     const regen = `node ${capsulesScript} ${repoRoot} ${corpusDir}`;
     const existing = readFileSync(join(dir, "CAPSULES.md"), "utf8");
     const m = /corpus commit ([0-9a-f]{40})/.exec(existing);
-    if (!m)
+    if (!m) {
       fails.push(`${corpusDir}/CAPSULES.md: header names no corpus commit — hand-edited or foreign; regenerate: ${regen}`);
-    else if (renderCapsules(repoRoot, corpusDir, { commit: m[1] }) !== existing)
-      fails.push(`${corpusDir}/CAPSULES.md: stale — regenerate-and-compare mismatch (a description or INDEX.md changed after generation, or the file was hand-edited); regenerate: ${regen}`);
+    } else {
+      const rendered = renderCapsules(repoRoot, corpusDir, { commit: m[1] });
+      // Pre-normalization headers embed corpusDir as the generator was invoked (absolute
+      // path, trailing slash). If the ONLY difference is that spelling, the content is
+      // current — that deserves regeneration guidance, not a hand-edit accusation.
+      const cmd = /^(    node \$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/capsules\.mjs <repo-root> )(.*)$/m.exec(existing);
+      const respelled = cmd && cmd[2] !== corpusDir
+        ? existing.replace(cmd[0], () => cmd[1] + corpusDir)
+        : existing;
+      if (rendered === existing) {
+        // current, canonical header — nothing to say
+      } else if (rendered === respelled) {
+        warns.push(`${corpusDir}/CAPSULES.md: header embeds a pre-normalization corpusDir spelling (${cmd[2]}); content is current — regenerate to refresh the header: ${regen}`);
+      } else {
+        fails.push(`${corpusDir}/CAPSULES.md: stale — regenerate-and-compare mismatch (a description or INDEX.md changed after generation, or the file was hand-edited); regenerate: ${regen}`);
+      }
+    }
   }
 
   return { adopted, fails, warns };

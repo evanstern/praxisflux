@@ -7,9 +7,10 @@
 //                              [--wiki-dir docs/wiki] [--course-dir docs/course]
 //
 // Gate names, options, and exit codes are praxisflux's versioned consumer contract
-// (docs/consuming-gates.md): exit 0 when every gate passes, 1 when any gate fails, 2 on a
-// usage error (unknown gate, missing --gates). Each failure line names its fix. This same
-// file ships as the @praxisflux/gates npm bin (scripts/build-npm.mjs carves the package).
+// (docs/consuming-gates.md): exit 0 when every gate passes, 1 when any gate fails — including
+// a gate that crashes while running — and 2 on a usage error (unknown gate, missing --gates).
+// Each failure line names its fix. This same file ships as the @praxisflux/gates npm bin
+// (scripts/build-npm.mjs carves the package).
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { runAsCli } from "../lib/cli.mjs";
@@ -46,14 +47,29 @@ export const GATES = {
   },
 };
 
-/** Run the named gates against opts.root. Returns [{gate, problems, warnings, ok}].
- *  Throws on an unknown or empty gate list — a misspelled gate must fail the build loudly,
- *  never skip silently. */
-export function runGates(names, opts) {
+/** Validate a requested gate list. Throws on an unknown or empty list — a misspelled gate
+ *  must fail the build loudly, never skip silently. These throws are the ONLY usage errors
+ *  (exit 2); anything that goes wrong after validation is a gate result, not usage. */
+export function validateGateNames(names) {
   if (!names.length) throw new Error(`no gates requested — pass --gates with any of: ${Object.keys(GATES).join(", ")}`);
   for (const n of names)
     if (!GATES[n]) throw new Error(`unknown gate "${n}" — valid gates: ${Object.keys(GATES).join(", ")}`);
-  return names.map((gate) => ({ gate, ...GATES[gate](opts) }));
+}
+
+/** Run the named gates against opts.root. Returns [{gate, problems, warnings, ok}].
+ *  Throws on an unknown or empty gate list (validateGateNames). An exception thrown WHILE a
+ *  gate runs is a gate failure, never a usage error: it becomes a problem on that gate's
+ *  result naming the gate and the error, so the CLI exits 1 — the exit code CI consumers
+ *  branch on for "a gate did not pass" (docs/consuming-gates.md). */
+export function runGates(names, opts) {
+  validateGateNames(names);
+  return names.map((gate) => {
+    try {
+      return { gate, ...GATES[gate](opts) };
+    } catch (e) {
+      return { gate, problems: [`gate "${gate}" crashed while running: ${e.message}`], warnings: [], ok: "" };
+    }
+  });
 }
 
 if (runAsCli(import.meta.url)) {
@@ -69,13 +85,16 @@ if (runAsCli(import.meta.url)) {
   };
   const names = opt("gates", "").split(",").map((s) => s.trim()).filter(Boolean);
 
-  let results;
+  // Usage validation alone lives inside the exit-2 try/catch; gate execution happens
+  // outside it, so an exception thrown while a gate runs can never masquerade as usage —
+  // runGates converts it into that gate's failure result and the run exits 1.
   try {
-    results = runGates(names, opts);
+    validateGateNames(names);
   } catch (e) {
     console.error(`usage error: ${e.message}`);
     process.exit(2);
   }
+  const results = runGates(names, opts);
   let failed = 0;
   for (const { gate, problems, warnings, ok } of results) {
     for (const w of warnings) console.log(`[${gate}] warn: ${w}`);
