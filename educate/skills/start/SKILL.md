@@ -1,6 +1,6 @@
 ---
 name: start
-version: 0.1.0
+version: 0.2.0
 description: Initialize a new Socratic learning project in a folder, OR update an existing one to the current plugin version. Use when the user wants to set up educate, bootstrap a learnings folder, start a learning project, create the structure for educate lessons, or migrate/upgrade an existing educate project after a plugin update. Plants (or refreshes) the always-on CLAUDE.md, the lesson template, and the progress schema, then verifies the setup.
 ---
 
@@ -31,8 +31,16 @@ legacy scaffolding, refresh the boilerplate) without disturbing any real lesson.
    - Either already exists → this folder is already a project. Do **not** clobber it; switch
      to **Update an existing project** below.
 
-3. **Plant the always-on layer.** Copy `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md` to
-   `<root>/CLAUDE.md`. This is the file that makes the lifecycle, placement rules, and
+3. **Plant the always-on layer — render, never raw-copy.** Read
+   `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`, substitute its placeholders (the chassis
+   `lib/template.mjs` `render()` contract — exact-text replacement is fine), and write the
+   result to `<root>/CLAUDE.md`:
+   - `{{PROJECT_NAME}}` → the project's name (ask the user; default: the basename of `<root>`).
+   - `{{EDUCATE_PLUGIN_ROOT}}` → the absolute path of this plugin's root (the resolved value
+     of `${CLAUDE_PLUGIN_ROOT}`). The planted gate/wiki commands must be runnable as written
+     in the user's own shell, where `$CLAUDE_PLUGIN_ROOT` is undefined.
+   Before moving on, verify no `{{…}}` token and no literal `${CLAUDE_PLUGIN_ROOT}` survives
+   in `<root>/CLAUDE.md`. This is the file that makes the lifecycle, placement rules, and
    Definition of Done apply on every session in this project.
 
 4. **Plant the scaffolding:**
@@ -67,9 +75,11 @@ is to bring the *scaffolding* up to date while leaving every *real lesson* exact
    - `${CLAUDE_PLUGIN_ROOT}/templates/progress.schema.json`  ->  `<root>/topics/progress.schema.json`  (overwrite)
 
 3. **Reconcile `CLAUDE.md`.** It is planted boilerplate, but the user may have edited it. Diff
-   `<root>/CLAUDE.md` against `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`; if they differ, show
-   the user what would change and confirm before overwriting. Carry forward any project-specific
-   additions — never silently discard them.
+   `<root>/CLAUDE.md` against the **rendered** template — `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`
+   with `{{PROJECT_NAME}}` and `{{EDUCATE_PLUGIN_ROOT}}` substituted exactly as in fresh-install
+   step 3 (keep the project name already planted in the heading) — so placeholder lines never
+   read as user edits. If they differ, show the user what would change and confirm before
+   overwriting. Carry forward any project-specific additions — never silently discard them.
 
 4. **Leave real lessons alone.** Lesson folders (`topics/<topic>/NNN-*`), their `progress.json`,
    `SERIES.md`, and any already-built `deck.html`/`guide.md` are the user's work product — do not
