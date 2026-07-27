@@ -2,11 +2,12 @@
 // module — and the real repo must pass its own check.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { checkDocs } from "../scripts/check-docs.mjs";
+import { underRepo } from "../scripts/stop-docs.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -107,4 +108,39 @@ test("census: enumeration is two-way — a row or install line for an unregister
 
 test("check-docs: the praxisflux repo itself is in sync", () => {
   assert.deepEqual(checkDocs(repo), []);
+});
+
+/* ── stop-docs root matching: realpath both sides + separator boundary ────── */
+
+// Regression: the docs-sync Stop gate compared the ESM-realpathed repo dir against the
+// as-launched startDir with a bare startsWith. A symlinked launch path (macOS /tmp vs
+// /private/tmp, ~/projects links) compared unequal and silently disabled the gate, while a
+// sibling dir like .../praxis-anything satisfied startsWith and could block Stop in an
+// unrelated project. underRepo realpaths both sides and requires a path-separator boundary.
+test("stop-docs: a symlinked launch path still matches the repo (gate fires)", () => {
+  const base = mkdtempSync(join(tmpdir(), "stop-docs-root-"));
+  try {
+    const repoDir = join(base, "praxis");
+    mkdirSync(join(repoDir, "sub"), { recursive: true });
+    const link = join(base, "praxis-link");
+    symlinkSync(repoDir, link);
+    assert.equal(underRepo(link, repoDir), true);              // launched via the symlink
+    assert.equal(underRepo(join(link, "sub"), repoDir), true); // subdir through the symlink
+    assert.equal(underRepo(repoDir, link), true);              // symlink on the repo side too
+    assert.equal(underRepo(repoDir, repoDir), true);           // plain identity still holds
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});
+
+test("stop-docs: a sibling dir sharing the repo's name as a prefix never matches", () => {
+  const base = mkdtempSync(join(tmpdir(), "stop-docs-sibling-"));
+  try {
+    const repoDir = join(base, "praxis");
+    const sibling = join(base, "praxis-anything");
+    mkdirSync(repoDir);
+    mkdirSync(sibling);
+    assert.equal(underRepo(sibling, repoDir), false);
+    assert.equal(underRepo(join(sibling, "deep"), repoDir), false);
+    assert.equal(underRepo(join(base, "unrelated"), repoDir), false);
+    assert.equal(underRepo("", repoDir), false); // degenerate input degrades, never crashes
+  } finally { rmSync(base, { recursive: true, force: true }); }
 });

@@ -24,7 +24,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 5aa19b1e260add0148f1767b8bb2d759a95a6745
+verified_against: 63f01e069587c40875af1c96902266ef93f8bf3b
 ---
 
 # Test suite — per-file coverage catalog
@@ -35,14 +35,16 @@ One bullet per `test/*.test.mjs` file:
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
   (missing plugin row / install line / chassis module / releasing link), the plugin census
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
-  install lines for unregistered names), plus "the praxisflux repo itself is in sync".
+  install lines for unregistered names), "the praxisflux repo itself is in sync", and
+  stop-docs' `underRepo` root match (symlinked launch fires; siblings never match).
 - `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
   plugins' shims — silent.
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
-  helpers, and gate-runner `evaluate`.
+  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
+  named problems).
 - `test/codebase-to-course.course-gate.test.mjs` — the course output gate (`validateCourse`)
   against minimal fixture HTML with modules, quizzes, and translation blocks.
 - `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
