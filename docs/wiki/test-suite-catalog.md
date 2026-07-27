@@ -21,11 +21,12 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/sync-shared.test.mjs
+  - test/sync-version.test.mjs
   - test/team-review.test.mjs
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: abadcf4f08acde96dc6635afc05eb7535dbd771e
+verified_against: 49cc18443b38f48d9fa2e14b5e7d7c8ea2c5d9b9
 ---
 
 # Test suite — per-file coverage catalog
@@ -72,12 +73,11 @@ One bullet per `test/*.test.mjs` file:
   rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
   `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
-  staleness-check identically; a source path missing from the working tree blocks naming
-  note + path, including rename-after-pin) against a throwaway git repo, plus the plan
-  loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
-  code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
-  repin refusals — including a format-valid hash naming no commit, refused with the
-  note left byte-identical, and a note outside any git repo).
+  staleness-check identically; missing/renamed source paths block naming note + path)
+  against a throwaway git repo, plus the plan loop (`classifyNote` truth table,
+  stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
+  fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
+  and notes outside git, note untouched).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
   delegated round trip with each leg doing exactly what its skill instructs: build writes
@@ -110,6 +110,8 @@ One bullet per `test/*.test.mjs` file:
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
+- `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
+  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
 - `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
   resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
   the run CLI (begin/finish/abandon, id collisions, self-review regressions incl. the

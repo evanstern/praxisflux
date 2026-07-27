@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 640682e91a7490b7fd05c189cdbbbcaee02c0794
+verified_against: b6694ccfcd7454466df1e0afb6250febe1023b34
 ---
 
 # Build and release
@@ -48,10 +48,13 @@ from the plugin's `keywords`) — so the new-plugin checklist's "run gen-marketp
 true as written. `--check` exits 1 if the file would change; guarded by
 `test/gen-marketplace.test.mjs`, including a repo-own-catalog staleness check.
 
-**Version consistency** (`scripts/sync-version.mjs`). With an argument (`0.3.0`) it sets every
-plugin.json, the marketplace, and `action.yml`'s `npx @praxisflux/gates@<version>` pin to that
-version; with no argument it syncs those to the marketplace's version; `--check` exits 1 on any
-disagreement. The pin rewrite is the pure exported `stampNpxPin(text, name, target)`, which also
+**Version consistency** (`scripts/sync-version.mjs`). Exactly one argument, validated before
+any file is touched: a strict `x.y.z` (`0.3.0`) sets every plugin.json, the marketplace, and
+`action.yml`'s `npx @praxisflux/gates@<version>` pin to that version; `--check` exits 1 on any
+disagreement. Anything else — no argument, `--help`-style flags, non-semver — is a usage
+error: exit 2, zero files written (guarded by `test/sync-version.test.mjs`; a target at or
+below the current value stays allowed for repair/rollback — the bump gate polices increases).
+The pin rewrite is the pure exported `stampNpxPin(text, name, target)`, which also
 reports the pins it found — a vanished pin fails loudly in both modes. Versions are
 **lockstep**: the marketplace `version` is the single release version and everything else
 follows it.
