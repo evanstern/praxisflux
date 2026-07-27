@@ -7,9 +7,9 @@
 
 ## Implement
 
-- [ ] T002 call-site audit recorded; no consumer of the bare no-arg mode remains
-- [ ] T003 argv validation: only --check or strict x.y.z accepted; usage + exit 2 otherwise, zero files touched (R1)
-- [ ] T004 valid x.y.z and --check behavior unchanged; header comment updated (R2)
+- [x] T002 call-site audit recorded; no consumer of the bare no-arg mode remains
+- [x] T003 argv validation: only --check or strict x.y.z accepted; usage + exit 2 otherwise, zero files touched (R1)
+- [x] T004 valid x.y.z and --check behavior unchanged; header comment updated (R2)
 - [ ] T005 regression test: refusals + no-files-touched guarantee; catalog bullet if a new test file (R3)
 
 ## Prove
