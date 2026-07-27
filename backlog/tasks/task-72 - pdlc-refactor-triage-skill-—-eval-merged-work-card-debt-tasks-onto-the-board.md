@@ -1,11 +1,11 @@
 ---
 id: TASK-72
 title: 'pdlc: refactor-triage skill — eval merged work, card debt tasks onto the board'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 14:29'
-updated_date: '2026-07-27 15:07'
+updated_date: '2026-07-27 15:11'
 labels: []
 dependencies: []
 ordinal: 107000
@@ -43,9 +43,9 @@ Spec: specs/033-refactor-triage
 - [x] #7 Output gate enforces: no created task without a cited finding, no completion without report + triage record
 - [x] #8 pdlc:sweep's Handing off section names refactor-triage as the post-sweep review step
 - [x] #9 Version bumps (skill + marketplace) per docs/releasing.md; tests under test/ green via node --test; wiki freshness gate and check-docs pass
-- [ ] #10 Spec phase: Spec
-- [ ] #11 Spec phase: Implement
-- [ ] #12 Spec phase: Prove
+- [x] #10 Spec phase: Spec
+- [x] #11 Spec phase: Implement
+- [x] #12 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -54,4 +54,12 @@ Spec: specs/033-refactor-triage
 dispatch: default implementer tier — doctrine-heavy skill authoring but a single cohesive deliverable bounded by nine explicit ACs and a card-recorded agreed design (runbook docs/design/refactor-triage-runbook.md, signed off 2026-07-27)
 
 Implementation shipped on task-72-refactor-triage: pdlc/skills/refactor-triage/SKILL.md v0.1.0 (precondition gate → Scope/Evaluate/Triage/Execute → prose output gate; three entry modes incl. headless with a declared, recorded triage policy; team-review orchestrated via its lens with inline degradation; range-mode intent-drift pass against runbook + PR specs + pinned wiki notes; tracked docs/reviews/refactor-triage-<run-id>.md record; accepted findings → cited, labeled backlog tasks via the CLI). sweep SKILL 0.9.0: Handing off names pdlc:refactor-triage. test/pdlc.test.mjs extended (frontmatter, three modes + output gate, sweep handoff); pdlc/README.md lists the third skill. Wiki: new pdlc-refactor-triage note + INDEX + CAPSULES; pdlc-plugin re-verified (three skills); pdlc-sweep + catalog re-pinned honestly; stamp-only re-pins to the 0.40.0 bump. Gates: node --test 252 pass, check-docs clean, wiki-freshness 33 fresh, versions lockstep 0.40.0, bump check ok. Commits 5e30077..6c02c04.
+
+spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 5/5 · Prove: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->

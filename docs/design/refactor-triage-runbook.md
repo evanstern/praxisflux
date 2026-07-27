@@ -9,7 +9,7 @@ Description carries the agreed four-phase design, the pdlc-placement rationale, 
 explicit out-of-scope list. Plan-of-record is the board; this file carries only ordering,
 doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-27
+**Status:** done · operator sign-off on lanes: 2026-07-27 · completed: 2026-07-27
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -146,3 +146,4 @@ log complete and status flipped to done.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-27 | TASK-72 | #97 | 3e96cd7 | refactor-triage skill 0.1.0 (4 phases + prose gate); sweep 0.9.0 hands off to it; v0.40.0; new wiki note pdlc-refactor-triage; pdlc-plugin/pdlc-sweep reviewed re-pins; no reconcile needed (main never moved); Done via spec-bridge:sync |
