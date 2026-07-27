@@ -4,7 +4,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 import {
   parseWikisTable, topicVaults, renderTopicWiki, renderProjectWiki, isStale, wikiStalenessWarnings,
@@ -70,6 +72,40 @@ test("wiki: isStale ignores the updated date; warnings fire on drift", () => {
   // Re-rendering with a different date must NOT read as stale (date line is normalized out).
   assert.equal(isStale(join(topicDir, "WIKI.md"), renderTopicWiki(topicDir, "philosophy", { date: "2030-01-01" })), false);
   assert.deepEqual(wikiStalenessWarnings(root), []);               // both current → no warnings
+});
+
+// ---- the wiki CLI's check/sync contract (spawned, exit codes included) ----
+const wikiCli = join(dirname(fileURLToPath(import.meta.url)), "..", "educate", "scripts", "wiki.mjs");
+const runWiki = (root, ...args) =>
+  spawnSync(process.execPath, [wikiCli, ...args, "--root", root], { encoding: "utf8" });
+
+test("wiki CLI: vault-less single-topic --check converges with --sync (no permanent stale loop)", () => {
+  const root = mkdtempSync(join(tmpdir(), "praxisflux-wiki-cli-"));
+  mkdirSync(join(root, "topics", "bare"), { recursive: true }); // a topic with NO research vaults
+
+  // check: distinct no-vaults verdict at exit 0 — never "stale (run --sync)"
+  let r = runWiki(root, "bare", "--check");
+  assert.equal(r.status, 0, `vault-less check must exit 0; stdout: ${r.stdout} stderr: ${r.stderr}`);
+  assert.match(r.stdout, /no research vaults/);
+  assert.doesNotMatch(r.stdout, /stale/);
+
+  // the full loop the old code never escaped: check → sync (skipped) → check, all exit 0
+  r = runWiki(root, "bare", "--sync");
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /skipped/); // the verdict the check guard must stay consistent with
+  r = runWiki(root, "bare", "--check");
+  assert.equal(r.status, 0, "post-sync re-check must stay converged");
+});
+
+test("wiki CLI: a vaulted topic still reports stale at exit 1, and --sync still fixes it", () => {
+  const { root } = fixture(); // philosophy has vaults but no WIKI.md yet → genuinely stale
+  let r = runWiki(root, "philosophy", "--check");
+  assert.equal(r.status, 1, `stale vaulted topic must exit 1; stdout: ${r.stdout}`);
+  assert.match(r.stdout, /stale \(run --sync\)/);
+  r = runWiki(root, "philosophy", "--sync");
+  assert.equal(r.status, 0);
+  r = runWiki(root, "philosophy", "--check");
+  assert.equal(r.status, 0, "the remedy the message names must actually converge");
 });
 
 test("gate-runner: warn notices surface without blocking", () => {
