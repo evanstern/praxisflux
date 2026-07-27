@@ -11,7 +11,7 @@ sources:
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/scripts/capsules.mjs
   - grounding-wiki/templates/note.md
-verified_against: 63f01e069587c40875af1c96902266ef93f8bf3b
+verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
 ---
 
 # Grounding-wiki plugin
@@ -67,15 +67,25 @@ adopted corpora FAIL on a `description:` over `CAPSULE_BUDGET` (500 chars), a bo
 `NOTE_BODY_BUDGET` (8,000 chars, measured by `noteBody` below the frontmatter; a
 `size_budget_exempt: <reason>` frontmatter key downgrades that one to WARN), and a stale or
 hand-edited `CAPSULES.md` — detected by re-rendering at the commit the header names and
-byte-comparing, with the regeneration command in the failure. Unadopted corpora get the same
-checks as WARN-only notices, so v1 corpora stay green until they adopt.
+byte-comparing, with the regeneration command in the failure. Render and check both
+canonicalize the corpus dir first (`normalizeCorpusDir`: repo-relative, forward slashes, no
+trailing slash) before embedding it in the header, so regenerate-and-compare is invariant to
+how the generator was invoked; a pre-normalization header whose only difference is that
+spelling degrades to a WARN naming the regeneration command, not a hand-edit failure.
+Unadopted corpora get the same checks as WARN-only notices, so v1 corpora stay green until
+they adopt.
 
 **Freshness gate** (`gates/freshness.mjs`, `validateFreshness(repoRoot, corpusDir = "docs/wiki")`):
 - Missing `INDEX.md` fails as `not a corpus`. Every other `.md` in the dir is checked.
 - A note fails if it has no frontmatter, no `verified_against` pin, or a pin that is not a
   known commit (`git cat-file -e <pin>^{commit}`).
-- `parseSourcesBlock` extracts the `sources:` YAML block list from raw frontmatter text —
-  needed because `lib/markdown.mjs` parses only inline `[a, b]` arrays.
+- `noteSources` reads both sanctioned `sources:` spellings — inline `[a, b]` arrays via
+  `lib/markdown.mjs` `parseFrontmatter`, YAML block lists via `parseSourcesBlock` — so both
+  staleness-check identically.
+- A source path absent from the working tree fails the note, naming note + path: `git log`
+  over a nonexistent pathspec is silently empty, which would otherwise report FRESH forever
+  after a rename, delete, or typo. `plan` surfaces the same case as a `# problem:` instead of
+  planning over it.
 - Staleness: `git log --oneline <pin>..HEAD -- <sources>`; any output fails the note as STALE,
   reporting the commit count and first commit. Empty `sources:` only warns ("staleness is
   unverifiable").
@@ -93,8 +103,8 @@ through `scripts/repin.mjs`.
 ## Connections
 
 The corpus format the plugin produces and enforces is [[grounded-corpus-spec]] — including
-its v2 capsule tier and note size budget; this repo's own `docs/wiki/` is an instance (not
-yet adopted: no `CAPSULES.md`, so its budget checks are warn-only). The corpus feeds downstream consumers — [[codebase-to-course-plugin]]
+its v2 capsule tier and note size budget; this repo's own `docs/wiki/` is an instance
+(adopted: `CAPSULES.md` present, so the budgets enforce hard). The corpus feeds downstream consumers — [[codebase-to-course-plugin]]
 grounds course content on it, and [[educate-plugin]] lessons can draw on it. Skills follow
 [[skill-patterns]]; the gate follows [[gates-convention]] and builds on [[markdown-module]]
 (`parseFrontmatter`, `stripCode`, `extractWikilinks`). Packaged with the [[chassis]] by

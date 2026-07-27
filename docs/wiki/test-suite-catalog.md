@@ -24,7 +24,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 63f01e069587c40875af1c96902266ef93f8bf3b
+verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
 ---
 
 # Test suite — per-file coverage catalog
@@ -60,13 +60,18 @@ One bullet per `test/*.test.mjs` file:
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
 - `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
-  generation (deterministic, headered, INDEX-ordered) and the freshness gate's
-  adoption-keyed budget enforcement (capsule/body overages, `size_budget_exempt`
-  downgrade, stale/hand-edited rollup, warn-only before adoption).
+  generation (deterministic, headered, INDEX-ordered, corpusDir-spelling-invariant across
+  relative/absolute/trailing-slash invocations, pre-normalization headers degrading to a
+  WARN with regeneration guidance) and the freshness gate's adoption-keyed budget
+  enforcement (capsule/body overages, `size_budget_exempt` downgrade, stale/hand-edited
+  rollup, warn-only before adoption).
 - `test/grounding-wiki.freshness.test.mjs` — the wiki freshness gate (`validateFreshness`,
-  `parseSourcesBlock`) against a throwaway git repo, plus the plan loop (`classifyNote`
-  truth table, stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
-  fresh-corpus silence, repin refusals).
+  `noteSources`/`parseSourcesBlock` — inline `[a, b]` arrays and block lists
+  staleness-check identically; a source path missing from the working tree blocks naming
+  note + path, including rename-after-pin) against a throwaway git repo, plus the plan
+  loop (`classifyNote` truth table, stamp-only re-pin round-trip through `repin.mjs`,
+  code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
+  repin refusals).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
