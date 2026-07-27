@@ -34,6 +34,16 @@ export function runsDirFor(dir) {
   return join(d, ".handoff", "team-review", "runs");
 }
 
+/** Where DEFAULT reports land: `reports/` beside the runs registry — under $TEAM_REVIEW_HOME
+ *  when set, else `<root>/.handoff/team-review/reports`. Keyed off the runs home (never bare
+ *  cwd) so a self-review (`begin .` from inside the target) can never default the report onto
+ *  the target's own content: on a self-review this resolves into the target's `.handoff/`
+ *  transport, which `checkReview` exempts — transport residue is never target content. */
+export function reportsDirFor(dir) {
+  if (process.env.TEAM_REVIEW_HOME) return join(process.env.TEAM_REVIEW_HOME, "reports");
+  return join(dirname(runsDirFor(dir)), "reports");
+}
+
 /** Required report sections, matched case-insensitively against headings/bold leads. */
 const SECTIONS = [
   { name: "TL;DR", re: /(^|\n)\s*(#+\s+.*TL;?DR|\*\*TL;?DR)/i },
@@ -96,7 +106,11 @@ export function checkReview(run) {
   if (!run.report) return ["run record has no report path"];
   const report = resolve(run.report);
 
-  if ((report + sep).startsWith(target + sep))
+  // A report inside the reviewed repo violates read-only — EXCEPT under the target's
+  // `.handoff/` transport: that is exempted plumbing by doctrine (same rule as
+  // stripHandoffEntries below), and it's where the default report lands on a self-review,
+  // when the runs home root IS the target. Anywhere else inside the target still blocks.
+  if ((report + sep).startsWith(target + sep) && !(report + sep).startsWith(join(target, ".handoff") + sep))
     problems.push(`report lives INSIDE the reviewed repo (${report}) — reviews are read-only; write it elsewhere`);
 
   if (!existsSync(report)) {

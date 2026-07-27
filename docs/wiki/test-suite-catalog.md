@@ -92,11 +92,11 @@ One bullet per `test/*.test.mjs` file:
   `analysis.md` requirements, and graceful degradation on malformed files.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` must be empty) and `stampRegion` replaces only marked bodies.
-- `test/team-review.test.mjs` — the review output gate (`checkReview`: sections, citation
-  resolution with repeated-basename tolerance, report-inside-target rejection, untouched
-  vs mutated snapshot, `.handoff/` residue exempt), the run lifecycle CLI
-  (begin/finish/abandon, id collisions, the self-review regression), and the Stop-hook
-  paths through gate-runner `evaluate`.
+- `test/team-review.test.mjs` — the output gate (`checkReview`: sections, citation
+  resolution, in-target rejection with `.handoff/` exempt, untouched vs mutated snapshot),
+  the run CLI (begin/finish/abandon, id collisions, self-review regressions incl. the
+  default-report round trip, same-day default uniqueness), and the Stop-hook paths
+  through gate-runner `evaluate`.
 - `test/toolkit-borrow.test.mjs` — a deck that borrows toolkit modules (code-translation panel,
   reveal quiz) still passes educate's DoD gate and stays self-contained.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure

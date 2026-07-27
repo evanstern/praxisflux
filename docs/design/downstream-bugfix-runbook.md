@@ -9,7 +9,7 @@ evidence, and the ACs from the promptworld downstream bug-find sweep (2026-07-27
 against praxis decaa14/v0.27.0). Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-26
+**Status:** executing · operator sign-off on lanes: 2026-07-26
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -208,3 +208,6 @@ done. Anything short of that is reported as exactly what remains.
 
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
+| 2026-07-26 | (setup) | #82 | 18f8100 | signed-off runbook; gh-pr-merge permission arranged with operator |
+| 2026-07-26 | TASK-58 | #83 | 7c2b6cd | honest re-pin doctrine; sweep skill 0.7.0; marketplace 0.28.0; Lane A opener — remaining lanes now follow the amended text |
+| 2026-07-26 | TASK-61 | #84 | 4cd0834 | team-review self-review-safe default report path, run-id-keyed; skill 1.2.0; 0.29.0; in-target block now exempts the .handoff transport (posture change noted in PR); follow-up policy question on gitignored residue parked on the card |
