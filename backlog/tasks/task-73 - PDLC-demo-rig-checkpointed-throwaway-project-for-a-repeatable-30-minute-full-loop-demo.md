@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 16:44'
+updated_date: '2026-07-27 17:21'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -43,4 +43,6 @@ Spec: specs/034-demo-rig
 sweep dispatch (2026-07-27): tier = default implementer — design operator-ratified with 8 explicit ACs, no open architecture decisions; flagged in runbook as largest single-task footprint (fixture capture drives real plugin runs); escalation is an operator checkpoint. Spec: specs/034-demo-rig, runbook docs/design/demo-rig-runbook.md (signed off 2026-07-27).
 
 operator checkpoint resolved (2026-07-27): sandbox remote = evanstern/praxisflux-demo-sandbox (private, created via gh; throwaway, force-pushed on reset). CI never touches it.
+
+implementer (2026-07-27): T002-T007 complete on task-73-demo-rig. Rig: demo/generate.mjs (deterministic replay, stage-0..4 tags, --stage/--reset/--check/--remote/--snapshot), fixtures captured from genuine plugin runs (wiki-build, research-vault, spec-bridge link/sync, real mini-sweep = sandbox PRs #1-#3 merged incl. live task-3's twin, headless refactor-triage -> demo debt cards task-4/5). Gate matrix green on fresh generate (app-test 0/3, wiki-freshness 1/3/4, spec-bridge 2/3/4); double-generate ref-identical (R8). test/demo-rig.test.mjs rides node --test (253/253) + catalog bullet; RUNSHEET.md rehearsed (both live gate moments verified verbatim). demo-rig wiki note pinned w/ demoed skills as sources; README updated. check-docs green, freshness 34/34, check-version-bump: no bump required.
 <!-- SECTION:NOTES:END -->
