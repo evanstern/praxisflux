@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 228c4694aa16c7f35b3f9ef0230691ad68d4f122
+verified_against: cad8211058c905136a438e0bdaf13de6ced4fcf5
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -37,7 +37,7 @@ phases, gate → work → gate:
 
 Since 0.12.1 both phases consume a host **merge-drift gate** when the precondition probe
 finds one (`scripts/check-merge-drift.mjs`, the promptworld spec-051 pattern; since
-0.30.0 the probed inventory is four modes — `session`/`claim`/`worktree`/`pr` —
+0.31.0 the probed inventory is four modes — `session`/`claim`/`worktree`/`pr` —
 identical in SKILL and runbook template, with the four invocations recorded verbatim):
 `session` at sweep start subsumes the root fetch/ff-pull and feeds its drift matrix
 into lane construction, `claim --dir <NNN>-<slug>` blocks on a taken spec number
@@ -85,7 +85,7 @@ procedure for downstream hosts that inherited the old convention: keep the merge
 drop the mechanical re-pin, classify-then-pin, and treat pins already bumped under it
 as suspect at the next update pass.
 
-Since 0.30.0 (skill 0.8.0) the doctrine set is internally reconciled (TASK-60): the
+Since 0.31.0 (skill 0.8.0) the doctrine set is internally reconciled (TASK-60): the
 Phase 2 loop carries an **explicit claim step** stating the one ordering both files
 share — the claim commit (board → In Progress + spec dir stub, pushed -u) precedes
 spec authoring, and the worktree-cut instruction says outright that `origin/main`
