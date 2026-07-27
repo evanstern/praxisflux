@@ -17,11 +17,13 @@ context to say *what* to build stays distinct from the one that builds it and re
 3. **Return findings** — write the correlated response handoff (`kind: response`,
    `from: build`, `to: educate`, `ref: <request id>`) — what was built, how it was
    verified, corrections the lesson should absorb — then point back to `educate:lesson`
-   for the return leg + deck. Folding findings in is educate's job, and its DoD gate
-   checks that it actually happened.
+   for the return leg + deck. The response is build's entire return: recording the
+   evidence (`handoff.returned`, status `built` in `progress.json`) and folding findings
+   in are educate's job, and its DoD gate checks that both actually happened.
 
 The two plugins never call each other — both legs ride the shared handoff transport
-(gitignored `.handoff/`, chassis module `lib/handoff.mjs`; see `docs/handoff-protocol.md`).
+(gitignored `.handoff/`, chassis module `lib/handoff.mjs`; protocol reference shipped with
+the plugin at `lib/handoff-protocol.md`, canonical at the repo's `docs/handoff-protocol.md`).
 
 **Skill-only by design.** build ships no gates, scripts, or hooks — like `pdlc`, it is a
 skill-only plugin, a supported shape in this suite. It has no lifecycle of its own to

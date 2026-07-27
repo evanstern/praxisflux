@@ -6,7 +6,7 @@ sources:
   - build/.claude-plugin/plugin.json
   - build/README.md
   - build/skills/implement/SKILL.md
-verified_against: a7fab09d261e567e0601c9928d94f123643df30a
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # build plugin
@@ -30,12 +30,15 @@ The single skill, `build:implement` (`build/skills/implement/SKILL.md`), runs th
    from the SPEC and decisions made along the way are treated as the valuable output.
 3. **Return findings.** Write a correlated response handoff (`kind: response`, `from: build`,
    `to: educate`, `ref: <request id>`) whose body is the findings: what was built, how it was
-   verified, and corrections the lesson should absorb. Then point the user back to
+   verified, and corrections the lesson should absorb. The response is build's **entire**
+   return — it never writes the producer's ledger (educate's `progress.json`): recording the
+   evidence (`handoff.returned=true`, status `built`) is educate's return-leg job, done when
+   it picks the response up (TASK-63 seam ownership). Then point the user back to
    `educate:lesson` for the return leg and deck.
 
 Explicit non-goals, stated in the skill: it does not teach, plan lessons, write the deck or
-guide, or mark the lesson done — educate closes the loop, and educate's DoD gate checks that
-the fold-in actually happened.
+guide, mark the lesson done, or write the producer's tracked state — educate closes the loop,
+and educate's DoD gate checks that the fold-in actually happened.
 
 **Skill-only by design.** The plugin ships the manifest, the README, and the `implement`
 skill — no gates, hooks, scripts, or templates. The README states this is deliberate, a
@@ -43,7 +46,9 @@ supported shape in the suite (like `pdlc`): build has no lifecycle of its own to
 enforcement of the round trip lives on the educate side, whose DoD gate holds the evidence
 that the SPEC went out and the findings came back. The skill references the shared
 transport `lib/handoff.mjs` (write/read/list/consume `.handoff/` payloads) as a library,
-noting it is not a CLI.
+noting it is not a CLI, and points at the protocol reference shipped with the plugin
+(`${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md`, a stamped copy of the repo-root canonical
+doc), so the pointer resolves from an installed plugin context.
 
 ## Connections
 

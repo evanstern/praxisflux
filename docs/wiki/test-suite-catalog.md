@@ -24,7 +24,7 @@ sources:
   - test/toolkit-borrow.test.mjs
   - test/version-bump.test.mjs
   - test/wiki.test.mjs
-verified_against: 67bba3df054e747cdc8257df02f642fa6791cfce
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # Test suite — per-file coverage catalog
@@ -73,7 +73,10 @@ One bullet per `test/*.test.mjs` file:
   code-diff work orders, missing sources surfaced as problems, fresh-corpus silence,
   repin refusals).
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
-  gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
+  gitignored `.handoff/`) plus educate's `progress.json` evidence gate, including the
+  delegated round trip with each leg doing exactly what its skill instructs: build writes
+  only the response, and the gate stays blocked at `built` until educate's return-leg
+  evidence write (`handoff.returned`) lands — TASK-63 seam ownership.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
   self-contained verifier with zero warnings (theme-aware, has a data table).
 - `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin

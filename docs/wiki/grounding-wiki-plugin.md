@@ -11,7 +11,7 @@ sources:
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/scripts/capsules.mjs
   - grounding-wiki/templates/note.md
-verified_against: a7fab09d261e567e0601c9928d94f123643df30a
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # Grounding-wiki plugin

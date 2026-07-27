@@ -1,6 +1,6 @@
 ---
 name: lesson
-version: 0.1.0
+version: 0.2.0
 description: Orchestrate a learning lesson's lifecycle in an educate project — placement, scaffolding, the teach -> build -> deck handoff seam, and the Definition-of-Done gate. Use when starting, resuming, or finishing a lesson, or when the user asks where a lesson should live or whether it's done.
 ---
 
@@ -51,8 +51,9 @@ model recall. This composes with the **research** plugin through files, never by
 `scaffolded` -> `taught` -> `spec'd` -> `built` -> `decked` -> `done`
 - **scaffolded** — folder copied from `.template/`.
 - **taught** — Socratic session complete; every checklist item demonstrated.
-- **spec'd** — `HANDOFF.md` written (delegated builds only).
-- **built** — the build plugin (`build:implement`) implemented it; `POST_BUILD_HANDOFF.md` returned.
+- **spec'd** — the SPEC handed off as a `.handoff/` request; `handoff.specd=true` (delegated builds only).
+- **built** — the build plugin (`build:implement`) returned its findings response via `.handoff/`
+  and this skill recorded it (`handoff.returned=true`).
 - **decked** — `deck.html` (built FROM the deck template) + `guide.md` produced.
 - **done** — all required artifacts exist AND verified on disk.
 
@@ -73,16 +74,23 @@ summary; it is a live log. Enforce it the same way you enforce the checklist:
 Implementation is a **separate plugin** (`build`). educate teaches and authors the SPEC and folds
 the findings back in; it does **not** build. Payloads ride the **gitignored `.handoff/`** transport
 and the evidence lives in `progress.json` — never loose `HANDOFF.md` files (see
-`docs/handoff-protocol.md`).
+`${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md`, the stamped copy of the canonical protocol).
 1. This skill teaches -> checklist demonstrated -> writes the SPEC as a handoff **request**
    (`.handoff/<id>.md`, `kind: request`, `from: educate`, `to: build`), sets the lesson's
    `handoff.specd=true`, status `spec'd`. Then tell the user: "run the **build** plugin (`build:implement`)."
 2. The `build` plugin reads the request, builds + verifies, writes a **findings response**
-   (`kind: response`, `from: build`, `to: educate`, `ref: <id>`), sets `handoff.returned=true`,
-   status `built`. It points back: "return to `educate:lesson` for the return leg + deck."
-3. Return leg (most-skipped step): read the findings response, apply source corrections, and record
-   **durable residue** — a `## Post-build` section in `guide.md`/`raw-notes.md` — then set
-   `handoff.foldedIn=true`. Build the deck + guide -> `decked` -> `done`. The gate refuses `done`
+   (`kind: response`, `from: build`, `to: educate`, `ref: <id>`) — and touches nothing else.
+   Build **never writes `progress.json`**: the ledger is educate's, and recording evidence is
+   the consumer's job. It points back: "return to `educate:lesson` for the return leg + deck."
+3. Return leg (most-skipped step) — **THIS skill owns the evidence write.** On resuming a lesson
+   at `spec'd`, look for the pending response (`.handoff/`, `kind: response`, `to: educate`,
+   `ref` = the request id). Found one -> record it FIRST: set the lesson's
+   `handoff.returned=true` and status `built` in `progress.json`. (The DoD gate refuses any
+   status >= `built` without that evidence, so skipping this write leaves the lesson blocked
+   at `spec'd` — by design.) Then read the findings, apply source corrections, record
+   **durable residue** — a `## Post-build` section in `guide.md`/`raw-notes.md` — set
+   `handoff.foldedIn=true`, and consume the payload (it moves to `.handoff/consumed/`).
+   Build the deck + guide -> `decked` -> `done`. The gate refuses `done`
    until `handoff.foldedIn` **and** that residue both exist, so the return leg can't be skipped.
 
 **Optional visual tools for the deck.** The shared toolkit (`${CLAUDE_PLUGIN_ROOT}/lib/toolkit/`)

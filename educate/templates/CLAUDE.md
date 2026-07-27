@@ -13,13 +13,15 @@ topics/<topic-slug>/<NNN>-<lesson-slug>/
 ```
 
 Files inside a lesson folder use bare names: `checklist.md`, `raw-notes.md`, and (if the
-lesson has them) `HANDOFF.md` / `POST_BUILD_HANDOFF.md`, `deck.html`, `guide.md`.
+lesson has them) `deck.html`, `guide.md`. Handoff payloads never live in the lesson folder —
+they ride the gitignored `.handoff/` transport; the durable evidence is in `progress.json`.
 
 ## Lifecycle (use these exact words)
 `scaffolded` → `taught` → `spec'd` → `built` → `decked` → `done`
 
 Create `checklist.md` + `raw-notes.md` at the **start** (copy `topics/.template/`). Build the
-deck + guide at the **end** (for delegated builds, after `POST_BUILD_HANDOFF.md` returns).
+deck + guide at the **end** (for delegated builds, after build's findings response returns via
+`.handoff/` and the return leg records `handoff.returned` + status `built`).
 
 ## Note-taking cadence (always on, enforced)
 `raw-notes.md` is not optional and not a once-at-the-end summary — it is maintained **live,
@@ -41,8 +43,10 @@ teaching loop, walks the teach → build → deck seam, and gates `done`. To sta
   a lesson-local `research/`), then teaches from the grounding — falling back to an inline pass if
   research isn't installed.
 - Delegated build: the lesson skill writes a SPEC to the gitignored `.handoff/` → run the **build**
-  plugin (**`build:implement`**) → return leg folds findings back in. Evidence is tracked in
-  `progress.json` (`handoff.specd/returned/foldedIn`), not loose files.
+  plugin (**`build:implement`**) → the return leg records `handoff.returned` + status `built`
+  (educate's write, not build's — build only writes the `.handoff/` response) and folds findings
+  back in. Evidence is tracked in `progress.json` (`handoff.specd/returned/foldedIn`), not loose
+  files.
 
 ## Definition of Done — the gate (git-agnostic)
 A lesson is `done` only when every required artifact exists on disk. Enforced by the plugin's

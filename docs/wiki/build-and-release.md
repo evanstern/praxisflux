@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: a7fab09d261e567e0601c9928d94f123643df30a
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # Build and release
@@ -89,10 +89,12 @@ runner (`scripts/run-gates.mjs`), the package contents, and the exit-code contra
 described in [[gates-consumption-surface]].
 
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
-literal copy inside consumer files (a planted template can't import at runtime). The `SYNCS`
-table maps canonical sources to consumers: the `praxisflux:tokens` and `praxisflux:theme` regions of
-`lib/html/base.html`, and the `praxisflux:tooltip-css`/`praxisflux:tooltip-js` regions of
-`lib/toolkit/tooltip.md`, all stamped into `educate/templates/.template/deck.html`. Regions are
+literal copy inside consumer files (a planted template can't import at runtime). `SYNCS`
+maps canonical sources to consumers: `praxisflux:tokens`/`praxisflux:theme` from
+`lib/html/base.html` and `praxisflux:tooltip-css`/`praxisflux:tooltip-js` from
+`lib/toolkit/tooltip.md`, stamped into `educate/templates/.template/deck.html`; and
+`praxisflux:handoff-protocol`, `docs/handoff-protocol.md` → `lib/handoff-protocol.md`.
+Regions are
 delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampRegion` copy the
 body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
 on any byte difference.

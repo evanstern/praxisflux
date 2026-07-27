@@ -1,9 +1,9 @@
-# The praxisflux handoff protocol
+# The praxisflux handoff protocol (stamped copy)
 
-This file is the **canonical source**. A stamped copy ships inside every plugin as
-`lib/handoff-protocol.md` (skills reference it as `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md`,
-which resolves at install time); `scripts/sync-shared.mjs` re-stamps the marked region below and
-the drift test keeps the copy honest. Edit here, then run the sync.
+**Do not edit.** This is a stamped copy of the canonical `docs/handoff-protocol.md` at the
+praxisflux repo root, shipped on the `lib/` chassis so `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md`
+resolves from an installed plugin. `scripts/sync-shared.mjs` re-stamps the region below from the
+canonical source; the sync-shared drift test fails the suite if this copy diverges.
 
 <!-- praxisflux:handoff-protocol:start -->
 How one plugin hands work to another. The **transport is shared** (`lib/handoff.mjs`); the

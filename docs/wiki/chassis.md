@@ -6,7 +6,7 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: bb813579099e655a1c486e7a1921164058a03fb2
+verified_against: bd5adf6a1d849ed129b00547a75e199b0c6631dd
 ---
 
 # Chassis
@@ -52,6 +52,9 @@ The module roster in `lib/`:
   templating, the inter-plugin handoff transport, and the symlink-safe run-as-CLI guard
   ([[chassis-utilities]])
 - `html/base.html` — the shared CSS custom-property token schema referenced by toolkit snippets
+- `handoff-protocol.md` — a stamped copy of the canonical `docs/handoff-protocol.md`
+  (re-stamped by `scripts/sync-shared.mjs`, drift-tested), shipped here so skills can cite
+  the protocol as `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md` from an installed plugin
 - `toolkit/` — shared *content* rather than plumbing ([[toolkit]]): authoring guidance and
   copy-paste CSS/JS modules a skill reads while producing decks/courses/briefings
   (`tooltip.md`, `pedagogy.md`, `svg-diagrams.md`, `code-translation.md`, `quiz-patterns.md`,

@@ -15,7 +15,7 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: a7fab09d261e567e0601c9928d94f123643df30a
+verified_against: 5a8e18d833bcf9794cba770a7690ab2e0574599d
 ---
 
 # educate plugin
@@ -45,8 +45,9 @@ as user edits — never touching real lessons.
 
 **Lifecycle and DoD gate.** `educate/gates/dod.mjs` defines `STATES` —
 `planned, scaffolded, taught, spec'd, built, decked, done` — and `ARTIFACT_FILES` mapping
-progress keys to filenames (`checklist.md`, `raw-notes.md`, `HANDOFF.md`,
-`POST_BUILD_HANDOFF.md`, `deck.html`, `guide.md`). `lifecycleFor(progress)` builds a
+progress keys to filenames (`checklist.md`, `raw-notes.md`, `deck.html`, `guide.md`; handoff
+payloads are deliberately absent — they are transient `.handoff/` messages, never lesson
+artifacts, so nothing is derived from loose `HANDOFF.md`-style files). `lifecycleFor(progress)` builds a
 lifecycle via `createLifecycle` from `lib/lifecycle.mjs`: `done` always requires `checklist`
 + `rawNotes`; when `decksRequired` reads `definitionOfDone.decksStandardForEveryLesson` as
 set — array-or-flag tolerant like `isDelegated`, so an empty array does NOT require decks —
@@ -63,6 +64,9 @@ map, a `cursor` (`current`/`currentStatus`/`nextAction`) for resuming, and judgm
 **Teach→build seam.** For delegated-build topics the lesson skill writes the SPEC as a
 handoff request (`.handoff/<id>.md`, `kind: request`, `from: educate`, `to: build`); payloads
 are transient, evidence lives in `progress.json` (`handoff.specd/returned/foldedIn`).
+**educate owns every `progress.json` write on the seam** (TASK-63): build returns only the
+`.handoff/` response, and the lesson skill's return leg — on finding the pending response —
+records `handoff.returned=true` + status `built` before folding findings in.
 `dod.mjs` blocks status ≥ `built` without `handoff.returned`, and blocks `done` unless
 `foldedIn` is true *and* `hasReturnLegResidue` finds a `Post-build` (or `Return leg` /
 `Build findings`) heading in `guide.md` or `raw-notes.md` — the return leg can't be skipped.
