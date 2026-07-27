@@ -113,7 +113,7 @@ runStopHook({ gates: [${camel(name)}Gate] });
 const hooksJson = (name) => JSON.stringify({
   description: `${name} gate — TODO: state the one invariant this Stop hook enforces. No-op while the gate resolves no roots.`,
   hooks: {
-    Stop: [{ matcher: "*", hooks: [{ type: "command", command: "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh" }] }],
+    Stop: [{ matcher: "*", hooks: [{ type: "command", command: 'bash "${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"' }] }],
   },
 }, null, 2) + "\n";
 

@@ -37,9 +37,11 @@ const HOOK_PLUGINS = marketplace.plugins
 
 /** Simulate a marketplace install: copy the plugin dir, then replace the marketplace-internal
  *  `lib` symlink with a real copy of the chassis — the same dereference the plugin cache (and
- *  scripts/build.mjs) performs. Returns the installed root. */
-function installPlugin({ name, source }) {
-  const dest = join(mkdtempSync(join(tmpdir(), `praxisflux-install-${name}-`)), name);
+ *  scripts/build.mjs) performs. Returns the installed root. `spaced` puts a space in the
+ *  install path (install locations aren't ours to choose — e.g. a user dir with a space). */
+function installPlugin({ name, source }, { spaced = false } = {}) {
+  const prefix = spaced ? `praxisflux install ${name}-` : `praxisflux-install-${name}-`;
+  const dest = join(mkdtempSync(join(tmpdir(), prefix)), name);
   cpSync(join(repo, source), dest, { recursive: true });
   const lib = join(dest, "lib");
   if (existsSync(lib) && lstatSync(lib).isSymbolicLink()) {
@@ -220,5 +222,15 @@ for (const plugin of HOOK_PLUGINS) {
     // Same violation, second Stop of the loop: stop_hook_active must let the model finish.
     r = spawnStopHook(installed, trip, { stopHookActive: true });
     assert.equal(r.status, 0, `stop_hook_active: true must not re-block; stderr: ${r.stderr}`);
+  });
+
+  test(`install path e2e [${plugin.name}]: Stop hook survives an install path containing a space`, () => {
+    // hooks.json must quote the ${CLAUDE_PLUGIN_ROOT} expansion: an unquoted command
+    // word-splits on a spaced install path and the Stop hook errors on every turn.
+    const installed = installPlugin(plugin, { spaced: true });
+    const clean = fixtureDir();
+    const r = spawnStopHook(installed, clean);
+    assert.equal(r.status, 0,
+      `spaced install path must not break the Stop hook (quote the expansion in hooks.json); stderr: ${r.stderr}`);
   });
 }

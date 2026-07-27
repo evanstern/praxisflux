@@ -93,7 +93,8 @@ test("scaffold: --with-gate stamps the Stop-hook trio as a safe no-op", async ()
     scaffoldPlugin(root, "two-word", { withGate: true });
 
     const hooks = JSON.parse(readFileSync(join(root, "two-word", "hooks", "hooks.json"), "utf8"));
-    assert.equal(hooks.hooks.Stop[0].hooks[0].command, "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh");
+    // The expansion must be quoted — a spaced install path word-splits an unquoted command.
+    assert.equal(hooks.hooks.Stop[0].hooks[0].command, 'bash "${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh"');
     assert.ok(statSync(join(root, "two-word", "scripts", "gate.sh")).mode & 0o100, "gate.sh must be executable");
     assert.ok(readFileSync(join(root, "two-word", "scripts", "stop.mjs"), "utf8").includes("twoWordGate"));
 
