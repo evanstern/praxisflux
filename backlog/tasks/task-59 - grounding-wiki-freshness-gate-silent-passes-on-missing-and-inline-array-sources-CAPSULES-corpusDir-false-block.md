@@ -3,11 +3,11 @@ id: TASK-59
 title: >-
   grounding-wiki freshness gate: silent passes on missing and inline-array
   sources; CAPSULES corpusDir false-block
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 01:57'
-updated_date: '2026-07-27 02:30'
+updated_date: '2026-07-27 03:23'
 labels:
   - downstream-bug-find
 dependencies: []
@@ -25,13 +25,13 @@ Spec: specs/020-freshness-gate-holes
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A note listing a source path absent from the tree is a blocking finding (or loud per-note warning), not a silent fresh
-- [ ] #2 Inline-array sources frontmatter is parsed and staleness-checked identically to block lists
-- [ ] #3 CAPSULES regenerate-and-compare is corpusDir-spelling-invariant (absolute path / trailing slash regenerates byte-equal)
-- [ ] #4 Regression tests cover all three (missing source, inline array, corpusDir spelling)
-- [ ] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #1 A note listing a source path absent from the tree is a blocking finding (or loud per-note warning), not a silent fresh
+- [x] #2 Inline-array sources frontmatter is parsed and staleness-checked identically to block lists
+- [x] #3 CAPSULES regenerate-and-compare is corpusDir-spelling-invariant (absolute path / trailing slash regenerates byte-equal)
+- [x] #4 Regression tests cover all three (missing source, inline array, corpusDir spelling)
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -47,3 +47,9 @@ Origin: downstream bug-find sweep run FROM promptworld (2026-07-27) against prax
 
 Sweep dispatch (downstream-bugfix runbook, Lane B): tier = default implementer — gate code + regression tests with precise live repros already in the card.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Freshness/CAPSULES gate holes closed (branch task-59-wiki-gate-holes; PR pending merge). (1) grounding-wiki/gates/freshness.mjs existence-checks every source path — a missing/renamed path is a blocking finding naming note + path, and planFreshness surfaces the same case as a problem instead of planning over it. (2) New exported noteSources(): inline-array sources: [a, b] parsed via lib/markdown.mjs parseFrontmatter and staleness-checked identically to block lists in both validate and plan. (3) capsules.mjs: new exported normalizeCorpusDir applied in render and check — regenerate-and-compare is corpusDir-spelling-invariant (absolute/./trailing-slash byte-identical); pre-normalization headers degrade to a WARN naming the regen command, genuine staleness still blocks. (4) Seven regression tests across the freshness/capsules suites; one pre-existing fixture that relied on the missing-source hole corrected. Also fixed a stale factual claim in grounding-wiki-plugin.md (docs/wiki has been adopted/hard-enforced since TASK-50). No skill version bumps (gates live outside skill dirs; bump gate concurs). Reconciled with post-58/61/62/65 main by merge-in (67bba3d): 0.32.0, honest pin classification, test-suite fold honored main's split, and the new blocking behaviors live-verified to exit 1 through TASK-65's restructured run-gates CLI. Gates green at HEAD: node --test 228/228, check-docs, wiki freshness 30/30, bump gate 0.31.0 → 0.32.0. Hardening candidate surfaced for operator review (not carded): repin.mjs validates hash format only, not commit existence.
+<!-- SECTION:FINAL_SUMMARY:END -->
