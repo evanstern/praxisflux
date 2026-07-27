@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
 ---
 
 # Gates convention
@@ -43,8 +43,10 @@ stderr). Key behaviors:
   `ctx.sessionId` is the input's `session_id`, else `$CLAUDE_CODE_SESSION_ID`, else null.
 - **A gate that resolves no roots is a no-op** — the hook never fires outside its own project
   type, so each plugin ships its own hook and gates compose additively across installed plugins.
-- A crashing `check` becomes a blocking problem naming the gate and root; `warn` notices are
-  best-effort, surfaced on stderr, and never block (used for freshness reminders).
+- A crashing `check` becomes a blocking problem naming the gate and root, and a crashing
+  `resolveRoots` blocks the same way (naming the gate and start dir) — never a silent
+  zero-root no-op; only `warn` notices are best-effort, surfaced on stderr, and never block
+  (used for freshness reminders).
 
 **Directory convention** (uniform across plugins, per `docs/skill-patterns.md` section 5):
 

@@ -26,7 +26,7 @@ sources:
   - test/wiki.test.mjs
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 2d6bcdfd143d291424524d1b0575846566dcdae1
+verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
 ---
 
 # Test suite
@@ -40,27 +40,28 @@ directories rather than checked-in test data.
 
 Conventions shared across the files:
 
-- Runner: `node --test` from the repo root; files are named `<area>.test.mjs`.
+- Runner: `node --test` from the repo root; files named `<area>.test.mjs`.
 - Fixtures are synthesized per-test in `os.tmpdir()` scratch dirs (a `scratch()` or `project()`
-  helper per file); `test/grounding-wiki.freshness.test.mjs` even spins up a throwaway git repo
-  with `execFileSync("git", …)`.
-- Tests import the real gate/chassis modules directly (e.g.
-  `../educate/gates/dod.mjs`, `../lib/gate-runner.mjs`), so they exercise the same code the
-  Stop hooks run.
+  helper per file); `test/grounding-wiki.freshness.test.mjs` even spins up a throwaway git
+  repo.
+- Tests import the real gate/chassis modules directly (e.g. `../lib/gate-runner.mjs`), so
+  they exercise the same code the Stop hooks run.
 
-What each file covers:
+Per-file coverage:
 
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
   (missing plugin row / install line / chassis module / releasing link), the plugin census
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
-  install lines for unregistered names), plus "the praxisflux repo itself is in sync".
+  install lines for unregistered names), "the praxisflux repo itself is in sync", and
+  stop-docs' `underRepo` root match (symlinked launch fires; siblings never match).
 - `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
   plugins' shims — silent.
 - `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
   frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
-  helpers, and gate-runner `evaluate`.
+  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
+  named problems).
 - `test/codebase-to-course.course-gate.test.mjs` — the course output gate (`validateCourse`)
   against minimal fixture HTML with modules, quizzes, and translation blocks.
 - `test/codebase-to-course.validate.test.mjs` — the course chrome's own validator
@@ -68,10 +69,10 @@ What each file covers:
   auto-close, chrome version-stamp checks, and the orphan-content repros field-reported
   by the-stacks.
 - `test/educate-deck-selfcontained.test.mjs` — a deck.html must honor its "single
-  self-contained file, no CDN" contract; the DoD gate runs the shared verifier over it.
+  self-contained file, no CDN" contract via the shared verifier.
 - `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
-  a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
-  repo's own catalog is never stale.
+  an entry, hand-set category/tags survive, regeneration is idempotent, the repo's own
+  catalog is never stale.
 - `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
   generation (deterministic, headered, INDEX-ordered) and the freshness gate's
   adoption-keyed budget enforcement (capsule/body overages, `size_budget_exempt`
@@ -83,7 +84,7 @@ What each file covers:
 - `test/handoff.test.mjs` — the shared handoff transport (round-trip, opaque body,
   gitignored `.handoff/`) plus educate's `progress.json` evidence gate.
 - `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
-  self-contained verifier with zero warnings (theme-aware, has a data table).
+  self-contained verifier with zero warnings (theme-aware, data table).
 - `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin
   shipping `hooks/hooks.json` (catalog-derived), simulate an install (`lib -> ../lib`
   dereferenced, no symlink survives), then spawn the exact Stop command from hooks.json
@@ -113,8 +114,8 @@ What each file covers:
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
   `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases) plus an end-to-end
   run of the git wrapper over a throwaway git repo.
-- `test/wiki.test.mjs` — educate's corpus-index roll-up (`topics/<topic>/WIKI.md` +
-  `topics/WIKI.md`): parsing, rendering, staleness warnings.
+- `test/wiki.test.mjs` — educate's corpus-index roll-up (`topics/**/WIKI.md`): parsing,
+  rendering, staleness warnings.
 
 **Hook and CI enforcement.** A tracked hook at `.githooks/pre-commit` (enabled once per clone
 with `git config core.hooksPath .githooks`) runs, in order: `node --test` (wrapped in
@@ -145,5 +146,4 @@ gate on every PR (see [[build-and-release]]).
 - Run: `node --test` at the repo root; no install step, no config file.
 - The new-plugin checklist in [[skill-patterns]] requires tests under `test/` and a green
   `node --test`.
-- The hooks path is opt-in per clone; without `core.hooksPath` set, nothing enforces the suite
-  locally.
+- The hooks path is opt-in per clone; without `core.hooksPath`, nothing enforces locally.
