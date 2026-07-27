@@ -7,15 +7,15 @@
 
 ## Implement
 
-- [ ] T002 SKILL Phase 2 loop: explicit claim step, claim-before-spec ordering, worktree
+- [x] T002 SKILL Phase 2 loop: explicit claim step, claim-before-spec ordering, worktree
   sentence fixed; runbook claim paragraph aligned (R1)
-- [ ] T003 rejected-claim remedy merge-based, rebase-ban-safe, no force-push; wiki and
+- [x] T003 rejected-claim remedy merge-based, rebase-ban-safe, no force-push; wiki and
   template agree (R2)
-- [ ] T004 drift-gate inventory: four modes in both files, probed, invocations verbatim (R3)
-- [ ] T005 re-ground order: ticks before sync; Done ownership per spec-bridge doctrine (R4)
-- [ ] T006 planted CLAUDE.md enforcement claims match shipped hooks (R5)
-- [ ] T007 versions: sweep skill bump (+ bootstrap if template rides it) + marketplace
-  sync-version
+- [x] T004 drift-gate inventory: four modes in both files, probed, invocations verbatim (R3)
+- [x] T005 re-ground order: ticks before sync; Done ownership per spec-bridge doctrine (R4)
+- [x] T006 planted CLAUDE.md enforcement claims match shipped hooks (R5)
+- [x] T007 versions: sweep skill bump (+ bootstrap as the template's owning skill,
+  TASK-51 precedent) + marketplace sync-version 0.30.0
 - [ ] T008 wiki: pdlc-sweep + pdlc-plugin re-verified + re-pinned; lockstep stales
   classified; CAPSULES if descriptions changed
 

@@ -49,10 +49,12 @@ Record the model tier + rubric justification on each board task at dispatch
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 
 - **Merge-drift gate: {{present at scripts/check-merge-drift.mjs | absent}}.** When
-  present, mandatory at every choke point: `session` at sweep start (janitor + drift
-  matrix), `worktree [--spec NNN]` before every `git worktree add`, `pr` from the
-  worktree before every `gh pr create` AND after every history move (merge-in or
-  rebase) — nonzero exit blocks.
+  present, mandatory at every choke point — four modes, probed at the sweep's
+  precondition gate, invocations verbatim: `session` at sweep start (janitor + drift
+  matrix), `claim --dir <NNN>-<slug>` before creating any new `specs/NNN-*` dir,
+  `worktree [--spec <NNN>] [--task TASK-<n>]` before every `git worktree add`, `pr`
+  from the worktree before every `gh pr create` AND after every history move
+  (merge-in or rebase) — nonzero exit blocks.
 - {{gate 1 — e.g. `node scripts/<check>.mjs --changed` before any PR touching <path>}}
 - {{gate 2 — e.g. same-PR amendment of <reference doc>, status flips, pin bumps}}
 - {{re-ground obligations — wiki refresh triggers, downstream doc freshness checks}}
@@ -94,7 +96,10 @@ Record the model tier + rubric justification on each board task at dispatch
 - **A rejected push means you lost the race:** fetch, re-read the board and `specs/`.
   If another session now holds that task or number, STOP the lane and surface it to
   the operator. Unrelated rejection (e.g. a board-notes push) with the task+number
-  still free → rebase and re-push the claim.
+  still free → fetch, merge `origin/main` into the claim branch, and re-push — a
+  plain push: the merge-based remedy stays executable under a repo-wide rebase ban
+  and never needs the force-push a claim forbids (rebasing an already-pushed claim
+  would).
 - Where the host ships merge-drift gates (`scripts/check-merge-drift.mjs`), the claim
   checks are mechanical: `claim --dir NNN-slug` before creating any new `specs/NNN-*`
   dir (blocks on a taken number); `worktree --spec NNN --task TASK-<n>` when cutting
