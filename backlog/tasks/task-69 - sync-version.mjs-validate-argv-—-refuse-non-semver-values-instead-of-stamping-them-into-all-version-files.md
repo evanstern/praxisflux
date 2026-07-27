@@ -3,11 +3,11 @@ id: TASK-69
 title: >-
   sync-version.mjs: validate argv — refuse non-semver values instead of stamping
   them into all version files
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 04:33'
-updated_date: '2026-07-27 14:00'
+updated_date: '2026-07-27 14:10'
 labels:
   - sweep-followup
 dependencies: []
@@ -28,9 +28,9 @@ Spec: specs/030-sync-version-argv
 - [x] #1 Non-semver or missing argv (incl. --help style flags) prints usage and exits nonzero without touching any file
 - [x] #2 Valid x.y.z behavior unchanged (all 11 files stamped, sync --check unchanged)
 - [x] #3 Regression test covers the refusal and the no-files-touched guarantee
-- [ ] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #4 Spec phase: Spec
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -49,4 +49,12 @@ Call-site audit (T002, grep across .githooks, .github/workflows, scripts, docs, 
 Implemented in f2e0a36: argv validated before any file read/write — exactly one arg, --check or strict /^\d+\.\d+\.\d+$/; refusals print USAGE to stderr and exit 2 (build.mjs pattern), zero files written. Bare no-arg mode removed; header comment updated; --check drift hint now names an explicit-version rerun. Decision (recorded in spec 030): <=current targets allowed, no flag. New test/sync-version.test.mjs (4 tests, runs a COPY of the real script in a temp fixture repo so a stamping regression can never touch this repo): refusal matrix (missing arg, --help, -h, 1.2, v1.2.3, 1.2.3-beta, extra args) exit 2 + usage + version files byte-identical; valid 0.2.0 stamps marketplace + every plugin.json + action.yml pin; downgrade allowed; --check clean=0/drift=1 and never writes. Full suite 246 pass.
 
 Wiki re-ground (496ff9e): build-and-release prose re-verified against the f2e0a36 diff — version-consistency paragraph now states the validated argv contract and drops the bare no-arg mode; test-suite-catalog gains the test/sync-version.test.mjs bullet + source (body 7995/8000 chars). Both re-pinned to f2e0a36. No description: changes, CAPSULES untouched. Gate status in worktree: node --test 246/246, check-docs OK, freshness 31/31 fresh, sync-version --check clean. Push pending: pre-push's check-version-bump fails (scripts/ changed, base=head 0.36.0) because the lockstep bump is the orchestrator's serialized merge-readiness step per the sweep dispatch — branch fully committed locally at 496ff9e; orchestrator to bump then push.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 2/2). Derived Done by spec-bridge sync. Shipped: sync-version.mjs validates argv before touching any file (--check or strict x.y.z only; usage + exit 2 otherwise; bare no-arg mode removed after call-site audit; at-or-below-current allowed by recorded decision); new test/sync-version.test.mjs with refusal matrix + no-files-touched guarantee; delivered via PR on branch task-69-sync-version-argv.
+<!-- SECTION:FINAL_SUMMARY:END -->
