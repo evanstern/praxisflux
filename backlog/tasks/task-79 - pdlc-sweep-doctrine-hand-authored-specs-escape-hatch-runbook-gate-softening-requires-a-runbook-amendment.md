@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-07-27 16:26'
+updated_date: '2026-07-28 14:59'
 labels:
   - debt
 dependencies: []
@@ -29,3 +30,9 @@ Fix as sweep 0.10.0: (1) precondition gate learns the escape hatch — .specify/
 - [ ] #2 concurrency/checkpoint doctrine states the runbook-amendment rule for gate softening
 - [ ] #3 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-28: see TASK-84 — the inverse case. TASK-79 widens what the precondition gate PERMITS (hand-authored specs when .specify/ is absent); TASK-84 narrows what goes UNNOTICED (full cycle chosen, .specify/ present, loop still degraded to a claim stub). Verify the two fixes do not contradict.
+<!-- SECTION:NOTES:END -->
