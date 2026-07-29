@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:17'
-updated_date: '2026-07-27 17:26'
+updated_date: '2026-07-29 14:14'
 labels: []
 dependencies: []
 ordinal: 108000
@@ -49,6 +49,8 @@ implementer (2026-07-27): T002-T007 complete on task-73-demo-rig. Rig: demo/gene
 orchestrator verification (2026-07-27): node --test 253/253 (incl. demo-rig test), check-docs green, no bump required (verdict believed), wiki-freshness 34 fresh, spec-bridge 34 ok; demo --check matrix all stages green on fresh generate; sandbox PRs #1-#3 merged + stage-0..4 tags verified via gh. T008 ticked.
 
 spec-bridge sync: Spec: 2/2 · Implement: 6/6 · Prove: 2/2 — status In Progress → Done
+
+2026-07-29: operator decision — demo rig removed from the repo (demo/ + test/demo-rig.test.mjs + wiki note demo-rig; README/INDEX/CAPSULES/catalog updated). The task's paper trail (specs/034, runbook, triage records) stays; sandbox repo left as-is per operator. Demo debt cards TASK-81..83 archived as moot.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

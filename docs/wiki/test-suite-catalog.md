@@ -7,7 +7,6 @@ sources:
   - test/build-npm.test.mjs
   - test/chassis.test.mjs
   - test/check-docs.test.mjs
-  - test/demo-rig.test.mjs
   - test/gate-shim.test.mjs
   - test/gen-marketplace.test.mjs
   - test/html-base.test.mjs
@@ -51,11 +50,6 @@ One bullet per `test/*.test.mjs` file:
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
   install lines for unregistered names), "the praxisflux repo itself is in sync", and
   stop-docs' `underRepo` root match (symlinked launch fires; siblings never match).
-- `test/demo-rig.test.mjs` — the PDLC demo rig cannot rot silently: regenerates the demo
-  repo from `demo/fixtures/` into the OS temp dir, asserts the five stage tags, runs the
-  per-stage gate matrix (`--check`: app tests, wiki-freshness, spec-bridge), then
-  generates again and asserts identical tag commits, stage tree hashes, and demo-board
-  task IDs (R8 repeatability). No network, no secrets — the generated repos' git only.
 - `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
   one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other

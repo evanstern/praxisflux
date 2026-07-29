@@ -91,13 +91,6 @@ Suite-design principles:
 - [`docs/consuming-gates.md`](docs/consuming-gates.md) — run the gates in another repo's CI via
   the composite action (`uses: evanstern/praxisflux@v<version>`) or anywhere via
   `npx @praxisflux/gates`.
-- [`demo/`](demo/) — the PDLC demo rig: `node demo/generate.mjs --reset` materializes a
-  throwaway demo project (a tiny tamagotchi CLI, outside the checkout) as a real git repo
-  with one tag per lifecycle stage — stage-0 bare → grounded → planned → swept → triaged —
-  every artifact captured once from genuine plugin runs and replayed deterministically.
-  [`demo/RUNSHEET.md`](demo/RUNSHEET.md) scripts the 30-minute walk (live gate-breaks, a
-  background live-swept PR); `--check` gates every stage, and `test/demo-rig.test.mjs`
-  regenerates it in CI so the demo cannot rot silently.
 
 ## Install
 
