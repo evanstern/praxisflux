@@ -187,3 +187,4 @@ column exists) and status flipped to done.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-07-30 | TASK-86 | #100 | 637c999 | implementer (opus) ~408k subagent tokens, 46 tool calls | model-ID-per-tier doctrine; v0.41.0 + skill 0.10.0; pdlc-sweep NEEDS-REVIEW re-pin, 11 lockstep siblings RE-PIN-ONLY; task worktrees live at .claude/worktrees/task-N this sweep (harness isolation), not .worktrees/ |
+| 2026-07-30 | TASK-87 | #101 | 78f7f5c | implementer (opus) ~98k subagent tokens, 57 tool calls | phase-scoped dispatch + handoff artifact set; v0.42.0 + skill 0.11.0; pdlc-sweep NEEDS-REVIEW (body 7,973/8,000), 11 siblings RE-PIN-ONLY; 4x cheaper implementer than TASK-86 with the levers applied |

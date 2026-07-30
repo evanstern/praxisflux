@@ -3,11 +3,11 @@ id: TASK-87
 title: >-
   pdlc:sweep — phase-scoped implementer dispatch: one agent per tasks.md phase,
   fresh context each
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-30 18:32'
-updated_date: '2026-07-30 19:34'
+updated_date: '2026-07-30 19:36'
 labels:
   - sweep-cost
   - pdlc-sweep
@@ -31,12 +31,10 @@ Spec: specs/036-sweep-phase-scoped-dispatch
 - [x] #2 Doctrine states what the phase handoff artifact set is (spec dir, tasks.md tick-state, branch commits) and that nothing may be handed off via chat context
 - [x] #3 templates/runbook.md execution-log or per-task section accommodates multi-phase dispatch (phases dispatched/completed visible)
 - [x] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
-- [ ] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -51,4 +49,12 @@ Spec: specs/036-sweep-phase-scoped-dispatch
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch record (runbook Lane 2): tier=default implementer, model=claude-opus-5 (Agent param opus), pinned explicitly per runbook — doctrine prose, no code. Orchestrator: sweep session e38ecfe5.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
