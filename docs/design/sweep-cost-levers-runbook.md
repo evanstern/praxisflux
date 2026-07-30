@@ -9,7 +9,7 @@ sweep-dat-board cost analysis (promptworld session b129d47c, 2026-07-29→30, $1
 total; the analysis doc lives in the promptworld project, the cards carry the numbers).
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-30 (PR #99 review)
+**Status:** done · operator sign-off on lanes: 2026-07-30 (PR #99 review) · completed: 2026-07-30 (PRs #100–#102, v0.41.0–v0.43.0)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -188,3 +188,4 @@ column exists) and status flipped to done.
 |------|------|----|-------|---------------------------|-------|
 | 2026-07-30 | TASK-86 | #100 | 637c999 | implementer (opus) ~408k subagent tokens, 46 tool calls | model-ID-per-tier doctrine; v0.41.0 + skill 0.10.0; pdlc-sweep NEEDS-REVIEW re-pin, 11 lockstep siblings RE-PIN-ONLY; task worktrees live at .claude/worktrees/task-N this sweep (harness isolation), not .worktrees/ |
 | 2026-07-30 | TASK-87 | #101 | 78f7f5c | implementer (opus) ~98k subagent tokens, 57 tool calls | phase-scoped dispatch + handoff artifact set; v0.42.0 + skill 0.11.0; pdlc-sweep NEEDS-REVIEW (body 7,973/8,000), 11 siblings RE-PIN-ONLY; 4x cheaper implementer than TASK-86 with the levers applied |
+| 2026-07-30 | TASK-88 | #102 | 09ddbd8 | implementer (opus) ~116k subagent tokens, 59 tool calls | turn-hygiene block + tokens/cost column + lane-boundary session prescription; v0.43.0 + skill 0.12.0; pdlc-sweep tightened to 7,999/8,000 (no split), 11 siblings RE-PIN-ONLY; board Done + this row via sweep-close PR |
