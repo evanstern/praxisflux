@@ -3,11 +3,11 @@ id: TASK-86
 title: >-
   pdlc:sweep — dispatch must pin an explicit model ID per tier (tier names must
   not resolve to the session model)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-30 18:32'
-updated_date: '2026-07-30 19:19'
+updated_date: '2026-07-30 19:22'
 labels:
   - sweep-cost
   - pdlc-sweep
@@ -34,12 +34,10 @@ Spec: specs/035-sweep-model-id-pinning
 - [x] #2 SKILL.md step 5 (dispatch) instructs the orchestrator to pass that model ID explicitly to the implementer agent (e.g. Agent tool model param), never relying on session-model inheritance
 - [x] #3 templates/runbook.md has a slot for tier AND model id per task
 - [x] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
-- [ ] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #5 Spec phase: Spec
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -54,4 +52,12 @@ Spec: specs/035-sweep-model-id-pinning
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch record (runbook Lane 1): tier=default implementer, model=claude-opus-5 (Agent param opus), pinned explicitly per runbook — doctrine prose on a procedural skill, no code; Opus-tier suffices at half Fable's unit price (this task's own finding). Orchestrator: sweep session e38ecfe5.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
