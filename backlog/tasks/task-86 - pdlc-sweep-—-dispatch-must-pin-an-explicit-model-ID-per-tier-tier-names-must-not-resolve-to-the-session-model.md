@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-30 18:32'
-updated_date: '2026-07-30 19:10'
+updated_date: '2026-07-30 19:19'
 labels:
   - sweep-cost
   - pdlc-sweep
@@ -30,14 +30,16 @@ Spec: specs/035-sweep-model-id-pinning
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 pdlc/skills/sweep/SKILL.md Phase 1 item 2 (model tier per task) requires the runbook to record an explicit model ID next to each tier label
-- [ ] #2 SKILL.md step 5 (dispatch) instructs the orchestrator to pass that model ID explicitly to the implementer agent (e.g. Agent tool model param), never relying on session-model inheritance
-- [ ] #3 templates/runbook.md has a slot for tier AND model id per task
-- [ ] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
+- [x] #1 pdlc/skills/sweep/SKILL.md Phase 1 item 2 (model tier per task) requires the runbook to record an explicit model ID next to each tier label
+- [x] #2 SKILL.md step 5 (dispatch) instructs the orchestrator to pass that model ID explicitly to the implementer agent (e.g. Agent tool model param), never relying on session-model inheritance
+- [x] #3 templates/runbook.md has a slot for tier AND model id per task
+- [x] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
 - [ ] #5 Spec phase: Spec
 - [ ] #6 Spec phase: Implement
 - [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
