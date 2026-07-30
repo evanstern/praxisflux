@@ -15,5 +15,5 @@
 ## Prove
 
 - [x] T006 docs/wiki/pdlc-sweep.md re-verified against the diff (NEEDS-REVIEW), amended, re-pinned; CAPSULES regenerated if description changed
-- [ ] T007 gates green in worktree (node --test, check-docs, freshness, version-bump); PR opened
+- [x] T007 gates green in worktree (node --test, check-docs, freshness, version-bump); PR opened
 - [ ] T008 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
