@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.10.0
+version: 0.11.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -154,6 +154,19 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    and an unpinned dispatch inherits its model (field case: "Opus tier" implementers
    silently ran on the orchestrator's Fable session model at 2x the unit price).
    Record tier + model ID + justification on the board task.
+   **Dispatch phase-scoped:** one fresh implementer agent per tasks.md phase — or per
+   explicitly-grouped small adjacent phases, the grouping being the orchestrator's
+   recorded call; the default is one per phase — each dispatched at the runbook's
+   pinned model and re-grounded from the spec artifacts plus the branch's commits,
+   never one agent living across the whole task. The rationale lives here because the
+   cost mechanism is structural: every tool call re-pays the agent's full context
+   read, and a long-lived implementer's context is mostly its own transcript — field
+   case: one implementer ran 699 requests at ~427k average context ($404) against a
+   ~32k dispatch baseline; fresh-per-phase restarts at ~35k. The **phase handoff
+   artifact set** is the spec dir (spec.md, plan.md, tasks.md), the tasks.md
+   tick-state, and the branch's commits — nothing is handed between phases via chat
+   context: if the next phase needs it, it lives in an artifact — a ticked box, a
+   committed slice, a deviation note in the spec dir or on the board task.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
 7. Reconcile with fresh `origin/main` per the concurrency doctrine below: a

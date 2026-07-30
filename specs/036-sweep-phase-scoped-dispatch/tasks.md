@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 SKILL.md step 5 prescribes phase-scoped dispatch (fresh implementer per tasks.md phase or explicit grouping), rationale stated (R1)
-- [ ] T003 doctrine names the phase handoff artifact set (spec dir, tasks.md tick-state, branch commits); nothing via chat context (R2)
-- [ ] T004 templates/runbook.md makes phases dispatched/completed visible for multi-phase tasks (R3)
-- [ ] T005 version bumps: sweep skill 0.11.0 + marketplace via sync-version.mjs (R4)
+- [x] T002 SKILL.md step 5 prescribes phase-scoped dispatch (fresh implementer per tasks.md phase or explicit grouping), rationale stated (R1)
+- [x] T003 doctrine names the phase handoff artifact set (spec dir, tasks.md tick-state, branch commits); nothing via chat context (R2)
+- [x] T004 templates/runbook.md makes phases dispatched/completed visible for multi-phase tasks (R3)
+- [x] T005 version bumps: sweep skill 0.11.0 + marketplace via sync-version.mjs (R4)
 
 ## Prove
 

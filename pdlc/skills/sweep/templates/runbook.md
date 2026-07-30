@@ -120,5 +120,11 @@ grounding fresh; no stale worktrees; this file's log complete and status flipped
 
 ## Execution log
 
+Multi-phase dispatch stays visible in `notes` — one slot, never a second table: while
+a task is in flight its row carries the phases dispatched/completed (e.g.
+`phases: 1-2 done, 3 dispatched`), updated at each dispatch boundary, so a resuming
+session can see where within the task the last one stopped; the closing note on merge
+replaces or absorbs it.
+
 | date | task | PR | merge | notes |
 |------|------|----|-------|-------|
