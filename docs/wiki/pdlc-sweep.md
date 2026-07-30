@@ -1,11 +1,11 @@
 ---
 name: pdlc-sweep
-description: The pdlc:sweep skill — the board-sweep orchestrator; authors a dependency-laned, operator-signed-off runbook over board tasks, then executes each through spec → link → worktree → delegated implementation → PR → serial merge → re-ground, under concurrency doctrine for shared repos — claim-before-work, paused-lane markers, merge-drift gates, pin-aware reconciliation (pin-carrying branches merge main in; pin-free rebase), and honest post-merge-in re-pins classified against the main-side diff.
+description: The pdlc:sweep skill — the board-sweep orchestrator; authors a dependency-laned, operator-signed-off runbook over board tasks — each model tier pinned to an explicit model ID, passed on dispatch (never session inheritance) — then executes each through spec → link → worktree → delegated implementation → PR → serial merge → re-ground, under concurrency doctrine for shared repos: claim-before-work, paused lanes, merge-drift gates, pin-aware reconciliation, honest re-pins vs the main-side diff.
 kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 5e30077defa6672b38ad105cb766cfffa8a36f2f
+verified_against: c02cd4eb558a082cd10ac6a08737416e50ea1a76
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -18,7 +18,8 @@ phases, gate → work → gate:
 - **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered
   **lanes** (the governing rule is *develop in parallel, merge serially*; contract-shaped
   work leads — a published interface unblocks consumers), per-task model tiers from the
-  host rubric, the project's per-PR gates enumerated, concurrency doctrine with named
+  host rubric — each pinned to an explicit model ID (see below) — the project's per-PR
+  gates enumerated, concurrency doctrine with named
   hotspots, operator checkpoints, and a done-means — written to
   `docs/design/<slug>-runbook.md`, committed, then **stopped for operator sign-off** on
   the lanes.
@@ -31,7 +32,8 @@ phases, gate → work → gate:
   board/`specs/`, surface genuinely contended work to the operator, otherwise merge
   `origin/main` into the claim branch and plain re-push — rebase-ban-safe, never a
   force-push), Spec Kit cycle on the claimed branch, `spec-bridge:link`, delegated
-  implementation (never inline), per-PR gates, reconcile with `origin/main` (see the
+  implementation (never inline; the runbook's model ID passed on the dispatch call),
+  per-PR gates, reconcile with `origin/main` (see the
   pin rule below), PR, serial merge with verify-merged-before-cleanup, re-ground
   (ticks before sync — see below), one execution-log line.
 
@@ -102,6 +104,16 @@ Since 0.40.0 (skill 0.9.0) Handing off names `pdlc:refactor-triage` as the post-
 review step — evaluate the merged range for tech debt and intent drift, card accepted
 findings back onto the board ([[pdlc-refactor-triage]]) — closing the loop sweep →
 refactor-triage → debt tasks → next sweep.
+
+Since 0.41.0 (skill 0.10.0) the model tier is pinned to an **explicit model ID**
+(TASK-86): the runbook records the ID next to each tier label (lane entries:
+`{{tier}} · model {{model-id}}`) — a bare tier name has no mechanical resolution and
+silently resolves to the orchestrator session's model — and dispatch passes the ID
+explicitly (the Agent tool's `model` param or the host's equivalent), never
+session-model inheritance: an orchestrator often runs a price tier above the
+implementer intent (field case: "Opus tier" implementers ran on a Fable orchestrator's
+session model at 2x the unit price). The board dispatch record extends to tier +
+model ID + justification.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from
 it plus the board alone. Because a runbook is an instruction-bearing artifact a session
