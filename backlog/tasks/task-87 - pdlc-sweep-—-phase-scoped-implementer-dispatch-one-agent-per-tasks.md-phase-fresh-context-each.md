@@ -3,9 +3,11 @@ id: TASK-87
 title: >-
   pdlc:sweep — phase-scoped implementer dispatch: one agent per tasks.md phase,
   fresh context each
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-30 18:32'
+updated_date: '2026-07-30 19:21'
 labels:
   - sweep-cost
   - pdlc-sweep
