@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-30 18:32'
-updated_date: '2026-07-30 19:38'
+updated_date: '2026-07-30 19:50'
 labels:
   - sweep-cost
   - pdlc-sweep
@@ -27,14 +27,16 @@ Spec: specs/037-sweep-turn-hygiene-cost-accounting
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 SKILL.md dispatch guidance includes a turn-hygiene block for implementer prompts: batched parallel tool calls, minimal between-call narration, lower effort on mechanical phases
-- [ ] #2 templates/runbook.md execution log gains a tokens/cost column (best-effort actuals per task)
-- [ ] #3 SKILL.md states the orchestrator should end its session at lane boundaries and resume from the runbook + board (session-portability rule already exists; this makes it a cost prescription, not just crash-resilience)
-- [ ] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
+- [x] #1 SKILL.md dispatch guidance includes a turn-hygiene block for implementer prompts: batched parallel tool calls, minimal between-call narration, lower effort on mechanical phases
+- [x] #2 templates/runbook.md execution log gains a tokens/cost column (best-effort actuals per task)
+- [x] #3 SKILL.md states the orchestrator should end its session at lane boundaries and resume from the runbook + board (session-portability rule already exists; this makes it a cost prescription, not just crash-resilience)
+- [x] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
 - [ ] #5 Spec phase: Spec
 - [ ] #6 Spec phase: Implement
 - [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
