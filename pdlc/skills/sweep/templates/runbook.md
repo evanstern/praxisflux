@@ -124,7 +124,8 @@ Multi-phase dispatch stays visible in `notes` — one slot, never a second table
 a task is in flight its row carries the phases dispatched/completed (e.g.
 `phases: 1-2 done, 3 dispatched`), updated at each dispatch boundary, so a resuming
 session can see where within the task the last one stopped; the closing note on merge
-replaces or absorbs it.
+replaces or absorbs it. `tokens/cost` carries best-effort actuals from the
+harness/transcript, so future runbook authoring budgets against real numbers.
 
-| date | task | PR | merge | notes |
-|------|------|----|-------|-------|
+| date | task | PR | merge | tokens/cost (best-effort) | notes |
+|------|------|----|-------|---------------------------|-------|

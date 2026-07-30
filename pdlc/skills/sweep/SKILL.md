@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.11.0
+version: 0.12.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -167,6 +167,12 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    tick-state, and the branch's commits — nothing is handed between phases via chat
    context: if the next phase needs it, it lives in an artifact — a ticked box, a
    committed slice, a deviation note in the spec dir or on the board task.
+   **Every dispatch prompt carries a turn-hygiene block:** batch independent
+   reads/checks as parallel tool calls in a single message; minimal between-call
+   narration; run mechanical phases at lower reasoning effort, which produces fewer,
+   more consolidated tool calls. Same structural mechanism, prompt-level lever:
+   micro-turns re-pay the full context read on every call — field case: the
+   expensive implementers averaged ~300 output tokens per request.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
 7. Reconcile with fresh `origin/main` per the concurrency doctrine below: a
@@ -200,8 +206,14 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    INDEX + just-in-time); run the project's downstream doc skills if their freshness
    checks say stale.
 10. **Log it:** append one line to the runbook's execution log (task, PR, merge sha,
-    date). Board hygiene throughout: add specific task files to git, never `backlog/`
-    wholesale; run board/spec commands from root, never inside a worktree.
+    tokens/cost best-effort from the harness/transcript, date). Board hygiene
+    throughout: add specific task files to git, never `backlog/` wholesale; run
+    board/spec commands from root, never inside a worktree. At a lane boundary, the
+    orchestrator SHOULD end its session and resume from the runbook + board — a cost
+    prescription, not just crash-resilience: orchestrator context grows
+    monotonically, and the tail is the expensive part (field case: one main session
+    grew 172k→548k; its last fifth cost as much as its first two-fifths). The runbook
+    is the contract that makes the fresh resumption safe.
 
 ### Concurrency doctrine (conflicts are routine, not exceptional)
 
