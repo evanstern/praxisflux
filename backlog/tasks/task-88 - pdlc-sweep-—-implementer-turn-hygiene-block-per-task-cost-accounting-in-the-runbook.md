@@ -3,9 +3,11 @@ id: TASK-88
 title: >-
   pdlc:sweep — implementer turn-hygiene block + per-task cost accounting in the
   runbook
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-30 18:32'
+updated_date: '2026-07-30 19:36'
 labels:
   - sweep-cost
   - pdlc-sweep
