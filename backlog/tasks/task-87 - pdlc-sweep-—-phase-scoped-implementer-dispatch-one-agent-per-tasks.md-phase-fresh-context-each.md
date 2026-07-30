@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-30 18:32'
-updated_date: '2026-07-30 19:24'
+updated_date: '2026-07-30 19:34'
 labels:
   - sweep-cost
   - pdlc-sweep
@@ -27,14 +27,16 @@ Spec: specs/036-sweep-phase-scoped-dispatch
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 SKILL.md step 5 prescribes phase-scoped dispatch: a fresh implementer agent per tasks.md phase (or explicitly-grouped phases), re-grounded from spec artifacts + branch commits, with the rationale (context re-read cost) stated
-- [ ] #2 Doctrine states what the phase handoff artifact set is (spec dir, tasks.md tick-state, branch commits) and that nothing may be handed off via chat context
-- [ ] #3 templates/runbook.md execution-log or per-task section accommodates multi-phase dispatch (phases dispatched/completed visible)
-- [ ] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
+- [x] #1 SKILL.md step 5 prescribes phase-scoped dispatch: a fresh implementer agent per tasks.md phase (or explicitly-grouped phases), re-grounded from spec artifacts + branch commits, with the rationale (context re-read cost) stated
+- [x] #2 Doctrine states what the phase handoff artifact set is (spec dir, tasks.md tick-state, branch commits) and that nothing may be handed off via chat context
+- [x] #3 templates/runbook.md execution-log or per-task section accommodates multi-phase dispatch (phases dispatched/completed visible)
+- [x] #4 Marketplace version and sweep skill version bumped per docs/releasing.md
 - [ ] #5 Spec phase: Spec
 - [ ] #6 Spec phase: Implement
 - [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
