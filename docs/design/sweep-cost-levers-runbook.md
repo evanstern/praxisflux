@@ -9,7 +9,7 @@ sweep-dat-board cost analysis (promptworld session b129d47c, 2026-07-29→30, $1
 total; the analysis doc lives in the promptworld project, the cards carry the numbers).
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-07-30 (PR #99 review)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -166,6 +166,8 @@ at dispatch (one-way escalation only; escalations are operator checkpoints).
   Operator scoped this sweep to 86–88 only. Checkpoint at sign-off: confirm 84/79 stay
   parked for the duration of this sweep; if another session claims either mid-sweep,
   STOP and surface. Implementers must not "helpfully" fold 84/79 fixes in.
+  → **Confirmed at sign-off (operator, 2026-07-30): TASK-84 and TASK-79 stay parked
+  for this sweep's duration; implementer model pinned to `claude-opus-5` as authored.**
 - Dropping TASK-88 (tail) — only with operator say-so.
 - Tier/model escalations; lane amendments (amend this file, note why, tell the operator).
 
