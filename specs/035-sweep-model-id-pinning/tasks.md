@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 SKILL.md Phase 1 item 2 requires explicit model ID per tier in the runbook (R1)
-- [ ] T003 SKILL.md step 5 dispatch passes the model ID explicitly, never session inheritance, rationale stated (R2)
-- [ ] T004 templates/runbook.md lane entries + dispatch-record line carry the model-ID slot (R3)
-- [ ] T005 version bumps: sweep skill 0.10.0 + marketplace via sync-version.mjs (R4)
+- [x] T002 SKILL.md Phase 1 item 2 requires explicit model ID per tier in the runbook (R1)
+- [x] T003 SKILL.md step 5 dispatch passes the model ID explicitly, never session inheritance, rationale stated (R2)
+- [x] T004 templates/runbook.md lane entries + dispatch-record line carry the model-ID slot (R3)
+- [x] T005 version bumps: sweep skill 0.10.0 + marketplace via sync-version.mjs (R4)
 
 ## Prove
 

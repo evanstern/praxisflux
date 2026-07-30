@@ -33,8 +33,8 @@ Rule of thumb: DEVELOP in parallel, MERGE serially — tasks below share file fo
 so concurrent PRs will conflict; the lanes bound how bad it gets.
 
 **Lane 1 — start immediately, in parallel:**
-- **TASK-{{n}} ({{tier}} — {{rubric justification}})** — {{one-line scope; note if only
-  its CONTRACT blocks others while implementation can lag}}
+- **TASK-{{n}} ({{tier}} · model {{model-id}} — {{rubric justification}})** — {{one-line
+  scope; note if only its CONTRACT blocks others while implementation can lag}}
 - …
 
 **Lane 2 — after {{condition}}:**
@@ -43,8 +43,8 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
 **Lane N — tail (droppable):**
 - …
 
-Record the model tier + rubric justification on each board task at dispatch
-(one-way escalation only; escalations are operator checkpoints).
+Record the model tier + explicit model ID + rubric justification on each board task at
+dispatch (one-way escalation only; escalations are operator checkpoints).
 
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 

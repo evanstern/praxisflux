@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.9.0
+version: 0.10.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -86,8 +86,12 @@ derive, in this order:
    - The biggest slice gets a lane with nothing else fighting for its files.
    - Low-priority polish goes in the tail lane, droppable without breaking anything.
 2. **Model tier per task**, from the host project's rubric (e.g. a constitution's
-   tiered-workflow principle), with the justification recorded — the tier note lands on
-   the board task at dispatch time, not just in the runbook.
+   tiered-workflow principle), with the justification recorded — and, next to each tier
+   label, the **explicit model ID** the tier resolves to (e.g. `claude-opus-5`). A bare
+   tier name is not a valid runbook entry: tier names have no mechanical resolution at
+   dispatch time, so an unpinned tier silently resolves to the orchestrator session's
+   model. The tier note lands on the board task at dispatch time, not just in the
+   runbook.
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
@@ -143,8 +147,13 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
 3. Spec Kit cycle (specify → clarify only if ambiguous → plan → tasks), authored in the
    worktree on the claimed branch — commits on top of the claim.
 4. `spec-bridge:link` the spec to the board task BEFORE implementation.
-5. Dispatch implementation to the host's implementer agent at the runbook's tier; record
-   tier + justification on the board task.
+5. Dispatch implementation to the host's implementer agent at the runbook's tier —
+   **passing the runbook's explicit model ID on the dispatch call** (the Agent tool's
+   `model` param, or the host's equivalent), never relying on session-model
+   inheritance: an orchestrator often runs a price tier above the implementer intent,
+   and an unpinned dispatch inherits its model (field case: "Opus tier" implementers
+   silently ran on the orchestrator's Fable session model at 2x the unit price).
+   Record tier + model ID + justification on the board task.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
 7. Reconcile with fresh `origin/main` per the concurrency doctrine below: a
