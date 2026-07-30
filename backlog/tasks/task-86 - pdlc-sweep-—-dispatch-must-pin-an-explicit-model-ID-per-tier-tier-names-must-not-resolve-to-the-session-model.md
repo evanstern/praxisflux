@@ -3,9 +3,11 @@ id: TASK-86
 title: >-
   pdlc:sweep — dispatch must pin an explicit model ID per tier (tier names must
   not resolve to the session model)
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-30 18:32'
+updated_date: '2026-07-30 19:04'
 labels:
   - sweep-cost
   - pdlc-sweep
