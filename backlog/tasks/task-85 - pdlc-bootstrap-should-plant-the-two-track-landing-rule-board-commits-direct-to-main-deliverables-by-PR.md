@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-07-28 15:06'
+updated_date: '2026-07-31 17:40'
 labels:
   - debt
 dependencies: []
@@ -36,3 +37,9 @@ Note the interaction with the one-task-one-PR principle (TASK-32 encoded TASK<->
 - [ ] #4 pdlc:sweep's doctrine references the rule rather than restating it, so sweeps stop having to ratify it per-host
 - [ ] #5 plugin version bump + marketplace bump; pdlc wiki note re-verified; gates green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 (TASK-90): pdlc:sweep SKILL.md now names a background-job / no-main-push execution mode. When 85 plants the two-track landing rule (board/bookkeeping commits direct to main; deliverables by PR), note that in that mode the board track's 'direct to main' degrades to rides-the-next-branch / wrap-up PR. Keep the wordings reconciled; the mode section already cross-references TASK-85.
+<!-- SECTION:NOTES:END -->

@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.14.0
+version: 0.15.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -140,7 +140,9 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    `node scripts/check-merge-drift.mjs worktree --spec <NNN> --task TASK-<n>` must
    exit 0 (fresh root at origin/main tip) before cutting. Then cut the worktree:
    `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main` — the branch
-   starts at the `origin/main` tip, which does **not** contain the spec yet; the spec
+   starts at the `origin/main` tip, which does **not** contain the spec yet
+   (under the background-job / no-main-push execution mode below the worktree lives at
+   the harness isolation root `.claude/worktrees/task-<N>` instead); the spec
    is authored on this branch, after the claim. Make the claim the branch's FIRST
    commit — board card → In Progress, the spec number's directory (a stub claims the
    number), **and the link**: run `spec-bridge:link` against that stub so the card
@@ -239,7 +241,8 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    anything; then remove the worktree, delete the branch, ff-pull root. Never
    delete+recreate a closed PR's head branch — open a fresh PR instead.
 9. **Re-ground — the merge is not the end:** tick the spec's tasks.md at root FIRST,
-   then `spec-bridge:sync` — sync derives the board from the spec artifacts, so it must
+   then `spec-bridge:sync` (under the background-job / no-main-push execution mode below,
+   these post-merge closures ride the NEXT claimed task's branch instead of a root commit) — sync derives the board from the spec artifacts, so it must
    see the ticked boxes, and per spec-bridge doctrine its derived plan is the ONLY path
    that moves a linked task to Done (it emits `-s Done` with the derived final summary);
    the sweep never hand-sets Done on a linked task. Refresh the wiki when the merge
@@ -251,7 +254,9 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
     at each dispatch boundary, step 5) is completed with the PR, merge sha, tokens/cost
     best-effort from the harness/transcript, and date. Board hygiene
     throughout: add specific task files to git, never `backlog/` wholesale; run
-    board/spec commands from root, never inside a worktree. At a lane boundary, the
+    board/spec commands from root, never inside a worktree (under the background-job /
+    no-main-push execution mode below, board/spec commands run inside the task worktree and
+    the closing row rides the next branch / the wrap-up PR). At a lane boundary, the
     orchestrator SHOULD end its session and resume from the runbook + board — a cost
     prescription, not just crash-resilience: orchestrator context grows
     monotonically, and the tail is the expensive part (field case: one main session
@@ -325,6 +330,31 @@ end-of-sweep hygiene — and runbook authoring excludes paused tasks from lane c
 analysis, listing them in the state snapshot as **paused — untouched** (Phase 1). Hosts
 that ship a merge-drift gate read the same label and downgrade a paused task's
 branch/worktree findings from blocking to info, with the pause cited as evidence.
+
+### Background-job / no-main-push execution mode
+
+When the orchestrator runs where pushing the default branch directly is unavailable or
+forbidden — a Claude Code **background job**, a protected-`main` host — the steps above
+that assume a root commit on `main` can't land there. The default (interactive root with
+main-push rights) stays the norm; this mode names the substitutes, and only these three
+steps change:
+
+- **Worktrees under the harness isolation root (step 2).** Task worktrees live at
+  `.claude/worktrees/task-<N>` — the harness's isolation root, entered via the harness's
+  worktree switch (`EnterWorktree`) — not `.worktrees/task-<N>`.
+- **Closures ride the next branch (steps 9–10).** Post-merge closures — the tasks.md tick,
+  `spec-bridge:sync`'s board-Done, and the runbook log row — can't land as a root commit,
+  so they ride the **NEXT claimed task's branch** and merge in its PR; board and spec
+  commands run inside that task worktree (the root board lags until merge).
+- **Sweep-close lands via a wrap-up PR (Output gate).** The final closures — the last
+  syncs and the runbook status flip — have no next branch to ride, so they land via a
+  small **wrap-up PR**.
+
+This composes with the two-track landing rule TASK-85 will plant (board/bookkeeping
+commits direct to `main`, deliverables by PR): in this mode the board track's "direct to
+`main`" degrades to rides-the-next-branch / wrap-up PR, while the deliverable track is
+unchanged. Field provenance: the 2026-07-30/31 sweep runbooks
+(`docs/design/speckit-degradation-runbook.md`, `docs/design/board-cost-test-runbook.md`).
 
 ### Operator checkpoints — never proceed silently past
 

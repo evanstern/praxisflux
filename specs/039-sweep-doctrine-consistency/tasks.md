@@ -19,4 +19,4 @@
 
 - [x] T009 docs/wiki/pdlc-sweep.md re-verified against the diff (NEEDS-REVIEW); CAPSULES regenerated if description changed; lockstep siblings classified (R7)
 - [x] T010 gates green in worktree (node --test, check-docs, freshness, version-bump); re-run after any history move
-- [ ] T011 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T011 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
