@@ -93,7 +93,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.36.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.45.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -127,7 +127,9 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 - **pdlc** — the lifecycle's own verbs: `pdlc:bootstrap` (re)stamps this grounding after
   plugin upgrades; `/pdlc:sweep` orchestrates a set of board tasks through the whole loop —
   an authored, operator-signed-off runbook, then spec → PR → merge → re-ground per task,
-  parallel lanes with serial merges.
+  parallel lanes with serial merges; `/pdlc:refactor-triage` closes the loop after a sweep —
+  evaluate the merged work for debt and drift, triage every finding with the operator, and
+  card accepted items back onto the board as sweepable tasks.
 
 ## Rules that always hold
 
@@ -177,5 +179,6 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
+
 
 

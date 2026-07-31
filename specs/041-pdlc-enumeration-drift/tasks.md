@@ -7,11 +7,11 @@
 
 ## Implement
 
-- [ ] T002 pdlc/templates/CLAUDE.md pdlc bullet names all three verbs incl. refactor-triage (R1)
-- [ ] T003 plugin.json description + keywords (triage/debt); marketplace.json regenerated, never hand-edited (R2)
-- [ ] T004 root README pdlc role cell consistent; style decision recorded (R3)
-- [ ] T005 this repo's CLAUDE.md re-planted at current version — hand-edit diff first, never clobber (R4a)
-- [ ] T006 version bumps: bootstrap skill version + marketplace via sync-version.mjs at merge-readiness (R5)
+- [x] T002 pdlc/templates/CLAUDE.md pdlc bullet names all three verbs incl. refactor-triage (R1)
+- [x] T003 plugin.json description + keywords (triage/debt); marketplace.json regenerated, never hand-edited (R2)
+- [x] T004 root README pdlc role cell consistent; style decision recorded (R3)
+- [x] T005 this repo's CLAUDE.md re-planted at current version — hand-edit diff first, never clobber (R4a)
+- [x] T006 version bumps: bootstrap skill version + marketplace via sync-version.mjs at merge-readiness (R5)
 
 ## Prove
 
