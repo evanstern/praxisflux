@@ -1,6 +1,6 @@
 {
   "name": "pdlc",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "description": "Bootstrap a new or existing project for the praxis development lifecycle — plant the always-on PDLC grounding (CLAUDE.md), wire the .handoff/ transport, opt into the peer utilities (Backlog.md, Spec Kit) — orchestrate multi-task board sweeps through that lifecycle: pdlc:sweep authors a dependency-laned, operator-signed-off runbook, then runs every task through spec, PR, merge, and re-ground — and close the loop with pdlc:refactor-triage, which triages the swept result for debt and drift and cards accepted findings back onto the board as sweepable tasks.",
   "author": {
     "name": "praxisflux maintainers"

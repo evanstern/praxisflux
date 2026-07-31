@@ -4,7 +4,7 @@ description: The pdlc:refactor-triage skill — the post-sweep (and periodic) de
 kind: component
 sources:
   - pdlc/skills/refactor-triage/SKILL.md
-verified_against: 3bc4899531e62df1b3f0442fec753bf30023f8b0
+verified_against: 7211356a7527695c9ba073ead51782f51966eb8e
 ---
 
 # pdlc:refactor-triage — evaluate merged work, card the debt
@@ -32,15 +32,20 @@ Gate → four phases → gate:
   per missing piece only declaredly.
 - **Scope** — three entry modes: **(a) range** (`--range xxx..yyy`, the post-sweep case,
   unlocking the intent-drift pass), **(b) whole-repo** (periodic, no range), **(c)
-  headless/harness** — args carry the scope plus a **declared triage policy** (e.g.
+  headless/harness** — args carry the scope plus a **declared triage policy** (passed
+  as `--policy`, e.g.
   "auto-accept severity ≥ high, defer the rest") in place of conversation; no declared
   policy → refuse to run headless, and the policy is recorded verbatim in the triage
   record.
 - **Evaluate** — when team-review is installed, orchestrate it with the framing in the
   lens (range mode: *"drift and tech debt since `<range>`; clobbered design decisions,
-  slap-dash conflict resolutions"*); on a self-review its gate already lands the proven
-  report at tracked `docs/reviews/team-review-<run-id>.md`, which becomes this skill's
-  evaluation report. When absent, a declared inline eval pass over the same scope.
+  slap-dash conflict resolutions"*). The evaluation report's tracked home is
+  `docs/reviews/team-review-<run-id>.md` (run-id = team-review's run id when the engine
+  ran, else `<repo>-<ISO-stamp>` minted at triage start) — verified after the pass, not
+  assumed, since older engines strand the report in gitignored `.handoff/`; if no tracked
+  copy landed, copy the proven report there and commit it (version-independent). When
+  team-review is absent, a declared inline eval pass over the same scope writes to that
+  same home.
   **Range mode adds an intent-drift pass team-review cannot do:** diff the range against
   the intent record — the sweep runbook, each merged PR's spec, the pinned wiki notes
   whose sources the range touched; drift = merged code contradicting what those
@@ -57,8 +62,8 @@ Gate → four phases → gate:
   body, labeled (e.g. `debt`), dependency-noted — immediately sweepable. Rejected and
   deferred items live in the record only.
 - **Output gate** (prose, the pdlc precedent — no Stop hook): no created task without a
-  finding it cites; no "triage done" without BOTH the evaluation report and the tracked
-  triage record on disk; every finding disposed with rationale; the board shows exactly
+  finding it cites; no "triage done" without BOTH the evaluation report and the
+  triage record tracked on disk (a report left in `.handoff/` is not tracked); every finding disposed with rationale; the board shows exactly
   the accepted set. Status can never exceed artifacts ([[gates-convention]]).
 
 Handing off suggests, never starts, the natural next step: a sweep ([[pdlc-sweep]])

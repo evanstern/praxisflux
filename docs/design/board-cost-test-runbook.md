@@ -287,4 +287,5 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-07-31 | TASK-74 | — | — | in flight | phases: Spec done; Implement+Prove dispatched as one (opus, recorded grouping call) |
+| 2026-07-31 | TASK-74 | #109 | e004e79 | implementer (claude-opus-4-8 via opus-implementer agent def) ~105k subagent tokens, 53 tool calls | three-verb enumeration on all surfaces + CLAUDE.md re-plant (pristine block, no hand edits); v0.45.0 + bootstrap skill 0.7.0; overview.md amended (NEEDS-REVIEW), 11 siblings RE-PIN-ONLY; single dispatch covered Implement+Prove. Dispatch-wiring note: Agent tool model param silently ignored (3 fable dispatches killed early); pinned via .claude/agents/opus-implementer.md, actual model verified from transcript |
+| 2026-07-31 | TASK-75 | — | — | in flight (implementation complete, reconciling with main) | phases: Spec+Implement+Prove done (opus-4-8, single dispatch); ~137k subagent tokens, 71 tool calls; absorbed v0.45.0 collision → 0.46.0 |
