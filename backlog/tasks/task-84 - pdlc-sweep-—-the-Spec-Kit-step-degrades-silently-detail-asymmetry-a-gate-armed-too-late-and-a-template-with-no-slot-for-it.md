@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-28 14:59'
-updated_date: '2026-07-31 12:46'
+updated_date: '2026-07-31 12:48'
 labels:
   - debt
 dependencies: []
@@ -43,17 +43,19 @@ Spec: specs/038-speckit-degradation-hardening
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 sweep SKILL.md step 3 states the required artifacts by name (spec.md, plan.md, tasks.md) with the same mechanical specificity the claim step gets, including what to do when the host constitution is absent or unratified
-- [ ] #2 spec-bridge:link moves from step 4 into the claim commit in step 2, so the bridge's Stop gate is armed from the branch's first commit rather than after the step it is meant to protect
-- [ ] #3 templates/runbook.md gains a 'Per-task artifacts required before PR' section, so the obligation survives into the runbook and therefore across sessions
-- [ ] #4 sweep Output gate adds: every scoped task's specs/NNN-*/ contains spec+plan+tasks, or the runbook records an operator-signed escape hatch (reconciled with TASK-79 so the two do not contradict)
-- [ ] #5 doctrine sentence: a precondition/Lane-0 decision that changes the per-task loop must be written as a checkable line in the runbook's gate section, not only as prose
-- [ ] #6 TASK-79 and this task are cross-referenced and their fixes verified non-contradictory
-- [ ] #7 skill version bump + marketplace bump; pdlc-sweep wiki note re-verified; gates green
+- [x] #1 sweep SKILL.md step 3 states the required artifacts by name (spec.md, plan.md, tasks.md) with the same mechanical specificity the claim step gets, including what to do when the host constitution is absent or unratified
+- [x] #2 spec-bridge:link moves from step 4 into the claim commit in step 2, so the bridge's Stop gate is armed from the branch's first commit rather than after the step it is meant to protect
+- [x] #3 templates/runbook.md gains a 'Per-task artifacts required before PR' section, so the obligation survives into the runbook and therefore across sessions
+- [x] #4 sweep Output gate adds: every scoped task's specs/NNN-*/ contains spec+plan+tasks, or the runbook records an operator-signed escape hatch (reconciled with TASK-79 so the two do not contradict)
+- [x] #5 doctrine sentence: a precondition/Lane-0 decision that changes the per-task loop must be written as a checkable line in the runbook's gate section, not only as prose
+- [x] #6 TASK-79 and this task are cross-referenced and their fixes verified non-contradictory
+- [x] #7 skill version bump + marketplace bump; pdlc-sweep wiki note re-verified; gates green
 - [ ] #8 Spec phase: Spec
 - [ ] #9 Spec phase: Implement
 - [ ] #10 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
