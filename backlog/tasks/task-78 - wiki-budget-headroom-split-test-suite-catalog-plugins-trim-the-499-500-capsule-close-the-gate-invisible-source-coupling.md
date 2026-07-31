@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 17:48'
+updated_date: '2026-07-31 17:50'
 labels:
   - debt
 dependencies: []
@@ -32,4 +32,13 @@ Spec: specs/044-wiki-budget-headroom
 - [ ] #1 test-suite-catalog-plugins split summary-style with comfortable headroom; freshness green
 - [ ] #2 pdlc-refactor-triage description trimmed below ~480 chars; CAPSULES regenerated
 - [ ] #3 the note's sweep cross-claims are gate-visible (source added) or de-specified to the wikilink
+- [x] #4 Spec phase: Spec
+- [ ] #5 Spec phase: Implement
+- [ ] #6 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier sonnet, pinned claude-sonnet-5 via .claude/agents/sonnet-implementer.md agent definition (operator-approved at runbook sign-off, PR #108). Justification: mechanical corpus hygiene per docs/corpus-spec.md — split, trim, source fix; pattern exists, judgment small. Grouping call: single dispatch covers Implement+Prove.
+<!-- SECTION:NOTES:END -->
