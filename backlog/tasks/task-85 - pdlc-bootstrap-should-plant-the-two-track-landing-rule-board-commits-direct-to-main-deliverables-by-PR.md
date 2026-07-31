@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-28 15:06'
-updated_date: '2026-07-31 17:54'
+updated_date: '2026-07-31 17:57'
 labels:
   - debt
 dependencies: []
@@ -39,10 +39,15 @@ Spec: specs/046-two-track-landing-rule
 - [ ] #3 pdlc:bootstrap's update path refreshes the block on already-bootstrapped hosts
 - [ ] #4 pdlc:sweep's doctrine references the rule rather than restating it, so sweeps stop having to ratify it per-host
 - [ ] #5 plugin version bump + marketplace bump; pdlc wiki note re-verified; gates green
+- [x] #6 Spec phase: Spec
+- [ ] #7 Spec phase: Implement
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 (TASK-90): pdlc:sweep SKILL.md now names a background-job / no-main-push execution mode. When 85 plants the two-track landing rule (board/bookkeeping commits direct to main; deliverables by PR), note that in that mode the board track's 'direct to main' degrades to rides-the-next-branch / wrap-up PR. Keep the wordings reconciled; the mode section already cross-references TASK-85.
+
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: grounding-template prose deriving a rule from an existing principle + one-line cross-skill reference; no code. Grouping call: single dispatch covers Implement+Prove.
 <!-- SECTION:NOTES:END -->
