@@ -15,6 +15,6 @@
 
 ## Prove
 
-- [ ] T007 docs/wiki/overview.md amended + re-pinned (NEEDS-REVIEW — prose was wrong); pdlc-plugin note classified; CAPSULES regenerated if any description changed
+- [x] T007 docs/wiki/overview.md amended + re-pinned (NEEDS-REVIEW — prose was wrong); pdlc-plugin note classified; CAPSULES regenerated if any description changed
 - [ ] T008 gates green in worktree (node --test, check-docs incl. post-replant, freshness, version-bump); re-run after any history move
 - [ ] T009 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
