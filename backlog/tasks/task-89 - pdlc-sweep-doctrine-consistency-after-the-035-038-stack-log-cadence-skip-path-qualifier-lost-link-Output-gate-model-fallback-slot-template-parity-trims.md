@@ -8,7 +8,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 16:53'
+updated_date: '2026-07-31 17:07'
 labels:
   - pdlc-sweep
 dependencies: []
@@ -28,17 +28,29 @@ Spec: specs/039-sweep-doctrine-consistency
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 step 5 gains the dispatch-boundary log-row clause; step 10 and the template state the same cadence (F1)
-- [ ] #2 the 'non-trivial' qualifier is removed or routed through the escape line (F2)
-- [ ] #3 Output gate re-checks every scoped card's Spec marker at sweep end; template end-check matches (F3)
-- [ ] #4 Phase 1 item 2 gains the fallback-ID slot (record fallback for subscription-unavailability + which model actually served) (F4)
-- [ ] #5 template escape-line section carries the never-a-second-mechanism clause (F6)
-- [ ] #6 T1/T2 redundancies trimmed without dropping any spec-mandated rationale
+- [x] #1 step 5 gains the dispatch-boundary log-row clause; step 10 and the template state the same cadence (F1)
+- [x] #2 the 'non-trivial' qualifier is removed or routed through the escape line (F2)
+- [x] #3 Output gate re-checks every scoped card's Spec marker at sweep end; template end-check matches (F3)
+- [x] #4 Phase 1 item 2 gains the fallback-ID slot (record fallback for subscription-unavailability + which model actually served) (F4)
+- [x] #5 template escape-line section carries the never-a-second-mechanism clause (F6)
+- [x] #6 T1/T2 redundancies trimmed without dropping any spec-mandated rationale
 - [ ] #7 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 - [x] #8 Spec phase: Spec
 - [ ] #9 Spec phase: Implement
 - [ ] #10 Spec phase: Prove
 <!-- AC:END -->
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Implementation Notes
 

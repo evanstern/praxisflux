@@ -33,8 +33,9 @@ Rule of thumb: DEVELOP in parallel, MERGE serially — tasks below share file fo
 so concurrent PRs will conflict; the lanes bound how bad it gets.
 
 **Lane 1 — start immediately, in parallel:**
-- **TASK-{{n}} ({{tier}} · model {{model-id}} — {{rubric justification}})** — {{one-line
-  scope; note if only its CONTRACT blocks others while implementation can lag}}
+- **TASK-{{n}} ({{tier}} · model {{model-id}}, fallback {{fallback-model-id}} —
+  {{rubric justification}})** — {{one-line scope; note if only its CONTRACT blocks
+  others while implementation can lag}}
 - …
 
 **Lane 2 — after {{condition}}:**
@@ -43,8 +44,10 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
 **Lane N — tail (droppable):**
 - …
 
-Record the model tier + explicit model ID + rubric justification on each board task at
-dispatch (one-way escalation only; escalations are operator checkpoints).
+Record the model tier + explicit model ID (plus the fallback ID for
+subscription-unavailability, and which model actually served) + rubric justification on
+each board task at dispatch (one-way escalation only; escalations are operator
+checkpoints).
 
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 
@@ -63,8 +66,9 @@ dispatch (one-way escalation only; escalations are operator checkpoints).
 
 Per-TASK obligations — the per-PR gates above are project machinery; this section is
 what every scoped task must have produced. **No PR opens for a task until each line
-below checks true for it.** The sweep's Output gate re-checks the first line for every
-scoped task at the end.
+below checks true for it.** The sweep's Output gate re-checks the first two lines —
+spec artifacts present AND the Spec marker still on the card — for every scoped task
+at the end.
 
 - [ ] `specs/{{NNN}}-{{slug}}/` carries a real `spec.md` (problem + requirements mapped
       to the card's ACs), `plan.md` (constitution-checked — or stating plainly that the
@@ -78,7 +82,9 @@ scoped task at the end.
       before implementation dispatch.
 - **Escape lines (operator-signed only):** {{one line per excused task, naming the task
   and the stand-in — e.g. "TASK-<n>: hand-authored spec set per host precedent —
-  signed <operator> <date>" — or "none"}}
+  signed <operator> <date>" — or "none"}}. Whatever sanctions a substitute enters the
+  sweep as such a line, **never as a second mechanism** — there is no path to a skipped
+  spec set except an operator-signed escape line here.
 - {{HOST_ADDITIONS — host-specific per-task artifact obligations, or "none"}}
 
 <!-- Lane-0/precondition rulings that change the per-task loop are written HERE as
