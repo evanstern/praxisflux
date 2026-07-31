@@ -17,4 +17,4 @@
 
 - [x] T007 docs/wiki/pdlc-refactor-triage.md re-verified against the diff (NEEDS-REVIEW, description must not grow); CAPSULES regenerated only if description changed; lockstep siblings classified
 - [x] T008 gates green in worktree (node --test, check-docs, freshness, version-bump); re-run after any history move
-- [ ] T009 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T009 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged

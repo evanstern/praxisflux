@@ -3,11 +3,11 @@ id: TASK-75
 title: >-
   refactor-triage 0.2.0 hardening: tracked-report fallback, headless policy
   syntax, run-id rule, enforce 'both tracked'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 17:25'
+updated_date: '2026-07-31 17:29'
 labels:
   - debt
 dependencies: []
@@ -36,7 +36,7 @@ Spec: specs/040-refactor-triage-hardening
 - [x] #5 skill version 0.2.0 + marketplace bump; gates green
 - [x] #6 Spec phase: Spec
 - [x] #7 Spec phase: Implement
-- [ ] #8 Spec phase: Prove
+- [x] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -49,4 +49,12 @@ Implemented skill 0.2.0 (R1-R5): version-independent tracked-copy check + fallba
 Version correction: 0.45.0 was released by a sibling sweep task mid-flight (tag v0.45.0), so re-synced to the next free minor 0.46.0 (commits 0323b77 re-stamp, 0033c88 re-pin). Pre-push version-bump gate: 0.44.0 -> 0.46.0 ok.
 
 spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 2/3 (T009 pending merge)
+
+spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 3/3 — status In Progress → Done (PR #110, merge 0b23a14)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 5/5 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
