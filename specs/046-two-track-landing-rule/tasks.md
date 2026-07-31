@@ -16,4 +16,4 @@
 
 - [x] T006 wiki notes re-verified against the diff (pdlc-plugin, pdlc-sweep NEEDS-REVIEW; siblings classified); repo CLAUDE.md synced if check-docs demands
 - [x] T007 gates green in worktree (node --test incl. plant tests, check-docs, freshness, version-bump); re-run after any history move
-- [ ] T008 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T008 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged

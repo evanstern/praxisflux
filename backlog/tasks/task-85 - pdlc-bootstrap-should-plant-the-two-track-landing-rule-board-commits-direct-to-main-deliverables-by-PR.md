@@ -3,11 +3,11 @@ id: TASK-85
 title: >-
   pdlc:bootstrap should plant the two-track landing rule: board commits direct
   to main, deliverables by PR
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-28 15:06'
-updated_date: '2026-07-31 18:06'
+updated_date: '2026-07-31 18:11'
 labels:
   - debt
 dependencies: []
@@ -52,4 +52,12 @@ Spec: specs/046-two-track-landing-rule
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: grounding-template prose deriving a rule from an existing principle + one-line cross-skill reference; no code. Grouping call: single dispatch covers Implement+Prove.
 
 2026-07-31 (implement+prove, task-85 worktree): R1+R2 planted two-track bullet in pdlc/templates/CLAUDE.md pdlc:peer:backlog block (derived from reason-to-approve; no-main-push degradation clause). R3 verified no-edit — plant.mjs replaces the whole marked block wholesale on update (TASK-74 precedent) and bootstrap SKILL.md already states 'refreshed wholesale on update'. R4 one-clause reference in sweep SKILL.md mode section (TASK-85-will-plant -> planted pdlc:peer:backlog block). R5 bootstrap skill 0.8.0, sweep skill 0.16.0, marketplace 0.49.0->0.50.0. Wiki: pdlc-plugin.md amended+re-pinned (NEEDS-REVIEW); pdlc-sweep/pdlc-sweep-history + 10 lockstep siblings RE-PIN-ONLY. Gates green: node --test 252 pass, check-docs, freshness 34 fresh, version-bump. check-docs does NOT pin template<->repo-CLAUDE.md equality, so no repo CLAUDE.md mirror (matches spec non-goal). Commits a7b544f, e67dd6d, 94fa65b. No PR/merge per background-job mode.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done (PR #115, merge dc20221)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
