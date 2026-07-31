@@ -3,10 +3,11 @@ id: TASK-79
 title: >-
   pdlc:sweep doctrine: hand-authored-specs escape hatch; runbook-gate softening
   requires a runbook amendment
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 12:46'
+updated_date: '2026-07-31 17:54'
 labels:
   - debt
 dependencies: []
@@ -22,6 +23,8 @@ Finding: refactor-triage run praxis-2026-07-27-16-07-29 — triage record docs/r
 Evidence: pdlc/skills/sweep/SKILL.md:35 says missing .specify/ → stop, yet three sweeps have overridden it by recorded host precedent (board-clearing → downstream-bugfix → sweep-followups, cited again by docs/design/refactor-triage-runbook.md:75): hand-authored specs/NNN/{spec,plan,tasks}.md is de facto sanctioned doctrine pretending to be an exception. Separately, specs/033-refactor-triage/plan.md softened the signed-off runbook's root-README gate (docs/design/refactor-triage-runbook.md:96) to 'only if check-docs demands' with no runbook amendment, though runbook deviations are defined as operator checkpoints (the stale row itself is TASK-74's fix).
 
 Fix as sweep 0.10.0: (1) precondition gate learns the escape hatch — .specify/ absent is acceptable when the host has an established hand-authored-spec precedent, recorded in the runbook; (2) doctrine sentence: plan-time softening of any signed-off runbook gate is a runbook amendment + operator ping, not an implementer decision note.
+
+Spec: specs/045-sweep-hand-authored-specs-hatch
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
