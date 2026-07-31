@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.13.0
+version: 0.14.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -24,9 +24,10 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
 - It does **not decide direction.** The tasks arrive already decided (a reorientation
   synthesis, a milestone, an explicit list). A sweep that finds itself re-litigating scope
   should stop and send that question back to whatever produced the tasks.
-- It does **not replace per-task Spec Kit.** Every non-trivial task still gets its own
+- It does **not replace per-task Spec Kit.** Every scoped task still gets its own
   specify → plan → tasks → implement cycle; the sweep instantiates that loop N times, it
-  doesn't shortcut it.
+  doesn't shortcut it. The only sanctioned skip is the Output gate's operator-signed
+  escape line — never an inline judgment that a task is too small to spec.
 - It does **not write code.** Implementation is dispatched; the orchestrator's hands touch
   specs, the board, worktree/PR plumbing, and grounding docs.
 
@@ -87,11 +88,14 @@ derive, in this order:
    - Low-priority polish goes in the tail lane, droppable without breaking anything.
 2. **Model tier per task**, from the host project's rubric (e.g. a constitution's
    tiered-workflow principle), with the justification recorded — and, next to each tier
-   label, the **explicit model ID** the tier resolves to (e.g. `claude-opus-5`). A bare
+   label, the **explicit model ID** the tier resolves to (e.g. `claude-opus-5`), plus a
+   **fallback ID** for subscription-unavailability (the operator's 2026-07-31 ruling —
+   `claude-opus-4-8` when `claude-opus-5` is unavailable in the subscription — is the
+   field case) and, recorded at dispatch, which model actually served. A bare
    tier name is not a valid runbook entry: tier names have no mechanical resolution at
    dispatch time, so an unpinned tier silently resolves to the orchestrator session's
-   model. The tier note lands on the board task at dispatch time, not just in the
-   runbook.
+   model. Record tier + model ID + justification on the board task at dispatch time,
+   not just in the runbook.
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
@@ -186,7 +190,8 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    inheritance: an orchestrator often runs a price tier above the implementer intent,
    and an unpinned dispatch inherits its model (field case: "Opus tier" implementers
    silently ran on the orchestrator's Fable session model at 2x the unit price).
-   Record tier + model ID + justification on the board task.
+   The board-task tier note Phase 1 item 2 requires lands here — including which model
+   actually served the dispatch.
    **Dispatch phase-scoped:** one fresh implementer agent per tasks.md phase — or per
    explicitly-grouped small adjacent phases, the grouping being the orchestrator's
    recorded call; the default is one per phase — each dispatched at the runbook's
@@ -200,11 +205,15 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    tick-state, and the branch's commits — nothing is handed between phases via chat
    context: if the next phase needs it, it lives in an artifact — a ticked box, a
    committed slice, a deviation note in the spec dir or on the board task.
+   **At each dispatch boundary, update the task's in-flight row in the runbook's
+   execution log** (phases dispatched/completed, e.g. `phases: 1-2 done, 3 dispatched`)
+   so a resuming session sees where within the task the last dispatch stopped; the
+   closing row update lands at merge (step 10).
    **Every dispatch prompt carries a turn-hygiene block:** batch independent
    reads/checks as parallel tool calls in a single message; minimal between-call
    narration; run mechanical phases at lower reasoning effort, which produces fewer,
    more consolidated tool calls. Same structural mechanism, prompt-level lever:
-   micro-turns re-pay the full context read on every call — field case: the
+   micro-turns pay that cost on every call — field case: the
    expensive implementers averaged ~300 output tokens per request.
 6. Run the runbook's enumerated per-PR gates in the worktree; produce any same-PR
    companion artifacts they demand (design-doc amendments, reference re-pins).
@@ -238,8 +247,9 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    for the whole-corpus view, full notes only for the concepts the merge touched (else
    INDEX + just-in-time); run the project's downstream doc skills if their freshness
    checks say stale.
-10. **Log it:** append one line to the runbook's execution log (task, PR, merge sha,
-    tokens/cost best-effort from the harness/transcript, date). Board hygiene
+10. **Log it:** the closing row update at merge — the task's in-flight row (maintained
+    at each dispatch boundary, step 5) is completed with the PR, merge sha, tokens/cost
+    best-effort from the harness/transcript, and date. Board hygiene
     throughout: add specific task files to git, never `backlog/` wholesale; run
     board/spec commands from root, never inside a worktree. At a lane boundary, the
     orchestrator SHOULD end its session and resume from the runbook + board — a cost
@@ -326,7 +336,10 @@ branch/worktree findings from blocking to info, with the pause cited as evidence
 ## Output gate
 
 Prove the sweep before declaring it: every scoped task **Done on the board via its own
-merged PR**; every scoped task's `specs/NNN-*/` **contains `spec.md` + `plan.md` +
+merged PR**; every scoped card **still carries its Spec marker at sweep end** (re-run
+the `spec-bridge` links check — other sessions move the board while branches sit, and a
+dropped marker disarms the gate that held the task honest); every scoped task's
+`specs/NNN-*/` **contains `spec.md` + `plan.md` +
 `tasks.md`, or the runbook records an operator-signed escape line naming the task and
 what stands in for the artifacts** — whatever sanctions a substitute (a host's recorded
 hand-authored-specs precedent included) enters the sweep as such a line, never as a
