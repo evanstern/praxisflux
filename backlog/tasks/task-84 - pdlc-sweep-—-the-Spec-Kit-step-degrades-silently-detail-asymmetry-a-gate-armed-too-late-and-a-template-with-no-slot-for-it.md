@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-28 14:59'
-updated_date: '2026-07-31 12:36'
+updated_date: '2026-07-31 12:38'
 labels:
   - debt
 dependencies: []
@@ -50,4 +50,23 @@ Spec: specs/038-speckit-degradation-hardening
 - [ ] #5 doctrine sentence: a precondition/Lane-0 decision that changes the per-task loop must be written as a checkable line in the runbook's gate section, not only as prose
 - [ ] #6 TASK-79 and this task are cross-referenced and their fixes verified non-contradictory
 - [ ] #7 skill version bump + marketplace bump; pdlc-sweep wiki note re-verified; gates green
+- [ ] #8 Spec phase: Spec
+- [ ] #9 Spec phase: Implement
+- [ ] #10 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Doctrine edits per specs/038-speckit-degradation-hardening/plan.md (step 2 claim carries the link; step 3 artifact-named; step 4 link completion; Output gate R4 clause; R5 doctrine line; template per-task-artifacts section)
+2. Version bumps: sweep skill 0.13.0, marketplace 0.44.0
+3. Wiki: pdlc-sweep NEEDS-REVIEW + summary-style split (body at 7,999/8,000); siblings RE-PIN-ONLY
+4. Cross-ref TASK-79 both ways, non-contradiction recorded
+5. Gates; PR only with real spec+plan+tasks; merge; spec-bridge:sync
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch record (runbook Lane 1): tier=default implementer, model=claude-opus-5 with operator-ruled fallback claude-opus-4-8 (subscription lacks Opus 5) — Agent param opus resolves to the available Opus; actual model recorded post-dispatch. Doctrine prose, no code; escalation to fable is a checkpoint. Orchestrator: sweep session e38ecfe5.
+<!-- SECTION:NOTES:END -->
