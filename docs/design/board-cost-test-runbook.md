@@ -15,7 +15,7 @@ asked for an end-of-sweep token/cost analysis against the sweep-dat-board baseli
 "Cost instrumentation" below — the baseline numbers are embedded there so the comparison
 survives any one session).
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-07-31 (PR #108 review — lanes as authored, sonnet pins on TASK-76/78, and TASK-77 close-as-not-needed all approved)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -173,8 +173,9 @@ scoped task at the end.
       before implementation dispatch.
 - **Escape lines (operator-signed only):**
   - TASK-77: decision-only card — no spec dir, no branch, no PR; the recorded operator
-    decision on the card (at sign-off) stands in for the artifacts. — pending operator
-    sign-off of this runbook.
+    decision on the card stands in for the artifacts. — **Signed (operator, 2026-07-31,
+    PR #108): close as not-needed** — two clean triage runs against the card's own
+    evidence bar, zero observed hampers; re-card on a demonstrated hamper.
 - Host additions: board bookkeeping rides task branches / the wrap-up PR (background
   job — see doctrine below), never a push to main.
 
@@ -228,6 +229,8 @@ scoped task at the end.
    (2026-07-27 at ~7k lines, 2026-07-31 range-scoped). Record the decision + citation
    on the card and close it in the wrap-up; re-card on a demonstrated hamper. Operator
    may instead keep it open (state the N-runs bar) or order the build.
+   → **Approved at sign-off (operator, 2026-07-31, PR #108): close as not-needed, with
+   the sonnet pins and lanes confirmed as authored.**
 3. If any session claims a scoped task or spec number mid-sweep → STOP and surface.
 4. Tier/model escalations (e.g. to `claude-fable-5`); lane amendments (amend this
    file, note why, tell the operator).
