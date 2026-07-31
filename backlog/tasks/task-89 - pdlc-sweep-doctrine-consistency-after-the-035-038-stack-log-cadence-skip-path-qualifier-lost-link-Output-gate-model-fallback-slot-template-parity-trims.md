@@ -8,7 +8,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 16:47'
+updated_date: '2026-07-31 16:53'
 labels:
   - pdlc-sweep
 dependencies: []
@@ -35,4 +35,13 @@ Spec: specs/039-sweep-doctrine-consistency
 - [ ] #5 template escape-line section carries the never-a-second-mechanism clause (F6)
 - [ ] #6 T1/T2 redundancies trimmed without dropping any spec-mandated rationale
 - [ ] #7 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
+- [x] #8 Spec phase: Spec
+- [ ] #9 Spec phase: Implement
+- [ ] #10 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: doctrine prose on a procedural skill against a precise seven-finding list, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+<!-- SECTION:NOTES:END -->
