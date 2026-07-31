@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 17:32'
-updated_date: '2026-07-31 17:31'
+updated_date: '2026-07-31 17:40'
 labels:
   - pdlc
 dependencies: []
@@ -25,16 +25,18 @@ Spec: specs/042-refactor-triage-last-run-at
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Every refactor-triage run writes a machine-findable last-run-at commit id into its tracked triage record (format documented in the skill)
-- [ ] #2 Scope phase supports 'since last triage': resolves the latest record's last-run-at to <id>..HEAD, verifies the range resolves, and stops with a clear message when no prior record exists
-- [ ] #3 Skill version bumped per docs/releasing.md; node --test and check-docs green; wiki note pdlc-refactor-triage re-verified against the diff and re-pinned
+- [x] #1 Every refactor-triage run writes a machine-findable last-run-at commit id into its tracked triage record (format documented in the skill)
+- [x] #2 Scope phase supports 'since last triage': resolves the latest record's last-run-at to <id>..HEAD, verifies the range resolves, and stops with a clear message when no prior record exists
+- [x] #3 Skill version bumped per docs/releasing.md; node --test and check-docs green; wiki note pdlc-refactor-triage re-verified against the diff and re-pinned
 - [x] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition (Agent tool model param proven unreliable this session — see runbook). Justification: skill-contract prose insertions into a settled surface, no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
+
+2026-07-31 implemented R1-R3 on task-80-refactor-triage-last-run-at: SKILL.md 0.2.0->0.3.0 gains last-run-at high-water mark (Phase 3, defined once) + Scope entry (d) 'since last triage' (Phase 1, STOPs on missing/unresolvable). Marketplace lockstep synced 0.47.0 (next free vs origin/main 0.46.0). Wiki pdlc-refactor-triage.md re-verified+re-pinned (desc reworded to 4 modes, 487/500, no growth); 11 lockstep notes re-pinned RE-PIN-ONLY (stamp-only diff verified); CAPSULES regenerated. Gates green: node --test 252/0, check-docs, freshness 34 fresh. Commits ba6be07,a0f5b69,12f856e,1f0df9d.
 <!-- SECTION:NOTES:END -->
