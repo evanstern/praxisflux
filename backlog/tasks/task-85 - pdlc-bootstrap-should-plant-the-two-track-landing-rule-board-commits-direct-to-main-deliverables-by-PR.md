@@ -3,10 +3,11 @@ id: TASK-85
 title: >-
   pdlc:bootstrap should plant the two-track landing rule: board commits direct
   to main, deliverables by PR
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-07-28 15:06'
-updated_date: '2026-07-31 17:40'
+updated_date: '2026-07-31 18:11'
 labels:
   - debt
 dependencies: []
@@ -27,19 +28,36 @@ Evidence:
 The bootstrap block is the right home because it is the always-on grounding: it is what makes the rule apply when no skill has triggered, and it is refreshed wholesale on plugin update, so hosts stay in sync.
 
 Note the interaction with the one-task-one-PR principle (TASK-32 encoded TASK<->PR granularity as foundational): the two-track rule does not weaken it. A board card is not a deliverable and carries no reviewable decision — the planted CLAUDE.md already says a PR "exists only where it carries a stated reason for a human to approve ... never a diff for its own sake". Making board commits direct is that principle applied, not an exception to it. The wording should say so, so the two rules are not read as being in tension.
+
+Spec: specs/046-two-track-landing-rule
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 pdlc/templates/CLAUDE.md's pdlc:peer:backlog block states the two-track landing rule: board/bookkeeping commits (cards, status flips, notes, AC ticks) direct to main; deliverable work by PR
-- [ ] #2 The wording derives the rule from the existing no-PR-for-its-own-sake principle so it does not read as an exception to one-task-one-PR
-- [ ] #3 pdlc:bootstrap's update path refreshes the block on already-bootstrapped hosts
-- [ ] #4 pdlc:sweep's doctrine references the rule rather than restating it, so sweeps stop having to ratify it per-host
-- [ ] #5 plugin version bump + marketplace bump; pdlc wiki note re-verified; gates green
+- [x] #1 pdlc/templates/CLAUDE.md's pdlc:peer:backlog block states the two-track landing rule: board/bookkeeping commits (cards, status flips, notes, AC ticks) direct to main; deliverable work by PR
+- [x] #2 The wording derives the rule from the existing no-PR-for-its-own-sake principle so it does not read as an exception to one-task-one-PR
+- [x] #3 pdlc:bootstrap's update path refreshes the block on already-bootstrapped hosts
+- [x] #4 pdlc:sweep's doctrine references the rule rather than restating it, so sweeps stop having to ratify it per-host
+- [x] #5 plugin version bump + marketplace bump; pdlc wiki note re-verified; gates green
+- [x] #6 Spec phase: Spec
+- [x] #7 Spec phase: Implement
+- [x] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 (TASK-90): pdlc:sweep SKILL.md now names a background-job / no-main-push execution mode. When 85 plants the two-track landing rule (board/bookkeeping commits direct to main; deliverables by PR), note that in that mode the board track's 'direct to main' degrades to rides-the-next-branch / wrap-up PR. Keep the wordings reconciled; the mode section already cross-references TASK-85.
+
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: grounding-template prose deriving a rule from an existing principle + one-line cross-skill reference; no code. Grouping call: single dispatch covers Implement+Prove.
+
+2026-07-31 (implement+prove, task-85 worktree): R1+R2 planted two-track bullet in pdlc/templates/CLAUDE.md pdlc:peer:backlog block (derived from reason-to-approve; no-main-push degradation clause). R3 verified no-edit — plant.mjs replaces the whole marked block wholesale on update (TASK-74 precedent) and bootstrap SKILL.md already states 'refreshed wholesale on update'. R4 one-clause reference in sweep SKILL.md mode section (TASK-85-will-plant -> planted pdlc:peer:backlog block). R5 bootstrap skill 0.8.0, sweep skill 0.16.0, marketplace 0.49.0->0.50.0. Wiki: pdlc-plugin.md amended+re-pinned (NEEDS-REVIEW); pdlc-sweep/pdlc-sweep-history + 10 lockstep siblings RE-PIN-ONLY. Gates green: node --test 252 pass, check-docs, freshness 34 fresh, version-bump. check-docs does NOT pin template<->repo-CLAUDE.md equality, so no repo CLAUDE.md mirror (matches spec non-goal). Commits a7b544f, e67dd6d, 94fa65b. No PR/merge per background-job mode.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done (PR #115, merge dc20221)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->

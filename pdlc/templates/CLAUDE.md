@@ -79,6 +79,12 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 - **One task, one PR:** a top-level TASK gets one branch and one PR. Dotted-id subtasks
   (TASK-x.y) are internal breakdown — they ride the parent task's branch and merge in its
   PR, never their own.
+- **Two-track landing:** board/bookkeeping commits (cards, status flips, notes, AC ticks)
+  land direct on the default branch; deliverable work lands by PR. This is one-task-one-PR
+  applied, not an exception to it — a PR exists only where it carries a stated reason for a
+  human to approve, and a board card carries no such decision. Where main-push is
+  unavailable (background jobs, protected `main`), the board track degrades to riding the
+  next task branch or a wrap-up PR.
 - **Never hand-edit** files under `backlog/` — always the `backlog` CLI, so metadata and
   relationships stay consistent.
 <!-- pdlc:peer:backlog END -->

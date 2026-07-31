@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 45c1242d94dea0da0523256b7056ef584e4f9a55
+verified_against: a7b544fe6226f7f7cc2b7cbe8b68abd184283982
 ---
 
 # pdlc plugin
@@ -53,7 +53,13 @@ bootstrapped project inherits them; each peer sub-block adds that system's mappi
 (Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR boundaries).
 Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements — the three-tier
 model and the reason-to-approve test (no PR without a stated reason for a human to
-approve); `test/pdlc.test.mjs` asserts both. Since 0.14.0 the rules
+approve); `test/pdlc.test.mjs` asserts both. Since 0.50.0 (bootstrap 0.8.0) the Backlog
+peer block also carries the **two-track landing rule** (TASK-85): board/bookkeeping
+commits (cards, status flips, notes, AC ticks) land direct on the default branch,
+deliverable work by PR — derived from the reason-to-approve test (a board card carries no
+reviewable decision), so it is one-TASK-one-PR applied, not an exception; where main-push
+is unavailable it degrades to riding the next branch, matching [[pdlc-sweep]]'s
+background-job / no-main-push mode. Since 0.14.0 the rules
 also carry a **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption always-on
 (INDEX-first routing, just-in-time notes, `CAPSULES.md` orientation). Since 0.34.0
 (bootstrap 0.6.0) the **Gates** rule states ship-reality instead of the blanket
