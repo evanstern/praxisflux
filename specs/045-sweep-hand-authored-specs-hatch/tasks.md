@@ -7,9 +7,9 @@
 
 ## Implement
 
-- [ ] T002 precondition gate carves the recorded-precedent case as an escape-line instance (one mechanism; TASK-84 clause cited, not restated); template parenthetical only if not already implied (R1)
-- [ ] T003 checkpoint/concurrency doctrine gains the gate-softening-is-a-runbook-amendment rule with the specs/033 field case in one clause (R2)
-- [ ] T004 version bumps: sweep skill 0.15.0 → 0.16.0 + marketplace via sync-version.mjs at merge-readiness (R3)
+- [x] T002 precondition gate carves the recorded-precedent case as an escape-line instance (one mechanism; TASK-84 clause cited, not restated); template parenthetical only if not already implied (R1)
+- [x] T003 checkpoint/concurrency doctrine gains the gate-softening-is-a-runbook-amendment rule with the specs/033 field case in one clause (R2)
+- [x] T004 version bumps: sweep skill 0.15.0 → 0.16.0 + marketplace via sync-version.mjs at merge-readiness (R3)
 
 ## Prove
 

@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.15.0
+version: 0.16.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -34,7 +34,14 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
 ## Precondition gate
 
 1. **A PDLC project** with both peers opted in: `backlog/` (the board) and `.specify/`
-   (Spec Kit). Missing either → stop; this skill has nothing to orchestrate with.
+   (Spec Kit). Missing `backlog/` → stop; this skill has nothing to orchestrate with.
+   Missing `.specify/` → stop **unless** the host has an established hand-authored-specs
+   precedent AND the runbook records it as an operator-signed escape line in its
+   "Per-task artifacts required before PR" section (covering the sweep's scoped tasks); in
+   that case the sweep authors each `specs/NNN-<slug>/{spec,plan,tasks}.md` by hand and
+   the Output gate's spec-or-escape-line clause enforces it unchanged. That escape line
+   IS the recorded host-precedent sanction the Output gate already names as one instance —
+   the hatch adds no second mechanism (its "never as a second mechanism" clause governs).
 2. **Root discipline holds:** repo root is on the default branch and clean
    (`git fetch origin && git pull --ff-only`); branch work happens only in worktrees.
 3. **Probe for a merge-drift gate** — hosts following the spec-051 pattern (promptworld)
@@ -362,6 +369,11 @@ unchanged. Field provenance: the 2026-07-30/31 sweep runbooks
 - Escalating a task's model tier (record the rubric justification on the task).
 - Dropping, reordering, or resplitting a lane mid-sweep — that's a runbook amendment, and
   the runbook is signed-off state: amend the file, note why, tell the operator.
+- **Softening any gate the signed-off runbook enumerates** — at plan time, implement time,
+  or merge time — is a **runbook amendment plus an operator ping** (amend the file, note
+  why, tell the operator), never an implementer decision note buried in a spec artifact
+  where no later step reads it back (field case: specs/033's plan.md relaxed a signed-off
+  runbook's root-README gate to "only if check-docs demands" with no runbook amendment).
 
 ## Output gate
 
