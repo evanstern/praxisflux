@@ -1,6 +1,6 @@
 ---
 name: pdlc-refactor-triage
-description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; four entry modes (range, whole-repo, headless, since last triage), team-review orchestrated as the evaluation engine via its lens (inline pass when absent), a range-only intent-drift pass against runbook + specs + pinned wiki notes, accept/reject/defer dispositions in a tracked run-id-keyed record, accepted findings carded as cited, labeled backlog tasks.
+description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; four entry modes (range, whole-repo, headless, since-last-triage); team-review is the evaluation engine via its lens (inline pass when absent); a range-only intent-drift pass vs runbook + specs + pinned wiki notes; accept/reject/defer dispositions in a tracked record; accepted findings carded as backlog tasks.
 kind: component
 sources:
   - pdlc/skills/refactor-triage/SKILL.md
@@ -73,9 +73,9 @@ Gate → four phases → gate:
   triage record tracked on disk (a report left in `.handoff/` is not tracked); every finding disposed with rationale; the board shows exactly
   the accepted set. Status can never exceed artifacts ([[gates-convention]]).
 
-Handing off suggests, never starts, the natural next step: a sweep ([[pdlc-sweep]])
-over the new debt tasks — whose own Handing off (skill 0.9.0) names refactor-triage as
-the post-sweep review step, closing the cycle.
+Handing off suggests, never starts, the natural next step: a sweep over the new debt
+tasks, closing the cycle — [[pdlc-sweep]] documents its own Handing-off precedent for
+naming refactor-triage as the post-sweep review step.
 
 Explicit non-goals (from the TASK-72 card): no team-review changes (commit-range
 mechanics on its `orient.mjs` would be an evidence-backed follow-up), and no split of
