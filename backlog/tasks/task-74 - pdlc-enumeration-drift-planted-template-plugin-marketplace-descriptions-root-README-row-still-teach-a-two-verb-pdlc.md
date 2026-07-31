@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 16:48'
+updated_date: '2026-07-31 16:53'
 labels:
   - debt
 dependencies: []
@@ -34,4 +34,13 @@ Spec: specs/041-pdlc-enumeration-drift
 - [ ] #3 root README pdlc role cell consistent with what the plugin ships (style decision recorded)
 - [ ] #4 this repo's CLAUDE.md re-planted at current version; overview.md re-verified through wiki-update
 - [ ] #5 version bumps per docs/releasing.md; gates green
+- [x] #6 Spec phase: Spec
+- [ ] #7 Spec phase: Implement
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: multi-surface consistency edit incl. CLAUDE.md re-plant and wiki re-verification. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+<!-- SECTION:NOTES:END -->
