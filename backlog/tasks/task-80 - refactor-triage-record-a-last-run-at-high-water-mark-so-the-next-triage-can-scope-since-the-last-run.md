@@ -3,11 +3,11 @@ id: TASK-80
 title: >-
   refactor-triage: record a last-run-at high-water mark so the next triage can
   scope 'since the last run'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 17:32'
-updated_date: '2026-07-31 17:40'
+updated_date: '2026-07-31 17:48'
 labels:
   - pdlc
 dependencies: []
@@ -39,4 +39,12 @@ Spec: specs/042-refactor-triage-last-run-at
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition (Agent tool model param proven unreliable this session — see runbook). Justification: skill-contract prose insertions into a settled surface, no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
 
 2026-07-31 implemented R1-R3 on task-80-refactor-triage-last-run-at: SKILL.md 0.2.0->0.3.0 gains last-run-at high-water mark (Phase 3, defined once) + Scope entry (d) 'since last triage' (Phase 1, STOPs on missing/unresolvable). Marketplace lockstep synced 0.47.0 (next free vs origin/main 0.46.0). Wiki pdlc-refactor-triage.md re-verified+re-pinned (desc reworded to 4 modes, 487/500, no growth); 11 lockstep notes re-pinned RE-PIN-ONLY (stamp-only diff verified); CAPSULES regenerated. Gates green: node --test 252/0, check-docs, freshness 34 fresh. Commits ba6be07,a0f5b69,12f856e,1f0df9d.
+
+spec-bridge sync: Spec: 2/2 · Implement: 3/3 · Prove: 3/3 — status In Progress → Done (PR #112, merge bd5ce8f)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 3/3 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
