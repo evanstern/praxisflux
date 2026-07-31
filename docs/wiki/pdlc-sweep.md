@@ -91,7 +91,7 @@ orientation 0.14.0, paused lanes 0.25.0, pin-aware reconciliation 0.27.0, honest
 re-pins 0.28.0, claim-step reconciliation 0.34.0, refactor-triage handoff 0.40.0
 ([[pdlc-refactor-triage]] as the post-sweep review), model-ID pinning 0.41.0,
 phase-scoped dispatch 0.42.0, cost levers 0.43.0, Spec-Kit degradation hardening
-0.44.0, doctrine-seam reconciliation 0.46.0 — [[pdlc-sweep-history]] carries the
+0.44.0, doctrine-seam reconciliation 0.47.0 — [[pdlc-sweep-history]] carries the
 per-release detail, field cases, and the
 superseded conventions downstream hosts may have inherited.
 

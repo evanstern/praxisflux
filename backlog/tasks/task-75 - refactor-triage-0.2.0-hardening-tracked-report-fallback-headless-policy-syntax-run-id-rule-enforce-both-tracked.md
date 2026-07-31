@@ -3,9 +3,11 @@ id: TASK-75
 title: >-
   refactor-triage 0.2.0 hardening: tracked-report fallback, headless policy
   syntax, run-id rule, enforce 'both tracked'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 16:25'
+updated_date: '2026-07-31 17:25'
 labels:
   - debt
 dependencies: []
@@ -21,13 +23,30 @@ Finding: refactor-triage run praxis-2026-07-27-16-07-29 — triage record docs/r
 Evidence: pdlc/skills/refactor-triage/SKILL.md:72 asserts team-review lands a tracked report at docs/reviews/ on self-review — true only for team-review ≥0.39.0 (copy-on-finish, TASK-70) on the default path; older siblings strand the report in gitignored .handoff/ (manifested live on this run: engine cache 0.36.0, lead copied manually). SKILL.md:19 promises 'both tracked' but the output gate (:132) only enforces the triage record; inline-degraded mode names no report home. Headless mode (:56) has doctrine but no syntax — no policy arg named, pdlc/README.md shows two of three mode examples, no headless-vs-operator detection rule. run-id (:102) undefined when team-review didn't run.
 
 Fix as skill 0.2.0: (1) landing becomes a check with fallback — 'if no tracked copy landed, copy the proven report to docs/reviews/ and commit it'; (2) name the policy argument, add the third README example, state the detection rule; (3) run-id = team-review's run id when it ran, else <repo>-<ISO-stamp>; (4) output gate enforces the evaluation report's trackedness or 'both tracked' is dropped.
+
+Spec: specs/040-refactor-triage-hardening
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Evaluate phase states the tracked-copy check + manual-copy fallback (no version coupling)
-- [ ] #2 headless mode has a named policy argument, a README example, and a detection rule
-- [ ] #3 run-id minting rule stated for both engine and degraded modes
-- [ ] #4 output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)
-- [ ] #5 skill version 0.2.0 + marketplace bump; gates green
+- [x] #1 Evaluate phase states the tracked-copy check + manual-copy fallback (no version coupling)
+- [x] #2 headless mode has a named policy argument, a README example, and a detection rule
+- [x] #3 run-id minting rule stated for both engine and degraded modes
+- [x] #4 output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)
+- [x] #5 skill version 0.2.0 + marketplace bump; gates green
+- [x] #6 Spec phase: Spec
+- [x] #7 Spec phase: Implement
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: skill-contract prose with a cross-plugin path contract, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+
+Implemented skill 0.2.0 (R1-R5): version-independent tracked-copy check + fallback and inline report home (R1), --policy arg + third README example + headless-vs-operator detection rule (R2), run-id minting rule where run-id is introduced, kept modular for TASK-80 (R3), output gate enforces evaluation-report trackedness (R4), skill 0.1.0->0.2.0 + marketplace lockstep 0.44.0->0.45.0 via sync-version.mjs (R5). Wiki: amended+re-pinned pdlc-refactor-triage.md (description untouched, no CAPSULES regen); RE-PIN-ONLY re-pinned 11 lockstep siblings past the stamp. Gates green (node --test 252/0, check-docs, freshness 34, version-bump). Commits 7211356, 9cc6e36, 22da4bb, 7ad11f6. Note: session was launched pinned to the task-74 worktree (Edit/Write misrouted there); did all file writes in task-75 via git-cwd tooling, touched no sibling worktree.
+
+Version correction: 0.45.0 was released by a sibling sweep task mid-flight (tag v0.45.0), so re-synced to the next free minor 0.46.0 (commits 0323b77 re-stamp, 0033c88 re-pin). Pre-push version-bump gate: 0.44.0 -> 0.46.0 ok.
+
+spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 2/3 (T009 pending merge)
+<!-- SECTION:NOTES:END -->

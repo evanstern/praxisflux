@@ -59,6 +59,7 @@ finding-citing backlog tasks via the CLI — immediately sweepable.
 ```
 /pdlc:refactor-triage --range v0.38.0..v0.39.0   # post-sweep: triage the merged range
 /pdlc:refactor-triage                            # periodic whole-repo debt pass
+/pdlc:refactor-triage --range v0.38.0..v0.39.0 --policy "accept sev≥high, defer rest"   # headless: declared policy, no operator
 ```
 
 No lifecycle of its own, so no Stop hook — the plugins it wires in bring their own gates

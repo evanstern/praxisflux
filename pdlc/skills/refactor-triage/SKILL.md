@@ -1,6 +1,6 @@
 ---
 name: refactor-triage
-version: 0.1.0
+version: 0.2.0
 description: Evaluate a body of merged work — a post-sweep commit range or the whole repo — for tech debt and intent drift, triage every finding with the operator (accept / reject / defer, rationale recorded), and execute accepted findings onto the Backlog board as cited, labeled, immediately sweepable debt tasks. Use when the user wants to "triage the merged work", "evaluate for tech debt", "card the debt", run a "post-sweep review" or "refactor triage", asks what debt or drift a sweep left behind, or a harness invokes it headless with a scope plus a declared triage policy. Orchestrates team-review:team-review as the evaluation engine when installed (inline eval pass when absent); team-review itself is unchanged.
 ---
 
@@ -54,11 +54,16 @@ Three entry modes decide what gets evaluated and how dispositions get made:
   intent-drift pass (Phase 2).
 - **(b) Whole-repo** — no range. The periodic case: evaluate the codebase as it stands.
 - **(c) Headless / harness** — arguments carry the scope (a range or whole-repo) **plus a
-  DECLARED triage policy** (e.g. "auto-accept severity ≥ high, defer the rest") in place
-  of conversation. No policy declared → refuse to run headless; a harness that cannot
-  state its policy gets an operator, not a guess. The policy MUST be recorded verbatim
-  in the triage record — the record is the only place a later reader can learn how
-  dispositions were made.
+  DECLARED triage policy** passed as `--policy "<accept|reject|defer rules>"` (e.g.
+  `--policy "auto-accept severity ≥ high, defer the rest"`) in place of conversation.
+  **Detection (headless vs operator):** a run is headless when the invocation carries
+  `--policy` and no interactive operator is present to walk the findings; an interactive
+  session with an operator is the default otherwise (a `--policy` supplied alongside a
+  live operator seeds defaults but the operator still walks each finding). No policy
+  declared and no operator → refuse to run headless; a harness that cannot state its
+  policy gets an operator, not a guess. The policy MUST be recorded verbatim in the
+  triage record — the record is the only place a later reader can learn how dispositions
+  were made.
 
 State the resolved scope and mode before evaluating; in range mode, list the intent
 artifacts found.
@@ -69,13 +74,23 @@ artifacts found.
 `team-review:team-review` over the scope, passing the framing through its existing lens
 parameter. Range mode lens: *"drift and tech debt since `<range>`; clobbered design
 decisions, slap-dash conflict resolutions"*. Whole-repo mode frames the lens on debt:
-hotspots, decay, what a maintainer would flag. On a self-review (the invoking project is
-the target) team-review's output gate already lands the proven report at tracked
-`docs/reviews/team-review-<run-id>.md` — that tracked copy is this skill's evaluation
-report; commit it. **When team-review is absent, degrade gracefully:** run an inline eval
-pass over the same scope yourself — read the diff (range) or the load-bearing surfaces
-(whole-repo), hunt debt and drift under the same framing — and say so in the report; a
-degraded engine is declared, never silent.
+hotspots, decay, what a maintainer would flag.
+
+The evaluation report's tracked home is `docs/reviews/team-review-<run-id>.md`, where
+**run-id** is team-review's run id when the engine ran, else `<repo>-<ISO-stamp>` minted
+at triage start (degraded mode); the same run-id keys the triage record. **Verify the
+tracked copy — do not assume it landed.** After the engine (or inline pass) finishes,
+check that `docs/reviews/team-review-<run-id>.md` exists as a git-tracked file. Recent
+team-review (copy-on-finish) lands it there on a self-review, but older engines strand
+the proven report in the gitignored `.handoff/` transport; if no tracked copy is present,
+copy the proven report to that path and commit it in the same slice. This check is
+version-independent — it holds whatever engine version ran.
+
+**When team-review is absent, degrade gracefully:** run an inline eval pass over the same
+scope yourself — read the diff (range) or the load-bearing surfaces (whole-repo), hunt
+debt and drift under the same framing — and write your findings to that same tracked
+report home (`docs/reviews/team-review-<run-id>.md`); a degraded engine is declared,
+never silent.
 
 **Range mode additionally runs an intent-drift pass team-review cannot do:** diff the
 range against the intent record —
@@ -129,9 +144,11 @@ what's missing rather than rounding up:
 1. **No created task without a finding it cites.** Every task minted this run names the
    report path and file:line evidence in its body; a task that cites nothing gets its
    citation added or gets killed.
-2. **No "triage done" without BOTH artifacts on disk:** the evaluation report AND the
-   tracked triage record at `docs/reviews/refactor-triage-<run-id>.md`. A conversation
-   about findings is not a triage.
+2. **No "triage done" without BOTH artifacts tracked on disk:** whenever an evaluation
+   ran, its report must be a **git-tracked copy** at `docs/reviews/team-review-<run-id>.md`
+   — not stranded in the gitignored `.handoff/` transport — AND the tracked triage record
+   at `docs/reviews/refactor-triage-<run-id>.md`. A conversation about findings is not a
+   triage; a report living only in `.handoff/` is not tracked and fails this gate.
 3. **Every finding has a disposition** in the record, with rationale; headless runs show
    the declared policy verbatim.
 4. The board reflects exactly the accepted set — `backlog task list --plain` shows each

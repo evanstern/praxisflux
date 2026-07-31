@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: c2a8fbb3a633a9ff4bf891a8c759e7371e3baec1
+verified_against: 3f9c5f7bf52d5acc1df0c06a9cc2e4af41fd9bd3
 ---
 
 # praxisflux — system overview
@@ -36,9 +36,13 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[codebase-to-course-plugin]] consumes a grounded corpus to produce an interactive course.
 - [[spec-bridge-plugin]] sits beside the loop: it makes the Backlog.md board a derived kanban
   view over GitHub Spec Kit specs, gated so status can't exceed proven spec artifacts.
-- [[pdlc-plugin]] sits before the loop: its `bootstrap` skill stamps a new or existing project
-  for the praxis development lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore,
-  opt-in to the supported peer utilities Backlog.md and Spec Kit).
+- [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
+  three skills: `bootstrap` stamps a new or existing project for the praxis development
+  lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore, opt-in to the supported peer
+  utilities Backlog.md and Spec Kit); `sweep` runs a set of board tasks through the whole
+  lifecycle (operator-signed-off runbook, parallel lanes, serial merges); `refactor-triage`
+  closes the post-sweep loop, triaging the merged work for debt and drift and carding accepted
+  findings back onto the board.
 - [[team-review-plugin]] sits beside the loop: a lead-plus-subagent architecture review of
   any caller-named codebase, read-only by doctrine, proven by an output gate (report
   sections + resolving citations + target untouched).

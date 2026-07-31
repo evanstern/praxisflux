@@ -118,7 +118,7 @@ each `specs/NNN-*/` to hold spec+plan+tasks **or** an operator-signed escape lin
 naming the task and stand-in — never a second mechanism. Companion: Lane-0 rulings
 changing the per-task loop land as checkable runbook gate lines, not prose.
 
-Since 0.46.0 (skill 0.14.0) seven 035-038 stack seams reconcile (TASK-89): the
+Since 0.47.0 (skill 0.14.0) seven 035-038 stack seams reconcile (TASK-89): the
 **execution-log cadence** agrees (step 5 in-flight row per dispatch boundary, step 10
 closing row at merge); the skip-path drops "non-trivial" (only sanctioned skip = the
 escape line); the **Output gate** re-checks each scoped card's Spec marker at sweep end
