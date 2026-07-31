@@ -1,10 +1,10 @@
 ---
 name: pdlc-refactor-triage
-description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; three entry modes (range, whole-repo, headless with a declared triage policy), team-review orchestrated as the evaluation engine via its lens (inline pass when absent), a range-only intent-drift pass against runbook + specs + pinned wiki notes, accept/reject/defer dispositions in a tracked run-id-keyed record, accepted findings carded as cited, labeled backlog tasks.
+description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; four entry modes (range, whole-repo, headless, since last triage), team-review orchestrated as the evaluation engine via its lens (inline pass when absent), a range-only intent-drift pass against runbook + specs + pinned wiki notes, accept/reject/defer dispositions in a tracked run-id-keyed record, accepted findings carded as cited, labeled backlog tasks.
 kind: component
 sources:
   - pdlc/skills/refactor-triage/SKILL.md
-verified_against: 7211356a7527695c9ba073ead51782f51966eb8e
+verified_against: ba6be079fc279d711ca2eaa99e7003e3ac9cb252
 ---
 
 # pdlc:refactor-triage — evaluate merged work, card the debt
@@ -30,13 +30,16 @@ Gate → four phases → gate:
   silently falls back to whole-repo — and expects the intent record (sweep runbook under
   `docs/design/`, merged PR specs under `specs/`, pinned `docs/wiki/` notes), degrading
   per missing piece only declaredly.
-- **Scope** — three entry modes: **(a) range** (`--range xxx..yyy`, the post-sweep case,
+- **Scope** — four entry modes: **(a) range** (`--range xxx..yyy`, the post-sweep case,
   unlocking the intent-drift pass), **(b) whole-repo** (periodic, no range), **(c)
   headless/harness** — args carry the scope plus a **declared triage policy** (passed
   as `--policy`, e.g.
   "auto-accept severity ≥ high, defer the rest") in place of conversation; no declared
   policy → refuse to run headless, and the policy is recorded verbatim in the triage
-  record.
+  record — and **(d) since last triage** (0.3.0, TASK-80), which resolves the range from
+  history: the newest record's `last-run-at` high-water mark to `<id>..HEAD`, verifying
+  the id and range resolve and **stopping (never guessing)** when there is no prior
+  record, no `last-run-at` line, or an unresolvable id.
 - **Evaluate** — when team-review is installed, orchestrate it with the framing in the
   lens (range mode: *"drift and tech debt since `<range>`; clobbered design decisions,
   slap-dash conflict resolutions"*). The evaluation report's tracked home is
@@ -56,7 +59,11 @@ Gate → four phases → gate:
   the **tracked triage record** lands at `docs/reviews/refactor-triage-<run-id>.md`
   (run-id-keyed so same-day runs never collide — team-review's precedent) carrying
   scope, mode, report path, policy-or-operator provenance, and one line per finding.
-  Headless applies the declared policy and leaves the same paper trail.
+  Headless applies the declared policy and leaves the same paper trail. The record also
+  carries, exactly once, a machine-findable `last-run-at: <full 40-char commit id>`
+  high-water mark — the scanned range's resolved right endpoint, or HEAD at scan time in
+  whole-repo mode — that the Scope phase's since-last-triage entry reads to scope the next
+  run (0.3.0, TASK-80).
 - **Execute** — each **accepted** finding becomes a backlog task via the `backlog` CLI
   (never hand-edited board files), citing its finding (report path + file:line) in the
   body, labeled (e.g. `debt`), dependency-noted — immediately sweepable. Rejected and
