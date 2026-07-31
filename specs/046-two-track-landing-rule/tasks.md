@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 planted backlog block states the two-track rule, derived from the reason-to-approve principle, with the no-main-push degradation clause (R1+R2)
-- [ ] T003 replant path confirmed/stated: block refreshes wholesale on bootstrap update (R3)
-- [ ] T004 sweep SKILL.md references the planted rule in one clause (no restatement; composes with the TASK-90 mode sentence) (R4)
-- [ ] T005 version bumps: bootstrap skill 0.8.0 (+ sweep skill next minor if changed) + marketplace via sync-version.mjs at merge-readiness (R5)
+- [x] T002 planted backlog block states the two-track rule, derived from the reason-to-approve principle, with the no-main-push degradation clause (R1+R2)
+- [x] T003 replant path confirmed/stated: block refreshes wholesale on bootstrap update (R3)
+- [x] T004 sweep SKILL.md references the planted rule in one clause (no restatement; composes with the TASK-90 mode sentence) (R4)
+- [x] T005 version bumps: bootstrap skill 0.8.0 (+ sweep skill next minor if changed) + marketplace via sync-version.mjs at merge-readiness (R5)
 
 ## Prove
 
