@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.12.0
+version: 0.13.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -98,7 +98,11 @@ derive, in this order:
    for them in the project CLAUDE.md, design-doc INDEX files, and `scripts/`. Record
    the merge-drift probe's result here (present/absent; when present, the four
    invocations — session / claim / worktree / pr — verbatim) so an adopting session
-   doesn't re-derive it.
+   doesn't re-derive it. **Lane-0/precondition rulings that change the per-task loop
+   land as checkable gate lines in the runbook, never only prose** — a ruling recorded
+   as narrative has no mechanical consequence, because no later step reads narrative
+   back; the template's "Per-task artifacts required before PR" section carries the
+   slot for exactly these lines.
 4. **Concurrency doctrine** — the repo's conflict hotspots (name actual paths) and the
    rebase/merge rules (see Execute below), written down because the next session won't
    have watched this session's conflicts happen.
@@ -134,8 +138,14 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    `git worktree add .worktrees/task-<N> -b task-<N>-<slug> origin/main` — the branch
    starts at the `origin/main` tip, which does **not** contain the spec yet; the spec
    is authored on this branch, after the claim. Make the claim the branch's FIRST
-   commit — board card → In Progress plus the spec number's directory (a stub claims
-   the number) — and push immediately (`git push -u origin <branch>`), so in-flight
+   commit — board card → In Progress, the spec number's directory (a stub claims the
+   number), **and the link**: run `spec-bridge:link` against that stub so the card
+   carries its machine-findable Spec marker from this same commit (a stub spec dir
+   suffices — the bridge derives "planning" from it). The link rides the claim because
+   the bridge's Stop gate is the mechanism that blocks a linked task's status from
+   exceeding its spec artifacts — armed only after the spec cycle it protects, it is
+   disarmed by exactly the skip it exists to catch; armed here, it holds from the
+   branch's first commit. Then push immediately (`git push -u origin <branch>`), so in-flight
    work is auditable from any clone; never force-push a claim. A rejected push means
    you lost the race: fetch and re-read the board and `specs/`; if another session now
    holds that task or number, STOP the lane and surface it to the operator; on an
@@ -145,8 +155,31 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    the force-push a claim forbids; rebasing an already-pushed claim would). One task,
    one worktree, one branch, one PR — subtasks are commits, never their own PRs.
 3. Spec Kit cycle (specify → clarify only if ambiguous → plan → tasks), authored in the
-   worktree on the claimed branch — commits on top of the claim.
-4. `spec-bridge:link` the spec to the board task BEFORE implementation.
+   worktree on the claimed branch — commits on top of the claim. The cycle's output is
+   **three named artifacts** in `specs/<NNN>-<slug>/`, each real before implementation
+   dispatches — the claim's stub reserved a number; it satisfies none of these:
+   - **`spec.md`** — the problem and the requirements, mapped to the board card's
+     acceptance criteria. If it says nothing about what "done" means beyond the card's
+     title, it is still a stub.
+   - **`plan.md`** — the how, checked against the host constitution. Constitution
+     absent or unratified (an unfilled template)? State that plainly in plan.md and
+     plan against the project's grounding docs (`docs/wiki/`, CLAUDE.md, README)
+     instead — never treat the plan step as ceremony because the checker it expects is
+     missing.
+   - **`tasks.md`** — phased checkboxes. This is the file the bridge derives phase ACs
+     and status from, so the phases must be real work breakdown, not one catch-all box.
+   All three committed on the claimed branch before any implementation dispatch. The
+   detail here is the obligation, same as the claim step's: a session that executes the
+   claim's mechanics precisely and reads this cycle as advisory ships exactly the
+   degradation this step exists to prevent (field case: two tasks of a twelve-task
+   sweep shipped claim-stub spec.md only — no plan.md, no tasks.md — and nothing
+   noticed until a human did).
+4. **Complete the link the claim armed:** run `spec-bridge:link` in update mode now
+   that tasks.md exists — it seeds/refreshes the card's phase acceptance criteria from
+   tasks.md's phases — and verify the claim's Spec marker survived on the card (other
+   sessions move the board while branches sit). Still BEFORE implementation: the
+   bridge can only hold status to what the artifacts prove if it knows what the
+   phases are.
 5. Dispatch implementation to the host's implementer agent at the runbook's tier —
    **passing the runbook's explicit model ID on the dispatch call** (the Agent tool's
    `model` param, or the host's equivalent), never relying on session-model
@@ -293,7 +326,11 @@ branch/worktree findings from blocking to info, with the pause cited as evidence
 ## Output gate
 
 Prove the sweep before declaring it: every scoped task **Done on the board via its own
-merged PR**; every project gate green on main; grounding fresh (wiki pins current,
+merged PR**; every scoped task's `specs/NNN-*/` **contains `spec.md` + `plan.md` +
+`tasks.md`, or the runbook records an operator-signed escape line naming the task and
+what stands in for the artifacts** — whatever sanctions a substitute (a host's recorded
+hand-authored-specs precedent included) enters the sweep as such a line, never as a
+second mechanism; every project gate green on main; grounding fresh (wiki pins current,
 downstream doc freshness checks passing); `git worktree list` shows no stale sweep
 worktrees; the runbook's execution log complete and its status flipped to done. Anything
 short of that is reported as exactly what remains, not rounded up.

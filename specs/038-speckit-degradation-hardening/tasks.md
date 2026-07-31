@@ -7,12 +7,12 @@
 
 ## Implement
 
-- [ ] T002 SKILL.md step 3 names spec.md/plan.md/tasks.md with claim-step specificity, incl. absent/unratified-constitution handling (R1)
-- [ ] T003 SKILL.md step 2 claim commit carries the link (marker on card, stub dir suffices, gate armed from first commit); step 4 repurposed to link completion (phase-AC seeding + marker verify), numbering stable (R2)
-- [ ] T004 templates/runbook.md gains "Per-task artifacts required before PR" section with escape-line slot (R3)
-- [ ] T005 Output gate adds the blessed spec+plan+tasks-or-recorded-escape-line clause, composing with TASK-79 (R4)
-- [ ] T006 doctrine sentence: Lane-0 decisions that change the per-task loop land as checkable runbook gate lines, not prose (R5)
-- [ ] T007 version bumps: sweep skill 0.13.0 + marketplace via sync-version.mjs (R7)
+- [x] T002 SKILL.md step 3 names spec.md/plan.md/tasks.md with claim-step specificity, incl. absent/unratified-constitution handling (R1)
+- [x] T003 SKILL.md step 2 claim commit carries the link (marker on card, stub dir suffices, gate armed from first commit); step 4 repurposed to link completion (phase-AC seeding + marker verify), numbering stable (R2)
+- [x] T004 templates/runbook.md gains "Per-task artifacts required before PR" section with escape-line slot (R3)
+- [x] T005 Output gate adds the blessed spec+plan+tasks-or-recorded-escape-line clause, composing with TASK-79 (R4)
+- [x] T006 doctrine sentence: Lane-0 decisions that change the per-task loop land as checkable runbook gate lines, not prose (R5)
+- [x] T007 version bumps: sweep skill 0.13.0 + marketplace via sync-version.mjs (R7)
 
 ## Prove
 

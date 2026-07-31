@@ -59,6 +59,32 @@ dispatch (one-way escalation only; escalations are operator checkpoints).
 - {{gate 2 — e.g. same-PR amendment of <reference doc>, status flips, pin bumps}}
 - {{re-ground obligations — wiki refresh triggers, downstream doc freshness checks}}
 
+## Per-task artifacts required before PR
+
+Per-TASK obligations — the per-PR gates above are project machinery; this section is
+what every scoped task must have produced. **No PR opens for a task until each line
+below checks true for it.** The sweep's Output gate re-checks the first line for every
+scoped task at the end.
+
+- [ ] `specs/{{NNN}}-{{slug}}/` carries a real `spec.md` (problem + requirements mapped
+      to the card's ACs), `plan.md` (constitution-checked — or stating plainly that the
+      constitution is absent/unratified and planning against the grounding docs), and
+      `tasks.md` (phased checkboxes the bridge derives from), committed on the task's
+      branch — **or** an operator-signed escape line below names the task and what
+      stands in for the artifacts. A claim stub reserves the number; it satisfies
+      nothing here.
+- [ ] The card carries its Spec marker from the claim commit (`spec-bridge:link`
+      against the stub), and phase ACs are seeded from tasks.md (link update mode)
+      before implementation dispatch.
+- **Escape lines (operator-signed only):** {{one line per excused task, naming the task
+  and the stand-in — e.g. "TASK-<n>: hand-authored spec set per host precedent —
+  signed <operator> <date>" — or "none"}}
+- {{HOST_ADDITIONS — host-specific per-task artifact obligations, or "none"}}
+
+<!-- Lane-0/precondition rulings that change the per-task loop are written HERE as
+     checkable lines, never only as prose in the state snapshot — narrative is not
+     read back by any later step; gate lines are. -->
+
 ## Concurrency & conflict doctrine
 
 - **Hotspots:** {{actual paths concurrent work fights over}}
