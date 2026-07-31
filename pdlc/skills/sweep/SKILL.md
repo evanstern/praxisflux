@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.16.0
+version: 0.17.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -357,10 +357,10 @@ steps change:
   syncs and the runbook status flip — have no next branch to ride, so they land via a
   small **wrap-up PR**.
 
-This composes with the two-track landing rule TASK-85 will plant (board/bookkeeping
-commits direct to `main`, deliverables by PR): in this mode the board track's "direct to
-`main`" degrades to rides-the-next-branch / wrap-up PR, while the deliverable track is
-unchanged. Field provenance: the 2026-07-30/31 sweep runbooks
+This composes with the two-track landing rule the planted `pdlc:peer:backlog` grounding
+block carries (board/bookkeeping commits direct to `main`, deliverables by PR): in this
+mode the board track's "direct to `main`" degrades to rides-the-next-branch / wrap-up PR,
+while the deliverable track is unchanged. Field provenance: the 2026-07-30/31 sweep runbooks
 (`docs/design/speckit-degradation-runbook.md`, `docs/design/board-cost-test-runbook.md`).
 
 ### Operator checkpoints — never proceed silently past

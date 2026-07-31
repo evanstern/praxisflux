@@ -7,6 +7,7 @@ import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { parseFrontmatter } from "../lib/markdown.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "CLAUDE.md"), "utf8");
@@ -36,14 +37,61 @@ test("pdlc is a registered plugin with a resolving lib symlink", () => {
 test("bootstrap SKILL.md has the frontmatter the bump gate keys on", () => {
   const skill = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
   assert.match(skill, /^---\nname: bootstrap\nversion: \d+\.\d+\.\d+\n/);
+  assert.match(skill, /^description: \S/m, "description (the trigger surface) must be present");
 });
 
-// --- refactor-triage skill (spec 033) ---
+// --- refactor-triage skill (spec 033; deepened per spec 047) ---
 
-test("refactor-triage SKILL.md has the frontmatter the bump gate keys on", () => {
+test("refactor-triage SKILL.md has the frontmatter the bump gate keys on and the full phase skeleton", () => {
   const skill = readFileSync(join(repo, "pdlc", "skills", "refactor-triage", "SKILL.md"), "utf8");
-  assert.match(skill, /^---\nname: refactor-triage\nversion: \d+\.\d+\.\d+\n/);
-  assert.match(skill, /^description: \S/m, "description (the trigger surface) must be present");
+  const fm = parseFrontmatter(skill);
+  assert.equal(fm.name, "refactor-triage");
+  assert.match(fm.version, /^\d+\.\d+\.\d+$/);
+  assert.ok(fm.description && fm.description.length > 0, "description (the trigger surface) must be present");
+  // The new-plugin standard's four sections, mapped onto this skill's actual phases —
+  // a gutted phase (engine orchestration, triage record, the Execute contract) drops a
+  // header along with the prose, so this fails loud instead of the tests staying green.
+  for (const section of [
+    "## Precondition gate",
+    "## Phase 1 — SCOPE",
+    "## Phase 2 — EVALUATE",
+    "## Phase 3 — TRIAGE",
+    "## Phase 4 — EXECUTE",
+    "## Output gate",
+    "## Handing off",
+  ]) assert.ok(skill.includes(section), `SKILL.md missing "${section}"`);
+});
+
+test("refactor-triage phase-content anchors: triage-record path, backlog-CLI-only Execute, lens framing", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "refactor-triage", "SKILL.md"), "utf8");
+  assert.match(
+    skill, /docs\/reviews\/refactor-triage-<run-id>\.md/,
+    "the tracked triage-record path template must be named",
+  );
+  assert.match(
+    skill, /via the `backlog` CLI/,
+    "Phase 4 must state the backlog-CLI-only Execute contract",
+  );
+  assert.match(
+    skill, /lens parameter/,
+    "the team-review lens framing must be named",
+  );
+});
+
+test("refactor-triage and team-review agree on the docs/reviews/team-review-<run-id>.md spelling", () => {
+  const rt = readFileSync(join(repo, "pdlc", "skills", "refactor-triage", "SKILL.md"), "utf8");
+  const tr = readFileSync(join(repo, "team-review", "skills", "team-review", "SKILL.md"), "utf8");
+  const PATH_RE = /docs\/reviews\/team-review-<[^>]+>\.md/g;
+  const rtMatches = [...rt.matchAll(PATH_RE)].map((m) => m[0]);
+  const trMatches = [...tr.matchAll(PATH_RE)].map((m) => m[0]);
+  assert.ok(rtMatches.length > 0, "refactor-triage SKILL.md must name the tracked report path");
+  assert.ok(trMatches.length > 0, "team-review SKILL.md must name the tracked report path");
+  assert.ok(rtMatches.every((m) => m === rtMatches[0]), "refactor-triage must spell the path consistently");
+  assert.ok(trMatches.every((m) => m === trMatches[0]), "team-review must spell the path consistently");
+  assert.equal(
+    rtMatches[0], trMatches[0],
+    "both skills must spell the shared docs/reviews/team-review-<run-id>.md template identically",
+  );
 });
 
 test("refactor-triage names all three entry modes and carries an output gate", () => {
