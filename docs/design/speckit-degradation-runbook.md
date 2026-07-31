@@ -8,7 +8,7 @@ PR → merge → re-ground. Direction is decided; do not re-litigate it: the boa
 were hand-moved to Done, undetected end to end), the five-cause diagnosis, and seven ACs.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-07-31 (PR #104 review; AC #4 wording blessed as recommended; model pin gains the opus-4.8 fallback)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -53,7 +53,10 @@ commit, and do not let this sweep's own PR open without spec+plan+tasks in specs
 ## Execution lanes (dependency-ordered)
 
 **Lane 1 (the only lane) — TASK-84:**
-- **TASK-84 (default implementer · model `claude-opus-5`, Agent param `opus` — doctrine
+- **TASK-84 (default implementer · model `claude-opus-5`, fallback `claude-opus-4-8`
+  where the executing subscription lacks Opus 5 (operator ruling 2026-07-31 — the Agent
+  `opus` param resolves to the subscription's available Opus; record which actually ran
+  in the dispatch note and the log), Agent param `opus` — doctrine
   prose on a procedural skill, no code; the most intricate of the sweep-skill edits
   (seven ACs, a step restructure, a template section, an Output-gate widening, a
   non-contradiction proof against TASK-79) but still prose against a precise spec;
@@ -81,7 +84,12 @@ work as a second fresh implementer IF the first ends heavy; otherwise one dispat
 covers both, recorded in the log's notes slot either way.
 
 **Model pinning is mandatory at every dispatch:** pass `opus` explicitly on the Agent
-call; record tier + model ID + justification on the board task at dispatch.
+call; record tier + model ID + justification on the board task at dispatch. The pinned
+ID is `claude-opus-5` with recorded fallback `claude-opus-4-8` when Opus 5 is
+unavailable in the executing subscription (operator ruling 2026-07-31) — pinning is
+about never inheriting the session model, not about failing a dispatch the
+subscription can serve one price-equivalent step down; record the model that actually
+served the dispatch.
 
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 
@@ -138,6 +146,9 @@ call; record tier + model ID + justification on the board task at dispatch.
   task and what stands in for the artifacts" — 79 later makes the host-precedent case a
   standard instance of that line. Operator may bless this wording or supply their own at
   sign-off; the answer binds the implementer.
+  → **Blessed at sign-off (operator, 2026-07-31): the recommended wording stands
+  verbatim. Same ruling added the model-pin fallback: `claude-opus-4-8` when
+  `claude-opus-5` is unavailable in the executing subscription.**
 - If any session claims TASK-79 mid-sweep → STOP and surface (same-file collision).
 - Tier/model escalation (e.g. to `claude-fable-5` if the seven-AC interlock defeats the
   opus implementer); lane amendments (amend this file, note why, tell the operator).
