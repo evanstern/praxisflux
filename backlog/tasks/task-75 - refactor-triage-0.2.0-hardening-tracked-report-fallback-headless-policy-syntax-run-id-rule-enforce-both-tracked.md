@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 16:48'
+updated_date: '2026-07-31 16:53'
 labels:
   - debt
 dependencies: []
@@ -34,4 +34,13 @@ Spec: specs/040-refactor-triage-hardening
 - [ ] #3 run-id minting rule stated for both engine and degraded modes
 - [ ] #4 output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)
 - [ ] #5 skill version 0.2.0 + marketplace bump; gates green
+- [x] #6 Spec phase: Spec
+- [ ] #7 Spec phase: Implement
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: skill-contract prose with a cross-plugin path contract, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+<!-- SECTION:NOTES:END -->
