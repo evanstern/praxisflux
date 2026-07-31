@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 0323b7722d7a272377ad39cf3e47fbf18ae1a86d
+verified_against: 490e9027a62c41990238fa36bef9f49c489bebca
 ---
 
 # pdlc plugin

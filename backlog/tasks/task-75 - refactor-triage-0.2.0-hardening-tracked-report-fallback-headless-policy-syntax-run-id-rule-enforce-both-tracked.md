@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 17:21'
+updated_date: '2026-07-31 17:25'
 labels:
   - debt
 dependencies: []
@@ -36,7 +36,7 @@ Spec: specs/040-refactor-triage-hardening
 - [x] #5 skill version 0.2.0 + marketplace bump; gates green
 - [x] #6 Spec phase: Spec
 - [x] #7 Spec phase: Implement
-- [x] #8 Spec phase: Prove
+- [ ] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -47,4 +47,6 @@ Spec: specs/040-refactor-triage-hardening
 Implemented skill 0.2.0 (R1-R5): version-independent tracked-copy check + fallback and inline report home (R1), --policy arg + third README example + headless-vs-operator detection rule (R2), run-id minting rule where run-id is introduced, kept modular for TASK-80 (R3), output gate enforces evaluation-report trackedness (R4), skill 0.1.0->0.2.0 + marketplace lockstep 0.44.0->0.45.0 via sync-version.mjs (R5). Wiki: amended+re-pinned pdlc-refactor-triage.md (description untouched, no CAPSULES regen); RE-PIN-ONLY re-pinned 11 lockstep siblings past the stamp. Gates green (node --test 252/0, check-docs, freshness 34, version-bump). Commits 7211356, 9cc6e36, 22da4bb, 7ad11f6. Note: session was launched pinned to the task-74 worktree (Edit/Write misrouted there); did all file writes in task-75 via git-cwd tooling, touched no sibling worktree.
 
 Version correction: 0.45.0 was released by a sibling sweep task mid-flight (tag v0.45.0), so re-synced to the next free minor 0.46.0 (commits 0323b77 re-stamp, 0033c88 re-pin). Pre-push version-bump gate: 0.44.0 -> 0.46.0 ok.
+
+spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 2/3 (T009 pending merge)
 <!-- SECTION:NOTES:END -->

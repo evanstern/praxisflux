@@ -3,11 +3,11 @@ id: TASK-74
 title: >-
   pdlc enumeration drift: planted template, plugin/marketplace descriptions,
   root README row still teach a two-verb pdlc
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 17:13'
+updated_date: '2026-07-31 17:25'
 labels:
   - debt
 dependencies: []
@@ -45,4 +45,12 @@ Spec: specs/041-pdlc-enumeration-drift
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: multi-surface consistency edit incl. CLAUDE.md re-plant and wiki re-verification. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
 
 2026-07-31 impl (dispatch): R1-R5 landed in 3f9c5f7 (surfaces+version 0.45.0+re-plant) and 815defa (wiki re-ground). All enumerating surfaces now teach three-verb pdlc (bootstrap/sweep/refactor-triage). Re-plant carried no hand edits (diff was version header + pdlc bullet only). overview.md prose amended+re-pinned; 11 sibling notes re-pinned (RE-PIN-ONLY); reorient/team-review quote unchanged skill versions. Gates green: node --test 252/0, check-docs, freshness 34 fresh, version-bump 0.44->0.45. AC #1-5,7,8 checked; T009/status left for orchestrator sync.
+
+spec-bridge sync: Spec: 2/2 · Implement: 5/5 · Prove: 3/3 — status In Progress → Done (PR #109, merge e004e79)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 5/5 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
