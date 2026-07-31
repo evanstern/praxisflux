@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-28 14:59'
-updated_date: '2026-07-31 12:38'
+updated_date: '2026-07-31 12:46'
 labels:
   - debt
 dependencies: []
@@ -69,4 +69,6 @@ Spec: specs/038-speckit-degradation-hardening
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch record (runbook Lane 1): tier=default implementer, model=claude-opus-5 with operator-ruled fallback claude-opus-4-8 (subscription lacks Opus 5) — Agent param opus resolves to the available Opus; actual model recorded post-dispatch. Doctrine prose, no code; escalation to fable is a checkpoint. Orchestrator: sweep session e38ecfe5.
+
+2026-07-31 (TASK-79 cross-ref): R4 shipped — the sweep Output gate now requires every scoped task's specs/NNN-*/ to contain spec+plan+tasks OR an operator-signed escape line in the runbook naming the task and its stand-in. Verified non-contradictory with TASK-79's planned hand-authored-specs hatch: 79 widens what the precondition gate permits; when exercised, its recorded sanction lands as an instance of R4's escape line (template section 'Per-task artifacts required before PR'), not a competing mechanism — the two compose.
 <!-- SECTION:NOTES:END -->

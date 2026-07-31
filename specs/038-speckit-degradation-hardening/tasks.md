@@ -16,7 +16,7 @@
 
 ## Prove
 
-- [ ] T008 TASK-79 ↔ TASK-84 cross-referenced (append-notes both cards); non-contradiction verification recorded (R6)
+- [x] T008 TASK-79 ↔ TASK-84 cross-referenced (append-notes both cards); non-contradiction verification recorded (R6)
 - [x] T009 docs/wiki/pdlc-sweep.md re-verified (NEEDS-REVIEW); summary-style split executed within budgets; INDEX/CAPSULES updated; lockstep siblings RE-PIN-ONLY (R7)
 - [ ] T010 gates green in worktree (node --test, check-docs, freshness, version-bump); PR opened only with real spec+plan+tasks present (this task's own rule)
 - [ ] T011 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
