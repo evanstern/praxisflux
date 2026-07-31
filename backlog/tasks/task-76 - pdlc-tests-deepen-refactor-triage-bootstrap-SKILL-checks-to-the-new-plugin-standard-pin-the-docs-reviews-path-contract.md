@@ -3,11 +3,11 @@ id: TASK-76
 title: >-
   pdlc tests: deepen refactor-triage/bootstrap SKILL checks to the new-plugin
   standard; pin the docs/reviews path contract
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 18:08'
+updated_date: '2026-07-31 18:17'
 labels:
   - debt
 dependencies:
@@ -45,4 +45,12 @@ Spec: specs/047-pdlc-test-deepening
 2026-07-31 dispatch (board-cost-test sweep): tier sonnet, pinned claude-sonnet-5 via .claude/agents/sonnet-implementer.md agent definition (operator-approved at runbook sign-off, PR #108). Justification: test-authoring to an existing sibling standard (new-plugin.test.mjs), mechanical. Grouping call: single dispatch covers Implement+Prove.
 
 2026-07-31 implementation (dispatched sonnet-implementer, worktree task-76): R1-R4 landed in test/pdlc.test.mjs — refactor-triage frontmatter test now parses via chassis parseFrontmatter and asserts the full phase skeleton (Precondition gate, Phase 1-4, Output gate, Handing off); new phase-content-anchor test pins the triage-record path template, the backlog-CLI-only Execute contract, and the lens-framing token; new cross-plugin test extracts docs/reviews/team-review-<run-id>.md from both refactor-triage's and team-review's SKILL.md and asserts identical spelling; bootstrap frontmatter test gained the description assertion. No SKILL prose touched, no version bump. Amended docs/wiki/test-suite-catalog-plugins-gates.md's pdlc bullet for the deepened coverage and re-pinned to 3c43c4a. Gates green: node --test (254 pass), check-docs, freshness.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done (PR #116, merge 9c560c0)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->

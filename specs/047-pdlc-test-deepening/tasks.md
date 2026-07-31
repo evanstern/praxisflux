@@ -16,4 +16,4 @@
 
 - [x] T006 test-suite-catalog-plugins-gates note amended for the deepened coverage + re-pinned; freshness green
 - [x] T007 gates green in worktree (node --test, check-docs, freshness); re-run after any history move
-- [ ] T008 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T008 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged

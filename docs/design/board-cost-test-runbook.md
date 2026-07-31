@@ -15,7 +15,7 @@ asked for an end-of-sweep token/cost analysis against the sweep-dat-board baseli
 "Cost instrumentation" below — the baseline numbers are embedded there so the comparison
 survives any one session).
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-31 (PR #108 review — lanes as authored, sonnet pins on TASK-76/78, and TASK-77 close-as-not-needed all approved)
+**Status:** done · operator sign-off on lanes: 2026-07-31 (PR #108 review — lanes as authored, sonnet pins on TASK-76/78, and TASK-77 close-as-not-needed all approved) · completed: 2026-07-31 (PRs #109–#117 + close PR, v0.45.0–v0.51.0)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -278,6 +278,55 @@ notes re-verified (not mechanically re-pinned), CAPSULES current; no stale sweep
 worktrees (incl. the inherited `sweep-close-84`); this file's log complete with
 tokens/cost actuals, the Cost analysis section appended, and status flipped to done.
 
+## Cost analysis (sweep close, 2026-07-31) — vs the sweep-dat-board baseline
+
+Method identical to the baseline post-mortem: every transcript (orchestrator session,
+9 implementer dispatches, 4 killed false-starts) parsed from its JSONL, usage deduped
+by message id, priced at published list rates (opus-4-8 $5/$25, sonnet-5 $3/$15,
+fable-5 $10/$50 per MTok; cache reads 0.1× input, cache writes 1.25×).
+
+| bucket | model | reqs | cache-read tok | output tok | cost |
+|---|---|---|---|---|---|
+| Orchestrator (this session) | claude-fable-5 | 342 | 118.6M | 361k | **$184.17** |
+| 7 opus implementers (74,75,79,80,85,89,90) | claude-opus-4-8 | 299 | 26.3M | 305k | **$25.60** |
+| 2 sonnet implementers (76,78) | claude-sonnet-5 | 77 | 6.4M | 51k | **$3.41** |
+| 4 killed false-starts (model-wiring probes) | claude-fable-5 | 6 | 0.09M | 2.6k | **$1.41** |
+| **Total** | | **724** | **151.4M** | **720k** | **$214.60** |
+
+**Headline: $214.60 vs $1,192.57 baseline — an 82% reduction, well under the
+post-mortem's ~$350–450 projection.** Per merged PR: ~$23.85 (9 PRs) vs the baseline's
+~$85 per dispatch (14 dispatches, $1,192).
+
+**Lever verdicts:**
+- **Model pinning (TASK-86): WORKS — but only via agent definitions.** The Agent tool
+  `model:` param was silently ignored in this harness (three dispatches served by
+  fable-5, killed within seconds; explicit IDs rejected by the param enum). The fix:
+  project agent definitions `.claude/agents/{opus,sonnet}-implementer.md` with `model:`
+  frontmatter (committed in this PR), registered via plugin reload, **served model
+  verified from the transcript before siblings launch**. Cost of discovering this:
+  $1.41. Counterfactual: the same implementer token profile at fable rates ≈ $58 —
+  pinning saved ~2× on the implementer slice.
+- **Task-scoped fresh dispatches (TASK-87): the biggest lever.** One fresh implementer
+  per task (Implement+Prove grouped, recorded), re-grounded from spec artifacts: 26–62
+  requests/task at ~100–130k average context vs the baseline's 699 requests at ~427k.
+  Implementer share of spend fell from 84% ($1,007) to 13.5% ($29.01).
+- **Turn hygiene (TASK-88): visible.** Implementer output per request ~800–1,650
+  tokens (consolidated slices) vs the baseline's ~300-token micro-turns.
+- **Orchestrator session boundaries (TASK-88): NOT applied — and it now dominates.**
+  This orchestrator ran one continuous fable-5 session: 342 requests averaging ~347k
+  cache-read each (~$0.54/tool-call context tax), 86% of total spend ($184 — almost
+  exactly the baseline orchestrator's $185, unchanged because none of the shipped
+  levers target it). **The next cost lever is orchestration-side:** end the session at
+  lane boundaries and resume from runbook+board as doctrine prescribes, and/or run the
+  orchestrator itself at opus tier (same profile ≈ $92).
+
+**Caveats, stated honestly:** different repo (praxisflux vs promptworld), doctrine-prose
+tasks vs code-heavy tasks, 9 PRs vs the baseline's 14 dispatches over 12 tasks; figures
+are API-list-equivalent computed from transcripts (same caveat as the baseline re:
+seat-based subscription marginal cost). The baseline artifact: "Anatomy of a $1,192
+sweep" (claude.ai artifact b869ffef-a3e5-4a6e-8b1b-9384aa826abe); its numbers are
+embedded in the Cost instrumentation section above.
+
 ## Execution log
 
 Multi-phase dispatch stays visible in `notes` — one slot, never a second table: while
@@ -295,4 +344,5 @@ carries best-effort actuals from the harness/transcript.
 | 2026-07-31 | TASK-78 | #114 | 6adfbb8 | implementer (claude-sonnet-5 via sonnet-implementer agent def — first sonnet-tier dispatch) ~118k subagent tokens, 59 tool calls | wiki-only, no bump: catalog split (parent + gates 5744 + pipeline 2688), pdlc-refactor-triage description 487→441, sweep cross-claims de-specified to wikilink |
 | 2026-07-31 | TASK-85 | #115 | dc20221 | implementer (claude-opus-4-8 via opus-implementer agent def) ~110k subagent tokens, 40 tool calls | two-track landing rule planted (derived from reason-to-approve, with no-main-push degradation); bootstrap 0.8.0, sweep 0.16.0, v0.50.0; pdlc-plugin NEEDS-REVIEW amended, 12 siblings RE-PIN-ONLY; carried TASK-78 row closure |
 | 2026-07-31 | TASK-76 | #116 | 9c560c0 | implementer (claude-sonnet-5 via sonnet-implementer agent def) ~92k subagent tokens, 37 tool calls | test-only, no bump: parseFrontmatter + 7-header skeleton, three phase anchors, cross-plugin docs/reviews path pin, bootstrap description assertion; 252→254 tests; carried TASK-85 board closure |
-| 2026-07-31 | TASK-79 | — | — | in flight (implementation complete, reconciling with main) | phases: Spec+Implement+Prove done (opus-4-8, single dispatch); ~96k subagent tokens, 36 tool calls; hatch as escape-line instance + gate-softening rule; re-targeting sweep 0.17.0, v0.51.0 |
+| 2026-07-31 | TASK-79 | #117 | cebbe9b | implementer (claude-opus-4-8 via opus-implementer agent def) ~96k subagent tokens, 36 tool calls | hand-authored-specs hatch as escape-line instance + gate-softening-is-a-runbook-amendment rule; sweep skill 0.17.0 (re-targeted past 85's parallel 0.16.0), v0.51.0; pdlc-sweep NEEDS-REVIEW amended, 11 siblings RE-PIN-ONLY; carried TASK-76 row closure |
+| 2026-07-31 | TASK-77 | — (decision-only, escape line PR #108) | — | n/a | closed as not-needed per operator decision at sign-off: two clean triage runs against the card's own evidence bar, zero hampers; decision + citations on the card; re-card on a demonstrated hamper |
