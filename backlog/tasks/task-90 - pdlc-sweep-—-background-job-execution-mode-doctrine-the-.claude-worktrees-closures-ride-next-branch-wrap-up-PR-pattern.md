@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:40'
+updated_date: '2026-07-31 17:48'
 labels:
   - pdlc-sweep
 dependencies:
@@ -31,13 +31,11 @@ Spec: specs/043-sweep-background-job-mode
 - [x] #1 sweep SKILL.md names the background-job/no-main-push execution mode (or records the sanctioned-deviation rule) covering worktree location, closure-rides-next-branch, wrap-up PR
 - [x] #2 step 2/9/10 wording acknowledges the mode instead of contradicting it
 - [x] #3 TASK-85 cross-referenced; wording reconciled, not implemented
-- [ ] #4 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
+- [x] #4 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 - [x] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -45,4 +43,6 @@ Spec: specs/043-sweep-background-job-mode
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: doctrine prose naming an execution mode this very sweep runs under; no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
 
 2026-07-31: cross-ref TASK-85 — its future two-track landing rule (board commits direct to main; deliverables by PR) is reconciled inside this task's background-job mode section (board track degrades to rides-next-branch / wrap-up PR in that mode). 85 not implemented here; a matching note was appended to TASK-85.
+
+2026-07-31 (Implement+Prove, opus-implementer): R1-R4 landed on task-90-sweep-background-job-mode. SKILL.md 0.14.0->0.15.0 gains a Background-job / no-main-push execution mode subsection (trigger + 3 substitutes + 2026-07-30/31 runbook provenance + TASK-85 two-track reconcile sentence); steps 2/9/10 point at it. Marketplace lockstep 0.47.0->0.48.0 (sync-version.mjs). pdlc-sweep.md amended (one-line mode mention, NEEDS-REVIEW) + re-pinned; pdlc-sweep-history.md RE-PIN reviewed (no amend, budget full); 11 lockstep notes RE-PIN-ONLY to the bump commit. Gates green: node --test 252/0, check-docs, freshness. TASK-85 cross-ref notes on both cards; 85 NOT implemented.
 <!-- SECTION:NOTES:END -->
