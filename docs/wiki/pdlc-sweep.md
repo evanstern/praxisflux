@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: a7b544fe6226f7f7cc2b7cbe8b68abd184283982
+verified_against: 7e688e4160ce69dd4ecbb46ed5c3131c34664a59
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -84,7 +84,7 @@ marker re-checked on the card at sweep end — AND its `specs/NNN-*/` containing
 spec+plan+tasks — **or the runbook records an operator-signed
 escape line naming the task and what stands in for the artifacts**; any sanctioned
 substitute (a host's hand-authored-specs precedent included) enters as such a line,
-never as a second mechanism.
+never as a second mechanism. The **precondition gate** defers to this same line: absent `.specify/` is acceptable only when a recorded host hand-authored-specs precedent stands as one such escape line.
 
 The doctrine accreted release by release — merge-drift gates 0.12.1, capsule-first
 orientation 0.14.0, paused lanes 0.25.0, pin-aware reconciliation 0.27.0, honest
@@ -92,7 +92,7 @@ re-pins 0.28.0, claim-step reconciliation 0.34.0, refactor-triage handoff 0.40.0
 ([[pdlc-refactor-triage]] as the post-sweep review), model-ID pinning 0.41.0,
 phase-scoped dispatch 0.42.0, cost levers 0.43.0, Spec-Kit degradation hardening
 0.44.0, doctrine-seam reconciliation 0.47.0, the background-job / no-main-push
-execution mode 0.48.0 — [[pdlc-sweep-history]] carries the
+execution mode 0.48.0, the two-track landing reference 0.50.0, the hand-authored-specs precondition hatch and the gate-softening-is-a-runbook-amendment rule 0.51.0 — [[pdlc-sweep-history]] carries the
 per-release detail, field cases, and the
 superseded conventions downstream hosts may have inherited.
 
