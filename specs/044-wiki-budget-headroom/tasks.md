@@ -15,4 +15,4 @@
 
 - [x] T005 all edited/new notes re-pinned; freshness + capsule/body budgets green
 - [x] T006 gates green in worktree (node --test incl. any note-count assertions, check-docs, freshness); re-run after any history move
-- [ ] T007 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T007 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
