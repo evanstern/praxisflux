@@ -287,3 +287,4 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-07-31 | TASK-74 | — | — | in flight | phases: Spec done; Implement+Prove dispatched as one (opus, recorded grouping call) |
