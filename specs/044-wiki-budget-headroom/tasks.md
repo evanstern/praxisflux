@@ -7,12 +7,12 @@
 
 ## Implement
 
-- [ ] T002 test-suite-catalog-plugins split summary-style per corpus-spec; every bullet in exactly one home; sources divided; INDEX updated; comfortable headroom in each note (R1)
-- [ ] T003 pdlc-refactor-triage description trimmed below ~480 chars (four-modes accuracy kept); CAPSULES regenerated in the same slice (R2)
-- [ ] T004 sweep cross-claims made gate-visible: de-specified to [[pdlc-sweep]] (preferred) or SKILL.md added to sources and prose verified (R3)
+- [x] T002 test-suite-catalog-plugins split summary-style per corpus-spec; every bullet in exactly one home; sources divided; INDEX updated; comfortable headroom in each note (R1)
+- [x] T003 pdlc-refactor-triage description trimmed below ~480 chars (four-modes accuracy kept); CAPSULES regenerated in the same slice (R2)
+- [x] T004 sweep cross-claims made gate-visible: de-specified to [[pdlc-sweep]] (preferred) or SKILL.md added to sources and prose verified (R3)
 
 ## Prove
 
-- [ ] T005 all edited/new notes re-pinned; freshness + capsule/body budgets green
-- [ ] T006 gates green in worktree (node --test incl. any note-count assertions, check-docs, freshness); re-run after any history move
+- [x] T005 all edited/new notes re-pinned; freshness + capsule/body budgets green
+- [x] T006 gates green in worktree (node --test incl. any note-count assertions, check-docs, freshness); re-run after any history move
 - [ ] T007 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged

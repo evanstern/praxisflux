@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 17:50'
+updated_date: '2026-07-31 17:58'
 labels:
   - debt
 dependencies: []
@@ -29,16 +29,18 @@ Spec: specs/044-wiki-budget-headroom
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 test-suite-catalog-plugins split summary-style with comfortable headroom; freshness green
-- [ ] #2 pdlc-refactor-triage description trimmed below ~480 chars; CAPSULES regenerated
-- [ ] #3 the note's sweep cross-claims are gate-visible (source added) or de-specified to the wikilink
+- [x] #1 test-suite-catalog-plugins split summary-style with comfortable headroom; freshness green
+- [x] #2 pdlc-refactor-triage description trimmed below ~480 chars; CAPSULES regenerated
+- [x] #3 the note's sweep cross-claims are gate-visible (source added) or de-specified to the wikilink
 - [x] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier sonnet, pinned claude-sonnet-5 via .claude/agents/sonnet-implementer.md agent definition (operator-approved at runbook sign-off, PR #108). Justification: mechanical corpus hygiene per docs/corpus-spec.md — split, trim, source fix; pattern exists, judgment small. Grouping call: single dispatch covers Implement+Prove.
+
+Implemented R1-R3. R1: test-suite-catalog-plugins (7629-char body) split summary-style into test-suite-catalog-plugins-gates (9 single-plugin output-gate bullets, 5744 chars) and test-suite-catalog-plugins-pipeline (7 content-pipeline/handoff bullets, 2688 chars); parent is now a 1317-char pointer note (sources: [] — no per-file claims, matches test-suite's precedent); INDEX.md updated with both children. R2: pdlc-refactor-triage description trimmed 487 -> 441 chars, four-entry-modes accuracy kept; CAPSULES.md regenerated. R3: de-specified the Handing-off prose to lean on [[pdlc-sweep]] instead of restating sweep-version specifics not in sources (preferred approach per spec). All notes re-pinned to 253e0a979a77df83ef234ddc2bfb89e175da6ef6. Gates green: node --test 252/252, check-docs clean, freshness OK (36 notes; one WARN on the new pointer note's empty sources, not a fail). No version bump (wiki-only). Commits: 253e0a9 (content), 0e41d47 (re-pins + capsules).
 <!-- SECTION:NOTES:END -->
