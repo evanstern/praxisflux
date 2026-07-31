@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:36'
+updated_date: '2026-07-31 17:37'
 labels:
   - pdlc-sweep
 dependencies:
@@ -32,4 +32,13 @@ Spec: specs/043-sweep-background-job-mode
 - [ ] #2 step 2/9/10 wording acknowledges the mode instead of contradicting it
 - [ ] #3 TASK-85 cross-referenced; wording reconciled, not implemented
 - [ ] #4 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
+- [x] #5 Spec phase: Spec
+- [ ] #6 Spec phase: Implement
+- [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: doctrine prose naming an execution mode this very sweep runs under; no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
+<!-- SECTION:NOTES:END -->
