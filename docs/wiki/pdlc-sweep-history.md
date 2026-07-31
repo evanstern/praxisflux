@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 32f2320ca4ff83edf8ce893927543bf2b5c021f6
+verified_against: cf047ef9bbd56e66be7644a0907b90f11357c620
 ---
 
 # pdlc:sweep — doctrine history
@@ -106,20 +106,23 @@ orchestrator context grows monotonically (field case: 172k→548k, the last fift
 costing as much as the first two-fifths).
 
 Since 0.44.0 (skill 0.13.0) the Spec Kit step cannot **degrade silently** (TASK-84;
-field case: two tasks of a twelve-task sweep shipped a claim-stub spec.md only — no
-plan.md, no tasks.md, no link — and passed every gate including the Output gate).
-Four fixes, one per cause: the **claim commit carries the spec-bridge link** (marker
-against the stub dir — the bridge's Stop gate armed from the branch's first commit,
-not after the spec cycle it protects, where skipping the cycle disarmed it); step 3
-names **`spec.md`/`plan.md`/`tasks.md`** with the claim step's mechanical register —
-what makes each real, committed on the claimed branch before implementation, incl.
-absent/unratified-constitution handling (state it plainly in plan.md, plan against
-the grounding docs — never ceremony); step 4 keeps its number as **link
-completion** (phase ACs seeded from tasks.md via update mode, marker verified); the
-template gains a **"Per-task artifacts required before PR"** section; and the
-**Output gate** requires every scoped task's `specs/NNN-*/` to contain
-spec+plan+tasks **or** an operator-signed escape line naming the task and its
-stand-in — any sanctioned substitute (a hand-authored-specs precedent included)
-enters as such a line, never a second mechanism. Companion doctrine: Lane-0 rulings
-that change the per-task loop land as checkable runbook gate lines, never only
-prose.
+field case: two of a twelve-task sweep shipped a claim-stub spec.md only — no plan.md,
+tasks.md, or link — yet passed every gate). Four fixes: the **claim commit carries the
+spec-bridge link** (marker against the stub — the bridge's Stop gate armed from the
+first commit, not after the spec cycle it protects, where skipping disarmed it); step 3
+names **`spec.md`/`plan.md`/`tasks.md`**, each real and committed before implementation
+(absent-constitution → plan against the grounding docs, not ceremony); step 4 is **link
+completion** (phase ACs seeded from tasks.md, marker verified); the template gains a
+**"Per-task artifacts required before PR"** section; and the **Output gate** requires
+each `specs/NNN-*/` to hold spec+plan+tasks **or** an operator-signed escape line
+naming the task and stand-in — never a second mechanism. Companion: Lane-0 rulings
+changing the per-task loop land as checkable runbook gate lines, not prose.
+
+Since 0.45.0 (skill 0.14.0) seven 035-038 stack seams reconcile (TASK-89): the
+**execution-log cadence** agrees (step 5 in-flight row per dispatch boundary, step 10
+closing row at merge); the skip-path drops "non-trivial" (only sanctioned skip = the
+escape line); the **Output gate** re-checks each scoped card's Spec marker at sweep end
+(template matched); the runbook gains a **fallback model ID** slot for
+subscription-unavailability plus which model served (operator ruling 2026-07-31); the
+template's escape-line section carries the **never-a-second-mechanism** clause; and two
+redundancies trim to one home each (context-read rationale, tier-note).

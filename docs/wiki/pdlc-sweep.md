@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 32f2320ca4ff83edf8ce893927543bf2b5c021f6
+verified_against: cf047ef9bbd56e66be7644a0907b90f11357c620
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -69,7 +69,9 @@ vs NEEDS-REVIEW — the merge commit being an honest re-pin's *target*, never it
 unconditionally.
 
 **Dispatch economics.** Tiers resolve to explicit model IDs at dispatch (a bare tier
-name silently inherits the session's model); implementation is **phase-scoped** — one
+name silently inherits the session's model), each with a fallback ID for
+subscription-unavailability and the model that actually served recorded at dispatch;
+implementation is **phase-scoped** — one
 fresh implementer per tasks.md phase, re-grounded from the phase handoff artifact set
 (spec dir, tick-state, branch commits), nothing passed via chat context; every
 dispatch prompt carries a **turn-hygiene block**; the execution log carries
@@ -77,8 +79,9 @@ tokens/cost actuals; the orchestrator SHOULD end its session at lane boundaries.
 
 **The Spec Kit step cannot degrade silently.** The claim-armed link, the named-artifact
 spec cycle, and the template's per-task-artifacts section (above) close the loop the
-**Output gate** proves: every scoped task Done via its own merged PR AND its
-`specs/NNN-*/` containing spec+plan+tasks — **or the runbook records an operator-signed
+**Output gate** proves: every scoped task Done via its own merged PR — its Spec
+marker re-checked on the card at sweep end — AND its `specs/NNN-*/` containing
+spec+plan+tasks — **or the runbook records an operator-signed
 escape line naming the task and what stands in for the artifacts**; any sanctioned
 substitute (a host's hand-authored-specs precedent included) enters as such a line,
 never as a second mechanism.
@@ -88,7 +91,8 @@ orientation 0.14.0, paused lanes 0.25.0, pin-aware reconciliation 0.27.0, honest
 re-pins 0.28.0, claim-step reconciliation 0.34.0, refactor-triage handoff 0.40.0
 ([[pdlc-refactor-triage]] as the post-sweep review), model-ID pinning 0.41.0,
 phase-scoped dispatch 0.42.0, cost levers 0.43.0, Spec-Kit degradation hardening
-0.44.0 — [[pdlc-sweep-history]] carries the per-release detail, field cases, and the
+0.44.0, doctrine-seam reconciliation 0.45.0 — [[pdlc-sweep-history]] carries the
+per-release detail, field cases, and the
 superseded conventions downstream hosts may have inherited.
 
 The runbook is the **session-portable contract**: a fresh session resumes the sweep from
