@@ -32,7 +32,8 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
 - [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
 - [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit)
-- [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine (pin-carrying branches merge, never rebase)
+- [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through claim+link → spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine and a per-task spec+plan+tasks-or-escape-line Output gate
+- [[pdlc-sweep-history]] — release-by-release doctrine history of the sweep skill: when each rule arrived, the field cases that forced it, and the superseded conventions downstream hosts may have inherited
 - [[pdlc-refactor-triage]] — the post-sweep debt-triage skill: evaluate merged work (range / whole-repo / headless+policy) via team-review's lens plus a range-only intent-drift pass, disposition every finding in a tracked triage record, card accepted findings as sweepable backlog tasks
 - [[team-review-plugin]] — lead-plus-subagent architecture review of a caller-supplied codebase; read-only, proven by an output gate over run records at the invoking root
 - [[reorient-plugin]] — corpus-grounded reorientation loop: N evaluator subagents under a stated lens, operator-steered rounds, cross-grounded analyses, one synthesis landing as board moves
