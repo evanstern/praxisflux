@@ -8,7 +8,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:07'
+updated_date: '2026-07-31 17:24'
 labels:
   - pdlc-sweep
 dependencies: []
@@ -34,26 +34,16 @@ Spec: specs/039-sweep-doctrine-consistency
 - [x] #4 Phase 1 item 2 gains the fallback-ID slot (record fallback for subscription-unavailability + which model actually served) (F4)
 - [x] #5 template escape-line section carries the never-a-second-mechanism clause (F6)
 - [x] #6 T1/T2 redundancies trimmed without dropping any spec-mandated rationale
-- [ ] #7 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
+- [x] #7 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 - [x] #8 Spec phase: Spec
-- [ ] #9 Spec phase: Implement
-- [ ] #10 Spec phase: Prove
+- [x] #9 Spec phase: Implement
+- [x] #10 Spec phase: Prove
 <!-- AC:END -->
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: doctrine prose on a procedural skill against a precise seven-finding list, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+
+2026-07-31 impl (opus-implementer, served claude-opus-4-8 — fallback per operator ruling 2026-07-31; note: harness launched this agent pinned to the task-74 worktree, switched into task-89 via EnterWorktree; Edit/Write tools stayed misrouted to task-74 so file edits were applied via Bash-driven exact string replacements): R1-R7 landed across SKILL.md + templates/runbook.md; skill 0.13.0->0.14.0, marketplace 0.44.0->0.45.0 (sync-version.mjs); pdlc-sweep.md + pdlc-sweep-history.md re-verified (NEEDS-REVIEW, amended, re-pinned; history kept to 7992/8000 by tightening the 0.44.0 entry); 11 lockstep notes re-pinned RE-PIN-ONLY (stamp-only). Gates green: node --test, check-docs, freshness (34 notes). Commits cf047ef, df2a0bc, e7da07c, 7defdc1.
 <!-- SECTION:NOTES:END -->

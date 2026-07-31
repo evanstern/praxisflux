@@ -13,10 +13,10 @@
 - [x] T005 F4: Phase 1 item 2 gains the fallback-ID slot (subscription-unavailability fallback + which model actually served), template slot matches (R4)
 - [x] T006 F6: template escape-line section carries the never-a-second-mechanism clause (R5)
 - [x] T007 T1/T2: doubled context-read rationale and tier-note obligation each stated once, no spec-mandated rationale dropped (R6)
-- [ ] T008 version bumps: sweep skill 0.13.0 → 0.14.0 + marketplace via sync-version.mjs at merge-readiness (R7)
+- [x] T008 version bumps: sweep skill 0.13.0 → 0.14.0 + marketplace via sync-version.mjs at merge-readiness (R7)
 
 ## Prove
 
-- [ ] T009 docs/wiki/pdlc-sweep.md re-verified against the diff (NEEDS-REVIEW); CAPSULES regenerated if description changed; lockstep siblings classified (R7)
-- [ ] T010 gates green in worktree (node --test, check-docs, freshness, version-bump); re-run after any history move
+- [x] T009 docs/wiki/pdlc-sweep.md re-verified against the diff (NEEDS-REVIEW); CAPSULES regenerated if description changed; lockstep siblings classified (R7)
+- [x] T010 gates green in worktree (node --test, check-docs, freshness, version-bump); re-run after any history move
 - [ ] T011 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
