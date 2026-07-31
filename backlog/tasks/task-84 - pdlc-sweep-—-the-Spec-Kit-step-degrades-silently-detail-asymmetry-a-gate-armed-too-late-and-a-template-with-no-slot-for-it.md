@@ -3,11 +3,11 @@ id: TASK-84
 title: >-
   pdlc:sweep — the Spec Kit step degrades silently: detail asymmetry, a gate
   armed too late, and a template with no slot for it
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-28 14:59'
-updated_date: '2026-07-31 12:48'
+updated_date: '2026-07-31 12:50'
 labels:
   - debt
 dependencies: []
@@ -50,12 +50,10 @@ Spec: specs/038-speckit-degradation-hardening
 - [x] #5 doctrine sentence: a precondition/Lane-0 decision that changes the per-task loop must be written as a checkable line in the runbook's gate section, not only as prose
 - [x] #6 TASK-79 and this task are cross-referenced and their fixes verified non-contradictory
 - [x] #7 skill version bump + marketplace bump; pdlc-sweep wiki note re-verified; gates green
-- [ ] #8 Spec phase: Spec
-- [ ] #9 Spec phase: Implement
-- [ ] #10 Spec phase: Prove
+- [x] #8 Spec phase: Spec
+- [x] #9 Spec phase: Implement
+- [x] #10 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -73,4 +71,12 @@ Spec: specs/038-speckit-degradation-hardening
 Dispatch record (runbook Lane 1): tier=default implementer, model=claude-opus-5 with operator-ruled fallback claude-opus-4-8 (subscription lacks Opus 5) — Agent param opus resolves to the available Opus; actual model recorded post-dispatch. Doctrine prose, no code; escalation to fable is a checkpoint. Orchestrator: sweep session e38ecfe5.
 
 2026-07-31 (TASK-79 cross-ref): R4 shipped — the sweep Output gate now requires every scoped task's specs/NNN-*/ to contain spec+plan+tasks OR an operator-signed escape line in the runbook naming the task and its stand-in. Verified non-contradictory with TASK-79's planned hand-authored-specs hatch: 79 widens what the precondition gate permits; when exercised, its recorded sanction lands as an instance of R4's escape line (template section 'Per-task artifacts required before PR'), not a competing mechanism — the two compose.
+
+spec-bridge sync: Spec: 2/2 · Implement: 6/6 · Prove: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 6/6 · Prove: 4/4). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
