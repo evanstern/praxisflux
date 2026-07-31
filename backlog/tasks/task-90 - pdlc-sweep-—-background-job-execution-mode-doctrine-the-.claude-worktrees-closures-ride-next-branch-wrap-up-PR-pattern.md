@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:37'
+updated_date: '2026-07-31 17:40'
 labels:
   - pdlc-sweep
 dependencies:
@@ -28,17 +28,21 @@ Spec: specs/043-sweep-background-job-mode
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 sweep SKILL.md names the background-job/no-main-push execution mode (or records the sanctioned-deviation rule) covering worktree location, closure-rides-next-branch, wrap-up PR
-- [ ] #2 step 2/9/10 wording acknowledges the mode instead of contradicting it
-- [ ] #3 TASK-85 cross-referenced; wording reconciled, not implemented
+- [x] #1 sweep SKILL.md names the background-job/no-main-push execution mode (or records the sanctioned-deviation rule) covering worktree location, closure-rides-next-branch, wrap-up PR
+- [x] #2 step 2/9/10 wording acknowledges the mode instead of contradicting it
+- [x] #3 TASK-85 cross-referenced; wording reconciled, not implemented
 - [ ] #4 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 - [x] #5 Spec phase: Spec
 - [ ] #6 Spec phase: Implement
 - [ ] #7 Spec phase: Prove
 <!-- AC:END -->
 
+
+
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: doctrine prose naming an execution mode this very sweep runs under; no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
+
+2026-07-31: cross-ref TASK-85 — its future two-track landing rule (board commits direct to main; deliverables by PR) is reconciled inside this task's background-job mode section (board track degrades to rides-next-branch / wrap-up PR in that mode). 85 not implemented here; a matching note was appended to TASK-85.
 <!-- SECTION:NOTES:END -->
