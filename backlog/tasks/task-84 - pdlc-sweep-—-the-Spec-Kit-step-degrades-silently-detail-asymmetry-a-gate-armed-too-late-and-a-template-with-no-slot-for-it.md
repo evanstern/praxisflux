@@ -3,9 +3,11 @@ id: TASK-84
 title: >-
   pdlc:sweep — the Spec Kit step degrades silently: detail asymmetry, a gate
   armed too late, and a template with no slot for it
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-28 14:59'
+updated_date: '2026-07-31 12:36'
 labels:
   - debt
 dependencies: []
@@ -15,6 +17,7 @@ ordinal: 119000
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Finding: observed live during a pdlc:sweep of infinitynode.media (12 debt tasks, runbook docs/design/debt-sweep-2026-07-28-runbook.md). The operator explicitly chose, at the sweep's Lane 0 precondition gate, to commit .specify/ and "run the full per-task Spec Kit cycle". Two tasks (TASK-1, TASK-4) nonetheless shipped with a claim-stub spec.md only — no plan.md, no tasks.md, no spec-bridge:link, and both were moved to Done by the backlog CLI directly rather than derived by spec-bridge:sync. Nothing in the sweep detected this, at any point, including its own Output gate.
 
@@ -33,6 +36,9 @@ Diagnosis — four upstream causes, in the order they let the failure through:
 5. OPERATOR DECISIONS RECORDED AS PROSE, NOT AS OBLIGATIONS. The Lane 0 ruling was written into the runbook as narrative ("Operator chose (a)"). No later step reads it back, so a decision that changes the per-task loop had no mechanical consequence.
 
 Host-side contributor, NOT this task's scope: infinitynode.media's .specify/memory/constitution.md was an unfilled template, so speckit-plan had no constitution to check against, which made the plan step read as pure ceremony. Carded in that project separately. It aggravated the failure but none of causes 1-4 depend on it — the same degradation would occur in a host with a ratified constitution.
+<!-- SECTION:DESCRIPTION:END -->
+
+Spec: specs/038-speckit-degradation-hardening
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
