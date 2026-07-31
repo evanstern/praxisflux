@@ -3,9 +3,10 @@ id: TASK-77
 title: >-
   team-review orient.mjs --since: range-aware orientation (durable card for the
   TASK-72 deferral)
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-27 16:26'
+updated_date: '2026-07-31 18:17'
 labels:
   - debt
 dependencies: []
@@ -23,5 +24,17 @@ Evidence: the range-aware orient.mjs follow-up is named as a 'possible evidence-
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 decision recorded: build --since (with the evidence cited) or close as not-needed after N runs
+- [x] #1 decision recorded: build --since (with the evidence cited) or close as not-needed after N runs
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Decision recorded (operator sign-off, PR #108 review, 2026-07-31): CLOSE AS NOT-NEEDED. The card's own evidence bar — a refactor-triage run demonstrably hampered by orient.mjs's whole-repo-only view — has two clean counter-datapoints (runs praxis-2026-07-27-16-07-29 at ~7k lines repo scale, praxis-2026-07-31-11-12-22 range-scoped) and zero observed hampers. Re-card on a demonstrated hamper. No orient.mjs --since built; TASK-80's last-run-at bookkeeping (merged PR #112) covers the adjacent scoping need without touching the engine.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Closed as not-needed by operator decision (2026-07-31, runbook PR #108 sign-off): two clean triage runs against the card's own evidence bar, zero observed hampers. Decision + citations recorded in notes; re-card on a demonstrated hamper.
+<!-- SECTION:FINAL_SUMMARY:END -->

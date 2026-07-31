@@ -15,4 +15,4 @@
 
 - [x] T005 docs/wiki/pdlc-sweep.md re-verified against the diff (NEEDS-REVIEW, budget-aware); lockstep siblings classified
 - [x] T006 gates green in worktree (node --test, check-docs, freshness, version-bump); re-run after any history move
-- [ ] T007 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged
+- [x] T007 board finalized (ACs checked, Done via spec-bridge:sync, final summary); merged

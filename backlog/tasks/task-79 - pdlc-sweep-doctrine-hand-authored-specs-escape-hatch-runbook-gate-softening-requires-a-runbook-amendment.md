@@ -3,11 +3,11 @@ id: TASK-79
 title: >-
   pdlc:sweep doctrine: hand-authored-specs escape hatch; runbook-gate softening
   requires a runbook amendment
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 18:06'
+updated_date: '2026-07-31 18:17'
 labels:
   - debt
 dependencies: []
@@ -47,4 +47,12 @@ Spec: specs/045-sweep-hand-authored-specs-hatch
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: doctrine prose composing with TASK-84's escape-line mechanism; no code. Grouping call: single dispatch covers Implement+Prove.
 
 2026-07-31 implement+prove (dispatched, opus-implementer): R1 precondition gate carves the recorded-precedent case as ONE escape-line instance (TASK-84 clause cited); no template touch — slot example already implies host-precedent sanction. R2 gate-softening = runbook-amendment-plus-ping rule added to operator checkpoints (specs/033 case cited). R3 sweep skill 0.15.0->0.16.0, marketplace 0.49.0->0.50.0 via sync-version.mjs. Wiki: pdlc-sweep.md amended+re-pinned (NEEDS-REVIEW); pdlc-sweep-history.md reviewed (prose intact, 0.50.0 entry precluded by over-budget) + 11 lockstep siblings RE-PIN-ONLY, all re-pinned to de324a7. Gates green: node --test 252 pass, check-docs, freshness 34 fresh. Commits de324a7, 8df4691. NOT merged; T007/status left for close.
+
+spec-bridge sync: Spec: 2/2 · Implement: 3/3 · Prove: 3/3 — status In Progress → Done (PR #117, merge cebbe9b)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 3/3 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
