@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 17:32'
-updated_date: '2026-07-31 17:28'
+updated_date: '2026-07-31 17:31'
 labels:
   - pdlc
 dependencies: []
@@ -28,4 +28,13 @@ Spec: specs/042-refactor-triage-last-run-at
 - [ ] #1 Every refactor-triage run writes a machine-findable last-run-at commit id into its tracked triage record (format documented in the skill)
 - [ ] #2 Scope phase supports 'since last triage': resolves the latest record's last-run-at to <id>..HEAD, verifies the range resolves, and stops with a clear message when no prior record exists
 - [ ] #3 Skill version bumped per docs/releasing.md; node --test and check-docs green; wiki note pdlc-refactor-triage re-verified against the diff and re-pinned
+- [x] #4 Spec phase: Spec
+- [ ] #5 Spec phase: Implement
+- [ ] #6 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition (Agent tool model param proven unreliable this session — see runbook). Justification: skill-contract prose insertions into a settled surface, no code. Grouping call: single dispatch covers Implement+Prove (TASK-84 precedent).
+<!-- SECTION:NOTES:END -->
