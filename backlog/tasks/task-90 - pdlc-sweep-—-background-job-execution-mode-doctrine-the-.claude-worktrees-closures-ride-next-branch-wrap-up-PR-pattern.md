@@ -3,11 +3,11 @@ id: TASK-90
 title: >-
   pdlc:sweep — background-job execution mode: doctrine the .claude/worktrees +
   closures-ride-next-branch + wrap-up-PR pattern
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:48'
+updated_date: '2026-07-31 17:54'
 labels:
   - pdlc-sweep
 dependencies:
@@ -45,4 +45,12 @@ Spec: specs/043-sweep-background-job-mode
 2026-07-31: cross-ref TASK-85 — its future two-track landing rule (board commits direct to main; deliverables by PR) is reconciled inside this task's background-job mode section (board track degrades to rides-next-branch / wrap-up PR in that mode). 85 not implemented here; a matching note was appended to TASK-85.
 
 2026-07-31 (Implement+Prove, opus-implementer): R1-R4 landed on task-90-sweep-background-job-mode. SKILL.md 0.14.0->0.15.0 gains a Background-job / no-main-push execution mode subsection (trigger + 3 substitutes + 2026-07-30/31 runbook provenance + TASK-85 two-track reconcile sentence); steps 2/9/10 point at it. Marketplace lockstep 0.47.0->0.48.0 (sync-version.mjs). pdlc-sweep.md amended (one-line mode mention, NEEDS-REVIEW) + re-pinned; pdlc-sweep-history.md RE-PIN reviewed (no amend, budget full); 11 lockstep notes RE-PIN-ONLY to the bump commit. Gates green: node --test 252/0, check-docs, freshness. TASK-85 cross-ref notes on both cards; 85 NOT implemented.
+
+spec-bridge sync: Spec: 2/2 · Implement: 4/4 · Prove: 3/3 — status In Progress → Done (PR #113, merge da3e615)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 4/4 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
