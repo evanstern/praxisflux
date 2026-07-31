@@ -1,6 +1,6 @@
 ---
 name: refactor-triage
-version: 0.2.0
+version: 0.3.0
 description: Evaluate a body of merged work — a post-sweep commit range or the whole repo — for tech debt and intent drift, triage every finding with the operator (accept / reject / defer, rationale recorded), and execute accepted findings onto the Backlog board as cited, labeled, immediately sweepable debt tasks. Use when the user wants to "triage the merged work", "evaluate for tech debt", "card the debt", run a "post-sweep review" or "refactor triage", asks what debt or drift a sweep left behind, or a harness invokes it headless with a scope plus a declared triage policy. Orchestrates team-review:team-review as the evaluation engine when installed (inline eval pass when absent); team-review itself is unchanged.
 ---
 
@@ -46,7 +46,7 @@ rationale, written so the next run never re-litigates a decision already made.
 
 ## Phase 1 — SCOPE
 
-Three entry modes decide what gets evaluated and how dispositions get made:
+Four entry modes decide what gets evaluated and how dispositions get made:
 
 - **(a) Range** — `--range xxx..yyy`. The post-sweep case: the range is the sweep's
   merged work, and the sweep runbook + merged PR specs exist as the intent record.
@@ -64,6 +64,14 @@ Three entry modes decide what gets evaluated and how dispositions get made:
   policy gets an operator, not a guess. The policy MUST be recorded verbatim in the
   triage record — the record is the only place a later reader can learn how dispositions
   were made.
+- **(d) Since last triage** — no explicit range: resolve the scope from history. Locate
+  the newest triage record in `docs/reviews/` (by the run-id timestamp convention Phase 2
+  defines), extract its `last-run-at` commit id (the machine-findable line every record
+  carries — see Phase 3), and verify both `git rev-parse <id>` and that `<id>..HEAD`
+  resolves. On success, scan `<id>..HEAD` as a range run (unlocking the intent-drift
+  pass). On any failure — no prior record, no `last-run-at` line, or an unresolvable id
+  (garbage-collected or malformed) — **STOP** with a clear message naming what is
+  missing; never guess a range or fall back to whole-repo.
 
 State the resolved scope and mode before evaluating; in range mode, list the intent
 artifacts found.
@@ -121,6 +129,14 @@ scope and mode, the evaluation report's path, the policy (headless) or "operator
 the board task it became. **Headless mode applies the declared policy instead of
 conversation** and records the policy plus every per-finding disposition in the same
 record — a headless run leaves the same paper trail an operator walk does.
+
+**High-water mark (`last-run-at`).** The record MUST also carry, exactly once, a
+machine-findable `last-run-at: <commit id>` line — a fixed-prefix line whose value is the
+**full 40-char commit id the scan reached**: the resolved right endpoint of the scanned
+range (`git rev-parse <range-end>`) in range mode, or HEAD at scan time
+(`git rev-parse HEAD`) in whole-repo mode. It must be the full hash — short ids rot. This
+is the durable high-water mark the Scope phase's "since last triage" entry (Phase 1)
+extracts to scope `<id>..HEAD` for the next run.
 
 ## Phase 4 — EXECUTE
 
