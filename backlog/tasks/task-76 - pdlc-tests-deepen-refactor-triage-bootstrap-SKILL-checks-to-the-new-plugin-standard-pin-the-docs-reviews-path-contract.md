@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 18:03'
+updated_date: '2026-07-31 18:06'
 labels:
   - debt
 dependencies:
@@ -30,14 +30,16 @@ Spec: specs/047-pdlc-test-deepening
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 refactor-triage SKILL tests assert the four-section skeleton and parse frontmatter via parseFrontmatter
-- [ ] #2 phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing present
-- [ ] #3 a test pins refactor-triage's and team-review's docs/reviews path spelling to agree
-- [ ] #4 bootstrap frontmatter test gains the description assertion; node --test green
+- [x] #1 refactor-triage SKILL tests assert the four-section skeleton and parse frontmatter via parseFrontmatter
+- [x] #2 phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing present
+- [x] #3 a test pins refactor-triage's and team-review's docs/reviews path spelling to agree
+- [x] #4 bootstrap frontmatter test gains the description assertion; node --test green
 - [x] #5 Spec phase: Spec
 - [ ] #6 Spec phase: Implement
 - [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 

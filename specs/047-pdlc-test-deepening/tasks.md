@@ -7,10 +7,10 @@
 
 ## Implement
 
-- [ ] T002 refactor-triage SKILL tests: four-section skeleton + parseFrontmatter (raw key-order regex gone) (R1)
-- [ ] T003 phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing (R2)
-- [ ] T004 cross-plugin test pins refactor-triage ↔ team-review docs/reviews path spelling agreement (R3)
-- [ ] T005 bootstrap frontmatter test gains the description assertion (R4)
+- [x] T002 refactor-triage SKILL tests: four-section skeleton + parseFrontmatter (raw key-order regex gone) (R1)
+- [x] T003 phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing (R2)
+- [x] T004 cross-plugin test pins refactor-triage ↔ team-review docs/reviews path spelling agreement (R3)
+- [x] T005 bootstrap frontmatter test gains the description assertion (R4)
 
 ## Prove
 
