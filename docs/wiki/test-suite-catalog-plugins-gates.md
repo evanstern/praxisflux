@@ -12,7 +12,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: 253e0a979a77df83ef234ddc2bfb89e175da6ef6
+verified_against: 3c43c4afedff0e04d75977beabf3697e7e385b26
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -35,17 +35,26 @@ seam involved. One bullet per `test/*.test.mjs` file:
   fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
   and notes outside git, note untouched).
 - `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin
-  registration + bootstrap SKILL frontmatter, template markers well-formed and carrying
-  the 101 principles from `docs/principles.md`, `renderGrounding` token substitution with
-  non-opted peer blocks stripped; planting fresh/append/idempotent, a drifted block never
-  overwritten without `--force` (the sentinel doesn't advance past drift), peer-change
-  drift, `--check` writing nothing and exiting 1 while pending; the `peersOmitted` trace
-  (sentinel field, one stderr notice per omitted peer, legacy sentinels stay readable);
-  the `resolveProjectName` ladder — override > recorded > worktree gitdir parse >
-  basename — so worktree plants render the PRIMARY checkout's name and re-plants from
-  either side stay unchanged, never drifted; and the refactor-triage skill shape (spec
-  033) — frontmatter the bump gate keys on, the three entry modes + declared-policy
-  headless rule + output gate present, sweep's Handing off naming refactor-triage.
+  registration + bootstrap SKILL frontmatter (name/version/description, the last
+  backported from the refactor-triage pattern below — spec 047), template markers
+  well-formed and carrying the 101 principles from `docs/principles.md`,
+  `renderGrounding` token substitution with non-opted peer blocks stripped; planting
+  fresh/append/idempotent, a drifted block never overwritten without `--force` (the
+  sentinel doesn't advance past drift), peer-change drift, `--check` writing nothing and
+  exiting 1 while pending; the `peersOmitted` trace (sentinel field, one stderr notice
+  per omitted peer, legacy sentinels stay readable); the `resolveProjectName` ladder —
+  override > recorded > worktree gitdir parse > basename — so worktree plants render the
+  PRIMARY checkout's name and re-plants from either side stay unchanged, never drifted;
+  and the refactor-triage skill shape (spec 033, deepened to the new-plugin standard by
+  spec 047) — frontmatter parsed via the chassis `parseFrontmatter` (not a key-order
+  regex) plus the full phase skeleton (`## Precondition gate` through the four numbered
+  phases, `## Output gate`, `## Handing off`) so a gutted phase drops a header and fails
+  loud; phase-content anchors pinning the triage-record path template
+  (`docs/reviews/refactor-triage-<run-id>.md`), the backlog-CLI-only Execute contract,
+  and the team-review lens framing; the three entry modes + declared-policy headless
+  rule; sweep's Handing off naming refactor-triage; and a cross-plugin test extracting
+  the `docs/reviews/team-review-<run-id>.md` path template from both refactor-triage's
+  and team-review's own SKILL.md and asserting they still spell it identically.
 - `test/phase-status.test.mjs` — the opt-in phase-grain status vocabulary (additive to the
   spec-derive/spec-bridge suites): the five-stage derivation ladder (specifying →
   planning → implementing → validating → reviewing, incl. single-phase tasks.md and

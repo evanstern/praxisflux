@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 18:06'
+updated_date: '2026-07-31 18:08'
 labels:
   - debt
 dependencies:
@@ -35,14 +35,14 @@ Spec: specs/047-pdlc-test-deepening
 - [x] #3 a test pins refactor-triage's and team-review's docs/reviews path spelling to agree
 - [x] #4 bootstrap frontmatter test gains the description assertion; node --test green
 - [x] #5 Spec phase: Spec
-- [ ] #6 Spec phase: Implement
-- [ ] #7 Spec phase: Prove
+- [x] #6 Spec phase: Implement
+- [x] #7 Spec phase: Prove
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier sonnet, pinned claude-sonnet-5 via .claude/agents/sonnet-implementer.md agent definition (operator-approved at runbook sign-off, PR #108). Justification: test-authoring to an existing sibling standard (new-plugin.test.mjs), mechanical. Grouping call: single dispatch covers Implement+Prove.
+
+2026-07-31 implementation (dispatched sonnet-implementer, worktree task-76): R1-R4 landed in test/pdlc.test.mjs — refactor-triage frontmatter test now parses via chassis parseFrontmatter and asserts the full phase skeleton (Precondition gate, Phase 1-4, Output gate, Handing off); new phase-content-anchor test pins the triage-record path template, the backlog-CLI-only Execute contract, and the lens-framing token; new cross-plugin test extracts docs/reviews/team-review-<run-id>.md from both refactor-triage's and team-review's SKILL.md and asserts identical spelling; bootstrap frontmatter test gained the description assertion. No SKILL prose touched, no version bump. Amended docs/wiki/test-suite-catalog-plugins-gates.md's pdlc bullet for the deepened coverage and re-pinned to 3c43c4a. Gates green: node --test (254 pass), check-docs, freshness.
 <!-- SECTION:NOTES:END -->
