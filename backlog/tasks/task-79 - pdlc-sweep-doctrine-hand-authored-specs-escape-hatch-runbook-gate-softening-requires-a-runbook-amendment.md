@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 17:56'
+updated_date: '2026-07-31 18:06'
 labels:
   - debt
 dependencies: []
@@ -29,12 +29,12 @@ Spec: specs/045-sweep-hand-authored-specs-hatch
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 sweep precondition gate states the hand-authored-specs escape hatch and its recording requirement
-- [ ] #2 concurrency/checkpoint doctrine states the runbook-amendment rule for gate softening
-- [ ] #3 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
+- [x] #1 sweep precondition gate states the hand-authored-specs escape hatch and its recording requirement
+- [x] #2 concurrency/checkpoint doctrine states the runbook-amendment rule for gate softening
+- [x] #3 skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green
 - [x] #4 Spec phase: Spec
-- [ ] #5 Spec phase: Implement
-- [ ] #6 Spec phase: Prove
+- [x] #5 Spec phase: Implement
+- [x] #6 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -45,4 +45,6 @@ Spec: specs/045-sweep-hand-authored-specs-hatch
 2026-07-31 (TASK-84 cross-ref): TASK-84 shipped R4's escape-line Output gate (sweep skill 0.13.0, marketplace 0.44.0): every scoped task's specs/NNN-*/ must contain spec+plan+tasks OR the runbook must record an operator-signed escape line naming the task and what stands in for the artifacts. Non-contradiction verified: TASK-79 widens what the precondition gate PERMITS (hand-authored specs when .specify/ is absent, recorded in the runbook), and R4's wording already reads that recorded sanction as one INSTANCE of the escape line — so implement AC #1's recording requirement as exactly such an escape line in the runbook's 'Per-task artifacts required before PR' section, never as a second mechanism.
 
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-4-8 via .claude/agents/opus-implementer.md agent definition. Justification: doctrine prose composing with TASK-84's escape-line mechanism; no code. Grouping call: single dispatch covers Implement+Prove.
+
+2026-07-31 implement+prove (dispatched, opus-implementer): R1 precondition gate carves the recorded-precedent case as ONE escape-line instance (TASK-84 clause cited); no template touch — slot example already implies host-precedent sanction. R2 gate-softening = runbook-amendment-plus-ping rule added to operator checkpoints (specs/033 case cited). R3 sweep skill 0.15.0->0.16.0, marketplace 0.49.0->0.50.0 via sync-version.mjs. Wiki: pdlc-sweep.md amended+re-pinned (NEEDS-REVIEW); pdlc-sweep-history.md reviewed (prose intact, 0.50.0 entry precluded by over-budget) + 11 lockstep siblings RE-PIN-ONLY, all re-pinned to de324a7. Gates green: node --test 252 pass, check-docs, freshness 34 fresh. Commits de324a7, 8df4691. NOT merged; T007/status left for close.
 <!-- SECTION:NOTES:END -->
