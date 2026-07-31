@@ -8,7 +8,7 @@ PR → merge → re-ground. Direction is decided; do not re-litigate it: the boa
 were hand-moved to Done, undetected end to end), the five-cause diagnosis, and seven ACs.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-07-31 (PR #104 review; AC #4 wording blessed as recommended; model pin gains the opus-4.8 fallback)
+**Status:** done · operator sign-off on lanes: 2026-07-31 (PR #104 review; AC #4 wording blessed as recommended; model pin gains the opus-4.8 fallback) · completed: 2026-07-31 (PR #105, v0.44.0)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -166,3 +166,4 @@ complete and status flipped to done.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-07-31 | TASK-84 | #105 | 9d66742 | implementer (opus per subscription — Opus 5 unavailable, opus-4.8 fallback per operator ruling) ~107k subagent tokens, 40 tool calls | link-in-claim + artifact-named step 3 + per-task-artifacts template section + escape-line Output gate; v0.44.0 + skill 0.13.0; wiki split (pdlc-sweep 6,102 + pdlc-sweep-history 7,705), 11 siblings RE-PIN-ONLY; TASK-79 cross-ref'd, non-contradiction recorded; single dispatch covered Implement+Prove (recorded grouping call) |
