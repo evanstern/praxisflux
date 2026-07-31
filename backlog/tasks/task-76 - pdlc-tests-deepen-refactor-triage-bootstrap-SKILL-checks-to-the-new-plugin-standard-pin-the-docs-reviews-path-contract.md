@@ -3,9 +3,11 @@ id: TASK-76
 title: >-
   pdlc tests: deepen refactor-triage/bootstrap SKILL checks to the new-plugin
   standard; pin the docs/reviews path contract
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-27 16:26'
+updated_date: '2026-07-31 18:02'
 labels:
   - debt
 dependencies:
@@ -22,6 +24,8 @@ Finding: refactor-triage run praxis-2026-07-27-16-07-29 — triage record docs/r
 Evidence: test/pdlc.test.mjs:41-63 — the three TASK-72 tests enforce four tokens and two headers; phases 2–4 of the skill (R3–R6: engine orchestration, triage record path, the Execute contract) could be gutted with tests green. Sibling standard test/new-plugin.test.mjs:67-73 asserts the full four-section skeleton and uses parseFrontmatter (the pdlc tests use a raw regex pinned to exact key order). The cross-skill path contract (refactor-triage SKILL.md:74 hardcodes team-review's docs/reviews/team-review-<run-id>.md — team-review/skills/team-review/SKILL.md:30) is pinned by no test. The new description assertion (test/pdlc.test.mjs:46) was never backported to the bootstrap test (:36-39).
 
 Depends on TASK-75: the hardened 0.2.0 prose is what the deepened tests should pin — write them after it lands.
+
+Spec: specs/047-pdlc-test-deepening
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

@@ -1,0 +1,3 @@
+# 047-pdlc-test-deepening — claim stub
+
+Claimed by the board-cost-test sweep (TASK-76). Real spec/plan/tasks follow on this branch.
