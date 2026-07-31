@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:26'
-updated_date: '2026-07-31 18:02'
+updated_date: '2026-07-31 18:03'
 labels:
   - debt
 dependencies:
@@ -34,4 +34,13 @@ Spec: specs/047-pdlc-test-deepening
 - [ ] #2 phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing present
 - [ ] #3 a test pins refactor-triage's and team-review's docs/reviews path spelling to agree
 - [ ] #4 bootstrap frontmatter test gains the description assertion; node --test green
+- [x] #5 Spec phase: Spec
+- [ ] #6 Spec phase: Implement
+- [ ] #7 Spec phase: Prove
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-07-31 dispatch (board-cost-test sweep): tier sonnet, pinned claude-sonnet-5 via .claude/agents/sonnet-implementer.md agent definition (operator-approved at runbook sign-off, PR #108). Justification: test-authoring to an existing sibling standard (new-plugin.test.mjs), mechanical. Grouping call: single dispatch covers Implement+Prove.
+<!-- SECTION:NOTES:END -->
