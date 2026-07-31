@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-27 16:25'
-updated_date: '2026-07-31 16:53'
+updated_date: '2026-07-31 17:18'
 labels:
   - debt
 dependencies: []
@@ -29,18 +29,20 @@ Spec: specs/040-refactor-triage-hardening
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Evaluate phase states the tracked-copy check + manual-copy fallback (no version coupling)
-- [ ] #2 headless mode has a named policy argument, a README example, and a detection rule
-- [ ] #3 run-id minting rule stated for both engine and degraded modes
-- [ ] #4 output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)
-- [ ] #5 skill version 0.2.0 + marketplace bump; gates green
+- [x] #1 Evaluate phase states the tracked-copy check + manual-copy fallback (no version coupling)
+- [x] #2 headless mode has a named policy argument, a README example, and a detection rule
+- [x] #3 run-id minting rule stated for both engine and degraded modes
+- [x] #4 output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)
+- [x] #5 skill version 0.2.0 + marketplace bump; gates green
 - [x] #6 Spec phase: Spec
-- [ ] #7 Spec phase: Implement
-- [ ] #8 Spec phase: Prove
+- [x] #7 Spec phase: Implement
+- [x] #8 Spec phase: Prove
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: skill-contract prose with a cross-plugin path contract, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
+
+Implemented skill 0.2.0 (R1-R5): version-independent tracked-copy check + fallback and inline report home (R1), --policy arg + third README example + headless-vs-operator detection rule (R2), run-id minting rule where run-id is introduced, kept modular for TASK-80 (R3), output gate enforces evaluation-report trackedness (R4), skill 0.1.0->0.2.0 + marketplace lockstep 0.44.0->0.45.0 via sync-version.mjs (R5). Wiki: amended+re-pinned pdlc-refactor-triage.md (description untouched, no CAPSULES regen); RE-PIN-ONLY re-pinned 11 lockstep siblings past the stamp. Gates green (node --test 252/0, check-docs, freshness 34, version-bump). Commits 7211356, 9cc6e36, 22da4bb, 7ad11f6. Note: session was launched pinned to the task-74 worktree (Edit/Write misrouted there); did all file writes in task-75 via git-cwd tooling, touched no sibling worktree.
 <!-- SECTION:NOTES:END -->
