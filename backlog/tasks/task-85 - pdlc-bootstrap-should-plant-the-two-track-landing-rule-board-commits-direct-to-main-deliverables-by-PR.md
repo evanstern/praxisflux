@@ -3,10 +3,11 @@ id: TASK-85
 title: >-
   pdlc:bootstrap should plant the two-track landing rule: board commits direct
   to main, deliverables by PR
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-28 15:06'
-updated_date: '2026-07-31 17:40'
+updated_date: '2026-07-31 17:54'
 labels:
   - debt
 dependencies: []
@@ -27,6 +28,8 @@ Evidence:
 The bootstrap block is the right home because it is the always-on grounding: it is what makes the rule apply when no skill has triggered, and it is refreshed wholesale on plugin update, so hosts stay in sync.
 
 Note the interaction with the one-task-one-PR principle (TASK-32 encoded TASK<->PR granularity as foundational): the two-track rule does not weaken it. A board card is not a deliverable and carries no reviewable decision — the planted CLAUDE.md already says a PR "exists only where it carries a stated reason for a human to approve ... never a diff for its own sake". Making board commits direct is that principle applied, not an exception to it. The wording should say so, so the two rules are not read as being in tension.
+
+Spec: specs/046-two-track-landing-rule
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
