@@ -4,11 +4,11 @@ title: >-
   pdlc:sweep doctrine consistency after the 035-038 stack: log cadence,
   skip-path qualifier, lost-link Output gate, model fallback slot, template
   parity, trims
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-31 15:22'
-updated_date: '2026-07-31 17:24'
+updated_date: '2026-07-31 17:36'
 labels:
   - pdlc-sweep
 dependencies: []
@@ -46,4 +46,12 @@ Spec: specs/039-sweep-doctrine-consistency
 2026-07-31 dispatch (board-cost-test sweep): tier default-implementer, pinned claude-opus-5, fallback claude-opus-4-8 per operator ruling 2026-07-31 (Agent param opus; subscription resolves — record actual). Justification: doctrine prose on a procedural skill against a precise seven-finding list, no code. Grouping call: single dispatch covers Implement+Prove (small interlocked phases; TASK-84 precedent); second fresh dispatch only if the first ends heavy.
 
 2026-07-31 impl (opus-implementer, served claude-opus-4-8 — fallback per operator ruling 2026-07-31; note: harness launched this agent pinned to the task-74 worktree, switched into task-89 via EnterWorktree; Edit/Write tools stayed misrouted to task-74 so file edits were applied via Bash-driven exact string replacements): R1-R7 landed across SKILL.md + templates/runbook.md; skill 0.13.0->0.14.0, marketplace 0.44.0->0.45.0 (sync-version.mjs); pdlc-sweep.md + pdlc-sweep-history.md re-verified (NEEDS-REVIEW, amended, re-pinned; history kept to 7992/8000 by tightening the 0.44.0 entry); 11 lockstep notes re-pinned RE-PIN-ONLY (stamp-only). Gates green: node --test, check-docs, freshness (34 notes). Commits cf047ef, df2a0bc, e7da07c, 7defdc1.
+
+spec-bridge sync: Spec: 2/2 · Implement: 7/7 · Prove: 3/3 — status In Progress → Done (PR #111, merge da9e0d4)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Spec: 2/2 · Implement: 7/7 · Prove: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
