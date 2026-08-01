@@ -66,15 +66,17 @@ an unqualified "0 fail" while notes are staled has misread its own gate run: ver
 
 ## Phase 5: Re-plant, bump, re-ground
 
-- [ ] `node pdlc/scripts/plant.mjs --root . --peer backlog --check` run first; drift diffed
-- [ ] Any deliberate hand edits in this repo's block relocated outside the markers, never
-      clobbered (standing operator convention)
-- [ ] Re-plant with `--force`; `--check` then exits 0 reporting `claudeMd: unchanged`
-- [ ] `node scripts/sync-version.mjs <next>` at merge-readiness (0.51.0 → next free);
+- [x] `node pdlc/scripts/plant.mjs --root . --peer backlog --check` run first; drift diffed
+- [x] Any deliberate hand edits in this repo's block relocated outside the markers, never
+      clobbered (standing operator convention) — none found: the re-plant diff was pure
+      additions (no removals), so nothing was clobbered
+- [x] Re-plant with `--force`; `--check` then exits 0 reporting `claudeMd: unchanged`
+- [x] `node scripts/sync-version.mjs <next>` at merge-readiness (0.51.0 → 0.52.0);
       `--check` green
-- [ ] Freshness gate run; each staled pin classified against
+- [x] Freshness gate run; each staled pin classified against
       `git diff <old-pin>..HEAD -- <sources>` as RE-PIN-ONLY or NEEDS-REVIEW
-- [ ] `docs/wiki/pdlc-plugin.md` prose amended against the diff, then re-pinned
-- [ ] `docs/wiki/pdlc-sweep.md` prose amended against the diff, then re-pinned
-- [ ] `CAPSULES.md` regenerated if any note's `description:` changed
-- [ ] `node --test`, `node scripts/check-docs.mjs`, and the freshness gate all green
+- [x] `docs/wiki/pdlc-plugin.md` prose amended against the diff, then re-pinned
+- [x] `docs/wiki/pdlc-sweep.md` prose amended against the diff, then re-pinned
+- [x] `CAPSULES.md` regenerated if any note's `description:` changed — no `description:`
+      changed, so no regeneration needed
+- [x] `node --test`, `node scripts/check-docs.mjs`, and the freshness gate all green
