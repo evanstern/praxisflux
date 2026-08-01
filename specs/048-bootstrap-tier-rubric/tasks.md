@@ -4,6 +4,14 @@ Phased work breakdown. The spec-bridge derives the board card's phase acceptance
 its status from these headings and checkboxes, so the phases are real slices — each leaves the
 tree green and is committed before the next begins.
 
+**Read the per-phase "`node --test` green" boxes precisely.** The wiki freshness gate goes red
+the moment phase 1 edits a pinned source, and stays red until phase 5 re-pins — that is this
+repo's normal re-pin sequencing (re-pin only *after* the commit that touched the sources), not a
+regression. So from phase 1 through phase 4 those boxes mean **the suite minus
+`run-gates.test.mjs`'s repo-self-check**, which is phase 5's to turn green. A phase that reports
+an unqualified "0 fail" while notes are staled has misread its own gate run: verify with
+`node grounding-wiki/gates/cli.mjs freshness . docs/wiki` before claiming green.
+
 ## Phase 1: Plant the rubric
 
 - [x] Add `## Model tiers — who does what work` to `pdlc/templates/CLAUDE.md`, inside the
