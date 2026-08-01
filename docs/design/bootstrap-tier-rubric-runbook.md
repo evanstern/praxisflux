@@ -213,8 +213,10 @@ true.** The sweep's Output gate re-checks the first two lines at the end.
   delete+recreate a closed PR's head branch.
 - **Background-job execution pattern (this orchestrator runs as a background job; the
   recorded precedents are the 2026-07-30/31 runbooks, doctrined by TASK-90):** the task
-  worktree lives at `.claude/worktrees/task-91` (harness isolation root, entered via
-  `EnterWorktree`), not `.worktrees/`; board and spec commands run inside that worktree;
+  worktree lives at **`.worktrees/task-91`** — the operator's ratified path (TASK-92,
+  2026-08-01: all branch work in a worktree under the gitignored `<repo-root>/.worktrees/`,
+  root checkout stays on `main`), **not** the `.claude/worktrees/` harness-isolation path the
+  sweep skill's background-job mode names; board and spec commands run inside that worktree;
   post-merge closures (tasks.md ticks, `spec-bridge:sync`, this file's log row and status
   flip) have no next task's branch to ride — with one task in scope they land via the
   **wrap-up PR**.
