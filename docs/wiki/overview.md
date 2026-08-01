@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 3f9c5f7bf52d5acc1df0c06a9cc2e4af41fd9bd3
+verified_against: 3fcc5009
 ---
 
 # praxisflux — system overview
@@ -74,7 +74,11 @@ at the invoking root.
   praxisflux's recorded choice is **per-feature** — a course per shipped feature on request,
   snapshot-exempt from freshness (`docs/task-courses.md`).
 - The repo uses a PR flow: per-task branches pushed to `origin`
-  (`github.com:evanstern/praxisflux.git`), merged into `main` via `gh`.
+  (`github.com:evanstern/praxisflux.git`), merged into `main` via `gh` — with merge commits,
+  never squash, so `verified_against` pins stay reachable. Each such branch is checked out in
+  a **worktree** under the gitignored `.worktrees/`, never by switching the root checkout: the
+  root stays on `main` as the shared read surface every session reads the board, `specs/`, and
+  `docs/wiki/` from (`CLAUDE.md`, "Worktree discipline").
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's own
   `version:` — per `docs/releasing.md`; CI enforces it, and each merge to `main`
