@@ -45,16 +45,16 @@ tree green and is committed before the next begins.
 
 ## Phase 4: Pin the contract in tests
 
-- [ ] `test/pdlc.test.mjs` asserts the template carries the model-tier section inside the
+- [x] `test/pdlc.test.mjs` asserts the template carries the model-tier section inside the
       grounding markers
-- [ ] Asserts the section names the frontmatter-pinning mechanism (`.claude/agents`, `model:`)
+- [x] Asserts the section names the frontmatter-pinning mechanism (`.claude/agents`, `model:`)
       and cites the field case
-- [ ] Asserts the section names the agent-definition path as authoritative
-- [ ] Asserts the bootstrap skill instructs resolving IDs against the live harness
-- [ ] Assertions anchor on stable strings (paths, marker names, `model:`, the field-case date),
+- [x] Asserts the section names the agent-definition path as authoritative
+- [x] Asserts the bootstrap skill instructs resolving IDs against the live harness
+- [x] Assertions anchor on stable strings (paths, marker names, `model:`, the field-case date),
       never on full sentences — the test must survive a reword
-- [ ] Matches the existing plugin test standard (the file's template-content tests are the model)
-- [ ] `node --test` green
+- [x] Matches the existing plugin test standard (the file's template-content tests are the model)
+- [x] `node --test` green
 
 ## Phase 5: Re-plant, bump, re-ground
 
