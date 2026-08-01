@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-01 04:29'
-updated_date: '2026-08-01 14:26'
+updated_date: '2026-08-01 15:16'
 labels: []
 dependencies: []
 priority: medium
@@ -39,7 +39,22 @@ Spec: specs/048-bootstrap-tier-rubric
 - [ ] #2 Whatever bootstrap teaches names the pinning mechanism that actually holds: an explicit model ID in an agent definition's frontmatter, citing the 2026-07-31 field case where the dispatch-call model parameter was silently ignored
 - [ ] #3 pdlc:sweep's Phase 1 item 2 names where the rubric is expected to live for a bootstrapped project, so 'the host project's rubric' resolves to a defined location
 - [ ] #4 A test in test/pdlc.test.mjs pins the new bootstrap contract, matching the existing plugin test standard
+- [ ] #5 Spec phase: Plant the rubric
+- [ ] #6 Spec phase: Teach it in bootstrap
+- [ ] #7 Spec phase: Point sweep at it
+- [ ] #8 Spec phase: Pin the contract in tests
+- [ ] #9 Spec phase: Re-plant, bump, re-ground
 <!-- AC:END -->
+
+
+
+
+
+
+
+
+
+
 
 ## Implementation Notes
 
