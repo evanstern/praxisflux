@@ -35,13 +35,13 @@ tree green and is committed before the next begins.
 
 ## Phase 3: Point sweep at it
 
-- [ ] `pdlc/skills/sweep/SKILL.md` Phase 1 item 2 names where a bootstrapped project's rubric
+- [x] `pdlc/skills/sweep/SKILL.md` Phase 1 item 2 names where a bootstrapped project's rubric
       lives — the planted `## Model tiers` section and `.claude/agents/<tier>-implementer.md`
-- [ ] No change to sweep's dispatch procedure (that is TASK-97's scope)
-- [ ] Sweep skill `version:` 0.17.0 → 0.18.0
-- [ ] **Two-way contract verified by reading**: the location sweep names and the location
+- [x] No change to sweep's dispatch procedure (that is TASK-97's scope)
+- [x] Sweep skill `version:` 0.17.0 → 0.18.0
+- [x] **Two-way contract verified by reading**: the location sweep names and the location
       bootstrap plants to are the same — confirmed by reading both edits together
-- [ ] `node --test` and `node scripts/check-docs.mjs` green
+- [x] `node --test` and `node scripts/check-docs.mjs` green
 
 ## Phase 4: Pin the contract in tests
 
