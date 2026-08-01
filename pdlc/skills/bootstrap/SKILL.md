@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.8.0
+version: 0.9.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
 ---
 
@@ -87,6 +87,35 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
 4. Run the plant for real (same command without `--check`, plus `--force` only after the
    consent above). This writes the `CLAUDE.md` block, the `.pdlc` sentinel (version +
    resolved name + peer choices), and gitignores `.handoff/` — all idempotent.
+
+## Model-tier IDs — resolve before you trust them
+
+The planted block carries a `## Model tiers` section: a default tier→model ladder plus the
+rule that a tier's live pin is the `model:` in `.claude/agents/<tier>-implementer.md`'s
+frontmatter, not the dispatch-call parameter. Bootstrap plants that doctrine but **does not**
+write the agent definitions (a separate change with its own drift/consent semantics) — the
+operator authors them. Your job is to keep the IDs honest:
+
+1. **Resolve, never author from memory.** Model IDs date fast. The standing source for current
+   IDs is the **`claude-api` skill** — consult it at plant time and reconcile the planted
+   defaults (`claude-opus-5` default implementer, `claude-sonnet-5` mechanical,
+   `claude-opus-4-8` fallback) against what it reports. Resolve first, then plant.
+2. **Availability check = the harness's own agent-definition surface.** A tier's ID is
+   "available" only if this harness/subscription will accept it as `model:` in an agent
+   definition. An ID the harness rejects there is not available, whatever a table says.
+3. **Fallback when the primary is unavailable.** If the subscription does not surface a tier's
+   primary ID, use the documented fallback (`claude-opus-4-8`) and **record which model
+   actually served** — the 2026-07-31 operator ruling the sweep skill already carries. The
+   fallback slot exists for exactly this.
+
+**Refresh path — two doors, don't confuse them:**
+
+- **The planted doctrine** (the ladder and the mechanism) changes by re-running
+  `pdlc:bootstrap`: the block drifts → diff → consent → re-plant with `--force`, the same path
+  every other block change takes.
+- **A live pin** (which model a tier actually resolves to) changes by editing the `model:` line
+  in `.claude/agents/<tier>-implementer.md` — a plain tracked file **outside every marker**, no
+  drift, no `--force`. Superseding a model is a one-line edit there, not a re-plant.
 
 ## Output gate
 
