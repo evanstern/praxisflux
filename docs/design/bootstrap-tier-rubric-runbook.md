@@ -7,7 +7,7 @@ PR → merge → re-ground. Direction is decided; do not re-litigate it: the boa
 2026-07-31 board-cost-test field case). Plan-of-record is the board; this file carries
 only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-08-01 (lane as authored, the
+**Status:** done · completed 2026-08-01 (PR #122, merge `10bff49`, v0.52.0) · operator sign-off on lanes: 2026-08-01 (lane as authored, the
 `opus-implementer` pin, and the hand-authored-specs escape line all approved; AC #1
 answered **plant** with two added constraints, and the default IDs answered
 **latest-generation** — both recorded as gate lines below, not prose)
@@ -286,4 +286,4 @@ the orchestrator afterward. Default remains one-per-phase; this is the exception
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-08-01 | TASK-91 | — | — | ~59k subagent tokens (phases 1-2) | claim + spec cycle (048) + phase ACs seeded; **phases 1-2 done** (opus-implementer, served `claude-opus-4-8`, 15 tool calls); phases 3-4 dispatched |
+| 2026-08-01 | TASK-91 | [#122](https://github.com/evanstern/praxisflux/pull/122) | `10bff49` | ~264k subagent tokens across 3 dispatches (59k / 82k / 124k; 69 tool calls total) | Done. All 5 phases; opus-implementer served `claude-opus-4-8` on every dispatch (frontmatter pin — the Agent `model` param was not used). Grouping 5 phases → 3 implementers (recorded above). v0.51.0 → v0.52.0; bootstrap 0.9.0, sweep 0.18.0. 15 wiki notes re-pinned (3 NEEDS-REVIEW with prose amended, 12 RE-PIN-ONLY stamp churn). **Finding:** phases 1-2 reported '254 pass, 0 fail' and ticked `node --test green` while 4 notes were staled and the freshness gate was red — caught by the next phase, corrected in tasks.md, and carded as TASK-100 (high) for a real gate. |
