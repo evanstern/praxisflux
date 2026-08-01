@@ -30,12 +30,12 @@ Finding numbers are the evaluation report's "What could be improved" numbering;
 
 | # | Finding (evidence) | Disposition | Rationale | Task |
 |---|--------------------|-------------|-----------|------|
-| 1 | Model-pinning doctrine still teaches the falsified Agent-tool `model` param path; agent-def + served-model-verification mechanism is runbook-local (SKILL.md:197-198 vs board-cost-test-runbook.md:301-308) | **accept** | Re-creates this morning's accepted-F4 shape one generation later; next sweep on a fresh host silently burns session-model rates | TASK-91 |
-| 2 | opus-implementer.md pins the fallback claude-opus-4-8 as if it were the tier; no pointer back to the claude-opus-5 primary (.claude/agents/opus-implementer.md:4 vs runbook:68) | **accept** | Silent forever-fallback once Opus 5 becomes available; same card as 1 (same mechanism, same PR) | TASK-91 |
+| 1 | Model-pinning doctrine still teaches the falsified Agent-tool `model` param path; agent-def + served-model-verification mechanism is runbook-local (SKILL.md:197-198 vs board-cost-test-runbook.md:301-308) | **accept** | Re-creates this morning's accepted-F4 shape one generation later; next sweep on a fresh host silently burns session-model rates | TASK-97 |
+| 2 | opus-implementer.md pins the fallback claude-opus-4-8 as if it were the tier; no pointer back to the claude-opus-5 primary (.claude/agents/opus-implementer.md:4 vs runbook:68) | **accept** | Silent forever-fallback once Opus 5 becomes available; same card as 1 (same mechanism, same PR) | TASK-97 |
 | 3 | Wiki promise broken: pdlc-sweep.md:92-97 says history carries per-release detail for 0.48.0/0.50.0/0.51.0 — history ends at 0.47.0, body at 7,991/8,000; TASK-90's "reviewed-no-amend" classification missed a 25-line source addition | **accept** | The run's one true broken promise; backfill forces the summary-style split TASK-78 just demonstrated | TASK-93 |
-| 4 | Output gate is the only mode-modified surface without a back-pointer (SKILL.md:356-358 names it; :378-391 unstitched; no wrap-up-PR sequencing stated) | **accept** | One clause; a fresh background-job session at sweep end has no stated vehicle for the gate's demands | TASK-92 |
-| 5 | Hand-authored-specs hatch temporally impossible in author mode (SKILL.md:38-41 demands a runbook that doesn't exist at gate time) | **accept** | Fails the file's own resume-from-artifacts test; one clause | TASK-92 |
-| 6 | Execution mode is ambient — no artifact records interactive vs background-job (template state snapshot lacks the line, templates/runbook.md:21-28) | **accept** | Mixed-rights successor sessions inherit unexplained riding-closures; one template line | TASK-92 |
+| 4 | Output gate is the only mode-modified surface without a back-pointer (SKILL.md:356-358 names it; :378-391 unstitched; no wrap-up-PR sequencing stated) | **accept** | One clause; a fresh background-job session at sweep end has no stated vehicle for the gate's demands | TASK-98 |
+| 5 | Hand-authored-specs hatch temporally impossible in author mode (SKILL.md:38-41 demands a runbook that doesn't exist at gate time) | **accept** | Fails the file's own resume-from-artifacts test; one clause | TASK-98 |
+| 6 | Execution mode is ambient — no artifact records interactive vs background-job (template state snapshot lacks the line, templates/runbook.md:21-28) | **accept** | Mixed-rights successor sessions inherit unexplained riding-closures; one template line | TASK-98 |
 | 7 | No-main-push degradation clause in three places (SKILL.md:352-358, :360-363 incl. two-track gloss, template :85-87) — unrequested addition 046 R4 warned against | **accept** | Version-planted into N hosts; next mode change strands stale prose everywhere; dedup after the mode text settles | TASK-96 |
 | 8 | Root CLAUDE.md block v0.45.0 lacks the two-track rule the repo lives by (CLAUDE.md:96 vs template :82-88) | **accept** | Declared 046 non-goal (recorded residue, not a violation) — carded so the window closes rather than fossilizes | TASK-96 |
 | 9 | 047 test deepening pins only pre-range prose — none of the new 040/042/039/043/045 clauses is test-pinned; title still says "all three entry modes" with four merged (test/pdlc.test.mjs:97) | **accept** | Gut the new doctrine and 254 tests stay green; spec-compliant but the spec's premise didn't land | TASK-95 |
@@ -44,32 +44,39 @@ Finding numbers are the evaluation report's "What could be improved" numbering;
 | 12a | TASK-77 frontmatter `status: Done` for not-done work | **reject** | Notes + runbook escape line already carry the truth; a `not-needed` label convention needs doctrine to mean anything — churn without it | — |
 | 12b | Cost table rows sum to $214.59 vs claimed $214.60 (runbook:290-294) | **reject** | One cent of rounding in a best-effort ledger; amending a done runbook for it is churn | — |
 | 12c | action.yml:7 example comment pins @v0.4.0, seven-plus releases stale | **accept** | The enumeration-drift shape TASK-74 just fixed elsewhere; rides the trims card | TASK-94 |
-| 12d | Agent defs landed via wrap-up PR without a runbook amendment (scope creep by TASK-79's own rule) | **reject** | Retrospective; well-explained in the cost analysis; the forward fix is TASK-91 | — |
+| 12d | Agent defs landed via wrap-up PR without a runbook amendment (scope creep by TASK-79's own rule) | **reject** | Retrospective; well-explained in the cost analysis; the forward fix is TASK-97 | — |
 | 12e | Runbook labels the session-boundary lever "(cost lever, applied)" (:218) while its own verdict says "NOT applied" (:315) | **reject** | Historical record; the analysis section is unambiguous about what actually happened | — |
 | 12f | test-suite-catalog-plugins.md has `sources: []` — freshness unverifiable (the gate's one warn) | **accept** | Decorative pin defeats the gate's purpose; rides the wiki card | TASK-93 |
 | 12g | pdlc-sweep.md capsule at 496/500 chars | **reject** | Prior art W1 (this morning): the budget gate enforces the cap; pre-emptive trimming is churn | — |
-| 12h | Mode parentheticals inserted as unwrapped conflict-dodging one-liners (SKILL.md:149-153, :252) | **accept** | Incidental rider on the mode-stitching card — same lines being edited anyway | TASK-92 |
+| 12h | Mode parentheticals inserted as unwrapped conflict-dodging one-liners (SKILL.md:149-153, :252) | **accept** | Incidental rider on the mode-stitching card — same lines being edited anyway | TASK-98 |
 | 12i | test/pdlc.test.mjs:39 keeps the key-order-pinned regex shape 047 removed as substandard next door | **accept** | Half-applied standard; rides the test card | TASK-95 |
-| PA-F7 | Step 5 grew again (~40 lines, three verbatim cost anecdotes) — this morning's deferred watch item, due for re-evaluation at "the next sweep-skill hardening" (which cards 91/92 are) | **defer** (again) | Operator: the morning's rationale holds — restructure risk for no current failure; a trim rider would grow TASK-91's scope. Watch stands; re-evaluate at the next hardening | — |
+| PA-F7 | Step 5 grew again (~40 lines, three verbatim cost anecdotes) — this morning's deferred watch item, due for re-evaluation at "the next sweep-skill hardening" (which cards 97/98 are) | **defer** (again) | Operator: the morning's rationale holds — restructure risk for no current failure; a trim rider would grow TASK-97's scope. Watch stands; re-evaluate at the next hardening | — |
 
 ## Accepted → board
 
-- **TASK-91** — agent-def dispatch doctrine (findings 1, 2). Labels: `debt`, `pdlc-sweep`.
-- **TASK-92** — background-job mode stitching (findings 4, 5, 6, 12h). Labels: `debt`,
-  `pdlc-sweep`. Depends on TASK-91 (same two files → serial merge order).
+- **TASK-97** — agent-def dispatch doctrine (findings 1, 2). Labels: `debt`, `pdlc-sweep`.
+- **TASK-98** — background-job mode stitching (findings 4, 5, 6, 12h). Labels: `debt`,
+  `pdlc-sweep`. Depends on TASK-97 (same two files → serial merge order).
 - **TASK-93** — pdlc-sweep-history backfill + split; hub-note sources (findings 3, 12f).
   Labels: `debt`, `wiki`. Wiki-only, no bump.
 - **TASK-94** — drift trims: closed-decision residue + stale example pin (findings 10,
   11, 12c). Labels: `debt`, `pdlc-refactor-triage`.
 - **TASK-95** — test-pin the 039–047 doctrine (findings 9, 12i). Labels: `debt`,
-  `tests`. Depends on TASK-91, TASK-92, TASK-94 (anchors pin the settled prose —
+  `tests`. Depends on TASK-97, TASK-98, TASK-94 (anchors pin the settled prose —
   the runbook-authoring precedent). Test-only, no bump.
 - **TASK-96** — root-block replant + degradation-clause dedup (findings 7, 8). Labels:
-  `debt`, `grounding`. Depends on TASK-92 (the mode text it dedupes must settle).
+  `debt`, `grounding`. Depends on TASK-98 (the mode text it dedupes must settle).
 
 Every card cites this record and the evaluation report with file:line evidence, carries
 per-finding ACs, and is immediately sweepable (`pdlc:sweep` over label `debt`, or ids
-TASK-91..96; lane shape: 91→92→96 serial ∥ 93 ∥ 94, then 95 after 91/92/94).
+TASK-93..98; lane shape: 97→98→96 serial ∥ 93 ∥ 94, then 95 after 97/98/94).
+
+**Renumbering note (2026-08-01):** this run originally carded TASK-91..96. Before
+this record's PR merged, `main` took TASK-91 (pdlc:bootstrap model-tier rubric) and
+TASK-92 (worktree discipline) for unrelated cards, so **this run's 91 and 92 were
+recreated as TASK-97 and TASK-98** with their content verbatim; 93–96 kept their
+numbers, and every dependency and reference above was repointed. Original creation
+timestamps (2026-07-31 20:03 / 20:04) are recorded in the new cards' descriptions.
 
 ## Deferred / rejected residue
 
