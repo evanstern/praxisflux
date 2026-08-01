@@ -6,32 +6,32 @@ tree green and is committed before the next begins.
 
 ## Phase 1: Plant the rubric
 
-- [ ] Add `## Model tiers — who does what work` to `pdlc/templates/CLAUDE.md`, inside the
+- [x] Add `## Model tiers — who does what work` to `pdlc/templates/CLAUDE.md`, inside the
       `pdlc:grounding` markers, after "Rules that always hold" and before the peer blocks
-- [ ] Section carries the three-row tier ladder: default implementer `claude-opus-5`,
+- [x] Section carries the three-row tier ladder: default implementer `claude-opus-5`,
       mechanical `claude-sonnet-5`, fallback `claude-opus-4-8`
-- [ ] Section names the pinning mechanism — an explicit `model:` in an agent definition's
+- [x] Section names the pinning mechanism — an explicit `model:` in an agent definition's
       frontmatter at `.claude/agents/<tier>-implementer.md`
-- [ ] Section cites the 2026-07-31 field case (the dispatch-call `model` parameter silently
+- [x] Section cites the 2026-07-31 field case (the dispatch-call `model` parameter silently
       ignored; `docs/design/board-cost-test-runbook.md`, TASK-74 row)
-- [ ] Section states the authority rule: the table is the planted default, the agent
+- [x] Section states the authority rule: the table is the planted default, the agent
       definition's `model:` is authoritative at dispatch, and changing a tier's model is a
       one-line edit there — outside every marker, no `--force`
-- [ ] Section stays tight (always-on context in every bootstrapped project) — ladder,
+- [x] Section stays tight (always-on context in every bootstrapped project) — ladder,
       mechanism, authority rule; no restatement of sweep's dispatch procedure
-- [ ] `node --test` green
+- [x] `node --test` green
 
 ## Phase 2: Teach it in bootstrap
 
-- [ ] `pdlc/skills/bootstrap/SKILL.md` gains resolve-then-plant guidance: consult the
+- [x] `pdlc/skills/bootstrap/SKILL.md` gains resolve-then-plant guidance: consult the
       `claude-api` skill for current model IDs; never author them from memory
-- [ ] Availability check named — the harness's own agent-definition surface; a tier whose ID
+- [x] Availability check named — the harness's own agent-definition surface; a tier whose ID
       the harness will not accept is unavailable and the fallback applies
-- [ ] Fallback behavior named, including recording which model actually served
-- [ ] Refresh path documented both ways: re-run `pdlc:bootstrap` for the planted doctrine
+- [x] Fallback behavior named, including recording which model actually served
+- [x] Refresh path documented both ways: re-run `pdlc:bootstrap` for the planted doctrine
       (drift → diff → consent → `--force`); edit the agent definition's frontmatter for a pin
-- [ ] Bootstrap skill `version:` 0.8.0 → 0.9.0
-- [ ] `node --test` and `node scripts/check-docs.mjs` green
+- [x] Bootstrap skill `version:` 0.8.0 → 0.9.0
+- [x] `node --test` and `node scripts/check-docs.mjs` green
 
 ## Phase 3: Point sweep at it
 
