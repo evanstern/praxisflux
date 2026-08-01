@@ -4,7 +4,11 @@ title: 'pdlc:bootstrap plants no model-tier rubric, but pdlc:sweep hard-requires
 status: To Do
 assignee: []
 created_date: '2026-08-01 04:29'
-labels: []
+updated_date: '2026-08-01 13:51'
+labels:
+  - pdlc
+  - pdlc-sweep
+  - doctrine
 dependencies: []
 priority: medium
 ordinal: 126000

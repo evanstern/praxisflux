@@ -7,8 +7,10 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-01 14:08'
-updated_date: '2026-08-01 14:09'
-labels: []
+updated_date: '2026-08-01 14:23'
+labels:
+  - docs
+  - doctrine
 dependencies: []
 ordinal: 127000
 ---
