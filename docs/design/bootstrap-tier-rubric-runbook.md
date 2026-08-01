@@ -276,5 +276,14 @@ session can see where within the task the last one stopped; the closing note on 
 replaces or absorbs it. `tokens/cost` carries best-effort actuals from the
 harness/transcript, so future runbook authoring budgets against real numbers.
 
+**Dispatch grouping (orchestrator's recorded call, 2026-08-01):** tasks.md has five phases;
+they dispatch as **three** implementers rather than five. Phases 1+2 group because the bootstrap
+skill must describe exactly what the template section says — one agent seeing both writes them
+consistently. Phases 3+4 group because the test phase pins the sweep edit, so the agent that
+writes the assertion should be the one that read the clause. Phase 5 (re-plant, bump, re-ground)
+dispatches alone: it is mechanical against settled prose, and its wiki re-pins are classified by
+the orchestrator afterward. Default remains one-per-phase; this is the exception, recorded.
+
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-08-01 | TASK-91 | — | — | — | claim + spec cycle (048) + phase ACs seeded; phases 1-2 dispatched (opus-implementer, `claude-opus-4-8`) |
