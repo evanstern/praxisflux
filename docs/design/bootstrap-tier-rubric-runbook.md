@@ -7,7 +7,10 @@ PR → merge → re-ground. Direction is decided; do not re-litigate it: the boa
 2026-07-31 board-cost-test field case). Plan-of-record is the board; this file carries
 only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-08-01 (lane as authored, the
+`opus-implementer` pin, and the hand-authored-specs escape line all approved; AC #1
+answered **plant** with two added constraints, and the default IDs answered
+**latest-generation** — both recorded as gate lines below, not prose)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -147,6 +150,29 @@ true.** The sweep's Output gate re-checks the first two lines at the end.
 - [ ] **AC #3 is a two-way contract:** `pdlc:sweep` Phase 1 item 2 must name the location
       bootstrap actually plants to, and bootstrap must plant there. Verify the two edits
       agree by reading them together, not separately.
+- [ ] **Operator ruling A (sign-off 2026-08-01) — the rubric's model IDs are grounded in
+      what the system actually exposes, never authored from memory.** The bootstrap skill
+      must resolve the tier→model-ID table against the models genuinely available to the
+      running harness/subscription at plant time (the `claude-api` skill is this repo's
+      standing source for current model IDs; the harness's own agent-definition surface is
+      the availability check), and must say what to do when a pinned ID is unavailable —
+      that is what the fallback slot is for. A hard-coded table the skill never checks
+      fails this line.
+- [ ] **Operator ruling B (sign-off 2026-08-01) — refreshing the rubric later must be
+      quick and easy, and the spec must name the refresh path explicitly.** The planted
+      section sits inside the `pdlc:grounding` markers, where a hand edit reads as drift
+      and a re-plant needs `--force`; the design must therefore resolve that tension
+      rather than inherit it — either the block carries the rubric and re-running
+      `pdlc:bootstrap` is documented as the one-step refresh (with the drift/consent path
+      spelled out), or the block carries a pointer and the rubric lives in a
+      freely-editable planted file outside the markers. Whichever is chosen, `spec.md`
+      records the choice and the refresh procedure, and the bootstrap skill teaches it.
+- [ ] **Operator ruling C (sign-off 2026-08-01) — default IDs are latest-generation:**
+      default implementer tier `claude-opus-5`, mechanical tier `claude-sonnet-5`,
+      documented fallback `claude-opus-4-8` for subscriptions that do not surface Opus 5.
+      (Note the asymmetry, and do not "fix" it inline: THIS sweep still dispatches at
+      `claude-opus-4-8` via the pinned agent def per the lane above — the rubric being
+      planted is the downstream default, not a retroactive change to this run.)
 - **Escape lines (operator-signed only):**
   - TASK-91: hand-authored `specs/048-<slug>/{spec,plan,tasks}.md` per this host's
     established no-`.specify/` precedent (eight prior sweep runbooks) — the artifacts
