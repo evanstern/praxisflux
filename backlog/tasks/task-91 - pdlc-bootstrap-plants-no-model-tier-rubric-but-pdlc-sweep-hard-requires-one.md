@@ -1,14 +1,12 @@
 ---
 id: TASK-91
 title: 'pdlc:bootstrap plants no model-tier rubric, but pdlc:sweep hard-requires one'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-01 04:29'
-updated_date: '2026-08-01 13:51'
-labels:
-  - pdlc
-  - pdlc-sweep
-  - doctrine
+updated_date: '2026-08-01 15:16'
+labels: []
 dependencies: []
 priority: medium
 ordinal: 126000
@@ -31,6 +29,8 @@ Evidence:
 - Consequence: on a bootstrapped-but-not-hand-authored project, sweep's Phase 1 item 2 has no source. Nothing gates it, so the runbook gets a bare tier name or none, and SKILL.md's own warning ('a bare tier name is not a valid runbook entry') is the only thing standing between the operator and an unpinned dispatch.
 
 Related field evidence worth folding into whatever bootstrap plants: on 2026-07-31 the Agent tool's model parameter was observed to be silently ignored in this harness (board-cost-test runbook, TASK-74 row: 'Agent tool model param silently ignored, 3 fable dispatches killed early; pinned via .claude/agents/opus-implementer.md'). If bootstrap teaches tier pinning, it should teach frontmatter-pinned agent definitions with explicit model IDs, not the model parameter.
+
+Spec: specs/048-bootstrap-tier-rubric
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -39,4 +39,33 @@ Related field evidence worth folding into whatever bootstrap plants: on 2026-07-
 - [ ] #2 Whatever bootstrap teaches names the pinning mechanism that actually holds: an explicit model ID in an agent definition's frontmatter, citing the 2026-07-31 field case where the dispatch-call model parameter was silently ignored
 - [ ] #3 pdlc:sweep's Phase 1 item 2 names where the rubric is expected to live for a bootstrapped project, so 'the host project's rubric' resolves to a defined location
 - [ ] #4 A test in test/pdlc.test.mjs pins the new bootstrap contract, matching the existing plugin test standard
+- [ ] #5 Spec phase: Plant the rubric
+- [ ] #6 Spec phase: Teach it in bootstrap
+- [ ] #7 Spec phase: Point sweep at it
+- [ ] #8 Spec phase: Pin the contract in tests
+- [ ] #9 Spec phase: Re-plant, bump, re-ground
 <!-- AC:END -->
+
+
+
+
+
+
+
+
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep dispatch record (pdlc:sweep; runbook docs/design/bootstrap-tier-rubric-runbook.md, signed-off 2026-08-01).
+
+Tier: default implementer. Model ID: claude-opus-4-8, dispatched via the frontmatter-pinned .claude/agents/opus-implementer.md agent def — NOT the Agent tool's model param, which was observed silently ignored in this harness on 2026-07-31. Fallback: claude-opus-5 if the subscription surfaces it. Served model recorded per dispatch.
+
+Rubric justification: cross-surface doctrine prose with a genuine design choice (what bootstrap plants, and where sweep reads it from), touching two skill contracts, a planted always-on template, this repo's own planted block, and a test pinning the new contract. No mechanical pattern to copy, so not the sonnet mechanical tier.
+
+Operator rulings at sign-off (2026-08-01), carried as runbook gate lines: (A) the rubric's model IDs are resolved against what the system actually exposes, never authored from memory; (B) refreshing the rubric later must be quick and easy, and spec.md must name the refresh path; (C) planted defaults are latest-generation — claude-opus-5 primary, claude-sonnet-5 mechanical, claude-opus-4-8 documented fallback.
+
+Spec: specs/048-bootstrap-tier-rubric claimed in this branch's first commit (stub only until the real spec/plan/tasks land).
+<!-- SECTION:NOTES:END -->

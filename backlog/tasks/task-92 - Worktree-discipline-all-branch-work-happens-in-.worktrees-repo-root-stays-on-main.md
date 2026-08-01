@@ -3,14 +3,12 @@ id: TASK-92
 title: >-
   Worktree discipline: all branch work happens in .worktrees/, repo root stays
   on main
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-01 14:08'
-updated_date: '2026-08-01 14:23'
-labels:
-  - docs
-  - doctrine
+updated_date: '2026-08-01 14:15'
+labels: []
 dependencies: []
 ordinal: 127000
 ---
@@ -36,3 +34,9 @@ Evidence:
 - [x] #2 .gitignore ignores .worktrees/ so a sanctioned worktree never appears as untracked noise at the root
 - [x] #3 The rule names what to do when the root is found off main (switch back; never strand commits on a foreign branch), since that is the observed failure
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Ratified worktree discipline as a project-level requirement after the repo root was found sitting on another session's local unpushed branch (board-task-labels) at the start of the TASK-91 sweep, with a sweep commit landing on top of it. CLAUDE.md gains a 'Worktree discipline' rule under Branching: all branch work happens in a git worktree under the gitignored <repo-root>/.worktrees/, one per task, cut from origin/main; the root checkout stays on main as the shared read surface every session reads the board, specs/, and docs/wiki/ from; board/spec commands run from root, or inside the task worktree when the root cannot carry the commit; worktree and branch are removed only after verifying the PR merged. The rule also names the recovery procedure for a root found off main — switch back, and never strand commits on a branch you don't own (cherry-pick onto your own branch off origin/main, then restore the foreign branch to its owner's tip), which is exactly how the observed incident was unwound. .gitignore gains .worktrees/. docs/wiki/overview.md re-pinned in the same PR under a NEEDS-REVIEW classification: its PR-flow bullet was incomplete rather than wrong, so the prose was amended against the diff before the pin moved to 3fcc5009 — the commit that made the change, never the merge. Landed as PR #120; tests (254), check-docs, and the freshness gate green. No released surface touched, so no version bump.
+<!-- SECTION:FINAL_SUMMARY:END -->

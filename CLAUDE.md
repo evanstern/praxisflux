@@ -108,7 +108,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.45.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.52.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -177,6 +177,30 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   Whole-corpus orientation reads `CAPSULES.md` when it exists; without one, INDEX plus
   just-in-time notes.
 
+## Model tiers — who does what work
+
+A sweep dispatches each task's implementation to a subagent; which model that subagent runs
+on drives both cost and quality. The default ladder:
+
+| Tier | Model | For |
+|---|---|---|
+| default implementer | `claude-opus-5` | design work, cross-surface doctrine, anything with a real judgment call |
+| mechanical | `claude-sonnet-5` | work to an existing pattern — tests to a sibling standard, corpus hygiene |
+| fallback | `claude-opus-4-8` | when the subscription does not surface the primary |
+
+**How a tier is pinned.** Put the model ID in the agent definition's frontmatter —
+`.claude/agents/<tier>-implementer.md`, `model: <id>`. That is the mechanism that holds. Do
+**not** rely on the dispatch call's `model` parameter: on 2026-07-31 it was observed silently
+ignored by this harness — dispatches meant for one model ran on the orchestrator's session
+model at ~2× the unit price before being killed (`docs/design/board-cost-test-runbook.md`,
+TASK-74 row). The frontmatter pin is what the harness actually honors.
+
+**Which one is authoritative.** The table above is the **planted default** — doctrine,
+refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's `model:` is
+**authoritative at dispatch**: it is the model that actually runs. To change which model a tier
+resolves to, edit that one line in `.claude/agents/<tier>-implementer.md` — a plain tracked file
+**outside every marker**, no drift, no `--force`. The table recommends; the frontmatter pins.
+
 <!-- pdlc:peer:backlog BEGIN -->
 ## Backlog.md — the board (officially supported peer)
 
@@ -189,11 +213,19 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 - **One task, one PR:** a top-level TASK gets one branch and one PR. Dotted-id subtasks
   (TASK-x.y) are internal breakdown — they ride the parent task's branch and merge in its
   PR, never their own.
+- **Two-track landing:** board/bookkeeping commits (cards, status flips, notes, AC ticks)
+  land direct on the default branch; deliverable work lands by PR. This is one-task-one-PR
+  applied, not an exception to it — a PR exists only where it carries a stated reason for a
+  human to approve, and a board card carries no such decision. Where main-push is
+  unavailable (background jobs, protected `main`), the board track degrades to riding the
+  next task branch or a wrap-up PR.
 - **Never hand-edit** files under `backlog/` — always the `backlog` CLI, so metadata and
   relationships stay consistent.
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
+
+
 
 
 

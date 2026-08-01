@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 3fcc5009
+verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
 ---
 
 # praxisflux — system overview
