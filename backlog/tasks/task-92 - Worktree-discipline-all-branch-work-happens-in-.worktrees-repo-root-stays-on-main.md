@@ -7,8 +7,10 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-01 14:08'
-updated_date: '2026-08-01 14:15'
-labels: []
+updated_date: '2026-08-01 18:09'
+labels:
+  - docs
+  - doctrine
 dependencies: []
 ordinal: 127000
 ---

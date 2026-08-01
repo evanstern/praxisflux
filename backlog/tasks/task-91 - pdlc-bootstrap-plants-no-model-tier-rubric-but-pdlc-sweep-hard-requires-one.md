@@ -5,8 +5,11 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-01 04:29'
-updated_date: '2026-08-01 15:16'
-labels: []
+updated_date: '2026-08-01 18:09'
+labels:
+  - pdlc
+  - pdlc-sweep
+  - doctrine
 dependencies: []
 priority: medium
 ordinal: 126000
