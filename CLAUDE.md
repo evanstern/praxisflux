@@ -70,6 +70,21 @@ push to `origin`, and open a PR with `gh` for review/merge into `main` — don't
 `docs/wiki` notes pin as `verified_against`, breaking the freshness gate. End PR bodies with
 the `🤖 Generated with Claude Code` trailer.
 
+**Worktree discipline (where that branch is checked out):** **all branch work happens in a git
+worktree** — never by switching the root checkout. Worktrees live under `<repo-root>/.worktrees/`
+(gitignored), one per task: `git worktree add .worktrees/task-<n> -b task-<n>-<slug> origin/main`.
+**The repo root checkout stays on `main`, clean and fast-forwarded** — it is the shared read surface
+every session assumes: the board, `specs/`, and `docs/wiki/` are read from it, and a root sitting on
+a feature branch silently serves stale state to every other session. Run `backlog`/`spec-bridge`
+commands from the root when it is on `main`; when the root cannot carry the commit (protected `main`,
+a background job), run them inside the task worktree and let the board edits ride that task's branch.
+Remove the worktree and delete the branch only after verifying the PR merged (`gh api … --jq .merged`).
+
+*If you find the root off `main`:* switch it back (`git switch main`) before doing anything else, and
+**never strand commits on a branch you don't own** — if work already landed on a foreign branch, move
+it to its own branch off `origin/main` (cherry-pick) and restore that branch to where its owner left
+it. This is not hypothetical: it is the 2026-08-01 finding that produced this rule.
+
 <!-- BACKLOG.MD GUIDELINES START -->
 <CRITICAL_INSTRUCTION>
 
