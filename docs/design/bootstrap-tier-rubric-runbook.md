@@ -286,4 +286,4 @@ the orchestrator afterward. Default remains one-per-phase; this is the exception
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-08-01 | TASK-91 | — | — | — | claim + spec cycle (048) + phase ACs seeded; phases 1-2 dispatched (opus-implementer, `claude-opus-4-8`) |
+| 2026-08-01 | TASK-91 | — | — | ~59k subagent tokens (phases 1-2) | claim + spec cycle (048) + phase ACs seeded; **phases 1-2 done** (opus-implementer, served `claude-opus-4-8`, 15 tool calls); phases 3-4 dispatched |
