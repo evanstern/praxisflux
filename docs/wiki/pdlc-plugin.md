@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 7e688e4160ce69dd4ecbb46ed5c3131c34664a59
+verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
 ---
 
 # pdlc plugin
@@ -66,7 +66,16 @@ also carry a **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption
 "plugins ship Stop hooks" overclaim (TASK-60): spec-bridge, educate, research,
 reorient, and team-review ship Stop hooks; grounding-wiki's freshness gate runs as
 check scripts and CI, not a hook — so a bootstrapped host is never told a gate exists
-that nothing installs.
+that nothing installs. Since 0.52.0 (bootstrap 0.9.0) the block also plants a
+**`## Model tiers` section** (TASK-91): a default implementer→model ladder
+(`claude-opus-5` default, `claude-sonnet-5` mechanical, `claude-opus-4-8` fallback) plus
+the rule that a tier's authoritative pin is the `model:` in an agent definition's
+frontmatter (`.claude/agents/<tier>-implementer.md`) — not the dispatch-call `model`
+parameter, which the 2026-07-31 board-cost-test field case caught being silently ignored
+— so [[pdlc-sweep]]'s Phase 1 item 2 has a real planted location to read the rubric from.
+The bootstrap skill resolves those IDs against the live harness (its standing source is
+the `claude-api` skill), never from memory, and records which model actually served when
+a primary is unavailable.
 
 ## Deterministic core: scripts/plant.mjs
 

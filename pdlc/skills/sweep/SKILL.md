@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.17.0
+version: 0.18.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -94,7 +94,10 @@ derive, in this order:
    - The biggest slice gets a lane with nothing else fighting for its files.
    - Low-priority polish goes in the tail lane, droppable without breaking anything.
 2. **Model tier per task**, from the host project's rubric (e.g. a constitution's
-   tiered-workflow principle), with the justification recorded — and, next to each tier
+   tiered-workflow principle; in a `pdlc:bootstrap`-planted project the rubric is the
+   CLAUDE.md `## Model tiers` section, whose ladder is the planted default and whose
+   `.claude/agents/<tier>-implementer.md` frontmatter `model:` is the authoritative pin),
+   with the justification recorded — and, next to each tier
    label, the **explicit model ID** the tier resolves to (e.g. `claude-opus-5`), plus a
    **fallback ID** for subscription-unavailability (the operator's 2026-07-31 ruling —
    `claude-opus-4-8` when `claude-opus-5` is unavailable in the subscription — is the

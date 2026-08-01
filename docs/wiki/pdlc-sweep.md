@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 7e688e4160ce69dd4ecbb46ed5c3131c34664a59
+verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -17,7 +17,10 @@ phases, gate → work → gate:
 
 - **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered
   **lanes** (*develop in parallel, merge serially*; contract-shaped work leads — a
-  published interface unblocks consumers), model tiers from the host rubric — each
+  published interface unblocks consumers), model tiers from the host rubric (in a
+  `pdlc:bootstrap`-planted project the rubric is the CLAUDE.md `## Model tiers` section —
+  its ladder the planted default, its `.claude/agents/<tier>-implementer.md` frontmatter
+  `model:` the authoritative pin) — each
   pinned to an explicit model ID, passed on every dispatch — per-PR gates enumerated
   (where **Lane-0/precondition rulings that change the per-task loop land as checkable
   gate lines, never only prose** — narrative is not read back; gate lines are),

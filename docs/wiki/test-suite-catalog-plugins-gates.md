@@ -12,7 +12,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: 3c43c4afedff0e04d75977beabf3697e7e385b26
+verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -38,7 +38,13 @@ seam involved. One bullet per `test/*.test.mjs` file:
   registration + bootstrap SKILL frontmatter (name/version/description, the last
   backported from the refactor-triage pattern below — spec 047), template markers
   well-formed and carrying the 101 principles from `docs/principles.md`,
-  `renderGrounding` token substitution with non-opted peer blocks stripped; planting
+  `renderGrounding` token substitution with non-opted peer blocks stripped; the
+  model-tier rubric contract (spec 048) — the template's `## Model tiers` section sits
+  inside the grounding markers before the peer blocks, names the
+  `.claude/agents/<tier>-implementer.md` frontmatter `model:` pin and cites the
+  2026-07-31 field case, marks the agent definition authoritative over the planted-default
+  table, with the bootstrap SKILL resolving IDs against the live harness (`claude-api`)
+  and sweep's Phase 1 item 2 naming the same planted location; planting
   fresh/append/idempotent, a drifted block never overwritten without `--force` (the
   sentinel doesn't advance past drift), peer-change drift, `--check` writing nothing and
   exiting 1 while pending; the `peersOmitted` trace (sentinel field, one stderr notice

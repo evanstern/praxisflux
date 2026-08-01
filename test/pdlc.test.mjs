@@ -130,6 +130,60 @@ test("template carries the foundational (101) principles from docs/principles.md
   assert.match(TEMPLATE, /never gets its own PR/);
 });
 
+// --- model-tier rubric (spec 048) ---
+// The contract, not the prose: assertions anchor on stable strings (paths, marker names,
+// `model:`, the field-case date) so a reword of the planted section leaves them green.
+
+/** The model-tier section body: from its heading up to the first peer block that follows it. */
+function tierSection() {
+  const begin = TEMPLATE.indexOf("## Model tiers");
+  assert.notEqual(begin, -1, "template must carry a ## Model tiers section");
+  const end = TEMPLATE.indexOf("pdlc:peer:", begin);
+  return TEMPLATE.slice(begin, end === -1 ? undefined : end);
+}
+
+test("template plants the model-tier rubric inside the grounding markers, before the peer blocks", () => {
+  const begin = TEMPLATE.indexOf("pdlc:grounding BEGIN");
+  const end = TEMPLATE.indexOf("pdlc:grounding END");
+  assert.ok(begin !== -1 && end !== -1 && begin < end, "grounding markers must bracket the block");
+  const grounding = TEMPLATE.slice(begin, end);
+  const heading = grounding.indexOf("## Model tiers");
+  assert.ok(heading !== -1, "the model-tier section must sit inside the grounding markers");
+  const firstPeer = grounding.indexOf("pdlc:peer:");
+  assert.ok(firstPeer === -1 || heading < firstPeer, "the tier section precedes the opt-in peer blocks");
+});
+
+test("the model-tier section names frontmatter pinning and cites the 2026-07-31 field case", () => {
+  const section = tierSection();
+  // the mechanism that holds is a model: in an agent definition's frontmatter
+  assert.match(section, /\.claude\/agents\/<tier>-implementer\.md/, "the agent-def path is the pin location");
+  assert.match(section, /model:/, "frontmatter model: is the pinning mechanism");
+  // the field case is what makes the frontmatter pin the default over the dispatch-call param
+  assert.match(section, /2026-07-31/, "the field case date must be cited");
+  assert.match(section, /board-cost-test-runbook\.md/, "the field case source must be cited");
+});
+
+test("the model-tier section names the agent definition as authoritative, the table as planted default", () => {
+  const section = tierSection();
+  assert.match(section, /authoritative/, "the section must name which pin is authoritative at dispatch");
+  assert.match(section, /planted default/, "the table is the planted default; the frontmatter pins");
+});
+
+test("bootstrap SKILL.md resolves model IDs against the live harness, never from memory", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
+  assert.match(skill, /claude-api/, "the standing source for current model IDs must be named");
+  assert.match(skill, /from memory/i, "the never-author-from-memory instruction must be present");
+  assert.match(skill, /\.claude\/agents\/<tier>-implementer\.md/, "the availability check keys on the agent-definition surface");
+});
+
+test("sweep Phase 1 item 2 names where a bootstrapped project's rubric lives", () => {
+  const sweep = readFileSync(join(repo, "pdlc", "skills", "sweep", "SKILL.md"), "utf8");
+  // R5 two-way contract: sweep must name both halves bootstrap plants — the planted section
+  // (the ladder) and the agent-def frontmatter (the authoritative pin).
+  assert.match(sweep, /## Model tiers/, "sweep must name the planted rubric section");
+  assert.match(sweep, /\.claude\/agents\/<tier>-implementer\.md/, "sweep must name the authoritative pin location");
+});
+
 test("renderGrounding substitutes tokens and strips non-opted peer blocks", () => {
   const none = renderGrounding(TEMPLATE, { projectName: "acme", version: "9.9.9", peers: [] });
   assert.ok(none.includes("# acme — praxis development lifecycle"));
