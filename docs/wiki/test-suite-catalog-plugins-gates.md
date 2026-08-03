@@ -15,7 +15,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: b90dc96575225cb3b15048e6186408bf46a726ad
+verified_against: d79941ce7c3c17641ed073859d261e689d0b447e
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
