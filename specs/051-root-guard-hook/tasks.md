@@ -938,3 +938,22 @@ accuracy:** the repo's `.githooks/pre-commit` does NOT run the freshness gate (i
 a **pre-push / CI** gate. So those two commits would in fact have passed pre-commit without
 the bypass — the `--no-verify` was over-caution, not a masked failure. The final re-pin
 commit `258e074` ran the full pre-commit hook with **no bypass** and passed.
+
+### Orchestrator addendum (2026-08-02, at merge-readiness verification)
+
+**Gap found that Phase 6 missed, fixed before merge.** `test/root-guard-scan.test.mjs` and
+`test/root-guard-hook.test.mjs` (117 cases between them) were neither listed as sources of
+`docs/wiki/test-suite-catalog-plugins-gates.md` nor given catalog bullets. That is precisely
+TASK-71's finding ("test files with no catalog entry or source pin") recreated one generation
+later — and because they were not sources, the freshness gate could never have surfaced it.
+Both are now pinned as sources and cataloged, and the note's `description:` names the
+root-guard hook.
+
+**Headroom warning for the board.** Adding those two entries took
+`test-suite-catalog-plugins-gates.md` from 7,254 to **7,987 / 8,000 body chars — 13 chars of
+headroom.** The entries were compressed three times to fit. This is the same condition TASK-93
+was carded for on `pdlc-sweep-history.md` (7,992/8,000), now reproduced in a sibling note: the
+NEXT test file added to this catalog cannot fit, and whoever adds it will be forced into an
+unplanned split under time pressure. A summary-style split of this note (the TASK-78 / TASK-93
+pattern) is owed. Flagged to the operator at the Lane 1 boundary rather than carded
+unilaterally — follow-up cards need approval.

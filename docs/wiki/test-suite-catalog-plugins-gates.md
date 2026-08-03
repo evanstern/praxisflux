@@ -1,6 +1,6 @@
 ---
 name: test-suite-catalog-plugins-gates
-description: Per-file coverage of the single-plugin output-gate suites — grounding-wiki's capsule tier and freshness gate, pdlc's plant surface, phase-status's vocabulary ladder, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split summary-style from test-suite-catalog-plugins; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
+description: Per-file coverage of the single-plugin output-gate suites — grounding-wiki's capsule tier and freshness gate, pdlc's plant surface and root-guard hook, phase-status's vocabulary ladder, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split summary-style from test-suite-catalog-plugins; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
 kind: pattern
 sources:
   - test/grounding-wiki.capsules.test.mjs
@@ -9,6 +9,8 @@ sources:
   - test/phase-status.test.mjs
   - test/reorient.test.mjs
   - test/research-gates.test.mjs
+  - test/root-guard-hook.test.mjs
+  - test/root-guard-scan.test.mjs
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
@@ -88,6 +90,14 @@ seam involved. One bullet per `test/*.test.mjs` file:
   [[reorient-run-ownership]]).
 - `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
+- `test/root-guard-scan.test.mjs` — the quote-state shell scanner (spec 051) as a pure
+  function: separators bound only OUTSIDE quotes; single/double, ANSI-C and locale runs,
+  escapes, line continuation; the verbatim Co-Authored-By trailer tokenizing to FOUR tokens
+  with the message as ONE; command-position detection; fail-closed on unbalanced input.
+- `test/root-guard-hook.test.mjs` — the planted root-guard hook over its `PreToolUse` stdin
+  contract (spec 051), every hazard BOTH ways: newline, `)`, `'`, `"`, `;`, `|`, backtick each
+  ALLOWED `backlog/`-scoped and still BLOCKED out of scope; heredocs, cross-repo jurisdiction,
+  the content false-positive, unparseable-implies-unexecutable vs `bash -n`, and the deny set.
 - `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (incl. the AC block),
   exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
   `strictDone` mode (incl. the analysis-only near-miss warning), and the deterministic
