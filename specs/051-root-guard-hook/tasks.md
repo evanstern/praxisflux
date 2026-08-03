@@ -62,6 +62,13 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [ ] R5(b) tested directly: `backlog task edit "…git commit…"` is not classified as a git
       invocation
 - [ ] R5(a) tested directly: an invocation targeting a different repository passes
+- [ ] **Pin the fail-open invariant (spec R2 reconciliation):** every command the scanner
+      reports `ok:false` for is ALSO rejected by bash itself (`bash -n`), so unparseable ⊆
+      unexecutable and fail-open cannot pass a commit. Test both directions: the known
+      `ok:false` forms are `bash -n`-invalid, AND the executable forms the orchestrator
+      probed (ANSI-C `$'…'`, locale `$"…"`, backslash-newline, escaped quotes in double
+      quotes, apostrophe in double quotes, nested double quotes in single quotes) all scan
+      `ok:true` and are gated normally
 - [ ] Confirm no previously-blocked scoping violation became allowed — enumerate the deny
       cases covered
 - [ ] `node --test` green; report the real count

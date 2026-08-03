@@ -128,8 +128,35 @@ inside a quoted string is not a boundary; then tokenize with the same quote awar
 A real shell-word splitter is the shape; the two-regex approach is the defect.
 
 **Single-quote, double-quote, and backslash-escape handling must all be explicit**, and
-the behavior for an *unbalanced* quote (a genuinely malformed command) must be **defined
-and fail-closed** — an unparseable command is not an allowed command.
+the behavior for an *unbalanced* quote (a genuinely malformed command) must be **defined**.
+
+> **Reconciliation (Phase 3 + orchestrator verification, 2026-08-02).** This requirement
+> originally read "defined **and fail-closed** — an unparseable command is not an allowed
+> command." That conflicted with the policy this spec elsewhere requires be ported
+> *verbatim*: the upstream hook is **fail-OPEN** on malformed input (Phase 1 inventory —
+> exit 0 on "no git match, out of jurisdiction, malformed stdin, internal error"). The
+> spec was internally inconsistent; Phase 3 surfaced it rather than silently picking a side.
+>
+> **Resolved as: the SCANNER fails closed, the HOOK fails open on residual `ok:false`.**
+> The scanner never fabricates tokens from an unparseable command — that is the whole
+> defect being fixed, and it is preserved absolutely. The hook, after stripping heredoc
+> bodies, allows a command it still cannot parse.
+>
+> **This does not violate AC #5**, and the reason is verified, not assumed: every command
+> the scanner reports `ok:false` for is **also rejected by bash itself**. Orchestrator
+> probe, 2026-08-02 — all of these parse `ok:true` and are therefore gated normally:
+> ANSI-C `$'…'`, locale `$"…"`, backslash-newline continuation, escaped quotes inside
+> double quotes, apostrophes inside double quotes, nested double quotes inside single
+> quotes. The only `ok:false` results were genuinely unterminated quotes and dangling
+> escapes — which bash refuses to execute, so no commit can pass through them. Unparseable
+> ⊆ unexecutable. **Phase 4 must pin this as a test** (see its box); the property is the
+> load-bearing part, and an untested invariant is an assumption.
+>
+> A blanket residual fail-closed was rejected for two concrete reasons: it would block
+> non-git commands containing an apostrophe (violating "non-git commands always pass"), and
+> it would block out-of-jurisdiction commits (R5(a)), because an `ok:false` result carries
+> no reliable scope information — you cannot tell whether an unparseable command is even a
+> git command, let alone one at the root checkout.
 
 ### R3 — self-diagnosing refusals (AC #4)
 
