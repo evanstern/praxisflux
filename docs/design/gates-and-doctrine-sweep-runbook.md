@@ -9,7 +9,9 @@ conflicts as routine. Direction is decided; do not re-litigate it: the **board c
 2026-08-01/02). Plan-of-record is the board; this file carries only ordering, doctrine,
 and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-08-02 (lanes approved **as
+authored** — all five, tiers as pinned, all eight hand-authored-spec escape lines signed;
+checkpoints 2, 3 and 4 answered at sign-off and recorded as gate lines below, not prose)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -259,28 +261,45 @@ end.
 - [ ] The card carries its Spec marker from the **claim commit** (`spec-bridge:link`
       against the stub), and phase ACs are seeded from `tasks.md` (link update mode)
       BEFORE implementation dispatch.
-- [ ] **TASK-100's design choice is recorded in `spec.md` with its rationale, and answers
-      checkpoint 2 as signed off.** The card declines to prescribe the fix shape, so a
-      spec that implements one shape without arguing against the alternatives fails this
-      line. It must state, explicitly and checkably: (a) **where the gate lives**
-      (spec-bridge gate vs a new repo check script vs both), (b) **the red-by-construction
-      rule** — which gates a mid-PR phase MAY leave red and which MUST be green before the
-      final phase ticks, expressed as data the check reads, not as prose, and (c) how a
-      host declares its own gate set, since spec-bridge ships to consumer repos and cannot
-      assume praxisflux's.
+- [ ] **Operator ruling A (sign-off 2026-08-02) — TASK-100's gate lives in the
+      spec-bridge Stop gate, is host-declared, and BLOCKS.** The three questions the card
+      left open are answered; the spec implements this shape and records the rationale,
+      it does not re-open them:
+      (a) **Home:** the spec-bridge gate (`spec-bridge/gates/bridge.mjs`), which already
+      reads `tasks.md` and already blocks status-over-artifacts. Not a repo-local check
+      script; not a second surface.
+      (b) **Host-declared:** the host names its gate commands, and which of them are
+      red-by-construction mid-PR, in **`.spec-bridge.json`** — alongside the existing
+      `strictDone` and `statusVocabulary` opt-ins, and following their contract exactly:
+      **absent or malformed config ⇒ behavior bit-for-bit unchanged**, so every consumer
+      repo that does not opt in is unaffected. A test must pin that no-config parity, in
+      the style of the existing `no statusVocabulary: … byte-identical` tests.
+      (c) **Blocks, not warns:** an all-boxes-ticked (Done-eligible) spec while any
+      declared *required* gate is red is a **blocking** finding — AC #3's wording stands.
+      Mid-PR ticks over a gate the host declared red-by-construction stay allowed, which
+      is what keeps phased work possible (AC #2).
+      This repo then declares its own set: wiki freshness is the red-by-construction one
+      (red from the source-touching commit until the re-pin commit); `node --test`,
+      `check-docs`, and `sync-version --check` are required-green.
 - [ ] **TASK-100 AC #5 is literal:** the shipped docs cite the 2026-08-01 field case
       verbatim — spec 048 phases 1-2, "254 pass, 0 fail" reported and ticked while four
       notes were staled and the freshness gate red. A fix without the citation leaves the
       next operator no reason to believe it.
-- [ ] **TASK-101 AC #6 is answered in `spec.md` as checkpoint 3 signed it off — ship vs
-      document — with the rationale recorded**, before any implementation. If **ship**:
-      the spec names the hook TYPE and its precedent gap (praxisflux ships **zero**
-      `PreToolUse` hooks today — grep confirms; every shipped hook is a Stop hook through
-      `lib/gate-runner.mjs`), and reconciles it with the repo's advisory-by-design
-      enforcement posture (`CLAUDE.md`: "the Stop hooks plugins ship are advisory/opt-in
-      … CI is the authoritative enforcement point"). If **document**: the spec names where
-      the doctrine lands and what makes it discoverable to a downstream host that already
-      hand-rolled its own guard.
+- [ ] **Operator ruling B (sign-off 2026-08-02) — TASK-101 AC #6 is answered SHIP: pdlc
+      ships the hardened root-guard hook, planted like the other peer artifacts.** The
+      spec records the answer and its rationale (each host otherwise re-implements a
+      raw-string git classifier and independently rediscovers this bug class — three
+      manifestations already), and must additionally:
+      - Name the hook **type** and own the precedent gap: praxisflux ships **zero**
+        `PreToolUse` hooks today (verified 2026-08-02 — every shipped hook is a Stop hook
+        through `lib/gate-runner.mjs`), so this is a new hook shape for the suite.
+      - **Reconcile the posture change explicitly** with `CLAUDE.md`'s stated split ("the
+        Stop hooks plugins ship are advisory/opt-in … CI is the authoritative enforcement
+        point") — and amend that sentence in the same PR if the shipped hook makes it
+        false. A new enforcement surface that leaves the always-on grounding describing
+        the old posture is the exact drift TASK-96 is next door cleaning up.
+      - Note the **promptworld copy's divergence** (AC #6's second clause) so the
+        downstream host can tell what it is replacing.
 - [ ] **TASK-101's parser fix is proven fail-closed, not just fail-open-fixed.** AC #5 is
       the load-bearing one: a test **per hazard character** (newline, `)`, quote,
       semicolon, pipe, backtick) proving a genuinely out-of-scope commit still blocks. A
@@ -306,7 +325,14 @@ end.
     scoped tasks): hand-authored `specs/NNN-<slug>/{spec,plan,tasks}.md` per this host's
     established no-`.specify/` precedent (nine prior sweep runbooks). **The artifacts
     themselves are still required in full; only the `specify` tooling is excused.**
-    — **Signed: pending operator sign-off (see checkpoint 1).**
+    — **Signed: operator, 2026-08-02.**
+- [ ] **Operator ruling C (sign-off 2026-08-02) — the `opus-implementer` def stays pinned
+      to `claude-opus-4-8` for this sweep.** TASK-97 records `claude-opus-5` as the
+      documented **primary** and `claude-opus-4-8` as the subscription **fallback**, plus
+      the condition for re-preferring the primary — but does **not** flip the `model:`
+      line, because the subscription does not surface Opus 5 today. Every opus-tier
+      dispatch in every lane therefore serves `claude-opus-4-8`; record the served model
+      per task anyway, read back from the transcript.
 - Host additions: **interactive execution mode** — board bookkeeping commits land direct
   on `main` from the root checkout (two-track landing); deliverable work lands by PR.
   Board/spec commands run from the root, never inside a worktree.
@@ -380,45 +406,34 @@ end.
 
 ## Operator checkpoints (do not proceed silently past)
 
-1. **Lane sign-off (blocking, before any claim).** The lanes above, the tier + model-ID
-   pins, and the eight hand-authored-spec escape lines. Flip **Status: draft →
-   signed-off** in this file.
-2. **TASK-100 — the gate's home and the red-by-construction rule (blocking, before its
-   spec is authored).** Three coupled questions the card deliberately leaves open:
-   (a) does the check live in the **spec-bridge Stop gate** (which already reads
-   `tasks.md` and already blocks status-over-artifacts, but ships to consumer repos and
-   would then need to know a *host's* gate set), in a **new praxisflux check script**
-   (knows this repo's gates, but does not generalize and does not block the bridge's
-   Done-derivation), or **both**? (b) what is the **allowed-red list** — is wiki freshness
-   the only gate red-by-construction mid-PR, and is "red until the re-pin commit" a
-   property the check can see, or does it need declaring? (c) does an all-boxes-ticked
-   spec over a red gate **block** (AC #3's wording) or **warn**, given the repo's stated
-   advisory-local / authoritative-in-CI split?
-3. **TASK-101 — ship the hook or document the fix (blocking, before its spec is
-   authored).** AC #6, and a genuine one-way door: praxisflux ships **no `PreToolUse`
-   hooks at all** today (verified 2026-08-02), and `CLAUDE.md` states the enforcement
-   split as "hooks advisory/opt-in, CI authoritative". A shipped command-classifying
-   `PreToolUse` hook is a new enforcement posture for the suite, planted into every host.
-   The alternative — document the parse fix + the `-F` and `-C` workarounds for hosts to
-   apply to their own copy — is cheaper and reversible. **Recommendation: ship it**, on
-   the card's own argument (each host otherwise re-implements a raw-string git classifier
-   and independently rediscovers this bug class — three manifestations already), **but the
-   posture change is the operator's call, not the implementer's.**
-4. **TASK-97 — does `opus-implementer` re-pin to `claude-opus-5`? (blocking, at TASK-97's
-   spec.)** AC #2 wants primary-vs-fallback provenance recorded (`claude-opus-5` primary,
-   `claude-opus-4-8` subscription fallback) **and the condition for re-preferring the
-   primary**. Whether the `model:` line itself flips depends on what the subscription
-   surfaces — an availability fact only the operator can confirm. Note the asymmetry and
-   do not "fix" it inline: THIS sweep dispatches at whatever the def pins at dispatch
-   time, and Lanes 3–5 may therefore dispatch on a different model than Lanes 1–2. Record
-   which model actually served, per task, either way.
-5. **Any tier escalation** (record the rubric justification on the card), and **any lane
+**Checkpoints 1–4 were answered at sign-off (2026-08-02) and are CLOSED.** Their answers
+are gate lines in "Per-task artifacts required before PR" above (rulings A, B, C) — that
+is where a later step reads them back. Recorded here for provenance only; do not re-ask
+them:
+
+1. ~~Lane sign-off~~ → **approved as authored**, all five lanes, tiers as pinned, all
+   eight escape lines signed.
+2. ~~TASK-100's gate home and posture~~ → **spec-bridge gate, host-declared via
+   `.spec-bridge.json`, blocks** (ruling A).
+3. ~~TASK-101 ship vs document~~ → **ship the hook** (ruling B).
+4. ~~`opus-implementer` primary model~~ → **stays `claude-opus-4-8`**; TASK-97 documents
+   `claude-opus-5` as primary without flipping the pin (ruling C).
+
+**Still live — do not proceed silently past:**
+
+5. **TASK-96's "one home" choice** if the chosen home *removes* text from the planted
+   `pdlc/templates/CLAUDE.md` block: that strands stale prose in every un-replanted
+   downstream host, so surface the choice before implementing it (the card asks for a
+   recorded choice; this is the case where recording is not enough).
+6. **Any tier escalation** (record the rubric justification on the card), and **any lane
    drop, reorder, or resplit** — that is a runbook amendment: amend this file, note why,
    tell the operator.
-6. **Softening any gate this runbook enumerates**, at plan, implement, or merge time — a
+7. **Softening any gate this runbook enumerates**, at plan, implement, or merge time — a
    runbook amendment plus an operator ping, never an implementer decision note buried in a
    spec artifact. *(Field case: `specs/033`'s plan.md relaxed a signed-off runbook's
    root-README gate to "only if check-docs demands", with no amendment.)*
+8. **A rejected push on a claim** where another session now holds the task or the spec
+   number — STOP the lane and surface it.
 
 ## Done means
 
