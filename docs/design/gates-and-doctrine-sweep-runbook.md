@@ -324,6 +324,16 @@ end.
       This repo then declares its own set: wiki freshness is the red-by-construction one
       (red from the source-touching commit until the re-pin commit); `node --test`,
       `check-docs`, and `sync-version --check` are required-green.
+- [ ] **Operator ruling A(c) clarified (2026-08-02, at TASK-100 Phase 2's request) —
+      red-by-construction gates MUST be green at Done-eligible.** Phase 2 surfaced a
+      wording tension: A(c) says required gates block at Done-eligible while ticks over
+      red-by-construction "stay allowed", with no time qualifier. The clarification: **"stay
+      allowed" governs MID-PR ticks only.** At Done-eligible every box is ticked — including
+      the re-pin box — so the freshness gate must by then be green; if it is still red, that
+      is exactly TASK-100's field case (a tick claiming a re-pin that never happened), and
+      it blocks. So: **mid-PR, zero commands run and red-by-construction is exempt; at
+      Done-eligible, BOTH buckets are evaluated and both must be green.** This is what Phase
+      2 shipped and what Phase 3's boundary test must pin.
 - [ ] **TASK-100 AC #5 is literal:** the shipped docs cite the 2026-08-01 field case
       verbatim — spec 048 phases 1-2, "254 pass, 0 fail" reported and ticked while four
       notes were staled and the freshness gate red. A fix without the citation leaves the
