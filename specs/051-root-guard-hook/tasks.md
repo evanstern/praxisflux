@@ -25,17 +25,17 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 2 — The quote-state scanner
 
-- [ ] Implement the single-pass quote-state scanner: single quotes, double quotes,
+- [x] Implement the single-pass quote-state scanner: single quotes, double quotes,
       backslash escapes, and separators (`;` `|` `&` newline backtick `)`) that are
       boundaries **only outside quotes**
-- [ ] Unbalanced quote ⇒ parse failure ⇒ **fail closed** (an unparseable command is not an
+- [x] Unbalanced quote ⇒ parse failure ⇒ **fail closed** (an unparseable command is not an
       allowed command); defined and tested
-- [ ] Require the `git` token to be in **command position** (R5(b))
-- [ ] Export the scanner as a pure function so it is unit-testable without the stdin
+- [x] Require the `git` token to be in **command position** (R5(b))
+- [x] Export the scanner as a pure function so it is unit-testable without the stdin
       contract
-- [ ] Unit tests for the scanner alone: quoted separators, nested/escaped quotes,
+- [x] Unit tests for the scanner alone: quoted separators, nested/escaped quotes,
       multi-line messages, unbalanced input
-- [ ] Commit
+- [x] Commit
 
 ## Phase 3 — Port the policy and wire the hook
 
@@ -286,3 +286,114 @@ Rationale:
   silently**, so it must be tested directly (Phase 4).
 - Both were **recommended in scope** by spec R5; no reason to defer either, so no deferral is
   recorded.
+
+### Phase 2 recorded decisions (2026-08-02, opus-implementer, TASK-101)
+
+The quote-state scanner (R2) plus command-position detection (R5(b)) shipped as a pure,
+standalone module. Everything below is the contract Phase 3 consumes.
+
+#### 1. Where it lives — `pdlc/hooks/shell-scan.mjs` (a SECOND file beside the hook)
+
+**Decision:** the scanner is its own module, `pdlc/hooks/shell-scan.mjs`, NOT inlined into
+`root-guard-hook.mjs`. Two exported pure functions, zero deps, no stdin/fs/process — so it
+is unit-testable in isolation (the phase's explicit requirement: "unit-testable without the
+hook's stdin contract"). Unit tests: `test/root-guard-scan.test.mjs` (46 cases, node:test
+style matching `test/pdlc.test.mjs`).
+
+Consequence Phase 1's home note did not anticipate: `pdlc/hooks/` now holds **two** `.mjs`
+files, still **no `hooks.json`** (Phase 1's load-bearing guard against auto-wiring holds —
+verified: no `hooks.json` created). Phase 3 does `import { findGitInvocations } from
+'./shell-scan.mjs'`. **Phase 5 plant obligation:** `plant.mjs` must copy BOTH
+`root-guard-hook.mjs` AND `shell-scan.mjs` into the host (same relative dir), or the hook's
+relative import breaks. Phase 1 wrote "plant.mjs copies the file" (singular); it is now two
+files. If a single-file planted artifact is preferred, the alternative is to inline
+shell-scan at plant time — but the standalone module is the tested unit and the recommended
+shape.
+
+#### 2. The scanner's exact API and fail-closed contract
+
+`scanCommand(command)` → discriminated result, **never throws**:
+- success: `{ ok: true, segments }` where `segments[i]` is that segment's tokens in order,
+  each token `{ value, index }` (`value` = quotes/escapes resolved; `index` = char offset in
+  `command` where the token began — Phase 3 needs `index` for `lastCdBefore`/effDir).
+- failure (fail closed): `{ ok: false, reason }` with reason one of
+  `'unbalanced-single-quote' | 'unbalanced-double-quote' | 'dangling-escape'`, and **NO
+  `segments` key**. A malformed command returns no token list at all — a caller cannot
+  mistake shredded words for pathspecs, which was the exact original defect.
+
+`findGitInvocations(command)` → `{ ok: true, invocations }` or the scanner's `{ ok: false,
+reason }` unchanged. Each invocation `{ index, tokens: string[] }` with `tokens[0] === 'git'`
+and `index` = char offset of the `git` token. A `git` qualifies ONLY as the **first token of
+its segment** (command position). This is the R5(b) fix.
+
+**Phase 3 must decide how the hook USES a scan failure.** The scanner only reports
+parseability. The doctrine (spec R2, and the board-sync exception's own "anything
+unverifiable ⇒ not board-sync ⇒ block") points to: a root `git commit` whose command does
+not parse cannot be verified as board-sync ⇒ deny the exception ⇒ block. But the overall
+hook is fail-OPEN on malformed stdin, and "non-git commands always pass." The scanner keeps
+those reconcilable by never fabricating tokens; the *policy* wiring of ok:false is Phase 3.
+
+#### 3. Separator set — includes `(`, matching promptworld's real behavior
+
+Boundary separators (outside quotes only): **`;` `|` `&` newline backtick `)` `(`**. The
+first six are exactly the defective parser's boundary class `[;|&\n` + backtick + `)]`. `(`
+is **added** so `$(git …)` / `(git …)` subshell invocations are seen at command position —
+promptworld's own git-detection regex `/(?:^|[;&|` + backtick + `(\n])\s*git(?=\s|$)/`
+already includes `(`, so this **preserves** its behavior, it does not widen policy. Omitting
+`(` would MISS `$(git commit)` — a regression from promptworld. An unquoted `(` in a real
+git command outside a subshell is effectively never seen (globs/paths are quoted). Flagged
+per the dispatch note to report deviations from the listed boundary set: this is a
+deliberate, documented superset of the tasks.md line, justified by preserving upstream
+detection, not a silent change.
+
+#### 4. Escape handling (all three states explicit, per R2)
+
+- **Outside quotes:** `\` escapes the next char literally (quote, space, separator all become
+  literal, token stays open). Trailing `\` with no next char ⇒ `dangling-escape` ⇒ fail
+  closed.
+- **Single quotes:** nothing is special except the closing `'` — backslashes and separators
+  are literal (POSIX). `'it'\''s'` ⇒ one token `it's`.
+- **Double quotes:** `\` escapes only `" \ $ ` + backtick + ` newline` (POSIX subset);
+  before anything else the backslash is literal. `"say \"hi\""` ⇒ `say "hi"`. A backtick
+  inside double quotes is **literal** (a message may contain backticks) — so it is NOT a
+  boundary there, only unquoted.
+
+#### 5. Verified tokenizations (the pins Phase 4 will drive end-to-end)
+
+- The verbatim field failure
+  `git commit -m "<subject>\n\nCo-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"`
+  (real newlines) ⇒ **exactly** `["git","commit","-m",<the whole message as ONE token>]`.
+  One command-position git invocation. The blank line and the `(1M context)` paren stay
+  inside the token.
+- `backlog task edit TASK-1 --notes "the git commit was blocked; retry"` ⇒ **zero** git
+  invocations (R5(b): quoted `git`, and the `;` inside quotes does not split).
+- `-m "a b"` ⇒ two tokens (`-m`, `a b`), never three.
+
+#### 6. Contradictions with the prior artifacts — none new
+
+No divergence from spec.md/plan.md found in Phase 2. plan.md's "single quote-state scanner"
+design is implemented as written; the two-regex approach is fully replaced (not patched).
+Phase 1's flagged R5(a) jurisdiction concern (promptworld `:379`, `:393-396` already do a
+jurisdiction/toplevel check) is **untouched by Phase 2** — R5(a) is Phase 3 and Phase 3 must
+still confirm the actual cross-repo failure path as Phase 1 warned.
+
+#### 7. Gates run at end of Phase 2 (real output)
+
+All four `.githooks/pre-commit` gates were run manually and are **genuinely green** — Phase 2
+only ADDS files (`pdlc/hooks/shell-scan.mjs`, `test/root-guard-scan.test.mjs`) and does not
+touch any pinned source or bump released versions (both Phase 5), so the freshness /
+sync-version "red-by-construction" condition that runbook amendment 1 (2026-08-02) authorized
+`--no-verify` for **did not arise here**:
+
+- `node --test` (full suite): **305 pass, 0 fail** (259 pre-existing + 46 new scanner cases).
+- `node scripts/check-docs.mjs`: **green** — "README.md and CLAUDE.md are in sync".
+- `node scripts/sync-version.mjs --check`: **green** — "all versions = 0.52.0".
+- `node scripts/gen-marketplace.mjs --check`: **green** — "marketplace.json is up to date".
+- `node grounding-wiki/gates/cli.mjs freshness . docs/wiki`: **green** — "36 note(s) fresh"
+  (one pre-existing `warn` on `test-suite-catalog-plugins.md` for no sources listed —
+  unrelated to this change).
+
+Because every gate passes, the Phase 2 commit was made with the **pre-commit hook ACTIVE
+(no `--no-verify`)** — the authorized bypass was available but not needed. Recorded so Phase
+3/5, where a pinned-source touch WILL turn the freshness gate red-by-construction, know the
+bypass was deliberately unused here.
