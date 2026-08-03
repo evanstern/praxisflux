@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-01 18:11'
-updated_date: '2026-08-03 03:45'
+updated_date: '2026-08-03 04:31'
 labels:
   - debt
   - pdlc
@@ -36,11 +36,11 @@ Spec: specs/050-tick-vs-red-gate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A gate detects the state 'tasks.md checkboxes ticked while a project gate this repo enforces is red' and blocks, naming the phase, the box, and the failing gate
-- [ ] #2 Phased work stays possible: the check distinguishes gates that are red by construction mid-PR (wiki freshness between a source edit and its re-pin commit) from gates that must be green, rather than blocking every tick while anything is red
-- [ ] #3 Done-eligible derivation is covered: an all-boxes-ticked spec while any enforced gate fails is a blocking finding, so the bridge cannot derive Done from boxes that were never true
-- [ ] #4 A test pins the new behavior, and the docs that describe the gates convention name the rule
-- [ ] #5 Cites the 2026-08-01 field case (spec 048 phases 1-2: '254 pass, 0 fail' reported and ticked with four notes staled and the freshness gate red)
+- [x] #1 A gate detects the state 'tasks.md checkboxes ticked while a project gate this repo enforces is red' and blocks, naming the phase, the box, and the failing gate
+- [x] #2 Phased work stays possible: the check distinguishes gates that are red by construction mid-PR (wiki freshness between a source edit and its re-pin commit) from gates that must be green, rather than blocking every tick while anything is red
+- [x] #3 Done-eligible derivation is covered: an all-boxes-ticked spec while any enforced gate fails is a blocking finding, so the bridge cannot derive Done from boxes that were never true
+- [x] #4 A test pins the new behavior, and the docs that describe the gates convention name the rule
+- [x] #5 Cites the 2026-08-01 field case (spec 048 phases 1-2: '254 pass, 0 fail' reported and ticked with four notes staled and the freshness gate red)
 - [ ] #6 Spec phase: Phase 1 — Design decision and config surface
 - [ ] #7 Spec phase: Phase 2 — The evaluator and its two entry points
 - [ ] #8 Spec phase: Phase 3 — Tests, including the parity proof
@@ -48,10 +48,10 @@ Spec: specs/050-tick-vs-red-gate
 - [ ] #10 Spec phase: Phase 5 — Close the two dogfood defects (blocking for merge)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep dispatch (runbook: docs/design/gates-and-doctrine-sweep-runbook.md, Lane 1). Tier: default implementer. Model ID: claude-opus-4-8, pinned via .claude/agents/opus-implementer.md frontmatter (NOT the dispatch-call model param — silently ignored by this harness, 2026-07-31). Primary claude-opus-5 documented but not surfaced by the subscription (operator ruling C, 2026-08-02). Rubric justification: a genuine design call the card declines to make, extending the repo's central integrity rule into a new enforcement surface with an easy-to-get-wrong red-by-construction carve-out. Operator ruling A fixed home/config/posture at sign-off; R4's execution-timing choice remains the implementer's, to be recorded in the spec dir.
+
+Orchestrator merge-readiness verification 2026-08-03, independent of implementer reports. Defect 1 (reentrancy guard reddening its own tests gate) CLOSED: 'node --test' = 405/405 AND 'SPEC_BRIDGE_GATE_ACTIVE=1 node --test' = 405/405, byte-identical — the pre-fix repro was 277/280. Defect 2 (O(N Done-eligible specs) execution) CLOSED: 'spec-bridge/gates/cli.mjs check .' with .spec-bridge.json present exits 0 over 51 linked tasks in ~18s wall-clock, against ~358s before memoization; a spawn-count test pins one spawn, not one per spec. Dogfood config committed and GREEN (R7). Gates: freshness 38 notes fresh 0 problems; check-docs in sync; versions 0.54.0; check-version-bump ok 0.53.0->0.54.0. Note both defects were findable ONLY by the R7 dogfood requirement — without it the feature would have shipped and taxed every consumer repo that adopted it.
 <!-- SECTION:NOTES:END -->
