@@ -22,17 +22,17 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 2 — The evaluator and its two entry points
 
-- [ ] Implement the pure evaluator: given declared gates and a spec's tick-state, produce
+- [x] Implement the pure evaluator: given declared gates and a spec's tick-state, produce
       the blocking findings — separately exported, so tests drive it without a subprocess
-- [ ] Command execution: `spawnSync` with `shell: false`, `cwd` = project root, per-command
+- [x] Command execution: `spawnSync` with `shell: false`, `cwd` = project root, per-command
       time box; nonzero = red; **spawn failure or timeout = blocking problem naming the
       gate and the reason, never green**
-- [ ] Blocking message names **the phase, the box, and the failing gate** (AC #1)
-- [ ] Wire into `checkBridge` at the point R4's decision specifies
-- [ ] Add the `verify` verb to `spec-bridge/gates/cli.mjs`, sharing the same evaluator
-- [ ] Confirm no re-entrancy path: a declared command must not be able to re-trigger the
+- [x] Blocking message names **the phase, the box, and the failing gate** (AC #1)
+- [x] Wire into `checkBridge` at the point R4's decision specifies
+- [x] Add the `verify` verb to `spec-bridge/gates/cli.mjs`, sharing the same evaluator
+- [x] Confirm no re-entrancy path: a declared command must not be able to re-trigger the
       bridge Stop hook; document the constraint for hosts
-- [ ] Commit
+- [x] Commit
 
 ## Phase 3 — Tests, including the parity proof
 
@@ -137,3 +137,97 @@ silently repaired). Returns `{ required, redByConstruction }`, each an array of
 in Phase 1 (the wiring and its parity proof are Phase 2/3). Unit tests: 5 `projectGatesProfile`
 cases in `test/phase-status.test.mjs` (opt-out/null, string-command rejection, bucket
 normalization, single-bucket + name-trim, malformed-sibling drop).
+
+### Phase 2 — the evaluator, two entry points, and one carried-over correction (2026-08-02)
+
+Committed with `git commit --no-verify` (disclosed): `.githooks/pre-commit`'s repo-freshness
+self-check (`run-gates.test.mjs`, inside `node --test`) is **red by construction** — Phase 1's
+commit `6dfee24` staled `docs/wiki/spec-bridge-plugin.md` and
+`docs/wiki/test-suite-catalog-plugins-gates.md`, and Phase 4 re-pins them (runbook amendment 1,
+operator-signed 2026-08-02). See the gate report at the bottom of this note.
+
+**CORRECTION to Phase 1's recorded additive-change plan — it would have broken existing tests.**
+Phase 1 said to widen `parseTasks` so each phase object carries a `boxes: [{checked,text}]`
+array "alongside the existing `name/done/total`". That is NOT test-compatible: existing tests
+pin the exact phase shape with `assert.deepEqual` —
+`test/spec-derive.test.mjs:66` (`parseTasks(TASKS_MD)` → `[{name,done,total}, …]`), `:77`, and
+`:98`/`:151`/`:159` (`deriveSpecState().phases`). Any extra key on those objects fails the
+deepEqual. Per the dispatch's hard constraint ("every existing test must pass unmodified; if a
+test needs editing, you changed something you shouldn't have"), I kept the same INTENT but a
+non-breaking mechanism:
+- `lib/spec-derive.mjs`: `parseTasks` output stays **byte-identical** (`{name,done,total}` only).
+  Its internals now delegate to a private `parsePhaseList` (single pass, rich objects);
+  `parseTasks` projects to the lean shape. `TASK_LINE` widened to
+  `/^\s*[-*]\s+\[([ xX])\]\s+(\S.*?)\s*$/` — matches the *same line set* as before (both require
+  a non-space after the box; per-line matching means `.*?\s*$` always closes the remainder), only
+  adding capture group 2 (the box text).
+- New export **`parseTaskBoxes(markdown)`** → `[{ name, boxes: [{checked, text}] }]`, and
+  `deriveSpecState` gains a new top-level field **`derived.phaseBoxes`** carrying it. `.phases`
+  is untouched. No test asserts the whole derived object, so a new top-level field is safe.
+- **Phase 3, READ THIS:** the box text lives at `derived.phaseBoxes` / `parseTaskBoxes`, NOT at
+  `phase.boxes`. Drive the evaluator with `evaluateProjectGates({ id, specDir, phaseBoxes }, …)`.
+
+**The evaluator and its two entry points (all in `spec-bridge/gates/bridge.mjs`).**
+- `runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spawn = spawnSync })` — the one
+  effectful piece. `spawnSync(argv[0], argv.slice(1), { shell:false, cwd, timeout, encoding:"utf8",
+  env:{...process.env, SPEC_BRIDGE_GATE_ACTIVE:"1"} })`. Returns `{ok:true}` |
+  `{ok:false,kind:"red",reason}` (nonzero exit / `killed by <signal>`) |
+  `{ok:false,kind:"error",reason}` (ENOENT/spawn error) | `{ok:false,kind:"timeout",timeoutMs}`.
+  **Fail-closed:** error and timeout are never green. `GATE_TIMEOUT_MS = 120000` (node --test here
+  is ~5.7s; 2 min boxes a hung gate). `spawn` is injectable so the interpretation is unit-testable.
+- **`evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run)`** — the **pure evaluator**,
+  separately exported. `run` (one command → runGateCommand's shape) is injected, so Phase 3 drives
+  green/red/error/timeout with **no subprocess**. Emits one finding per non-green gate. The
+  "witness" box is the **last ticked box in document order** (the tick that in sequence claimed the
+  most) — computed once.
+- Message (AC #1) — real examples:
+  - required red: `[spec-bridge] TASK-100 · specs/050: phase "Prove", box "node --test green" is
+    ticked, but the required gate "tests" is red (exited 1). A ticked tasks.md checkbox cannot
+    outrun a red project gate — make the gate pass or set the box back.`
+  - fail-closed: `… the required gate "tests" could not be executed (ENOENT) and is treated as
+    failed, never green. …`  ·  timeout: `… timed out after 120000ms and is treated as failed,
+    never green. …`
+  - redByConstruction at Done-eligible: `… the red-by-construction gate "freshness" is red
+    (exited 1). …`
+- **Entry point 1 — Stop hook** (`checkBridge(root, { runGates, run })`): runs gates **only when a
+  linked spec is `derived.status === DONE_ELIGIBLE`** (R4 cost decision — ordinary turns run zero
+  commands). At Done-eligible **both buckets** are evaluated (required + redByConstruction): the
+  mid-PR window is closed (every box, incl. the re-pin box, is ticked), so redByConstruction's
+  "allowed red mid-PR" license has expired. `bridgeGate.check` passes `runGates:true`,
+  `bridgeGate.warn` passes `runGates:false` — the runner calls check() then warn() per root, and
+  this keeps a Stop from paying the subprocess cost **twice** (warnings never depend on gate exec).
+- **Entry point 2 — CLI `verify`** (`verifyBridge(root,{run})`, wired to
+  `node spec-bridge/gates/cli.mjs verify <root>`): the mid-PR counterpart. For every linked spec
+  with ≥1 ticked box, Done-eligible → both buckets; mid-PR → **`required` only** (redByConstruction
+  is legitimately red between a source edit and its re-pin). Shares `evaluateProjectGates`, so the
+  two entry points agree by construction (exit 1 on any finding).
+
+**Re-entrancy finding (Phase 2 box 6).** Two paths considered. (1) A declared command is a plain
+`spawnSync` subprocess (`shell:false`) — it does NOT fire the Claude Stop hook, so `node --test`
+etc. cannot re-enter the bridge that way. (2) The real hazard: a host that declares a gate command
+which itself invokes the bridge (`… cli.mjs verify .`, or the Stop-hook entry) would recurse/fork.
+**Structural guard added:** `runGateCommand` sets `SPEC_BRIDGE_GATE_ACTIVE=1` on the child env;
+`checkBridge` and `verifyBridge` both short-circuit (run **no** commands) when
+`process.env.SPEC_BRIDGE_GATE_ACTIVE === "1"`. So a re-invocation nested under a gate command runs
+the read-only verdict logic but never re-executes commands — recursion is broken by construction,
+mirroring `gate-runner`'s `stop_hook_active` guard one level down. **Host constraint to document
+(Phase 4 docs):** hosts still must not declare a gate command whose *purpose* is to invoke the
+bridge; the env guard prevents the fork but such a command is meaningless.
+
+**Note for Phase 3 / operator — a wording tension to be aware of (NOT re-opening ruling A).** Ruling
+A(c) says "any declared *required* gate is red at Done-eligible … blocks; ticks over a
+red-by-construction gate stay allowed." The spec's own problem statement (§"two things that must
+stay separated", point 2) says "a task reaching Done-eligible while **a gate the project enforces**
+is failing" is unacceptable, and tasks.md Phase 3 pins a **boundary case**: "the same
+red-by-construction gate still red at Done-eligible ⇒ blocks." I read these as consistent:
+"stay allowed" governs **mid-PR** ticks (before Done-eligible), and at Done-eligible the re-pin box
+is itself ticked, so redByConstruction must be green by then. The shipped Stop hook therefore
+evaluates **both** buckets at Done-eligible (satisfying the Phase 3 boundary case) while running
+**zero** commands mid-PR (satisfying the allowance case and ruling A's mid-PR promise). If the
+operator intended redByConstruction to be exempt even at Done-eligible, flip `checkBridge`'s
+Done-eligible bucket list to `["required"]` — one line — and the evaluator/verify are unaffected.
+
+**Existing tests pass unmodified.** `node --test` → **264 tests, 263 pass, 1 fail**; the sole
+failure is `run-gates.test.mjs` (the repo freshness self-check, red-by-construction per above), NOT
+a spec-derive / spec-bridge / phase-status test. No existing test file was edited. Phase 3 adds the
+new gate-execution tests (blocking / boundary / allowance / fail-closed / no-config parity).
