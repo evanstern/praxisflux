@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
+verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
 ---
 
 # Gates convention
@@ -63,6 +63,17 @@ paths may be absent) and exit 0 when node is unavailable — a missing runtime n
 **Judgment steps need evidence plus durable residue, never a bare flag.** Educate's return leg
 requires both `handoff.foldedIn` in `progress.json` *and* a `## Post-build` section on disk, so
 the most-skipped step can't be rubber-stamped by setting a boolean.
+
+**A ticked checkbox is status too** (`docs/skill-patterns.md` §4, spec 050). spec-bridge derives a
+linked card's Done-eligibility from `tasks.md`'s checkboxes, so a *ticked box is a status claim* and
+this same rule binds it: a box may not claim a greenness a project gate would deny. The field case
+that carded it (2026-08-01, spec 048 phases 1-2): an implementer reported "254 pass, 0 fail" and
+ticked its "node --test green" box while four wiki notes were staled and the freshness gate was red;
+nothing caught it. The fix is *data, not prose* — a host declares its gates in `.spec-bridge.json`
+(`projectGates`: `required` gates green before Done-eligible, `redByConstruction` gates allowed red
+mid-PR — the freshness gate between a source edit and its re-pin), and [[spec-bridge-plugin]]'s gate
+runs them so a tick cannot stand over a red one. It reuses this convention's fail-closed contract:
+a declared command that cannot execute is a blocking problem, never a silent green.
 
 ## Connections
 

@@ -1,6 +1,6 @@
 ---
 name: spec-bridge-plugin
-description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs), link/sync skills, a Stop-hook gate blocking status that exceeds spec artifacts, and an opt-in phase-level status vocabulary judged on the same derivation.
+description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs), link/sync skills, a Stop-hook gate blocking status that exceeds spec artifacts, an opt-in phase-level status vocabulary, and an opt-in project-gate check (a ticked tasks.md box cannot outrun a red declared gate) — all judged on the same derivation.
 kind: component
 sources:
   - spec-bridge/.claude-plugin/plugin.json
@@ -13,7 +13,7 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80
+verified_against: d79941ce7c3c17641ed073859d261e689d0b447e
 ---
 
 # spec-bridge plugin
@@ -87,6 +87,23 @@ the gate accepts. Absent the config, every path is bit-for-bit the 3-status cont
 is praxis P3 (artifact-gated seams, `docs/principles.md`) applied to the board as a
 pipeline's observability surface.
 
+**Project gates (opt-in, spec 050).** A ticked `tasks.md` checkbox IS status here — the
+derivation reads Done-eligibility from those boxes — so a box may not claim a greenness the
+project's gates would deny (2026-08-01 field case: spec 048 ticked "254 pass, 0 fail" while four
+notes staled and freshness was red). A `projectGates` map (`.spec-bridge.json`) makes the rule
+*data*, two buckets: `required` gates must be green before Done-eligible; `redByConstruction`
+(freshness, between a source edit and its re-pin) MAY be red mid-PR (allowed silently), enforced
+again at Done-eligible once the re-pin box is ticked. Each `command` is an **argv array** run via
+`spawnSync` `shell:false` (no injection surface); ENOENT/timeout is *failed, never green*
+(fail-closed). `projectGatesProfile` mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒
+every message byte-identical. One `evaluateProjectGates` feeds two entry points: the **Stop
+hook** (`checkBridge`) at Done-eligible, both buckets; the CLI **`verify`** (`verifyBridge`),
+mid-PR, `required` only. Gates are project-wide, so each command runs **once per invocation**, its
+result shared across specs — findings stay per spec, naming phase/box/gate (else the set ran once
+per Done-eligible spec: 49× here, ~358s→~6.6s). `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the
+**default** runner so a gate command re-invoking the bridge can't recurse; an injected `run`
+bypasses it (spawns nothing), so the check dogfoods itself.
+
 ## Connections
 
 - The plugin's whole premise is the [[gates-convention]] applied to Spec Kit artifacts; the
@@ -103,7 +120,9 @@ pipeline's observability surface.
 ## Operational notes
 
 - Read-only CLI backbone: `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir> |
-  links <root> | check <root> | plan <root>`.
+  links <root> | check <root> | verify <root> | plan <root>`. `verify` runs the declared
+  `projectGates` against every ticked box (the mid-PR counterpart to the Done-eligible Stop-hook
+  check), exiting nonzero on a tick standing over a red/unrunnable gate.
 - Known tradeoff (from the README): Spec Kit works branch-per-feature, so a linked task file
   lives on the feature branch until merge — `main`'s board lags in-flight spec work; the
   board is authoritative per branch.
