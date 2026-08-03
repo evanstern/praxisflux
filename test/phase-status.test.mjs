@@ -13,7 +13,7 @@ import { join } from "node:path";
 import { deriveSpecState, coarseStatus, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import {
   vocabularyProfile, stageVerdict, verdict, checkBridge, planBridge, bridgeGate,
-  DEFAULT_STAGE_NAMES,
+  DEFAULT_STAGE_NAMES, projectGatesProfile,
 } from "../spec-bridge/gates/bridge.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 
@@ -285,6 +285,72 @@ test("opt-in plan: reviewing left at its default still plans '-s Done' with the 
     const { commands } = planBridge(p.root);
     assert.match(commands[0], /^backlog task edit TASK-1 -s 'Done' --final-summary /);
   } finally { p.done(); }
+});
+
+/* ── the opt-in projectGates declaration (spec 050 R1) ───────────────────── */
+
+test("projectGatesProfile: absent, malformed, or empty config opts out (null)", () => {
+  // Mirrors vocabularyProfile's opt-out contract exactly: no key, wrong type, or no valid
+  // entry ⇒ null ⇒ behavior bit-for-bit unchanged.
+  assert.equal(projectGatesProfile({}), null);
+  assert.equal(projectGatesProfile({ strictDone: true }), null);
+  assert.equal(projectGatesProfile({ statusVocabulary: { validating: "V" } }), null);
+  assert.equal(projectGatesProfile({ projectGates: null }), null);
+  assert.equal(projectGatesProfile({ projectGates: "tests" }), null);
+  assert.equal(projectGatesProfile({ projectGates: ["tests"] }), null);
+  assert.equal(projectGatesProfile({ projectGates: {} }), null);
+  assert.equal(projectGatesProfile({ projectGates: { required: [], redByConstruction: [] } }), null);
+  // buckets present but every entry malformed ⇒ nothing valid survives ⇒ null
+  assert.equal(projectGatesProfile({ projectGates: { required: "node --test" } }), null);
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ name: "tests" }] } }), null); // no command
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ command: ["node"] }] } }), null); // no name
+});
+
+test("projectGatesProfile: a string command is rejected — argv arrays only, no shell", () => {
+  // The injection-safety choice (spec 050 R4): command must be a non-empty array of
+  // non-empty strings. A shell string has no safe split and is dropped as malformed.
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ name: "tests", command: "node --test" }] } }), null);
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ name: "tests", command: [] }] } }), null); // empty argv
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ name: "tests", command: ["node", ""] }] } }), null); // empty element
+  assert.equal(projectGatesProfile({ projectGates: { required: [{ name: "tests", command: ["node", 7] }] } }), null); // non-string element
+});
+
+test("projectGatesProfile: valid entries normalize into required/redByConstruction buckets", () => {
+  const p = projectGatesProfile({
+    projectGates: {
+      required: [{ name: "tests", command: ["node", "--test"] }],
+      redByConstruction: [{ name: "freshness", command: ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] }],
+    },
+  });
+  assert.deepEqual(p, {
+    required: [{ name: "tests", command: ["node", "--test"] }],
+    redByConstruction: [{ name: "freshness", command: ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] }],
+  });
+});
+
+test("projectGatesProfile: one valid bucket is enough; the other defaults to [] and names trim", () => {
+  assert.deepEqual(
+    projectGatesProfile({ projectGates: { required: [{ name: "  tests  ", command: ["node", "--test"] }] } }),
+    { required: [{ name: "tests", command: ["node", "--test"] }], redByConstruction: [] }
+  );
+  assert.deepEqual(
+    projectGatesProfile({ projectGates: { redByConstruction: [{ name: "freshness", command: ["node", "gate.mjs"] }] } }),
+    { required: [], redByConstruction: [{ name: "freshness", command: ["node", "gate.mjs"] }] }
+  );
+});
+
+test("projectGatesProfile: malformed entries are dropped, valid siblings survive", () => {
+  const p = projectGatesProfile({
+    projectGates: {
+      required: [
+        { name: "tests", command: ["node", "--test"] }, // valid
+        { name: "docs", command: "node scripts/check-docs.mjs" }, // string command → dropped
+        { name: "", command: ["node", "x.mjs"] }, // empty name → dropped
+        "not an object", // → dropped
+      ],
+    },
+  });
+  assert.deepEqual(p, { required: [{ name: "tests", command: ["node", "--test"] }], redByConstruction: [] });
 });
 
 /* ── config-absent parity: today's 3-status contract, bit for bit ────────── */

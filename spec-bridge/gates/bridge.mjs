@@ -83,6 +83,58 @@ export function vocabularyProfile(config) {
   return { names, cover };
 }
 
+/**
+ * The opt-in project-gate declaration, normalized. `.spec-bridge.json` may carry
+ *   { "projectGates": {
+ *       "required":          [ { "name": "tests",     "command": ["node", "--test"] } ],
+ *       "redByConstruction": [ { "name": "freshness", "command": ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] } ]
+ *   } }
+ * declaring which host gates must be green before a linked spec may be Done-eligible
+ * (`required`) and which a mid-PR phase MAY leave red — the freshness gate between a
+ * source edit and its re-pin commit (`redByConstruction`). "Red until the re-pin commit"
+ * is not a property this checker can see, so the host STATES it; it is data the check
+ * reads, never prose (spec 050 R1).
+ *
+ * This mirrors vocabularyProfile exactly: returns null — behavior bit-for-bit unchanged,
+ * every existing message and plan byte-identical — unless at least one validly-shaped gate
+ * entry exists. A valid entry is `{ name: <non-empty string>, command: <non-empty array of
+ * non-empty strings> }`; malformed entries are dropped silently (unknown keys / bad values
+ * ignored, never guessed), and if nothing valid survives in either bucket the whole opt-in
+ * is null. `command` is an argv array by design (never a shell string): declared commands
+ * run via spawnSync with shell:false, so there is no interpolation and no injection surface
+ * (spec 050 R4; the exec itself lands in phase 2). The field case this guards: 2026-08-01,
+ * spec 048 phases 1-2, "254 pass, 0 fail" reported and a tasks.md box ticked while four wiki
+ * notes were staled and the freshness gate was red.
+ *
+ * Returns { required, redByConstruction } — each an array of { name, command } with command
+ * a string[] argv; an absent-but-other-present bucket is []. Null iff no valid entry at all.
+ */
+export function projectGatesProfile(config) {
+  const raw = config?.projectGates;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const parseBucket = (value) => {
+    if (!Array.isArray(value)) return [];
+    const out = [];
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+      const name = typeof entry.name === "string" ? entry.name.trim() : "";
+      // A validly-shaped entry needs a name AND an argv that is a non-empty array of
+      // non-empty strings. A string `command` is NOT accepted — no safe split exists, and
+      // the whole point is to never touch a shell. A malformed element (empty/non-string)
+      // fails the whole entry rather than being silently repaired; drop it, never guess.
+      const cmd = entry.command;
+      const argvOk = Array.isArray(cmd) && cmd.length > 0 && cmd.every((a) => typeof a === "string" && a.trim());
+      if (!name || !argvOk) continue;
+      out.push({ name, command: cmd });
+    }
+    return out;
+  };
+  const required = parseBucket(raw.required);
+  const redByConstruction = parseBucket(raw.redByConstruction);
+  if (required.length === 0 && redByConstruction.length === 0) return null;
+  return { required, redByConstruction };
+}
+
 const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
 const RANK = { "to do": 0, "in progress": 1, done: 2 };
 const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_ELIGIBLE]: 2 };
