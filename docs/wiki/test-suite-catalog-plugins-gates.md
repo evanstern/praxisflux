@@ -12,7 +12,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
+verified_against: 8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -50,8 +50,11 @@ seam involved. One bullet per `test/*.test.mjs` file:
   exiting 1 while pending; the `peersOmitted` trace (sentinel field, one stderr notice
   per omitted peer, legacy sentinels stay readable); the `resolveProjectName` ladder —
   override > recorded > worktree gitdir parse > basename — so worktree plants render the
-  PRIMARY checkout's name and re-plants from either side stay unchanged, never drifted;
-  and the refactor-triage skill shape (spec 033, deepened to the new-plugin standard by
+  PRIMARY checkout's name and re-plants from either side stay unchanged, never drifted; the
+  opt-in root-guard hook planting (spec 051) — `--hook root-guard` copying BOTH hook files
+  into `.claude/hooks/` and merging the two `PreToolUse` entries into `.claude/settings.json`,
+  idempotent, preserving a host's pre-existing hooks, `--check` writing nothing, unknown-hook
+  rejection; and the refactor-triage skill shape (spec 033, deepened to the new-plugin standard by
   spec 047) — frontmatter parsed via the chassis `parseFrontmatter` (not a key-order
   regex) plus the full phase skeleton (`## Precondition gate` through the four numbered
   phases, `## Output gate`, `## Handing off`) so a gutted phase drops a header and fails
