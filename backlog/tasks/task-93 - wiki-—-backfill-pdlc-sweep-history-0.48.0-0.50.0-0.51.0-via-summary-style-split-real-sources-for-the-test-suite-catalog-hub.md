@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 20:04'
-updated_date: '2026-08-03 01:48'
+updated_date: '2026-08-03 02:21'
 labels:
   - debt
   - wiki
@@ -42,4 +42,6 @@ Spec: specs/049-wiki-sweep-history-backfill
 
 <!-- SECTION:NOTES:BEGIN -->
 Sweep dispatch (runbook: docs/design/gates-and-doctrine-sweep-runbook.md, Lane 1). Tier: mechanical. Model ID: claude-sonnet-5, pinned via .claude/agents/sonnet-implementer.md frontmatter (NOT the dispatch-call model param — silently ignored by this harness, 2026-07-31). Fallback: claude-opus-4-8. Rubric justification: corpus hygiene to an existing pattern (TASK-78's summary-style split is the in-repo precedent), acceptance mechanically checkable by the freshness gate, no design choice. Served model: recorded per phase below.
+
+CORRECTION (Phase 3, 2026-08-02, verified independently by the orchestrator): AC #1's '0.48.0' is the WRONG release. The background-job / no-main-push execution mode shipped in 0.49.0, not 0.48.0. Evidence: TASK-90 (3124b74c) introduced the doctrine and first targeted 0.48.0, but lost that number to sibling PR TASK-80 (bd5ce8f, unrelated refactor-triage content) which merged first; TASK-90 restamped to 0.49.0 before its own merge (da3e615). Verified: 'git show da3e615:.claude-plugin/marketplace.json' -> 0.49.0; 'git show bd5ce8f:...' -> 0.48.0; 'git log -S' confirms 3124b74c introduced the background-job section. docs/design/board-cost-test-runbook.md already recorded v0.49.0 correctly. READ AC #1 AS 0.49.0/0.50.0/0.51.0 — the backfilled entry is written under 0.49.0. The AC text is left unedited so the spec-bridge phase-AC mirroring is not disturbed; this note is the authoritative record. Consequence: docs/wiki/pdlc-sweep.md:98 carries the same wrong label and is fixed in Phase 4 as a recorded scope decision (see specs/049-wiki-sweep-history-backfill/spec.md R2).
 <!-- SECTION:NOTES:END -->

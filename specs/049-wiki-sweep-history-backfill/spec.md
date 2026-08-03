@@ -15,9 +15,20 @@ doctrine —
 
 | release | doctrine it added |
 |---|---|
-| 0.48.0 | background-job / no-main-push execution mode |
+| **0.49.0** (not 0.48.0 — see correction below) | background-job / no-main-push execution mode |
 | 0.50.0 | two-track landing reference |
 | 0.51.0 | hand-authored-specs hatch + the gate-softening-requires-amendment rule |
+
+> **Correction (Phase 3, verified 2026-08-02).** This spec, the TASK-93 card's AC #1, and
+> `docs/wiki/pdlc-sweep.md:98` all originally labelled the background-job doctrine
+> **0.48.0**. That is wrong. TASK-90 (`3124b74c`) first targeted 0.48.0, lost the number to
+> sibling PR TASK-80 (`bd5ce8f`, unrelated refactor-triage content) which merged first, then
+> restamped to **0.49.0** before its own merge (`da3e615`). Verified independently by the
+> orchestrator: `git show da3e615:.claude-plugin/marketplace.json` → `0.49.0`;
+> `git show bd5ce8f:…` → `0.48.0`; and `git log -S` confirms `3124b74c` introduced the
+> background-job section. `docs/design/board-cost-test-runbook.md` already recorded v0.49.0
+> correctly. **The backfilled entry is written as 0.49.0.** Writing it under 0.48.0 would
+> have reproduced the exact false-claim defect this task exists to fix.
 
 A note whose stated contract is release-by-release history, missing the last three
 releases, is not merely stale — the sibling note's cross-reference to it is **false**.
@@ -74,6 +85,16 @@ Mapped 1:1 to the board card's acceptance criteria.
 - Reciprocal wikilinks resolve in both directions between parent and every child, and
   `[[pdlc-sweep]]`'s existing cross-reference resolves to a note that now actually
   carries what it promises.
+- **Scope decision (orchestrator, 2026-08-02): fix `docs/wiki/pdlc-sweep.md:98`'s stale
+  `0.48.0` label to `0.49.0` in this task.** Rationale: the card's own evidence cites that
+  exact line as the false claim this task exists to repair, and Phase 3 proved it is false
+  in a *second* way — not just "the history note doesn't carry the detail" but "the release
+  it names is the wrong release". Leaving a known-false version label in the line the card
+  quotes, while fixing the other half of the same sentence, would be dishonest work. This
+  is a one-token factual correction to a cited line, not new scope — it adds no AC and
+  changes no other behavior. It does mean this task touches `pdlc-sweep.md`, a hotspot
+  TASK-97/98 also edit; TASK-93 merges first, so they inherit it. Re-pin `pdlc-sweep.md`
+  honestly after the edit.
 - `INDEX.md` and `CAPSULES.md` are **regenerated**, never hand-edited —
   `node ${CLAUDE_PLUGIN_ROOT}/scripts/capsules.mjs <repo-root> docs/wiki` for CAPSULES.
   Both are derived state; a hand edit is a gate failure by construction.
