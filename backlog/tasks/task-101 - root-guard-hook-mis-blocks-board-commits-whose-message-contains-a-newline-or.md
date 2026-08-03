@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-03 00:41'
-updated_date: '2026-08-03 02:58'
+updated_date: '2026-08-03 03:43'
 labels:
   - gates
   - bug
@@ -76,12 +76,12 @@ Spec: specs/051-root-guard-hook
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A board-sync commit scoped entirely to backlog/ is accepted regardless of what its commit message text contains — newlines, parentheses, quotes, semicolons, pipes and backticks all included
-- [ ] #2 The standard multi-line Co-Authored-By trailer, verbatim, commits successfully at root without a workaround
-- [ ] #3 The command classifier honors quoting across newlines rather than truncating the segment on a character class that can occur inside a quoted string
-- [ ] #4 When the board-sync exception IS correctly denied, the refusal names the specific token it read as an out-of-scope pathspec, so the cause is self-diagnosing
-- [ ] #5 The gate's fail-closed posture is preserved: no commit that was blocked for genuine scoping reasons becomes allowed by this fix, covered by a test per hazard character
-- [ ] #6 Decision recorded on whether pdlc ships the hook (planted like other peer artifacts) or the fix is documented for hosts to apply to their own copy; if shipped, the promptworld copy's divergence is noted
+- [x] #1 A board-sync commit scoped entirely to backlog/ is accepted regardless of what its commit message text contains — newlines, parentheses, quotes, semicolons, pipes and backticks all included
+- [x] #2 The standard multi-line Co-Authored-By trailer, verbatim, commits successfully at root without a workaround
+- [x] #3 The command classifier honors quoting across newlines rather than truncating the segment on a character class that can occur inside a quoted string
+- [x] #4 When the board-sync exception IS correctly denied, the refusal names the specific token it read as an out-of-scope pathspec, so the cause is self-diagnosing
+- [x] #5 The gate's fail-closed posture is preserved: no commit that was blocked for genuine scoping reasons becomes allowed by this fix, covered by a test per hazard character
+- [x] #6 Decision recorded on whether pdlc ships the hook (planted like other peer artifacts) or the fix is documented for hosts to apply to their own copy; if shipped, the promptworld copy's divergence is noted
 - [ ] #7 Spec phase: Phase 1 — Read the source, decide the home, record the decisions
 - [ ] #8 Spec phase: Phase 2 — The quote-state scanner
 - [ ] #9 Spec phase: Phase 3 — Port the policy and wire the hook
@@ -91,12 +91,12 @@ Spec: specs/051-root-guard-hook
 - [ ] #13 Spec phase: Phase 6 — Plant, posture, docs, re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 THIRD manifestation, found 2026-08-02 while carding this one. (a) Cross-repo: the hook fires on every Bash commit invocation in a session whose CLAUDE_PROJECT_DIR is the host repo, INCLUDING invocations targeting a different repository — committing this card in ~/Claude/Code/praxis was refused by promptworld's guard, which resolved the staged set against promptworld (nothing staged) instead of the repo being written to. Workaround: pass -C <other-repo>, which the hook honors when computing effDir. A session working two repos cannot commit to the second one normally. (b) Content false-positive: the FIRST attempt to append this very note was itself refused, because the note TEXT mentioned the two words g-i-t and c-o-m-m-i-t adjacently. A 'backlog task edit' command is not a VCS write at all, yet prose describing one is enough to trip the guard. Both share the root cause: the classifier reasons about a raw command STRING rather than the invocation's real argv and target repo.
 
 Sweep dispatch (runbook: docs/design/gates-and-doctrine-sweep-runbook.md, Lane 1). Tier: default implementer. Model ID: claude-opus-4-8, pinned via .claude/agents/opus-implementer.md frontmatter (NOT the dispatch-call model param). Primary claude-opus-5 documented but not surfaced by the subscription (operator ruling C, 2026-08-02). Rubric justification: AC #6 is a one-way door on the suite's enforcement posture (praxisflux ships zero PreToolUse hooks today), and the fix is a shell-word parser whose failure mode is a fail-open gate. Design + security-shaped parsing = default tier, never mechanical. Operator ruling B answered AC #6 SHIP at sign-off, with two riders recorded as gate lines in the runbook.
+
+Orchestrator merge-readiness verification 2026-08-02, independent of the implementer reports. End-to-end through the planted hook in a scratch repo: (1) backlog/-scoped commit carrying the VERBATIM 'Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>' trailer -> exit 0 ALLOW, no -F/-C workaround (AC #1/#2 proven); (2) out-of-scope commit with the same trailer -> exit 2 BLOCK (AC #5 fail-closed preserved); (3) the ANSI-C escaped-quote form that Phase 4 found newly-allowed -> exit 2 BLOCK after the Phase 5 scanner hardening. Gates on the merged-in branch: node --test 381/381, freshness 38 notes fresh with ZERO warns, check-docs in sync, versions 0.53.0, check-version-bump ok 0.52.0->0.53.0. AC #6 answered SHIP per operator ruling B; the hook is planted OPT-IN via 'plant.mjs --hook root-guard' (copies BOTH root-guard-hook.mjs and shell-scan.mjs) and root CLAUDE.md's enforcement-split sentence was amended to name it as the one hard-blocking local surface while affirming the default advisory posture where not opted in.
 <!-- SECTION:NOTES:END -->
