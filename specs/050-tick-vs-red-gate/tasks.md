@@ -44,11 +44,13 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [x] Fail-closed case: a declared command that cannot execute ⇒ blocking problem, not green
 - [x] **No-config parity: every existing gate message and `plan` output byte-identical to
       today's**, in the style of the existing `no statusVocabulary: … byte-identical` tests
-- [ ] `node --test` green — report the real count, never a remembered one
-      (LEFT UNTICKED BY CONSTRUCTION — real count **280 tests, 279 pass, 1 fail**; the sole
-      fail is `run-gates.test.mjs`'s repo-freshness self-check, red-by-construction per Phase
-      2 / amendment 1. Ticking a "node --test green" box while node --test is red is the exact
-      anti-pattern spec 050 exists to stop, so this box greens in Phase 4 after the re-pin.)
+- [x] `node --test` green — report the real count, never a remembered one
+      (TICKED IN PHASE 4 after the re-pin made the freshness self-check pass: real count
+      **280 tests, 280 pass, 0 fail**. It was left unticked through Phase 3 by construction —
+      the sole fail then was `run-gates.test.mjs`'s repo-freshness self-check, red-by-construction
+      per Phase 2 / amendment 1. Ticking a "node --test green" box while node --test is red is
+      the exact anti-pattern spec 050 exists to stop, so this box greened only once the re-pin
+      landed and the suite was genuinely 280/280.)
 - [x] Commit
 
 ## Phase 4 — Dogfood, docs, and re-ground
@@ -56,21 +58,27 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [ ] Add `.spec-bridge.json` at the repo root declaring this project's own gates (R7):
       required = `node --test`, `node scripts/check-docs.mjs`,
       `node scripts/sync-version.mjs --check`; redByConstruction = the wiki freshness gate
+      (AUTHORED but NOT committed — it reddens this repo's own bridge gate; see the Phase-4
+      BLOCKER note below. Ticking this while the dogfood fails would be the exact anti-pattern
+      spec 050 exists to stop.)
 - [ ] Verify the gate passes against this repo with that config present
-- [ ] `docs/skill-patterns.md` (§4-5) names the new rule
-- [ ] `spec-bridge/README.md` documents the config key
-- [ ] Cite the 2026-08-01 field case literally in the shipped surface (AC #5) — spec 048
+      (IT DOES NOT — `checkBridge .` / `verify .` return 49 blocking problems; see BLOCKER.)
+- [x] `docs/skill-patterns.md` (§4-5) names the new rule
+- [x] `spec-bridge/README.md` documents the config key
+- [x] Cite the 2026-08-01 field case literally in the shipped surface (AC #5) — spec 048
       phases 1-2, "254 pass, 0 fail" ticked with four notes staled and the freshness gate red
-- [ ] Record the advisory-vs-blocking reconciliation (see plan.md) in the shipped doc, so
+- [x] Record the advisory-vs-blocking reconciliation (see plan.md) in the shipped doc, so
       the next reader does not re-derive it
-- [ ] Amend `docs/wiki/gates-convention.md` as **NEEDS-REVIEW** — re-verify its prose
+- [x] Amend `docs/wiki/gates-convention.md` as **NEEDS-REVIEW** — re-verify its prose
       against this diff, amend, THEN re-pin; also re-pin `docs/wiki/spec-bridge-plugin.md`
       after classifying it honestly
-- [ ] Regenerate `CAPSULES.md` if any `description:` changed
-- [ ] Bump: `node scripts/sync-version.mjs <next-free>` at merge-readiness + the edited
+- [x] Regenerate `CAPSULES.md` if any `description:` changed
+- [x] Bump: `node scripts/sync-version.mjs <next-free>` at merge-readiness + the edited
       spec-bridge skill's own `version:` if a SKILL.md changed
 - [ ] All gates green: `node --test`, `check-docs`, `sync-version --check`,
       freshness, `spec-bridge/gates/cli.mjs check .`
+      (`node --test`, check-docs, sync-version, freshness are all GREEN; `check .` is RED —
+      see BLOCKER.)
 - [ ] Commit; PR opens only after every box above is ticked
 
 ## Notes
@@ -289,3 +297,82 @@ red-gate this spec forbids.
   re-pin lands, this repo IS the field case: a Done-eligible spec with a red redByConstruction gate.
   Land the `.spec-bridge.json` in the SAME commit as (or after) the re-pin, or the branch's own gate
   will block on itself.
+
+### Phase 4 — dogfood, docs, and re-ground (2026-08-02)
+
+Ordering honored: source edits (docs + version bump) → **re-pin** (freshness green). Three
+commits landed clean: doctrine docs (`--no-verify`, disclosed, freshness red by construction);
+version bump 0.52.0→0.53.0 (`--no-verify`, disclosed); wiki re-pin (NO bypass — full pre-commit
+green). **The fourth deliverable, the R7 `.spec-bridge.json` dogfood, is BLOCKED — see below.**
+
+**DONE and green (R5, R6, re-ground, version):**
+- **Docs (R5):** `docs/skill-patterns.md` §4 and `spec-bridge/README.md` name the rule and
+  document the `projectGates` key (argv-array command, `required` vs `redByConstruction`,
+  fail-closed, when commands run).
+- **Field case (R6, AC #5):** the 2026-08-01 citation ("254 pass, 0 fail" ticked while four notes
+  were staled and freshness was red) is in `docs/skill-patterns.md` §4, `spec-bridge/README.md`,
+  and the wiki notes `spec-bridge-plugin.md` + `gates-convention.md`.
+- **Advisory-vs-blocking reconciliation (plan.md):** recorded in `docs/skill-patterns.md` §4 and
+  `spec-bridge/README.md` — "advisory" = the hook's optionality (CI guarantees enforcement), not a
+  promise it never blocks; `checkBridge` already exits 2 on `exceeds`.
+- **Re-pin (all 14 staled notes → `863ebf8`, the version-bump commit).** NEEDS-REVIEW, prose
+  re-verified and amended (never stamp-only): `spec-bridge-plugin.md` (new "Project gates" section
+  + `verify` verb in the CLI backbone; description updated), `test-suite-catalog-plugins-gates.md`
+  (new `test/project-gates.test.mjs` source + bullet; phase-status bullet gains the
+  `projectGatesProfile` cases; both notes then tightened back under the 8000-char body budget),
+  `gates-convention.md` and `skill-patterns.md` (note) ("a ticked checkbox is status too"). Six
+  pure version-stamp re-pins (build-plugin, codebase-to-course-plugin, educate-plugin,
+  gates-consumption-surface, grounding-wiki-plugin, research-plugin); four flagged by the
+  classifier for quoting a version literal but verified incidental by hand (build-and-release,
+  pdlc-plugin, reorient-plugin, team-review-plugin — none quote the bumped lockstep value).
+  CAPSULES.md regenerated (two descriptions changed); INDEX blurbs kept honest.
+- **Version:** bumped to **0.53.0** (`node scripts/sync-version.mjs 0.53.0`); `origin/main` shows
+  `0.52.0`, so 0.53.0 is the next free lockstep. No SKILL.md edited ⇒ no per-skill `version:` bump.
+- **Gates that ARE green:** `node --test` = **280/280** (baseline ~8s, no config); `check-docs`
+  exit 0; `sync-version --check` = all 0.53.0; freshness = **OK, 36 notes fresh, 0 problems, 1
+  warn** (pre-existing, unrelated: `test-suite-catalog-plugins.md` lists no sources). Phase-3's
+  `node --test green` box is ticked — the suite is genuinely 280/280.
+
+**BLOCKER — R7 dogfood cannot go green; `.spec-bridge.json` authored but NOT committed.**
+The R7 config (argv arrays, exactly as spec'd):
+```json
+{ "projectGates": {
+  "required": [
+    { "name": "tests",              "command": ["node", "--test"] },
+    { "name": "docs-in-sync",        "command": ["node", "scripts/check-docs.mjs"] },
+    { "name": "versions-consistent", "command": ["node", "scripts/sync-version.mjs", "--check"] } ],
+  "redByConstruction": [
+    { "name": "wiki-freshness",      "command": ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] } ] } }
+```
+With this present, `checkBridge(.)` (i.e. `spec-bridge/gates/cli.mjs check .`) returns **49
+blocking problems in ~358s** — every Done-eligible linked spec (there are 49 on this branch)
+reports `required gate "tests" is red (exited 1)`. Two independent defects, both surfaced *only* by
+dogfooding, neither fixable inside Phase 4's scope (don't edit pre-existing tests; don't rewrite the
+shipped Phase-2 feature; don't ship a config that reddens the repo's own gate):
+
+1. **The reentrancy guard makes the `tests` gate red.** The `tests` gate spawns `node --test`, and
+   `runGateCommand` sets `SPEC_BRIDGE_GATE_ACTIVE=1` on the child (the guard). But `checkBridge`/
+   `verifyBridge` short-circuit gate execution whenever that env flag is set **even when a `run` is
+   injected** (`execGates = runGates && !!gatesProfile && process.env.SPEC_BRIDGE_GATE_ACTIVE !==
+   "1"`). The Phase-3 tests `test/project-gates.test.mjs:104/121/150` (169/170/172) inject a `run`
+   but do not neutralize the ambient flag, so inside that nested `node --test` they fail-closed
+   (get `[]` where they assert a blocking finding). Confirmed: `SPEC_BRIDGE_GATE_ACTIVE=1 node
+   --test` ⇒ **277/280, those exact 3 fail**. So the nested suite exits 1 ⇒ the `tests` gate is red
+   ⇒ 49 problems. Candidate fix (a **Phase-2 code decision**, one line): let an explicitly-injected
+   `run` bypass the env short-circuit — the guard should gate only the DEFAULT runner, not a
+   test-injected one. OR (a **Phase-3 test decision**) have those three tests delete/save-restore
+   the ambient flag. Either edits surface I was told to leave alone.
+2. **O(N linked Done-eligible specs) execution.** `checkBridge` runs the full gate set once **per
+   Done-eligible spec** (49 here), so even cheap gates run 49× and `node --test` is spawned 49×
+   (~358s). A Stop hook / `check` verb that costs 49 × `node --test` is unusable on a mature board
+   and defeats R4's "zero cost on ordinary turns" intent the moment >1 spec is Done-eligible. The
+   commands are **project-wide**, not per-spec — they should run **once** when *any* linked spec is
+   Done-eligible, not once per spec. This is a Phase-2 design refinement.
+
+Note: `node --test` *as run by pre-commit/CI* stays 280/280 even with the config present (71s) —
+inside a top-level `node --test`, the `run-gates.test.mjs` worker that calls `checkBridge(repo)`
+does not reproduce the red gate — so the config would not break CI. But the **documented dogfood
+proof** (`check .` / `verify .`, and plan.md's Verification list) is red, and the DoD requires
+"the praxisflux `.spec-bridge.json` present and the gate green against it." Present-but-red is
+exactly the status-over-artifacts dishonesty spec 050 forbids, so the config is **not committed**
+and the R7 / DoD boxes stay **unticked** pending an operator decision on fix (1) and/or (2).
