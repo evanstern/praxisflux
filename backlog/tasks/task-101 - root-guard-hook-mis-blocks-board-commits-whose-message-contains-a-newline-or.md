@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-03 00:41'
-updated_date: '2026-08-03 01:44'
+updated_date: '2026-08-03 01:55'
 labels:
   - gates
   - bug
@@ -82,10 +82,17 @@ Spec: specs/051-root-guard-hook
 - [ ] #4 When the board-sync exception IS correctly denied, the refusal names the specific token it read as an out-of-scope pathspec, so the cause is self-diagnosing
 - [ ] #5 The gate's fail-closed posture is preserved: no commit that was blocked for genuine scoping reasons becomes allowed by this fix, covered by a test per hazard character
 - [ ] #6 Decision recorded on whether pdlc ships the hook (planted like other peer artifacts) or the fix is documented for hosts to apply to their own copy; if shipped, the promptworld copy's divergence is noted
+- [ ] #7 Spec phase: Phase 1 — Read the source, decide the home, record the decisions
+- [ ] #8 Spec phase: Phase 2 — The quote-state scanner
+- [ ] #9 Spec phase: Phase 3 — Port the policy and wire the hook
+- [ ] #10 Spec phase: Phase 4 — The both-directions hazard suite
+- [ ] #11 Spec phase: Phase 5 — Plant, posture, docs, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 THIRD manifestation, found 2026-08-02 while carding this one. (a) Cross-repo: the hook fires on every Bash commit invocation in a session whose CLAUDE_PROJECT_DIR is the host repo, INCLUDING invocations targeting a different repository — committing this card in ~/Claude/Code/praxis was refused by promptworld's guard, which resolved the staged set against promptworld (nothing staged) instead of the repo being written to. Workaround: pass -C <other-repo>, which the hook honors when computing effDir. A session working two repos cannot commit to the second one normally. (b) Content false-positive: the FIRST attempt to append this very note was itself refused, because the note TEXT mentioned the two words g-i-t and c-o-m-m-i-t adjacently. A 'backlog task edit' command is not a VCS write at all, yet prose describing one is enough to trip the guard. Both share the root cause: the classifier reasons about a raw command STRING rather than the invocation's real argv and target repo.
+
+Sweep dispatch (runbook: docs/design/gates-and-doctrine-sweep-runbook.md, Lane 1). Tier: default implementer. Model ID: claude-opus-4-8, pinned via .claude/agents/opus-implementer.md frontmatter (NOT the dispatch-call model param). Primary claude-opus-5 documented but not surfaced by the subscription (operator ruling C, 2026-08-02). Rubric justification: AC #6 is a one-way door on the suite's enforcement posture (praxisflux ships zero PreToolUse hooks today), and the fix is a shell-word parser whose failure mode is a fail-open gate. Design + security-shaped parsing = default tier, never mechanical. Operator ruling B answered AC #6 SHIP at sign-off, with two riders recorded as gate lines in the runbook.
 <!-- SECTION:NOTES:END -->
