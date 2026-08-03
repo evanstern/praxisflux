@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-07-31 20:04'
-updated_date: '2026-08-03 01:43'
+updated_date: '2026-08-03 01:48'
 labels:
   - debt
   - wiki
@@ -32,4 +32,14 @@ Spec: specs/049-wiki-sweep-history-backfill
 - [ ] #2 reciprocal wikilinks resolve; INDEX.md + CAPSULES.md regenerated verbatim
 - [ ] #3 test-suite-catalog-plugins hub note pins real sources (its children or test/) or is explicitly marked index-kind
 - [ ] #4 freshness gate green with zero warns; wiki-only, no version bump
+- [ ] #5 Spec phase: Phase 1 — Split design and measurement
+- [ ] #6 Spec phase: Phase 2 — Perform the split
+- [ ] #7 Spec phase: Phase 3 — Backfill 0.48.0 / 0.50.0 / 0.51.0
+- [ ] #8 Spec phase: Phase 4 — Hub note sources, regeneration, and the zero-warn gate
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Sweep dispatch (runbook: docs/design/gates-and-doctrine-sweep-runbook.md, Lane 1). Tier: mechanical. Model ID: claude-sonnet-5, pinned via .claude/agents/sonnet-implementer.md frontmatter (NOT the dispatch-call model param — silently ignored by this harness, 2026-07-31). Fallback: claude-opus-4-8. Rubric justification: corpus hygiene to an existing pattern (TASK-78's summary-style split is the in-repo precedent), acceptance mechanically checkable by the freshness gate, no design choice. Served model: recorded per phase below.
+<!-- SECTION:NOTES:END -->
