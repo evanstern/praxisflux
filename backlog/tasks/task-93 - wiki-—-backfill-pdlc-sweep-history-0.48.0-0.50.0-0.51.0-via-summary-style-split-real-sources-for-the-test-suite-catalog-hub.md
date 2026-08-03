@@ -3,9 +3,11 @@ id: TASK-93
 title: >-
   wiki — backfill pdlc-sweep-history (0.48.0/0.50.0/0.51.0) via summary-style
   split; real sources for the test-suite-catalog hub
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-07-31 20:04'
+updated_date: '2026-08-03 01:43'
 labels:
   - debt
   - wiki
@@ -20,6 +22,8 @@ ordinal: 128000
 Finding: refactor-triage run praxis-2026-07-31-18-47-56, finding 3 + minor item (f) (report: docs/reviews/team-review-praxis-2026-07-31-18-47-56.md; triage record: docs/reviews/refactor-triage-praxis-2026-07-31-18-47-56.md).
 
 Evidence: docs/wiki/pdlc-sweep.md:92-97 promises '[[pdlc-sweep-history]] carries the per-release detail' for 0.48.0 (background-job mode), 0.50.0 (two-track reference), 0.51.0 (hand-authored-specs hatch + gate-softening rule) — the history note's last entry is 0.47.0, so the merge made the claim false. The note sits at 7,991/8,000 body chars: backfill forces a summary-style split (docs/corpus-spec.md; TASK-78's fresh pattern). TASK-90's log row classified the note 'reviewed-no-amend' while its source gained a 25-line doctrine section. Also: docs/wiki/test-suite-catalog-plugins.md has sources: [] — the freshness gate's one warn, staleness unverifiable.
+
+Spec: specs/049-wiki-sweep-history-backfill
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
