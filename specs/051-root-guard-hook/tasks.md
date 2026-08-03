@@ -53,15 +53,15 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 4 — The both-directions hazard suite
 
-- [ ] Table-driven test over hazard characters — newline, `)`, `'`, `"`, `;`, `|`,
+- [x] Table-driven test over hazard characters — newline, `)`, `'`, `"`, `;`, `|`,
       backtick — each row asserting **both**: legitimate board-sync commit with the hazard
       in its message is **allowed**, AND a genuinely out-of-scope commit with the same
       hazard is **still blocked**
-- [ ] The verbatim `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`
+- [x] The verbatim `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`
       trailer pinned as its own named case — it is the field failure
-- [ ] R5(b) tested directly: `backlog task edit "…git commit…"` is not classified as a git
+- [x] R5(b) tested directly: `backlog task edit "…git commit…"` is not classified as a git
       invocation
-- [ ] R5(a) tested directly: an invocation targeting a different repository passes
+- [x] R5(a) tested directly: an invocation targeting a different repository passes
 - [ ] **Pin the fail-open invariant (spec R2 reconciliation):** every command the scanner
       reports `ok:false` for is ALSO rejected by bash itself (`bash -n`), so unparseable ⊆
       unexecutable and fail-open cannot pass a commit. Test both directions: the known
@@ -69,10 +69,18 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
       probed (ANSI-C `$'…'`, locale `$"…"`, backslash-newline, escaped quotes in double
       quotes, apostrophe in double quotes, nested double quotes in single quotes) all scan
       `ok:true` and are gated normally
+      — **LEFT UNCHECKED: the invariant is FALSE.** The test is written (both directions,
+      `bash -n` cross-check), but it DISPROVES the claim: ANSI-C `$'…'` with an escaped
+      apostrophe, and a trailing unquoted backslash, both scan `ok:false` YET bash executes
+      them. See Phase 4 finding below. The hook-owner/Phase 5 must resolve before this box
+      can be honestly ticked.
 - [ ] Confirm no previously-blocked scoping violation became allowed — enumerate the deny
       cases covered
-- [ ] `node --test` green; report the real count
-- [ ] Commit
+      — **LEFT UNCHECKED: two previously-blocked violations DID become allowed** (the same
+      two forms, via fail-open). Deny cases ARE enumerated and covered (see the test's
+      `DENY_AT_ROOT` table), but the "none became allowed" half is false. See finding.
+- [x] `node --test` green; report the real count — **371 pass, 0 fail** (305 → 371, +66)
+- [x] Commit
 
 ## Phase 5 — Plant, posture, docs, re-ground
 
@@ -574,3 +582,137 @@ verified ``; `nothing is staged, so the commit cannot be verified as board-sync`
   change trips a red test and re-reads decision §1 first.
 - **Enumerate the deny cases** (the list in §3 above) so R4's "no previously-blocked
   scoping violation became allowed" is provably covered.
+
+### Phase 4 recorded results (2026-08-02, opus-implementer, TASK-101)
+
+The both-directions hazard suite shipped as **`test/root-guard-hook.test.mjs`** (66 cases,
+node:test style, tmpdir scratch-repo harness per the Phase 3 handoff: root repo with
+`backlog/`, a `.worktrees/task-9` worktree, a separate `other` repo; MERGE_HEAD fabricated
+for the merge-conclusion path). Full suite **305 → 371 pass, 0 fail**. All four pre-commit
+gates green (`check-docs` "in sync"; `sync-version --check` "all versions = 0.52.0";
+freshness "36 note(s) fresh", lone pre-existing `warn` on `test-suite-catalog-plugins.md`
+unrelated). Add-only (one new test file, no pinned-source touch, no version bump) ⇒ the
+"red-by-construction" condition did NOT arise ⇒ committed with the pre-commit hook **ACTIVE
+(no `--no-verify`)**, same as Phases 2–3.
+
+#### 1. Hazard table — both directions, real end-to-end results (exit 2 = BLOCK, 0 = ALLOW)
+
+Each hazard is embedded in the `-m` message via a wrapper quote that cannot be the hazard
+(single-quote wrapper for all, double-quote wrapper for the apostrophe). Allow-case pathspec
+`backlog/card.md`; block-case pathspec `README.md` — the ONLY difference is scope, proving
+the hazard never changes the parse.
+
+| hazard | allow-case (board-sync `-m …` `backlog/card.md`) | block-case (same msg, `README.md`) |
+|---|---|---|
+| newline `\n` | ALLOW | BLOCK |
+| `)` | ALLOW | BLOCK |
+| `'` | ALLOW | BLOCK |
+| `"` | ALLOW | BLOCK |
+| `;` | ALLOW | BLOCK |
+| `\|` | ALLOW | BLOCK |
+| backtick | ALLOW | BLOCK |
+
+Named cases on top: the **verbatim `Co-Authored-By: Claude Opus 5 (1M context)
+<noreply@anthropic.com>`** trailer (carries the newline AND the `)` at once) — ALLOW with a
+`backlog/` pathspec AND with NO pathspec + a backlog-only staged set (the real field-incident
+shape), **no `-F`/`-C` workaround**; its out-of-scope staged-set counterpart BLOCKs.
+
+#### 2. R5(b) and R5(a) — real results
+
+- **R5(b):** `backlog task edit TASK-1 --notes "the git commit was blocked; retry README.md"`
+  → `findGitInvocations` returns **0 invocations**; hook verdict **ALLOW** (not read as a
+  root git commit). The quoted `git commit` text is inert.
+- **R5(a):** `cd <other> && git commit -m "fix" README.md` → **ALLOW**; `git -C <other>
+  commit -m "fix" README.md` → **ALLOW** (both out of jurisdiction). Control: the SAME
+  `git commit -m "fix" README.md` AT ROOT → **BLOCK**. Jurisdiction is the discriminator.
+
+#### 3. Heredoc allow/block — real results
+
+`git commit -F - <<'EOF'\nTASK-1: it's a fix (1M context)\nCo-Authored-By: x <y@z>\nEOF`
+(apostrophe + paren in the body):
+- backlog-only staged set → **ALLOW**;
+- staged set reaching outside `backlog/` (README.md staged too) → **BLOCK**.
+Both directions pinned, confirming `stripHeredocs` keeps R4 correct in both parse states.
+
+#### 4. Fail-open invariant — TESTED, and DISPROVEN (the valuable finding)
+
+Direction 1 HOLDS: the two genuinely-unbalanced forms (`unbalanced-single-quote`,
+`unbalanced-double-quote`) scan `ok:false` AND `bash -n` rejects them. Direction 2 HOLDS for
+**five** of the six probed executable forms — `$"…"`, backslash-newline, escaped quotes in
+double quotes, apostrophe in double quotes, nested double quotes in single quotes — all scan
+`ok:true`, are `bash -n`-valid, and are GATED NORMALLY (out-of-scope variant → BLOCK).
+
+**But the invariant "unparseable ⊆ unexecutable" is FALSE.** Two counterexamples,
+measured first-hand and pinned as `KNOWN GAP` characterization tests:
+
+| form | scanner | `bash -n` | hook verdict (out-of-scope root commit) | OLD promptworld hook |
+|---|---|---|---|---|
+| ANSI-C `$'it\'s a fix' README.md` | `ok:false` (unbalanced-single-quote) | **VALID** | **ALLOW** (fail-open) | **BLOCK** |
+| trailing backslash `… README.md\` | `ok:false` (dangling-escape) | **VALID** | **ALLOW** (fail-open) | **BLOCK** |
+
+The scanner does not model ANSI-C `$'…'`, so the escaped apostrophe's closing `'` opens an
+unterminated single-quote run → `ok:false`; bash parses `$'it\'s a fix'` as the single word
+`it's a fix` and executes. The trailing `\` is `dangling-escape` to the scanner but a literal
+no-op to bash. Because the hook **fails open on residual `ok:false`**, BOTH out-of-scope root
+commits are ALLOWED — and the **old regex parser BLOCKED both** (verified by replaying its
+`[;|&\n`)]` boundary + `("[^"]*"|'[^']*'|\S+)` tokenizer: `README.md` is read as a pathspec).
+
+**This is a real regression against R4 / AC #5** ("no commit blocked for genuine scoping
+reasons becomes allowed by this fix") and it **falsifies the premise the spec R2
+reconciliation and Phase 3 §1 rested fail-open on.** The orchestrator's 2026-08-02 probe that
+reported ANSI-C `$'…'` as `ok:true` almost certainly used a benign `$'hello'` (no embedded
+escape) — `$'hello'` is indeed `ok:true`; the escaped-apostrophe variant is the one that
+breaks, and it is the realistic one (an apostrophe in a message written via ANSI-C quoting).
+
+**Severity in practice: LOW** — an honest sweep emits neither ANSI-C quoting nor stray
+trailing backslashes (it uses `git commit -m "…"` and `git commit -F - <<'EOF'`, both handled
+correctly). But the invariant that JUSTIFIED fail-open is not true as written, so fail-open's
+safety actually rests on "these forms are unnatural," not on "bash can't run them."
+
+**Recommended resolutions (hook-owner / Phase 5 to decide — NOT changed in Phase 4, per the
+test-phase scope and stop-and-ask discipline; the scanner is Phase 2's deliverable and the
+fail-open trade-off was operator-ratified in commit c5bda2d):**
+1. **Model `$'…'` and `$"…"` in `shell-scan.mjs`** — strictly "parse correctly" (more
+   commands parse ⇒ more gated normally; never loosens), closes the ANSI-C hole cleanly.
+2. Treat a trailing unquoted backslash-at-EOF as a literal char (matches bash), closing the
+   dangling case.
+3. OR make residual `ok:false` fail **closed specifically for a root `git commit`** (keep
+   fail-open for non-git / out-of-jurisdiction). Narrower blast radius than a blanket flip.
+4. OR accept + document the gap and amend spec R2's invariant claim to "…for the forms a
+   sweep actually emits," dropping the absolute "unparseable ⊆ unexecutable."
+
+Whichever is chosen, the two `KNOWN GAP` tests will FLIP to expecting `BLOCK` and go red,
+forcing the fixer to re-read this finding. Until then the tasks.md boxes "Pin the fail-open
+invariant" and "Confirm no previously-blocked scoping violation became allowed" are left
+**UNCHECKED** — the artifacts disprove both claims, and a status may not exceed its evidence.
+
+#### 5. Enumerated deny cases covered (test `DENY_AT_ROOT` + others), all → BLOCK
+
+`--amend` (outright, even with a backlog pathspec, and even with MERGE_HEAD present);
+`-a/--all`; `--interactive`; `--patch` (long) and post-subcommand `-p`; `--include`;
+`--pathspec-from-file`; `cherry-pick`; `revert`; `am`; `merge --squash`; `checkout -b`,
+`checkout -B`, `switch -c`, `switch --create` (branch creation); `rebase` (root AND worktree
+— repo-wide); `push -f`, `push --force`, `push --force-with-lease` (repo-wide); subshell
+`echo $(git commit -m x README.md)`; explicit out-of-scope pathspec; and no-pathspec commit
+with **nothing staged**. Allow counterparts that survive: plain `merge`; git-global `-p`
+(paginate) — distinct from post-subcommand `-p` (`--patch`); `fetch`; `status`; `worktree
+add`; a non-backlog `git commit` IN a worktree (own toplevel ⇒ not root); MERGE_HEAD-present
+non-backlog merge conclusion.
+
+### Phase 5 handoff (from Phase 4, TASK-101)
+
+- **The new test file is `test/root-guard-hook.test.mjs`.** It imports `scanCommand`,
+  `findGitInvocations` from `../pdlc/hooks/shell-scan.mjs` and drives the hook via
+  `spawnSync('node', [HOOK, 'pre-bash'], { input: JSON.stringify({tool_input:{command}, cwd}),
+  env: { CLAUDE_PROJECT_DIR } })`. If Phase 5 plants/wires the hook, this suite is the
+  regression net.
+- **BLOCKING for merge-readiness: resolve the fail-open finding (§4 above).** It is a real
+  R4/AC #5 regression, not cosmetic. Phase 5 (or a follow-up card, operator's call) must pick
+  resolution 1–4 and flip the two `KNOWN GAP` tests. Do NOT close the task with AC #5 marked
+  satisfied while `test/root-guard-hook.test.mjs` still pins two out-of-scope root commits as
+  ALLOWED. If the operator elects resolution 4 (accept + document), amend spec R2's invariant
+  clause and the hook's header POLICY comment accordingly.
+- The heredoc, R5(a)/R5(b), MERGE_HEAD, and full deny/allow enumeration are covered — Phase 5
+  can rely on them and focus on planting + the docs/wiki re-pin + the version bump.
+- Phase 3's export surface (`stripHeredocs`, `parseGitInvocation`, `classifyBoardSyncCommit`,
+  `boardPathspecOk`) is unchanged; Phase 4 added no exports and touched no shipped source.
