@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.9.0
+version: 0.10.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
 ---
 
@@ -63,11 +63,34 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
 4. Peer opt-ins decide which convention blocks the planted grounding carries — that wiring
    happens in the plant step via `--peer` flags.
 
+## Root-guard hook — opt-in enforcement (advanced)
+
+A host that has adopted the **root-read-only + worktree-only** workflow doctrine (this repo
+and promptworld both mandate it) can opt into the hardened **root-guard `PreToolUse` hook**:
+a hard blocker that stops root-checkout commits outside the `backlog/` board-sync carve-out,
+plus rebase/force-push repo-wide (see `pdlc/README.md` for the full policy and the promptworld
+divergence). It is the suite's first `PreToolUse` hook, so treat it like a peer opt-in, **not
+a default**:
+
+1. **Offer, do not assume.** Ask whether to install it (default **no** on a fresh host; in
+   update mode, present the previous choice from `.pdlc`'s `hooks` array). A hard blocker
+   that forbids ordinary root commits is wrong for any host that has not adopted worktree
+   discipline — wiring it by default would break bootstrap's "safe to install anywhere"
+   property.
+2. **On opt-in, pass `--hook root-guard`** to the plant step. That copies **both**
+   `root-guard-hook.mjs` and its scanner `shell-scan.mjs` into `<root>/.claude/hooks/` and
+   merges two `PreToolUse` entries (Bash → `pre-bash`, Write|Edit|NotebookEdit → `pre-write`)
+   into `<root>/.claude/settings.json`, preserving any hooks already there. The choice is
+   recorded in `.pdlc` under `hooks`.
+3. **There is no bypass flag by design.** Tell the user emergencies go through them editing
+   the hook config in `.claude/settings.json`, visibly.
+
 ## Plant
 
 1. Preview first: run
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] --check`
-   (one `--peer` per opt-in). The JSON report says what would happen: `created`, `appended`
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] --check`
+   (one `--peer` per opt-in; `--hook root-guard` only if opted in above). The JSON report
+   says what would happen: `created`, `appended`
    (existing `CLAUDE.md` gains the marked block at the end), `replaced`, `unchanged`, or
    `drifted`.
 2. **Project name.** The block's heading never blindly trusts the folder name. The planter
@@ -125,7 +148,9 @@ operator authors them. Your job is to keep the IDs honest:
    `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), the heading names
    the **project** (not a worktree/scratch folder), `<root>/.pdlc` records the resolved
    `name` and the right peers (each declined peer under `peersOmitted`), `.gitignore`
-   contains `.handoff/`.
+   contains `.handoff/`. If the root-guard hook was opted in, `.pdlc`'s `hooks` lists
+   `root-guard`, both `.claude/hooks/root-guard-hook.mjs` and `.claude/hooks/shell-scan.mjs`
+   exist, and `.claude/settings.json` carries the two `PreToolUse` entries.
 3. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
    skipped because `backlog/` existed), and **left untouched** (everything outside the
    markers; all user content).

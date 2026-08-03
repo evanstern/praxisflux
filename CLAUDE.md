@@ -16,7 +16,12 @@ and bind this repo's own workflow too.
 **Enforcement is split by design:** the Stop hooks plugins ship are advisory/opt-in — local
 pressure while you work, never guaranteed present; CI (the composite action /
 `@praxisflux/gates`, `docs/consuming-gates.md`) is the authoritative enforcement point.
-Gates make dishonest status expensive locally and impossible in CI.
+Gates make dishonest status expensive locally and impossible in CI. The one hard-blocking
+local surface is `pdlc`'s **opt-in root-guard `PreToolUse` hook** (spec 051): a host that
+adopts worktree-only discipline can wire it to block root-checkout commits outside the
+`backlog/` carve-out — but it stays **opt-in and planted**, never wired by default, so the
+default posture above holds (advisory local, authoritative CI) for every host that has not
+adopted it.
 
 Authoring a plugin/skill? Read `docs/skill-patterns.md` (shared patterns) and
 `docs/handoff-protocol.md` (inter-plugin handoffs) first.
