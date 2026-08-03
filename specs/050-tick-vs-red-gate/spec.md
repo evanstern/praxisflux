@@ -106,9 +106,16 @@ declared commands execute — that is the remaining real decision, and the imple
 record it in this spec dir with its rationale.
 
 **The constraint that makes it a decision:** the bridge gate is a **Stop hook**, running
-at every turn's end. `node --test` in this repo takes **3-5 seconds** (measured
-2026-08-02). Executing declared gate commands on every Stop is not acceptable — it would
-tax every turn in every consumer repo, and Stop hooks are advisory-by-design here.
+at every turn's end. `node --test` in this repo takes **~5.7 seconds**, against a ~103 ms
+ordinary bridge Stop-hook run — a ~55× tax (measured 2026-08-02, Phase 1, 3-run median;
+recorded in tasks.md's Notes). Executing declared gate commands on every Stop is not
+acceptable — it would tax every turn in every consumer repo, and Stop hooks are
+advisory-by-design here.
+
+*(Correction, Phase 1: this spec originally said "3-5 seconds" from an unmeasured
+estimate. The measured figure is ~5.7s. Any doc or code comment that cites the number
+must use the measured one — a claim that fails re-measurement discredits the rule it
+supports.)*
 
 **Recommended design** (implement unless found unworkable, in which case record why):
 
