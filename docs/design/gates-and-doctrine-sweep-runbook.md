@@ -469,3 +469,6 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-08-02 | TASK-93 | — | — | ph1 ~91k | Lane 1. spec 049, branch `task-93-wiki-sweep-history-backfill`. Claim `722ce58`, spec cycle `c8777b6`, ACs seeded `6d49fc1`. Tier mechanical, served `claude-sonnet-5` via `sonnet-implementer`. **phases: 1 done (`608ccda`), 2 dispatched.** Ph1 measured 7992/8000, chose 2-child chronological split at boundary-before-0.43.0 for worst-case headroom ~2045 (clears R1's 1200 floor). |
+| 2026-08-02 | TASK-100 | — | — | — | Lane 1. spec 050, branch `task-100-tick-vs-red-gate`. Claim `8e6190b`, spec cycle + ACs `fd74365`. Tier default implementer, `claude-opus-4-8` via `opus-implementer` (ruling C). **phases: 1 dispatched.** Ruling A fixed home/config/posture; R4's execution-timing choice left to the implementer to record. |
+| 2026-08-02 | TASK-101 | — | — | — | Lane 1. spec 051, branch `task-101-root-guard-hook`. Claim `fb33da6`, spec cycle + ACs `392d538`. Tier default implementer, `claude-opus-4-8` via `opus-implementer` (ruling C). **phases: 1 dispatched.** Ruling B = SHIP, with two riders (name the zero-PreToolUse precedent gap; reconcile CLAUDE.md's enforcement-split sentence in the same PR). |
