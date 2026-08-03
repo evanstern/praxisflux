@@ -142,15 +142,36 @@ the behavior for an *unbalanced* quote (a genuinely malformed command) must be *
 > defect being fixed, and it is preserved absolutely. The hook, after stripping heredoc
 > bodies, allows a command it still cannot parse.
 >
-> **This does not violate AC #5**, and the reason is verified, not assumed: every command
-> the scanner reports `ok:false` for is **also rejected by bash itself**. Orchestrator
-> probe, 2026-08-02 — all of these parse `ok:true` and are therefore gated normally:
-> ANSI-C `$'…'`, locale `$"…"`, backslash-newline continuation, escaped quotes inside
-> double quotes, apostrophes inside double quotes, nested double quotes inside single
-> quotes. The only `ok:false` results were genuinely unterminated quotes and dangling
-> escapes — which bash refuses to execute, so no commit can pass through them. Unparseable
-> ⊆ unexecutable. **Phase 4 must pin this as a test** (see its box); the property is the
-> load-bearing part, and an untested invariant is an assumption.
+> **RETRACTED — the invariant this rested on is FALSE (Phase 4, 2026-08-02).**
+>
+> This block previously claimed "unparseable ⊆ unexecutable": that every command the
+> scanner reports `ok:false` for is also rejected by bash, so fail-open could not pass a
+> commit. The orchestrator's probe that "verified" it was **not representative** — it
+> tested benign `$'hello'`, which parses fine, and generalized to all ANSI-C quoting.
+> Phase 4 tested the realistic forms and found two counterexamples, since re-confirmed by
+> the orchestrator:
+>
+> | form | scanner | `bash -n` | new hook | OLD hook |
+> |---|---|---|---|---|
+> | `git commit -m $'it\'s a fix' README.md` | `ok:false` | **VALID** | **ALLOW** | **BLOCK** |
+> | `git commit -m msg README.md\` (trailing `\`) | `ok:false` | **VALID** | **ALLOW** | **BLOCK** |
+>
+> Both are **executable, out-of-scope root commits that the old regex parser blocked and
+> the new hook allows.** That is a genuine **AC #5 regression** — "no commit that was
+> blocked for genuine scoping reasons becomes allowed by this fix" — and it falsifies the
+> premise fail-open was justified on. Practical severity is low (an honest sweep emits
+> neither ANSI-C quoting nor stray backslashes) but AC #5 is absolute, not probabilistic.
+>
+> **Required fix (R2a, blocking for merge):** model `$'…'` and `$"…"` in
+> `pdlc/hooks/shell-scan.mjs`, and resolve a trailing backslash, so these forms scan
+> `ok:true` and are **gated normally** rather than waved through. This is the "parse
+> correctly, don't loosen the gate" fix the card asks for, and it **strictly tightens** —
+> it converts `ok:false` (allow) into `ok:true` (evaluate), so it cannot make anything
+> more permissive.
+>
+> Fail-open on the *residual* `ok:false` stays, for the reasons below — but the residue
+> must first be narrowed to forms bash itself rejects. **TASK-101 must not close with
+> AC #5 marked satisfied while the two rows above are pinned as ALLOWED.**
 >
 > A blanket residual fail-closed was rejected for two concrete reasons: it would block
 > non-git commands containing an apostrophe (violating "non-git commands always pass"), and

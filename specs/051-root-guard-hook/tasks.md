@@ -82,7 +82,28 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [x] `node --test` green; report the real count — **371 pass, 0 fail** (305 → 371, +66)
 - [x] Commit
 
-## Phase 5 — Plant, posture, docs, re-ground
+## Phase 5 — Close the fail-open gap (R2a, blocking for merge)
+
+Phase 4 proved "unparseable ⊆ unexecutable" FALSE: `$'it\'s a fix'` and a trailing
+backslash both scan `ok:false` yet are valid bash, so two out-of-scope root commits the
+OLD hook blocked are ALLOWED by the new one — an AC #5 regression. The fix strictly
+tightens (turns `ok:false` into `ok:true`, i.e. allow into evaluate); it cannot loosen.
+
+- [ ] Model ANSI-C `$'…'` in `pdlc/hooks/shell-scan.mjs` — including backslash escapes
+      INSIDE it (`\'` is the case that breaks today), and its `\n`/`\t` semantics
+- [ ] Model locale `$"…"` (behaves as a double-quoted run for tokenizing purposes)
+- [ ] Resolve a trailing backslash / line continuation rather than reporting
+      `dangling-escape` for a command bash accepts
+- [ ] Flip Phase 4's two `KNOWN GAP` characterization tests to assert the CORRECT
+      behavior (out-of-scope root commit ⇒ BLOCK), and confirm they now pass
+- [ ] Re-run Phase 4's full both-directions hazard suite unchanged — every allow-case
+      still ALLOWs and every block-case still BLOCKs (proving the fix tightened only)
+- [ ] Re-check the narrowed residue: every remaining `ok:false` form is `bash -n` INVALID
+- [ ] Tick Phase 4's two boxes left unchecked ("Pin the fail-open invariant", "Confirm no
+      previously-blocked scoping violation became allowed") once they are honestly true
+- [ ] Commit
+
+## Phase 6 — Plant, posture, docs, re-ground
 
 - [ ] Wire the hook per Phase 1's recorded planting decision; `pdlc/scripts/plant.mjs`
       updated if it plants the hook

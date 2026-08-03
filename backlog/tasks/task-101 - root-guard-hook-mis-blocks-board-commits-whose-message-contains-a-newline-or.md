@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-03 00:41'
-updated_date: '2026-08-03 01:55'
+updated_date: '2026-08-03 02:58'
 labels:
   - gates
   - bug
@@ -87,7 +87,11 @@ Spec: specs/051-root-guard-hook
 - [ ] #9 Spec phase: Phase 3 — Port the policy and wire the hook
 - [ ] #10 Spec phase: Phase 4 — The both-directions hazard suite
 - [ ] #11 Spec phase: Phase 5 — Plant, posture, docs, re-ground
+- [ ] #12 Spec phase: Phase 5 — Close the fail-open gap (R2a, blocking for merge)
+- [ ] #13 Spec phase: Phase 6 — Plant, posture, docs, re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
