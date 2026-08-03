@@ -3,10 +3,11 @@ id: TASK-101
 title: >-
   root-guard hook mis-blocks board commits whose message contains a newline or
   ')'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-03 00:41'
-updated_date: '2026-08-03 00:44'
+updated_date: '2026-08-03 01:44'
 labels:
   - gates
   - bug
@@ -69,6 +70,8 @@ The defect is in a host's file, but the **gap** is praxisflux's: pdlc plants doc
 - Parse the command with a real shell-word splitter that honors quotes across newlines, rather than truncating on a character class that can fall inside a quoted string.
 - When the exception is denied, say **which** token was read as a pathspec — that alone would have made this self-diagnosing.
 - Until shipped: record the `-F` workaround in the planted grounding, so downstream sessions do not each lose a cycle to it.
+
+Spec: specs/051-root-guard-hook
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
