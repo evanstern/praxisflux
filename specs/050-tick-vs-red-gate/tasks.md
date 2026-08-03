@@ -36,16 +36,20 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 3 — Tests, including the parity proof
 
-- [ ] Blocking case: all boxes ticked + a required gate red ⇒ blocks, naming phase/box/gate
+- [x] Blocking case: all boxes ticked + a required gate red ⇒ blocks, naming phase/box/gate
       (AC #1, AC #3)
-- [ ] Allowance case: mid-PR phase ticked while only a `redByConstruction` gate is red ⇒
+- [x] Allowance case: mid-PR phase ticked while only a `redByConstruction` gate is red ⇒
       passes, silently — no warning (AC #2)
-- [ ] Boundary case: the same red-by-construction gate still red at Done-eligible ⇒ blocks
-- [ ] Fail-closed case: a declared command that cannot execute ⇒ blocking problem, not green
-- [ ] **No-config parity: every existing gate message and `plan` output byte-identical to
+- [x] Boundary case: the same red-by-construction gate still red at Done-eligible ⇒ blocks
+- [x] Fail-closed case: a declared command that cannot execute ⇒ blocking problem, not green
+- [x] **No-config parity: every existing gate message and `plan` output byte-identical to
       today's**, in the style of the existing `no statusVocabulary: … byte-identical` tests
 - [ ] `node --test` green — report the real count, never a remembered one
-- [ ] Commit
+      (LEFT UNTICKED BY CONSTRUCTION — real count **280 tests, 279 pass, 1 fail**; the sole
+      fail is `run-gates.test.mjs`'s repo-freshness self-check, red-by-construction per Phase
+      2 / amendment 1. Ticking a "node --test green" box while node --test is red is the exact
+      anti-pattern spec 050 exists to stop, so this box greens in Phase 4 after the re-pin.)
+- [x] Commit
 
 ## Phase 4 — Dogfood, docs, and re-ground
 
@@ -231,3 +235,57 @@ Done-eligible bucket list to `["required"]` — one line — and the evaluator/v
 failure is `run-gates.test.mjs` (the repo freshness self-check, red-by-construction per above), NOT
 a spec-derive / spec-bridge / phase-status test. No existing test file was edited. Phase 3 adds the
 new gate-execution tests (blocking / boundary / allowance / fail-closed / no-config parity).
+
+### Phase 3 — the gate-execution tests and the parity proof (2026-08-02)
+
+Committed with `git commit --no-verify` (disclosed, in the commit body too): `.githooks/pre-commit`'s
+repo-freshness self-check is still **red by construction** — `docs/wiki/spec-bridge-plugin.md` and
+`docs/wiki/test-suite-catalog-plugins-gates.md` remain staled by the Phase 1/2 commits and are
+re-pinned in Phase 4 (runbook amendment 1, operator-signed 2026-08-02). No source file was touched
+this phase — only a new test file — so Phase 3 adds no NEW staleness beyond what Phase 4 already
+re-pins; the freshness failure is unchanged in kind.
+
+**New file: `test/project-gates.test.mjs` (16 tests, all pass). No pre-existing test was edited.**
+Every case drives the evaluator through its injected `run`, so green/red/error/timeout need no
+subprocess; a real subprocess is used ONLY where `runGateCommand` itself is under test. Cases:
+- **Blocking (AC #1, #3)** — `checkBridge` at Done-eligible + a red `required` gate ⇒ one finding,
+  asserted **byte-identical**, naming phase "Prove", box "node --test green", gate "tests" (exited 1).
+- **Allowance (AC #2)** — `verifyBridge` mid-PR with a green `required` + red `redByConstruction`
+  gate ⇒ `[]`, and a **run spy proves the redByConstruction command was never invoked** (mid-PR runs
+  `required` only). Second allowance test: `checkBridge` mid-PR runs **zero** commands (spy: 0 calls),
+  problems/warnings both `[]` — the silent pass.
+- **Boundary (operator ruling 2026-08-02)** — the SAME both-bucket config (only the tick-state
+  differs from the allowance fixture), at Done-eligible, redByConstruction still red ⇒ one finding
+  naming the **red-by-construction gate**, asserted byte-identical for **both** `checkBridge` AND
+  `verifyBridge` (they agree by construction). Pins that redByConstruction IS enforced at
+  Done-eligible.
+- **Fail-closed** — covered at two levels: (a) the evaluator translates `{kind:"error",reason:ENOENT}`
+  and `{kind:"timeout",timeoutMs}` into byte-identical "…could not be executed (ENOENT)…never green"
+  / "…timed out after 120000ms…never green" findings; (b) `runGateCommand` real subprocesses: green
+  (exit 0 ⇒ ok), red (exit 3 ⇒ `exited 3`), **ENOENT** (missing binary ⇒ `kind:"error"`), **timeout**
+  (`setInterval` child, 300ms box ⇒ `kind:"timeout"`), the `SPEC_BRIDGE_GATE_ACTIVE=1` child-env
+  reentrancy guard, and `GATE_TIMEOUT_MS === 120000`.
+- **No-config parity proof (mechanism)** — three tests prove consumer repos without the opt-in are
+  wholly unaffected, by two independent mechanisms: **(1) a run spy** injected into `checkBridge`
+  (Done-eligible fixture) and `verifyBridge` (ticked-box fixture) with **no `.spec-bridge.json`**
+  records **0 calls** — there is no code path by which an unconfigured repo executes a gate command,
+  so no message CAN differ; **(2) `assert.deepEqual` against the frozen 3-status strings** — the
+  exceeds message is byte-for-byte today's even with an always-red `run` injected (no config ⇒ no gate
+  runs), in the exact style of the pre-existing `no statusVocabulary: … byte-identical` tests.
+
+**Full suite: `node --test` → 280 tests, 279 pass, 1 fail** (was 264/263/1 before this phase; +16 all
+mine, all pass). The single fail is unchanged: `run-gates.test.mjs`'s freshness self-check,
+red-by-construction. `node scripts/check-docs.mjs` **passes**; `node scripts/sync-version.mjs --check`
+**passes** (all 0.52.0). The `node --test green` Phase-3 box is deliberately **left unticked** — the
+suite is not green until Phase 4 re-pins freshness, and ticking it now would be the very tick-over-a-
+red-gate this spec forbids.
+
+**Handoff to Phase 4:**
+- Re-pin `docs/wiki/spec-bridge-plugin.md` and `docs/wiki/test-suite-catalog-plugins-gates.md`; the
+  latter should now list **`test/project-gates.test.mjs`** among the gates test files (new this phase).
+- After the re-pin, `node --test` goes fully green — then tick the Phase-3 `node --test green` box.
+- The Phase-4 `.spec-bridge.json` (required = `node --test`, check-docs, sync-version --check;
+  redByConstruction = freshness) will, once present, dogfood exactly this check — and until the
+  re-pin lands, this repo IS the field case: a Done-eligible spec with a red redByConstruction gate.
+  Land the `.spec-bridge.json` in the SAME commit as (or after) the re-pin, or the branch's own gate
+  will block on itself.
