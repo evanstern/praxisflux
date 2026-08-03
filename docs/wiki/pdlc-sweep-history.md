@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 608ccda
+verified_against: 0ea82dc6d12b35b6853ef940369ee4c69a950d2d
 ---
 
 # pdlc:sweep — doctrine history
