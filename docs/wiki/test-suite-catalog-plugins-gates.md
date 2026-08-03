@@ -1,6 +1,6 @@
 ---
 name: test-suite-catalog-plugins-gates
-description: Per-file coverage of the single-plugin gate suites — grounding-wiki's capsule tier and freshness gate, pdlc's plant surface, phase-status's vocabulary ladder, project-gates' tick-vs-red-gate check, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split from test-suite-catalog-plugins; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
+description: Per-file coverage of the single-plugin output-gate suites — grounding-wiki's capsule + freshness gate, pdlc's plant surface and root-guard hook, phase-status's vocabulary ladder, project-gates' tick-vs-red check, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split summary-style; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
 kind: pattern
 sources:
   - test/grounding-wiki.capsules.test.mjs
@@ -10,6 +10,8 @@ sources:
   - test/project-gates.test.mjs
   - test/reorient.test.mjs
   - test/research-gates.test.mjs
+  - test/root-guard-hook.test.mjs
+  - test/root-guard-scan.test.mjs
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
@@ -35,33 +37,24 @@ seam involved. One bullet per `test/*.test.mjs` file:
   stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
   fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
   and notes outside git, note untouched).
-- `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin
-  registration + bootstrap SKILL frontmatter (name/version/description, the last
-  backported from the refactor-triage pattern below — spec 047), template markers
-  well-formed and carrying the 101 principles from `docs/principles.md`,
-  `renderGrounding` token substitution with non-opted peer blocks stripped; the
-  model-tier rubric contract (spec 048) — the template's `## Model tiers` section sits
-  inside the grounding markers before the peer blocks, names the
-  `.claude/agents/<tier>-implementer.md` frontmatter `model:` pin and cites the
-  2026-07-31 field case, marks the agent definition authoritative over the planted-default
-  table, with the bootstrap SKILL resolving IDs against the live harness (`claude-api`)
-  and sweep's Phase 1 item 2 naming the same planted location; planting
-  fresh/append/idempotent, a drifted block never overwritten without `--force` (the
-  sentinel doesn't advance past drift), peer-change drift, `--check` writing nothing and
-  exiting 1 while pending; the `peersOmitted` trace (sentinel field, one stderr notice
-  per omitted peer, legacy sentinels stay readable); the `resolveProjectName` ladder —
-  override > recorded > worktree gitdir parse > basename — so worktree plants render the
-  PRIMARY checkout's name and re-plants from either side stay unchanged, never drifted;
-  and the refactor-triage skill shape (spec 033, deepened to the new-plugin standard by
-  spec 047) — frontmatter parsed via the chassis `parseFrontmatter` (not a key-order
-  regex) plus the full phase skeleton (`## Precondition gate` through the four numbered
-  phases, `## Output gate`, `## Handing off`) so a gutted phase drops a header and fails
-  loud; phase-content anchors pinning the triage-record path template
-  (`docs/reviews/refactor-triage-<run-id>.md`), the backlog-CLI-only Execute contract,
-  and the team-review lens framing; the three entry modes + declared-policy headless
-  rule; sweep's Handing off naming refactor-triage; and a cross-plugin test extracting
-  the `docs/reviews/team-review-<run-id>.md` path template from both refactor-triage's
-  and team-review's own SKILL.md and asserting they still spell it identically.
+- `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin registration +
+  bootstrap SKILL frontmatter (name/version/description, backported from refactor-triage — spec 047);
+  template markers carrying the 101 principles (`docs/principles.md`); `renderGrounding` token substitution, non-opted peer blocks stripped; the model-tier rubric (spec 048) — `##
+  Model tiers` inside the grounding markers before peer blocks, naming the
+  `.claude/agents/<tier>-implementer.md` `model:` pin, the agent def authoritative over the
+  planted-default table, IDs resolved against the live harness (`claude-api`); planting
+  fresh/append/idempotent,
+  a drifted block never overwritten without `--force`, peer-change drift, `--check` writing nothing
+  and exiting 1; the `peersOmitted` trace (one stderr notice per omitted peer, legacy sentinels readable); the `resolveProjectName` ladder (override > recorded > worktree gitdir
+  parse > basename) so worktree plants render the PRIMARY name; opt-in root-guard planting
+  (spec 051) — `--hook root-guard` copies BOTH hook files into `.claude/hooks/` and merges the two
+  `PreToolUse` entries into `.claude/settings.json`, idempotent, preserving pre-existing hooks,
+  `--check` writing nothing, unknown-hook rejection; and the refactor-triage skill shape (spec
+  033/047) — `parseFrontmatter` frontmatter plus the full phase skeleton (a gutted phase fails loud),
+  phase-content anchors (triage-record path, backlog-CLI-only Execute, team-review lens), three entry
+  modes + declared-policy headless rule, sweep's Handing off naming refactor-triage, and a
+  cross-plugin test that refactor-triage and team-review spell `docs/reviews/team-review-<run-id>.md`
+  identically.
 - `test/phase-status.test.mjs` — the opt-in phase-grain status vocabulary (additive to the
   spec-derive/spec-bridge suites): the five-stage derivation ladder (specifying →
   planning → implementing → validating → reviewing, incl. single-phase tasks.md and
@@ -71,18 +64,16 @@ seam involved. One bullet per `test/*.test.mjs` file:
   same-named stages); `stageVerdict` exceeds/lags/ok/unknown, reproducing `verdict()`
   everywhere on an unrenamed vocabulary; the gate and `planBridge` speaking the board's
   vocabulary (a named review stage plans no auto-Done); and config-absent gate + plan
-  output byte-identical to the 3-status contract. Also (spec 050) five `projectGatesProfile` cases
-  (opt-out/null, string-command rejection, bucket normalization, name-trim, malformed-sibling drop).
-- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked box can't outrun
-  a red declared gate. Drives `evaluateProjectGates` via injected `run`; `runGateCommand` real
-  only where tested. Cases: **blocking** (`checkBridge` Done-eligible + red
-  `required` ⇒ byte-identical finding (phase/box/gate)); **allowance** (`verifyBridge` mid-PR runs
-  `required` only, a spy proving `redByConstruction` never ran; `checkBridge` runs none);
-  **boundary** (same config at Done-eligible, `redByConstruction` still red ⇒ blocks, both
-  agreeing); **fail-closed** (ENOENT/timeout ⇒ "…never green", plus real exit codes);
-  **no-config parity** (spy: 0 calls; `assert.deepEqual` on frozen 3-status strings);
-  **guard/sharing (Phase 5)** (injected `run` bypasses `SPEC_BRIDGE_GATE_ACTIVE`, default runner
-  short-circuits; each command spawned once, one finding per spec).
+  output byte-identical to the 3-status contract. Also (spec 050) `projectGatesProfile` cases
+  (opt-out, string-command rejection, bucket normalization, name-trim, malformed drop).
+- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked box can't outrun a
+  red declared gate. Drives `evaluateProjectGates` via injected `run`; `runGateCommand` real only
+  where tested. Cases: **blocking** (Done-eligible + red `required` ⇒ byte-identical phase/box/gate
+  finding); **allowance** (`verifyBridge` mid-PR runs `required` only, `checkBridge` none);
+  **boundary** (`redByConstruction` red at Done-eligible ⇒ blocks); **fail-closed**
+  (ENOENT/timeout ⇒ never green); **no-config parity** (0 gate calls; frozen 3-status strings);
+  **guard/sharing (Phase 5)** (injected `run` bypasses `SPEC_BRIDGE_GATE_ACTIVE` while the default
+  runner short-circuits; each command spawned once, one finding per spec).
 - `test/reorient.test.mjs` — reorient end to end: the output gate (`checkReorient` blocks
   until analyses + synthesis exist, demands every corpus branch named plus the sections,
   refuses in-corpus syntheses and empty lenses; adhoc corpus needs no analysis note),
@@ -97,6 +88,13 @@ seam involved. One bullet per `test/*.test.mjs` file:
   [[reorient-run-ownership]]).
 - `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
+- `test/root-guard-scan.test.mjs` — the quote-state shell scanner (spec 051) as a pure
+  function: separators bound only OUTSIDE quotes; single/double, ANSI-C and locale runs,
+  escapes, line continuation; the Co-Authored-By trailer → FOUR tokens (message ONE); command-position detection; fail-closed on unbalanced input.
+- `test/root-guard-hook.test.mjs` — the planted root-guard hook over its `PreToolUse` stdin
+  contract (spec 051), every hazard BOTH ways: newline, `)`, `'`, `"`, `;`, `|`, backtick each
+  ALLOWED `backlog/`-scoped and still BLOCKED out of scope; heredocs, cross-repo jurisdiction,
+  the content false-positive, unparseable-implies-unexecutable, the deny set.
 - `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (incl. the AC block),
   exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
   `strictDone` mode (incl. the analysis-only near-miss warning), and the deterministic

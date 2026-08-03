@@ -12,6 +12,20 @@
 // in under `peersOmitted`, and the CLI prints a one-line stderr notice per omitted peer
 // naming its stripped block — omission stays the opt-out, but never a silent one.
 //
+// OPT-IN HOOKS (spec 051, TASK-101). Besides the grounding block and peers, a host may opt
+// into the hardened **root-guard PreToolUse hook** with `--hook root-guard`. Unlike the
+// grounding block (marked text) and the peers (their own CLIs), this planting COPIES files
+// into the host: BOTH `pdlc/hooks/root-guard-hook.mjs` AND its scanner
+// `pdlc/hooks/shell-scan.mjs` (the hook imports `./shell-scan.mjs` — a planted hook missing
+// its scanner is a broken hook) land in `<root>/.claude/hooks/`, and two `PreToolUse`
+// entries are MERGED into `<root>/.claude/settings.json` (Bash → pre-bash;
+// Write|Edit|NotebookEdit → pre-write), preserving any hooks already there. It is opt-in,
+// **never default-on**: a hard blocker (exit 2) enforcing the root-read-only + worktree-only
+// workflow doctrine is praxisflux's own convention, not universal — wiring it by default
+// would break bootstrap's "safe to install anywhere" property (spec 051 Phase 1 decision
+// #5). Absent `--hook`, nothing is copied or wired. The opt-in is recorded in the `.pdlc`
+// sentinel's `hooks` array and re-presented as a default on update, exactly like the peers.
+//
 // The rendered PROJECT_NAME never blindly trusts basename(root) (the TASK-43 dogfood trap:
 // planting from a worktree named task-43 bakes "# task-43 — …" into the block). Ladder:
 // an explicit --name wins; else the name the `.pdlc` sentinel already records; else, when
@@ -20,17 +34,22 @@
 // checkout of the same project is `unchanged`, never spuriously `drifted`; only --name
 // changes it, and that change surfaces as honest drift (consent + --force).
 //
-//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--check] [--force]
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] [--check] [--force]
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ensureGitignore, verifyPresent } from "../lib/installer.mjs";
+import { copyFile, ensureGitignore, verifyPresent } from "../lib/installer.mjs";
 import { render } from "../lib/template.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const PEERS = ["backlog", "spec-kit"];
+// Opt-in planted hooks (spec 051). Each names a copy-into-host artifact wired via the host's
+// own .claude/settings.json — NOT a marked CLAUDE.md block and NOT a peer utility CLI.
+export const HOOKS = ["root-guard"];
+// The two files the root-guard hook needs in the host (the .mjs imports the scanner).
+const ROOT_GUARD_FILES = ["root-guard-hook.mjs", "shell-scan.mjs"];
 export const SENTINEL = ".pdlc";
 const BEGIN = /^<!-- pdlc:grounding BEGIN\b.*$/m;
 const END = "<!-- pdlc:grounding END -->";
@@ -78,19 +97,78 @@ export function extractBlock(text) {
   return { before: text.slice(0, from), block: text.slice(from, to).trim() + "\n", after: text.slice(to) };
 }
 
+// The two `PreToolUse` entries the root-guard hook wires into a host's .claude/settings.json.
+// The command references the host copy via $CLAUDE_PROJECT_DIR (the same convention the repo's
+// own Stop hook uses) — NOT ${CLAUDE_PLUGIN_ROOT}, which is unset in the host's own session.
+export function rootGuardHookEntries() {
+  const bin = 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/root-guard-hook.mjs"';
+  return [
+    { matcher: "Bash", command: `${bin} pre-bash` },
+    { matcher: "Write|Edit|NotebookEdit", command: `${bin} pre-write` },
+  ];
+}
+
+/** Every command string already declared under settings.hooks.PreToolUse. */
+function preToolUseCommands(settings) {
+  return (settings?.hooks?.PreToolUse ?? []).flatMap((e) => (e?.hooks ?? []).map((h) => h?.command ?? ""));
+}
+
+/**
+ * Is the root-guard hook FULLY wired in `root`? True iff both files are copied into
+ * `.claude/hooks/` AND both PreToolUse commands are present in `.claude/settings.json`.
+ */
+function rootGuardWired(root) {
+  const filesPresent = ROOT_GUARD_FILES.every((f) => existsSync(join(root, ".claude", "hooks", f)));
+  if (!filesPresent) return false;
+  const settingsPath = join(root, ".claude", "settings.json");
+  if (!existsSync(settingsPath)) return false;
+  let settings;
+  try { settings = JSON.parse(readFileSync(settingsPath, "utf8")); } catch { return false; }
+  const cmds = preToolUseCommands(settings);
+  return rootGuardHookEntries().every(({ command }) => cmds.includes(command));
+}
+
+/**
+ * Copy both hook files into `<root>/.claude/hooks/` and merge the two PreToolUse entries into
+ * `<root>/.claude/settings.json`, preserving any hooks already there (idempotent — an entry
+ * whose command is already present is not duplicated). Never called in --check mode.
+ */
+function wireRootGuard(root) {
+  const srcDir = join(here, "..", "hooks");
+  for (const f of ROOT_GUARD_FILES) copyFile(join(srcDir, f), join(root, ".claude", "hooks", f));
+
+  const settingsPath = join(root, ".claude", "settings.json");
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    try { settings = JSON.parse(readFileSync(settingsPath, "utf8")); } catch { settings = {}; }
+  }
+  settings.hooks ??= {};
+  settings.hooks.PreToolUse ??= [];
+  const have = new Set(preToolUseCommands(settings));
+  for (const { matcher, command } of rootGuardHookEntries()) {
+    if (!have.has(command)) settings.hooks.PreToolUse.push({ matcher, hooks: [{ type: "command", command }] });
+  }
+  mkdirSync(dirname(settingsPath), { recursive: true });
+  writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+}
+
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
- * Returns { mode, claudeMd, gitignore, pdlcFile, projectName, peersOmitted, missing } —
- * claudeMd is one of created | appended | replaced | unchanged | drifted; projectName is
- * the resolved heading name (see resolveProjectName); peersOmitted lists the known peers
- * not opted in at plant time (their blocks were stripped from the rendered grounding).
+ * Returns { mode, claudeMd, gitignore, pdlcFile, hooks, projectName, peersOmitted, missing } —
+ * claudeMd is one of created | appended | replaced | unchanged | drifted; hooks is `absent`
+ * (root-guard not opted in), `installed` (opted in and newly wired, or would be under --check),
+ * or `unchanged` (opted in and already fully wired); projectName is the resolved heading name
+ * (see resolveProjectName); peersOmitted lists the known peers not opted in at plant time
+ * (their blocks were stripped from the rendered grounding).
  */
-export function plant(root, { peers = [], check = false, force = false, templatePath, version, name } = {}) {
+export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name } = {}) {
   root = resolve(root);
   templatePath ??= join(here, "..", "templates", "CLAUDE.md");
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
   const unknown = peers.filter((p) => !PEERS.includes(p));
   if (unknown.length) throw new Error(`unknown peer(s): ${unknown.join(", ")} (known: ${PEERS.join(", ")})`);
+  const unknownHooks = hooks.filter((h) => !HOOKS.includes(h));
+  if (unknownHooks.length) throw new Error(`unknown hook(s): ${unknownHooks.join(", ")} (known: ${HOOKS.join(", ")})`);
   // The deterministic absent-peer trace: known peers not opted in, in KNOWN-peer order.
   const peersOmitted = PEERS.filter((p) => !peers.includes(p));
 
@@ -130,13 +208,23 @@ export function plant(root, { peers = [], check = false, force = false, template
     ? (readGitignoreHas(root, ".handoff/") ? "present" : "added")
     : ensureGitignore(root, ".handoff/") ? "added" : "present";
 
-  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted };
-  // peersOmitted is derived from peers, so comparing version + peers + name is enough — and
-  // tolerating an absent field keeps legacy sentinels (written before `peersOmitted` or
-  // `name` existed) "unchanged" instead of churning them just to gain the field.
+  // Opt-in root-guard hook: copy both files + merge the PreToolUse entries. `absent` when not
+  // opted in; else `installed` (needs wiring — reported in --check, done for real otherwise)
+  // or `unchanged` (already fully wired). Independent of the grounding block.
+  let hooksReport = "absent";
+  if (hooks.includes("root-guard")) {
+    hooksReport = rootGuardWired(root) ? "unchanged" : "installed";
+    if (!check && hooksReport === "installed") wireRootGuard(root);
+  }
+
+  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted, hooks: [...hooks].sort() };
+  // peersOmitted is derived from peers, so comparing version + peers + name + hooks is enough
+  // — and tolerating an absent field keeps legacy sentinels (written before `peersOmitted`,
+  // `name`, or `hooks` existed) "unchanged" instead of churning them just to gain the field.
   const same = existing && existing.version === desired.version &&
     JSON.stringify([...(existing.peers || [])].sort()) === JSON.stringify(desired.peers) &&
-    (existing.name === undefined || existing.name === desired.name);
+    (existing.name === undefined || existing.name === desired.name) &&
+    (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks));
   // A drifted, unconfirmed block means nothing was planted — don't advance the sentinel past it.
   const pdlcFile = claudeMd === "drifted" ? (existing ? "unchanged" : "skipped")
     : same ? "unchanged" : existing ? "updated" : "written";
@@ -145,7 +233,7 @@ export function plant(root, { peers = [], check = false, force = false, template
   }
 
   const missing = check ? [] : verifyPresent(root, ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, pdlcFile, projectName, peersOmitted, missing };
+  return { mode, claudeMd, gitignore, pdlcFile, hooks: hooksReport, projectName, peersOmitted, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -158,15 +246,17 @@ if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i === -1 ? undefined : args[i + 1]; };
   const root = opt("--root");
-  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--check] [--force]"); process.exit(2); }
+  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] [--check] [--force]"); process.exit(2); }
   const peers = args.flatMap((a, i) => (a === "--peer" ? [args[i + 1]] : []));
+  const hooks = args.flatMap((a, i) => (a === "--hook" ? [args[i + 1]] : []));
   const check = args.includes("--check");
-  const report = plant(root, { peers, check, force: args.includes("--force"), name: opt("--name") });
+  const report = plant(root, { peers, hooks, check, force: args.includes("--force"), name: opt("--name") });
   for (const p of report.peersOmitted) {
     console.error(`plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in ${SENTINEL} peersOmitted)`);
   }
   console.log(JSON.stringify(report, null, 2));
-  const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged" || report.gitignore !== "present";
+  const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
+    || report.gitignore !== "present" || report.hooks === "installed";
   if (check && pending) process.exit(1); // --check: nonzero when planting would change something
   if (report.missing.length) process.exit(1);
 }

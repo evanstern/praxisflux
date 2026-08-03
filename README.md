@@ -16,7 +16,10 @@ The **Enforcement** column states each plugin's actual gate wiring. Local Stop h
 **advisory and opt-in by design** — they run only where the plugin is installed and `node`
 resolves; the **authoritative** enforcement point is CI (the composite action /
 [`@praxisflux/gates`](docs/consuming-gates.md)). The delivered tenet: **gates make dishonest
-status expensive locally and impossible in CI.**
+status expensive locally and impossible in CI.** The one hard-blocking local surface is the
+exception that proves the rule: `pdlc`'s **opt-in** root-guard `PreToolUse` hook (spec 051),
+which a host adopting worktree-only discipline can plant to block root-checkout commits — off
+by default, so the advisory-local / authoritative-CI split holds everywhere it is not opted in.
 
 | Plugin | Role | Enforcement | Placement |
 |---|---|---|---|
@@ -26,7 +29,7 @@ status expensive locally and impossible in CI.**
 | **build** | Implement a SPEC handed off via `.handoff/` (`/build:implement`): build it, verify by exercising the result, and return findings for the lesson to fold back in. Skill-only plugin — no gates of its own; the round trip is enforced on the educate side. | Skill-only: none. | Runs where the work is. |
 | **codebase-to-course** | Turn any codebase into an interactive single-page HTML course for non-technical learners. Reads a grounded corpus (`docs/wiki/`) as its primary analysis input when present; output gated on the chassis. | CLI/CI gate only (`course`); no Stop hook. | **Runs on a target codebase** (course lands in `docs/course/`). |
 | **spec-bridge** | Backlog.md as the kanban view over GitHub Spec Kit specs: link a task to a spec dir, sync status one-way from spec artifacts, gate "status can't exceed proven artifacts". | Stop hook (advisory) + CI gate (`spec-bridge`). | **Runs on a project with `backlog/` + `specs/`.** |
-| **pdlc** | Bootstrap, then run, the praxis development lifecycle across three skills: `bootstrap` plants the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignores the `.handoff/` transport, and opts into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in; `sweep` runs a set of board tasks through the whole lifecycle via an operator-signed-off runbook (parallel lanes, serial merges); `refactor-triage` triages the swept result for debt and drift and cards accepted findings back onto the board. | Skill-only: none. | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
+| **pdlc** | Bootstrap, then run, the praxis development lifecycle across three skills: `bootstrap` plants the always-on PDLC grounding (a marked `CLAUDE.md` block), gitignores the `.handoff/` transport, and opts into the supported peer utilities (Backlog.md, Spec Kit) — running their inits on opt-in; `sweep` runs a set of board tasks through the whole lifecycle via an operator-signed-off runbook (parallel lanes, serial merges); `refactor-triage` triages the swept result for debt and drift and cards accepted findings back onto the board. | Skill-only for the lifecycle, plus an **opt-in** root-guard `PreToolUse` hook `bootstrap` can plant into a host (hard-blocks root-checkout commits outside the `backlog/` carve-out; off by default). | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
 | **team-review** | Lead-engineer-plus-team architecture review via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched). | Stop hook (advisory): in-flight run gate. | **Caller-supplied target** — reviews a repo the caller names; state stays at the invoking root. |
 | **reorient** | Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground, and one synthesis lands as board moves — proven by an output gate (per-branch analyses + merged synthesis). | Stop hook (advisory): in-flight run gate. | **Runs on the project it reorients** — run state at the invoking root; vault/wiki/board grounding auto-detected, each optional. |
 
