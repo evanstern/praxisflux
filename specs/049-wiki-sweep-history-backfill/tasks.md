@@ -30,19 +30,21 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 3 — Backfill 0.48.0 / 0.50.0 / 0.51.0
 
-- [ ] Derive the 0.48.0 entry (background-job / no-main-push execution mode) from the
+- [x] Derive the 0.48.0 entry (background-job / no-main-push execution mode) from the
       sweep SKILL.md diff for that release plus
       `docs/design/board-cost-test-runbook.md`; cite the field evidence
-- [ ] Derive the 0.50.0 entry (two-track landing reference) from
+      **(landed as "Since 0.49.0" — see Notes: the real release is 0.49.0, not 0.48.0;
+      documented in-note)**
+- [x] Derive the 0.50.0 entry (two-track landing reference) from
       `specs/046-two-track-landing-rule/`; cite the field evidence
-- [ ] Derive the 0.51.0 entry (hand-authored-specs hatch + gate-softening-requires-
+- [x] Derive the 0.51.0 entry (hand-authored-specs hatch + gate-softening-requires-
       amendment) from `specs/045-sweep-hand-authored-specs-hatch/`; cite the field
       evidence
-- [ ] Confirm `docs/wiki/pdlc-sweep.md:92-97`'s claim is now TRUE — the history corpus
+- [x] Confirm `docs/wiki/pdlc-sweep.md:92-97`'s claim is now TRUE — the history corpus
       carries per-release detail through 0.51.0
-- [ ] Verify R1's headroom requirement: the parent and the newest child each retain
+- [x] Verify R1's headroom requirement: the parent and the newest child each retain
       ≥1,200 chars of room; if not, revisit the Phase 1 split point
-- [ ] Commit the backfill
+- [x] Commit the backfill
 
 ## Phase 4 — Hub note sources, regeneration, and the zero-warn gate
 
@@ -211,3 +213,97 @@ green by any means short of `--no-verify` or collapsing the phase boundary (i.e.
 regenerating CAPSULES.md/INDEX.md inside Phase 2, which this task's dispatch
 prompt explicitly forbids). Both Phase 2 commits document this in their own
 messages.
+
+### Phase 3 — backfill performed, real measurements, one grounding correction
+
+**IMPORTANT finding — the 0.48.0 label in this task's own spec/tasks.md is wrong;
+the real release is 0.49.0.** Per the dispatch prompt's binding instruction ("grounded
+in real evidence — never invented... if you cannot find real evidence for a claim, say
+so"), this was checked against git history rather than taken on faith from spec.md /
+`docs/wiki/pdlc-sweep.md:98`, both of which label the background-job/no-main-push
+doctrine "0.48.0". It is not:
+
+- TASK-90 (the commit that wrote the doctrine, `3124b74c`) bumped its own branch's
+  `marketplace.json` to 0.48.0 (commit `6c78c3d8`).
+- A same-day sibling PR, TASK-80 (`bd5ce8f`, refactor-triage last-run-at high-water
+  mark — unrelated content, does not touch `pdlc/skills/sweep/SKILL.md`), merged first
+  and took 0.48.0 for real (verified: `git show bd5ce8f:.claude-plugin/marketplace.json`
+  reads `"version": "0.48.0"`).
+- TASK-90 then merged `origin/main`, restamped to 0.49.0 (commit `45c1242d`, "restamp
+  0.49.0"), and its merge PR (`da3e615`) carries `"version": "0.49.0"`
+  (`git show da3e615:.claude-plugin/marketplace.json`).
+- `docs/design/board-cost-test-runbook.md`'s own execution log (the field-evidence
+  source this phase was told to use) already states this correctly: "TASK-90 | #113 |
+  da3e615 | ... background-job/no-main-push mode doctrined; sweep skill 0.15.0,
+  **v0.49.0**".
+
+So "0.48.0" was TASK-90's pre-collision target, never its shipped version; 0.49.0 is
+what `marketplace.json`'s real history carries. The task's own spec.md problem
+statement and `pdlc-sweep.md:98`'s prose both inherited the stale pre-collision number
+and were never corrected. **The entry was written under "Since 0.49.0"**, not 0.48.0,
+with the discrepancy and its evidence chain disclosed inline in the entry itself (so a
+reader hitting the wrong number in `pdlc-sweep.md` isn't left confused) — writing it
+under a version number contradicted by `marketplace.json`'s own commit history would
+have repeated exactly the kind of false claim this whole task exists to fix. **This is
+an artifact defect in `docs/wiki/pdlc-sweep.md:98` itself (the "0.48.0" label), separate
+from and in addition to the "false promise" defect TASK-93 was carded to fix — out of
+this phase's scope to edit (pdlc-sweep.md is not a Phase 3 file), flagged for the
+orchestrator / a follow-up card.** The 0.50.0 and 0.51.0 labels were independently
+verified against the same commit history and are correct as stated
+(`git show dc20221:.claude-plugin/marketplace.json` → 0.50.0 for TASK-85;
+`git show cebbe9b:.claude-plugin/marketplace.json` → 0.51.0 for TASK-79).
+
+**Evidence per entry:**
+- **"Since 0.49.0" (background-job / no-main-push mode):** `pdlc/skills/sweep/SKILL.md`
+  diff at commit `3124b74c` (TASK-90) — the new "Background-job / no-main-push execution
+  mode" subsection (worktree substitute, closures-ride-next-branch, wrap-up PR) and its
+  provenance citation; `docs/design/board-cost-test-runbook.md`'s "Background-job
+  execution pattern" doctrine block and its own execution-log row confirming this
+  orchestrator ran under the mode being documented.
+- **"Since 0.50.0" (two-track landing rule):** `specs/046-two-track-landing-rule/spec.md`
+  (problem statement — infinitynode.media's 2026-07-28 re-derivation; R1-R4) plus the
+  real diff at commit `a7b544fe` (TASK-85) — `pdlc/templates/CLAUDE.md`'s new
+  `pdlc:peer:backlog` bullet and the one-clause `SKILL.md` reference-not-restate edit.
+- **"Since 0.51.0" (hand-authored-specs hatch + gate-softening rule):**
+  `specs/045-sweep-hand-authored-specs-hatch/spec.md` (problem statement — refactor-triage
+  run praxis-2026-07-27-16-07-29, group F; R1-R2) plus the real diff at commit
+  `de324a7c` (TASK-79) — the precondition-gate carve-out text and the new
+  gate-softening-requires-amendment clause, including its specs/033 field citation.
+
+**Real measurements (gate's `noteBody()`, not eyeballed):**
+
+| note | pre-backfill body | post-backfill body | headroom vs 8000 |
+|---|---|---|---|
+| `pdlc-sweep-history.md` (parent, untouched this phase) | 2157 | 2157 | 5843 |
+| `pdlc-sweep-history-early.md` (untouched this phase) | 5734 | 5734 | 2266 |
+| `pdlc-sweep-history-recent.md` (receives backfill) | 3153 | **6687** | **1313** |
+
+Recent's headroom (1313) clears R1's ≥1,200 floor but with less margin than Phase 1's
+worst-case projection (2045) — the three entries totaled ~3534 chars vs. the projected
+worst case of ~3150, because the 0.49.0 entry carries the version-discrepancy disclosure
+above (evidence integrity over projection accuracy). Per-entry: "Since 0.49.0" 1363
+chars, "Since 0.50.0" 1070 chars, "Since 0.51.0" 1101 chars — the first exceeds Phase 1's
+1017-char worst-case bound; the other two are within it. Re-measured with the gate
+per plan.md's requirement rather than trimming evidence to fit; 1313 ≥ 1200 so the
+Phase 1 split point stands and does not need revisiting.
+
+**`pdlc-sweep.md:98` claim status:** the clause "`[[pdlc-sweep-history]]` carries the
+per-release detail" is now **TRUE** — the corpus (parent + both children) carries
+release entries through 0.51.0. The version-number label bug on that same line
+("0.48.0" instead of "0.49.0") is a separate, still-open defect in `pdlc-sweep.md`'s own
+prose, not fixed here — out of Phase 3 scope (not a wiki-history-note file).
+
+**Gate/test output (`--no-verify` used and disclosed, per dispatch-prompt sanction —
+operator-signed runbook amendment 1, 2026-08-02; identical carve-out shape as Phase 2):**
+- `node grounding-wiki/gates/cli.mjs freshness . docs/wiki`: **exits non-zero.** One
+  pre-existing WARN (`test-suite-catalog-plugins.md: no sources listed`, R3/Phase 4
+  scope, unchanged by this phase) plus one FAIL (`CAPSULES.md: stale —
+  regenerate-and-compare mismatch`) — expected, Phase 4 regenerates CAPSULES.md/INDEX.md.
+- `node --test`: **258/259**, the one failure is `run-gates.test.mjs`'s
+  wiki-freshness assertion, same root cause as above (CAPSULES.md staleness), same
+  carve-out as Phase 2.
+- `node scripts/check-docs.mjs`: **green** ("README.md and CLAUDE.md are in sync with
+  the repo").
+- Commit made with `--no-verify` because `.githooks/pre-commit` runs the full
+  `node --test` suite and would fail on the same pre-existing, Phase-4-scoped
+  wiki-freshness redness documented above and in Phase 2's notes.
