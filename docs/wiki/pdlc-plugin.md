@@ -8,7 +8,7 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
+verified_against: 8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80
 ---
 
 # pdlc plugin
@@ -116,9 +116,22 @@ the durable record), when present it asks opt-in per peer and runs its init
 select the planted convention blocks and are recorded in `.pdlc`; an update re-presents
 them as defaults.
 
+## Opt-in root-guard hook — the suite's first PreToolUse hook
+
+Since 0.53.0 (bootstrap 0.10.0) bootstrap can also plant a hardened **root-guard
+`PreToolUse` hook** (spec 051 / TASK-101) enforcing the root-read-only + worktree-only
+doctrine the block states as prose. It is the suite's **first `PreToolUse` hook** (every
+other is an advisory Stop gate via [[gate-runner]]) — a new shape that hard-blocks a tool
+call (exit 2). `plant.mjs --hook root-guard` **copies files into the host**: BOTH
+`root-guard-hook.mjs` and its scanner `shell-scan.mjs` into `.claude/hooks/`, plus two merged
+`PreToolUse` entries in `.claude/settings.json` — **opt-in, never default-on**, recorded in
+the `.pdlc` `hooks` array. It replaces promptworld's copy with a quote-state scanner (spec
+051 R2/R3/R5). Full policy + divergence: `pdlc/README.md`.
+
 ## What it deliberately does not do
 
 Phase separation ([[skill-patterns]]) holds: bootstrap creates no `docs/wiki/`
 ([[grounding-wiki-plugin]]) and no `docs/course/` ([[codebase-to-course-plugin]]), and never
-invokes sibling skills — it sets the table and hands off. No Stop hook: pdlc has no
-lifecycle of its own; the wired-in plugins bring their own gates ([[gates-convention]]).
+invokes sibling skills — it sets the table and hands off. No **Stop** hook: pdlc has no
+lifecycle of its own; the wired-in plugins bring their own gates ([[gates-convention]]) — its
+one shipped enforcement is the opt-in `PreToolUse` hook above.

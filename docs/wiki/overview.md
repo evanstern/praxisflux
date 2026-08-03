@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
+verified_against: 8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80
 ---
 
 # praxisflux — system overview
@@ -112,7 +112,11 @@ at the invoking root.
   advisory/opt-in — present only where a plugin is installed and `node` resolves — while
   CI (the composite action / `@praxisflux/gates`, see [[gates-consumption-surface]]) is
   authoritative. The tenet: gates make dishonest status expensive locally and impossible
-  in CI. The README plugin table records each plugin's actual enforcement surface in an
-  Enforcement column: Stop hook (research, educate, spec-bridge — which also has a CI
-  gate — team-review, reorient), CLI/CI gate only (grounding-wiki, codebase-to-course),
-  skill-only/none (build, pdlc).
+  in CI. The **one hard-blocking local surface** is the exception: [[pdlc-plugin]]'s
+  **opt-in** root-guard `PreToolUse` hook (spec 051), which a host adopting worktree-only
+  discipline can plant to block root-checkout commits outside the `backlog/` carve-out — off
+  by default, so the split holds everywhere it is not opted in. The README plugin table
+  records each plugin's actual enforcement surface in an Enforcement column: Stop hook
+  (research, educate, spec-bridge — which also has a CI gate — team-review, reorient),
+  CLI/CI gate only (grounding-wiki, codebase-to-course), skill-only for the lifecycle
+  (build; pdlc — plus that opt-in planted `PreToolUse` hook).

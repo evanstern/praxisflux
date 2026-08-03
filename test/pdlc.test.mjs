@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL } from "../pdlc/scripts/plant.mjs";
 import { parseFrontmatter } from "../lib/markdown.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
@@ -436,5 +436,93 @@ test("unknown peers are rejected", () => {
   const { root, done } = proj();
   try {
     assert.throws(() => plant(root, opts({ peers: ["jira"] })), /unknown peer/);
+  } finally { done(); }
+});
+
+// --- opt-in root-guard hook (spec 051 / TASK-101) ---
+
+/** Read a planted host's .claude/settings.json (or {} if absent). */
+function readSettings(root) {
+  const p = join(root, ".claude", "settings.json");
+  return existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : {};
+}
+/** Every PreToolUse command string declared in a settings object. */
+function preToolUseCommands(settings) {
+  return (settings.hooks?.PreToolUse ?? []).flatMap((e) => (e.hooks ?? []).map((h) => h.command ?? ""));
+}
+
+test("no --hook: nothing under .claude/, sentinel records hooks: [] , report hooks: absent", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts({ peers: [] }));
+    assert.equal(r.hooks, "absent");
+    assert.ok(!existsSync(join(root, ".claude")), "no .claude/ tree when the hook is not opted in");
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).hooks, []);
+  } finally { done(); }
+});
+
+test("opt-in root-guard copies BOTH files and injects both PreToolUse entries; then idempotent", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts({ peers: [], hooks: ["root-guard"] }));
+    assert.equal(r.hooks, "installed");
+    // BOTH files land — a hook missing its scanner is broken (Phase 2 §1).
+    for (const f of ["root-guard-hook.mjs", "shell-scan.mjs"])
+      assert.ok(existsSync(join(root, ".claude", "hooks", f)), `${f} must be copied into the host`);
+    // The host copy imports its scanner relatively — prove the import target is present.
+    const hookSrc = readFileSync(join(root, ".claude", "hooks", "root-guard-hook.mjs"), "utf8");
+    assert.match(hookSrc, /from '\.\/shell-scan\.mjs'/, "the planted hook imports ./shell-scan.mjs");
+    // Both PreToolUse entries wired, referencing the host copy via $CLAUDE_PROJECT_DIR.
+    const cmds = preToolUseCommands(readSettings(root));
+    for (const { command } of rootGuardHookEntries()) assert.ok(cmds.includes(command), `missing wiring: ${command}`);
+    assert.ok(cmds.some((c) => c.includes("pre-bash")) && cmds.some((c) => c.includes("pre-write")),
+      "both pre-bash (Bash) and pre-write (Write|Edit|NotebookEdit) entries present");
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).hooks, ["root-guard"]);
+
+    const again = plant(root, opts({ peers: [], hooks: ["root-guard"] }));
+    assert.equal(again.hooks, "unchanged", "already-wired hook re-plants as unchanged");
+    assert.equal(again.pdlcFile, "unchanged");
+    // No duplicate PreToolUse entries on a second plant.
+    assert.equal(preToolUseCommands(readSettings(root)).filter((c) => c.includes("root-guard-hook.mjs")).length, 2);
+  } finally { done(); }
+});
+
+test("hook injection preserves a host's pre-existing hooks", () => {
+  const { root, done } = proj();
+  try {
+    mkdirSync(join(root, ".claude"), { recursive: true });
+    const existing = { hooks: { Stop: [{ hooks: [{ type: "command", command: "node existing-stop.mjs" }] }] } };
+    writeFileSync(join(root, ".claude", "settings.json"), JSON.stringify(existing, null, 2) + "\n");
+    plant(root, opts({ peers: [], hooks: ["root-guard"] }));
+    const settings = readSettings(root);
+    assert.ok(settings.hooks.Stop, "the pre-existing Stop hook survives");
+    assert.equal(settings.hooks.Stop[0].hooks[0].command, "node existing-stop.mjs");
+    assert.equal(preToolUseCommands(settings).length, 2, "the two root-guard PreToolUse entries were added");
+  } finally { done(); }
+});
+
+test("--check with --hook writes nothing and the CLI exits nonzero while wiring is pending", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts({ peers: [], hooks: ["root-guard"], check: true }));
+    assert.equal(r.hooks, "installed", "check reports the hook would be installed");
+    assert.ok(!existsSync(join(root, ".claude")), "check mode writes no hook files");
+
+    const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+    let status = 0;
+    try { execFileSync(process.execPath, [cli, "--root", root, "--hook", "root-guard", "--check"]); }
+    catch (e) { status = e.status; }
+    assert.equal(status, 1, "--check must exit 1 while hook wiring is pending");
+    execFileSync(process.execPath, [cli, "--root", root, "--hook", "root-guard"]); // wire for real
+    execFileSync(process.execPath, [cli, "--root", root, "--hook", "root-guard", "--check"]); // now clean → exit 0
+    assert.ok(existsSync(join(root, ".claude", "hooks", "shell-scan.mjs")));
+  } finally { done(); }
+});
+
+test("unknown hooks are rejected; HOOKS names root-guard", () => {
+  const { root, done } = proj();
+  try {
+    assert.deepEqual(HOOKS, ["root-guard"]);
+    assert.throws(() => plant(root, opts({ peers: [], hooks: ["danger"] })), /unknown hook/);
   } finally { done(); }
 });
