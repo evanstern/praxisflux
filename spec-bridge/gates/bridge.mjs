@@ -202,6 +202,24 @@ function gatesFor(profile, buckets) {
   return out;
 }
 
+/**
+ * Memoize a gate runner by its argv so each DISTINCT declared command runs at most once per
+ * bridge invocation. Declared gates are project-wide, not per-spec — the same `node --test` is
+ * the `tests` gate for every linked spec — so its RESULT is computed once and shared across all
+ * of them (spec 050 defect 2, Phase 5). Findings are still built per spec (each names its own
+ * phase/box/gate); only the gate result is shared, never the finding. Before this, checkBridge
+ * ran the full gate set once per Done-eligible spec — 49× on this repo's own board, ~358s — which
+ * defeated R4's cost argument the moment more than one spec was Done-eligible.
+ */
+function memoizeRun(rawRun) {
+  const cache = new Map();
+  return (command) => {
+    const key = command.join(" ");
+    if (!cache.has(key)) cache.set(key, rawRun(command));
+    return cache.get(key);
+  };
+}
+
 /** The human clause for why a gate isn't green — honest about red vs. couldn't-run vs. timed-out. */
 function gateReason(result) {
   if (result.kind === "timeout") return `timed out after ${result.timeoutMs}ms and is treated as failed, never green`;
@@ -332,12 +350,17 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   const requireAnalysis = config.strictDone === true;
   const profile = vocabularyProfile(config);
   const gatesProfile = projectGatesProfile(config);
-  // Run declared project gates only when they're opted into, the caller asked for it (the Stop
-  // hook runs them in `check` but not the duplicate `warn` pass), and THIS process was not
-  // itself spawned as a gate command — that env flag is the reentrancy guard that makes a host
-  // command which re-invokes the bridge short-circuit instead of forking forever (spec 050 R4).
-  const execGates = runGates && !!gatesProfile && process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1";
-  const runOne = run || ((command) => runGateCommand(command, { cwd: root }));
+  // Run declared project gates only when they're opted into and the caller asked for it (the Stop
+  // hook runs them in `check` but not the duplicate `warn` pass). SPEC_BRIDGE_GATE_ACTIVE, set on
+  // every child runGateCommand spawns, is the reentrancy guard: a host gate command that itself
+  // re-invokes the bridge short-circuits instead of forking forever (spec 050 R4). But that guard
+  // exists to stop the DEFAULT runner from spawning real subprocesses — an injected `run` is a
+  // test double that spawns nothing, so it MUST bypass the guard (spec 050 defect 1, Phase 5).
+  // Without this bypass the bridge's own dogfood reddens its `tests` gate: `node --test` runs the
+  // Phase-3 suite with the flag set, and every injected-run test there fail-closes to [].
+  const injected = run !== undefined;
+  const execGates = runGates && !!gatesProfile && (injected || process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1");
+  const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
   for (const task of findLinkedTasks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     // Opted-in boards are judged on the stage ladder against their own status names;
@@ -405,10 +428,15 @@ export function verifyBridge(root, { run } = {}) {
   const problems = [];
   const config = loadBridgeConfig(root);
   const gatesProfile = projectGatesProfile(config);
-  // No opt-in, or we are ourselves a spawned gate command → nothing to do (reentrancy guard).
-  if (!gatesProfile || process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return problems;
+  if (!gatesProfile) return problems; // no opt-in → nothing to do
+  // Reentrancy guard (spec 050 defect 1, Phase 5): a spawned gate command that re-invokes the
+  // bridge with the DEFAULT runner short-circuits so it can't fork forever; an injected `run` is
+  // a test double that spawns nothing, so it bypasses the guard.
+  const injected = run !== undefined;
+  if (!injected && process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return problems;
   const requireAnalysis = config.strictDone === true;
-  const runOne = run || ((command) => runGateCommand(command, { cwd: root }));
+  // Share each distinct gate result across every spec this invocation checks (spec 050 defect 2).
+  const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
   for (const task of findLinkedTasks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const anyTicked = (derived.phaseBoxes || []).some((p) => (p.boxes || []).some((b) => b.checked));

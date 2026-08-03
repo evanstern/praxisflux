@@ -196,6 +196,71 @@ test("runGateCommand: sets SPEC_BRIDGE_GATE_ACTIVE on the child (the reentrancy 
   assert.deepEqual(r, { ok: true });
 });
 
+/* ── spec 050 Phase 5, defect 1: the reentrancy guard gates only the DEFAULT runner ──────────
+ * SPEC_BRIDGE_GATE_ACTIVE stops a spawned gate command from re-forking the bridge — but an
+ * injected `run` is a test double that spawns nothing, so it must bypass the guard. This bypass
+ * is what lets the bridge dogfood itself: `node --test` runs THIS suite with the flag set, and
+ * every injected-run assertion above must still hold. The test save/restores the flag, so the
+ * suite is hermetic — its result never depends on the caller's environment. */
+
+test("defect 1: an injected run bypasses SPEC_BRIDGE_GATE_ACTIVE; the default runner still short-circuits", () => {
+  const saved = process.env.SPEC_BRIDGE_GATE_ACTIVE;
+  process.env.SPEC_BRIDGE_GATE_ACTIVE = "1"; // simulate running nested under a gate command
+  const p = project();
+  try {
+    bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
+    // Injected run (a test double, spawns nothing): bypasses the guard, red required gate is caught.
+    assert.equal(checkBridge(p.root, { run: RED("exited 1") }).problems.length, 1, "injected run must bypass the guard");
+    assert.equal(verifyBridge(p.root, { run: RED("exited 1") }).length, 1, "injected run must bypass the guard");
+    // Default runner + flag set: the guard holds — zero commands spawned, no findings, no recursion.
+    assert.deepEqual(checkBridge(p.root).problems, [], "default runner must short-circuit under the flag");
+    assert.deepEqual(verifyBridge(p.root), [], "default runner must short-circuit under the flag");
+  } finally {
+    if (saved === undefined) delete process.env.SPEC_BRIDGE_GATE_ACTIVE;
+    else process.env.SPEC_BRIDGE_GATE_ACTIVE = saved;
+    p.done();
+  }
+});
+
+/* ── spec 050 Phase 5, defect 2: declared gates run ONCE per invocation, shared across specs ───
+ * Declared gates are project-wide, not per-spec. With N Done-eligible specs the full set must
+ * still spawn each command exactly once (not N×), while every spec gets its OWN finding naming its
+ * own phase/box/gate — the gate RESULT is shared, never the finding. */
+
+test("defect 2: node --test is spawned ONCE across many Done-eligible specs, not once per spec", () => {
+  const p = project();
+  try {
+    p.config(REQUIRED_ONLY);
+    const N = 5;
+    for (let i = 1; i <= N; i++) {
+      p.task(`TASK-${i}`, "Done", `Spec: specs/00${i}-a/`);
+      p.spec(`specs/00${i}-a`, { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    }
+    const spawned = [];
+    const run = (cmd) => { spawned.push(cmd.join(" ")); return { ok: false, kind: "red", reason: "exited 1" }; };
+    const { problems } = checkBridge(p.root, { run });
+    assert.equal(problems.length, N, "every Done-eligible spec still gets its own finding");
+    assert.deepEqual(spawned, ["node --test"], `expected a single spawn; got: ${JSON.stringify(spawned)}`);
+  } finally { p.done(); }
+});
+
+test("defect 2: verifyBridge shares one gate result across specs — one spawn, one finding each", () => {
+  const p = project();
+  try {
+    p.config(REQUIRED_ONLY);
+    const N = 4;
+    for (let i = 1; i <= N; i++) {
+      p.task(`TASK-${i}`, "In Progress", `Spec: specs/00${i}-a/`);
+      p.spec(`specs/00${i}-a`, { "spec.md": "s", "plan.md": "p", "tasks.md": MID_PR });
+    }
+    const spawned = [];
+    const run = (cmd) => { spawned.push(cmd.join(" ")); return { ok: false, kind: "red", reason: "exited 1" }; };
+    const problems = verifyBridge(p.root, { run });
+    assert.equal(problems.length, N, "every mid-PR spec with a ticked box gets its own finding");
+    assert.deepEqual(spawned, ["node --test"], `expected a single spawn; got: ${JSON.stringify(spawned)}`);
+  } finally { p.done(); }
+});
+
 /* ── the parity proof: with NO projectGates config, output is byte-identical and zero commands run.
  * This is the proof that consumer repos without the opt-in are wholly unaffected. Mechanism: (a)
  * deepEqual against the frozen 3-status strings — same style as the pre-existing byte-identical
