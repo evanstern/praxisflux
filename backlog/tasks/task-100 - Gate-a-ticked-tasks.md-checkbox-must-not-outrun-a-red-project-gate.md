@@ -1,10 +1,11 @@
 ---
 id: TASK-100
 title: 'Gate: a ticked tasks.md checkbox must not outrun a red project gate'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-01 18:11'
-updated_date: '2026-08-01 18:11'
+updated_date: '2026-08-03 01:44'
 labels:
   - debt
   - pdlc
@@ -29,6 +30,8 @@ Two things are tangled and should be separated by the fix:
 (2) What is NOT acceptable is a phase claiming a gate is green when it is red, or a task reaching Done-eligible while a gate the project enforces is failing.
 
 Fix shape (not prescriptive — the spec decides): a check that reconciles ticked tasks.md checkboxes against actual gate state, with an explicit notion of which gates a phase is allowed to leave red and which must be green before the FINAL phase can tick. The spec-bridge gate is the natural home: it already reads tasks.md and already blocks status that exceeds artifacts. Candidate rule: a spec whose boxes are all ticked (Done-eligible) while any project gate is red is a blocking finding.
+
+Spec: specs/050-tick-vs-red-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
