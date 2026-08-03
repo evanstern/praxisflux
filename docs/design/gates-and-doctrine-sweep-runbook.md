@@ -9,9 +9,31 @@ conflicts as routine. Direction is decided; do not re-litigate it: the **board c
 2026-08-01/02). Plan-of-record is the board; this file carries only ordering, doctrine,
 and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-08-02 (lanes approved **as
+**Status:** **executing** · operator sign-off on lanes: 2026-08-02 (lanes approved **as
 authored** — all five, tiers as pinned, all eight hand-authored-spec escape lines signed;
 checkpoints 2, 3 and 4 answered at sign-off and recorded as gate lines below, not prose)
+
+> ## ▶ RESUME HERE (2026-08-03) — Lane 1 complete, Lanes 2-6 remain
+>
+> **A fresh session resumes from this file + the board alone. Read "Read first" below, then
+> this block, then start Lane 2.**
+>
+> - **Done, merged, closed:** TASK-93 (#124, `3f7f582`), TASK-101 (#125, `d31f40b`,
+>   v0.53.0), TASK-100 (#126, `1a1dd55`, v0.54.0). Board Done via `spec-bridge:sync` in
+>   every case — never by hand.
+> - **Repo state:** `main` @ v0.54.0, root clean, `git worktree list` shows **root only**,
+>   all Lane 1 branches deleted after `gh api … --jq .merged` returned true.
+> - **Next free spec number: 052** (`specs/` holds 029–051). Re-check `origin/main:specs/`
+>   at claim time and renumber on collision — claim-before-work governs.
+> - **Next up: Lane 2** — TASK-97 and TASK-94 in parallel worktrees; **TASK-97 merges
+>   first** (it heads the `pdlc/skills/sweep/SKILL.md` hotspot chain).
+> - **Still in force:** runbook amendment 1's `--no-verify` softening (disclosure
+>   mandatory, full gates green before any PR). It expires when **TASK-102** merges —
+>   see Lane 6.
+> - **Two scope changes since sign-off, both operator-approved 2026-08-03:** TASK-102
+>   added as Lane 6, and TASK-103's catalog split folded into TASK-95 (see Lane 5).
+> - **Cost so far:** ~2.2M subagent tokens across 15 dispatched phases for three tasks.
+>   Budget the remaining five tasks accordingly.
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -58,9 +80,11 @@ bind FUTURE sweeps once merged.
 - **Paused — untouched** (`paused` label in the task's frontmatter `labels:`; excluded
   from lane conflict analysis; never claim, rebase, or clean their branches/worktrees):
   **none.**
-- **Queued (this runbook's scope, in execution order):** TASK-93, TASK-100, TASK-101 →
-  TASK-97, TASK-94 → TASK-98 → TASK-96 → TASK-95. That is the whole To Do column; nothing
-  on the board is out of scope.
+- **Queued (this runbook's scope, in execution order):** ~~TASK-93, TASK-100, TASK-101~~
+  (Lane 1, all Done 2026-08-03) → TASK-97, TASK-94 → TASK-98 → TASK-96 → TASK-95 →
+  TASK-102. At authoring that was the whole To Do column; **amendment 2 (operator,
+  2026-08-03) added TASK-102** — carded mid-sweep by amendment 1 — as Lane 6. TASK-103
+  (carded 2026-08-03) is NOT separately swept: its execution is folded into TASK-95.
 - **Spec numbers.** `specs/` on `origin/main` holds 029–048; next free at authoring is
   **049**. Provisional assignment below is a convenience, not a reservation —
   claim-before-work governs: re-check `origin/main:specs/` at claim time and renumber on
@@ -156,6 +180,37 @@ unblocks them: it lands the headroom first, then the doctrine chain consumes it.
   `test/pdlc.test.mjs`. Board-declared last (deps: 97, 98, 94). Test-only; **no version
   bump**.
   → provisional `specs/056-tests-039-047-doctrine/`
+  **Scope addition (operator, 2026-08-03): TASK-95 also performs TASK-103's summary-style
+  split of `docs/wiki/test-suite-catalog-plugins-gates.md`, and does it BEFORE adding its
+  own anchors.** That note sits at **7,987 / 8,000** after TASK-101 cataloged its two new
+  test files — 13 chars. TASK-95 adds test coverage and must catalog it, so it is the task
+  that actually hits the wall; splitting first is the same contract-shaped-work-first
+  argument that put TASK-93 ahead of the doctrine chain in Lane 1. Choose the split point
+  from measured arithmetic **with this task's own new entries already included** — TASK-93's
+  Phase 1 showed the naive boundary leaves too little margin. Parent keeps its name so
+  inbound wikilinks resolve; `CAPSULES.md` regenerated, `INDEX.md` hand-maintained (it has
+  no generator). This makes TASK-95 no longer purely mechanical at the margin — if the
+  split's arithmetic turns into a real design call, that is a tier-escalation checkpoint.
+
+**Lane 6 — added by amendment 2 (operator, 2026-08-03):**
+
+- **TASK-102 (default implementer · model per the `opus-implementer` def at dispatch,
+  fallback the other of `claude-opus-4-8`/`claude-opus-5` — rubric justification: it
+  re-partitions which checks run at which lifecycle moment, a judgment call about
+  enforcement placement rather than work to a pattern; it also touches `.githooks/` and a
+  self-checking test, where a wrong split silently stops protecting something)** — move the
+  repo-state self-checks out of the per-commit path so `node --test` tests code and
+  red-by-construction states live where they are expected (pre-push / CI).
+  → provisional `specs/057-repo-state-self-checks/`
+
+  **Placement rationale, recorded because it is a real tradeoff the operator chose.**
+  TASK-102 retires runbook amendment 1's `--no-verify` softening. Landing it FIRST would
+  have removed the bypass need for every remaining lane; the operator declined that, to
+  avoid delaying the doctrine chain (97→98→96) the rest of the sweep depends on. **So the
+  softening remains in force through Lanes 2-5** — which is acceptable on the evidence:
+  through Lane 1 every use was disclosed in the commit body and the spec-dir Notes, two
+  phases declined the bypass they were entitled to, and no phase used it silently. Lane 6
+  closes it for future sweeps.
 
 **Dispatch mechanics (2026-07-31 operator ruling — binding here).** Dispatch through the
 **agent type**, never the Agent tool's `model` parameter: `opus-implementer`
@@ -490,8 +545,9 @@ them:
 
 ## Done means
 
-- **All eight scoped tasks Done on the board via their own merged PRs** — TASK-93, 94, 95,
-  96, 97, 98, 100, 101. The To Do column is empty.
+- **All NINE scoped tasks Done on the board via their own merged PRs** — TASK-93, 94, 95,
+  96, 97, 98, 100, 101, and **102** (added by amendment 2). TASK-103 is closed by
+  TASK-95 carrying its split, not by its own PR. The To Do column is empty.
 - Every scoped card **still carries its Spec marker** at sweep end (re-run the
   `spec-bridge` links check — other sessions move the board while branches sit).
 - Every scoped task's `specs/NNN-*/` contains a real `spec.md` + `plan.md` + `tasks.md`
