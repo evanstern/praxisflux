@@ -39,17 +39,17 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 3 — Port the policy and wire the hook
 
-- [ ] Port the policy tables and their ordering **verbatim in behavior**: `--amend` denied
+- [x] Port the policy tables and their ordering **verbatim in behavior**: `--amend` denied
       before both allow paths; MERGE_HEAD checked before the board-sync rule; the
       `COMMIT_LONG_WITH_VALUE` / `COMMIT_SHORT_WITH_VALUE` / `COMMIT_LONG_DENY` sets; the
       git-global `-p` (paginate) vs post-subcommand `-p` (`--patch`) distinction
-- [ ] Preserve every existing deny path: rebase and force-push repo-wide;
+- [x] Preserve every existing deny path: rebase and force-push repo-wide;
       `merge --squash`, `cherry-pick`, `revert`, `am`, branch creation at root
-- [ ] R5(a): an invocation whose resolved toplevel is outside `CLAUDE_PROJECT_DIR` is out
+- [x] R5(a): an invocation whose resolved toplevel is outside `CLAUDE_PROJECT_DIR` is out
       of jurisdiction and passes
-- [ ] R3: a correct denial names **the specific token read as an out-of-scope pathspec**
-- [ ] Zero npm dependencies, Node ≥18, ESM
-- [ ] Commit
+- [x] R3: a correct denial names **the specific token read as an out-of-scope pathspec**
+- [x] Zero npm dependencies, Node ≥18, ESM
+- [x] Commit
 
 ## Phase 4 — The both-directions hazard suite
 
@@ -397,3 +397,173 @@ Because every gate passes, the Phase 2 commit was made with the **pre-commit hoo
 (no `--no-verify`)** — the authorized bypass was available but not needed. Recorded so Phase
 3/5, where a pinned-source touch WILL turn the freshness gate red-by-construction, know the
 bypass was deliberately unused here.
+
+### Phase 3 recorded decisions (2026-08-02, opus-implementer, TASK-101)
+
+The policy is ported into **`pdlc/hooks/root-guard-hook.mjs`** (imports `scanCommand`,
+`findGitInvocations` from `./shell-scan.mjs`; also exports `stripHeredocs`,
+`parseGitInvocation`, `classifyBoardSyncCommit`, `boardPathspecOk` for the Phase 4 suite).
+Add-only file; **no pinned source touched, no version bumped** ⇒ the freshness /
+sync-version "red-by-construction" condition did NOT arise ⇒ committed with the pre-commit
+hook ACTIVE (**no `--no-verify`**), same as Phase 2.
+
+#### 1. THE HEREDOC FINDING — and the `ok:false` policy it drove (spec R2)
+
+**Measured, first-hand.** `findGitInvocations("git commit -F - <<'EOF'\n…it's a fix (1M
+context)…\nEOF")` (apostrophe + paren in body) returns **`{ ok:false,
+reason:'unbalanced-single-quote' }`** — no tokens. A lone `"` in a body returns
+`unbalanced-double-quote`. Cause: the scanner treats the heredoc BODY as shell text; a body
+apostrophe/quote unbalances the whole command. **A blanket fail-closed on `ok:false` would
+therefore BLOCK the sanctioned `git commit -F - <<'EOF'` pattern** (the card names `-F` as
+the existing workaround; the sweep orchestrator uses it) — a brand-new false-positive class
+in the very hook whose card is about false positives. Worse: even a **balanced** heredoc
+body scans `ok:true` and its words (`git rebase main` on a body line) would be read as a
+command-position invocation → false BLOCK. So heredocs break the guard in BOTH parse states.
+
+**Decision — two parts:**
+1. **Strip heredoc bodies BEFORE scanning** (`stripHeredocs`, quote-aware: ignores a `<<`
+   inside quotes; preserves the rest of the operator's own line; removes `<<[-]DELIM` +
+   body through the terminator, for `<<EOF` / `<<-EOF` / `<<'EOF'` / `<<"EOF"` / `<<\EOF`).
+   The sanctioned pattern then parses to `git commit -F -` and is evaluated NORMALLY (no
+   pathspecs ⇒ the staged set decides). This keeps **both R4 directions correct**: a
+   backlog-only heredoc commit is ALLOWED; a non-backlog heredoc commit is BLOCKED. A pure
+   fail-open on `ok:false` would have VIOLATED R4 (a non-backlog heredoc commit that the old
+   regex-parser blocked as pathspec `<<'EOF'` would newly be allowed).
+2. **After stripping, a RESIDUAL `ok:false` fails OPEN.** Residual unbalance is a genuine
+   shell SYNTAX error (won't execute) or an exotic form the scanner doesn't model (`$'…'`,
+   `$"…"`). Fail-open here matches the hook's documented posture (malformed stdin → exit 0;
+   internal error → exit 0). **This is a DELIBERATE, RECORDED DEVIATION from spec R2's
+   literal "an unparseable command is not an allowed command / fail closed"** — see
+   Contradictions below. A blanket fail-CLOSED on residual would block non-git commands
+   carrying an apostrophe (violating "non-git commands always pass") AND out-of-jurisdiction
+   commits (violating R5(a)), because `ok:false` yields no reliable subcommand / target repo
+   / pathspecs to scope a block. Verified: `git commit -m 'unterminated … README.md` →
+   ALLOW (fail-open). The narrow residual gap (an exotic-quoted ROOT commit bypassing the
+   board-sync gate) is rare and in the same direction as the hook's existing accepted limit
+   that shell-level file mutation cannot be intercepted.
+
+#### 2. THE REAL R5(a) FAILURE PATH — vs what plan.md assumed
+
+**plan.md / the card assumed R5(a) was a MISSING jurisdiction check** ("if that toplevel is
+not inside `CLAUDE_PROJECT_DIR`, pass"). Phase 1 flagged the check already EXISTED
+(promptworld `:379` on `effDir`, `:393–396` on the toplevel). Confirmed: the real defect is
+**not a missing check — it is the staged-set query resolving against the WRONG repo because
+the same defective parser misresolved `effDir`.** Trace of the field incident (commit a card
+in praxis, `CLAUDE_PROJECT_DIR`=promptworld): when the `cd`/`-C` to the other repo was
+mis-parsed by promptworld's regex-based `lastCdBefore` / two-regex tokenizer, `effDir`
+stayed at the host `projectDir`; `:379` then saw `effDir` INSIDE `projectDir` → did not
+`continue` → `:393` `rev-parse --show-toplevel` from the wrong dir returned `projectDir` →
+treated as ROOT → `isBoardSyncCommit` ran `git -C projectDir diff --cached` against the HOST
+repo (nothing staged) → not board-sync → BLOCK. That is exactly the card's "resolved the
+staged set against promptworld instead of the repo being written to," and why `-C <repo>`
+(parsed cleanly for a simple path) was the workaround.
+
+**Fix (two parts, both in the new hook):**
+- **Correct `effDir` via the quote-state scanner.** `cd` context is threaded by walking
+  `scanCommand`'s segments in order (a `cd` segment updates a running dir; each `git`
+  segment's `effDir` = running dir + its own `-C` chain) — no regex, so the mis-parse that
+  stranded `effDir` cannot happen.
+- **Key jurisdiction on the resolved repo TOPLEVEL and make the out-of-jurisdiction pass
+  EXPLICIT and EARLY** — before any `rev-parse MERGE_HEAD` or `diff --cached`. If the
+  invocation's toplevel is neither `CLAUDE_PROJECT_DIR` nor under it, `continue` (pass).
+  Verified: `cd /other && git commit …` and `git -C /other commit …` both ALLOW.
+
+#### 3. Ordering constraints & deny paths — point-by-point, how verified
+
+Verified by driving the hook through its real stdin contract against a scratch root repo
+(+ a worktree + a separate "other" repo). Every row asserted an expected ALLOW/BLOCK; all
+passed:
+- **`--amend` denied before BOTH allow paths** — `git commit --amend … backlog/…` BLOCKS
+  (backlog pathspec present); `--amend` with MERGE_HEAD fabricated STILL BLOCKS. OK
+- **MERGE_HEAD checked before board-sync** — with `.git/MERGE_HEAD` present, a non-backlog
+  `git commit -m "Merge branch"` ALLOWS (merge conclusion), never forced through the
+  backlog-only rule. OK
+- **git-global `-p` (paginate) vs post-subcommand `-p` (`--patch`)** — `git -p commit -m …
+  backlog/…` ALLOWS (paginate, harmless); `git commit --patch -m … backlog/…` BLOCKS. Same
+  char, opposite meaning, kept apart by the two-layer parse (`parseGitInvocation` walks
+  globals to the subcommand; `classifyBoardSyncCommit` walks the post-subcommand args). OK
+- **Option tables verbatim** — `-a`/`--all`, `--interactive`, `--patch`/`-p`, `--include`,
+  `--pathspec-from-file` each DENY the exception; `mFcCt` consume values (so `-m`'s message
+  is never a pathspec); benign short flags (`-s`,`-v`,…) pass through. OK
+- **Deny paths preserved** — `rebase` BLOCK (root AND worktree); `push -f`/`--force*` BLOCK
+  repo-wide; `cherry-pick`, `revert`, `am` BLOCK at root; `merge --squash` BLOCK while plain
+  `merge` ALLOWS; `checkout -b/-B`, `switch -c/-C/--create/--force-create` BLOCK. OK
+- **Worktree asymmetry** — a non-backlog `git commit` in `.worktrees/task-9` ALLOWS (own
+  toplevel ⇒ not root), but `rebase` there STILL BLOCKS (repo-wide). OK
+- **Subshell** — `echo $(git commit -m x README.md)` BLOCKS (command-position git inside
+  `$(…)`). OK
+
+#### 4. R3 refusal format — real example naming the offending token
+
+The refusal LEADS with the finding, then the rule. `classifyBoardSyncCommit` returns
+`{ ok:false, reason, token? }`; `boardSyncFinding` renders it. Real captured output for
+`git commit -m "x" README.md`:
+
+> root-guard: blocked `git commit` — **read `README.md` as a pathspec outside backlog/** —
+> direct commits at the root checkout are forbidden EXCEPT board-sync commits scoped
+> entirely to backlog/ (TASK-161: …) and merge-concluding commits (MERGE_HEAD present).
+
+Other findings named: `the staged path \`<f>\` is outside backlog/` (no-pathspec case);
+`` `--patch` widens staging beyond explicit backlog/ pathspecs `` (deny-flag, names the
+flag); `` `--pathspec-from-file` names a pathspec source that cannot be statically
+verified ``; `nothing is staged, so the commit cannot be verified as board-sync`.
+
+#### 5. Commit / gates / bypass
+
+- Commit: the Phase 3 commit `TASK-101: Phase 3 — port policy + wire root-guard hook`.
+- **No `--no-verify`** — add-only, no pinned-source touch, no version bump (both Phase 5).
+- Gates at end of Phase 3 (real output): `node --test` **305 pass, 0 fail** (unchanged from
+  Phase 2 — no tests added; the hazard suite is Phase 4). `check-docs` green ("in sync").
+  `sync-version --check` green ("all versions = 0.52.0"). freshness green ("36 note(s)
+  fresh"; the lone `warn` on `test-suite-catalog-plugins.md` for no sources is pre-existing
+  and unrelated).
+
+#### 6. CONTRADICTIONS with spec.md / plan.md / Phase 1 inventory (the valuable part)
+
+1. **Spec R2 says fail-CLOSED on unparseable; the hook fails OPEN on residual `ok:false`.**
+   Not paperable-over: fail-closed on residual would create the exact false-positive class
+   the card exists to kill (non-git commands with apostrophes, and cross-repo/out-of-juris
+   commits, blocked on an unparseable string that carries no reliable scope). Resolution:
+   heredocs — the only COMMON legitimate "unparseable" case — are stripped and evaluated
+   normally (so R2's intent, "a message's text can't defeat the gate," AND R4 both hold);
+   the residual (genuine syntax errors + exotic `$'…'`) fails open. **spec.md R2's literal
+   text should be read as "the scanner fails closed (never fabricates pathspecs)," which it
+   does — the HOOK's `ok:false` policy is fail-open-after-heredoc-strip.** Flagged for the
+   Phase 5 docs/wiki pass and any operator review.
+2. **plan.md §"R5(a)" describes the fix as adding an out-of-jurisdiction pass to a hook that
+   lacked one.** The check existed (Phase 1 already warned); the real fix is correct
+   `effDir` resolution + keying jurisdiction on the resolved toplevel (see §2). plan.md's
+   framing is directionally right but mis-locates the defect.
+3. **Separator superset.** Phase 2 already flagged `(` added to the boundary set (preserves
+   promptworld's own git-detection regex). No new divergence in Phase 3.
+4. No other divergence: the policy tables, the pre-bash/pre-write asymmetry, and the exit
+   codes are ported verbatim; `pre-write` is carried unchanged (spec declares it out of
+   scope for revision).
+
+### Phase 4 handoff (from Phase 3, TASK-101)
+
+- **Import surface for the suite:** `root-guard-hook.mjs` exports `stripHeredocs`,
+  `parseGitInvocation(tokenValues)`, `classifyBoardSyncCommit(args, effDir, realProjectDir)`
+  → `{ ok } | { ok:false, reason, token? }`, and `boardPathspecOk`. The hook file only calls
+  `main()` when invoked directly (guarded by an `import.meta.url` vs `argv[1]` check), so
+  importing it in a test does NOT run the hook — safe for unit tests. End-to-end cases drive
+  it via `spawnSync('node', [hook, 'pre-bash'], { input: JSON.stringify({tool_input:{command},
+  cwd}), env: { CLAUDE_PROJECT_DIR } })`; exit 2 = block, 0 = allow.
+- **A reusable scratch-repo harness pattern** is proven (root repo with `backlog/`, a
+  `.worktrees/` worktree, and a separate "other" repo; fabricate `.git/MERGE_HEAD` for the
+  merge-conclusion allow path; `git add` a backlog path for the staged-set board-sync case).
+  Phase 4 should promote this into `test/root-guard-hook.test.mjs` following
+  `test/pdlc.test.mjs`'s tmpdir style.
+- **The both-directions hazard table (R4):** for each of newline, `)`, `'`, `"`, `;`, `|`,
+  backtick — assert (a) a board-sync commit (staged/pathspec under `backlog/`) with the
+  hazard in its `-m` message is ALLOWED, and (b) a genuinely out-of-scope commit with the
+  same hazard is BLOCKED. Pin the verbatim `Co-Authored-By: Claude Opus 5 (1M context)
+  <noreply@anthropic.com>` trailer as its own named case.
+- **R5(b) directly:** `backlog task edit … "…git commit…"` yields zero invocations (already
+  green in the scanner unit tests; add a hook-level case too).
+- **R5(a) directly:** `cd /other && git commit …` and `git -C /other commit …` both pass.
+- **Residual fail-open (POLICY):** pin `git commit -m 'unterminated … backlog/x` → ALLOW as
+  the recorded residual-`ok:false` behavior, so a later well-meaning "tighten to fail-closed"
+  change trips a red test and re-reads decision §1 first.
+- **Enumerate the deny cases** (the list in §3 above) so R4's "no previously-blocked
+  scoping violation became allowed" is provably covered.
