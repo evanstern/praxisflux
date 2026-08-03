@@ -13,7 +13,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
+verified_against: b90dc96575225cb3b15048e6186408bf46a726ad
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -73,16 +73,16 @@ seam involved. One bullet per `test/*.test.mjs` file:
   vocabulary (a named review stage plans no auto-Done); and config-absent gate + plan
   output byte-identical to the 3-status contract. Also (spec 050) five `projectGatesProfile` cases
   (opt-out/null, string-command rejection, bucket normalization, name-trim, malformed-sibling drop).
-- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked `tasks.md` box
-  can't outrun a red declared gate. Drives `evaluateProjectGates` via injected `run` (no
-  subprocess); `runGateCommand` gets a real subprocess only where itself tested. Cases: **blocking**
-  (`checkBridge` at Done-eligible + red `required` ⇒ a byte-identical finding naming phase/box/gate);
-  **allowance** (`verifyBridge` mid-PR runs `required` only, a spy proving `redByConstruction` never
-  ran; `checkBridge` mid-PR runs no commands); **boundary** (same config at Done-eligible,
-  `redByConstruction` still red ⇒ blocks, both agreeing); **fail-closed** (ENOENT/timeout ⇒
-  "…never green"; real subprocesses cover exit codes, ENOENT, timeout, the `SPEC_BRIDGE_GATE_ACTIVE`
-  guard); **no-config parity** (spy: 0 calls without config; `assert.deepEqual` on the frozen
-  3-status strings).
+- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked box can't outrun
+  a red declared gate. Drives `evaluateProjectGates` via injected `run`; `runGateCommand` real
+  only where tested. Cases: **blocking** (`checkBridge` Done-eligible + red
+  `required` ⇒ byte-identical finding (phase/box/gate)); **allowance** (`verifyBridge` mid-PR runs
+  `required` only, a spy proving `redByConstruction` never ran; `checkBridge` runs none);
+  **boundary** (same config at Done-eligible, `redByConstruction` still red ⇒ blocks, both
+  agreeing); **fail-closed** (ENOENT/timeout ⇒ "…never green", plus real exit codes);
+  **no-config parity** (spy: 0 calls; `assert.deepEqual` on frozen 3-status strings);
+  **guard/sharing (Phase 5)** (injected `run` bypasses `SPEC_BRIDGE_GATE_ACTIVE`, default runner
+  short-circuits; each command spawned once, one finding per spec).
 - `test/reorient.test.mjs` — reorient end to end: the output gate (`checkReorient` blocks
   until analyses + synthesis exist, demands every corpus branch named plus the sections,
   refuses in-corpus syntheses and empty lenses; adhoc corpus needs no analysis note),
