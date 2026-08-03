@@ -55,14 +55,14 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 4 — Dogfood, docs, and re-ground
 
-- [ ] Add `.spec-bridge.json` at the repo root declaring this project's own gates (R7):
+- [x] Add `.spec-bridge.json` at the repo root declaring this project's own gates (R7):
       required = `node --test`, `node scripts/check-docs.mjs`,
       `node scripts/sync-version.mjs --check`; redByConstruction = the wiki freshness gate
-      (AUTHORED but NOT committed — it reddens this repo's own bridge gate; see the Phase-4
-      BLOCKER note below. Ticking this while the dogfood fails would be the exact anti-pattern
-      spec 050 exists to stop.)
-- [ ] Verify the gate passes against this repo with that config present
-      (IT DOES NOT — `checkBridge .` / `verify .` return 49 blocking problems; see BLOCKER.)
+      (COMMITTED in Phase 5 once defects 1-2 were closed and the dogfood went green — see the
+      Phase 5 Notes.)
+- [x] Verify the gate passes against this repo with that config present
+      (IT DOES NOW — Phase 5: `check .` / `verify .` exit 0; the 49→0 blocking problems were the
+      two defects, now fixed.)
 - [x] `docs/skill-patterns.md` (§4-5) names the new rule
 - [x] `spec-bridge/README.md` documents the config key
 - [x] Cite the 2026-08-01 field case literally in the shipped surface (AC #5) — spec 048
@@ -75,11 +75,11 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [x] Regenerate `CAPSULES.md` if any `description:` changed
 - [x] Bump: `node scripts/sync-version.mjs <next-free>` at merge-readiness + the edited
       spec-bridge skill's own `version:` if a SKILL.md changed
-- [ ] All gates green: `node --test`, `check-docs`, `sync-version --check`,
+- [x] All gates green: `node --test`, `check-docs`, `sync-version --check`,
       freshness, `spec-bridge/gates/cli.mjs check .`
-      (`node --test`, check-docs, sync-version, freshness are all GREEN; `check .` is RED —
-      see BLOCKER.)
-- [ ] Commit; PR opens only after every box above is ticked
+      (Phase 5: ALL green — `node --test` 405/405, check-docs in sync, sync-version all 0.54.0,
+      freshness 38 fresh/0 problems, `check .` exit 0.)
+- [x] Commit; PR opens only after every box above is ticked
 
 ## Phase 5 — Close the two dogfood defects (blocking for merge)
 
@@ -101,24 +101,24 @@ The declared gates are **project-wide**, not per-spec; they must run **once per 
 and the result shared. As shipped this defeats R4's whole cost argument the moment more than
 one spec is Done-eligible.
 
-- [ ] Fix defect 1: an injected `run` must bypass the `SPEC_BRIDGE_GATE_ACTIVE` short-circuit
+- [x] Fix defect 1: an injected `run` must bypass the `SPEC_BRIDGE_GATE_ACTIVE` short-circuit
       (the guard exists to stop real subprocess recursion, not to disable injected test
       doubles). Keep the guard's real protection intact for the un-injected path.
-- [ ] Make Phase 3's tests hermetic: save/restore or neutralize the ambient
+- [x] Make Phase 3's tests hermetic: save/restore or neutralize the ambient
       `SPEC_BRIDGE_GATE_ACTIVE` so the suite's result does not depend on the caller's env
-- [ ] Prove it: `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` must be **fully green**, matching a
+- [x] Prove it: `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` must be **fully green**, matching a
       plain `node --test`
-- [ ] Fix defect 2: execute each declared gate **once per invocation**, sharing results across
+- [x] Fix defect 2: execute each declared gate **once per invocation**, sharing results across
       all Done-eligible specs; findings still name the specific phase/box/gate per spec
-- [ ] Prove it: instrument or measure that `node --test` is spawned **once**, not once per
+- [x] Prove it: instrument or measure that `node --test` is spawned **once**, not once per
       spec, and record the wall-clock before/after
-- [ ] Commit the R7 `.spec-bridge.json` — only now that it can be **present AND green**
-- [ ] `node spec-bridge/gates/cli.mjs check .` and `verify .` both exit 0 with the config
+- [x] Commit the R7 `.spec-bridge.json` — only now that it can be **present AND green**
+- [x] `node spec-bridge/gates/cli.mjs check .` and `verify .` both exit 0 with the config
       present, in a time that is defensible on a mature board (record it)
-- [ ] Re-sync the version: 0.53.0 was taken by TASK-101 (merged). Run
+- [x] Re-sync the version: 0.53.0 was taken by TASK-101 (merged). Run
       `node scripts/sync-version.mjs <next free>` after merging `origin/main` in
-- [ ] Tick R7 and the DoD boxes once they are honestly true
-- [ ] Commit
+- [x] Tick R7 and the DoD boxes once they are honestly true
+- [x] Commit
 
 ## Notes
 
@@ -415,3 +415,66 @@ proof** (`check .` / `verify .`, and plan.md's Verification list) is red, and th
 "the praxisflux `.spec-bridge.json` present and the gate green against it." Present-but-red is
 exactly the status-over-artifacts dishonesty spec 050 forbids, so the config is **not committed**
 and the R7 / DoD boxes stay **unticked** pending an operator decision on fix (1) and/or (2).
+
+### Phase 5 — the two dogfood defects closed; R7 committed, version re-synced (2026-08-03)
+
+Both defects were in shipped feature code (`spec-bridge/gates/bridge.mjs`), both closed without
+weakening the check or any test; no `.spec-bridge.json` was ever committed while red.
+
+**Defect 1 — the reentrancy guard reddened the `tests` gate.** Fix: the guard exists to stop the
+DEFAULT subprocess runner from re-forking the bridge; an injected `run` is a test double that
+spawns nothing, so it must bypass it. `checkBridge`/`verifyBridge` now gate the
+`SPEC_BRIDGE_GATE_ACTIVE` short-circuit on `run === undefined` (`const injected = run !== undefined`),
+not on the ambient flag alone — real recursion protection on the un-injected path is intact. The
+Phase-3 injected-run suite is now hermetic: its result no longer depends on the caller's env
+(the fix removes the dependency), plus a new targeted test (`defect 1: an injected run bypasses
+SPEC_BRIDGE_GATE_ACTIVE; the default runner still short-circuits`) save/restores the ambient flag.
+Proof — both **byte-identical, both green**:
+- plain `node --test` → **405 tests, 405 pass, 0 fail**
+- `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` → **405 tests, 405 pass, 0 fail**
+(Pre-fix baseline reproduced the orchestrator's finding: `SPEC_BRIDGE_GATE_ACTIVE=1 node --test`
+→ 277/280, exactly tests 169/170/172 failing.)
+
+**Defect 2 — O(N Done-eligible specs) execution.** Fix: a `memoizeRun(rawRun)` wrapper keys by the
+gate's argv and runs each DISTINCT declared command at most once per bridge invocation, sharing the
+result across every spec; findings are still built per spec (each names its own phase/box/gate) —
+only the gate RESULT is shared, never the finding. Proof (spy tests in `test/project-gates.test.mjs`):
+`checkBridge` across **5** Done-eligible specs and `verifyBridge` across **4** mid-PR specs each
+spawn `node --test` **exactly once** (`assert.deepEqual(spawned, ["node --test"])`), one finding per
+spec. Wall-clock on this repo's own board: `check .` **~358s → ~6.6s** pre-merge (49 specs, one
+spawn); post-merge (51 linked tasks, 405-test suite) **~17.3s**. Both are one gate-set execution,
+not 51.
+
+**R7 `.spec-bridge.json` — committed, present AND green** (exact R7 config: required = `node --test`,
+`check-docs.mjs`, `sync-version.mjs --check`; redByConstruction = the wiki freshness gate). With it
+present: `node spec-bridge/gates/cli.mjs check .` → **exit 0**, "51 linked task(s), none exceed their
+artifacts", **17.3s**; `verify .` → **exit 0**, "every ticked box's declared project gates are green",
+**18.1s**.
+
+**Version re-sync + merge.** `origin/main` showed **0.53.0** (TASK-101 took it). Merged `origin/main`
+in (pin-carrying, never rebased; it brought TASK-93/101/102 — root-guard, sweep-history, a card) —
+13 conflicts resolved (10 untouched notes + CAPSULES from theirs; the two Phase-5 notes hand-merged
+to keep both the root-guard additions and the project-gate coverage). Then
+`node scripts/sync-version.mjs 0.54.0` (next free lockstep). Re-ran every gate AFTER the merge-in:
+`node --test` 405/405; `check-docs` in sync; `sync-version --check` all 0.54.0;
+`check-version-bump --base origin/main` → 0.53.0 → 0.54.0 (exit 0); freshness **38 notes fresh,
+0 problems** (1 pre-existing warn: `test-suite-catalog-plugins.md` — unrelated, not mine). Wiki
+re-pinned wholesale to the version-bump commit; the four version-quoting notes verified incidental
+by hand (Phase 4's exact set); CAPSULES.md regenerated.
+
+**Commits (task-id-led).** `b90dc96` defect fixes + tests → `ba110e8` re-pin the two touched notes
+→ `77b65af` merge origin/main (`--no-verify`, disclosed: notes lagged the merged bump,
+red-by-construction) → `d79941c` version bump 0.54.0 (`--no-verify`, disclosed: version-bearing
+notes stale) → `dc83191` wiki re-pin wholesale + CAPSULES (**clean, no bypass**) → this Notes/box
+commit (**clean**). The two `--no-verify` commits were the mid-re-pin red-by-construction window
+(runbook amendment 1); the final commits need no bypass. **Merge-ready.** (The backlog card
+TASK-100 status flip to Done and the PR are the orchestrator's to make.)
+
+**One self-referential re-pin caught by the dogfood.** Ticking these boxes made spec 050
+Done-eligible, so the very check this task ships (`run-gates.test.mjs` → `checkBridge(repo)`) then
+ran the declared gates over the whole board — and it flagged `test-suite-catalog-plugins.md` STALE:
+that hub note lists `test-suite-catalog-plugins-gates.md` as a **source**, and the re-pin commit
+`dc83191` edited the gates note while pinning the hub to `dc83191`'s parent, so the hub went stale
+the instant `dc83191` landed (a pin can't name a commit that doesn't exist yet). Re-pinned the hub
+to `dc83191`; freshness back to 38 fresh / 0 problems, `node --test` 405/405. The feature caught its
+own repo's staleness — precisely the 2026-08-01 failure mode spec 050 exists to stop.
