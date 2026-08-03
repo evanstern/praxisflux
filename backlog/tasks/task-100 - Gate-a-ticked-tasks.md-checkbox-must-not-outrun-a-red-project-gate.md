@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-01 18:11'
-updated_date: '2026-08-03 01:52'
+updated_date: '2026-08-03 03:45'
 labels:
   - debt
   - pdlc
@@ -45,7 +45,10 @@ Spec: specs/050-tick-vs-red-gate
 - [ ] #7 Spec phase: Phase 2 — The evaluator and its two entry points
 - [ ] #8 Spec phase: Phase 3 — Tests, including the parity proof
 - [ ] #9 Spec phase: Phase 4 — Dogfood, docs, and re-ground
+- [ ] #10 Spec phase: Phase 5 — Close the two dogfood defects (blocking for merge)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 

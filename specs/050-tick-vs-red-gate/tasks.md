@@ -81,6 +81,45 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
       see BLOCKER.)
 - [ ] Commit; PR opens only after every box above is ticked
 
+## Phase 5 — Close the two dogfood defects (blocking for merge)
+
+Phase 4 authored the R7 `.spec-bridge.json` and found the gate **does not pass** against
+this repo with it present: 49 blocking problems in ~358s. It correctly did NOT commit a red
+config, did NOT tick R7/DoD, and left the card In Progress. Two defects, both surfaced only
+by dogfooding, both in shipped feature code:
+
+**Defect 1 — the reentrancy guard reddens the `tests` gate.** `runGateCommand` sets
+`SPEC_BRIDGE_GATE_ACTIVE=1` on the child env; `checkBridge`/`verifyBridge` then skip gate
+execution whenever that flag is set — **even when a `run` is injected**. So Phase 3's tests
+that inject `run` fail-closed inside the nested `node --test`. Verified by the orchestrator:
+`SPEC_BRIDGE_GATE_ACTIVE=1 node --test` → **277/280, exactly those 3 failing**. The nested
+suite exits 1, so the `tests` gate reads red for every spec.
+
+**Defect 2 — O(N Done-eligible specs) execution.** `checkBridge` runs the full declared gate
+set once **per Done-eligible spec** — 49 here, so `node --test` is spawned 49 times (~358s).
+The declared gates are **project-wide**, not per-spec; they must run **once per invocation**
+and the result shared. As shipped this defeats R4's whole cost argument the moment more than
+one spec is Done-eligible.
+
+- [ ] Fix defect 1: an injected `run` must bypass the `SPEC_BRIDGE_GATE_ACTIVE` short-circuit
+      (the guard exists to stop real subprocess recursion, not to disable injected test
+      doubles). Keep the guard's real protection intact for the un-injected path.
+- [ ] Make Phase 3's tests hermetic: save/restore or neutralize the ambient
+      `SPEC_BRIDGE_GATE_ACTIVE` so the suite's result does not depend on the caller's env
+- [ ] Prove it: `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` must be **fully green**, matching a
+      plain `node --test`
+- [ ] Fix defect 2: execute each declared gate **once per invocation**, sharing results across
+      all Done-eligible specs; findings still name the specific phase/box/gate per spec
+- [ ] Prove it: instrument or measure that `node --test` is spawned **once**, not once per
+      spec, and record the wall-clock before/after
+- [ ] Commit the R7 `.spec-bridge.json` — only now that it can be **present AND green**
+- [ ] `node spec-bridge/gates/cli.mjs check .` and `verify .` both exit 0 with the config
+      present, in a time that is defensible on a mature board (record it)
+- [ ] Re-sync the version: 0.53.0 was taken by TASK-101 (merged). Run
+      `node scripts/sync-version.mjs <next free>` after merging `origin/main` in
+- [ ] Tick R7 and the DoD boxes once they are honestly true
+- [ ] Commit
+
 ## Notes
 
 (Implementers append recorded decisions and measurements here — this section is part of
