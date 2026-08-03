@@ -80,6 +80,54 @@ This is [praxis P3 — artifact-gated seams](../docs/principles.md) applied to t
 finer statuses are still *derived from durable artifacts*, never asserted, so the board can
 serve as a pipeline's observability surface without ever outrunning the evidence.
 
+### Project gates (opt-in)
+
+A ticked `tasks.md` checkbox **is** status here — the derivation reads Done-eligibility out of
+exactly those boxes. So a box may not claim a greenness the project's own gates would deny. The
+field case that carded this (2026-08-01, spec 048 phases 1-2): an implementer reported
+`node --test — 254 pass, 0 fail` and ticked its "node --test green" box while four wiki notes were
+staled and the freshness gate was red; nothing caught it until the next phase re-ran the suite and
+saw the failure the tick had claimed away. Prose is not a gate, so this makes the rule **data the
+check reads**. Declare the project's gates in `.spec-bridge.json`:
+
+```json
+{
+  "projectGates": {
+    "required":          [ { "name": "tests",     "command": ["node", "--test"] } ],
+    "redByConstruction": [ { "name": "freshness", "command": ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] } ]
+  }
+}
+```
+
+- **`command` is an argv array, never a shell string.** Declared commands run via `spawnSync`
+  with `shell: false` and `cwd` = the project root — no interpolation, no injection surface. A
+  string `command` is rejected as malformed (there is no safe general split), and a command that
+  **cannot execute** (ENOENT) or **times out** is treated as *failed, never green* — the
+  fail-closed contract, one level down from the gate runner.
+- **`required`** — gates that must be green before a linked spec may be Done-eligible.
+- **`redByConstruction`** — gates a mid-PR phase MAY leave red: the freshness gate is red *by
+  construction* from the commit that touches a pinned source until the re-pin commit lands, and
+  that is correct sequencing, not a regression. Declared, not inferred — "red until the re-pin" is
+  not a property the checker can see, so the host states it. These are silently allowed mid-PR (a
+  warning here would only train you to ignore the channel) and enforced again at Done-eligible,
+  when the re-pin box is itself ticked.
+- **When the commands run.** The Stop hook executes declared gates **only when a linked spec is
+  Done-eligible** — the one bounded moment a red gate under a ticked box changes an outcome, so
+  ordinary turns pay zero subprocess cost (`node --test` in this repo is ~5.7s, far too dear to
+  run every turn). The blocking finding names **the phase, the box, and the failing gate**. The
+  mid-PR case — a tick claiming greenness before the final phase — is served by the explicit
+  `cli.mjs verify <root>` verb (which holds mid-PR specs to `required` only), called by the sweep's
+  per-phase loop and CI.
+- **Advisory vs. blocking.** `CLAUDE.md` calls Stop hooks *advisory*, yet this check blocks; the
+  two are reconciled, not in tension. "Advisory" names the hook's *optionality* — it may not be
+  installed, and CI is what guarantees enforcement — not a promise it never blocks. `checkBridge`
+  already blocks (an `exceeds` verdict exits 2); the project-gate check adopts that exact posture.
+- **No-config parity is absolute**: with no `projectGates` key (or a malformed one), every message
+  and plan output is bit-for-bit the behavior above — the feature is wholly inert without the opt-in.
+- **Host constraint:** don't declare a gate command whose purpose is to invoke the bridge itself. A
+  `SPEC_BRIDGE_GATE_ACTIVE` env guard breaks the recursion structurally, but such a command is
+  meaningless.
+
 ## Parts
 
 - **link** (skill) — attach exactly one Backlog task to a spec dir: plants the `Spec: <dir>`
@@ -92,7 +140,9 @@ serve as a pipeline's observability surface without ever outrunning the evidence
   status *exceeds* its derived status blocks the stop; one that *lags* only warns (run sync).
   No-op in projects without a `backlog/` dir or without linked tasks.
 - **cli** — the skills' deterministic backbone (read-only):
-  `node gates/cli.mjs state <specDir> | links <root> | check <root>`.
+  `node gates/cli.mjs state <specDir> | links <root> | check <root> | verify <root> | plan <root>`.
+  `verify` runs the declared `projectGates` against every ticked box (the mid-PR counterpart to the
+  Done-eligible Stop-hook check), exiting nonzero on a tick that stands over a red gate.
 
 ## Known tradeoff
 

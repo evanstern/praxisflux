@@ -45,6 +45,31 @@ across installed plugins.
 Enforce judgment steps with **evidence + durable residue**, never a bare flag: educate's return leg
 needs both `handoff.foldedIn` in `progress.json` *and* a `## Post-build` section on disk.
 
+**A ticked checkbox is status too — it can't outrun a real gate.** spec-bridge derives a linked
+card's status (and its Done-eligibility) from `tasks.md`'s checkboxes, so a *ticked box IS a status
+claim* and the same rule binds it: a box may not claim greenness a project gate would deny. The
+field case that carded this (2026-08-01, spec 048 phases 1-2): a dispatched implementer reported
+`node --test — 254 pass, 0 fail` and ticked its "node --test green" box while four wiki notes were
+staled and the freshness gate was red; nothing caught it, and the next phase re-ran the suite to
+find a failure the tick had claimed away. The fix is **data, not prose** — a host declares its gates
+in `.spec-bridge.json` (`projectGates`), and spec-bridge's gate runs them so a tick can't stand over
+a red one (see [[spec-bridge-plugin]] and its README for the config). Two buckets keep phased work
+honest without nagging: `required` gates must be green before a spec reaches Done-eligible;
+`redByConstruction` gates (the freshness gate between a source edit and its re-pin commit) MAY be
+red mid-PR — legitimately, since re-pinning only after the source commit is *correct* sequencing —
+and are enforced again once every box, the re-pin box included, is ticked.
+
+*Advisory vs. blocking, reconciled (don't re-derive this).* `CLAUDE.md` calls Stop hooks
+*advisory*, yet this check **blocks**. Not a contradiction: "advisory" describes the hook's
+*optionality* — it may not be installed locally, and CI is what *guarantees* enforcement — not a
+promise it never blocks. `checkBridge` already blocks through the Stop hook today (an `exceeds`
+verdict exits 2); the project-gate check adopts that exact posture — blocking where the hook is
+present, guaranteed only in CI. The cost of running real commands is contained the same way the
+rule is scoped: the Stop hook executes declared gates *only* when a linked spec is Done-eligible
+(the one bounded moment the answer changes an outcome — `node --test` here is ~5.7s, far too dear
+to pay every turn), and an explicit `cli.mjs verify` verb covers the mid-PR case for the sweep loop
+and CI.
+
 ## 5. Gates and the chassis are plugin-hosted, never copied per-project
 
 Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; each plugin
