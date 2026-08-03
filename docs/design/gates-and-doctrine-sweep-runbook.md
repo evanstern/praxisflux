@@ -241,6 +241,49 @@ context**. Update the task's execution-log row at every dispatch boundary.
   reads/checks as parallel tool calls in one message; minimal between-call narration; run
   mechanical phases at lower reasoning effort.
 
+### Runbook amendment 1 — signed gate softening (operator, 2026-08-02)
+
+**The conflict, found in execution (TASK-100 Phase 1, reproduced independently by TASK-93
+Phase 2).** Two of this repo's own rules are mutually unsatisfiable for any multi-commit
+task touching released surface:
+
+1. Doctrine sequences the wiki re-pin to **after** the commit that touched the sources
+   (one docs-only re-pin commit at the end), and the version bump to **merge-readiness**.
+2. `.githooks/pre-commit` runs the full `node --test`, which includes
+   `test/run-gates.test.mjs:22` — *"the praxisflux repo itself passes spec-bridge and
+   wiki-freshness"*. `.githooks/pre-push` independently runs the freshness gate **and**
+   `check-version-bump`.
+
+So the first commit that touches a pinned source turns `node --test` red, and **every
+subsequent commit and push on that branch is blocked until the re-pin and bump land** —
+which doctrine says must come last. Affects TASK-93, 94, 96, 97, 98, 100, 101; TASK-95
+(test-only) is exempt.
+
+This is almost certainly the mechanism behind TASK-100's own field case: spec 048's branch
+carries several source-touching commits before its re-pin commit `67f1172`, and the card
+records the result — *"254 pass, 0 fail" reported and ticked while four notes were staled
+and the freshness gate was red.* The report was true when run and false once committed.
+
+**Ruling (operator, 2026-08-02) — checkable gate lines:**
+
+- [ ] Intermediate commits and pushes on a task branch MAY use `--no-verify`. **Every such
+      commit's message or the phase's tasks.md Notes must disclose it** — a silent bypass
+      is the dishonesty the whole gate exists to prevent. (TASK-93 Phase 2 disclosed
+      correctly; that is the standard.)
+- [ ] **The softening does not reach the PR.** Before any `gh pr create`, the FULL gate
+      suite must be green in the worktree — `node --test`, `check-docs`,
+      `sync-version --check`, `check-version-bump`, and the freshness gate with zero warns.
+      The bypass buys sequencing room inside a task, never a weaker merge bar.
+- [ ] **CI is unchanged and remains authoritative.** Nothing here touches `ci.yml`.
+- [ ] **Expiry:** this softening lapses when the follow-up card below merges. It is scoped
+      to this sweep and to the hook conflict described above — it sanctions no other
+      bypass.
+- [ ] **Follow-up carded (operator-approved, 2026-08-02): TASK-102** — move the repo-state
+      self-checks out of the per-commit path, so `node --test` tests code and mid-PR
+      red-by-construction states live where they are expected (pre-push / CI). Not folded
+      into TASK-100: that card is about ticks vs gates, and quietly widening it would be
+      the scope creep the sweep forbids.
+
 ## Per-task artifacts required before PR
 
 Per-TASK obligations — the per-PR gates above are project machinery; this section is what
@@ -281,6 +324,16 @@ end.
       This repo then declares its own set: wiki freshness is the red-by-construction one
       (red from the source-touching commit until the re-pin commit); `node --test`,
       `check-docs`, and `sync-version --check` are required-green.
+- [ ] **Operator ruling A(c) clarified (2026-08-02, at TASK-100 Phase 2's request) —
+      red-by-construction gates MUST be green at Done-eligible.** Phase 2 surfaced a
+      wording tension: A(c) says required gates block at Done-eligible while ticks over
+      red-by-construction "stay allowed", with no time qualifier. The clarification: **"stay
+      allowed" governs MID-PR ticks only.** At Done-eligible every box is ticked — including
+      the re-pin box — so the freshness gate must by then be green; if it is still red, that
+      is exactly TASK-100's field case (a tick claiming a re-pin that never happened), and
+      it blocks. So: **mid-PR, zero commands run and red-by-construction is exempt; at
+      Done-eligible, BOTH buckets are evaluated and both must be green.** This is what Phase
+      2 shipped and what Phase 3's boundary test must pin.
 - [ ] **TASK-100 AC #5 is literal:** the shipped docs cite the 2026-08-01 field case
       verbatim — spec 048 phases 1-2, "254 pass, 0 fail" reported and ticked while four
       notes were staled and the freshness gate red. A fix without the citation leaves the
@@ -469,3 +522,6 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-08-02 | **TASK-93** | **#124** | **`3f7f582`** | ~473k subagent tokens (ph1 91k / ph2 133k / ph3 118k / ph4 132k) | **DONE.** spec 049, tier mechanical, served `claude-sonnet-5` all 4 phases. Split: parent 2157 / early 5734 / recent 6687, all <8000; hub note gained real sources; freshness **38 fresh, 0 warns**; `node --test` 259/259; wiki-only, no bump. **Correction found & verified:** background-job mode shipped **0.49.0**, not 0.48.0 — TASK-90 (`3124b74c`) lost 0.48.0 to sibling PR TASK-80 (`bd5ce8f`) and restamped before merging (`da3e615`). Wrong label had propagated into the card's AC #1, spec 049, and `pdlc-sweep.md:98`; all three corrected (the last as a recorded scope decision, spec 049 R2). Ph2-3 + one ph4 commit used disclosed `--no-verify` (amendment 1); ph4's final two commits needed none — gate genuinely green. Board Done via `spec-bridge:sync`, never by hand. |
+| 2026-08-02 | TASK-100 | — | — | ph1 ~95k, ph2 ~155k | Lane 1. spec 050, branch `task-100-tick-vs-red-gate`. Claim `8e6190b`, spec cycle + ACs `fd74365`. Tier default implementer, `claude-opus-4-8` via `opus-implementer` (ruling C). **phases: 1-2 done (`6dfee24`, `c6657ec`), 3 pending operator clarification.** R4 measured: node --test ~5665ms vs ~103ms ordinary Stop run (~55x) — gates run only at Done-eligible; CLI `verify` verb covers mid-PR. Ph2 found Ph1's additive plan would break deepEqual pins; used `parseTaskBoxes`/`derived.phaseBoxes` instead. Re-entrancy guarded via SPEC_BRIDGE_GATE_ACTIVE. |
+| 2026-08-02 | TASK-101 | — | — | ph1 ~104k, ph2 ~112k | Lane 1. spec 051, branch `task-101-root-guard-hook`. Claim `fb33da6`, spec cycle + ACs `392d538`. Tier default implementer, `claude-opus-4-8` via `opus-implementer` (ruling C). **phases: 1-2 done (`23e0265`, `ce906ae`), 3 dispatched.** Ph2 scanner: 46 tests, field-failure string now tokenizes to 4 tokens (message as ONE); needed no `--no-verify` (add-only). Ruling B = SHIP, with two riders (name the zero-PreToolUse precedent gap; reconcile CLAUDE.md's enforcement-split sentence in the same PR). |
