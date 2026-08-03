@@ -1,0 +1,12 @@
+{
+  "projectGates": {
+    "required": [
+      { "name": "tests", "command": ["node", "--test"] },
+      { "name": "docs-in-sync", "command": ["node", "scripts/check-docs.mjs"] },
+      { "name": "versions-consistent", "command": ["node", "scripts/sync-version.mjs", "--check"] }
+    ],
+    "redByConstruction": [
+      { "name": "wiki-freshness", "command": ["node", "grounding-wiki/gates/cli.mjs", "freshness", ".", "docs/wiki"] }
+    ]
+  }
+}
