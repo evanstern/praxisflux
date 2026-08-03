@@ -62,23 +62,23 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [x] R5(b) tested directly: `backlog task edit "…git commit…"` is not classified as a git
       invocation
 - [x] R5(a) tested directly: an invocation targeting a different repository passes
-- [ ] **Pin the fail-open invariant (spec R2 reconciliation):** every command the scanner
+- [x] **Pin the fail-open invariant (spec R2 reconciliation):** every command the scanner
       reports `ok:false` for is ALSO rejected by bash itself (`bash -n`), so unparseable ⊆
       unexecutable and fail-open cannot pass a commit. Test both directions: the known
       `ok:false` forms are `bash -n`-invalid, AND the executable forms the orchestrator
       probed (ANSI-C `$'…'`, locale `$"…"`, backslash-newline, escaped quotes in double
       quotes, apostrophe in double quotes, nested double quotes in single quotes) all scan
       `ok:true` and are gated normally
-      — **LEFT UNCHECKED: the invariant is FALSE.** The test is written (both directions,
-      `bash -n` cross-check), but it DISPROVES the claim: ANSI-C `$'…'` with an escaped
-      apostrophe, and a trailing unquoted backslash, both scan `ok:false` YET bash executes
-      them. See Phase 4 finding below. The hook-owner/Phase 5 must resolve before this box
-      can be honestly ticked.
-- [ ] Confirm no previously-blocked scoping violation became allowed — enumerate the deny
+      — **NOW TRUE (Phase 5).** The two counterexamples Phase 4 found (ANSI-C `$'…'` with an
+      escaped apostrophe, trailing unquoted backslash) now scan `ok:true`; the residue is
+      narrowed to genuinely unbalanced forms, each re-confirmed `bash -n`-INVALID (Phase 5
+      residue cross-check). The invariant holds as written.
+- [x] Confirm no previously-blocked scoping violation became allowed — enumerate the deny
       cases covered
-      — **LEFT UNCHECKED: two previously-blocked violations DID become allowed** (the same
-      two forms, via fail-open). Deny cases ARE enumerated and covered (see the test's
-      `DENY_AT_ROOT` table), but the "none became allowed" half is false. See finding.
+      — **NOW TRUE (Phase 5).** The two forms that had become allowed via fail-open are back
+      to BLOCK (the flipped former-`KNOWN GAP` tests, now `R2a fix` in
+      `test/root-guard-hook.test.mjs`). The `DENY_AT_ROOT` enumeration is unchanged and still
+      passes; no allow-case flipped to BLOCK.
 - [x] `node --test` green; report the real count — **371 pass, 0 fail** (305 → 371, +66)
 - [x] Commit
 
@@ -89,19 +89,19 @@ backslash both scan `ok:false` yet are valid bash, so two out-of-scope root comm
 OLD hook blocked are ALLOWED by the new one — an AC #5 regression. The fix strictly
 tightens (turns `ok:false` into `ok:true`, i.e. allow into evaluate); it cannot loosen.
 
-- [ ] Model ANSI-C `$'…'` in `pdlc/hooks/shell-scan.mjs` — including backslash escapes
+- [x] Model ANSI-C `$'…'` in `pdlc/hooks/shell-scan.mjs` — including backslash escapes
       INSIDE it (`\'` is the case that breaks today), and its `\n`/`\t` semantics
-- [ ] Model locale `$"…"` (behaves as a double-quoted run for tokenizing purposes)
-- [ ] Resolve a trailing backslash / line continuation rather than reporting
+- [x] Model locale `$"…"` (behaves as a double-quoted run for tokenizing purposes)
+- [x] Resolve a trailing backslash / line continuation rather than reporting
       `dangling-escape` for a command bash accepts
-- [ ] Flip Phase 4's two `KNOWN GAP` characterization tests to assert the CORRECT
+- [x] Flip Phase 4's two `KNOWN GAP` characterization tests to assert the CORRECT
       behavior (out-of-scope root commit ⇒ BLOCK), and confirm they now pass
-- [ ] Re-run Phase 4's full both-directions hazard suite unchanged — every allow-case
+- [x] Re-run Phase 4's full both-directions hazard suite unchanged — every allow-case
       still ALLOWs and every block-case still BLOCKs (proving the fix tightened only)
-- [ ] Re-check the narrowed residue: every remaining `ok:false` form is `bash -n` INVALID
-- [ ] Tick Phase 4's two boxes left unchecked ("Pin the fail-open invariant", "Confirm no
+- [x] Re-check the narrowed residue: every remaining `ok:false` form is `bash -n` INVALID
+- [x] Tick Phase 4's two boxes left unchecked ("Pin the fail-open invariant", "Confirm no
       previously-blocked scoping violation became allowed") once they are honestly true
-- [ ] Commit
+- [x] Commit
 
 ## Phase 6 — Plant, posture, docs, re-ground
 
@@ -737,3 +737,97 @@ non-backlog merge conclusion.
   can rely on them and focus on planting + the docs/wiki re-pin + the version bump.
 - Phase 3's export surface (`stripHeredocs`, `parseGitInvocation`, `classifyBoardSyncCommit`,
   `boardPathspecOk`) is unchanged; Phase 4 added no exports and touched no shipped source.
+
+### Phase 5 recorded results (2026-08-02, opus-implementer, TASK-101)
+
+The fail-open gap (R2a, blocking for merge) is CLOSED. The fix is entirely in
+`pdlc/hooks/shell-scan.mjs`'s `scanCommand`; `root-guard-hook.mjs` is untouched (it consumes
+`scanCommand`/`findGitInvocations` unchanged). Full suite **371 → 376 pass, 0 fail**. All four
+pre-commit gates green (`check-docs` "in sync"; `sync-version --check` "all versions = 0.52.0";
+freshness "36 note(s) fresh", lone pre-existing `warn` on `test-suite-catalog-plugins.md`
+unrelated; no wiki note pins `shell-scan.mjs`). No version bump (Phase 6) and no pinned-source
+touch ⇒ the "red-by-construction" condition did NOT arise ⇒ committed with the pre-commit hook
+**ACTIVE (no `--no-verify`)**, same as Phases 2–4.
+
+#### 1. What changed in the scanner, and the resolved-value semantics
+
+Three additions to `scanCommand`, each turning an `ok:false` (fail-open → allow) into `ok:true`
+(evaluate under policy) — strictly tightening, never loosening:
+
+- **ANSI-C `$'…'`** — a new `inAnsiC` quote state, entered when an unquoted `$` is immediately
+  followed by `'` (both consumed as the introducer). Inside it, an unescaped `'` closes the run;
+  a backslash INTERPRETS the next char via an escape map: `\n`→newline, `\t`→tab, `\r`→CR,
+  `\\`→`\`, `\'`→`'` (the load-bearing case — the escaped apostrophe is literal and does NOT
+  close the run), `\"`→`"`, `\a \b \f \v \e`→their control chars. An **unrecognized** escape
+  (`\q`, or the numeric `\xHH`/`\0NNN`/`\uHHHH` forms) resolves to the escaped char itself —
+  a deliberate simplification: a `$'…'` token here is only ever a commit-message value, never a
+  pathspec, so exact numeric expansion is not load-bearing; what matters is the run stays
+  BALANCED and scans `ok:true`. An unterminated `$'…'` returns `ok:false`
+  `unbalanced-single-quote` (bash rejects it too).
+  Example: `$'it\'s a fix'` ⇒ one token `it's a fix`; `$'a\nb\tc\\d'` ⇒ `a`⏎`b`⇥`c\d`.
+- **Locale `$"…"`** — an unquoted `$` immediately followed by `"` enters normal double-quote
+  state with the `$` consumed (locale translation is identity here), so `$"hi there"` tokenizes
+  exactly as `"hi there"` ⇒ `hi there`. Previously the `$` leaked in as a literal (`$hi there`);
+  it already scanned `ok:true` incidentally, now it is modeled correctly.
+- **Trailing backslash at EOF** — the outside-quotes `\` handler no longer returns
+  `dangling-escape` when the backslash is the last char; bash accepts a trailing backslash and
+  drops it (`README.md\` ⇒ `README.md`), so the scanner keeps the token open and appends
+  nothing. `dangling-escape` now signals ONLY non-string input.
+
+A plain `$` (before `(`, a var name, or bare) stays literal, so `$(git …)` subshell detection is
+preserved (the `(` is a separator seen immediately after). Verified: `echo $(git rev-parse HEAD)`
+still yields one command-position git invocation.
+
+#### 2. The two former-`KNOWN GAP` cases — new verdicts (both BLOCK)
+
+| form | scanner (was → now) | `bash -n` | hook verdict, out-of-scope root commit (was → now) |
+|---|---|---|---|
+| `git commit -m $'it\'s a fix' README.md` | `ok:false` → **`ok:true`** | VALID | ALLOW (fail-open) → **BLOCK** |
+| `git commit -m msg README.md\` (trailing `\`) | `ok:false` → **`ok:true`** | VALID | ALLOW (fail-open) → **BLOCK** |
+
+Both flipped `KNOWN GAP` tests (now `R2a fix:` in `test/root-guard-hook.test.mjs`) pass: scanner
+`ok:true`, bash VALID, and the out-of-scope root commit is BLOCKED.
+
+#### 3. Phase 4's full hazard suite re-run UNCHANGED — no allow-case flipped
+
+The hazard table, the verbatim `Co-Authored-By` named cases, R5(a)/R5(b), heredoc allow/block,
+`DENY_AT_ROOT` (21 rows), `ALLOW_AT_ROOT`, worktree asymmetry, MERGE_HEAD ordering, the
+`UNBALANCED` direction-1 rows, and the `EXECUTABLE_OK_TRUE` direction-2 rows are all **byte-for-byte
+unchanged** and all still pass. **No allow-case flipped to BLOCK** — the single most important
+check: the fix only converts `ok:false`→`ok:true`, which cannot make the gate more permissive OR
+newly block a command that already parsed. Confirmed by the full green suite (376/376).
+
+#### 4. Narrowed residue — every remaining `ok:false` is `bash -n` INVALID
+
+Phase 5 residue cross-check (scanner vs `bash -n`), all `ok:false` command-string forms:
+
+| residual form | scanner reason | `bash -n` |
+|---|---|---|
+| unterminated `'` | `unbalanced-single-quote` | INVALID |
+| unterminated `"` | `unbalanced-double-quote` | INVALID |
+| unterminated `$'…` | `unbalanced-single-quote` | INVALID |
+| unterminated `$"…` | `unbalanced-double-quote` | INVALID |
+| `$'x\` (backslash then EOF, unterminated) | `unbalanced-single-quote` | INVALID |
+
+`unparseable ⊆ unexecutable` now HOLDS for command strings: every residual `ok:false` is a genuine
+bash syntax error, so residual fail-open cannot pass a commit bash would run. (`dangling-escape`
+remains only for non-string input, which is not a command at all.)
+
+### Phase 6 handoff (from Phase 5, TASK-101)
+
+- **Only `pdlc/hooks/shell-scan.mjs` changed shape** (new `inAnsiC` state + `$'`/`$"` intro +
+  trailing-backslash resolution). `root-guard-hook.mjs` is byte-unchanged, so its Phase 3 export
+  surface and behavior are intact — Phase 6's plant just copies BOTH files (as Phase 2 §1
+  flagged) into the host `pdlc/hooks/`, still with NO `hooks.json` alongside.
+- The R2a "blocking for merge" gap is CLOSED — AC #5 can now be honestly marked satisfied. No
+  out-of-scope root commit is pinned as ALLOWED anywhere in the suite; the spec R2 retraction
+  block can be updated in Phase 6's docs pass to note the fix landed (the invariant now holds as
+  narrowed to `bash -n`-valid forms).
+- Phase 6 remains: plant/wire per Phase 1's opt-in decision, `pdlc/README.md`, record `-F`/`-C`
+  workarounds, note promptworld divergence, the ruling-B `CLAUDE.md` posture check, re-pin
+  `docs/wiki/pdlc-plugin.md` (+ `gates-convention.md` if new gate shape), `CAPSULES.md` if any
+  `description:` changed, and the version bump at merge-readiness. `shell-scan.mjs` is now a
+  Phase-6 wiki source to consider when re-pinning `pdlc-plugin.md`.
+- Regression net for Phase 6: `test/root-guard-scan.test.mjs` (scanner units, incl. new ANSI-C /
+  locale / trailing-backslash cases) and `test/root-guard-hook.test.mjs` (end-to-end hazard suite,
+  incl. the flipped `R2a fix:` cases).

@@ -12,10 +12,18 @@
 // BOTH hazards (a blank line and a `)`), so it reliably tripped the gate.
 //
 // The fix is a real single-pass scanner that tracks single-quote,
-// double-quote, and backslash-escape state, so a separator INSIDE a quoted
-// run is literal, never a boundary. plan.md rejects a lookbehind / "skip
-// quoted runs" patch on the regexes: it passes the obvious tests and fails on
-// nesting and escapes. The scanner is the design.
+// double-quote, ANSI-C (`$'…'`), locale (`$"…"`), and backslash-escape state,
+// so a separator INSIDE a quoted run is literal, never a boundary. plan.md
+// rejects a lookbehind / "skip quoted runs" patch on the regexes: it passes the
+// obvious tests and fails on nesting and escapes. The scanner is the design.
+//
+// Phase 5 (spec R2a) closed a fail-open gap: two EXECUTABLE bash forms scanned
+// ok:false and so were waved through fail-open — `$'it\'s a fix'` (ANSI-C
+// quoting with an escaped apostrophe) and a trailing `\` at EOF. Modeling
+// `$'…'`, treating `$"…"` as a double-quoted run, and resolving a trailing
+// backslash make both scan ok:true, so they are gated under policy. This
+// STRICTLY TIGHTENS — it turns ok:false (allow) into ok:true (evaluate); it
+// cannot make anything more permissive.
 //
 // Node >= 18, ESM, zero npm dependencies. Pure functions — no stdin, no fs,
 // no process: unit-testable in isolation, which is the whole point of lifting
@@ -40,6 +48,23 @@ const SEPARATORS = new Set([';', '|', '&', '\n', '`', ')', '(']);
 // else the backslash is a literal character.
 const DQ_ESCAPABLE = new Set(['"', '\\', '$', '`', '\n']);
 
+// ANSI-C quoting `$'…'` (Phase 5 / spec R2a): inside it, a backslash-escape is
+// interpreted and the resolved character replaces the escape sequence. `\'` is
+// the load-bearing case — a backslash-escaped apostrophe is a LITERAL `'` that
+// does NOT close the run, so `$'it\'s a fix'` is the single word `it's a fix`
+// (a valid, executable bash command). The named escapes below cover bash's
+// common set; the two the dispatch calls out (`\n`, `\t`, `\\`) resolve to
+// newline/tab/backslash. An unrecognized escape (`\x`/`\0`/`\u` numeric forms,
+// or an arbitrary `\q`) resolves to the escaped character itself — a deliberate
+// simplification, since the resolved value of a `$'…'` token is only ever a
+// commit-message value here, never a pathspec, so exact numeric expansion is
+// not load-bearing; what matters is that the run is BALANCED and scans ok:true
+// so the command is gated under policy rather than waved through fail-open.
+const ANSI_C_ESCAPES = {
+  n: '\n', t: '\t', r: '\r', '\\': '\\', "'": "'", '"': '"',
+  a: '\x07', b: '\b', f: '\f', v: '\v', e: '\x1b', E: '\x1b',
+};
+
 /**
  * Single-pass quote-state scanner. Splits `command` into segments — maximal
  * runs of tokens uninterrupted by an unquoted separator — with full
@@ -52,12 +77,18 @@ const DQ_ESCAPABLE = new Set(['"', '\\', '$', '`', '\n']);
  *   - Separators inside any quote are literal; outside quotes they end the
  *     token AND the segment (the next token is then at command position).
  *
- * FAIL-CLOSED contract: an UNBALANCED quote or a DANGLING backslash makes the
- * command unparseable. The scanner then returns `{ ok: false, reason }` and
- * NO tokens — never a partial/shattered token list. An unparseable command is
- * not an allowed command: a caller cannot mistake shredded words for
- * pathspecs (the exact original defect), because there are no words to
- * mistake. It never throws.
+ * FAIL-CLOSED contract: an UNBALANCED quote (single, double, or an unterminated
+ * `$'…'`/`$"…"` run) makes the command unparseable. The scanner then returns
+ * `{ ok: false, reason }` and NO tokens — never a partial/shattered token list.
+ * An unparseable command is not an allowed command: a caller cannot mistake
+ * shredded words for pathspecs (the exact original defect), because there are no
+ * words to mistake. It never throws.
+ *
+ * A trailing backslash at EOF is NOT a failure (Phase 5): bash accepts it and
+ * drops it (`README.md\` ⇒ `README.md`), so the scanner resolves it rather than
+ * reporting `dangling-escape` — the former ok:false there was a fail-open hole
+ * for an executable command. `dangling-escape` now signals only non-string
+ * input.
  *
  * @param {string} command
  * @returns {{ok: true, segments: Array<Array<{value: string, index: number}>>}
@@ -81,6 +112,7 @@ export function scanCommand(command) {
 
   let inSingle = false;
   let inDouble = false;
+  let inAnsiC = false; // inside a `$'…'` ANSI-C-quoted run
 
   const openToken = (i) => {
     if (!tokenOpen) {
@@ -113,6 +145,25 @@ export function scanCommand(command) {
       continue;
     }
 
+    if (inAnsiC) {
+      // ANSI-C `$'…'`: backslash escapes are INTERPRETED. `\'` is a literal
+      // apostrophe that does NOT close the run — the exact case that broke
+      // fail-open. An unescaped `'` closes the run.
+      if (ch === '\\') {
+        const next = command[i + 1];
+        if (next === undefined) continue; // unterminated — caught as unbalanced below
+        cur += Object.prototype.hasOwnProperty.call(ANSI_C_ESCAPES, next)
+          ? ANSI_C_ESCAPES[next]
+          : next; // unrecognized escape ⇒ the escaped char literally
+        i++;
+      } else if (ch === "'") {
+        inAnsiC = false;
+      } else {
+        cur += ch; // separators, spaces, newlines: all literal in ANSI-C quotes
+      }
+      continue;
+    }
+
     if (inDouble) {
       if (ch === '"') {
         inDouble = false;
@@ -134,13 +185,42 @@ export function scanCommand(command) {
 
     if (ch === '\\') {
       // Backslash escapes the next char literally (including a quote, space,
-      // or separator). A trailing backslash is a dangling escape => fail
-      // closed.
+      // or separator). A trailing backslash at EOF is NOT a dangling escape:
+      // bash accepts it and drops it (Phase 5 — `README.md\` ⇒ `README.md`), so
+      // resolve it (keep the token open, append nothing) rather than fail open
+      // an executable command.
       const next = command[i + 1];
-      if (next === undefined) return { ok: false, reason: 'dangling-escape' };
+      if (next === undefined) {
+        openToken(i);
+        continue;
+      }
       openToken(i);
       cur += next;
       i++;
+      continue;
+    }
+
+    if (ch === '$') {
+      // `$'…'` (ANSI-C) and `$"…"` (locale) are quote introducers. `$"…"`
+      // tokenizes exactly as a double-quoted run (locale translation is
+      // identity here). A `$` before anything else (`$(`, `$VAR`, a bare `$`)
+      // stays literal — this preserves `$(git …)` subshell detection, since
+      // `(` is a separator seen right after.
+      const next = command[i + 1];
+      if (next === "'") {
+        openToken(i);
+        inAnsiC = true;
+        i++; // consume the opening quote
+        continue;
+      }
+      if (next === '"') {
+        openToken(i);
+        inDouble = true;
+        i++; // consume the opening quote
+        continue;
+      }
+      openToken(i);
+      cur += ch; // literal `$`
       continue;
     }
 
@@ -169,7 +249,7 @@ export function scanCommand(command) {
     cur += ch;
   }
 
-  if (inSingle) return { ok: false, reason: 'unbalanced-single-quote' };
+  if (inSingle || inAnsiC) return { ok: false, reason: 'unbalanced-single-quote' };
   if (inDouble) return { ok: false, reason: 'unbalanced-double-quote' };
 
   endSegment();

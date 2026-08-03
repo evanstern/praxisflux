@@ -141,10 +141,58 @@ test("unbalanced single quote fails closed", () => {
   assert.equal(r.reason, "unbalanced-single-quote");
 });
 
-test("a dangling trailing backslash fails closed", () => {
+test("a trailing backslash at EOF is resolved (bash drops it), NOT fail-closed", () => {
+  // Phase 5 / spec R2a: `foo\` is a VALID, executable bash command (bash drops
+  // the trailing backslash ⇒ `foo`). Reporting dangling-escape here made an
+  // executable out-of-scope commit fail OPEN, an AC #5 regression.
   const r = scanCommand(`git commit -m foo\\`);
+  assert.ok(r.ok, "trailing backslash must scan ok:true, not fail closed");
+  assert.deepEqual(r.segments[0].map((t) => t.value), ["git", "commit", "-m", "foo"]);
+});
+
+// --- ANSI-C `$'…'` quoting (Phase 5 / spec R2a) ---
+
+test("ANSI-C `$'it\\'s a fix'` (escaped apostrophe) is ONE token `it's a fix`, not fail-closed", () => {
+  // THE fail-open case: the escaped `'` is a literal apostrophe that does not
+  // close the run; bash parses this as the single word `it's a fix`.
+  assert.deepEqual(tokens(`git commit -m $'it\\'s a fix' README.md`), [
+    "git",
+    "commit",
+    "-m",
+    "it's a fix",
+    "README.md",
+  ]);
+});
+
+test("ANSI-C `$'…'` interprets \\n \\t \\\\ escapes in the resolved value", () => {
+  assert.deepEqual(tokens(`git commit -m $'a\\nb\\tc\\\\d'`), [
+    "git",
+    "commit",
+    "-m",
+    "a\nb\tc\\d",
+  ]);
+});
+
+test("an UNTERMINATED `$'…'` run fails closed (unbalanced)", () => {
+  const r = scanCommand(`git commit -m $'unterminated README.md`);
   assert.equal(r.ok, false);
-  assert.equal(r.reason, "dangling-escape");
+  assert.equal(r.reason, "unbalanced-single-quote");
+});
+
+// --- locale `$"…"` quoting (Phase 5 / spec R2a) ---
+
+test("locale `$\"…\"` tokenizes as a double-quoted run (the `$` is consumed)", () => {
+  assert.deepEqual(tokens(`git commit -m $"hi there" README.md`), [
+    "git",
+    "commit",
+    "-m",
+    "hi there",
+    "README.md",
+  ]);
+});
+
+test("separators inside a locale `$\"…\"` run do not split", () => {
+  assert.deepEqual(tokens(`git commit -m $"a;b|c"`), ["git", "commit", "-m", "a;b|c"]);
 });
 
 test("fail-closed propagates through findGitInvocations (no invocations invented)", () => {

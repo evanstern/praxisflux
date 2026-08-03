@@ -432,52 +432,37 @@ for (const [name, cmd] of EXECUTABLE_OK_TRUE) {
 }
 
 // ---------------------------------------------------------------------------
-// !!! PHASE 4 FINDING — the fail-open invariant is VIOLATED for two forms. !!!
+// PHASE 5 (spec R2a) — the fail-open gap Phase 4 found is now CLOSED.
 //
-// These are CHARACTERIZATION tests: they assert the CURRENT (defective) reality
-// so the suite is honest and green, and so a future fix FLIPS them — turning
-// this section red and forcing the fixer to re-read the finding below.
-//
-// The spec R2 reconciliation and the Phase 3 notes assert "unparseable ⊆
-// unexecutable" and list ANSI-C `$'…'` among the forms that scan ok:true. Both
-// claims are FALSE:
-//   • ANSI-C `$'it\'s a fix'` (an escaped apostrophe inside `$'…'`) scans
-//     ok:false — the scanner does not model `$'…'`, so the closing `'` opens an
-//     unterminated single-quote run — YET bash parses and executes it.
-//   • A trailing unquoted backslash (`… README.md\`) scans ok:false
-//     (dangling-escape) YET bash treats it as a literal no-op and executes.
-//
-// Because the hook FAILS OPEN on residual ok:false, BOTH out-of-scope root
-// commits are ALLOWED — commits the OLD promptworld regex parser BLOCKED. That
-// is a regression against spec 051 R4 / AC #5 ("no commit blocked for genuine
-// scoping reasons becomes allowed by this fix"). Severity is low in practice (an
-// honest sweep emits neither ANSI-C quoting nor stray trailing backslashes), but
-// the invariant that JUSTIFIED fail-open is not true as written. Flagged for the
-// hook owner / Phase 5 — see specs/051 tasks.md Notes "Phase 4 finding".
+// Phase 4 pinned two EXECUTABLE bash forms the scanner reported ok:false for, so
+// the hook waved them through fail-open — an AC #5 regression (out-of-scope root
+// commits the OLD regex parser blocked, newly ALLOWED):
+//   • ANSI-C `$'it\'s a fix'` (an escaped apostrophe inside `$'…'`).
+//   • A trailing unquoted backslash (`… README.md\`).
+// Phase 5 models `$'…'`/`$"…"` and resolves a trailing backslash in
+// shell-scan.mjs, so both now scan ok:true and are GATED under policy. These
+// were `KNOWN GAP` characterization tests asserting the defect; they are FLIPPED
+// to assert the correct behavior — out-of-scope root commit ⇒ BLOCK. The fix
+// STRICTLY TIGHTENS (ok:false→ok:true, i.e. allow→evaluate), so no allow-case
+// can regress; the full hazard suite above still passes unchanged.
 // ---------------------------------------------------------------------------
 
 const BS = String.fromCharCode(92); // backslash, kept out of JS template literals
-const INVARIANT_VIOLATIONS = [
+const NOW_GATED = [
   ["ANSI-C $'…' with escaped apostrophe", `git commit -m $'it${BS}'s a fix' README.md`],
   ["trailing unquoted backslash", `git commit -m x README.md${BS}`],
 ];
 
-for (const [name, cmd] of INVARIANT_VIOLATIONS) {
-  test(`KNOWN GAP (Phase 4 finding): ${name} — scanner ok:false but bash-VALID (invariant violated)`, () => {
-    assert.equal(scanCommand(cmd).ok, false, "scanner cannot parse this form");
-    assert.equal(
-      bashParse(cmd),
-      "VALID",
-      "bash WOULD execute it — so 'unparseable ⊆ unexecutable' is false here"
-    );
+for (const [name, cmd] of NOW_GATED) {
+  test(`R2a fix: ${name} — now scans ok:true and is bash-VALID (no longer fail-open residue)`, () => {
+    assert.equal(scanCommand(cmd).ok, true, "scanner now models this form");
+    assert.equal(bashParse(cmd), "VALID", "bash executes it — and now so does the gate");
   });
 
-  test(`KNOWN GAP (Phase 4 finding): ${name} — out-of-scope root commit is ALLOWED via fail-open (regression vs old hook)`, () => {
+  test(`R2a fix: ${name} — out-of-scope root commit is now BLOCKED (AC #5 regression closed)`, () => {
     const env = mkEnv();
     try {
-      // Pins the regression. A fix (model $'…'/$"…" in the scanner, or fail
-      // closed on residual for root commits) must flip this to "BLOCK".
-      assert.equal(drive(cmd, { cwd: env.root, projectDir: env.root }), "ALLOW");
+      assert.equal(drive(cmd, { cwd: env.root, projectDir: env.root }), "BLOCK");
     } finally {
       env.done();
     }
