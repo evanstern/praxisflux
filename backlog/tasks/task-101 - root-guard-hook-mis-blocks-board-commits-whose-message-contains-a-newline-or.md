@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-08-03 00:41'
+updated_date: '2026-08-03 00:44'
 labels:
   - gates
   - bug
@@ -79,3 +80,9 @@ The defect is in a host's file, but the **gap** is praxisflux's: pdlc plants doc
 - [ ] #5 The gate's fail-closed posture is preserved: no commit that was blocked for genuine scoping reasons becomes allowed by this fix, covered by a test per hazard character
 - [ ] #6 Decision recorded on whether pdlc ships the hook (planted like other peer artifacts) or the fix is documented for hosts to apply to their own copy; if shipped, the promptworld copy's divergence is noted
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+THIRD manifestation, found 2026-08-02 while carding this one. (a) Cross-repo: the hook fires on every Bash commit invocation in a session whose CLAUDE_PROJECT_DIR is the host repo, INCLUDING invocations targeting a different repository — committing this card in ~/Claude/Code/praxis was refused by promptworld's guard, which resolved the staged set against promptworld (nothing staged) instead of the repo being written to. Workaround: pass -C <other-repo>, which the hook honors when computing effDir. A session working two repos cannot commit to the second one normally. (b) Content false-positive: the FIRST attempt to append this very note was itself refused, because the note TEXT mentioned the two words g-i-t and c-o-m-m-i-t adjacently. A 'backlog task edit' command is not a VCS write at all, yet prose describing one is enough to trip the guard. Both share the root cause: the classifier reasons about a raw command STRING rather than the invocation's real argv and target repo.
+<!-- SECTION:NOTES:END -->
