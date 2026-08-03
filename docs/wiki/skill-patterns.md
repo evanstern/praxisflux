@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: 1a60374c2d78fd90e0ca88e3b37bd48e431f924d
+verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -94,3 +94,8 @@ local Stop hooks stay advisory by design. It refuses to overwrite an existing pl
 - Judgment steps are enforced with evidence + durable residue, never a bare flag (e.g.
   educate's return leg needs both `handoff.foldedIn` in `progress.json` and a
   `## Post-build` section on disk).
+- §4 also names the rule that **a ticked `tasks.md` checkbox is status** and can't outrun a
+  real project gate: spec-bridge derives Done-eligibility from those boxes, so a host declares
+  its gates in `.spec-bridge.json` (`projectGates`) and the bridge blocks a tick standing over a
+  red one — with a `redByConstruction` bucket for gates (freshness) legitimately red mid-PR. See
+  [[gates-convention]] and [[spec-bridge-plugin]].

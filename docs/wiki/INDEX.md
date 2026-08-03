@@ -30,7 +30,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[educate-plugin]] — Socratic learning projects: lesson lifecycle, DoD gate, teach→build seam
 - [[build-plugin]] — skill-only implementation leg: implements a handed-off SPEC and returns findings for educate to fold in
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
-- [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate
+- [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate, opt-in project-gate check
 - [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit)
 - [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through claim+link → spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine and a per-task spec+plan+tasks-or-escape-line Output gate
 - [[pdlc-sweep-history]] — release-by-release doctrine history of the sweep skill: when each rule arrived, the field cases that forced it, and the superseded conventions downstream hosts may have inherited
@@ -48,5 +48,5 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams
 - [[test-suite-catalog]] — per-file coverage catalog, repo-tooling half: chassis, packaging, scaffolding, docs-drift, install-path, and CI-runner test files, one bullet per file
 - [[test-suite-catalog-plugins]] — plugin-half catalog entry point, split summary-style into [[test-suite-catalog-plugins-gates]] and [[test-suite-catalog-plugins-pipeline]]
-- [[test-suite-catalog-plugins-gates]] — per-file coverage, single-plugin output-gate suites: grounding-wiki, pdlc, phase-status, reorient, research, spec-bridge, spec-derive, team-review
+- [[test-suite-catalog-plugins-gates]] — per-file coverage, single-plugin output-gate suites: grounding-wiki, pdlc, phase-status, project-gates, reorient, research, spec-bridge, spec-derive, team-review
 - [[test-suite-catalog-plugins-pipeline]] — per-file coverage, content-authoring pipeline & cross-plugin handoff suites: codebase-to-course, educate deck/wiki roll-up, handoff/return-leg seam, toolkit-borrow

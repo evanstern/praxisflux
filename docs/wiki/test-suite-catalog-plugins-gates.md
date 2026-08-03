@@ -1,18 +1,19 @@
 ---
 name: test-suite-catalog-plugins-gates
-description: Per-file coverage of the single-plugin output-gate suites — grounding-wiki's capsule tier and freshness gate, pdlc's plant surface, phase-status's vocabulary ladder, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split summary-style from test-suite-catalog-plugins; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
+description: Per-file coverage of the single-plugin gate suites — grounding-wiki's capsule tier and freshness gate, pdlc's plant surface, phase-status's vocabulary ladder, project-gates' tick-vs-red-gate check, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split from test-suite-catalog-plugins; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
 kind: pattern
 sources:
   - test/grounding-wiki.capsules.test.mjs
   - test/grounding-wiki.freshness.test.mjs
   - test/pdlc.test.mjs
   - test/phase-status.test.mjs
+  - test/project-gates.test.mjs
   - test/reorient.test.mjs
   - test/research-gates.test.mjs
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: 095b7aa45d65faece7e7daae7479f631e3a86f66
+verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -70,7 +71,18 @@ seam involved. One bullet per `test/*.test.mjs` file:
   same-named stages); `stageVerdict` exceeds/lags/ok/unknown, reproducing `verdict()`
   everywhere on an unrenamed vocabulary; the gate and `planBridge` speaking the board's
   vocabulary (a named review stage plans no auto-Done); and config-absent gate + plan
-  output byte-identical to the 3-status contract.
+  output byte-identical to the 3-status contract. Also (spec 050) five `projectGatesProfile` cases
+  (opt-out/null, string-command rejection, bucket normalization, name-trim, malformed-sibling drop).
+- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked `tasks.md` box
+  can't outrun a red declared gate. Drives `evaluateProjectGates` via injected `run` (no
+  subprocess); `runGateCommand` gets a real subprocess only where itself tested. Cases: **blocking**
+  (`checkBridge` at Done-eligible + red `required` ⇒ a byte-identical finding naming phase/box/gate);
+  **allowance** (`verifyBridge` mid-PR runs `required` only, a spy proving `redByConstruction` never
+  ran; `checkBridge` mid-PR runs no commands); **boundary** (same config at Done-eligible,
+  `redByConstruction` still red ⇒ blocks, both agreeing); **fail-closed** (ENOENT/timeout ⇒
+  "…never green"; real subprocesses cover exit codes, ENOENT, timeout, the `SPEC_BRIDGE_GATE_ACTIVE`
+  guard); **no-config parity** (spy: 0 calls without config; `assert.deepEqual` on the frozen
+  3-status strings).
 - `test/reorient.test.mjs` — reorient end to end: the output gate (`checkReorient` blocks
   until analyses + synthesis exist, demands every corpus branch named plus the sections,
   refuses in-corpus syntheses and empty lenses; adhoc corpus needs no analysis note),
