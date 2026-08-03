@@ -95,7 +95,7 @@ re-pins 0.28.0, claim-step reconciliation 0.34.0, refactor-triage handoff 0.40.0
 ([[pdlc-refactor-triage]] as the post-sweep review), model-ID pinning 0.41.0,
 phase-scoped dispatch 0.42.0, cost levers 0.43.0, Spec-Kit degradation hardening
 0.44.0, doctrine-seam reconciliation 0.47.0, the background-job / no-main-push
-execution mode 0.48.0, the two-track landing reference 0.50.0, the hand-authored-specs precondition hatch and the gate-softening-is-a-runbook-amendment rule 0.51.0 — [[pdlc-sweep-history]] carries the
+execution mode 0.49.0, the two-track landing reference 0.50.0, the hand-authored-specs precondition hatch and the gate-softening-is-a-runbook-amendment rule 0.51.0 — [[pdlc-sweep-history]] carries the
 per-release detail, field cases, and the
 superseded conventions downstream hosts may have inherited.
 
