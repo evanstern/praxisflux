@@ -48,16 +48,16 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 4 — Hub note sources, regeneration, and the zero-warn gate
 
-- [ ] Give `docs/wiki/test-suite-catalog-plugins.md` real sources (preferred) or an
+- [x] Give `docs/wiki/test-suite-catalog-plugins.md` real sources (preferred) or an
       explicit index-kind marking; record the choice and rationale in the Notes section
-- [ ] Regenerate `INDEX.md` and `CAPSULES.md` — never hand-edit
-- [ ] Re-pin every note this branch touched to this branch's own commits, only after the
+- [x] Regenerate `INDEX.md` and `CAPSULES.md` — never hand-edit
+- [x] Re-pin every note this branch touched to this branch's own commits, only after the
       commit that wrote the prose
-- [ ] `node grounding-wiki/gates/cli.mjs freshness . docs/wiki` exits 0 with **zero warns**
-- [ ] `node --test` and `node scripts/check-docs.mjs` green
-- [ ] Confirm no released surface changed (no marketplace bump, no skill `version:` edit)
-- [ ] Read both link directions by hand — the gate only warns on broken wikilinks
-- [ ] Commit; PR opens only after every box above is ticked
+- [x] `node grounding-wiki/gates/cli.mjs freshness . docs/wiki` exits 0 with **zero warns**
+- [x] `node --test` and `node scripts/check-docs.mjs` green
+- [x] Confirm no released surface changed (no marketplace bump, no skill `version:` edit)
+- [x] Read both link directions by hand — the gate only warns on broken wikilinks
+- [x] Commit; PR opens only after every box above is ticked
 
 ## Notes
 
@@ -307,3 +307,124 @@ operator-signed runbook amendment 1, 2026-08-02; identical carve-out shape as Ph
 - Commit made with `--no-verify` because `.githooks/pre-commit` runs the full
   `node --test` suite and would fail on the same pre-existing, Phase-4-scoped
   wiki-freshness redness documented above and in Phase 2's notes.
+
+### Phase 4 — hub sources, regeneration, re-pins, zero-warn gate (task complete, merge-ready)
+
+**R3 — `test-suite-catalog-plugins.md` gets real sources, chosen over index-kind.**
+Chose **real sources**, not an index-kind marking (`docs/corpus-spec.md` defines no
+source-free "index" kind at all — the only kinds are `component | concept | pipeline |
+pattern | note | analysis`, so an index-kind marking wasn't even available as a fallback).
+Sources set to the note's **two children's paths**:
+`docs/wiki/test-suite-catalog-plugins-gates.md`, `docs/wiki/test-suite-catalog-plugins-pipeline.md`
+— not the 16 `test/*.mjs` files the children catalog. Rationale: `docs/corpus-spec.md`'s
+code dialect places no restriction on a source path's kind (any file "whose change
+invalidates this note"), and spec.md's own R3 text names "its children's paths" as one of
+the two sanctioned forms. Children-as-sources is the *tighter* match to what this note
+actually asserts — that two specifically-named children exist and cover the topics
+summarized — versus the 16 test files, which are two removes from the hub's own prose (the
+hub never describes test file content, only child-note existence/scope) and would make the
+hub flap stale on test-suite changes the hub's own text doesn't claim anything about. The
+gate's one standing WARN (`no sources listed`) is confirmed gone — see the freshness-gate
+output below (`OK: 38 note(s) fresh`, zero warns, zero fails).
+
+**R2 scope decision — `pdlc-sweep.md:98` label fix.** Verified the exact line before
+editing (`grep -n "0.48.0" docs/wiki/pdlc-sweep.md` → line 98,
+"...execution mode 0.48.0, the two-track landing reference 0.50.0..."). Changed only the
+one token: `0.48.0` → `0.49.0`. Line 98 now reads "...execution mode 0.49.0, the two-track
+landing reference 0.50.0, the hand-authored-specs precondition hatch and the
+gate-softening-is-a-runbook-amendment rule 0.51.0 — `[[pdlc-sweep-history]]` carries the...".
+No other token on the line changed. Re-pinned honestly afterward (below) — its own edited
+prose is not mechanically detected as stale by the freshness gate (the gate only checks a
+note's `sources:` against git history, not the note's own content against its pin), so the
+pin bump here is a manual honest re-pin per doctrine, not gate-driven.
+
+**Regeneration — `INDEX.md` and `CAPSULES.md`.** Confirmed via
+`grounding-wiki/skills/wiki-update/SKILL.md` that only `CAPSULES.md` has a script writer
+(`grounding-wiki/scripts/capsules.mjs`, read-only-derived, "never hand-edit"); `INDEX.md`
+has no generator and is hand-maintained by the same skill's own instruction ("add its
+INDEX.md line"). Added `INDEX.md` lines for the Phase 2 split's two children
+(`pdlc-sweep-history-early`, `pdlc-sweep-history-recent`, previously undone — Phase 1's
+notes flagged this as deferred to Phase 4) and updated the parent's line to describe the
+split instead of the pre-split summary, following the `test-suite-catalog-plugins`
+INDEX.md pattern (parent-line-plus-child-lines) already in this corpus. Then ran
+`node grounding-wiki/scripts/capsules.mjs . docs/wiki` (never hand-edited `CAPSULES.md`)
+— regenerated header re-stamped to this phase's content commit, and the `pdlc-sweep-history`
+rollup entry split into three (parent + 2 children), matching `INDEX.md`.
+
+**Re-pins.** Two commits: (1) the content commit
+(`3448c7edba2cd004e10a2daaa7c4f1dd69c33363` — sources added, label fixed, INDEX/CAPSULES
+regenerated), landed with disclosed `--no-verify` because giving
+`test-suite-catalog-plugins.md` real sources for the first time makes it mechanically
+STALE against its existing pin (253e0a9) purely as an artifact of the sources having just
+been added — the same chicken-and-egg Phase 2's split commits hit, same sanctioned shape
+(runbook amendment 1); (2) re-pins via `grounding-wiki/scripts/repin.mjs`, both to
+`3448c7edba2cd004e10a2daaa7c4f1dd69c33363` (the content commit — never a later/merge
+commit as justification):
+
+| note | RE-PIN-ONLY vs NEEDS-REVIEW | old pin | new pin (commit) |
+|---|---|---|---|
+| `docs/wiki/test-suite-catalog-plugins.md` | NEEDS-REVIEW (frontmatter `sources:` changed — a structural edit, not a version-stamp-only diff; verified both children exist and are named/summarized as the hub's prose states before re-pinning) | `253e0a979a77` | `3448c7edba2c` |
+| `docs/wiki/pdlc-sweep.md` | NEEDS-REVIEW (prose content changed — the version-label fix; re-verified the corrected line against Phase 3's git-history evidence before re-pinning, not a mechanical stamp) | `095b7aa45d65` | `3448c7edba2c` |
+
+No other note's `sources:` or prose changed in Phase 4, so no other note needed re-pinning
+(`pdlc-sweep-history.md`, `-early`, `-recent` keep Phase 2/3's pins — their own content and
+sources are untouched this phase).
+
+**Freshness gate — final, real output:**
+```
+$ node grounding-wiki/gates/cli.mjs freshness . docs/wiki
+OK: 38 note(s) fresh against their pinned sources.
+```
+Exit 0. **Zero problems, zero warns** — R4 satisfied.
+
+**`node --test` — final, real output:** `tests 259 / suites 0 / pass 259 / fail 0 /
+cancelled 0 / skipped 0 / todo 0`. `run-gates.test.mjs`'s
+"the praxisflux repo itself passes spec-bridge and wiki-freshness" assertion — red since
+Phase 2 by construction, named in this dispatch as the finish line — is **green**.
+
+**`node scripts/check-docs.mjs` — final, real output:** `README.md and CLAUDE.md are in
+sync with the repo`.
+
+**Body/capsule sizes, every note this branch touched (gate's `noteBody()`, measured, not
+eyeballed) — final:**
+
+| note | body chars | headroom vs 8000 | description chars | headroom vs 500 |
+|---|---|---|---|---|
+| `pdlc-sweep-history.md` (parent) | 2157 | 5843 | 408 | 92 |
+| `pdlc-sweep-history-early.md` | 5734 | 2266 | 473 | 27 |
+| `pdlc-sweep-history-recent.md` | 6687 | 1313 | 390 | 110 |
+| `pdlc-sweep.md` | 6899 | 1101 | 496 | 4 |
+| `test-suite-catalog-plugins.md` | 1317 | 6683 | 461 | 39 |
+
+`pdlc-sweep.md`'s 1101 headroom and 4-char description headroom are tight (unaffected by
+this phase's edit, which changed one 5-character token in the body and nothing in the
+description) but both remain within budget; not a Phase 4 concern since this task's scope
+never asked for headroom in `pdlc-sweep.md` itself (only in the history notes, R1).
+
+**Link check, both directions, read by hand** (the gate only warns on broken wikilinks —
+this table is the substitute proof it doesn't catch a regression): every `[[wikilink]]` in
+`pdlc-sweep.md`, `pdlc-sweep-history.md`, `-early`, `-recent`, `test-suite-catalog-plugins.md`,
+`-gates`, `-pipeline` resolves to a real sibling note on disk (verified programmatically,
+not eyeballed — 27 links across the 7 touched/adjacent notes, zero missing targets).
+Reciprocal pairs re-confirmed: parent↔children both directions for both split families;
+`pdlc-sweep.md` → `[[pdlc-sweep-history]]` resolves (name never changed).
+
+**Released surface — confirmed unchanged.** `git diff --stat $(git merge-base HEAD
+origin/main)..HEAD` shows only `docs/wiki/*`, `specs/049-wiki-sweep-history-backfill/*`,
+and the TASK-93 backlog card (`backlog/tasks/task-93-*.md`, from the branch's earlier claim
+commit, not touched in Phase 4) — no plugin dir, no `lib/`, no `scripts/`, no
+`.claude-plugin/`. No marketplace bump, no skill `version:` edit. Wiki-only, as scoped.
+
+**Commits, this phase:**
+- `3448c7edba2cd004e10a2daaa7c4f1dd69c33363` — content: real sources on
+  `test-suite-catalog-plugins.md`, `pdlc-sweep.md`'s label fix, `INDEX.md` additions,
+  `CAPSULES.md` regeneration. **`--no-verify` used and disclosed** (see above).
+- re-pin commit (follows, hash recorded in that commit's own message) — re-pins
+  `test-suite-catalog-plugins.md` and `pdlc-sweep.md` to `3448c7ed`. **Committed
+  clean, no `--no-verify`** — by this point the freshness gate is green (confirmed via
+  the pre-commit hook's own `node --test` run passing 259/259), which is this task's
+  finish-line requirement: the last commit does not need the carve-out.
+
+**Task status: merge-ready.** All four ACs' worth of Phase 4 boxes ticked; the
+`run-gates.test.mjs` red-by-construction failure Phases 2-3 disclosed is green; nothing
+outstanding.
