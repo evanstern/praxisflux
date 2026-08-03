@@ -105,28 +105,35 @@ tightens (turns `ok:false` into `ok:true`, i.e. allow into evaluate); it cannot 
 
 ## Phase 6 — Plant, posture, docs, re-ground
 
-- [ ] Wire the hook per Phase 1's recorded planting decision; `pdlc/scripts/plant.mjs`
+- [x] Wire the hook per Phase 1's recorded planting decision; `pdlc/scripts/plant.mjs`
       updated if it plants the hook
-- [ ] `pdlc/README.md` documents the hook and its wiring
-- [ ] Record the **`-F` and `-C` workarounds** in the planted grounding for hosts still on
+- [x] `pdlc/README.md` documents the hook and its wiring
+- [x] Record the **`-F` and `-C` workarounds** in the planted grounding for hosts still on
       an unpatched copy
-- [ ] Note the **promptworld copy's divergence** (AC #6) — what changed, so that host can
+- [x] Note the **promptworld copy's divergence** (AC #6) — what changed, so that host can
       tell what it is replacing
-- [ ] **Ruling B obligation:** check root `CLAUDE.md`'s "Enforcement is split by design"
+- [x] **Ruling B obligation:** check root `CLAUDE.md`'s "Enforcement is split by design"
       sentence. If this PR makes it false, amend it here. Record the check either way
-- [ ] If `pdlc/templates/CLAUDE.md` changed: re-plant this repo's block in the same PR
-      (`plant.mjs --check` first, then `--force` after diffing) — **relocate hand edits,
-      never clobber**
-- [ ] Amend `docs/wiki/pdlc-plugin.md` as **NEEDS-REVIEW** — re-verify prose against the
-      diff, amend, THEN re-pin. Same for `docs/wiki/gates-convention.md` if the hook lands
-      as a new gate shape
-- [ ] Regenerate `CAPSULES.md` if any `description:` changed
-- [ ] Bump at merge-readiness: `node scripts/sync-version.mjs <next-free>` + each edited
-      skill's own `version:`
-- [ ] All gates green: `node --test`, `check-docs`, `sync-version --check`, freshness
-- [ ] Manual proof of R1: in a scratch repo, a `backlog/`-scoped commit with the verbatim
+      — **checked; amended (incomplete, not false)** — see Phase 6 notes.
+- [x] If `pdlc/templates/CLAUDE.md` changed: re-plant this repo's block in the same PR
+      — **N/A: the template was deliberately NOT changed** (ruling B's sentence lives in
+      root `CLAUDE.md`'s orientation, outside the planted block), so no re-plant is owed.
+- [x] Amend `docs/wiki/pdlc-plugin.md` as **NEEDS-REVIEW** — re-verify prose against the
+      diff, amend, THEN re-pin. `docs/wiki/gates-convention.md` **left untouched** — the
+      root-guard hook is a `PreToolUse` workflow-blocker, not a lifecycle "status-can't-
+      exceed-artifacts" gate, and its sources (`docs/skill-patterns.md` §5) were not
+      changed. See Phase 6 notes.
+- [x] Regenerate `CAPSULES.md` if any `description:` changed — **no `description:` changed;
+      CAPSULES.md untouched** (freshness gate confirms consistency).
+- [x] Bump at merge-readiness: `node scripts/sync-version.mjs <next-free>` + each edited
+      skill's own `version:` — **0.52.0 → 0.53.0** (origin/main confirmed still 0.52.0);
+      bootstrap SKILL `0.9.0 → 0.10.0`.
+- [x] All gates green: `node --test`, `check-docs`, `sync-version --check`, freshness
+      (+ `check-version-bump --base origin/main`).
+- [x] Manual proof of R1: in a scratch repo, a `backlog/`-scoped commit with the verbatim
       multi-line trailer is accepted through the hook with **no workaround**
-- [ ] Commit; PR opens only after every box above is ticked
+- [x] Commit; PR opens only after every box above is ticked — **committed (258e074,
+      8bc07f4, 8c77ae5); the PR is the sweep orchestrator's step, not the implementer's.**
 
 ## Notes
 
@@ -831,3 +838,103 @@ remains only for non-string input, which is not a command at all.)
 - Regression net for Phase 6: `test/root-guard-scan.test.mjs` (scanner units, incl. new ANSI-C /
   locale / trailing-backslash cases) and `test/root-guard-hook.test.mjs` (end-to-end hazard suite,
   incl. the flipped `R2a fix:` cases).
+
+### Phase 6 recorded results (2026-08-02, opus-implementer, TASK-101) — TASK MERGE-READY
+
+Commits: `8c77ae5` (plant opt-in + tests), `8bc07f4` (docs + ruling-B posture + version bump),
+`258e074` (honest wiki re-pins). Suite **381 pass, 0 fail** (376 → 381, +5 hook-plant tests).
+All gates green; the final re-pin commit needed **no `--no-verify`**.
+
+#### 1. Planting — `plant.mjs --hook root-guard`, OPT-IN, copies BOTH files
+
+`plant.mjs` gains a `HOOKS = ["root-guard"]` registry and a `--hook root-guard` opt-in (the
+`plant()` option `hooks: []`, the CLI `--hook` flag). On opt-in it:
+- **Copies BOTH** `pdlc/hooks/root-guard-hook.mjs` **and** `pdlc/hooks/shell-scan.mjs` into
+  `<root>/.claude/hooks/` (Phase 2 §1's flag honored — the hook `import`s `./shell-scan.mjs`;
+  a planted hook missing its scanner is broken; a test asserts both files AND the relative
+  import target).
+- **Merges** two `PreToolUse` entries into `<root>/.claude/settings.json` —
+  `Bash → node "$CLAUDE_PROJECT_DIR/.claude/hooks/root-guard-hook.mjs" pre-bash` and
+  `Write|Edit|NotebookEdit → … pre-write` — preserving any hooks already there (idempotent;
+  a pre-existing Stop hook survives, verified by test). `$CLAUDE_PROJECT_DIR`, not
+  `${CLAUDE_PLUGIN_ROOT}` (which is unset in the host's own session).
+- Records the opt-in in the `.pdlc` sentinel's new `hooks` array (legacy sentinels without
+  the field tolerated, like `peersOmitted`/`name`); re-presented as a default on update.
+- **Absent `--hook`, nothing is copied or wired** — no `.claude/` tree at all; `hooks: absent`
+  in the report, `hooks: []` in the sentinel. Opt-in preserves bootstrap's "safe to install
+  anywhere" property (Phase 1 decision #5). `bootstrap` SKILL.md offers it like a peer
+  (default no), bumped `0.9.0 → 0.10.0`.
+
+R1 proven end-to-end (Phase 6 box): planted into a scratch repo via the real CLI, a
+`backlog/`-scoped commit carrying the **verbatim** `Co-Authored-By: Claude Opus 5 (1M context)
+<noreply@anthropic.com>` trailer is **ALLOWED (exit 0) with no `-F`/`-C`**; the out-of-scope
+control (`README.md` pathspec) **BLOCKs (exit 2)** naming `README.md` (R3).
+
+#### 2. Ruling-B posture check — the exact sentence, conclusion, amendment
+
+Root `CLAUDE.md`'s sentence: *"the Stop hooks plugins ship are advisory/opt-in — local
+pressure while you work, never guaranteed present; CI … is the authoritative enforcement
+point."* **Conclusion: INCOMPLETE, not false.** The hook is opt-in, so the DEFAULT posture
+(advisory-local / authoritative-CI) stays true of every un-opted-in host — but the suite now
+*ships* a hard-blocking `PreToolUse` surface, which the sentence did not acknowledge.
+**Amended** (root `CLAUDE.md`) to name the opt-in root-guard `PreToolUse` hook as the one
+hard-blocking local surface while affirming the default posture holds where it is not opted
+in. `README.md`'s parallel enforcement note + the pdlc plugins-table row were amended to
+match (overview.md asserts README and CLAUDE are in sync).
+
+#### 3. Template NOT changed ⇒ no re-plant of this repo's own block
+
+The ruling-B sentence lives in root `CLAUDE.md`'s **orientation** (outside the
+`pdlc:grounding` markers), NOT in `pdlc/templates/CLAUDE.md`. The template's planted "Gates"
+rule stays accurate for the default (no-opt-in) posture. So `pdlc/templates/CLAUDE.md` was
+deliberately left unchanged and **no re-plant obligation (dispatch item 6 / runbook re-plant
+line) was triggered** — recorded here as the deliberate decision.
+
+#### 4. Wiki re-pins — classification, prose amended, pin commit `8bc07f4`
+
+All 13 notes staled by this PR were re-pinned to `8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80`
+(the source-tip commit; the re-pin commit `258e074` touches only note bodies + pins, no
+sources, so the range stays empty ⇒ fresh):
+- **NEEDS-REVIEW, prose amended then pinned:** `pdlc-plugin.md` (new "Opt-in root-guard hook"
+  section + reconciled "does not do" line; trimmed to **7995 chars**, under the 8000 budget),
+  `overview.md` (enforcement bullet), `test-suite-catalog-plugins-gates.md` (pdlc.test.mjs
+  bullet gains the hook-plant coverage).
+- **Stamp-only diff but quoting version literals — verified historical, no body change:**
+  `build-and-release.md`, `reorient-plugin.md`, `team-review-plugin.md` (quoted `0.2.0/0.3.0/
+  0.5.0/1.3.0` are `since`-references, not the churned lockstep).
+- **RE-PIN-ONLY (lockstep version-stamp churn, prose-safe):** `build-plugin`,
+  `codebase-to-course-plugin`, `educate-plugin`, `gates-consumption-surface`,
+  `grounding-wiki-plugin`, `research-plugin`, `spec-bridge-plugin`.
+- **`gates-convention.md` left FRESH/untouched** (decision): the root-guard hook is a
+  `PreToolUse` workflow-blocker, categorically NOT a lifecycle "status-can't-exceed-artifacts"
+  Stop gate — the shape `gates-convention.md` and `docs/skill-patterns.md` §5's `gates/` vs
+  `scripts/` roles describe. `docs/skill-patterns.md` was therefore NOT edited (avoiding a
+  4-note blast radius), and the `pdlc/hooks/` role is documented in `pdlc/README.md` +
+  `pdlc-plugin.md` as a pdlc-specific planted artifact, which is more accurate than a
+  premature "uniform across plugins" §5 role while pdlc is the only user. This refines
+  Phase 1 decision #4's "extend §5" preference and is recorded here as deliberate.
+- **No `description:` changed ⇒ `CAPSULES.md` untouched** (freshness confirms consistency).
+- **No `pdlc-sweep-history.md` entry:** that note's sources (`pdlc/skills/sweep/*`) are
+  untouched — this PR ships a bootstrap-planted hook, not sweep-skill doctrine.
+
+#### 5. Version + gates (real final output)
+
+- Bumped **0.52.0 → 0.53.0** via `sync-version.mjs` (origin/main re-checked: still 0.52.0;
+  0.53.0 free). bootstrap SKILL `version: 0.10.0`.
+- `node --test`: **# tests 381 / # pass 381 / # fail 0**.
+- `check-docs`: "README.md and CLAUDE.md are in sync with the repo".
+- `sync-version.mjs --check`: "all versions = 0.53.0".
+- `check-version-bump.mjs --base origin/main`: "version bump ok: 0.52.0 → 0.53.0".
+- freshness (`grounding-wiki/gates/cli.mjs freshness . docs/wiki`): "OK: 36 note(s) fresh",
+  **0 problems**; the one WARN (`test-suite-catalog-plugins.md: no sources`) is pre-existing
+  and owned by TASK-93, not introduced here.
+
+#### 6. `--no-verify` disclosure
+
+Commits `8c77ae5` and `8bc07f4` were made with `--no-verify`, disclosed under runbook
+amendment 1 as a defensive measure against the red-by-construction freshness gate. **Note for
+accuracy:** the repo's `.githooks/pre-commit` does NOT run the freshness gate (it runs
+`node --test`, `gen-marketplace --check`, `sync-version --check`, `check-docs`); freshness is
+a **pre-push / CI** gate. So those two commits would in fact have passed pre-commit without
+the bypass — the `--no-verify` was over-caution, not a masked failure. The final re-pin
+commit `258e074` ran the full pre-commit hook with **no bypass** and passed.
