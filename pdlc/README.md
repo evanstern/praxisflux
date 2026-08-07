@@ -1,10 +1,12 @@
 # pdlc — bootstrap a project for the praxis development lifecycle, then run it
 
-The suite-level installer plus the lifecycle's orchestrator. Three skills:
+The suite-level installer plus the lifecycle's orchestrator. Four skills:
 `bootstrap` stamps a **new or existing** folder as a PDLC project; `sweep` runs a set of
-that project's board tasks through the whole lifecycle automatically; `refactor-triage`
-closes the loop after a sweep — evaluate the merged work for debt and drift, triage the
-findings, and card accepted items back onto the board as sweepable tasks.
+that project's board tasks through the whole lifecycle automatically; `design-rounds`
+handles the case sweep's order cannot — work whose deliverable is not knowable until an
+operator has looked at options and chosen one; `refactor-triage` closes the loop after a
+sweep — evaluate the merged work for debt and drift, triage the findings, and card accepted
+items back onto the board as sweepable tasks.
 
 `bootstrap`:
 
@@ -43,6 +45,20 @@ signed-off, committed, and board-backed.
 ```
 /pdlc:sweep TASK-12 TASK-13 TASK-15            # author the runbook, stop at sign-off
 /pdlc:sweep docs/design/payments-runbook.md    # adopt + execute a signed-off runbook
+```
+
+`design-rounds` — the seam **before** the spec, for work where sweep's spec-then-implement
+order inverts. A spec authored before a design choice either says nothing or invents a
+direction nobody picked, and the implementation then satisfies a fiction. Cadence:
+worktree → claim → *N rounds of comparable options → operator selects → decision record* →
+spec → hand off. The card sits **In Progress** across every round; a round is a commit plus
+a card note, never a status change. It defers the spec number and `spec-bridge:link` to
+after the decision (the one deliberate departure from sweep's claim mechanics — the spec's
+content is not knowable until the choice exists), and ends exactly where a sweep lane
+expects to begin: a claimed branch carrying a spec written against a real answer.
+
+```
+/pdlc:design-rounds TASK-22        # claim, ground, run rounds until the operator picks
 ```
 
 `refactor-triage` — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage

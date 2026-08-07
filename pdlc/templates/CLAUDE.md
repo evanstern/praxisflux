@@ -32,9 +32,13 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 - **pdlc** — the lifecycle's own verbs: `pdlc:bootstrap` (re)stamps this grounding after
   plugin upgrades; `/pdlc:sweep` orchestrates a set of board tasks through the whole loop —
   an authored, operator-signed-off runbook, then spec → PR → merge → re-ground per task,
-  parallel lanes with serial merges; `/pdlc:refactor-triage` closes the loop after a sweep —
-  evaluate the merged work for debt and drift, triage every finding with the operator, and
-  card accepted items back onto the board as sweepable tasks.
+  parallel lanes with serial merges; `/pdlc:design-rounds` handles the task a sweep cannot
+  start — work whose deliverable is not knowable until an operator has seen options and
+  picked one (UI and visual design, competing layouts), running comparable rounds against a
+  long-running worktree and ending with a decision record plus a spec written against the
+  choice; `/pdlc:refactor-triage` closes the loop after a sweep — evaluate the merged work
+  for debt and drift, triage every finding with the operator, and card accepted items back
+  onto the board as sweepable tasks.
 
 ## Rules that always hold
 

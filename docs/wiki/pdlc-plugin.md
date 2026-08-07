@@ -1,14 +1,15 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); the sibling skills — sweep and refactor-triage — are covered by their own notes (pdlc-sweep, pdlc-refactor-triage).
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts into the peer utilities (Backlog.md, Spec Kit); design-rounds covers the pre-spec seam where the deliverable is unknowable until an operator chooses; sweep and refactor-triage have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
   - pdlc/README.md
   - pdlc/skills/bootstrap/SKILL.md
+  - pdlc/skills/design-rounds/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: d79941ce7c3c17641ed073859d261e689d0b447e
+verified_against: 33b6fb248fc56c1697fce87098b2785343e2b496
 ---
 
 # pdlc plugin
@@ -17,20 +18,20 @@ The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level i
 the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing
 codebase) as a **praxis-development-lifecycle project** whose always-on context
 knows the whole loop, the suite-wide application of the [[skill-patterns]] rule "plant a
-project CLAUDE.md" (a plugin has no always-on slot); since 0.12.0 a second skill,
-[[pdlc-sweep]], runs the lifecycle it installs, and since 0.40.0 a third,
-[[pdlc-refactor-triage]], triages the swept result back onto the board.
+project CLAUDE.md" (a plugin has no always-on slot). Three further skills run the
+lifecycle it installs, each covered below.
 
-## pdlc:sweep and pdlc:refactor-triage — covered in their own notes
+## The sibling skills — covered in their own notes
 
 The plugin's second skill, `sweep`, orchestrates a set of board tasks into merged PRs
 (authored, operator-signed-off runbook; parallel lanes, serial merges; claim-before-work,
-paused-lane markers, merge-drift gate consumption, pin-aware reconciliation). Its full
-coverage — and the pins on `skills/sweep/*` — live in [[pdlc-sweep]]. The third skill,
-`refactor-triage`, closes the post-sweep seam: evaluate merged work for debt and intent
-drift (team-review as the engine when installed), triage every finding with a recorded
-disposition, and card accepted items back as sweepable tasks. Its coverage — and the
-pins on `skills/refactor-triage/*` — live in [[pdlc-refactor-triage]].
+paused-lane markers, merge-drift gate consumption, pin-aware reconciliation):
+[[pdlc-sweep]]. The third, `refactor-triage`, closes the post-sweep seam — evaluate merged
+work for debt and intent drift (team-review as the engine when installed), triage every
+finding with a recorded disposition, card accepted items back as sweepable tasks:
+[[pdlc-refactor-triage]]. The fourth, `design-rounds`, owns the seam **before** the spec,
+where sweep's ordering cannot start — work whose deliverable is unknowable until an
+operator picks among options: [[pdlc-design-rounds]]. Each note carries its skill's pins.
 
 ## The planted grounding is a marked block, not a file
 
