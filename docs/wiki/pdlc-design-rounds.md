@@ -4,7 +4,7 @@ description: The pdlc:design-rounds skill — the pre-spec seam for work whose d
 kind: component
 sources:
   - pdlc/skills/design-rounds/SKILL.md
-verified_against: 8bbd58f3529a9953b6da6ed5ca7174f346a0239a
+verified_against: 33b6fb248fc56c1697fce87098b2785343e2b496
 ---
 
 # pdlc:design-rounds — choose the direction, then spec it
