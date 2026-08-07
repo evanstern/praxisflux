@@ -1,11 +1,12 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); the sibling skills — sweep and refactor-triage — are covered by their own notes (pdlc-sweep, pdlc-refactor-triage).
+description: The pdlc plugin — the suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (deterministically, via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts a project into the supported peer utilities (Backlog.md, Spec Kit); design-rounds covers the pre-spec seam where the deliverable is not knowable until an operator chooses; the sibling skills sweep and refactor-triage are covered by their own notes (pdlc-sweep, pdlc-refactor-triage).
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
   - pdlc/README.md
   - pdlc/skills/bootstrap/SKILL.md
+  - pdlc/skills/design-rounds/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/templates/CLAUDE.md
 verified_against: d79941ce7c3c17641ed073859d261e689d0b447e
@@ -18,8 +19,9 @@ the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or exi
 codebase) as a **praxis-development-lifecycle project** whose always-on context
 knows the whole loop, the suite-wide application of the [[skill-patterns]] rule "plant a
 project CLAUDE.md" (a plugin has no always-on slot); since 0.12.0 a second skill,
-[[pdlc-sweep]], runs the lifecycle it installs, and since 0.40.0 a third,
-[[pdlc-refactor-triage]], triages the swept result back onto the board.
+[[pdlc-sweep]], runs the lifecycle it installs, since 0.40.0 a third,
+[[pdlc-refactor-triage]], triages the swept result back onto the board, and since 0.55.0 a
+fourth, `design-rounds`, covers the case sweep's ordering cannot start.
 
 ## pdlc:sweep and pdlc:refactor-triage — covered in their own notes
 
@@ -31,6 +33,29 @@ coverage — and the pins on `skills/sweep/*` — live in [[pdlc-sweep]]. The th
 drift (team-review as the engine when installed), triage every finding with a recorded
 disposition, and card accepted items back as sweepable tasks. Its coverage — and the
 pins on `skills/refactor-triage/*` — live in [[pdlc-refactor-triage]].
+
+## pdlc:design-rounds — the seam before the spec
+
+`sweep` runs spec → implement → PR, which assumes the deliverable's shape is known when the
+card is written. That assumption inverts for design work: a spec authored before an
+operator has chosen among options either says nothing ("redesign the surface") or invents a
+direction nobody picked, and the implementation then satisfies a fiction. `design-rounds`
+(0.55.0) owns that seam and ends where a sweep lane expects to begin — a claimed branch
+carrying a decision record and a spec written against a real answer.
+
+Its cadence is worktree → claim → *N rounds of comparable options → operator selects →
+decision record* → spec → hand off. The middle is what nothing else modeled: the board card
+sits **In Progress** across every round, and a round lands as a commit plus a card note
+rather than a status change, because a status can never exceed the artifacts that prove it
+and "we looked at three layouts" is not a status.
+
+Two departures from `sweep`'s claim mechanics, both following from the spec's content being
+unknowable at claim time: the spec number and `spec-bridge:link` defer to the post-decision
+phase (linking a card to an empty spec dir would arm the bridge's Stop gate against phases
+that do not exist, and would hold a number reserved across an open-ended number of rounds
+while concurrent sessions need it), and the worktree is long-running — it survives many
+operator round-trips and possibly many sessions, so its path and branch are recorded on the
+card rather than assumed from the session.
 
 ## The planted grounding is a marked block, not a file
 
