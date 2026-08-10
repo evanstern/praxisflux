@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-10 13:24'
-updated_date: '2026-08-10 13:24'
+updated_date: '2026-08-10 13:28'
 labels:
   - pdlc
   - pdlc-sweep
@@ -35,9 +35,9 @@ Model IDs resolved against the claude-api skill, per the never-author-from-memor
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 `.claude/model-tiers.json` schema supports an OPEN tier map (a tier key the repo never anticipated, e.g. fable, generates a valid agent def), per-tier `fallback`, and `escalation: true`
-- [ ] #2 `pdlc/scripts/tiers.mjs` generates agent defs from config with plant.mjs report vocabulary (created|unchanged|drifted|replaced); a hand-edited def reports drifted and is never overwritten without --force
-- [ ] #3 Unknown `defaultTier`/`escalationTier` fails with a NAMED error, never a silent skip
+- [x] #1 `.claude/model-tiers.json` schema supports an OPEN tier map (a tier key the repo never anticipated, e.g. fable, generates a valid agent def), per-tier `fallback`, and `escalation: true`
+- [x] #2 `pdlc/scripts/tiers.mjs` generates agent defs from config with plant.mjs report vocabulary (created|unchanged|drifted|replaced); a hand-edited def reports drifted and is never overwritten without --force
+- [x] #3 Unknown `defaultTier`/`escalationTier` fails with a NAMED error, never a silent skip
 - [ ] #4 Planted CLAUDE.md tier section carries posture + config pointer + the pin-provenance paragraph, and no hardcoded model IDs
 - [ ] #5 bootstrap SKILL.md plants the config and generates the defs (inverting the current operator-authors-them clause); two-doors section names config-edit-then-regenerate as door 2
 - [ ] #6 sweep SKILL.md Phase 1 item 2 reads tiers from config, defaults to defaultTier, and requires a recorded operator checkpoint for an escalation tier; step 5 teaches agent-def pinning + served-model verification (TASK-97 AC#1)
@@ -60,3 +60,16 @@ Model IDs resolved against the claude-api skill, per the never-author-from-memor
 
 Worktree: `.worktrees/task-106` on branch `task-106-model-tier-config` off origin/main. Root stays on main.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Generator slice landed (1558fd1). `pdlc/scripts/tiers.mjs` + `pdlc/templates/model-tiers.json` + `pdlc/templates/implementer-agent.md`.
+
+Verified by hand before commit:
+- open tier map: added a `fable` key to a scratch config, generated a valid `fable-implementer.md` pinned to claude-fable-5 with no code change (AC#1)
+- report vocabulary matches plant.mjs; hand-edited def reports `drifted` and survives untouched; `--force` replaces it (AC#2)
+- all 9 schema rejections are named errors at exit 2: unknown defaultTier/escalationTier, missing defaultTier, tier without model, tier without `for`, empty tiers, bad tier name, invalid JSON, missing config file (AC#3)
+
+Design note beyond the plan: drift now exits **nonzero in write mode too**, not just under `--check`. A drifted def means that tier's pin disagrees with the config and this run did not fix it; exiting 0 there would report success over a live config/pin mismatch — the same silent state the whole mechanism exists to prevent.
+<!-- SECTION:NOTES:END -->
