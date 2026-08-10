@@ -74,26 +74,42 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 ## Model tiers — who does what work
 
 A sweep dispatches each task's implementation to a subagent; which model that subagent runs
-on drives both cost and quality. The default ladder:
+on drives both cost and quality. **The posture: thinking is Opus/Fable-tier, execution is
+Sonnet/Haiku-tier.** The orchestrator plans, gates, and judges at the top of the ladder; the
+work of implementing a written spec runs at the cheapest tier that can hold it. An escalation
+tier exists for tasks whose judgment calls the spec does not already settle — reaching for it
+is an operator checkpoint, not an implementer's own call.
 
-| Tier | Model | For |
-|---|---|---|
-| default implementer | `claude-opus-5` | design work, cross-surface doctrine, anything with a real judgment call |
-| mechanical | `claude-sonnet-5` | work to an existing pattern — tests to a sibling standard, corpus hygiene |
-| fallback | `claude-opus-4-8` | when the subscription does not surface the primary |
+**Where the ladder lives: `.claude/model-tiers.json`.** That file — not this block — declares
+the tiers, their model IDs, their scopes, and which one is the default. It is a plain tracked
+file **outside every marker**: bumping a model ID or adding a tier is a one-line edit, no
+drift, no `--force`, no re-plant. Model families rev on independent cadences and new ones
+arrive unannounced, so the tier map is deliberately open — a tier this doctrine never
+anticipated is a config key, not a code change.
 
-**How a tier is pinned.** Put the model ID in the agent definition's frontmatter —
-`.claude/agents/<tier>-implementer.md`, `model: <id>`. That is the mechanism that holds. Do
-**not** rely on the dispatch call's `model` parameter: on 2026-07-31 it was observed silently
-ignored by this harness — dispatches meant for one model ran on the orchestrator's session
-model at ~2× the unit price before being killed (`docs/design/board-cost-test-runbook.md`,
-TASK-74 row). The frontmatter pin is what the harness actually honors.
+```
+.claude/model-tiers.json  →  pdlc/scripts/tiers.mjs  →  .claude/agents/*.md  →  harness
+       (you edit)              (regenerates)              (generated — do not edit)
+```
 
-**Which one is authoritative.** The table above is the **planted default** — doctrine,
-refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's `model:` is
-**authoritative at dispatch**: it is the model that actually runs. To change which model a tier
-resolves to, edit that one line in `.claude/agents/<tier>-implementer.md` — a plain tracked file
-**outside every marker**, no drift, no `--force`. The table recommends; the frontmatter pins.
+Regenerate after every config edit: `node <pdlc>/scripts/tiers.mjs --root .` (`--check` exits
+nonzero when a definition is stale, which is what CI and a sweep's precondition gate run).
+
+**How a tier is pinned.** The model ID reaches the harness through the agent definition's
+frontmatter — `.claude/agents/<tier>-implementer.md`, `model: <id>`. That is the mechanism
+that holds. Do **not** rely on the dispatch call's `model` parameter: on 2026-07-31 it was
+observed silently ignored by this harness — dispatches meant for one model ran on the
+orchestrator's session model at ~2× the unit price before being killed
+(`docs/design/board-cost-test-runbook.md`, TASK-74 row). The frontmatter pin is what the
+harness actually honors, which is why the config generates those files rather than replacing
+them.
+
+**Which one is authoritative.** This section is the **planted default** — posture and
+mechanism, refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's
+`model:` is **authoritative at dispatch**: it is the model that actually runs. The config is
+what you edit; the generated definition is what holds. Never hand-edit a generated definition
+— the generator reports it as `drifted` and refuses to overwrite it without `--force`, so a
+hand edit silently decouples the pin from the config until someone runs `--check`.
 
 <!-- pdlc:peer:backlog BEGIN -->
 ## Backlog.md — the board (officially supported peer)

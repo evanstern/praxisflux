@@ -44,7 +44,13 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
 **Lane N — tail (droppable):**
 - …
 
-Record the model tier + explicit model ID (plus the fallback ID for
+Tiers and their model IDs come from **`.claude/model-tiers.json`** (the host's tier config),
+not from memory — `tiers.mjs --root . --check` must exit 0 before these lanes are authored, or
+the IDs written here are not the IDs that would run. Default every task to the config's
+`defaultTier`; a tier marked `escalation: true` requires an operator checkpoint recorded
+before dispatch.
+
+Record the model tier + explicit model ID (plus that tier's fallback ID for
 subscription-unavailability, and which model actually served) + rubric justification on
 each board task at dispatch (one-way escalation only; escalations are operator
 checkpoints).
