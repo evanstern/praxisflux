@@ -15,7 +15,8 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: d79941ce7c3c17641ed073859d261e689d0b447e
+size_budget_exempt: at exactly 8000/8000 on main with zero headroom (TASK-103); the owed summary-style split is folded into TASK-95 by operator decision 2026-08-03. TASK-106 added ~230 chars cataloging the tier-config surface and takes this exemption rather than forcing the unplanned split under time pressure that TASK-103 exists to prevent. Remove when TASK-95 lands the split.
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -40,10 +41,12 @@ seam involved. One bullet per `test/*.test.mjs` file:
 - `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin registration +
   bootstrap SKILL frontmatter (name/version/description, backported from refactor-triage — spec 047);
   template markers carrying the 101 principles (`docs/principles.md`); `renderGrounding` token substitution, non-opted peer blocks stripped; the model-tier rubric (spec 048) — `##
-  Model tiers` inside the grounding markers before peer blocks, naming the
-  `.claude/agents/<tier>-implementer.md` `model:` pin, the agent def authoritative over the
-  planted-default table, IDs resolved against the live harness (`claude-api`); planting
-  fresh/append/idempotent,
+  Model tiers` inside the grounding markers before peer blocks, naming the agent-def
+  `model:` pin, authoritative over the planted default, IDs resolved against the live
+  harness (`claude-api`) — and its tier **config** surface (`pdlc/scripts/tiers.mjs`,
+  TASK-106): open tier map, generated `model:` equal to the config, named schema rejections,
+  `--check` exit codes, a hand-authored def `drifted` and never clobbered without `--force`,
+  the 2026-08-10 dispatch findings; planting fresh/append/idempotent,
   a drifted block never overwritten without `--force`, peer-change drift, `--check` writing nothing
   and exiting 1; the `peersOmitted` trace (one stderr notice per omitted peer, legacy sentinels readable); the `resolveProjectName` ladder (override > recorded > worktree gitdir
   parse > basename) so worktree plants render the PRIMARY name; opt-in root-guard planting

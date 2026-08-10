@@ -8,8 +8,10 @@ sources:
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/skills/design-rounds/SKILL.md
   - pdlc/scripts/plant.mjs
+  - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
-verified_against: 33b6fb248fc56c1697fce87098b2785343e2b496
+  - pdlc/templates/model-tiers.json
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # pdlc plugin
@@ -36,47 +38,14 @@ operator picks among options: [[pdlc-design-rounds]]. Each note carries its skil
 ## The planted grounding is a marked block, not a file
 
 Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
-`pdlc/templates/CLAUDE.md` — one decision buying three behaviors:
-
-- **Compose with an existing `CLAUDE.md`** — appended after the user's content, never clobbered.
-- **Refresh wholesale on update** — the block is boilerplate; user edits belong *outside* the markers.
-- **Honest drift handling** — a block differing from the current render reports `drifted`
-  and is never overwritten without `--force`; the skill diffs and gets consent.
-
-Peer conventions are nested `pdlc:peer:backlog` / `pdlc:peer:spec-kit` sub-blocks, stripped
-at render time unless opted in.
-
-The block's "Rules that always hold" carry the foundational ("101") praxis principles from
-`docs/principles.md` — **artifact-grounded action** (no action without a durable paper
-trail / real evidence) and **one TASK, one PR** (a SUBTASK never gets its own PR) — so
-every
-bootstrapped project inherits them; each peer sub-block adds that system's mapping
-(Backlog.md dotted-id subtasks ride the parent's PR; Spec Kit phases are not PR boundaries).
-Since 0.16.0 the one-TASK-one-PR rule carries P2's ratified refinements — the three-tier
-model and the reason-to-approve test (no PR without a stated reason for a human to
-approve); `test/pdlc.test.mjs` asserts both. Since 0.50.0 (bootstrap 0.8.0) the Backlog
-peer block also carries the **two-track landing rule** (TASK-85): board/bookkeeping
-commits (cards, status flips, notes, AC ticks) land direct on the default branch,
-deliverable work by PR — derived from the reason-to-approve test (a board card carries no
-reviewable decision), so it is one-TASK-one-PR applied, not an exception; where main-push
-is unavailable it degrades to riding the next branch, matching [[pdlc-sweep]]'s
-background-job / no-main-push mode. Since 0.14.0 the rules
-also carry a **corpus-loading** rule — [[grounded-corpus-spec]] v2 consumption always-on
-(INDEX-first routing, just-in-time notes, `CAPSULES.md` orientation). Since 0.34.0
-(bootstrap 0.6.0) the **Gates** rule states ship-reality instead of the blanket
-"plugins ship Stop hooks" overclaim (TASK-60): spec-bridge, educate, research,
-reorient, and team-review ship Stop hooks; grounding-wiki's freshness gate runs as
-check scripts and CI, not a hook — so a bootstrapped host is never told a gate exists
-that nothing installs. Since 0.52.0 (bootstrap 0.9.0) the block also plants a
-**`## Model tiers` section** (TASK-91): a default implementer→model ladder
-(`claude-opus-5` default, `claude-sonnet-5` mechanical, `claude-opus-4-8` fallback) plus
-the rule that a tier's authoritative pin is the `model:` in an agent definition's
-frontmatter (`.claude/agents/<tier>-implementer.md`) — not the dispatch-call `model`
-parameter, which the 2026-07-31 board-cost-test field case caught being silently ignored
-— so [[pdlc-sweep]]'s Phase 1 item 2 has a real planted location to read the rubric from.
-The bootstrap skill resolves those IDs against the live harness (its standing source is
-the `claude-api` skill), never from memory, and records which model actually served when
-a primary is unavailable.
+`pdlc/templates/CLAUDE.md`, buying three behaviors: it **composes** with an existing
+`CLAUDE.md` (appended, never clobbered), **refreshes wholesale** on update (user edits
+belong outside the markers), and handles drift **honestly** (a block differing from the
+current render reports `drifted` and is never overwritten without `--force`). Peer
+conventions ride nested `pdlc:peer:*` sub-blocks, stripped unless opted in. The block's
+content — the 101 principles and their per-peer mappings, the corpus-loading and Gates
+rules, and the `## Model tiers` section whose ladder lives in `.claude/model-tiers.json`
+rather than in the block — is covered in [[pdlc-grounding-block]].
 
 ## Deterministic core: scripts/plant.mjs
 

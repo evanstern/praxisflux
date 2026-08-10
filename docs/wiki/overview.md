@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 8bc07f4f1c26d528a0a6d24cf9323aea0a1fce80
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # praxisflux — system overview
@@ -98,7 +98,8 @@ at the invoking root.
   pilot — workflow, host runner service, run log, orchestrator findings).
 - The repo is itself PDLC-bootstrapped (dogfood): its own `CLAUDE.md` ends with the planted
   `pdlc:grounding` block (Backlog.md peer opted in; Spec Kit not — specs are hand-authored),
-  the `.pdlc` sentinel records the plant, and `.handoff/` is gitignored at the root.
+  the `.pdlc` sentinel records the plant, `.handoff/` is gitignored, and its dispatch tiers
+  ride the mechanism it ships (`.claude/model-tiers.json` → `tiers.mjs` → `.claude/agents/*`).
 - Foundational ("101") principles (`docs/principles.md`, the canonical statement, planted
   into every bootstrapped project by [[pdlc-plugin]]): **artifact-grounded action** — never
   act without a durable paper trail and/or gating on real physical evidence — and **one
