@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-10 13:24'
-updated_date: '2026-08-10 13:54'
+updated_date: '2026-08-10 14:18'
 labels:
   - pdlc
   - pdlc-sweep
@@ -43,7 +43,7 @@ Model IDs resolved against the claude-api skill, per the never-author-from-memor
 - [x] #6 sweep SKILL.md Phase 1 item 2 reads tiers from config, defaults to defaultTier, and requires a recorded operator checkpoint for an escalation tier; step 5 teaches agent-def pinning + served-model verification (TASK-97 AC#1)
 - [x] #7 This repo dogfoods: .claude/model-tiers.json planted, three agent defs regenerated (opus corrected to claude-opus-5 primary with claude-opus-4-8 fallback — TASK-97 AC#2), root CLAUDE.md re-planted
 - [ ] #8 Live dispatch proof: a dispatch to the regenerated sonnet-implementer is confirmed from the transcript to have been served by claude-sonnet-5
-- [ ] #9 docs/wiki/pdlc-plugin.md and pdlc-sweep.md amended NEEDS-REVIEW (not stamp-only) in the same PR
+- [x] #9 docs/wiki/pdlc-plugin.md and pdlc-sweep.md amended NEEDS-REVIEW (not stamp-only) in the same PR
 - [x] #10 Version bumps: marketplace/plugin 0.54.0->0.55.0, bootstrap SKILL 0.10.0->0.11.0, sweep SKILL 0.18.0->0.19.0
 <!-- AC:END -->
 
@@ -82,4 +82,15 @@ AC#8 (live dispatch proof) FAILED on first run and found three real defects. Thi
 **Finding 3 — the agent registry is read at session start.** `haiku-implementer` (newly generated, on disk) dispatched as "agent type not found"; `opus-implementer` dispatched reporting `claude-opus-4-8[1m]` — its **pre-regeneration** pin — while the file on disk already said `claude-opus-5`. So regenerate + dispatch in one session silently uses stale pins. Now doctrine in the planted block and bootstrap, plus a sweep precondition (regenerating mid-sweep requires ending the session before dispatching, or the lane runs at the old price).
 
 AC#8 stays UNCHECKED: a dispatch to a def carrying the host-form pin cannot be proven until this session restarts (Finding 3). The pins are correct on disk and `tiers.mjs --check` is green; the transcript proof is owed after restart.
+
+PR #128 opened, CI green (checks + install-path). Branch `task-106-model-tier-config`, 6 commits.
+
+AC#9 done: seven notes amended NEEDS-REVIEW (not stamped) and re-pinned. `pdlc-plugin` needed a summary-style split — its "planted grounding" section was 3,499 chars and the tier paragraph pushed the note over 8,000; the block's content moved to a new `pdlc-grounding-block` note, parent keeps a paragraph + wikilink, INDEX/CAPSULES regenerated. `pdlc-sweep-history-early` got a supersession pointer rather than a bare re-pin: its 0.41.0 entry taught "dispatch passes the ID explicitly" as live instruction a reader could still follow.
+
+Three gate-caught corrections during landing, each a real defect rather than a hook nuisance:
+- 0.55.0 was already the version at the branch point, so the earlier auto-sync was a no-op, not a bump — the pre-push version gate caught it; went to 0.56.0.
+- Amending `test-suite-catalog-plugins-gates.md` staled its parent `test-suite-catalog-plugins.md` (which pins it). Re-pinned; honest, since the hub summarizes children without restating tier detail.
+- The 0.56.0 bump rewrote every plugin.json, staling 11 notes. Version-string-only diff = RE-PIN-ONLY under the wiki-update classifier.
+
+Also worth recording: twice during this task the shell's cwd drifted to a DIFFERENT checkout (/Users/evanstern/projects/praxis), and gate/test results from there read as false passes (405 tests / 0.54.0 / "wiki ok") until caught. Every later command pinned the worktree explicitly with `cd ... || exit 1`.
 <!-- SECTION:NOTES:END -->
