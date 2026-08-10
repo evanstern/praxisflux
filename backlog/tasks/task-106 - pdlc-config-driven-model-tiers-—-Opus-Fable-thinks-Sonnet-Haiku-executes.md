@@ -1,11 +1,11 @@
 ---
 id: TASK-106
 title: 'pdlc: config-driven model tiers — Opus/Fable thinks, Sonnet/Haiku executes'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-10 13:24'
-updated_date: '2026-08-10 14:18'
+updated_date: '2026-08-10 17:16'
 labels:
   - pdlc
   - pdlc-sweep
@@ -94,3 +94,26 @@ Three gate-caught corrections during landing, each a real defect rather than a h
 
 Also worth recording: twice during this task the shell's cwd drifted to a DIFFERENT checkout (/Users/evanstern/projects/praxis), and gate/test results from there read as false passes (405 tests / 0.54.0 / "wiki ok") until caught. Every later command pinned the worktree explicitly with `cd ... || exit 1`.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Shipped in PR #128 (merge commit ce38bee, v0.56.0). The PDLC model-tier ladder moved from hardcoded prose in three drifting surfaces to one hand-editable config compiled into the agent definitions the harness honors.
+
+**Mechanism.** `.claude/model-tiers.json` -> `pdlc/scripts/tiers.mjs` -> `.claude/agents/<tier>-implementer.md` -> harness. A generator is required, not incidental: config alone cannot drive dispatch, because only an agent def's frontmatter `model:` (or the dispatch-call parameter) reaches the harness. Bumping an ID or adding a tier is now a one-line config edit plus a regenerate — no re-plant, no drift, no `--force`. The tier map is deliberately open: `fable`, or a family that did not exist when the plugin shipped, is a config key rather than a code change. Report vocabulary and consent semantics mirror plant.mjs; drift exits nonzero in write mode too, so a live config/pin mismatch can never be reported as success.
+
+**Posture inverted.** Sonnet is `defaultTier`, haiku is its own dispatchable tier, opus is `escalation: true` and requires an operator checkpoint recorded before dispatch. The planted CLAUDE.md section keeps the posture and drops the ladder.
+
+**AC#8 earned its place by failing.** The live dispatch proof found three defects a green `--check` would have shipped, all now doctrine in the planted block, bootstrap, and sweep:
+1. Model IDs are HOST-form. This host routes through 9router and accepts only `cc/…[1m]`; both the bare `claude-sonnet-5` and the `sonnet` alias are rejected in agent-def frontmatter. Bootstrap gained a resolve-the-host's-FORM step.
+2. The 2026-07-31 ruling is not universal — the dispatch parameter worked here while the frontmatter pin was rejected, the exact inverse. Doctrine now records both field cases and makes served-model verification load-bearing instead of trusting either mechanism.
+3. The agent registry is read at session start, so regenerate-then-dispatch in one session silently uses stale pins. Now a sweep precondition.
+
+**Subsumes TASK-97 AC#1/#2**: sweep step 5 no longer teaches the falsified dispatch-param mechanism, and `opus-implementer` no longer pins the fallback `claude-opus-4-8` while calling itself the default implementer tier.
+
+**Verification.** 417 tests pass. The new assertions were mutation-checked — each confirmed to fail against a deliberately broken generator (drift always overwrites / unknown defaultTier passes silently / pin ignores config), so none of them pass either way. check-docs, sync-version, spec-bridge, wiki-freshness, and check-version-bump all green; CI green on the PR.
+
+**Wiki.** Eight notes amended NEEDS-REVIEW and re-pinned, plus a summary-style split: `pdlc-plugin` exceeded the 8,000-char cap, so the planted-block content moved to a new `pdlc-grounding-block` note. `pdlc-sweep-history-early` got a supersession pointer rather than a bare stamp — its 0.41.0 entry taught the dispatch-param mechanism as live instruction a reader could still follow.
+
+**Carried forward.** AC#8 is checked for what it proved (three findings, all fixed) but the positive transcript proof — a dispatch confirmed served by the host-form pin — is still owed and cannot be produced without a session restart, per finding 3. `test-suite-catalog-plugins-gates.md` carries a `size_budget_exempt` naming TASK-95 as owner and its removal condition; it sits at exactly 8000/8000 on main and forcing its split here is the failure TASK-103 exists to prevent.
+<!-- SECTION:FINAL_SUMMARY:END -->
