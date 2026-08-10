@@ -32,6 +32,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
 - [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate, opt-in project-gate check
 - [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit)
+- [[pdlc-grounding-block]] — what bootstrap plants into a host CLAUDE.md: the marked-block mechanism, the 101 principles and their peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json
 - [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through claim+link → spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine and a per-task spec+plan+tasks-or-escape-line Output gate
 - [[pdlc-sweep-history]] — entry point and release→child index for the sweep skill's doctrine history, split summary-style into [[pdlc-sweep-history-early]] and [[pdlc-sweep-history-recent]]
 - [[pdlc-sweep-history-early]] — doctrine history, 0.12.1 through 0.42.0: merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, refactor-triage handoff, model-ID pinning, phase-scoped dispatch

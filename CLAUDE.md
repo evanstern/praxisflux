@@ -113,7 +113,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.52.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.55.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -147,9 +147,13 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 - **pdlc** — the lifecycle's own verbs: `pdlc:bootstrap` (re)stamps this grounding after
   plugin upgrades; `/pdlc:sweep` orchestrates a set of board tasks through the whole loop —
   an authored, operator-signed-off runbook, then spec → PR → merge → re-ground per task,
-  parallel lanes with serial merges; `/pdlc:refactor-triage` closes the loop after a sweep —
-  evaluate the merged work for debt and drift, triage every finding with the operator, and
-  card accepted items back onto the board as sweepable tasks.
+  parallel lanes with serial merges; `/pdlc:design-rounds` handles the task a sweep cannot
+  start — work whose deliverable is not knowable until an operator has seen options and
+  picked one (UI and visual design, competing layouts), running comparable rounds against a
+  long-running worktree and ending with a decision record plus a spec written against the
+  choice; `/pdlc:refactor-triage` closes the loop after a sweep — evaluate the merged work
+  for debt and drift, triage every finding with the operator, and card accepted items back
+  onto the board as sweepable tasks.
 
 ## Rules that always hold
 
@@ -185,26 +189,63 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 ## Model tiers — who does what work
 
 A sweep dispatches each task's implementation to a subagent; which model that subagent runs
-on drives both cost and quality. The default ladder:
+on drives both cost and quality. **The posture: thinking is Opus/Fable-tier, execution is
+Sonnet/Haiku-tier.** The orchestrator plans, gates, and judges at the top of the ladder; the
+work of implementing a written spec runs at the cheapest tier that can hold it. An escalation
+tier exists for tasks whose judgment calls the spec does not already settle — reaching for it
+is an operator checkpoint, not an implementer's own call.
 
-| Tier | Model | For |
-|---|---|---|
-| default implementer | `claude-opus-5` | design work, cross-surface doctrine, anything with a real judgment call |
-| mechanical | `claude-sonnet-5` | work to an existing pattern — tests to a sibling standard, corpus hygiene |
-| fallback | `claude-opus-4-8` | when the subscription does not surface the primary |
+**Where the ladder lives: `.claude/model-tiers.json`.** That file — not this block — declares
+the tiers, their model IDs, their scopes, and which one is the default. It is a plain tracked
+file **outside every marker**: bumping a model ID or adding a tier is a one-line edit, no
+drift, no `--force`, no re-plant. Model families rev on independent cadences and new ones
+arrive unannounced, so the tier map is deliberately open — a tier this doctrine never
+anticipated is a config key, not a code change.
 
-**How a tier is pinned.** Put the model ID in the agent definition's frontmatter —
-`.claude/agents/<tier>-implementer.md`, `model: <id>`. That is the mechanism that holds. Do
-**not** rely on the dispatch call's `model` parameter: on 2026-07-31 it was observed silently
-ignored by this harness — dispatches meant for one model ran on the orchestrator's session
-model at ~2× the unit price before being killed (`docs/design/board-cost-test-runbook.md`,
-TASK-74 row). The frontmatter pin is what the harness actually honors.
+```
+.claude/model-tiers.json  →  pdlc/scripts/tiers.mjs  →  .claude/agents/*.md  →  harness
+       (you edit)              (regenerates)              (generated — do not edit)
+```
 
-**Which one is authoritative.** The table above is the **planted default** — doctrine,
-refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's `model:` is
-**authoritative at dispatch**: it is the model that actually runs. To change which model a tier
-resolves to, edit that one line in `.claude/agents/<tier>-implementer.md` — a plain tracked file
-**outside every marker**, no drift, no `--force`. The table recommends; the frontmatter pins.
+Regenerate after every config edit: `node <pdlc>/scripts/tiers.mjs --root .` (`--check` exits
+nonzero when a definition is stale, which is what CI and a sweep's precondition gate run).
+
+**Write the model ID in the form THIS host accepts.** There is no universal spelling. A
+plain Claude Code install takes the bare API ID (`claude-sonnet-5`) or an alias (`sonnet`); a
+host behind a routing proxy may require its own augmented form (e.g. `cc/claude-sonnet-5[1m]`),
+and on such a host the bare ID and the alias are both **rejected**. Resolve your host's form
+once — the `ANTHROPIC_DEFAULT_*_MODEL` env values are a strong hint, and a one-off dispatch
+proves it — then write that form in the config. This is precisely why the ladder is host
+config and not plugin doctrine: the right ID depends on where you are running.
+
+**How a tier is pinned — two mechanisms, neither assumed.** The pin can reach the harness
+through the agent definition's frontmatter (`.claude/agents/<tier>-implementer.md`,
+`model: <id>`) or through the dispatch call's `model` parameter. **Both have been observed
+failing, on different hosts:** on 2026-07-31 the dispatch-call parameter was silently ignored
+and dispatches ran on the orchestrator's session model at ~2× the unit price
+(`docs/design/board-cost-test-runbook.md`, TASK-74 row); on 2026-08-10 the reverse — the
+frontmatter pin rejected an ID the dispatch parameter resolved fine. Prefer the frontmatter
+pin, because it is durable across sessions where the parameter is per-call, and pass the
+parameter too where it works. But **treat neither as proof.** The load-bearing rule is the
+one below.
+
+**Verify the served model; never infer it.** A green `--check` proves the file says Sonnet,
+not that Sonnet ran. Confirm the model that actually served from the first dispatch's
+transcript before launching siblings — a wrong pin caught after one agent is a rounding
+error; caught after a lane of them, it is the whole lane's budget.
+
+**Regenerating is not enough — the agent registry is read at session start.** A newly
+generated definition is invisible to dispatch until the session restarts, and an edited one
+keeps dispatching its *old* pin (observed 2026-08-10: a new tier reported "agent type not
+found" while an existing tier dispatched with its pre-regeneration model). After a config
+edit: regenerate, then **restart the session** before trusting any dispatch.
+
+**Which one is authoritative.** This section is the **planted default** — posture and
+mechanism, refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's
+`model:` is **authoritative at dispatch**: it is the model that actually runs. The config is
+what you edit; the generated definition is what holds. Never hand-edit a generated definition
+— the generator reports it as `drifted` and refuses to overwrite it without `--force`, so a
+hand edit silently decouples the pin from the config until someone runs `--check`.
 
 <!-- pdlc:peer:backlog BEGIN -->
 ## Backlog.md — the board (officially supported peer)
@@ -229,6 +270,8 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
+
+
 
 
 

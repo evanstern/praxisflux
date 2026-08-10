@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.18.0
+version: 0.19.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -93,19 +93,30 @@ derive, in this order:
      develop in parallel lanes on the promise of an easy merge.
    - The biggest slice gets a lane with nothing else fighting for its files.
    - Low-priority polish goes in the tail lane, droppable without breaking anything.
-2. **Model tier per task**, from the host project's rubric (e.g. a constitution's
-   tiered-workflow principle; in a `pdlc:bootstrap`-planted project the rubric is the
-   CLAUDE.md `## Model tiers` section, whose ladder is the planted default and whose
-   `.claude/agents/<tier>-implementer.md` frontmatter `model:` is the authoritative pin),
-   with the justification recorded — and, next to each tier
-   label, the **explicit model ID** the tier resolves to (e.g. `claude-opus-5`), plus a
-   **fallback ID** for subscription-unavailability (the operator's 2026-07-31 ruling —
-   `claude-opus-4-8` when `claude-opus-5` is unavailable in the subscription — is the
-   field case) and, recorded at dispatch, which model actually served. A bare
-   tier name is not a valid runbook entry: tier names have no mechanical resolution at
-   dispatch time, so an unpinned tier silently resolves to the orchestrator session's
-   model. Record tier + model ID + justification on the board task at dispatch time,
-   not just in the runbook.
+2. **Model tier per task**, from the host project's rubric. In a `pdlc:bootstrap`-planted
+   project the rubric is **`.claude/model-tiers.json`** — read it, don't infer it: it
+   declares the tiers, each tier's model ID and scope, `defaultTier`, and which tiers are
+   escalation-gated. (Other hosts may express the same thing elsewhere, e.g. a
+   constitution's tiered-workflow principle; the planted CLAUDE.md `## Model tiers` section
+   carries the posture and points at the config.) Assign tiers by that config's posture:
+   **thinking is Opus/Fable-tier, execution is Sonnet/Haiku-tier** — a task whose judgment
+   calls the spec already settles runs at `defaultTier`, and reaching for a tier marked
+   `escalation: true` is an **operator checkpoint recorded before dispatch**, never the
+   orchestrator's unilateral call. Record the justification — and, next to each tier label,
+   the **explicit model ID** the tier resolves to, plus that tier's `fallback` ID for
+   subscription-unavailability (the operator's 2026-07-31 ruling is the field case) and,
+   recorded at dispatch, which model actually served. A bare tier name is not a valid
+   runbook entry: tier names have no mechanical resolution at dispatch time, so an unpinned
+   tier silently resolves to the orchestrator session's model. Record tier + model ID +
+   justification on the board task at dispatch time, not just in the runbook.
+   **Precondition:** run `tiers.mjs --root . --check` before authoring the lanes — a
+   nonzero exit means a tier's generated agent definition no longer matches the config, so
+   the IDs you are about to write into the runbook are not the IDs that would run.
+   **If that check made you regenerate anything, end the session and resume before
+   dispatching.** The agent registry is read at session start: a newly generated tier
+   dispatches as "agent type not found", and an edited one keeps dispatching its *old* pin —
+   silently, at the old price (observed 2026-08-10). Regenerating mid-sweep and dispatching
+   in the same session is a silent wrong-model lane.
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
@@ -197,13 +208,23 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    bridge can only hold status to what the artifacts prove if it knows what the
    phases are.
 5. Dispatch implementation to the host's implementer agent at the runbook's tier —
-   **passing the runbook's explicit model ID on the dispatch call** (the Agent tool's
-   `model` param, or the host's equivalent), never relying on session-model
-   inheritance: an orchestrator often runs a price tier above the implementer intent,
-   and an unpinned dispatch inherits its model (field case: "Opus tier" implementers
-   silently ran on the orchestrator's Fable session model at 2x the unit price).
-   The board-task tier note Phase 1 item 2 requires lands here — including which model
-   actually served the dispatch.
+   **by naming that tier's generated agent definition** (`<tier>-implementer`, generated at
+   `.claude/agents/<tier>-implementer.md`), whose frontmatter `model:` is what this harness
+   actually honors. Never rely on session-model
+   inheritance: an orchestrator often runs a price tier above the implementer intent, and an
+   unpinned dispatch inherits its model (field case: "Opus tier" implementers silently ran on
+   the orchestrator's Fable session model at 2× the unit price). Pass the runbook's explicit
+   model ID on the dispatch call as well where the host honors it — but **assume neither
+   mechanism works until you have seen it work here.** Both have been observed failing, on
+   different hosts: the dispatch-call parameter silently ignored on 2026-07-31
+   (`docs/design/board-cost-test-runbook.md`, TASK-74 row), and the frontmatter pin rejecting
+   an ID the parameter resolved fine on 2026-08-10.
+   **Verify the served model from the first dispatch's transcript before launching sibling
+   dispatches** — this is the load-bearing step, not the pin: a wrong pin caught after one
+   agent is a rounding error; caught after a lane of them, it is the whole lane's budget. A
+   dispatch that *fails* is the cheap outcome; one that succeeds on the wrong model is the
+   expensive one, and only the transcript tells them apart. The board-task tier note Phase 1
+   item 2 requires lands here — including which model actually served the dispatch.
    **Dispatch phase-scoped:** one fresh implementer agent per tasks.md phase — or per
    explicitly-grouped small adjacent phases, the grouping being the orchestrator's
    recorded call; the default is one per phase — each dispatched at the runbook's

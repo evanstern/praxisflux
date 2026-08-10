@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 0ea82dc6d12b35b6853ef940369ee4c69a950d2d
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # pdlc:sweep — doctrine history
@@ -44,6 +44,15 @@ Two threads run across releases rather than living inside a single one:
   threads (the claim step, the drift-gate inventory, tick-before-sync in re-ground)
   back into agreement across SKILL, template, and this history note, after each had
   drifted out of step release by release.
+- **A reliable model pin, superseded 0.55.0.** 0.35.0 established pinning explicit model
+  IDs on the dispatch call; 0.52.0 moved the authority to the agent definition's
+  frontmatter after the 2026-07-31 field case caught the dispatch parameter being silently
+  ignored. 0.55.0 supersedes the idea that *either* is reliable: on 2026-08-10 the reverse
+  failure appeared — a host whose frontmatter pin rejected an ID the dispatch parameter
+  resolved fine. Doctrine now prefers the frontmatter pin (durable across sessions where
+  the parameter is per-call) but treats **verifying the served model from the transcript**
+  as the load-bearing step. Old-convention hosts should stop reading a green config or a
+  green `--check` as proof that a dispatch ran on the intended model.
 
 ## Connections
 

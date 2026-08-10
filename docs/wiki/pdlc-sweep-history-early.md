@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 0ea82dc6d12b35b6853ef940369ee4c69a950d2d
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # pdlc:sweep — doctrine history (0.12.1–0.42.0)
@@ -79,7 +79,11 @@ dispatch passes the ID explicitly (the Agent tool's `model` param or host
 equivalent), never session inheritance: an orchestrator often runs a price tier
 above the implementer intent (field case: "Opus tier" implementers ran on the Fable
 session model at 2x the price). The board record extends to tier + model ID +
-justification.
+justification. **Superseded twice since:** 0.52.0 moved the authoritative pin to the
+agent definition's frontmatter after the dispatch parameter was caught being silently
+ignored (2026-07-31), and 0.55.0 dropped the premise that either mechanism is reliable —
+see [[pdlc-sweep-history]]'s superseded-conventions summary. Read this entry as origin,
+not as instruction.
 
 Since 0.42.0 (skill 0.11.0) dispatch is **phase-scoped** (TASK-87): one fresh
 implementer per tasks.md phase (or explicitly-grouped small adjacent phases, the

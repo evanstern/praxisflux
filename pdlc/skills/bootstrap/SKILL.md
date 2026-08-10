@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.10.0
+version: 0.11.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
 ---
 
@@ -110,47 +110,88 @@ a default**:
 4. Run the plant for real (same command without `--check`, plus `--force` only after the
    consent above). This writes the `CLAUDE.md` block, the `.pdlc` sentinel (version +
    resolved name + peer choices), and gitignores `.handoff/` — all idempotent.
+5. Plant the model-tier config and generate the implementer agent definitions — see
+   **Model tiers** below. This is a second planting step with its own files and its own
+   drift/consent semantics; `plant.mjs` does not do it.
 
-## Model-tier IDs — resolve before you trust them
+## Model tiers — plant the config, generate the definitions
 
-The planted block carries a `## Model tiers` section: a default tier→model ladder plus the
-rule that a tier's live pin is the `model:` in `.claude/agents/<tier>-implementer.md`'s
-frontmatter, not the dispatch-call parameter. Bootstrap plants that doctrine but **does not**
-write the agent definitions (a separate change with its own drift/consent semantics) — the
-operator authors them. Your job is to keep the IDs honest:
+The planted block carries a `## Model tiers` section: the posture (thinking is Opus/Fable-tier,
+execution is Sonnet/Haiku-tier), a pointer to the config, and the rule that a tier's live pin
+is the `model:` in `.claude/agents/<tier>-implementer.md`'s frontmatter, not the dispatch-call
+parameter. The **ladder itself** lives in `.claude/model-tiers.json`, and bootstrap plants both
+halves:
 
-1. **Resolve, never author from memory.** Model IDs date fast. The standing source for current
-   IDs is the **`claude-api` skill** — consult it at plant time and reconcile the planted
-   defaults (`claude-opus-5` default implementer, `claude-sonnet-5` mechanical,
-   `claude-opus-4-8` fallback) against what it reports. Resolve first, then plant.
-2. **Availability check = the harness's own agent-definition surface.** A tier's ID is
-   "available" only if this harness/subscription will accept it as `model:` in an agent
-   definition. An ID the harness rejects there is not available, whatever a table says.
-3. **Fallback when the primary is unavailable.** If the subscription does not surface a tier's
-   primary ID, use the documented fallback (`claude-opus-4-8`) and **record which model
-   actually served** — the 2026-07-31 operator ruling the sweep skill already carries. The
+1. **Plant the config** — copy `${CLAUDE_PLUGIN_ROOT}/templates/model-tiers.json` to
+   `<root>/.claude/model-tiers.json` **only when absent**. It is the operator's file: if one
+   already exists, leave it exactly as it is. Re-running bootstrap must never revert a tier
+   the host added or a model ID the host bumped.
+2. **Generate the agent definitions** —
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/tiers.mjs --root <root> [--check]`. Preview with
+   `--check` first (same convention as `plant.mjs`); it reports per tier `created`,
+   `unchanged`, `replaced`, or `drifted`. A `drifted` definition is one this generator did not
+   write, or one edited by hand — diff it, get consent, then re-run with `--force`, exactly as
+   you would for a drifted CLAUDE.md block. Never silently discard the operator's text.
+
+Model IDs date fast, and the config is where they live, so keep them honest:
+
+1. **Resolve, never author from memory.** The standing source for current IDs is the
+   **`claude-api` skill** — consult it at plant time and reconcile the template's defaults
+   against what it reports **before** writing the config. Never type a model ID from memory
+   into `model-tiers.json`; a hallucinated ID becomes a pin that fails at dispatch.
+2. **Resolve the host's ID FORM too, not just the ID.** The `claude-api` skill gives you the
+   bare API ID (`claude-sonnet-5`). That is what a plain install wants — but a host behind a
+   routing proxy may require an augmented form (e.g. `cc/claude-sonnet-5[1m]`) and **reject
+   both the bare ID and the alias** in agent-def frontmatter. Check the host before writing
+   the config: `ANTHROPIC_DEFAULT_*_MODEL` in `~/.claude/settings.json` (and any
+   `ANTHROPIC_BASE_URL` pointing at a local proxy) shows the form this host actually speaks.
+   Write **that** form into `model-tiers.json`. Field case 2026-08-10: a 9router host rejected
+   `claude-sonnet-5` and `sonnet` alike, and accepted `cc/claude-sonnet-5[1m]`.
+3. **Availability check = a real dispatch, not a table.** A tier's ID is "available" only if
+   this harness accepts it as `model:` in an agent definition **and a dispatch to that agent
+   actually returns**. Prove it once per host with a throwaway dispatch that asks the agent to
+   state its model, and compare what it reports against the config. An ID the harness rejects
+   is not available, whatever any table says — and a definition that dispatches successfully
+   on the *wrong* model is worse than one that fails loudly.
+4. **Regenerating does not take effect until the session restarts.** The agent registry is
+   read at session start: a newly generated tier is "not found" until then, and an edited one
+   keeps dispatching its **old** pin. Tell the user to restart before relying on a change.
+5. **Fallback when the primary is unavailable.** If the subscription does not surface a tier's
+   primary ID, use that tier's `fallback` from the config and **record which model actually
+   served** — the 2026-07-31 operator ruling the sweep skill already carries. The per-tier
    fallback slot exists for exactly this.
+6. **The tier map is open.** Do not treat the template's three tiers as the allowed set. A host
+   that wants a `fable` tier, or a family that did not exist when this plugin shipped, adds a
+   key — the generator has no closed list to update.
 
 **Refresh path — two doors, don't confuse them:**
 
-- **The planted doctrine** (the ladder and the mechanism) changes by re-running
+- **The planted doctrine** (the posture and the mechanism) changes by re-running
   `pdlc:bootstrap`: the block drifts → diff → consent → re-plant with `--force`, the same path
   every other block change takes.
-- **A live pin** (which model a tier actually resolves to) changes by editing the `model:` line
-  in `.claude/agents/<tier>-implementer.md` — a plain tracked file **outside every marker**, no
-  drift, no `--force`. Superseding a model is a one-line edit there, not a re-plant.
+- **A live pin** (which model a tier resolves to, or which tiers exist at all) changes by
+  editing `.claude/model-tiers.json` and re-running `tiers.mjs` — a plain tracked file
+  **outside every marker**, no drift, no `--force`. Superseding a model is a one-line config
+  edit plus a regenerate, not a re-plant. **Do not reach for the agent definition itself**: it
+  is generated, and hand-editing it decouples the pin from the config until the next `--check`
+  catches it.
 
 ## Output gate
 
 1. Re-run with `--check`: it must exit 0 (nothing left to change) and report
-   `claudeMd: unchanged`.
+   `claudeMd: unchanged`. Re-run `tiers.mjs --root <root> --check` too: it must exit 0 with
+   every tier `unchanged` — a nonzero exit means a definition is missing or its pin no longer
+   matches the config.
 2. Verify on disk — never claim success without looking: `<root>/CLAUDE.md` contains the
    `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), the heading names
    the **project** (not a worktree/scratch folder), `<root>/.pdlc` records the resolved
    `name` and the right peers (each declined peer under `peersOmitted`), `.gitignore`
-   contains `.handoff/`. If the root-guard hook was opted in, `.pdlc`'s `hooks` lists
-   `root-guard`, both `.claude/hooks/root-guard-hook.mjs` and `.claude/hooks/shell-scan.mjs`
-   exist, and `.claude/settings.json` carries the two `PreToolUse` entries.
+   contains `.handoff/`. `<root>/.claude/model-tiers.json` exists and every tier it declares
+   has a generated `<root>/.claude/agents/<tier>-implementer.md` whose frontmatter `model:`
+   **matches the config** — read the two and compare, don't assume the generator ran. If the
+   root-guard hook was opted in, `.pdlc`'s `hooks` lists `root-guard`, both
+   `.claude/hooks/root-guard-hook.mjs` and `.claude/hooks/shell-scan.mjs` exist, and
+   `.claude/settings.json` carries the two `PreToolUse` entries.
 3. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
    skipped because `backlog/` existed), and **left untouched** (everything outside the
    markers; all user content).

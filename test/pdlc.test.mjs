@@ -7,6 +7,7 @@ import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { generate, validateConfig, agentPath, CONFIG_PATH, GENERATED_MARKER } from "../pdlc/scripts/tiers.mjs";
 import { parseFrontmatter } from "../lib/markdown.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
@@ -525,4 +526,215 @@ test("unknown hooks are rejected; HOOKS names root-guard", () => {
     assert.deepEqual(HOOKS, ["root-guard"]);
     assert.throws(() => plant(root, opts({ peers: [], hooks: ["danger"] })), /unknown hook/);
   } finally { done(); }
+});
+
+// --- model-tier config → generated agent definitions (TASK-106) ---
+// The chain under test: .claude/model-tiers.json → tiers.mjs → .claude/agents/*.md → harness.
+// The harness honors ONLY the generated def's frontmatter `model:` (the dispatch-call param was
+// observed silently ignored on 2026-07-31), so these assertions guard the pin, not the prose.
+
+const TIERS_TEMPLATE = join(repo, "pdlc", "templates", "implementer-agent.md");
+const TIERS_CLI = join(repo, "pdlc", "scripts", "tiers.mjs");
+const tierOpts = (extra = {}) => ({ templatePath: TIERS_TEMPLATE, ...extra });
+
+/** A project root carrying `config` at .claude/model-tiers.json. */
+function tierProj(config) {
+  const { root, done } = proj();
+  mkdirSync(join(root, ".claude"), { recursive: true });
+  writeFileSync(join(root, CONFIG_PATH.replace("/", "/")), JSON.stringify(config, null, 2));
+  return { root, done };
+}
+
+/** The template's own planted default — what bootstrap copies into a fresh host. */
+function plantedConfig() {
+  return JSON.parse(readFileSync(join(repo, "pdlc", "templates", "model-tiers.json"), "utf8"));
+}
+
+/** Run the tiers CLI, returning its exit status (0 when it throws nothing). */
+function tiersCli(args) {
+  const r = spawnSync(process.execPath, [TIERS_CLI, ...args], { encoding: "utf8" });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+
+test("the planted tier config is valid and encodes the Sonnet-default / Opus-escalation posture", () => {
+  const config = plantedConfig();
+  assert.doesNotThrow(() => validateConfig(config));
+  // Execution is the default; thinking is reached for deliberately. This is the posture the
+  // planted CLAUDE.md states in prose — asserted here so the two cannot drift apart.
+  assert.equal(config.defaultTier, "sonnet", "an unmarked task must default to the execution tier");
+  assert.equal(config.tiers[config.escalationTier].escalation, true, "the escalation tier must be marked escalation:true");
+  assert.ok(config.tiers.haiku, "the cheap execution tier ships by default");
+});
+
+test("generated agent definitions pin exactly the model IDs the config declares", () => {
+  const config = plantedConfig();
+  const { root, done } = tierProj(config);
+  try {
+    const report = generate(root, tierOpts({ config }));
+    for (const [name, tier] of Object.entries(config.tiers)) {
+      assert.equal(report.agents[name].status, "created");
+      const fm = parseFrontmatter(readFileSync(join(root, agentPath(name)), "utf8"));
+      // The pin is the whole point: a def whose model: drifts from the config is the silent
+      // wrong-model dispatch this mechanism exists to prevent.
+      assert.equal(fm.model, tier.model, `${name} must pin ${tier.model}`);
+      assert.equal(fm.name, `${name}-implementer`, "agent name follows the tier name");
+    }
+  } finally { done(); }
+});
+
+test("a tier the plugin never anticipated generates a valid pinned definition", () => {
+  // The extensibility claim: model families rev on independent cadences and new ones arrive
+  // unannounced, so adding a tier must be a config key, never a code change.
+  const config = {
+    configVersion: 1,
+    defaultTier: "sonnet",
+    tiers: {
+      sonnet: { model: "claude-sonnet-5", for: "execution" },
+      fable: { model: "claude-fable-5", escalation: true, for: "the hardest long-horizon reasoning" },
+    },
+  };
+  const { root, done } = tierProj(config);
+  try {
+    const report = generate(root, tierOpts({ config }));
+    assert.equal(report.agents.fable.status, "created");
+    const fm = parseFrontmatter(readFileSync(join(root, agentPath("fable")), "utf8"));
+    assert.equal(fm.model, "claude-fable-5", "an unanticipated tier still pins its declared ID");
+    assert.match(fm.description, /ESCALATION TIER/, "escalation:true surfaces in the description an orchestrator reads");
+  } finally { done(); }
+});
+
+test("a per-tier fallback reaches both the description and the agent body", () => {
+  const config = plantedConfig();
+  const { root, done } = tierProj(config);
+  try {
+    generate(root, tierOpts({ config }));
+    const opus = readFileSync(join(root, agentPath("opus")), "utf8");
+    assert.match(opus, /claude-opus-4-8/, "the fallback ID must reach the def");
+    assert.match(opus, /actually served/, "the record-what-served rule rides with the fallback");
+  } finally { done(); }
+});
+
+test("every schema rejection is a NAMED error, never a silent skip", () => {
+  // A tier that fails to resolve must fail loudly: an unpinned dispatch silently inherits the
+  // orchestrator's session model, which is the expensive failure mode (2026-07-31 field case).
+  const ok = { model: "m", for: "f" };
+  const cases = [
+    [{ tiers: { a: ok } }, /defaultTier/, "missing defaultTier"],
+    [{ defaultTier: "ghost", tiers: { a: ok } }, /not a declared tier/, "unknown defaultTier"],
+    [{ defaultTier: "a", escalationTier: "ghost", tiers: { a: ok } }, /not a declared tier/, "unknown escalationTier"],
+    [{ defaultTier: "a", tiers: {} }, /empty/, "no tiers declared"],
+    [{ defaultTier: "a", tiers: { a: { for: "f" } } }, /missing a "model"/, "tier without a model ID"],
+    [{ defaultTier: "a", tiers: { a: { model: "m" } } }, /missing a "for"/, "tier without a scope"],
+    [{ defaultTier: "A b", tiers: { "A b": ok } }, /lowercase/, "tier name that is not filename-safe"],
+    [{ defaultTier: "a", tiers: { a: { model: "m", for: "f", fallback: 7 } } }, /fallback/, "non-string fallback"],
+  ];
+  for (const [config, pattern, label] of cases) {
+    assert.throws(() => validateConfig(config), pattern, label);
+  }
+});
+
+test("--check exits nonzero while a definition is missing or stale, zero once in sync", () => {
+  const config = plantedConfig();
+  const { root, done } = tierProj(config);
+  try {
+    assert.equal(tiersCli(["--root", root, "--check"]).status, 1, "missing defs → exit 1");
+    assert.equal(tiersCli(["--root", root]).status, 0, "generating for real succeeds");
+    assert.equal(tiersCli(["--root", root, "--check"]).status, 0, "in sync → exit 0");
+
+    // Bump a model ID the way an operator would: edit the config, not the def.
+    const bumped = plantedConfig();
+    bumped.tiers.sonnet.model = "claude-sonnet-6";
+    writeFileSync(join(root, CONFIG_PATH), JSON.stringify(bumped, null, 2));
+    assert.equal(tiersCli(["--root", root, "--check"]).status, 1, "a stale pin must fail --check");
+    assert.equal(tiersCli(["--root", root]).status, 0, "regenerating clears it");
+    const fm = parseFrontmatter(readFileSync(join(root, agentPath("sonnet")), "utf8"));
+    assert.equal(fm.model, "claude-sonnet-6", "the regenerated def carries the bumped ID");
+  } finally { done(); }
+});
+
+test("a hand-authored definition is reported drifted and never silently overwritten", () => {
+  const config = plantedConfig();
+  const { root, done } = tierProj(config);
+  try {
+    generate(root, tierOpts({ config }));
+    const mine = join(root, agentPath("sonnet"));
+    writeFileSync(mine, "---\nname: sonnet-implementer\nmodel: my-own-pin\n---\nhand written\n");
+
+    const report = generate(root, tierOpts({ config }));
+    assert.equal(report.agents.sonnet.status, "drifted");
+    assert.match(readFileSync(mine, "utf8"), /hand written/, "the operator's file survives untouched");
+
+    // Drift must be loud in WRITE mode too — exiting 0 there would report success over a live
+    // config/pin mismatch, the same silent state the mechanism exists to prevent.
+    assert.equal(tiersCli(["--root", root]).status, 1, "drift fails the write-mode run");
+    assert.match(readFileSync(mine, "utf8"), /hand written/, "still not clobbered by the CLI run");
+
+    assert.equal(tiersCli(["--root", root, "--force"]).status, 0, "--force is the consent path");
+    assert.doesNotMatch(readFileSync(mine, "utf8"), /hand written/, "--force replaces it");
+    assert.match(readFileSync(mine, "utf8"), new RegExp(GENERATED_MARKER.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  } finally { done(); }
+});
+
+test("a stale GENERATED definition refreshes without --force", () => {
+  // Regenerating our own output is not a consent event; only the operator's text is protected.
+  const config = plantedConfig();
+  const { root, done } = tierProj(config);
+  try {
+    generate(root, tierOpts({ config }));
+    const p = join(root, agentPath("haiku"));
+    writeFileSync(p, readFileSync(p, "utf8").replace("You are a dispatched implementer", "STALE"));
+    assert.equal(generate(root, tierOpts({ config })).agents.haiku.status, "replaced");
+    assert.match(readFileSync(p, "utf8"), /You are a dispatched implementer/);
+  } finally { done(); }
+});
+
+test("the CLI fails with a named error and exit 2 when the config is absent or unparseable", () => {
+  const { root, done } = proj();
+  try {
+    let r = tiersCli(["--root", root]);
+    assert.equal(r.status, 2, "absent config exits 2");
+    assert.match(r.stderr, /not found/, "and says so by name");
+
+    mkdirSync(join(root, ".claude"), { recursive: true });
+    writeFileSync(join(root, CONFIG_PATH), "{not json");
+    r = tiersCli(["--root", root]);
+    assert.equal(r.status, 2, "unparseable config exits 2");
+    assert.match(r.stderr, /invalid JSON/, "and names the parse failure");
+  } finally { done(); }
+});
+
+test("the planted tier section points at the config and warns off hand-editing generated defs", () => {
+  const section = tierSection();
+  assert.match(section, /model-tiers\.json/, "the section must name where the ladder actually lives");
+  assert.match(section, /tiers\.mjs/, "and how to regenerate after a config edit");
+  // The block must not carry a LADDER — a tier→model table here is what made a model bump a
+  // re-plant + consent + --force. Naming an ID inline as an illustrative example is fine (the
+  // host-form guidance needs one); what must be gone is any tier label paired with an ID.
+  const ladderRow = /\|\s*(default implementer|mechanical|fallback|escalation)\s*\|/i;
+  assert.doesNotMatch(section, ladderRow, "no tier→model ladder table in the planted block");
+  assert.doesNotMatch(section, /^\s*\|\s*Tier\s*\|/m, "no tier table header in the planted block");
+});
+
+test("bootstrap and sweep both route through the config, not a hardcoded ladder", () => {
+  const bootstrap = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
+  assert.match(bootstrap, /model-tiers\.json/, "bootstrap must plant the config");
+  assert.match(bootstrap, /tiers\.mjs/, "bootstrap must generate the definitions");
+
+  const sweep = readFileSync(join(repo, "pdlc", "skills", "sweep", "SKILL.md"), "utf8");
+  assert.match(sweep, /model-tiers\.json/, "sweep reads tiers from the config");
+  assert.match(sweep, /defaultTier/, "sweep names the default it assigns unmarked tasks");
+  // TASK-97: step 5 taught the dispatch-call param, the mechanism the board-cost-test falsified.
+  assert.match(sweep, /served model/i, "sweep must require served-model verification");
+});
+
+test("the planted tier section teaches host-form IDs, dual pin mechanisms, and the registry cache", () => {
+  // Three findings from the 2026-08-10 live-dispatch proof, each of which cost a failed
+  // dispatch to learn. They are doctrine because a host hits all three on day one.
+  const section = tierSection();
+  assert.match(section, /host/i, "the ID form is host-dependent — say so");
+  // Both mechanisms have now been observed failing, on different hosts. Asserting both dates
+  // keeps a future edit from quietly restoring the never-works claim about either one.
+  assert.match(section, /2026-07-31/, "the dispatch-param field case");
+  assert.match(section, /2026-08-10/, "the frontmatter-pin counter-case");
+  assert.match(section, /session/i, "the agent registry is read at session start");
 });

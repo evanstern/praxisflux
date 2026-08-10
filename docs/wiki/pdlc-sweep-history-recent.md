@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 0ea82dc6d12b35b6853ef940369ee4c69a950d2d
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # pdlc:sweep — doctrine history (0.43.0–)
@@ -97,6 +97,22 @@ relaxed a signed-off root-README gate to "only if check-docs demands" with no ru
 amendment, unread by any later step. **Superseded convention:** treating a recorded host
 precedent as license to relax doctrine quietly in spec prose rather than the runbook
 itself.
+
+Since 0.55.0 (skill 0.19.0) the **tier rubric moved from prose to config** (TASK-106,
+subsuming TASK-97): Phase 1 item 2 reads `.claude/model-tiers.json` — tier map, per-tier
+model ID and scope, `defaultTier`, `escalation: true` — instead of a planted ladder, and
+`tiers.mjs --check` becomes a Phase 1 precondition (a stale generated def means the IDs
+about to be written into the runbook are not the IDs that would run). Tiers follow the
+posture **thinking is Opus/Fable, execution is Sonnet/Haiku**, defaulting to `defaultTier`;
+an escalation tier needs an operator checkpoint recorded *before* dispatch. Step 5 is
+corrected: it taught passing the ID on the dispatch call, which the 2026-07-31
+board-cost-test falsified. **Superseded convention:** treating either pin mechanism as
+reliable — both have failed (the dispatch parameter ignored 2026-07-31 at ~2× price; the
+frontmatter pin rejecting an ID the parameter resolved fine 2026-08-10, a 9router host
+needing `cc/…[1m]`). The load-bearing rule is verifying the **served** model from the first
+transcript before siblings launch — only it separates a cheap failed dispatch from an
+expensive wrong-model one. Also: **regenerating mid-sweep needs a session restart** — the
+agent registry is read at session start, so an edited tier keeps its old pin.
 
 ## Connections
 

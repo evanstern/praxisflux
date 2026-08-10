@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 3448c7edba2cd004e10a2daaa7c4f1dd69c33363
+verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -17,11 +17,17 @@ phases, gate → work → gate:
 
 - **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered
   **lanes** (*develop in parallel, merge serially*; contract-shaped work leads — a
-  published interface unblocks consumers), model tiers from the host rubric (in a
-  `pdlc:bootstrap`-planted project the rubric is the CLAUDE.md `## Model tiers` section —
-  its ladder the planted default, its `.claude/agents/<tier>-implementer.md` frontmatter
-  `model:` the authoritative pin) — each
-  pinned to an explicit model ID, passed on every dispatch — per-PR gates enumerated
+  published interface unblocks consumers), model tiers from the host rubric (since 0.55.0
+  (skill 0.19.0) that rubric is **`.claude/model-tiers.json`** — the tier map, each tier's
+  model ID and scope, `defaultTier`, and `escalation: true` flags; the planted CLAUDE.md
+  section carries the posture and points at it. Tiers are assigned by that posture —
+  **thinking is Opus/Fable-tier, execution is Sonnet/Haiku-tier** — defaulting to
+  `defaultTier`, with an escalation tier requiring an operator checkpoint recorded before
+  dispatch; `tiers.mjs --check` is a Phase 1 precondition, and regenerating anything means
+  ending the session before dispatching, because the agent registry is read at session
+  start) — each pinned to an explicit model ID, **verified from the first dispatch's
+  transcript rather than assumed**, since both pin mechanisms have been observed failing
+  (dispatch-call param 2026-07-31; agent-def frontmatter 2026-08-10) — per-PR gates enumerated
   (where **Lane-0/precondition rulings that change the per-task loop land as checkable
   gate lines, never only prose** — narrative is not read back; gate lines are),
   concurrency doctrine with named hotspots, operator checkpoints, and a done-means —
