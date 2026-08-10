@@ -139,14 +139,28 @@ Model IDs date fast, and the config is where they live, so keep them honest:
    **`claude-api` skill** — consult it at plant time and reconcile the template's defaults
    against what it reports **before** writing the config. Never type a model ID from memory
    into `model-tiers.json`; a hallucinated ID becomes a pin that fails at dispatch.
-2. **Availability check = the harness's own agent-definition surface.** A tier's ID is
-   "available" only if this harness/subscription will accept it as `model:` in an agent
-   definition. An ID the harness rejects there is not available, whatever a table says.
-3. **Fallback when the primary is unavailable.** If the subscription does not surface a tier's
+2. **Resolve the host's ID FORM too, not just the ID.** The `claude-api` skill gives you the
+   bare API ID (`claude-sonnet-5`). That is what a plain install wants — but a host behind a
+   routing proxy may require an augmented form (e.g. `cc/claude-sonnet-5[1m]`) and **reject
+   both the bare ID and the alias** in agent-def frontmatter. Check the host before writing
+   the config: `ANTHROPIC_DEFAULT_*_MODEL` in `~/.claude/settings.json` (and any
+   `ANTHROPIC_BASE_URL` pointing at a local proxy) shows the form this host actually speaks.
+   Write **that** form into `model-tiers.json`. Field case 2026-08-10: a 9router host rejected
+   `claude-sonnet-5` and `sonnet` alike, and accepted `cc/claude-sonnet-5[1m]`.
+3. **Availability check = a real dispatch, not a table.** A tier's ID is "available" only if
+   this harness accepts it as `model:` in an agent definition **and a dispatch to that agent
+   actually returns**. Prove it once per host with a throwaway dispatch that asks the agent to
+   state its model, and compare what it reports against the config. An ID the harness rejects
+   is not available, whatever any table says — and a definition that dispatches successfully
+   on the *wrong* model is worse than one that fails loudly.
+4. **Regenerating does not take effect until the session restarts.** The agent registry is
+   read at session start: a newly generated tier is "not found" until then, and an edited one
+   keeps dispatching its **old** pin. Tell the user to restart before relying on a change.
+5. **Fallback when the primary is unavailable.** If the subscription does not surface a tier's
    primary ID, use that tier's `fallback` from the config and **record which model actually
    served** — the 2026-07-31 operator ruling the sweep skill already carries. The per-tier
    fallback slot exists for exactly this.
-4. **The tier map is open.** Do not treat the template's three tiers as the allowed set. A host
+6. **The tier map is open.** Do not treat the template's three tiers as the allowed set. A host
    that wants a `fable` tier, or a family that did not exist when this plugin shipped, adds a
    key — the generator has no closed list to update.
 

@@ -112,6 +112,11 @@ derive, in this order:
    **Precondition:** run `tiers.mjs --root . --check` before authoring the lanes — a
    nonzero exit means a tier's generated agent definition no longer matches the config, so
    the IDs you are about to write into the runbook are not the IDs that would run.
+   **If that check made you regenerate anything, end the session and resume before
+   dispatching.** The agent registry is read at session start: a newly generated tier
+   dispatches as "agent type not found", and an edited one keeps dispatching its *old* pin —
+   silently, at the old price (observed 2026-08-10). Regenerating mid-sweep and dispatching
+   in the same session is a silent wrong-model lane.
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
@@ -208,15 +213,18 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    actually honors. Never rely on session-model
    inheritance: an orchestrator often runs a price tier above the implementer intent, and an
    unpinned dispatch inherits its model (field case: "Opus tier" implementers silently ran on
-   the orchestrator's Fable session model at 2× the unit price). **Do not rely on the dispatch
-   call's `model` parameter either** — on 2026-07-31 it was observed silently ignored by this
-   harness, which is what produced that field case (`docs/design/board-cost-test-runbook.md`,
-   TASK-74 row); passing it is harmless but proves nothing. On a host where that parameter
-   verifiably works, it is a belt-and-braces addition to the agent-def pin, never a substitute.
+   the orchestrator's Fable session model at 2× the unit price). Pass the runbook's explicit
+   model ID on the dispatch call as well where the host honors it — but **assume neither
+   mechanism works until you have seen it work here.** Both have been observed failing, on
+   different hosts: the dispatch-call parameter silently ignored on 2026-07-31
+   (`docs/design/board-cost-test-runbook.md`, TASK-74 row), and the frontmatter pin rejecting
+   an ID the parameter resolved fine on 2026-08-10.
    **Verify the served model from the first dispatch's transcript before launching sibling
-   dispatches** — a wrong pin caught after one agent is a rounding error; caught after a lane
-   of them, it is the whole lane's budget. The board-task tier note Phase 1 item 2 requires
-   lands here — including which model actually served the dispatch.
+   dispatches** — this is the load-bearing step, not the pin: a wrong pin caught after one
+   agent is a rounding error; caught after a lane of them, it is the whole lane's budget. A
+   dispatch that *fails* is the cheap outcome; one that succeeds on the wrong model is the
+   expensive one, and only the transcript tells them apart. The board-task tier note Phase 1
+   item 2 requires lands here — including which model actually served the dispatch.
    **Dispatch phase-scoped:** one fresh implementer agent per tasks.md phase — or per
    explicitly-grouped small adjacent phases, the grouping being the orchestrator's
    recorded call; the default is one per phase — each dispatched at the runbook's

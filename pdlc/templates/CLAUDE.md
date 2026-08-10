@@ -95,14 +95,35 @@ anticipated is a config key, not a code change.
 Regenerate after every config edit: `node <pdlc>/scripts/tiers.mjs --root .` (`--check` exits
 nonzero when a definition is stale, which is what CI and a sweep's precondition gate run).
 
-**How a tier is pinned.** The model ID reaches the harness through the agent definition's
-frontmatter — `.claude/agents/<tier>-implementer.md`, `model: <id>`. That is the mechanism
-that holds. Do **not** rely on the dispatch call's `model` parameter: on 2026-07-31 it was
-observed silently ignored by this harness — dispatches meant for one model ran on the
-orchestrator's session model at ~2× the unit price before being killed
-(`docs/design/board-cost-test-runbook.md`, TASK-74 row). The frontmatter pin is what the
-harness actually honors, which is why the config generates those files rather than replacing
-them.
+**Write the model ID in the form THIS host accepts.** There is no universal spelling. A
+plain Claude Code install takes the bare API ID (`claude-sonnet-5`) or an alias (`sonnet`); a
+host behind a routing proxy may require its own augmented form (e.g. `cc/claude-sonnet-5[1m]`),
+and on such a host the bare ID and the alias are both **rejected**. Resolve your host's form
+once — the `ANTHROPIC_DEFAULT_*_MODEL` env values are a strong hint, and a one-off dispatch
+proves it — then write that form in the config. This is precisely why the ladder is host
+config and not plugin doctrine: the right ID depends on where you are running.
+
+**How a tier is pinned — two mechanisms, neither assumed.** The pin can reach the harness
+through the agent definition's frontmatter (`.claude/agents/<tier>-implementer.md`,
+`model: <id>`) or through the dispatch call's `model` parameter. **Both have been observed
+failing, on different hosts:** on 2026-07-31 the dispatch-call parameter was silently ignored
+and dispatches ran on the orchestrator's session model at ~2× the unit price
+(`docs/design/board-cost-test-runbook.md`, TASK-74 row); on 2026-08-10 the reverse — the
+frontmatter pin rejected an ID the dispatch parameter resolved fine. Prefer the frontmatter
+pin, because it is durable across sessions where the parameter is per-call, and pass the
+parameter too where it works. But **treat neither as proof.** The load-bearing rule is the
+one below.
+
+**Verify the served model; never infer it.** A green `--check` proves the file says Sonnet,
+not that Sonnet ran. Confirm the model that actually served from the first dispatch's
+transcript before launching siblings — a wrong pin caught after one agent is a rounding
+error; caught after a lane of them, it is the whole lane's budget.
+
+**Regenerating is not enough — the agent registry is read at session start.** A newly
+generated definition is invisible to dispatch until the session restarts, and an edited one
+keeps dispatching its *old* pin (observed 2026-08-10: a new tier reported "agent type not
+found" while an existing tier dispatched with its pre-regeneration model). After a config
+edit: regenerate, then **restart the session** before trusting any dispatch.
 
 **Which one is authoritative.** This section is the **planted default** — posture and
 mechanism, refreshed wholesale when you re-run `pdlc:bootstrap`. The agent definition's

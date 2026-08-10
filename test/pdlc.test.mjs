@@ -707,9 +707,12 @@ test("the planted tier section points at the config and warns off hand-editing g
   const section = tierSection();
   assert.match(section, /model-tiers\.json/, "the section must name where the ladder actually lives");
   assert.match(section, /tiers\.mjs/, "and how to regenerate after a config edit");
-  // Model IDs must NOT be here: keeping them in the drift-gated planted block is what made a
-  // model bump a re-plant + consent + --force in the first place.
-  assert.doesNotMatch(section, /claude-(opus|sonnet|haiku|fable)-\d/, "no hardcoded model IDs in the planted block");
+  // The block must not carry a LADDER — a tier→model table here is what made a model bump a
+  // re-plant + consent + --force. Naming an ID inline as an illustrative example is fine (the
+  // host-form guidance needs one); what must be gone is any tier label paired with an ID.
+  const ladderRow = /\|\s*(default implementer|mechanical|fallback|escalation)\s*\|/i;
+  assert.doesNotMatch(section, ladderRow, "no tier→model ladder table in the planted block");
+  assert.doesNotMatch(section, /^\s*\|\s*Tier\s*\|/m, "no tier table header in the planted block");
 });
 
 test("bootstrap and sweep both route through the config, not a hardcoded ladder", () => {
@@ -722,4 +725,16 @@ test("bootstrap and sweep both route through the config, not a hardcoded ladder"
   assert.match(sweep, /defaultTier/, "sweep names the default it assigns unmarked tasks");
   // TASK-97: step 5 taught the dispatch-call param, the mechanism the board-cost-test falsified.
   assert.match(sweep, /served model/i, "sweep must require served-model verification");
+});
+
+test("the planted tier section teaches host-form IDs, dual pin mechanisms, and the registry cache", () => {
+  // Three findings from the 2026-08-10 live-dispatch proof, each of which cost a failed
+  // dispatch to learn. They are doctrine because a host hits all three on day one.
+  const section = tierSection();
+  assert.match(section, /host/i, "the ID form is host-dependent — say so");
+  // Both mechanisms have now been observed failing, on different hosts. Asserting both dates
+  // keeps a future edit from quietly restoring the never-works claim about either one.
+  assert.match(section, /2026-07-31/, "the dispatch-param field case");
+  assert.match(section, /2026-08-10/, "the frontmatter-pin counter-case");
+  assert.match(section, /session/i, "the agent registry is read at session start");
 });
