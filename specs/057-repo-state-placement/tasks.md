@@ -141,3 +141,37 @@ placement, not of any one trigger.
 now would be a dishonest re-pin (the honest-re-pins rule: read the diff the pin covers, then
 bump) and would also destroy the live specimen Phase 2 needs for AC #5. They are re-pinned in
 Phase 4, classified per the rule.
+
+### Phase 1 finding — the hooks were never running (2026-08-27)
+
+**Correction to an earlier claim in this task's notes and commits.** I reported commits
+passing "with hooks enabled and no `--no-verify`". That was wrong, and the error was mine:
+I inferred hook execution from a clean commit instead of verifying it.
+
+`git config core.hooksPath` on this clone resolves to
+`/Users/evanstern/neumo/projects/praxis/.githooks` — **a path that does not exist** (the
+checkout lives at `/Users/evanstern/projects/praxis`; the stale value survives from an earlier
+location, and the same stale path appears in the pre-existing prunable worktree entry). Git
+silently runs no hook when `core.hooksPath` is a dead directory. So `pre-commit` has not
+executed for any commit in this session.
+
+Running it by hand against this tree: **exit 1**. Every Phase 1 commit *would* have been
+blocked, for exactly the red-by-construction reason spec 057 exists to fix.
+
+Three consequences:
+
+1. **The wedge is worse than measured, not better.** Nothing here disproves it; the local
+   surface was simply disabled. On any clone with a correct `core.hooksPath` — which is what
+   CI-adjacent contributors and a fresh `git config core.hooksPath .githooks` produce — Phase 1
+   is unlandable without `--no-verify`.
+2. **`core.hooksPath` is per-clone and silently fails open.** This is the same property
+   `.githooks/pre-push` cites for why "CI stays authoritative", and it is stronger evidence for
+   R3/R6 than the spec currently carries: a local surface that can vanish without a sound must
+   not be the thing that guarantees anything, and CI must hold every check that matters.
+   Worth a line in `docs/skill-patterns.md` where the rule now lives.
+3. **AC #5 must be run with hooks provably active** — set `core.hooksPath` correctly first and
+   assert the hook actually executes (a stub that touches a file, or a deliberate failure) —
+   or it proves nothing. Phase 2 owns this.
+
+Do **not** "fix" the operator's git config as part of this task: it is their environment, not
+this repo's tracked state. Surface it, and let them decide.
