@@ -70,6 +70,37 @@ A cascade worth naming so it is not misread as a separate defect: with the suite
 specs/051's TASK-101 row reports "ticked box over a red required gate" (spec 050's
 project-gate check). It clears when the suite is green.
 
+### The amplification: one red gate, fifty blocked cards
+
+Splitting the claim — card flipped at root, spec dir authored on the branch — put the root
+into the mismatched state above. The Stop hook then reported **~50 findings**, one per
+Done-eligible spec on the board:
+
+> TASK-33 · specs/008-…: box "T007 board finalized…" is ticked, but the required gate
+> "tests" is red (exited 1). A ticked tasks.md checkbox cannot outrun a red project gate.
+
+Every one of those is a **cascade of the single red `tests` gate**, not an independent
+defect. Spec 050's project-gate check runs `.spec-bridge.json`'s `required` gates at each
+Done-eligible spec, so one red `node --test` re-reports itself once per finished spec. The
+board looked catastrophically broken; nothing was wrong but one status flip.
+
+Two things this adds to the requirements:
+
+1. **The wedge is self-amplifying, and that is what trains the bypass.** A single
+   red-by-construction gate does not present as one manageable finding — it presents as
+   fifty, burying any real finding among them. R2's move is what stops the amplification at
+   its source.
+2. **The claim must be atomic.** The sweep's own doctrine already says so
+   (`pdlc/skills/sweep/SKILL.md:167`): *"Make the claim the branch's FIRST commit — board
+   card → In Progress, the spec number's directory … and the link."* Card and spec dir in
+   **one commit on the branch**. Splitting them across root and branch manufactures exactly
+   the mismatch the gate reports. This spec does not change that doctrine; it records that
+   two-track landing's "board commits go direct to main" does **not** extend to the claim
+   flip, which is deliverable state.
+
+Recovery, for the record: cherry-pick the card change onto the branch, amend it into the
+claim commit, reset the root. Root and branch then both read 417/0.
+
 ### The category error
 
 `run-gates.test.mjs:20` is not a test. It asserts nothing about `runGates`' behavior — it
