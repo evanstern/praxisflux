@@ -1,0 +1,43 @@
+---
+id: TASK-112
+title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
+status: To Do
+assignee: []
+created_date: '2026-08-27 16:14'
+updated_date: '2026-08-27 16:15'
+labels:
+  - feature
+  - doctrine
+  - pdlc
+  - spec-bridge
+dependencies:
+  - TASK-111
+priority: high
+ordinal: 144000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+The gate is provider-neutral after 052-054; the SKILLS are not. Six skills carry literal backlog CLI commands as their operative instruction (link 6, sweep 3, refactor-triage 3, sync 2, bootstrap 2, reorient 1) — a Jira host following spec-bridge:link runs a command that does not exist.
+
+One canonical home per rule: docs/board-verbs.md resolves each intent per provider. Skills reference verbs. No skill gains a provider conditional; no skill is forked.
+
+Includes the correctness fix: mirror gains optional labels[] so the machine-read 'paused' marker survives — without it a sweep on Jira would claim an operator's parked branch.
+
+Spec: specs/055-board-verb-table
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 docs/board-verbs.md exists; every row names its preconditions AND its evidence artifact
+- [ ] #2 All six skills reference verbs; grep for 'backlog ' in skills hits only table columns or scoped illustrations
+- [ ] #3 Every rewritten skill version bumped; diffs contain no unrelated edits (no paragraph reflow)
+- [ ] #4 Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error
+- [ ] #5 Block parser yields [{index,checked,text}] matching mirror acs shape; round-trip test passes
+- [ ] #6 Mirror schema gains optional labels[]; both providers project it; a mirror without it still validates
+- [ ] #7 Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis
+- [ ] #8 docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)
+- [ ] #9 renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes
+- [ ] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
+<!-- AC:END -->
