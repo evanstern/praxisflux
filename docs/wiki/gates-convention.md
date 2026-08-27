@@ -75,6 +75,17 @@ mid-PR — the freshness gate between a source edit and its re-pin), and [[spec-
 runs them so a tick cannot stand over a red one. It reuses this convention's fail-closed contract:
 a declared command that cannot execute is a blocking problem, never a silent green.
 
+**Where a self-check runs is part of the rule** (`docs/skill-patterns.md` §4, spec 057). A
+*code-behavior* assertion gates every commit; a *repo-STATE* assertion — "this repo's own wiki
+is fresh", "this repo's own board is honest" — gates the **PR**, never an intermediate action.
+The mechanical test: does the outcome depend on uncommitted or in-progress work elsewhere in
+the tree (or change with which checkout you run it from)? Then it is repo-state. Mid-PR it is
+red by construction for the same reason `redByConstruction` gates are, so a per-commit
+placement blocks every commit until the work doctrine sequences last has landed — which trains
+`--no-verify` (2026-08-02) and amplifies one red gate into ~50 findings via the project-gate
+check above (2026-08-27). praxisflux runs its own at
+`node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .` plus CI.
+
 ## Connections
 
 - Implemented by [[lifecycle-engine]] (the status-vs-evidence checker) and [[gate-runner]]
