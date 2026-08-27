@@ -100,6 +100,23 @@ unblocks consumers; its internals don't — sweep Phase 1 rule). **054** can dev
 parallel with 053 (disjoint files). **055** follows 054. **056** merges last and is the only
 spec that touches MCP.
 
+## Pre-sweep gate — do not sweep this epic until these land
+
+Found 2026-08-27 by running `pdlc:sweep`'s own precondition gate against this host. Recorded
+here because a resuming session reads the design doc before the board:
+
+| Blocker | Why it stops this epic |
+|---|---|
+| **TASK-102** | `core.hooksPath` is active and `.githooks/pre-commit` runs full `node --test`, which asserts the repo passes wiki-freshness (`test/run-gates.test.mjs:20`). `docs/wiki/spec-bridge-plugin.md` pins `spec-bridge/gates/bridge.mjs`, which spec 053 Phase 1 edits — so commit 1 stales the note, reddens the suite, and blocks every later commit until the re-pin doctrine sequences **last**. Unsatisfiable. Specs 052–055 each touch pinned sources across several phases. |
+| **TASK-107** | `tiers.mjs --check` proves the files say the right model, not that the harness served it — the fourth hop is still unverified (TASK-106 finding 3). A wrong pin across a 5-task lane is the lane's budget. |
+| **TASK-104** | The gate reads spec dirs from the root filesystem; the sweep's claim protocol authors each spec **on a branch**, where the gate cannot see it. Recommended, less severe than the first two. |
+
+Order: **TASK-102 → TASK-107 → TASK-104 → sweep**. TASK-105 also deps on TASK-102.
+
+Not blocking, but worth knowing: this host ships no `scripts/check-merge-drift.mjs` (the sweep
+falls back to raw git and loses claim-collision detection plus the drift matrix), and a
+prunable worktree from 2026-07-31 points at a different checkout path.
+
 ## Invariants every spec inherits
 
 1. **Backlog.md hosts see zero behavior change.** Same verdicts, same messages, same plan
