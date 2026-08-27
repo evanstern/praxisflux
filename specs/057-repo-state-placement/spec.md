@@ -208,6 +208,36 @@ longer need `--no-verify` because the hooks no longer forbid the legitimate mid-
 Say that explicitly — an expiry that reads as "the bypass is gone, good luck" invites its
 reinvention.
 
+### R5b — State the claim/board-commit boundary in the sweep skill
+
+**Operator ruling (2026-08-27): fold it in.** The mistake that produced the amplification
+above was not a doctrine gap in either rule — it was the **boundary between them** being
+unstated. Both rules are correct as written:
+
+- `pdlc:sweep` (`SKILL.md:167`): the claim is the branch's **first commit** — board card →
+  In Progress, the spec number's directory, **and** the link, together.
+- The planted `pdlc:peer:backlog` block: **two-track landing** — board/bookkeeping commits
+  (cards, status flips, notes, AC ticks) land direct on the default branch.
+
+Read alone, the second licenses flipping a claim's status at root. Doing so splits the claim
+across two checkouts and manufactures the exact mismatch the gate reports.
+
+State the boundary where the ambiguity lives — in `pdlc/skills/sweep/SKILL.md`'s claim step,
+and in the two-track bullet of `pdlc/templates/CLAUDE.md`'s `pdlc:peer:backlog` block:
+
+> **The claim flip is deliverable state, not bookkeeping.** Two-track landing's "board
+> commits direct to `main`" covers notes, AC ticks, labels, and new cards — never the
+> status flip that claims a task. That flip belongs in the claim commit, on the branch,
+> with the spec dir and the link.
+
+Both surfaces are **released**, so this carries a marketplace bump plus the sweep skill's own
+`version:` bump, and the planted-block edit means the root `CLAUDE.md` is re-planted (or its
+drift consented) in the same PR.
+
+Scope note: this is folded into TASK-102 rather than carded separately because it is the same
+defect at doctrine level — the spec's whole subject is *which surface an intermediate action
+answers to*, and this is that question for the claim flip.
+
 ### R6 — Nothing this spec does may weaken CI
 
 Every check that blocks a PR today still blocks it after this spec, and spec-bridge gains
@@ -245,6 +275,10 @@ more permissive; the authoritative surface gets strictly stronger.**
 8. `checkDocs`'s blocking behavior is unchanged and unconditional.
 9. The runbook records amendment 1's expiry, naming this spec and stating that the
    replacement is the mechanism, not a new license.
+9b. The claim/board-commit boundary is stated in **both** `pdlc/skills/sweep/SKILL.md`'s
+    claim step and the `pdlc:peer:backlog` two-track bullet in `pdlc/templates/CLAUDE.md`;
+    the sweep skill's `version:` is bumped and the root `CLAUDE.md` re-planted (or its drift
+    consented) in this PR.
 10. Every PR-blocking check that exists today still blocks, plus spec-bridge; the before/after
     is enumerated in the PR body. `docs/wiki/` re-pinned for every touched source — at minimum
     `gates-convention`, `test-suite`, `skill-patterns`, `build-and-release`.

@@ -73,6 +73,14 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 
 ## Phase 4 — Retire the softening, re-ground, close
 
+- [ ] **R5b — state the claim/board-commit boundary** in `pdlc/skills/sweep/SKILL.md`'s claim
+      step AND the two-track bullet of `pdlc/templates/CLAUDE.md`'s `pdlc:peer:backlog` block:
+      the claim flip is **deliverable state, not bookkeeping** — two-track's "direct to main"
+      covers notes, AC ticks, labels, and new cards, never the status flip that claims a task
+- [ ] Bump `pdlc/skills/sweep/SKILL.md`'s own `version:`; re-plant the root `CLAUDE.md`
+      (or diff + consent its drift) so the planted block and the template agree
+- [ ] Re-pin the four notes sourcing the sweep skill (`pdlc-sweep`, `pdlc-sweep-history`,
+      `pdlc-sweep-history-early`, `pdlc-sweep-history-recent`) plus `pdlc-grounding-block`
 - [ ] Update `docs/design/gates-and-doctrine-sweep-runbook.md:30-32`: record amendment 1's
       `--no-verify` softening as **expired**, naming this spec
 - [ ] State that the replacement is **this mechanism, not a new license** — sessions no longer
