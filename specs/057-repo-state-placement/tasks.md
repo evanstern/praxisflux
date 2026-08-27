@@ -9,24 +9,24 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 
 ## Phase 1 — State the rule; compute the window
 
-- [ ] Read `grounding-wiki/gates/freshness.mjs`, `docs/skill-patterns.md` §5,
+- [x] Read `grounding-wiki/gates/freshness.mjs`, `docs/skill-patterns.md` §5,
       `docs/wiki/gates-convention.md`, and `.spec-bridge.json`'s `redByConstruction` block;
       record in Notes how spec 050 already frames red-by-construction
-- [ ] Write the repo-state vs code-behavior rule into `docs/skill-patterns.md`, including the
+- [x] Write the repo-state vs code-behavior rule into `docs/skill-patterns.md`, including the
       **mechanical** distinguishing question: *does this assertion's outcome depend on
       uncommitted or in-progress work elsewhere in the tree?*
-- [ ] Reference the rule from `docs/wiki/gates-convention.md` — one canonical home, others
+- [x] Reference the rule from `docs/wiki/gates-convention.md` — one canonical home, others
       point at it
-- [ ] Implement the window computation in `grounding-wiki/gates/` (beside
+- [x] Implement the window computation in `grounding-wiki/gates/` (beside
       `validateFreshness`, **not** inside `stop-docs.mjs` — TASK-105 will want the same
       computation). Per stale note:
       `git log --oneline <pin>..HEAD --not origin/main -- <sources>`; non-empty ⇒ inside
-- [ ] Confirm the rejected alternative is documented in the code comment: "branch has commits
+- [x] Confirm the rejected alternative is documented in the code comment: "branch has commits
       not on origin/main" FAILS because local `main` routinely sits ahead of origin under the
       two-track landing rule (verified: 2 commits ahead at authoring time)
-- [ ] Degrade **closed**: no `origin/main` ref (fresh clone, detached CI, no remote) ⇒ treat
+- [x] Degrade **closed**: no `origin/main` ref (fresh clone, detached CI, no remote) ⇒ treat
       as outside the window ⇒ block. Never open the window on missing information
-- [ ] Tests: inside-window, outside-window, staleness explained by an already-merged commit,
+- [x] Tests: inside-window, outside-window, staleness explained by an already-merged commit,
       and the no-`origin/main` fallback
 - [ ] Commit
 
@@ -111,3 +111,33 @@ freshness, version-bump. So `test/run-gates.test.mjs:20` is currently the **only
 spec-bridge enforcement praxisflux has on itself. This is why Phase 2 pairs the removal with
 a CI addition — a removal alone would reintroduce, in this repo, the exact silent-no-op class
 the board-provider seam epic (TASK-108) exists to close.
+
+### Phase 1 findings (2026-08-27)
+
+**The rule's home.** `docs/skill-patterns.md` §4 already frames red-by-construction (spec
+050's `redByConstruction` bucket) and already carries an "advisory vs. blocking, reconciled"
+note. The placement rule went in as a sibling paragraph there rather than a new section — same
+subject, one canonical home. `docs/wiki/gates-convention.md` got a compact pointer (note body
+6279 → 7158 chars, budget 8000).
+
+**The window, verified on live data — not just fixtures.** Committing Phase 1 staled exactly
+two notes (`gates-convention`, `skill-patterns`, both sourcing `docs/skill-patterns.md`). The
+window read **INSIDE** for both, naming the responsible commit `a0b005a`. That is the
+end-to-end proof the fixtures can't give: real pins, real sources, real branch.
+
+**Suite state at Phase 1 close: 425 pass / 1 fail — and the 1 IS the specimen.**
+`run-gates.test.mjs:20`, red because those two notes are stale. Note what the failure message
+now says: *"but the **red-by-construction** gate wiki-freshness is red"*. The repo's own
+tooling names it red-by-construction **while blocking on it** — spec 050 classified the gate
+correctly, and this test is the surface that ignores the classification. Phase 2 removes that
+contradiction.
+
+The amplification reproduced too: **~50 findings from those two stale notes**, one per
+Done-eligible spec. This is the second independent reproduction (the first was the claim
+mismatch), from a different root cause — confirming the amplification is a property of the
+placement, not of any one trigger.
+
+**Not yet done in Phase 1:** the two staled notes are deliberately left stale. Re-pinning them
+now would be a dishonest re-pin (the honest-re-pins rule: read the diff the pin covers, then
+bump) and would also destroy the live specimen Phase 2 needs for AC #5. They are re-pinned in
+Phase 4, classified per the rule.
