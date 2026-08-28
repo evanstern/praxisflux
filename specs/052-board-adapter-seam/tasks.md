@@ -60,28 +60,28 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 4 — The `--check` CLI, dogfood, and re-ground
 
-- [ ] Implement the CLI via `lib/cli.mjs`'s `runAsCli` guard:
+- [x] Implement the CLI via `lib/cli.mjs`'s `runAsCli` guard:
       `node lib/board-mirror.mjs --check --root <dir>`
-- [ ] `requiresSync: false` → recompute and compare bytes with `generatedAt` normalized on
+- [x] `requiresSync: false` → recompute and compare bytes with `generatedAt` normalized on
       both sides; nonzero exit names the drifted ids
-- [ ] `requiresSync: true` → validate + staleness only (cannot recompute)
-- [ ] No mirror → exit **0** with the stated "no mirror; nothing to check" line
-- [ ] Exit codes: `0` clean, `1` findings, `2` env error — matching
+- [x] `requiresSync: true` → validate + staleness only (cannot recompute)
+- [x] No mirror → exit **0** with the stated "no mirror; nothing to check" line
+- [x] Exit codes: `0` clean, `1` findings, `2` env error — matching
       `spec-bridge/gates/cli.mjs`'s convention and output shape
-- [ ] Tests for AC #8: nonzero after a one-status hand edit (assert the message names that
+- [x] Tests for AC #8: nonzero after a one-status hand edit (assert the message names that
       id), 0 on freshly written, 0 when absent
-- [ ] **Dogfood:** generate this repo's own `.board/links.json` and verify it against
+- [x] **Dogfood:** generate this repo's own `.board/links.json` and verify it against
       `findLinkedTasks(".")`; commit the generated mirror
-- [ ] Bump the marketplace version (`lib/` is released surface) and run
+- [x] Bump the marketplace version (`lib/` is released surface) and run
       `node scripts/sync-version.mjs` to stamp the rest
-- [ ] Re-pin every `docs/wiki/` note whose `sources:` this change touches — at minimum
+- [x] Re-pin every `docs/wiki/` note whose `sources:` this change touches — at minimum
       `chassis`, `spec-bridge-plugin`; classify each pin **RE-PIN-ONLY** or **NEEDS-REVIEW**
       per the sweep's honest-re-pins rule and amend prose before bumping where needed
-- [ ] Update `docs/wiki/INDEX.md` if a new note was added; run
+- [x] Update `docs/wiki/INDEX.md` if a new note was added; run
       `node scripts/check-docs.mjs`
-- [ ] All four project gates green: `node --test`, `check-docs.mjs`,
+- [x] All four project gates green: `node --test`, `check-docs.mjs`,
       `sync-version.mjs --check`, and `grounding-wiki/gates/cli.mjs freshness . docs/wiki`
-- [ ] Commit
+- [x] Commit
 
 ## Notes
 
@@ -261,3 +261,94 @@ matters when a caller omits the option entirely, which the spec doesn't forbid.
 is ready to call directly with a resolved `headSha` (e.g. from `git rev-parse HEAD`, or just
 pass `"HEAD"` and let the default resolve it in-process). `projectBacklog(root)` is the value
 to diff against the on-disk mirror for AC #8's hand-edit-detection test.
+
+### Phase 4 (implementer: sonnet tier, cc/claude-sonnet-5[1m])
+
+**Model identity:** no harness-provided evidence of my model identity — `cc/claude-sonnet-5[1m]`
+is my own inference from the dispatch prompt's text (agent type `sonnet-implementer`, whose
+frontmatter pins that model), not something the harness told me directly.
+
+**CLI implemented** in `lib/board-mirror.mjs` (dual-use, `runAsCli` guard): extracted
+`serializeMirror` out of `writeMirror` (pure, no disk I/O) so the CLI can byte-compare a
+recomputed mirror against the on-disk one without writing anything. `--check --root <dir>`:
+no mirror → exit 0, `"no mirror; nothing to check"`; readMirror throw (malformed/unknown
+schema) → exit 1 (a broken artifact is a finding, not an env error); `validateMirror`
+problems → exit 1; unregistered provider name → exit 2 (env error, per R5's explicit
+"unreadable root, unknown provider" grouping — deliberately distinct from
+`mirrorStaleness`'s own fail-closed default of treating an unknown provider as
+`requiresSync:true`, which is a different function serving a different caller);
+`requiresSync:true` → `mirrorStaleness` only; `requiresSync:false` → recompute via
+`provider.project(root)`, serialize both mirrors with `generatedAt` normalized to `""`, and
+byte-compare; on drift, names the changed ids (diffed on stripped `{id,status,specDir,acs}`
+so unknown/observed-* fields on either side don't produce false positives in the *reported*
+id list, even though the pass/fail verdict itself is the full-mirror byte compare per R5).
+
+**Tests (AC #8):** 3 new in `test/board-mirror.test.mjs`, spawning the CLI as a real child
+process (`execFileSync("node", [CLI, "--check", "--root", root])`) against a throwaway
+project with one real Backlog task file (so `projectBacklog` has something to recompute) —
+0 absent, 0 fresh, nonzero + names the id after a one-status hand edit. Suite 465 → 468.
+
+**Dogfood:** generated this repo's own `.board/links.json` (58 links) via `projectBacklog(".")`
++ `writeMirror`; `node lib/board-mirror.mjs --check --root .` exits 0 clean against the
+committed file. Confirmed the natural sort is why the on-disk file's first id (`TASK-27`) and
+`projectBacklog(".")`'s raw (filename-lexical) order first id (`TASK-100`) differ — `writeMirror`
+re-sorts naturally, `findLinkedTasks`/`projectBacklog` return readdir's lexical order; both are
+"correct" for their own layer, and the CLI's byte-compare (which routes both sides through the
+same serializer) confirmed they describe the same set.
+
+**Version bump:** 0.58.0 → 0.59.0 (minor: new chassis module + new gate/CLI capability, per
+`docs/releasing.md`'s bump-size table). `sync-version.mjs 0.59.0` stamped all 9 other
+plugins' `plugin.json` plus `action.yml`'s npx pin in lockstep.
+
+**Re-pin ledger** — 12 notes, all repinned to `4694352` (post-bump HEAD), freshness gate now
+exit 0 (`OK: 40 note(s) fresh`):
+
+| Note | Classification | Disposition |
+|---|---|---|
+| build-plugin | RE-PIN-ONLY | plugin.json version stamp only, no version literal quoted — repinned |
+| codebase-to-course-plugin | RE-PIN-ONLY | same | repinned |
+| educate-plugin | RE-PIN-ONLY | same | repinned |
+| gates-consumption-surface | RE-PIN-ONLY | action.yml npx-pin stamp only | repinned |
+| grounding-wiki-plugin | RE-PIN-ONLY | plugin.json version stamp only | repinned |
+| research-plugin | RE-PIN-ONLY | same | repinned |
+| build-and-release | NEEDS-REVIEW | quotes `v0.2.0`/`0.5.0` but as fixed **historical milestones** ("first release", "first to publish to npm"), unaffected by this bump — verified accurate, no prose change, repinned |
+| pdlc-plugin | NEEDS-REVIEW | quotes only "lockstep with the marketplace version" (generic, no literal digit) — verified accurate, repinned |
+| reorient-plugin | NEEDS-REVIEW | quotes `version: 0.5.0` — that's the **skill's own** version (independently tracked per `docs/releasing.md`), not the marketplace version this bump touched; skill dir untouched — verified accurate, repinned |
+| team-review-plugin | NEEDS-REVIEW | quotes `version: 1.3.0` — same skill-version distinction as reorient — verified accurate, repinned |
+| overview | NEEDS-REVIEW | source diff was README.md's chassis-module-list line (`+ board-mirror`); overview.md never itemizes `lib/` modules by name (that's `chassis.md`'s job) — verified accurate, no prose change, repinned |
+| spec-bridge-plugin | NEEDS-REVIEW | source diff was Phase 2's parser move (`bridge.mjs` −40/+7) plus its own `plugin.json` bump — **prose amended**: added `lib/board-mirror.mjs` to `sources:` and a short clause noting `parseLinkedTask` now lives there (re-exported from `bridge.mjs`); see below for the budget resolution |
+
+**`chassis` note did NOT go stale** despite the task item's "at minimum `chassis`,
+`spec-bridge-plugin`" prediction — its `sources:` are `lib/README.md`, `scripts/build.mjs`,
+`lib/toolkit/README.md`, none of which this task touched (the new-chassis-module mention
+landed in repo-root `README.md`, a Phase 1 addition to `overview.md`'s source, not `chassis.md`'s).
+Left `chassis.md` untouched since it is, in fact, still fresh.
+
+**The two over-budget notes:**
+- `spec-bridge-plugin.md` was already over its 8000-char body budget (8454, standing
+  `size_budget_exempt` from TASK-104) and sits in scope twice (bridge.mjs's move, plugin.json's
+  bump). Rather than stack a second exemption to cover the new move-clause prose, trimmed a
+  redundant clause from Operational notes (the verify/Stop-hook relationship was already
+  stated in the Project gates paragraph) — net result 8444 chars, 10 **under** the pre-edit
+  figure despite the addition. Genuine trim, not a widened exemption.
+- `test-suite-catalog-plugins-gates.md` stays over budget too (8231, standing TASK-103
+  exemption) but was **not touched**: its `sources:` list does not include
+  `test/board-mirror.test.mjs`, so adding the 3 new CLI tests didn't stale it, and cataloging
+  those tests there isn't required by any gate or AC. Left alone rather than pushing an
+  already-maxed note further over for an optional addition — flagging this as a known gap
+  (board-mirror.test.mjs is uncatalogued in either test-suite-catalog note) for whoever does
+  the TASK-95/103 split to pick up, not fixed here.
+
+**Gates, final state:** `node --test` 468/468 (0 fail); `check-docs.mjs` clean; `sync-version.mjs
+--check` → `all versions = 0.59.0`; `grounding-wiki/gates/cli.mjs freshness . docs/wiki` → exit 0,
+`OK: 40 note(s) fresh` (the two size-budget WARNs above are pre-existing and non-blocking).
+`test/spec-bridge.test.mjs`, `test/project-gates.test.mjs`, `test/phase-status.test.mjs`:
+`git diff --stat` empty across the whole branch (AC #9 holds).
+
+**Commits:** `19e7a67` (CLI + AC#8 tests), `edea9b8` (dogfood mirror), `4694352` (version bump),
+`990b61f` (12-note re-ground). Did not push, open a PR, or run any `backlog` command — per the
+dispatch brief, that's the orchestrator's job.
+
+**Owed / left for the orchestrator:** none identified beyond the pre-existing, already-tracked
+TASK-95/103 note-split debt (unaffected by this phase) and the uncatalogued
+`test/board-mirror.test.mjs` noted above.
