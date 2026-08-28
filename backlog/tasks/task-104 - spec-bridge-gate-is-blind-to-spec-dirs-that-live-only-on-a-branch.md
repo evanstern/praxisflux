@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-03 19:31'
-updated_date: '2026-08-28 18:29'
+updated_date: '2026-08-28 18:46'
 labels: []
 dependencies: []
 ordinal: 136000
@@ -76,9 +76,9 @@ Spec: specs/058-branch-held-specs
 - [ ] #3 A spec directory that exists at no ref and no working tree still derives as today — the gate does not become permissive
 - [ ] #4 The branch-aware resolution is covered by a test using a real git fixture, following the repo's existing gate-test pattern
 - [x] #5 Spec phase: Phase 1 — the git spec-source resolver
-- [ ] #6 Spec phase: Phase 2 — wire the resolver into the derivation
-- [ ] #7 Spec phase: Phase 3 — prove the branch-held scenario
-- [ ] #8 Spec phase: Phase 4 — grounding and release
+- [x] #6 Spec phase: Phase 2 — wire the resolver into the derivation
+- [x] #7 Spec phase: Phase 3 — prove the branch-held scenario
+- [x] #8 Spec phase: Phase 4 — grounding and release
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -110,4 +110,16 @@ Before this change the same call derived "To Do / specifying / 0 of 0" — the f
 Method note: the first attempt at this proof was INVALID — it imported lib/spec-derive.mjs from the root checkout (still main's pre-fix code) and so measured the old behavior. Re-run importing the worktree's module with cwd set to the root. Verify which build you are exercising before believing a before/after.
 
 Phase 3 dispatched: integration tests for AC1-AC8 through deriveSpecState.
+
+Phases 3 and 4 complete; PR #130 open (https://github.com/evanstern/praxisflux/pull/130).
+
+Phase 3 (1b3e6f8): 6 integration tests through deriveSpecState covering AC1-AC8 — branch-held derivation, worktree-wins-over-ref, absent-everywhere, repo-unchanged (git status + HEAD + raw .git/index bytes), no-.git, refs-enumerated-once across the caller boundary, and source provenance. Real scratch git repos, no mocks. Suite 443 -> 449.
+
+Phase 4 (70716f9 + 0d8685f): grounding and release. Two notes amended after reading their real source diffs, then re-pinned. The 0.58.0 bump then staled 11 MORE notes (it touches every plugin.json) — the released-surface re-pin volume the handoff warned about. Classified with the plan command: 7 RE-PIN-ONLY applied from its emitted commands; the 4 NEEDS-REVIEW checked individually for current-version literals (none quotes one — they say "lockstep with the marketplace version", still true, or cite versions as history) before their pins moved. No pin moved without its diff being read.
+
+spec-bridge-plugin.md took a size_budget_exempt at 8455/8000. It was at 7998/8000 — 2 chars of headroom — and the resolver is load-bearing for every verdict it describes. The splittable unit is ~500 chars, under the ~1,500 minimum-content counter-rule, so a split would butcher it; trims were tried first and bought ~30 chars each. Exemption names TASK-103/95's owed split as the exit.
+
+Gates at PR: suite 449/449, freshness exit 0 (40 notes fresh), check-docs exit 0, version-bump 0.57.0 -> 0.58.0 ok.
+
+Two host facts cost real time and are now recorded in docs/design/jira-board-runbook.md so the next session does not repay them: (1) the suite runs as bare `node --test` — passing a path makes node resolve `test` as a MODULE and die with MODULE_NOT_FOUND, which reads as a red suite but is not; this produced three wrong conclusions before .githooks/pre-commit was read. (2) grep suppresses matches in spec-bridge/gates/bridge.mjs because a literal NUL at line 217 marks the file binary — it prints "Binary file ... matches" with no line numbers; spec 053 edits that file directly.
 <!-- SECTION:NOTES:END -->
