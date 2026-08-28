@@ -6,26 +6,26 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 1 — Schema, read/write, validate
 
-- [ ] Read `spec-bridge/gates/bridge.mjs` in full and record in Notes: every consumer of
+- [x] Read `spec-bridge/gates/bridge.mjs` in full and record in Notes: every consumer of
       `findLinkedTasks`, and the exact per-task shape each one uses
-- [ ] Read `lib/cli.mjs`, `lib/dates.mjs`, and one existing chassis module for house style
+- [x] Read `lib/cli.mjs`, `lib/dates.mjs`, and one existing chassis module for house style
       (header-comment depth, export shape, error handling)
-- [ ] Create `lib/board-mirror.mjs` with the schema documented in the header comment,
+- [x] Create `lib/board-mirror.mjs` with the schema documented in the header comment,
       including the explicit note that `generatedAt` is excluded from `--check`'s byte
       comparison
-- [ ] Implement `readMirror(root)`: `null` when absent; **throws** on malformed JSON and on
+- [x] Implement `readMirror(root)`: `null` when absent; **throws** on malformed JSON and on
       an unknown `schema` integer
-- [ ] Implement `writeMirror(root, mirror)`: explicit schema key order, 2-space indent,
+- [x] Implement `writeMirror(root, mirror)`: explicit schema key order, 2-space indent,
       trailing newline, `links` sorted by a natural-id comparator
-- [ ] Implement the natural-id comparator and test it on `TASK-9`/`TASK-10` and
+- [x] Implement the natural-id comparator and test it on `TASK-9`/`TASK-10` and
       `TASK-6.2`/`TASK-6.10` (real board shapes — dotted subtask ids exist)
-- [ ] Implement unknown-key round-tripping: unrecognized top-level and per-link keys survive
+- [x] Implement unknown-key round-tripping: unrecognized top-level and per-link keys survive
       a read→write cycle unchanged
-- [ ] Implement `validateMirror(mirror)` covering: missing required field, wrong type,
+- [x] Implement `validateMirror(mirror)` covering: missing required field, wrong type,
       duplicate `id`, duplicate `specDir`, non-monotonic `acs` index
-- [ ] `test/board-mirror.test.mjs` — cover ACs 2, 3, 4 (including the throw assertions, not
+- [x] `test/board-mirror.test.mjs` — cover ACs 2, 3, 4 (including the throw assertions, not
       just absence)
-- [ ] Commit
+- [x] Commit
 
 ## Phase 2 — Move the parser, prove nothing broke
 
@@ -87,3 +87,74 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 (Implementers append findings here — decisions, reproductions, and the records the phases
 above ask for. This section is the phase-to-phase handoff artifact; nothing rides chat.)
+
+### Phase 1 (implementer: sonnet tier, cc/claude-sonnet-5[1m])
+
+**`findLinkedTasks` consumers in `spec-bridge/gates/bridge.mjs`** (all in this one file;
+`gates/cli.mjs` calls `checkBridge`/`verifyBridge`/`planBridge`, never `findLinkedTasks`
+directly):
+- `checkBridge(root, ...)` — iterates `findLinkedTasks(root)`, uses `task.id`, `task.status`,
+  `task.specDir`, `task.acs` (via `derived`/`verdict`/`shortfall`); does not use `task.file`.
+- `verifyBridge(root, ...)` — same iteration; uses `task.id`, `task.specDir`, and
+  `phaseBoxes` derived from `task.specDir` — does not touch `task.acs` or `task.file`
+  directly (phase boxes come from `deriveSpecState`, not from the task).
+- `planBridge(root)` — same iteration; uses `task.id`, `task.status`, `task.acs` (via
+  `planLinkedTask`) and `task.specDir`. Does not use `task.file`.
+- Per-task shape actually consumed everywhere: `{ id, status, specDir, acs }` — exactly R1/R2's
+  claim that `file` is the only field the mirror's `links[]` entry drops.
+- `parseLinkedTask(raw)` returns `{ id, status, specDir, acs }` (no `file`); `findLinkedTasks`
+  is the one place that adds `file: join(dir, name)` before pushing. This confirms Phase 2's
+  move is a straight relocation — no other bridge.mjs code depends on `file`.
+
+**House style taken from `lib/cli.mjs`, `lib/dates.mjs`, `lib/project-root.mjs`,
+`spec-bridge/gates/bridge.mjs`, `spec-bridge/gates/cli.mjs`:** file-header block comment
+explaining the module's one job and its non-obvious invariants; named exports only (no default
+export anywhere in `lib/`); small pure functions; errors as thrown `Error` with a message
+naming the offending path/value, never a bare string throw; dual-use CLI modules gate their
+CLI body behind `runAsCli(import.meta.url)`. Followed all of these in `board-mirror.mjs`
+(the CLI body itself is Phase 4's job, not this phase's — this module currently exports no
+CLI at all).
+
+**Deviations / choices not spelled out verbatim in the spec:**
+- Exported `mirrorPath(root)` (returns `<root>/.board/links.json`) even though the spec only
+  names `readMirror`/`writeMirror`/`validateMirror` — it's a one-line helper used internally by
+  both read and write, and Phase 3 (staleness) / Phase 4 (`--check` CLI) will need the same
+  path, so it's exported rather than duplicated three times across the module.
+- `readMirror`'s unknown-schema check is `parsed?.schema !== CURRENT_SCHEMA` (strict equality
+  against `1`), not a range/floor check — R1 says "an unknown schema is a hard error", and with
+  exactly one schema version defined so far, "unknown" == "not exactly 1". If a future schema
+  bump needs migration-on-read instead of hard-reject, that's a deliberate decision for whoever
+  adds schema 2, not inferable from this spec.
+- `validateMirror`'s "missing required field" and "wrong type" checks share one `req()` helper
+  that reports both as the same message shape (`"<field>: expected <type>, got <actual>"`),
+  since AC #4 doesn't require distinct message text for the two cases — only that both are
+  caught.
+- `orderedObject()` (the key-ordering helper behind `writeMirror`'s determinism) preserves
+  unknown keys in their **original enumeration order** appended after the known keys, rather
+  than alphabetizing them. This is what makes unknown-key round-tripping automatic (nothing
+  strips or reorders keys `readMirror` didn't put there) without needing separate
+  round-trip-preserving logic.
+
+**For Phase 2 (the move):** `board-mirror.mjs` currently has no `parseLinkedTask` or
+`findLinkedTasks` — those still live only in `bridge.mjs`. Phase 2 moves them into this file
+and adds the re-export line to `bridge.mjs`. No naming collision to worry about: this phase's
+exports are `CURRENT_SCHEMA`, `mirrorPath`, `compareIds`, `readMirror`, `writeMirror`,
+`validateMirror` — none of which exist in `bridge.mjs` today.
+
+**Test count:** baseline 449 passing (per dispatch brief) → 458 passing after this phase (9
+new tests in `test/board-mirror.test.mjs`), 0 failing. `node scripts/check-docs.mjs` initially
+failed (`README.md: chassis module 'board-mirror' ... is not named in the chassis section`) —
+fixed by adding `board-mirror` to the `## Shared chassis (lib/)` list in `README.md`
+(check-docs enforces this list is in sync with `lib/`, and it fails the same way for any new
+chassis module, not something specific to this spec). Left `docs/wiki/` untouched per the
+dispatch brief — that re-pin is explicitly Phase 4's job.
+
+**Confirmed for later phases:** the dispatch brief's NUL-byte warning on
+`spec-bridge/gates/bridge.mjs` is real and reproduced here. Plain `grep -n "MARKER"
+spec-bridge/gates/bridge.mjs` prints **nothing at all** and exits `1` (not even a "binary file
+matches" notice) — it looks exactly like "no match", not "grep skipped this file". `grep -na`
+finds the NUL byte at line 217 (inside `memoizeRun`'s `command.join(" ")` — an actual NUL
+character embedded in that source line, not a display artifact) and `grep -na "MARKER"`
+correctly returns both real matches (lines 258, 270). **Phase 2 must use `grep -a`/`grep -na`
+for every import-site grep of `parseLinkedTask`/`findLinkedTasks`** — plain `grep` against this
+file will silently under-report and could let a broken re-export ship undetected.

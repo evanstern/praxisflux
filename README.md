@@ -52,7 +52,8 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
 `lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
 `spec-derive` (Spec Kit → kanban state) · `spec-source` (working-tree/git-ref resolver for spec
-dirs) · `cli` (symlink-safe run-as-CLI guard).
+dirs) · `cli` (symlink-safe run-as-CLI guard) · `board-mirror` (tracked `.board/links.json`
+board mirror: schema, read/write, validate).
 
 ## Principles
 
