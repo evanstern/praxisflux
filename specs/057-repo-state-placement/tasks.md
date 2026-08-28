@@ -32,21 +32,21 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 
 ## Phase 2 — Move the self-check; close the CI gap
 
-- [ ] Read `docs/consuming-gates.md` before touching `run-gates.mjs` — its exit codes are a
+- [x] Read `docs/consuming-gates.md` before touching `run-gates.mjs` — its exit codes are a
       **versioned consumer contract** and must not shift
-- [ ] Remove the repo-state assertion from `test/run-gates.test.mjs`; **retain every other
+- [x] Remove the repo-state assertion from `test/run-gates.test.mjs`; **retain every other
       test in the file** (usage errors, course-gate failure, crash-vs-usage exit codes, the
       GATES/action.yml drift check)
-- [ ] Document the replacement one-liner:
+- [x] Document the replacement one-liner:
       `node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .`
-- [ ] **Add a `spec-bridge` step to `.github/workflows/ci.yml`** — the enforcement the
+- [x] **Add a `spec-bridge` step to `.github/workflows/ci.yml`** — the enforcement the
       removed test was solely providing. CI has a `wiki-freshness` step but **no**
       spec-bridge step; removing the test without this silently drops board-honesty
       enforcement on this repo
-- [ ] Add a test that reads the **real** `ci.yml` and asserts the spec-bridge step is
+- [x] Add a test that reads the **real** `ci.yml` and asserts the spec-bridge step is
       present, so it cannot be dropped silently later. Model it on the existing
       GATES/`action.yml` drift check in the same file
-- [ ] **AC #5 — prove it by execution, not argument:** on a scratch branch, deliberately
+- [x] **AC #5 — prove it by execution, not argument:** on a scratch branch, deliberately
       stale a pinned note, run `node --test` (must be **green**), and commit with hooks
       enabled (must **succeed**). Record the transcript in Notes
 - [ ] Commit
@@ -175,3 +175,35 @@ Three consequences:
 
 Do **not** "fix" the operator's git config as part of this task: it is their environment, not
 this repo's tracked state. Surface it, and let them decide.
+
+### Phase 2 findings (2026-08-28) — AC #5 proven by execution
+
+**Hook liveness established first.** The operator fixed `core.hooksPath` (now `.githooks`,
+resolving). Before changing anything, I probed it with a throwaway commit against the still-stale
+tree: **the hook fired and blocked it** — `git log` stayed at `5245c94`, nothing landed. So the
+Phase 2 result below is measured against a hook that provably runs, which the Phase 1 note said
+was mandatory or the proof is worthless.
+
+**AC #5, the exact scenario that was impossible before:**
+
+```
+node grounding-wiki/gates/cli.mjs freshness . docs/wiki   → exit 1   (RED — 2 notes stale)
+node --test                                                → 426 pass / 0 fail
+git commit                                                 → SUCCEEDS, hooks live, no --no-verify
+```
+
+Same tree, same stale notes, same hook. Before Phase 2: 425/1 and every commit blocked. The
+suite now tests code; the repo's own state is asserted where end-state invariants belong.
+
+**The must-fix landed.** `ci.yml` gained a **spec-bridge** step (it had none — the removed test
+was this repo's only spec-bridge enforcement) and its freshness step now routes through
+`run-gates.mjs`, so both self-checks share one runner and one exit-code contract. The new drift
+test reads the **real** `ci.yml` and fails if either step disappears, with a message naming the
+consequence.
+
+**Contract untouched.** `docs/consuming-gates.md` versions `run-gates.mjs`'s names/flags/exit
+codes (0 pass · 1 any gate failed, crash counts as failed · 2 usage). This phase adds *callers*,
+not a code change — `run-gates.mjs` itself is unmodified.
+
+**Test count moved 426 → 426:** one repo-state assertion removed, one ci.yml drift check added.
+Every genuine code-behavior test in the file is retained.

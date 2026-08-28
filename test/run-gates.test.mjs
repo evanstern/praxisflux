@@ -17,10 +17,30 @@ test("run-gates: unknown or empty gate lists are usage errors, never silent skip
   assert.throws(() => runGates([], opts(repo)), /no gates requested/);
 });
 
-test("run-gates: the praxisflux repo itself passes spec-bridge and wiki-freshness", () => {
-  const results = runGates(["spec-bridge", "wiki-freshness"], opts(repo));
-  for (const r of results) assert.deepEqual(r.problems, [], `${r.gate}: ${r.problems.join("; ")}`);
-  assert.match(results[1].ok, /note\(s\) fresh/);
+// This repo's OWN spec-bridge/wiki-freshness state used to be asserted here. It moved out of
+// `node --test` in spec 057: it is a repo-STATE self-check, not a test of runGates' behavior,
+// and mid-PR it is red BY CONSTRUCTION (the re-pin follows the source commit; a claimed card
+// precedes its merged spec dir). In the per-commit path it blocked every commit until the work
+// doctrine sequences last had landed — which trained `--no-verify` (2026-08-02, TASK-100/93) and
+// amplified one red gate into ~50 findings, one per Done-eligible spec (2026-08-27, TASK-102).
+// It now runs where end-state invariants belong — `.github/workflows/ci.yml`, asserted present
+// by the test below — and by hand as:
+//     node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .
+// See docs/skill-patterns.md §4, "Repo-STATE self-checks gate the PR".
+
+// The repo's own gate steps are hand-maintained in ci.yml; this is the drift check that keeps
+// them there. Removing the self-check above without this would have silently dropped
+// spec-bridge enforcement on praxisflux entirely — CI had a wiki-freshness step but NO
+// spec-bridge step (spec 057's must-fix finding).
+test("run-gates: ci.yml runs the repo's own spec-bridge and wiki-freshness self-checks", () => {
+  const ci = readFileSync(join(repo, ".github", "workflows", "ci.yml"), "utf8");
+  for (const gate of ["spec-bridge", "wiki-freshness"]) {
+    assert.ok(
+      new RegExp(`run:\\s*node scripts/run-gates\\.mjs --gates ${gate} --path \\.`).test(ci),
+      `ci.yml no longer runs the repo's own ${gate} self-check — spec 057 moved it here from ` +
+      `node --test; without a CI step this repo has NO ${gate} enforcement at all`,
+    );
+  }
 });
 
 test("run-gates: course gate failure names the fix (missing index.html)", () => {
