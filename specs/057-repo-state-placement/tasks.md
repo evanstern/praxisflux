@@ -53,21 +53,21 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 
 ## Phase 3 — pre-push warns; stop-docs becomes window-aware
 
-- [ ] Restructure `.githooks/pre-push` to run each check, capture output, print findings, and
+- [x] Restructure `.githooks/pre-push` to run each check, capture output, print findings, and
       **exit 0**. `set -e` is currently on and aborts at the first nonzero — remove or scope
       it and capture exit codes explicitly
-- [ ] **Preserve the fail-closed distinction:** a gate that produced parseable *findings*
+- [x] **Preserve the fail-closed distinction:** a gate that produced parseable *findings*
       warns; a gate that **crashed, timed out, or could not run** still fails. Distinguish by
       whether findings were produced, not by exit code alone
-- [ ] Warning text must state that mid-PR redness is expected before the re-pin/bump — a
+- [x] Warning text must state that mid-PR redness is expected before the re-pin/bump — a
       warning that reads like a failure trains the same bypass reflex it exists to remove
-- [ ] Wire the Phase-1 window into `scripts/stop-docs.mjs`: inside ⇒ **notice** naming the
+- [x] Wire the Phase-1 window into `scripts/stop-docs.mjs`: inside ⇒ **notice** naming the
       owed re-pin, turn ends; outside (and on `main`) ⇒ **blocks**, as today
-- [ ] The notice states the obligation as **owed, not discharged** — due before the PR
+- [x] The notice states the obligation as **owed, not discharged** — due before the PR
       (TASK-105's ordering ruling), not forgiven
-- [ ] Confirm `checkDocs` (README/CLAUDE sync) is **unchanged and unconditionally blocking**:
+- [x] Confirm `checkDocs` (README/CLAUDE sync) is **unchanged and unconditionally blocking**:
       it compares tracked files to repo structure, so it is never red-by-construction
-- [ ] Tests: both sides of the window for `stop-docs`; `pre-push` warns on findings and still
+- [x] Tests: both sides of the window for `stop-docs`; `pre-push` warns on findings and still
       fails on a missing/crashing gate script
 - [ ] Commit
 
@@ -207,3 +207,42 @@ not a code change — `run-gates.mjs` itself is unmodified.
 
 **Test count moved 426 → 426:** one repo-state assertion removed, one ci.yml drift check added.
 Every genuine code-behavior test in the file is retained.
+
+### Phase 3 findings (2026-08-28)
+
+**Both surfaces changed, both verified live on this branch's real state.**
+
+`pre-push` — findings warn (exit 0), unrunnable blocks (exit 1). Verified by running it against
+this very tree: it reported the version bump owed and four stale notes, and **exited 0**. Then,
+with `grounding-wiki/gates/cli.mjs` temporarily moved aside, it exited **1** with `COULD NOT RUN`.
+That is the fail-closed distinction working, not argued.
+
+**The classification cannot key on exit code alone** — this was the one real design problem in
+the phase. Node exits `1` both for a gate's findings and for an uncaught exception, so a naive
+"exit 1 ⇒ warn" would silently forgive a crashing gate, inverting the fail-closed doctrine. Each
+check therefore declares a **marker regex** its genuine output contains; exit 1 *plus* a marker
+is findings, anything else is a failure to run.
+
+`stop-docs` — window-aware via the Phase-1 module, using `lib/gate-runner.mjs`'s existing `warn`
+channel (non-blocking, surfaced on stderr). No new plumbing: inside the window routes to `warn`,
+outside stays in `check`. Verified live — with four notes stale from this branch's unmerged
+commits, the hook printed the owed re-pins and **exited 0**.
+
+**Two deliberate non-generalizations**, both tested:
+- A gate failure with **no** STALE line (malformed note, missing source, budget breach) never
+  consults the window and always blocks. The window's excuse is only ever about staleness.
+- `checkDocs` is untouched and unconditionally blocking — it compares tracked files to repo
+  structure and is never red by construction.
+
+**Phase 2 staled two more notes than tracked.** `pre-push`'s live run surfaced
+`release-pipeline.md` and `test-suite-catalog.md` (from the `ci.yml` and test-file edits) on top
+of Phase 1's two. Four notes now owe re-pins in Phase 4 — and the tool found them, which is the
+point.
+
+**A test bug of mine, worth recording.** My first "clean tree" assertion checked that the word
+*findings* never appeared, but the hook's closing footer contained it unconditionally. The test
+was right that something was off: a clean tree should not print an explanation of mid-PR redness
+at all. Fixed on **both** sides — the footer is now gated on whether anything was reported, and
+the assertion checks for the finding label rather than a bare word.
+
+**Suite: 437 pass / 0 fail** (426 → 437: +6 stop-docs window, +5 pre-push).

@@ -1,12 +1,76 @@
 #!/usr/bin/env bash
-# praxisflux pre-push — don't push released-surface changes without a version bump.
-# Local mirror of the CI gate (ci.yml runs the same script); CI stays authoritative
-# because core.hooksPath is per-clone. Enable once with:
-#   git config core.hooksPath .githooks
-set -e
+# praxisflux pre-push — report end-state findings; do not wedge the push.
+#
+# Both checks below are repo-STATE self-checks (docs/skill-patterns.md §4): they assert things
+# about this checkout's END state — "released surface changed ⇒ version bumped", "every pinned
+# note is fresh". Mid-PR they are red BY CONSTRUCTION, because doctrine sequences the version
+# bump to merge-readiness and the wiki re-pin to after the commit that touched the sources.
+#
+# So they WARN here and exit 0 (spec 057 R3). This is not a weakening — it is this repo's own
+# stated posture applied: local surfaces are advisory, CI is the authoritative enforcement point
+# (CLAUDE.md, "Enforcement is split by design"), and core.hooksPath is per-clone so a local hook
+# can silently be absent entirely. `.github/workflows/ci.yml` runs both of these and BLOCKS the
+# PR on either; nothing about that changed. What changed is that an intermediate push — the one
+# the sweep's claim step requires, so in-flight work is auditable from any clone — is no longer
+# forbidden by a check that cannot be satisfied yet.
+#
+# FAIL-CLOSED DISTINCTION (do not collapse this to "always exit 0"). A check that produced
+# real FINDINGS warns. A check that CRASHED, timed out, or could not run at all still FAILS:
+# per docs/wiki/gates-convention.md, a check that cannot run is a blocking problem, never a
+# silent green. Exit code alone can't tell them apart — node exits 1 both for a gate's findings
+# and for an uncaught exception — so each check declares the marker its real output contains.
+#
+# Enable once with:  git config core.hooksPath .githooks
 repo="$(git rev-parse --show-toplevel)"
-cd "$repo"
-echo "pre-push: version bump check vs origin/main"
-node scripts/check-version-bump.mjs --base origin/main
-echo "pre-push: grounding wiki freshness"
-node grounding-wiki/gates/cli.mjs freshness . docs/wiki
+cd "$repo" || exit 1
+
+failed=0
+reported=0   # did any check actually report findings?
+
+# run_check <label> <findings-marker-regex> <command...>
+#   exit 0                        → pass, silent
+#   exit 1 + marker in output     → findings: print them as a warning, keep going
+#   anything else                 → crash / usage error / unrecognized: print and FAIL the push
+run_check() {
+  local label="$1" marker="$2"; shift 2
+  local out status
+  out="$("$@" 2>&1)"; status=$?
+
+  if [ $status -eq 0 ]; then
+    printf 'pre-push: %s — ok\n' "$label"
+    return 0
+  fi
+
+  if [ $status -eq 1 ] && printf '%s' "$out" | grep -qE "$marker"; then
+    reported=1
+    printf 'pre-push: %s — findings (not blocking)\n' "$label"
+    printf '%s\n' "$out" | sed 's/^/  /'
+    return 0
+  fi
+
+  printf 'pre-push: %s — COULD NOT RUN (exit %d) — blocking\n' "$label" "$status" >&2
+  printf '%s\n' "$out" | sed 's/^/  /' >&2
+  failed=1
+  return 1
+}
+
+run_check "version bump vs origin/main" \
+  'version-bump check failed|no released surface changed|version bump ok' \
+  node scripts/check-version-bump.mjs --base origin/main
+
+run_check "grounding wiki freshness" \
+  'STALE|no verified_against|not a corpus|source missing|OK: [0-9]+ note' \
+  node grounding-wiki/gates/cli.mjs freshness . docs/wiki
+
+if [ $failed -ne 0 ]; then
+  printf '\npre-push: a check could not run — that is a blocking problem, not a finding.\n' >&2
+  exit 1
+fi
+
+# Only explain mid-PR redness when there was some: on a clean tree this footer would be noise.
+if [ $reported -ne 0 ]; then
+  printf '\npre-push: the findings above are expected mid-PR — the version bump lands at\n'
+  printf 'merge-readiness and the wiki re-pin follows the commit that staled it. Both are\n'
+  printf 'enforced on the PR by ci.yml, which blocks. Clear them before opening the PR.\n'
+fi
+exit 0
