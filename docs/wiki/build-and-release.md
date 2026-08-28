@@ -73,13 +73,14 @@ marketplace plugin (table row + `/plugin install` line) and every `lib/*.mjs` ch
 runs a two-way plugin census (a row or install line for a name `marketplace.json` doesn't
 register is a problem, and every `<N> plugins` count claim in README prose — digits or
 number words — must equal the registered count, so count drift fails the gate), and checks
-that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate
-(`node grounding-wiki/gates/cli.mjs freshness . docs/wiki`) covers the semantic half. Both
+that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate covers the semantic half. Both
 run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
-`lib/gate-runner`, wired by the tracked `.claude/settings.json`) that blocks ending a session
-turn while either fails. The Stop gate's `underRepo` (exported for tests) realpaths both
-sides and requires a separator boundary: symlinked launches still fire; `praxis-anything`
-siblings don't.
+`lib/gate-runner`, wired by the tracked `.claude/settings.json`). `check-docs` always blocks;
+freshness blocks **except inside the re-pin window** (spec 057) — when the commits that staled
+a note are themselves unmerged the re-pin is legitimately owed later, so the gate notices what
+is owed instead of wedging the turn. Unexplained staleness still blocks, and every unknown
+fails closed. The Stop gate's `underRepo` realpaths both sides and requires a
+separator boundary, so symlinked launches fire but `praxis-anything` siblings don't.
 
 **External consumption — [[gates-consumption-surface]].** The gates run in repos that don't
 carry praxisflux: `scripts/build-npm.mjs` stages the `@praxisflux/gates` npm package
