@@ -1,11 +1,11 @@
 ---
 id: TASK-104
 title: spec-bridge gate is blind to spec dirs that live only on a branch
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-03 19:31'
-updated_date: '2026-08-28 18:46'
+updated_date: '2026-08-28 18:55'
 labels: []
 dependencies: []
 ordinal: 136000
@@ -122,4 +122,12 @@ spec-bridge-plugin.md took a size_budget_exempt at 8455/8000. It was at 7998/800
 Gates at PR: suite 449/449, freshness exit 0 (40 notes fresh), check-docs exit 0, version-bump 0.57.0 -> 0.58.0 ok.
 
 Two host facts cost real time and are now recorded in docs/design/jira-board-runbook.md so the next session does not repay them: (1) the suite runs as bare `node --test` — passing a path makes node resolve `test` as a MODULE and die with MODULE_NOT_FOUND, which reads as a red suite but is not; this produced three wrong conclusions before .githooks/pre-commit was read. (2) grep suppresses matches in spec-bridge/gates/bridge.mjs because a literal NUL at line 217 marks the file binary — it prints "Binary file ... matches" with no line numbers; spec 053 edits that file directly.
+
+spec-bridge sync: Phase 1 — the git spec-source resolver: 7/7 · Phase 2 — wire the resolver into the derivation: 4/4 · Phase 3 — prove the branch-held scenario: 8/8 · Phase 4 — grounding and release: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — the git spec-source resolver: 7/7 · Phase 2 — wire the resolver into the derivation: 4/4 · Phase 3 — prove the branch-held scenario: 8/8 · Phase 4 — grounding and release: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
