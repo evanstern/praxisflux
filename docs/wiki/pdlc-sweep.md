@@ -36,7 +36,8 @@ phases, gate → work → gate:
 - **Execute:** per task, the host PDLC loop instantiated — root freshness, then
   **claim before any spec authoring** (the branch's first commit — cut from
   `origin/main`, which does not yet contain the spec — claims the task: card → In
-  Progress, a spec-dir stub, **and the `spec-bridge:link` marker against that stub**,
+  Progress — a **deliverable-state** flip that rides this commit, not the two-track
+  board track (spec 057) — a spec-dir stub, **and the `spec-bridge:link` marker against that stub**,
   so the bridge's Stop gate is armed from the first commit rather than after the spec
   cycle it protects — armed late, it is disarmed by exactly the skip it exists to
   catch; pushed -u immediately, never force-pushed; rejected push = race lost: re-read
