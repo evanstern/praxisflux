@@ -2,18 +2,18 @@
 
 ## Phase 1 — the git spec-source resolver
 
-- [ ] Create `lib/spec-source.mjs` exporting `resolveSpecSource(specDir)` returning
+- [x] Create `lib/spec-source.mjs` exporting `resolveSpecSource(specDir)` returning
       `{ has, read, source }`.
-- [ ] Worktree path: when `existsSync(specDir)`, back `has`/`read` with `fs` and set
+- [x] Worktree path: when `existsSync(specDir)`, back `has`/`read` with `fs` and set
       `source = { kind: "worktree", path: specDir }`; return before any git call.
-- [ ] Ref enumeration: local `HEAD`, then `refs/remotes/origin/task-*` via
+- [x] Ref enumeration: local `HEAD`, then `refs/remotes/origin/task-*` via
       `git for-each-ref`, computed once per process and memoized.
-- [ ] Ref reads via `execFileSync("git", [...])` (argv form, never a shell string) with
+- [x] Ref reads via `execFileSync("git", [...])` (argv form, never a shell string) with
       `stdio: ["ignore", "pipe", "ignore"]`; only `show` / `ls-tree` / `rev-parse` /
       `for-each-ref`.
-- [ ] Select the first ref whose tree contains `<specDir>/spec.md`; memoize per `(ref, path)`.
-- [ ] Degrade without throwing when git is missing, the dir is not a repo, or no ref matches.
-- [ ] Unit tests in `test/spec-source.test.mjs` against a real scratch repo in a temp dir
+- [x] Select the first ref whose tree contains `<specDir>/spec.md`; memoize per `(ref, path)`.
+- [x] Degrade without throwing when git is missing, the dir is not a repo, or no ref matches.
+- [x] Unit tests in `test/spec-source.test.mjs` against a real scratch repo in a temp dir
       (real commits, real branch — no mocks).
 
 ## Phase 2 — wire the resolver into the derivation
