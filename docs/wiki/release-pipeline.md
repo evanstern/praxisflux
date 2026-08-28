@@ -38,14 +38,25 @@ silent skip of the increase check). Every SKILL.md carries a `version:` for this
 
 `.github/workflows/ci.yml` runs on every PR (and main): `node --test`,
 `gen-marketplace.mjs --check`, `sync-version.mjs --check`, a full `build.mjs` package run,
-`check-docs.mjs`, the wiki freshness gate, and — PRs only — the bump gate against
+`check-docs.mjs`, **this repo's own spec-bridge and wiki-freshness self-checks** (both via
+`scripts/run-gates.mjs --path .`), and — PRs only — the bump gate against
 `origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags resolve). A
 second job, `install-path`, re-runs `test/install-path.test.mjs` on its own: the marketplace
 install simulation that copies each hook-shipping plugin with its `lib` symlink dereferenced
 and spawns its Stop hook end-to-end — the file also runs inside the main `node --test` step,
-but the separate job keeps the install-path signal its own visible check. The pre-push hook
-(`.githooks/pre-push`) mirrors the bump gate and the freshness gate locally; CI stays
-authoritative because `core.hooksPath` is per-clone.
+but the separate job keeps the install-path signal its own visible check.
+
+The two self-check steps landed with spec 057, which moved them out of `node --test`: they
+assert **repo state**, not code behavior, and mid-PR they are red by construction (see
+[[gates-convention]]). `spec-bridge` had no CI step before that — its only enforcement was the
+test spec 057 removed — so `test/run-gates.test.mjs` now asserts both steps stay in `ci.yml`.
+
+The pre-push hook (`.githooks/pre-push`) runs the same bump and freshness checks locally but
+**warns and exits 0** on findings, because both are legitimately red mid-PR; a check that
+*cannot run* still blocks it (exit code alone can't tell findings from a crash, so each check
+declares a marker its real output carries). CI stays authoritative — and `core.hooksPath` is
+per-clone, so a local hook may be absent or, if it points at a stale path, silently run nothing
+at all (observed 2026-08-27).
 
 ## Release workflow
 

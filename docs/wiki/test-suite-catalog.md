@@ -82,7 +82,9 @@ One bullet per `test/*.test.mjs` file:
   non-kebab-case names are rejected before touching disk.
 - `test/run-gates.test.mjs` — `scripts/run-gates.mjs` (the CI consumption surface behind
   action.yml): unknown or empty gate lists are usage errors (exit 2), never silent skips;
-  the praxisflux repo passes its own spec-bridge + wiki-freshness gates; failures name the
+  `ci.yml` still runs the repo's own spec-bridge + wiki-freshness self-checks (spec 057 moved
+  that assertion OUT of `node --test` — it is repo state, red by construction mid-PR — and this
+  drift check is what keeps the CI steps from being dropped); failures name the
   fix (course's missing index.html, shallow clone → `fetch-depth: 0`); an exception thrown
   WHILE a gate runs exits 1 (gate failure), never 2; the `GATES` registry and action.yml's
   documented gate list are drift-checked against each other; and the realpathed run-as-CLI
