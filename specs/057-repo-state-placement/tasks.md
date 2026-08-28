@@ -28,7 +28,7 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
       as outside the window ⇒ block. Never open the window on missing information
 - [x] Tests: inside-window, outside-window, staleness explained by an already-merged commit,
       and the no-`origin/main` fallback
-- [ ] Commit
+- [x] Commit — a0b005a + a9bfd0a
 
 ## Phase 2 — Move the self-check; close the CI gap
 
@@ -49,7 +49,7 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 - [x] **AC #5 — prove it by execution, not argument:** on a scratch branch, deliberately
       stale a pinned note, run `node --test` (must be **green**), and commit with hooks
       enabled (must **succeed**). Record the transcript in Notes
-- [ ] Commit
+- [x] Commit — 94c544a
 
 ## Phase 3 — pre-push warns; stop-docs becomes window-aware
 
@@ -69,7 +69,7 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
       it compares tracked files to repo structure, so it is never red-by-construction
 - [x] Tests: both sides of the window for `stop-docs`; `pre-push` warns on findings and still
       fails on a missing/crashing gate script
-- [ ] Commit
+- [x] Commit — b377144
 
 ## Phase 4 — Retire the softening, re-ground, close
 
@@ -99,7 +99,7 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
       `check-docs`, `sync-version --check`, `check-version-bump`
 - [x] **Confirm this PR was opened without a single `--no-verify`** — the practical proof the
       wedge is gone. If any was needed, that is a defect in this spec: record it
-- [ ] Commit
+- [x] Commit — 025804d + 9c4e990 + 40f7cb9
 
 ## Notes
 

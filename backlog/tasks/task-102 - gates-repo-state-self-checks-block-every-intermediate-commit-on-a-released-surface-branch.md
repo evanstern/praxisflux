@@ -3,11 +3,11 @@ id: TASK-102
 title: >-
   gates: repo-state self-checks block every intermediate commit on a
   released-surface branch
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-03 02:12'
-updated_date: '2026-08-27 19:14'
+updated_date: '2026-08-28 14:51'
 labels:
   - debt
   - gates
@@ -41,10 +41,10 @@ Spec: specs/057-repo-state-placement
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec phase: Phase 1 — State the rule; compute the window
-- [ ] #2 Spec phase: Phase 2 — Move the self-check; close the CI gap
-- [ ] #3 Spec phase: Phase 3 — pre-push warns; stop-docs becomes window-aware
-- [ ] #4 Spec phase: Phase 4 — Retire the softening, re-ground, close
+- [x] #1 Spec phase: Phase 1 — State the rule; compute the window
+- [x] #2 Spec phase: Phase 2 — Move the self-check; close the CI gap
+- [x] #3 Spec phase: Phase 3 — pre-push warns; stop-docs becomes window-aware
+- [x] #4 Spec phase: Phase 4 — Retire the softening, re-ground, close
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -90,4 +90,12 @@ Consequences for spec 057:
 - Phase 3's window computation must therefore be evaluated where the check RUNS, and must handle 'the board says In Progress but this checkout has no such spec dir' as the branch-local case TASK-104 describes — not as neglect.
 
 This strengthens R2's argument: a check whose answer depends on WHICH CHECKOUT you run it from is definitionally repo-state, not a code-behavior test.
+
+spec-bridge sync: Phase 1 — State the rule; compute the window: 8/8 · Phase 2 — Move the self-check; close the CI gap: 7/7 · Phase 3 — pre-push warns; stop-docs becomes window-aware: 8/8 · Phase 4 — Retire the softening, re-ground, close: 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — State the rule; compute the window: 8/8 · Phase 2 — Move the self-check; close the CI gap: 7/7 · Phase 3 — pre-push warns; stop-docs becomes window-aware: 8/8 · Phase 4 — Retire the softening, re-ground, close: 12/12). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
