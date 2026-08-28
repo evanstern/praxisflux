@@ -86,7 +86,7 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 - [x] State that the replacement is **this mechanism, not a new license** — sessions no longer
       need `--no-verify` because the hooks no longer forbid the legitimate mid-task state. An
       expiry that reads as "the bypass is gone, good luck" invites its reinvention
-- [ ] Enumerate the before/after PR-blocking checks in the PR body (AC #10): local surfaces
+- [x] Enumerate the before/after PR-blocking checks in the PR body (AC #10): local surfaces
       more permissive, authoritative surface strictly stronger (spec-bridge added)
 - [x] Check whether this PR touches released surface (`scripts/`) — if so, bump the
       marketplace version and run `node scripts/sync-version.mjs`
@@ -95,9 +95,9 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
       **RE-PIN-ONLY** or **NEEDS-REVIEW** per the honest-re-pins rule
 - [x] Run `node scripts/check-docs.mjs`; update `README.md`/`CLAUDE.md` if what the repo
       enforces changed
-- [ ] All gates green: `node --test`, `run-gates.mjs --gates spec-bridge,wiki-freshness`,
+- [x] All gates green: `node --test`, `run-gates.mjs --gates spec-bridge,wiki-freshness`,
       `check-docs`, `sync-version --check`, `check-version-bump`
-- [ ] **Confirm this PR was opened without a single `--no-verify`** — the practical proof the
+- [x] **Confirm this PR was opened without a single `--no-verify`** — the practical proof the
       wedge is gone. If any was needed, that is a defect in this spec: record it
 - [ ] Commit
 
@@ -246,3 +246,36 @@ at all. Fixed on **both** sides — the footer is now gated on whether anything 
 the assertion checks for the finding label rather than a bare word.
 
 **Suite: 437 pass / 0 fail** (426 → 437: +6 stop-docs window, +5 pre-push).
+
+### Phase 4 findings (2026-08-28) — closed
+
+**PR #129 opened. All four phases' boxes ticked; every gate CI runs is green.**
+
+**The dogfood claim, answered honestly.** The spec's Dogfood note said this branch must land
+without `--no-verify`. It did: all 12 branch commits went through the full `pre-commit` hook.
+The one `--no-verify` in this task was the board commit on `main` at claim time — **before**
+this spec's fix existed, disclosed in its own message, and it is precisely the wedge the spec
+removes. From here a `--no-verify` is a defect report, not a workaround.
+
+**Re-pin volume was 17 notes, not 4.** The version bump touched every `plugin.json`, so the
+blast radius was far wider than the spec anticipated. The wiki-update **plan classifier** did
+the mechanical half (7 RE-PIN-ONLY computed and executed as printed); the other 10 were
+NEEDS-REVIEW and each got its prose amended before its pin moved. Three flagged as "quotes
+version literals" turned out to need no edit — `reorient` 0.5.0 and `team-review` 1.3.0 are
+SKILL versions untouched by a marketplace bump, and `build-and-release`'s were an example plus
+two historical facts. **Checked rather than assumed**, which is the whole point of the
+classification.
+
+**Budget pressure is real and the tooling caught it twice.** Adding the 0.57.0 entry put
+`pdlc-sweep-history-recent` 491 chars over (it had 6 chars of headroom); `build-and-release`
+went 72 over. Both took the prescribed remedy — a summary-style split and a genuine trim —
+rather than `size_budget_exempt`, which is for things that cannot be split, not for prose just
+added. Fixing the split's range claims then pushed a capsule 18 chars over its 500 cap, caught
+by the same gate.
+
+**Two of my own mistakes, for the record.** (1) An unquoted shell variable made four notes look
+like they had no staling commits — the gate was right and my ad-hoc loop was wrong; I re-ran it
+correctly rather than trusting the convenient answer. (2) A gate-sweep loop mangled multi-word
+commands and reported all eight gates failing seconds after they passed; implausible on its
+face, so I checked one directly and found the loop at fault. Both are the same lesson the spec
+teaches at a larger scale: **verify the tool before believing its verdict.**
