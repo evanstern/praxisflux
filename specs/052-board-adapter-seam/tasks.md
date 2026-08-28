@@ -29,19 +29,19 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 2 — Move the parser, prove nothing broke
 
-- [ ] Move `parseLinkedTask` and the `backlog/tasks/*.md` scan from
+- [x] Move `parseLinkedTask` and the `backlog/tasks/*.md` scan from
       `spec-bridge/gates/bridge.mjs` into `lib/board-mirror.mjs` — **move, never copy**
       (two parsers will drift; that is the risk this phase exists to eliminate)
-- [ ] Re-export from `bridge.mjs`:
+- [x] Re-export from `bridge.mjs`:
       `export { parseLinkedTask, findLinkedTasks } from "../lib/board-mirror.mjs";`
       using the same relative form `bridge.mjs` already uses for `spec-derive.mjs`
-- [ ] Grep every import site of both symbols across the repo and confirm each still resolves
+- [x] Grep every import site of both symbols across the repo and confirm each still resolves
       (`gates/cli.mjs`, tests, any downstream reference)
-- [ ] Run `node --test` — **`test/spec-bridge.test.mjs`, `test/project-gates.test.mjs`, and
+- [x] Run `node --test` — **`test/spec-bridge.test.mjs`, `test/project-gates.test.mjs`, and
       `test/phase-status.test.mjs` must pass with zero edits to those files** (AC #9). A
       failure here means the move is wrong; fix the move, never the test
-- [ ] Record in Notes: what moved, what re-exports, and the test-count before/after
-- [ ] Commit
+- [x] Record in Notes: what moved, what re-exports, and the test-count before/after
+- [x] Commit
 
 ## Phase 3 — Staleness, provider registry, the Backlog projector
 
@@ -158,3 +158,44 @@ character embedded in that source line, not a display artifact) and `grep -na "M
 correctly returns both real matches (lines 258, 270). **Phase 2 must use `grep -a`/`grep -na`
 for every import-site grep of `parseLinkedTask`/`findLinkedTasks`** — plain `grep` against this
 file will silently under-report and could let a broken re-export ship undetected.
+
+### Phase 2 (implementer: sonnet tier, cc/claude-sonnet-5[1m])
+
+**What moved:** `MARKER` regex, `parseLinkedTask(raw)`, and `findLinkedTasks(root)` relocated
+verbatim (byte-identical bodies) from `spec-bridge/gates/bridge.mjs` into
+`lib/board-mirror.mjs`, appended after `evaluateProjectGates` with a section-header comment
+explaining the move rationale (spec 052 phase 2, moved-not-copied). `bridge.mjs` no longer
+defines either symbol.
+
+**What re-exports:** `bridge.mjs` now does both an `import` (needed because `checkBridge`,
+`verifyBridge`, and `planBridge` all call `findLinkedTasks(root)` internally — a bare
+`export { x } from "mod"` re-export does NOT bind `x` as a local name in the re-exporting
+module, so import-then-export was required, not optional) and an `export`:
+```js
+import { parseLinkedTask, findLinkedTasks } from "../lib/board-mirror.mjs";
+// ...
+export { parseLinkedTask, findLinkedTasks };
+```
+This uses the same relative form (`../lib/board-mirror.mjs`) `bridge.mjs` already used for
+`spec-derive.mjs`/`project-root.mjs`. Also removed the now-unused `readdirSync` import from
+`node:fs` in `bridge.mjs` (its only caller, `findLinkedTasks`, moved away; `existsSync` and
+`readFileSync` are still used elsewhere in the file and were kept).
+
+**Import-site sweep (AC #7):** `grep -na "parseLinkedTask\|findLinkedTasks"
+spec-bridge/gates/bridge.mjs` (NUL-safe, per Phase 1's warning) shows only the new
+import/export lines and the three internal call sites inside `checkBridge`/`verifyBridge`/
+`planBridge` — no stray definitions left behind. Repo-wide `grep -rn` for both symbols found
+exactly **one** external import site: `test/spec-bridge.test.mjs` imports both directly from
+`../spec-bridge/gates/bridge.mjs` — still resolves via the re-export, unedited. `gates/cli.mjs`
+does **not** import either symbol directly (only `checkBridge`/`loadBridgeConfig`/
+`planBridge`/`verifyBridge`/`vocabularyProfile`), so it needed no change. `test/phase-status.test.mjs`
+and `test/project-gates.test.mjs` import other bridge exports, not these two, and were
+unaffected structurally.
+
+**Test count:** 458 passing before this phase's edits (Phase 1's baseline) → **458 passing,
+0 failing** after (same count — this phase moves code, adds no new tests; AC #9's three
+protected files show an empty `git diff --stat`, confirmed untouched).
+
+**For Phase 3:** `projectBacklog(root)` (the registry's `backlog` projector) can call the
+now-chassis-resident `findLinkedTasks(root)` directly — it lives in the same module. No import
+needed across files for that call.

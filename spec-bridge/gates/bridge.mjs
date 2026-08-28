@@ -18,11 +18,12 @@
 // derivation-stage ladder against the board's own status names. Absent that config, every
 // path below behaves exactly as described above.
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import { hasChild, findRootsDownwards } from "../lib/project-root.mjs";
+import { parseLinkedTask, findLinkedTasks } from "../lib/board-mirror.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
@@ -255,48 +256,13 @@ export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
   return problems;
 }
 
-const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
 const RANK = { "to do": 0, "in progress": 1, done: 2 };
 const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_ELIGIBLE]: 2 };
 
-/**
- * Parse one Backlog task file. Returns { id, status, specDir, acs } for a linked task,
- * null for anything else (no marker, unreadable, or not a task file). `acs` is the task's
- * acceptance criteria as [{ index, checked, text }] read from the AC:BEGIN/END block —
- * still read-only; the plan command needs them to compute reconciling edits.
- */
-export function parseLinkedTask(raw) {
-  const text = String(raw ?? "");
-  const marker = text.match(MARKER);
-  if (!marker) return null;
-  const fm = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!fm) return null;
-  const field = (name) => fm[1].match(new RegExp(`^${name}:\\s*(.+?)\\s*$`, "m"))?.[1]?.replace(/^['"]|['"]$/g, "") ?? "";
-  const id = field("id");
-  const status = field("status");
-  if (!id) return null;
-  const acs = [];
-  const block = text.match(/<!-- AC:BEGIN -->([\s\S]*?)<!-- AC:END -->/);
-  if (block)
-    for (const m of block[1].matchAll(/^- \[( |x|X)\] #(\d+)\s+(.*\S)\s*$/gm))
-      acs.push({ index: +m[2], checked: m[1] !== " ", text: m[3] });
-  return { id, status, specDir: marker[1], acs };
-}
-
-/** Scan <root>/backlog/tasks/*.md for linked tasks. Unreadable files are skipped. */
-export function findLinkedTasks(root) {
-  const dir = join(root, "backlog", "tasks");
-  let entries = [];
-  try { entries = readdirSync(dir); } catch { return []; }
-  const linked = [];
-  for (const name of entries.filter((n) => n.endsWith(".md")).sort()) {
-    try {
-      const task = parseLinkedTask(readFileSync(join(dir, name), "utf8"));
-      if (task) linked.push({ ...task, file: join(dir, name) });
-    } catch { /* skip unreadable */ }
-  }
-  return linked;
-}
+// parseLinkedTask / findLinkedTasks moved to lib/board-mirror.mjs (spec 052 phase 2) — the
+// backlog projector's parser lives in the chassis now, imported above and re-exported here so
+// every existing import site still resolves.
+export { parseLinkedTask, findLinkedTasks };
 
 /** Compare a task's Backlog status to its derived status: "exceeds" | "lags" | "ok" | "unknown". */
 export function verdict(taskStatus, derivedStatus) {
