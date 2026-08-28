@@ -73,27 +73,27 @@ notes mid-task and **must commit cleanly without `--no-verify`**. Any phase that
 
 ## Phase 4 — Retire the softening, re-ground, close
 
-- [ ] **R5b — state the claim/board-commit boundary** in `pdlc/skills/sweep/SKILL.md`'s claim
+- [x] **R5b — state the claim/board-commit boundary** in `pdlc/skills/sweep/SKILL.md`'s claim
       step AND the two-track bullet of `pdlc/templates/CLAUDE.md`'s `pdlc:peer:backlog` block:
       the claim flip is **deliverable state, not bookkeeping** — two-track's "direct to main"
       covers notes, AC ticks, labels, and new cards, never the status flip that claims a task
-- [ ] Bump `pdlc/skills/sweep/SKILL.md`'s own `version:`; re-plant the root `CLAUDE.md`
+- [x] Bump `pdlc/skills/sweep/SKILL.md`'s own `version:`; re-plant the root `CLAUDE.md`
       (or diff + consent its drift) so the planted block and the template agree
-- [ ] Re-pin the four notes sourcing the sweep skill (`pdlc-sweep`, `pdlc-sweep-history`,
+- [x] Re-pin the four notes sourcing the sweep skill (`pdlc-sweep`, `pdlc-sweep-history`,
       `pdlc-sweep-history-early`, `pdlc-sweep-history-recent`) plus `pdlc-grounding-block`
-- [ ] Update `docs/design/gates-and-doctrine-sweep-runbook.md:30-32`: record amendment 1's
+- [x] Update `docs/design/gates-and-doctrine-sweep-runbook.md:30-32`: record amendment 1's
       `--no-verify` softening as **expired**, naming this spec
-- [ ] State that the replacement is **this mechanism, not a new license** — sessions no longer
+- [x] State that the replacement is **this mechanism, not a new license** — sessions no longer
       need `--no-verify` because the hooks no longer forbid the legitimate mid-task state. An
       expiry that reads as "the bypass is gone, good luck" invites its reinvention
 - [ ] Enumerate the before/after PR-blocking checks in the PR body (AC #10): local surfaces
       more permissive, authoritative surface strictly stronger (spec-bridge added)
-- [ ] Check whether this PR touches released surface (`scripts/`) — if so, bump the
+- [x] Check whether this PR touches released surface (`scripts/`) — if so, bump the
       marketplace version and run `node scripts/sync-version.mjs`
-- [ ] Re-pin `docs/wiki/` notes whose `sources:` this touched — at minimum
+- [x] Re-pin `docs/wiki/` notes whose `sources:` this touched — at minimum
       `gates-convention`, `test-suite`, `skill-patterns`, `build-and-release`; classify each
       **RE-PIN-ONLY** or **NEEDS-REVIEW** per the honest-re-pins rule
-- [ ] Run `node scripts/check-docs.mjs`; update `README.md`/`CLAUDE.md` if what the repo
+- [x] Run `node scripts/check-docs.mjs`; update `README.md`/`CLAUDE.md` if what the repo
       enforces changed
 - [ ] All gates green: `node --test`, `run-gates.mjs --gates spec-bridge,wiki-freshness`,
       `check-docs`, `sync-version --check`, `check-version-bump`

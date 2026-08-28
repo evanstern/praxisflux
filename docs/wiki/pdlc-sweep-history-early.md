@@ -1,11 +1,11 @@
 ---
 name: pdlc-sweep-history-early
-description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.44.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, refactor-triage handoff, model-ID pinning, phase-scoped dispatch, cost levers, Spec-Kit degradation hardening — the field cases that forced each. Newer releases live in pdlc-sweep-history-recent; current doctrine is pdlc-sweep.
+description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.44.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, model-ID pinning, phase-scoped dispatch, cost levers, Spec-Kit degradation hardening — the field cases that forced each. Newer releases live in pdlc-sweep-history-recent; current doctrine is pdlc-sweep.
 kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
 ---
 
 # pdlc:sweep — doctrine history (0.12.1–0.42.0)
