@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
+verified_against: 1ac8f1d91ac8df0dd4c615bac7aac6219cb21164
 ---
 
 # Build and release
