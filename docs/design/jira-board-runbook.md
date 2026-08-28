@@ -8,8 +8,8 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 `docs/design/jira-board-handoff.md` win. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** executing (Lane 0) · operator sign-off on Lane 0: 2026-08-28 · **sign-off on
-Lanes 1–4: PENDING**
+**Status:** Lane 0 **done** (TASK-104 merged `a875256`, board Done) · awaiting sign-off to
+start Lane 1 · operator sign-off on Lane 0: 2026-08-28 · **sign-off on Lanes 1–4: PENDING**
 
 <!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
      operator on 2026-08-28 in answer to the blocker question: "Sweep TASK-104 first, then
@@ -32,8 +32,11 @@ Lanes 1–4: PENDING**
 - **In flight in other sessions (do not duplicate; expect their merges):** none observed.
   `git worktree list` showed only the root at sweep start.
 - **Paused — untouched:** none. No task carries the `paused` label.
-- **Queued (this runbook's scope, in execution order):** TASK-104 (Lane 0), then
-  TASK-109, TASK-110, TASK-111, TASK-112, TASK-113.
+- **Queued (this runbook's scope, in execution order):** ~~TASK-104 (Lane 0)~~ **Done
+  2026-08-28** (PR #130, merge `a875256`, v0.58.0) — the epic's last blocker is cleared and
+  TASK-109 is now claimable. Remaining: TASK-109, TASK-110, TASK-111, TASK-112, TASK-113.
+- **Also carded this session:** TASK-114 (flaky `team-review` id test that gates every commit
+  and feeds the spec-bridge project-gate check) — not in this sweep's scope.
 - **Epic:** TASK-108 gets **no PR** (`docs/principles.md` P2).
 
 ## Execution lanes (dependency-ordered; parallelize within a lane)
@@ -218,4 +221,4 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-08-28 | TASK-107 | — (board track, direct to `main`) | `05bb793` | ~257k subagent tokens (3 probes) | Done. Tier pins verified to actually serve via the 9router ledger, not self-report. Unblocked the epic by one of its two deps. |
-| 2026-08-28 | TASK-104 | [#130](https://github.com/evanstern/praxisflux/pull/130) | _pending_ | ~407k subagent tokens (3 phase dispatches: ~152k + ~122k + ~133k) | Lane 0. Claim `3615c12` (atomic: card + spec 058 + link, pushed). All 4 phases done: 1 `0608633` (resolver, +6 tests), 2 `c05631c` (wiring, +3/−7 in spec-derive), 3 `1b3e6f8` (+6 integration tests, AC1–AC8), 4 `70716f9` (re-pins + 0.58.0), plus `0d8685f` (the 11 notes the bump staled). All dispatches sonnet · `cc/claude-sonnet-5[1m]`, served model confirmed via router ledger. Suite 449/449; freshness exit 0; bump gate ok. |
+| 2026-08-28 | TASK-104 | [#130](https://github.com/evanstern/praxisflux/pull/130) | `a875256` | ~407k subagent tokens (3 phase dispatches: ~152k + ~122k + ~133k) | **Done.** Lane 0 complete. Claim `3615c12` (atomic: card + spec 058 + link, pushed). All 4 phases: 1 `0608633` (resolver, +6 tests), 2 `c05631c` (wiring, +3/−7 in spec-derive), 3 `1b3e6f8` (+6 integration tests, AC1–AC8), 4 `70716f9` (re-pins + 0.58.0), plus `0d8685f` (the 11 notes the bump staled). All dispatches sonnet · `cc/claude-sonnet-5[1m]`, served model confirmed via router ledger. Merged as a merge commit (pins stay reachable); operator merged after review. Board moved to Done by `spec-bridge:sync`'s derived plan, never by hand. Suite 449/449; freshness exit 0; bridge check exit 0. |
