@@ -45,18 +45,18 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 3 — Staleness, provider registry, the Backlog projector
 
-- [ ] Read `grounding-wiki/gates/` freshness implementation and record the exact git
+- [x] Read `grounding-wiki/gates/` freshness implementation and record the exact git
       invocation shape it uses for ancestry (argv, `shell: false`, failure handling)
-- [ ] Implement `mirrorStaleness(root, mirror, { headSha })` with the three fail-closed
+- [x] Implement `mirrorStaleness(root, mirror, { headSha })` with the three fail-closed
       cases: non-ancestor sha, absent sha on a `requiresSync` provider, non-git root
-- [ ] Implement the `providers` registry as a module-level object literal;
+- [x] Implement the `providers` registry as a module-level object literal;
       `backlog: { requiresSync: false, project: projectBacklog }`
-- [ ] Implement `projectBacklog(root)` on the moved parser — returns the `links` array
-- [ ] Confirm no `if (provider === "...")` branch exists anywhere: the `requiresSync` flag
+- [x] Implement `projectBacklog(root)` on the moved parser — returns the `links` array
+- [x] Confirm no `if (provider === "...")` branch exists anywhere: the `requiresSync` flag
       and a null `project` carry the distinction
-- [ ] Tests for AC #5 (all three staleness cases) and AC #6 (projector matches
+- [x] Tests for AC #5 (all three staleness cases) and AC #6 (projector matches
       `findLinkedTasks(".")` entry-for-entry on `id`, `status`, `specDir`, `acs`)
-- [ ] Commit
+- [x] Commit
 
 ## Phase 4 — The `--check` CLI, dogfood, and re-ground
 
@@ -199,3 +199,65 @@ protected files show an empty `git diff --stat`, confirmed untouched).
 **For Phase 3:** `projectBacklog(root)` (the registry's `backlog` projector) can call the
 now-chassis-resident `findLinkedTasks(root)` directly — it lives in the same module. No import
 needed across files for that call.
+
+### Phase 3 (implementer: sonnet tier, cc/claude-sonnet-5[1m])
+
+**Git invocation shape matched (from `grounding-wiki/gates/repin-window.mjs:44-50`):** a local
+`git(cwd, args)` helper wrapping `spawnSync("git", args, { cwd, encoding: "utf8" })` — argv
+array (so there is no shell; `shell` is left at its default `false`, never a string command),
+never throws (`r.error` and non-zero `status` both fold into failure, treated as *data* the
+caller branches on, not an exception). `board-mirror.mjs`'s `runGit` follows the identical
+shape but returns `{ status, out }` (keeping the raw exit code, not collapsing to a boolean
+`ok`) because `mirrorStaleness` needs to distinguish exit `1` (`merge-base --is-ancestor`'s
+"valid commits, not an ancestor") from every other nonzero/`error` case (invalid sha, not a
+repo at all) — both are "unknown" to `repin-window.mjs`'s binary `ok`, but the spec's three
+fail-closed cases require telling "not an ancestor" and "cannot verify" apart in the reason
+string. No second convention invented: `spawnSync`, argv, `cwd`, `encoding: "utf8"`, swallow
+`r.error` — all copied verbatim.
+
+**`mirrorStaleness(root, mirror, { headSha = "HEAD" } = {})` implemented** in
+`lib/board-mirror.mjs`. Ancestry: `git merge-base --is-ancestor <observedSha> <headSha>`; exit
+`0` → ancestor (not stale), exit `1` → not an ancestor (stale, reason names the link id and
+sha), anything else (`error`, exit `128` for an unknown/invalid sha, or no git repo at all) →
+stale, reason says "cannot verify … (not a git repo, or the sha is unknown)". `headSha`
+defaults to the literal string `"HEAD"` so a caller with the tree already checked out doesn't
+need a separate `git rev-parse` call — git resolves `"HEAD"` itself given `cwd`.
+
+**Requires-sync case:** a link with no `observedSha` is stale only when its provider is
+`requiresSync: true`. Provider lookup is `providers[mirror.provider]`; an **unregistered**
+provider name (there is no `jira` key yet — spec 056 is a non-goal here) defaults to
+`requiresSync: true` (fail-closed: an unknown provider cannot be assumed safely
+deterministic). The AC #5 test exercises this via `provider: "jira"` rather than waiting on
+spec 056, since the fail-closed default already produces the exact same shape a real
+`requiresSync: true` provider would.
+
+**Registry + projector:** `providers = { backlog: { requiresSync: false, project:
+projectBacklog } }` as a plain object literal. `projectBacklog(root)` = `findLinkedTasks(root)`
+mapped to `{ id, status, specDir, acs }` (drops `file`). Confirmed no `if (provider ===
+"...")` branch exists anywhere in `lib/board-mirror.mjs` — `grep -n 'provider ===\|===
+"backlog"\|=== "jira"'` matches only a comment sentence (`... no \`if (provider === "...")\`
+branch belongs anywhere.`), not code.
+
+**Tests added** to `test/board-mirror.test.mjs` (7 new): the two ancestry directions
+(non-ancestor → stale; ancestor → not stale) against a real two-commit git fixture built with
+`execFileSync("git", ...)` in a tmpdir; absent-sha-on-requiresSync (stale) and
+absent-sha-on-non-requiresSync (fine); non-git root (stale, "cannot verify"); the AC #6
+parity test — `projectBacklog(".")` vs `findLinkedTasks(".")` on this repo's own real
+`backlog/tasks/` (58 linked tasks at time of writing), asserted `deepEqual` after stripping
+`file`; and a direct registry-shape assertion (`providers.backlog.requiresSync === false`,
+`project` is a function).
+
+**Test count:** 458 passing (Phase 2 baseline) → **465 passing, 0 failing** (7 new).
+
+**Spec ambiguity and choice made:** R3/tasks.md say `mirrorStaleness(root, mirror, {
+headSha })` without specifying a default. Chose `headSha = "HEAD"` as the default so a bare
+`mirrorStaleness(root, mirror)` call still does something useful (checks against the
+checked-out tree) rather than silently no-op'ing every link's ancestry check — this only
+matters when a caller omits the option entirely, which the spec doesn't forbid.
+
+**For Phase 4:** the CLI needs `providers[mirror.provider]` to decide `--check`'s branch
+(`requiresSync: false` → recompute via `provider.project(root)` and byte-compare;
+`requiresSync: true` → `validateMirror` + `mirrorStaleness` only, per R5). `mirrorStaleness`
+is ready to call directly with a resolved `headSha` (e.g. from `git rev-parse HEAD`, or just
+pass `"HEAD"` and let the default resolve it in-process). `projectBacklog(root)` is the value
+to diff against the on-disk mirror for AC #8's hand-edit-detection test.

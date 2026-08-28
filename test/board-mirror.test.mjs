@@ -4,7 +4,11 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { readMirror, writeMirror, validateMirror, compareIds, mirrorPath } from "../lib/board-mirror.mjs";
+import { execFileSync } from "node:child_process";
+import {
+  readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
+  mirrorStaleness, providers, projectBacklog, findLinkedTasks,
+} from "../lib/board-mirror.mjs";
 
 function project() {
   const root = mkdtempSync(join(tmpdir(), "board-mirror-"));
@@ -136,4 +140,112 @@ test("validateMirror catches non-monotonic acs index", () => {
 
 test("validateMirror is clean on a well-formed mirror", () => {
   assert.deepEqual(validateMirror(BASE_MIRROR), []);
+});
+
+// AC #5 — mirrorStaleness's three fail-closed cases.
+
+function gitRepoWithTwoCommits() {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-git-"));
+  const run = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
+  run("init", "-q");
+  run("config", "user.email", "test@example.com");
+  run("config", "user.name", "Test");
+  writeFileSync(join(root, "a.txt"), "one");
+  run("add", "a.txt");
+  run("commit", "-q", "-m", "first");
+  const older = run("rev-parse", "HEAD").trim();
+  writeFileSync(join(root, "a.txt"), "two");
+  run("add", "a.txt");
+  run("commit", "-q", "-m", "second");
+  const newer = run("rev-parse", "HEAD").trim();
+  return { root, older, newer, done: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+test("mirrorStaleness: observedSha not an ancestor of headSha is stale", () => {
+  const g = gitRepoWithTwoCommits();
+  try {
+    // `newer` is a descendant of `older`, so it is NOT an ancestor of `older` — checking
+    // staleness against the older commit as headSha must report the newer sha as non-ancestor.
+    const mirror = { schema: 1, provider: "backlog", generatedAt: "x", links: [
+      { id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], observedSha: g.newer },
+    ] };
+    const result = mirrorStaleness(g.root, mirror, { headSha: g.older });
+    assert.equal(result.stale, true);
+    assert.match(result.reason, /not an ancestor/);
+  } finally {
+    g.done();
+  }
+});
+
+test("mirrorStaleness: an ancestor observedSha is not stale", () => {
+  const g = gitRepoWithTwoCommits();
+  try {
+    const mirror = { schema: 1, provider: "backlog", generatedAt: "x", links: [
+      { id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], observedSha: g.older },
+    ] };
+    const result = mirrorStaleness(g.root, mirror, { headSha: g.newer });
+    assert.equal(result.stale, false);
+  } finally {
+    g.done();
+  }
+});
+
+test("mirrorStaleness: absent observedSha on a requiresSync provider is stale", () => {
+  // No `jira` key is registered yet (spec 056's non-goal here); an unregistered provider name
+  // is treated as requiresSync by default (fail-closed), which is exactly the shape a
+  // model-backed provider without a `--check`-computable projector has.
+  const p = project();
+  try {
+    const mirror = { schema: 1, provider: "jira", generatedAt: "x", links: [
+      { id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] },
+    ] };
+    const result = mirrorStaleness(p.root, mirror, { headSha: "HEAD" });
+    assert.equal(result.stale, true);
+    assert.match(result.reason, /no observedSha/);
+  } finally {
+    p.done();
+  }
+});
+
+test("mirrorStaleness: absent observedSha on a non-requiresSync provider is fine", () => {
+  const p = project();
+  try {
+    const mirror = { schema: 1, provider: "backlog", generatedAt: "x", links: [
+      { id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] },
+    ] };
+    assert.equal(mirrorStaleness(p.root, mirror, { headSha: "HEAD" }).stale, false);
+  } finally {
+    p.done();
+  }
+});
+
+test("mirrorStaleness: a non-git root is stale", () => {
+  const p = project();
+  try {
+    const mirror = { schema: 1, provider: "backlog", generatedAt: "x", links: [
+      { id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], observedSha: "deadbeef" },
+    ] };
+    const result = mirrorStaleness(p.root, mirror, { headSha: "HEAD" });
+    assert.equal(result.stale, true);
+    assert.match(result.reason, /cannot verify/);
+  } finally {
+    p.done();
+  }
+});
+
+// AC #6 — the backlog projector matches findLinkedTasks(".") entry-for-entry.
+test("projectBacklog matches findLinkedTasks(\".\") on id, status, specDir, acs", () => {
+  const projected = projectBacklog(".");
+  const found = findLinkedTasks(".");
+  assert.equal(projected.length, found.length);
+  assert.ok(projected.length > 0, "this repo's own backlog/tasks/ must have linked tasks to compare against");
+  const strip = (t) => ({ id: t.id, status: t.status, specDir: t.specDir, acs: t.acs });
+  assert.deepEqual(projected.map(strip), found.map(strip));
+});
+
+// R4 — the registry shape itself: no provider-name conditional, `requiresSync`/`project`
+// carry the distinction.
+test("providers registry: backlog is requiresSync:false with a project function", () => {
+  assert.equal(providers.backlog.requiresSync, false);
+  assert.equal(typeof providers.backlog.project, "function");
 });
