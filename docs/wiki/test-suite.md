@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 54d35e6d5db24414611d3067b0cd87bc6c268167
+verified_against: d6be2b825da7ce417bbe38392e44c1e09c5ca941
 ---
 
 # Test suite
@@ -38,10 +38,15 @@ absolute `GIT_DIR` into the suite's tmpdir fixture repos), then
 `node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`, then
 `node scripts/check-docs.mjs`; it is `set -e`, so any failure blocks the commit. A sibling
 `.githooks/pre-push` runs the version-bump gate (`check-version-bump.mjs --base
-origin/main`) and the wiki freshness gate. Because `core.hooksPath` is per-clone, the
-authoritative layer is CI: `.github/workflows/ci.yml` repeats the suite, both `--check`
-validators, `check-docs.mjs`, the wiki freshness gate, a full package build, and the bump
-gate on every PR (see [[build-and-release]]).
+origin/main`) and the wiki freshness gate, but **warns and exits 0** on findings — both are
+red by construction mid-PR (spec 057) — while a check that *cannot run* still blocks it (exit
+code alone can't separate findings from a crash, so each declares a marker its real output
+carries). Because `core.hooksPath` is per-clone — and, if it points at a stale path, silently
+runs nothing at all — the authoritative layer is CI: `.github/workflows/ci.yml` repeats the
+suite, both `--check` validators, `check-docs.mjs`, **the repo's own spec-bridge and
+wiki-freshness self-checks** (moved out of `node --test` by spec 057, since they assert repo
+state rather than code behavior), a full package build, and the bump gate on every PR (see
+[[build-and-release]]).
 
 ## Connections
 

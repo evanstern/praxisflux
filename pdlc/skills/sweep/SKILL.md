@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.19.0
+version: 0.20.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -172,7 +172,13 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
    the bridge's Stop gate is the mechanism that blocks a linked task's status from
    exceeding its spec artifacts — armed only after the spec cycle it protects, it is
    disarmed by exactly the skip it exists to catch; armed here, it holds from the
-   branch's first commit. Then push immediately (`git push -u origin <branch>`), so in-flight
+   branch's first commit. **The claim flip is deliverable state, not bookkeeping** — the
+   two-track landing rule's "board commits direct to `main`" covers notes, AC ticks,
+   labels, and new cards, never the status flip that claims a task. Splitting it (card
+   flipped at root, spec dir authored on the branch) leaves root and branch describing
+   different states, and the bridge gate reports the mismatch from whichever checkout it
+   runs in — field case 2026-08-27: a by-the-book claim turned the root suite 417/0 →
+   416/1 and surfaced ~50 findings, one per Done-eligible spec. Then push immediately (`git push -u origin <branch>`), so in-flight
    work is auditable from any clone; never force-push a claim. A rejected push means
    you lost the race: fetch and re-read the board and `specs/`; if another session now
    holds that task or number, STOP the lane and surface it to the operator; on an

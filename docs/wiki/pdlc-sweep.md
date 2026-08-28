@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -36,7 +36,8 @@ phases, gate → work → gate:
 - **Execute:** per task, the host PDLC loop instantiated — root freshness, then
   **claim before any spec authoring** (the branch's first commit — cut from
   `origin/main`, which does not yet contain the spec — claims the task: card → In
-  Progress, a spec-dir stub, **and the `spec-bridge:link` marker against that stub**,
+  Progress — a **deliverable-state** flip that rides this commit, not the two-track
+  board track (spec 057) — a spec-dir stub, **and the `spec-bridge:link` marker against that stub**,
   so the bridge's Stop gate is armed from the first commit rather than after the spec
   cycle it protects — armed late, it is disarmed by exactly the skip it exists to
   catch; pushed -u immediately, never force-pushed; rejected push = race lost: re-read

@@ -27,9 +27,14 @@ checkpoints 2, 3 and 4 answered at sign-off and recorded as gate lines below, no
 >   at claim time and renumber on collision — claim-before-work governs.
 > - **Next up: Lane 2** — TASK-97 and TASK-94 in parallel worktrees; **TASK-97 merges
 >   first** (it heads the `pdlc/skills/sweep/SKILL.md` hotspot chain).
-> - **Still in force:** runbook amendment 1's `--no-verify` softening (disclosure
->   mandatory, full gates green before any PR). It expires when **TASK-102** merges —
->   see Lane 6.
+> - **EXPIRED (2026-08-28):** runbook amendment 1's `--no-verify` softening ended with
+>   **TASK-102 / spec 057**, exactly as scheduled. Its replacement is the **mechanism, not
+>   a new license**: sessions no longer need `--no-verify` because the hooks no longer
+>   forbid the legitimate mid-task state. The repo-state self-check moved out of
+>   `node --test` to CI, `pre-push` warns on findings (while still blocking a check that
+>   *cannot run*), and the Stop hook notices an owed re-pin inside the window instead of
+>   wedging the turn. A `--no-verify` from here is a defect report, not a workaround —
+>   record what forbade the commit.
 > - **Two scope changes since sign-off, both operator-approved 2026-08-03:** TASK-102
 >   added as Lane 6, and TASK-103's catalog split folded into TASK-95 (see Lane 5).
 > - **Cost so far:** ~2.2M subagent tokens across 15 dispatched phases for three tasks.

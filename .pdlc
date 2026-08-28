@@ -1,6 +1,6 @@
 {
   "planted": "pdlc:bootstrap",
-  "version": "0.55.0",
+  "version": "0.57.0",
   "name": "praxis",
   "peers": [
     "backlog"
@@ -9,5 +9,5 @@
     "spec-kit"
   ],
   "hooks": [],
-  "plantedAt": "2026-08-10T13:38:34.196Z"
+  "plantedAt": "2026-08-28T14:29:27.345Z"
 }

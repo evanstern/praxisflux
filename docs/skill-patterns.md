@@ -70,6 +70,35 @@ rule is scoped: the Stop hook executes declared gates *only* when a linked spec 
 to pay every turn), and an explicit `cli.mjs verify` verb covers the mid-PR case for the sweep loop
 and CI.
 
+*Repo-STATE self-checks gate the PR, never an intermediate action.* The rule above has a
+placement corollary that is easy to get wrong, because a repo-state check is usually *written*
+as a test. **A code-behavior assertion** — what a function does, given inputs it constructs —
+belongs in `node --test` and gates every commit. **A repo-STATE assertion** — a claim about
+*this checkout's* end state, like "this repo's own wiki is fresh" or "this repo's board is
+honest" — belongs at **pre-push / CI / PR head**, and must not sit in the per-commit path.
+
+The distinguishing question is mechanical, not a judgment call: **does this assertion's
+outcome depend on uncommitted or in-progress work elsewhere in the tree?** A second tell: if
+the answer changes depending on *which checkout you run it from* — root vs. a task worktree —
+it is repo-state, because a test of code does not care where it runs.
+
+Why placement is load-bearing rather than tidy: mid-PR, a repo-state check is
+**red by construction** for the same reason `redByConstruction` gates are — the re-pin
+legitimately follows the source commit, and a claimed card legitimately precedes its merged
+spec dir. A per-commit check that cannot be satisfied blocks every subsequent commit until the
+work doctrine says comes *last* has landed. The observed consequences, both field cases:
+
+- **It trains the bypass.** `--no-verify` becomes routine, and a bypassed gate reports green
+  while proving nothing (2026-08-02, TASK-100/TASK-93: `254 pass, 0 fail` reported and a box
+  ticked while four notes were stale and the gate was red).
+- **It amplifies.** One red repo-state gate re-reports itself once per Done-eligible spec
+  through the project-gate check above — ~50 findings from a single status flip
+  (2026-08-27, TASK-102), burying any real finding among them.
+
+So: keep `node --test` testing code; run the repo's self-checks where end-state invariants
+belong. praxisflux's own live at `node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness
+--path .` plus the matching CI steps.
+
 ## 5. Gates and the chassis are plugin-hosted, never copied per-project
 
 Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; each plugin

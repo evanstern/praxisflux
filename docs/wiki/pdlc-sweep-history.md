@@ -1,11 +1,11 @@
 ---
 name: pdlc-sweep-history
-description: Entry point and release→child index for the pdlc:sweep skill's doctrine history, split summary-style into pdlc-sweep-history-early (0.12.1–0.42.0) and pdlc-sweep-history-recent (0.43.0 onward, the child that receives new releases). Parent keeps the framing paragraph and a superseded-conventions summary spanning both children. Load when tracing a rule's origin, not for current doctrine — that's pdlc-sweep.
+description: Entry point and release→child index for the pdlc:sweep skill's doctrine history, split summary-style into pdlc-sweep-history-early (0.12.1–0.42.0) and pdlc-sweep-history-recent (0.47.0 onward, the child that receives new releases). Parent keeps the framing paragraph and a superseded-conventions summary spanning both children. Load when tracing a rule's origin, not for current doctrine — that's pdlc-sweep.
 kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
 ---
 
 # pdlc:sweep — doctrine history
@@ -21,11 +21,11 @@ parentheses where it diverges.
 The release-by-release record split summary-style, chronologically, when this note
 neared the 8,000-char body cap:
 
-- [[pdlc-sweep-history-early]] — 0.12.1 through 0.42.0: merge-drift gates,
+- [[pdlc-sweep-history-early]] — 0.12.1 through 0.44.0: merge-drift gates,
   capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins,
   claim-step reconciliation, refactor-triage handoff, model-ID pinning, phase-scoped
   dispatch.
-- [[pdlc-sweep-history-recent]] — 0.43.0 onward: cost levers, Spec-Kit degradation
+- [[pdlc-sweep-history-recent]] — 0.47.0 onward: cost levers, Spec-Kit degradation
   hardening, doctrine-seam reconciliation, and the sweep's own backfilled releases as
   they land. This is the child with headroom reserved for new entries.
 
