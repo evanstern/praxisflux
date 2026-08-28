@@ -3,10 +3,11 @@ id: TASK-109
 title: >-
   board mirror: .board/links.json schema, read/write/validate, staleness,
   backlog projector, --check
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-27 18:56'
+updated_date: '2026-08-28 19:23'
 labels:
   - feature
   - chassis
@@ -43,6 +44,10 @@ Spec: specs/052-board-adapter-seam
 - [ ] #8 --check exits nonzero on a hand-edited backlog mirror naming the drifted id; 0 when fresh; 0 when absent
 - [ ] #9 test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files
 - [ ] #10 test/board-mirror.test.mjs covers AC 2-8; docs/wiki re-pinned for every touched source
+- [ ] #11 Spec phase: Phase 1 — Schema, read/write, validate
+- [ ] #12 Spec phase: Phase 2 — Move the parser, prove nothing broke
+- [ ] #13 Spec phase: Phase 3 — Staleness, provider registry, the Backlog projector
+- [ ] #14 Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -57,4 +62,6 @@ PRE-SWEEP GATE (2026-08-27, readiness check before sweeping TASK-109..113). Deps
 (3) TASK-104 — gate blind to branch-local spec dirs. These five spec dirs are on main so they resolve today, but the sweep's claim protocol authors each spec ON A BRANCH; the gate reads from root and reports the task as exceeding its artifacts. Recommended before sweeping, less severe than (1).
 
 Also noted, not blocking: no scripts/check-merge-drift.mjs on this host (sweep falls back to raw git; loses claim-collision + drift matrix). A prunable worktree from 2026-07-31 points at /Users/evanstern/neumo/projects/praxis/ — verify dead, then 'git worktree prune'.
+
+CLAIMED by sweep orchestrator 2026-08-28 (Lane 1, signed off). Branch task-109-board-mirror off origin/main tip 679492c; worktree .claude/worktrees/task-109 (background-job mode). Spec dir specs/052-board-adapter-seam already carried a complete spec.md + plan.md + tasks.md on main (hand-authored under the runbook's operator-signed escape line, .specify/ absent on this host), so the claim commit carries the status flip + the four phase ACs seeded from tasks.md rather than a stub. TIER: sonnet · model cc/claude-sonnet-5[1m] · defaultTier per .claude/model-tiers.json; justification: the spec settles the judgment calls, so this is execution not design. tiers.mjs --check exited 0 with all three tiers 'unchanged' before dispatch. Dispatch is phase-scoped: one fresh sonnet-implementer per tasks.md phase (4 phases), each re-grounded from the spec artifacts + branch commits. Served model to be confirmed from the first dispatch transcript before siblings launch.
 <!-- SECTION:NOTES:END -->
