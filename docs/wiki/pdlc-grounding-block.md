@@ -6,7 +6,7 @@ sources:
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
   - pdlc/scripts/tiers.mjs
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
 ---
 
 # The planted PDLC grounding block
@@ -40,7 +40,11 @@ approve); `test/pdlc.test.mjs` asserts both. Since 0.50.0 (bootstrap 0.8.0) the 
 peer block also carries the **two-track landing rule** (TASK-85): board/bookkeeping commits
 (cards, status flips, notes, AC ticks) land direct on the default branch, deliverable work
 by PR — derived from the reason-to-approve test (a board card carries no reviewable
-decision), so it is one-TASK-one-PR applied, not an exception; where main-push is
+decision), so it is one-TASK-one-PR applied, not an exception. The **claim flip is
+carved out** (spec 057): "direct to `main`" covers notes, AC ticks, labels, and new cards,
+never the status flip that claims a task — that belongs in the claim commit on the branch,
+beside the spec dir and the link, or the board and the spec dir describe different states in
+different checkouts. Where main-push is
 unavailable it degrades to riding the next branch, matching [[pdlc-sweep]]'s
 background-job / no-main-push mode.
 

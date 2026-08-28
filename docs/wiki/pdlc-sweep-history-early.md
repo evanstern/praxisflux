@@ -1,18 +1,18 @@
 ---
 name: pdlc-sweep-history-early
-description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.42.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, refactor-triage handoff, model-ID pinning, phase-scoped dispatch — the field cases that forced each. Newer releases live in pdlc-sweep-history-recent; current doctrine is pdlc-sweep.
+description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.44.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, model-ID pinning, phase-scoped dispatch, cost levers, Spec-Kit degradation hardening — the field cases that forced each. Newer releases live in pdlc-sweep-history-recent; current doctrine is pdlc-sweep.
 kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
 ---
 
 # pdlc:sweep — doctrine history (0.12.1–0.42.0)
 
 Earlier half of [[pdlc-sweep-history]]'s release-by-release record, split summary-style
-when the parent neared the 8,000-char body cap. Covers 0.12.1 through 0.42.0 —
-merge-drift gates through phase-scoped dispatch. The newer releases (0.43.0 onward,
+when the parent neared the 8,000-char body cap. Covers 0.12.1 through 0.44.0 —
+merge-drift gates through Spec-Kit degradation hardening. The newer releases (0.47.0 onward,
 including the sweep's own backfilled history) live in [[pdlc-sweep-history-recent]];
 [[pdlc-sweep]] states current doctrine.
 
@@ -97,9 +97,34 @@ requests at ~427k average context, $404, vs ~32k at dispatch; fresh restarts at
 ~35k). The execution log keeps it resumable: a row's `notes` slot carries phases
 dispatched/completed — one slot, not a second table.
 
+Since 0.43.0 (skill 0.12.0) three cost levers (TASK-88): every dispatch prompt
+carries a **turn-hygiene block** — batch independent reads/checks as parallel tool
+calls in one message, minimal between-call narration, mechanical phases at lower
+reasoning effort (fewer, more consolidated calls); micro-turns re-pay the full
+context read per call (field case: expensive implementers averaged ~300 output
+tokens/request). The execution log gains a **tokens/cost (best-effort)** column —
+actuals from the harness/transcript, so future runbooks budget against real
+numbers. The orchestrator SHOULD **end its session at lane boundaries**,
+resuming from runbook + board — a cost prescription, not just crash-resilience:
+orchestrator context grows monotonically (field case: 172k→548k, the last fifth
+costing as much as the first two-fifths).
+
+Since 0.44.0 (skill 0.13.0) the Spec Kit step cannot **degrade silently** (TASK-84;
+field case: two of a twelve-task sweep shipped a claim-stub spec.md only — no plan.md,
+tasks.md, or link — yet passed every gate). Four fixes: the **claim commit carries the
+spec-bridge link** (marker against the stub — the bridge's Stop gate armed from the
+first commit, not after the spec cycle it protects, where skipping disarmed it); step 3
+names **`spec.md`/`plan.md`/`tasks.md`**, each real and committed before implementation
+(absent-constitution → plan against the grounding docs, not ceremony); step 4 is **link
+completion** (phase ACs seeded from tasks.md, marker verified); the template gains a
+**"Per-task artifacts required before PR"** section; and the **Output gate** requires
+each `specs/NNN-*/` to hold spec+plan+tasks **or** an operator-signed escape line
+naming the task and stand-in — never a second mechanism. Companion: Lane-0 rulings
+changing the per-task loop land as checkable runbook gate lines, not prose.
+
 ## Connections
 
 - Parent note: [[pdlc-sweep-history]] — the entry point; current doctrine is
   [[pdlc-sweep]].
-- Sibling: [[pdlc-sweep-history-recent]] — 0.43.0 onward, the child that receives
+- Sibling: [[pdlc-sweep-history-recent]] — 0.47.0 onward, the child that receives
   every future sweep-doctrine release.

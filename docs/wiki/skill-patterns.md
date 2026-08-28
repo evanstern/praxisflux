@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
+verified_against: 3d7edf1c266c6263b1b974c31e71917c57da1cd7
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -99,3 +99,9 @@ local Stop hooks stay advisory by design. It refuses to overwrite an existing pl
   its gates in `.spec-bridge.json` (`projectGates`) and the bridge blocks a tick standing over a
   red one — with a `redByConstruction` bucket for gates (freshness) legitimately red mid-PR. See
   [[gates-convention]] and [[spec-bridge-plugin]].
+- §4's placement corollary (spec 057): a **code-behavior** assertion gates every commit; a
+  **repo-STATE** assertion — "this repo's own wiki is fresh", "its own board is honest" — gates
+  the **PR**. The test: does the outcome depend on uncommitted work elsewhere in the tree, or
+  change with which checkout you run it from? Per-commit placement blocks every commit until
+  work doctrine sequences last has landed, which trains `--no-verify` and amplifies one red gate
+  into ~50 findings.

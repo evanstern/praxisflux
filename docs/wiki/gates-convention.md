@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: 863ebf89f52cf19c46e7450f3fc2f8e541c78477
+verified_against: 3d7edf1c266c6263b1b974c31e71917c57da1cd7
 ---
 
 # Gates convention
@@ -74,6 +74,17 @@ nothing caught it. The fix is *data, not prose* — a host declares its gates in
 mid-PR — the freshness gate between a source edit and its re-pin), and [[spec-bridge-plugin]]'s gate
 runs them so a tick cannot stand over a red one. It reuses this convention's fail-closed contract:
 a declared command that cannot execute is a blocking problem, never a silent green.
+
+**Where a self-check runs is part of the rule** (`docs/skill-patterns.md` §4, spec 057). A
+*code-behavior* assertion gates every commit; a *repo-STATE* assertion — "this repo's own wiki
+is fresh", "this repo's own board is honest" — gates the **PR**, never an intermediate action.
+The mechanical test: does the outcome depend on uncommitted or in-progress work elsewhere in
+the tree (or change with which checkout you run it from)? Then it is repo-state. Mid-PR it is
+red by construction for the same reason `redByConstruction` gates are, so a per-commit
+placement blocks every commit until the work doctrine sequences last has landed — which trains
+`--no-verify` (2026-08-02) and amplifies one red gate into ~50 findings via the project-gate
+check above (2026-08-27). praxisflux runs its own at
+`node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness --path .` plus CI.
 
 ## Connections
 

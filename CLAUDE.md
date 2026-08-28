@@ -113,7 +113,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.55.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.57.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -264,16 +264,13 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
   applied, not an exception to it — a PR exists only where it carries a stated reason for a
   human to approve, and a board card carries no such decision. Where main-push is
   unavailable (background jobs, protected `main`), the board track degrades to riding the
-  next task branch or a wrap-up PR.
+  next task branch or a wrap-up PR. **The claim flip is the exception: it is deliverable
+  state.** "Direct to `main`" covers notes, AC ticks, labels, and new cards — never the
+  status flip that claims a task, which belongs in the claim commit on the branch beside
+  the spec dir and the link. Splitting it leaves the board and the spec dir describing
+  different states in different checkouts, which is exactly what the bridge gate reports.
 - **Never hand-edit** files under `backlog/` — always the `backlog` CLI, so metadata and
   relationships stay consistent.
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
-
-
-
-
-
-
-
