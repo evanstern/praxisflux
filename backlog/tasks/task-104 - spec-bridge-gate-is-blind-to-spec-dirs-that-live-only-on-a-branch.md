@@ -1,9 +1,11 @@
 ---
 id: TASK-104
 title: spec-bridge gate is blind to spec dirs that live only on a branch
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-03 19:31'
+updated_date: '2026-08-28 18:05'
 labels: []
 dependencies: []
 ordinal: 136000
@@ -63,6 +65,8 @@ spec dir at a ref with `git show <ref>:<path>` when it is absent from the workin
   phase-AC seeding and `sync`, which read the same derivation.
 - The gate should stay conservative: if a spec cannot be found at any ref either, today's
   behavior is correct and should not change.
+
+Spec: specs/058-branch-held-specs
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -71,4 +75,16 @@ spec dir at a ref with `git show <ref>:<path>` when it is absent from the workin
 - [ ] #2 A task linked to a branch-only spec no longer reports as exceeding its artifacts when those artifacts are complete on the branch
 - [ ] #3 A spec directory that exists at no ref and no working tree still derives as today — the gate does not become permissive
 - [ ] #4 The branch-aware resolution is covered by a test using a real git fixture, following the repo's existing gate-test pattern
+- [ ] #5 Spec phase: Phase 1 — the git spec-source resolver
+- [ ] #6 Spec phase: Phase 2 — wire the resolver into the derivation
+- [ ] #7 Spec phase: Phase 3 — prove the branch-held scenario
+- [ ] #8 Spec phase: Phase 4 — grounding and release
 <!-- AC:END -->
+
+
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Widen deriveSpecState's two I/O closures (has/read) behind a resolver that falls back to git when the spec dir is absent from the working tree. Phase 1: lib/spec-source.mjs + unit tests against a real scratch repo. Phase 2: wire into deriveSpecState, existing tests untouched. Phase 3: prove the branch-held scenario end to end. Phase 4: grounding re-pins + version bump. Spec: specs/058-branch-held-specs.
+<!-- SECTION:PLAN:END -->
