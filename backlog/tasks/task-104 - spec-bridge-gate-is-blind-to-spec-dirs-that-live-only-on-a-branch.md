@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-08-03 19:31'
-updated_date: '2026-08-28 18:05'
+updated_date: '2026-08-28 18:29'
 labels: []
 dependencies: []
 ordinal: 136000
@@ -75,16 +75,39 @@ Spec: specs/058-branch-held-specs
 - [ ] #2 A task linked to a branch-only spec no longer reports as exceeding its artifacts when those artifacts are complete on the branch
 - [ ] #3 A spec directory that exists at no ref and no working tree still derives as today — the gate does not become permissive
 - [ ] #4 The branch-aware resolution is covered by a test using a real git fixture, following the repo's existing gate-test pattern
-- [ ] #5 Spec phase: Phase 1 — the git spec-source resolver
+- [x] #5 Spec phase: Phase 1 — the git spec-source resolver
 - [ ] #6 Spec phase: Phase 2 — wire the resolver into the derivation
 - [ ] #7 Spec phase: Phase 3 — prove the branch-held scenario
 - [ ] #8 Spec phase: Phase 4 — grounding and release
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
 Widen deriveSpecState's two I/O closures (has/read) behind a resolver that falls back to git when the spec dir is absent from the working tree. Phase 1: lib/spec-source.mjs + unit tests against a real scratch repo. Phase 2: wire into deriveSpecState, existing tests untouched. Phase 3: prove the branch-held scenario end to end. Phase 4: grounding re-pins + version bump. Spec: specs/058-branch-held-specs.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch tier record (sweep doctrine): all phases of spec 058 dispatched at the **sonnet** tier, model `cc/claude-sonnet-5[1m]` — the `defaultTier` in .claude/model-tiers.json. Justification: the spec settles the judgment calls; this is implementation to a written contract, not design work. No escalation to `opus` (escalation: true) was needed or taken.
+
+Served-model verification: the router request ledger confirms `claude-sonnet-5` actually served the dispatches, not the orchestrator's session model. This is the TASK-107 method applied per-dispatch rather than trusted from the agent's self-report.
+
+Phase 1 complete (commit 0608633): lib/spec-source.mjs + test/spec-source.test.mjs (6 tests, real scratch git repos, no mocks) + README chassis-list entry. Suite 437 -> 443, all green. Phase 1 also caught a case the spec did not anticipate: on macOS `git rev-parse --show-toplevel` returns a realpath'd root while mkdtempSync/cwd can return the /var symlink form, so the repo-relative path had to be normalized through realpathSync or no ref would ever match.
+
+Phase 2 dispatched: wire the resolver into deriveSpecState's two closures.
+
+Phase 2 complete (commit c05631c): deriveSpecState's two fs-backed closures replaced by resolveSpecSource(specDir), with `source` threaded through additively. Net +3/-7 lines in lib/spec-derive.mjs — no derivation rule touched, no existing test assertion edited. Suite 443/443 green.
+
+PROOF the fix actually works (the whole point of TASK-104), run from the CLEAN ROOT checkout on main, where specs/058-branch-held-specs does NOT exist on disk:
+  status : In Progress
+  stage  : implementing
+  boxes  : 0/24   phases: 4
+  source : {"kind":"ref","ref":"refs/remotes/origin/task-104-branch-held-specs"}
+Before this change the same call derived "To Do / specifying / 0 of 0" — the false "exceeds" the gate has been reporting. The gate can now see a spec that lives only on an unmerged branch.
+
+Method note: the first attempt at this proof was INVALID — it imported lib/spec-derive.mjs from the root checkout (still main's pre-fix code) and so measured the old behavior. Re-run importing the worktree's module with cwd set to the root. Verify which build you are exercising before believing a before/after.
+
+Phase 3 dispatched: integration tests for AC1-AC8 through deriveSpecState.
+<!-- SECTION:NOTES:END -->

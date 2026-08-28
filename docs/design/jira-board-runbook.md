@@ -1,0 +1,221 @@
+# Jira as the main board (TASK-108 epic) — sweep runbook (2026-08-28)
+
+**You (the session reading this) are the ORCHESTRATOR** for the tasks below. Run each
+through the host project's full PDLC — spec → link → worktree → delegated implementation →
+PR → merge → re-ground — parallelizing within lanes, merging serially, treating merge
+conflicts as routine. Direction is decided; do not re-litigate it:
+`docs/design/board-provider-seam.md` (the design of record) and
+`docs/design/jira-board-handoff.md` win. Plan-of-record is the board; this file carries only
+ordering, doctrine, and the log.
+
+**Status:** executing (Lane 0) · operator sign-off on Lane 0: 2026-08-28 · **sign-off on
+Lanes 1–4: PENDING**
+
+<!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
+     operator on 2026-08-28 in answer to the blocker question: "Sweep TASK-104 first, then
+     the epic." Lanes 1–4 have NOT been signed off and must not execute until they are. -->
+
+## Read first (in this order)
+
+1. `docs/design/board-provider-seam.md` — the design of record: the decision, the honest
+   cost table, and the five invariants every spec inherits. Do not re-derive it.
+2. `docs/design/jira-board-handoff.md` — the handoff, including "What a fresh session must
+   not repeat".
+3. `backlog task list --plain` — live state; other sessions move it while you work.
+4. The task you're about to execute (`backlog task view TASK-<n> --plain`).
+
+## State when this runbook was written (2026-08-28)
+
+- **Done already:** TASK-102 (PR #129, v0.57.0 — the repo-state wedge, removed).
+  **TASK-107** — closed this session: all three tier pins verified to actually serve,
+  evidence from the 9router request ledger rather than agent self-report.
+- **In flight in other sessions (do not duplicate; expect their merges):** none observed.
+  `git worktree list` showed only the root at sweep start.
+- **Paused — untouched:** none. No task carries the `paused` label.
+- **Queued (this runbook's scope, in execution order):** TASK-104 (Lane 0), then
+  TASK-109, TASK-110, TASK-111, TASK-112, TASK-113.
+- **Epic:** TASK-108 gets **no PR** (`docs/principles.md` P2).
+
+## Execution lanes (dependency-ordered; parallelize within a lane)
+
+Rule of thumb: DEVELOP in parallel, MERGE serially.
+
+**Lane 0 — the unblocker; must merge before any epic task is claimable:**
+- **TASK-104 (sonnet · model `cc/claude-sonnet-5[1m]`, fallback none configured — the spec
+  settles the judgment calls; `defaultTier` per `.claude/model-tiers.json`)** — spec 058:
+  the bridge gate must see spec dirs that live only on a branch. Every epic task reaches
+  TASK-109, which depends on TASK-104; the dependency wiring is deliberate and is not
+  routed around. Also the highest-leverage fix for this sweep specifically: the sweep's own
+  claim protocol authors each spec on a branch, which is exactly what the gate cannot
+  currently see.
+
+**Lane 1 — after Lane 0 merges. The contract-shaped spine, goes first:**
+- **TASK-109 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 052: `lib/board-mirror.mjs`, the
+  schema, read/write/validate, staleness, the Backlog projector, `--check`. A published
+  interface unblocks consumers even while its internals lag.
+
+**Lane 2 — after TASK-109's contract lands (two tasks, disjoint files, develop in parallel):**
+- **TASK-110 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 053: `bridge.mjs` reads the mirror;
+  `resolveRoots` stops keying on `hasChild("backlog")`; fail-closed on stale/missing board.
+- **TASK-111 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 054: `.board.json` config +
+  `pdlc:peer:jira` planted block + `--peer jira`.
+
+**Lane 3 — after TASK-111:**
+- **TASK-112 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 055: `docs/board-verbs.md`, the verb
+  table skills resolve their board sentences against.
+
+**Lane 4 — merges last; the only spec touching MCP:**
+- **TASK-113 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 056: the Jira provider —
+  `board:sync` skill, one-call spiking, assignees. **Phase 1 is a knowledge-only phase and
+  MUST run first** (see Operator checkpoints).
+
+Tiers and model IDs come from **`.claude/model-tiers.json`**, not memory.
+`node <pdlc>/scripts/tiers.mjs --root . --check` exited **0** on 2026-08-28 (all three tiers
+`unchanged`) before these lanes were authored. Every task defaults to `sonnet`
+(`defaultTier`); **`opus` is `escalation: true`** and requires an operator checkpoint
+recorded before dispatch. Record tier + model ID + justification + **which model actually
+served** on each board task at dispatch.
+
+**Served-model verification is settled for this host (TASK-107, 2026-08-28).** All three
+tiers were confirmed to serve the model their config names — sonnet → `claude-sonnet-5`,
+haiku → `claude-haiku-4-5-20251001`, opus → `claude-opus-5` (not the stale `opus-4-8`
+fallback that leaked on 2026-08-10). Evidence: the 9router request ledger's per-request
+`model` column, **not** the agents' self-reports — two of three probes had no
+harness-provided evidence of their own identity. A resuming session need not re-derive this,
+but must still spot-check the first dispatch of any lane if the tier config has changed since.
+
+## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
+
+- **Merge-drift gate: ABSENT.** This host ships no `scripts/check-merge-drift.mjs`. The sweep
+  falls back to raw git (`git fetch origin && git pull --ff-only` at root) and **loses
+  claim-collision detection and the drift matrix**. Compensate manually: before claiming a
+  spec number, check it against `origin/main` with
+  `git ls-tree --name-only origin/main specs/` and check for a live branch with
+  `git ls-remote --heads origin 'task-<n>*'`.
+- **`core.hooksPath` is active.** `.githooks/pre-commit` runs the FULL `node --test` suite
+  (443 tests as of 2026-08-28) plus marketplace/version/docs sync checks on **every** commit,
+  and `.githooks/pre-push` runs the version-bump and wiki-freshness gates. A red suite blocks
+  every intermediate commit, so sequence work such that each commit leaves the suite green.
+- **Run the suite as bare `node --test`** — no path argument, exactly as `.githooks/pre-commit`
+  does (`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`). There is **no
+  `package.json`** in this repo, so there is no `npm test`. Passing a path — `node --test test/`
+  — makes node resolve `test` as a **module** and die with
+  `Error: Cannot find module '<root>/test'`, reporting `tests 1 / fail 1`. That failure looks
+  exactly like a red suite and, chased through the spec-bridge gate's `tests` check, reads as a
+  repo-wide breakage that is not real. Cost three wrong conclusions on 2026-08-28 before the
+  hook was read. Verify with `node --test` alone; 443/443 pass.
+- **Scratch files in the worktree get collected by the test runner.** A stray `t.txt`/`g.txt` in
+  the repo root is picked up as a test file and fails the run. Write throwaway output to
+  `$CLAUDE_JOB_DIR/tmp`, never the worktree.
+- **Released surface ⇒ version bump.** Any PR touching plugin dirs, `lib/`, `scripts/`, or
+  `.claude-plugin/` MUST bump the marketplace version **and** any edited skill's own
+  `version:` (`docs/releasing.md`). CI enforces it; each merge to `main` auto-publishes
+  `v<version>`.
+- **Docs sync.** `node scripts/check-docs.mjs` plus the wiki freshness gate run in CI, in
+  both git hooks, and in a repo Stop hook (`scripts/stop-docs.mjs`) that refuses to end a
+  turn while they fail. Update `README.md`/`CLAUDE.md` when what the repo ships changes.
+- **Re-ground obligations.** Use the classifier — `node grounding-wiki/gates/cli.mjs plan .
+  docs/wiki` — which computes RE-PIN-ONLY vs NEEDS-REVIEW and prints executable re-pin
+  commands for the safe half. **Re-pin volume is larger than it looks:** a marketplace
+  version bump touches every `plugin.json`, so a released-surface PR can stale ~17 notes.
+- **Note budgets bite.** Several notes sit near the 8,000-char cap and capsules near 500.
+  On overflow take a summary-style split or a genuine trim; `size_budget_exempt` is for
+  content that cannot be split, not for prose you just added.
+- **Merge commits, never squash.** Squashing orphans the commits `docs/wiki` notes pin as
+  `verified_against`, breaking the freshness gate.
+
+## Per-task artifacts required before PR
+
+**No PR opens for a task until each line below checks true for it.**
+
+- [ ] `specs/NNN-<slug>/` carries a real `spec.md`, `plan.md`, and `tasks.md` (phased
+      checkboxes the bridge derives from), committed on the task's branch. A claim stub
+      reserves the number; it satisfies nothing here.
+- [ ] The card carries its Spec marker from the claim commit (`spec-bridge:link`), and phase
+      ACs are seeded from tasks.md (link update mode) **before** implementation dispatch.
+- **Escape lines (operator-signed only):** **`.specify/` is absent on this host.** Spec Kit
+  artifacts for every task in this sweep are **hand-authored** under the sweep's
+  operator-signed escape line, per this host's established precedent (specs 052–056 were
+  authored that way; spec 045 records the hatch). Signed: operator, 2026-08-28. This is the
+  recorded host-precedent sanction — never a second mechanism.
+- [ ] **The claim is ATOMIC** (host ruling, 2026-08-28): card flip + spec dir +
+      `spec-bridge:link` land in **ONE commit on the branch**. Two-track landing's "board
+      commits direct to `main`" covers notes, AC ticks, labels, and new cards — **never** the
+      status flip that claims a task, which is deliverable state. Splitting it in a prior
+      session produced **~50 gate findings from one status flip**.
+- [ ] **Background-job execution mode applies to this sweep.** Worktrees live at
+      `.claude/worktrees/task-<N>` (the harness isolation root, entered via `EnterWorktree`),
+      not `.worktrees/`. Post-merge closures (tasks.md tick, `spec-bridge:sync` board-Done,
+      the log row) ride the NEXT claimed task's branch; sweep-close lands via a wrap-up PR.
+- [ ] **`grep` hides matches in `spec-bridge/gates/bridge.mjs`.** It contains a literal NUL
+      byte at line 217 (a legitimate cache-key separator in a `command.join("\0")`), so grep
+      classifies the file as **binary** and suppresses match output: `grep -n <pat> <file>`
+      prints only `Binary file … matches` — **no line numbers, no content** — while still
+      exiting 0. Some wrappers surface that as an empty result, which reads as "not found."
+      Verified on this host 2026-08-28. **Use `grep -a`** (or `grep -na`) on this file. Spec
+      053 edits it directly; an implementer who greps it and sees nothing will wrongly
+      conclude the code is absent.
+
+## Concurrency & conflict doctrine
+
+- **Hotspots:** `lib/spec-derive.mjs` and `spec-bridge/gates/bridge.mjs` (Lane 0 and
+  TASK-110 both touch the derivation path — Lane 0 merges first, so TASK-110 develops
+  against the merged result); `.claude-plugin/marketplace.json` and every `plugin.json`
+  (every released-surface PR bumps versions — guaranteed conflict between any two concurrent
+  PRs); `docs/wiki/*` pins; `README.md` / `CLAUDE.md`.
+- **Paused tasks are not live lanes:** none currently.
+- Reconcile by what the branch carries: a **pin-carrying branch** (its own commits
+  referenced by re-pins it carries) **merges `origin/main` in** — squash, rebase, and
+  force-push all rewrite hashes and stale every carried pin, so its PR also lands as a merge
+  commit; a **pin-free branch rebases**. Take main's side for anything you didn't
+  deliberately change.
+- **Honest re-pins only — a merge-in never justifies a pin bump** (pin = merge commit empties
+  the freshness probe's range by construction). Classify every stale/conflicted pin via the
+  plan loop: read `git diff <old-pin>..<merge-commit> -- <sources>`, mark **RE-PIN-ONLY** or
+  **NEEDS-REVIEW**, and amend prose BEFORE bumping.
+- After every history move: re-run gates AND the freshness probe **unconditionally** — never
+  gated on whether `docs/wiki/` changed.
+- Two hotspot-heavy PRs never merge within one re-ground cycle without a reconcile between.
+- Conflicting with a sibling session's open PR → the smaller PR merges first.
+- **Claim before work; push immediately** (`git push -u origin <branch>`); never force-push a
+  claim. A rejected push means you lost the race: fetch, re-read the board and `specs/`; if
+  another session holds that task or number, STOP the lane and surface it.
+- Verify a PR is merged (`gh api … --jq .merged`) before deleting its branch/worktree.
+
+## Operator checkpoints (do not proceed silently)
+
+- **Lanes 1–4 are NOT signed off.** Lane 0 (TASK-104) was authorized 2026-08-28; the epic
+  lanes need their own sign-off before the first claim.
+- **Spec 056 Phase 1 is knowledge-only and MUST run before any 056 implementation.** Spec
+  055's entire phase-AC mechanism assumes HTML comment markers
+  (`<!-- spec-phases BEGIN -->`) survive a Jira description write→read cycle. That is
+  **untested**. Phase 1 tests it against a scratch issue in both `markdown` and `adf` content
+  formats. **If the markers do not survive: STOP and surface it** — a delimiter change amends
+  spec 055; it is not a local workaround. Confirm in the same phase: `transitionJiraIssue`
+  takes a transition **id**, not a status name (a status move is two calls), and a set
+  `resolution` can block a backwards transition — which the bridge *does* perform when a
+  regenerated `tasks.md` moves a card back.
+- **Tier escalation to `opus`** (`escalation: true`) requires a recorded checkpoint before
+  dispatch. No epic task is currently assigned to it.
+- Lane amendments: amend this file, note why, tell the operator.
+
+## Done means
+
+- TASK-104, TASK-109, TASK-110, TASK-111, TASK-112, TASK-113 each **Done on the board via
+  their own merged PR**; TASK-108 (the epic) closed with **no PR of its own**.
+- Every scoped card **still carries its Spec marker at sweep end** (re-run the
+  `spec-bridge` links check — other sessions move the board while branches sit).
+- Every scoped task's `specs/NNN-*/` contains `spec.md` + `plan.md` + `tasks.md`, under the
+  hand-authored escape line above.
+- Every project gate green on `main`: full `node --test`, `scripts/check-docs.mjs`, wiki
+  freshness, version-bump consistency.
+- Grounding fresh: wiki pins current and honestly classified.
+- `git worktree list` shows no stale sweep worktrees.
+- This file's execution log complete and its status flipped to **done**.
+
+## Execution log
+
+| date | task | PR | merge | tokens/cost (best-effort) | notes |
+|------|------|----|-------|---------------------------|-------|
+| 2026-08-28 | TASK-107 | — (board track, direct to `main`) | `05bb793` | ~257k subagent tokens (3 probes) | Done. Tier pins verified to actually serve via the 9router ledger, not self-report. Unblocked the epic by one of its two deps. |
+| 2026-08-28 | TASK-104 | _open_ | — | ~152k subagent tokens (phase 1) | Lane 0. Claim `3615c12` (atomic: card + spec 058 + link, pushed). phases: 1 done (`0608633`, sonnet · served `claude-sonnet-5` confirmed via router ledger; 6 new tests, suite 437→443), 2 dispatched (sonnet). |
