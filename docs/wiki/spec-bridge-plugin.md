@@ -1,6 +1,6 @@
 ---
 name: spec-bridge-plugin
-description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs), link/sync skills, a Stop-hook gate blocking status that exceeds spec artifacts, an opt-in phase-level status vocabulary, and an opt-in project-gate check (a ticked tasks.md box cannot outrun a red declared gate) — all judged on the same derivation.
+description: The spec-bridge plugin — Backlog.md as the derived kanban view over GitHub Spec Kit specs, with pure one-way derivation (lib/spec-derive.mjs) reading through a working-tree-or-git-ref resolver (lib/spec-source.mjs) so branch-held specs still derive, link/sync skills, a Stop-hook gate blocking status that exceeds spec artifacts, an opt-in phase-level status vocabulary, and an opt-in project-gate check (a ticked tasks.md box cannot outrun a red declared gate) — all judged on the same derivation.
 kind: component
 sources:
   - spec-bridge/.claude-plugin/plugin.json
@@ -13,7 +13,14 @@ sources:
   - spec-bridge/scripts/gate.sh
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
-verified_against: 025804d1c78972dbee55db4646441e3a01d82336
+  - lib/spec-source.mjs
+size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TASK-104) adds the
+  working-tree/git-ref resolver, which is load-bearing for every verdict this note describes and
+  cannot be omitted. The splittable unit would be ~500 chars — under the ~1,500-char
+  minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
+  than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
+  already own this note family's owed summary-style split; fold this into it and remove.
+verified_against: 1ac8f1d91ac8df0dd4c615bac7aac6219cb21164
 ---
 
 # spec-bridge plugin
@@ -29,7 +36,8 @@ enforces the house rule that status can't exceed proven artifacts.
 **One-way derivation.** The spec dir (`specs/NNN-feature/`) is the source of truth; the task
 is a derived view. `lib/spec-derive.mjs` (on the chassis) is the *only* place the spec
 lifecycle is interpreted, and it is a pure, stateless read — every call re-reads
-`spec.md`/`plan.md`/`tasks.md` and re-derives, so a regenerated `tasks.md` is a non-event
+`spec.md`/`plan.md`/`tasks.md` (via `lib/spec-source.mjs`) and re-derives, so a regenerated
+`tasks.md` is a non-event
 (including honest status *regressions* when checkboxes get wiped). Rules: no `spec.md` →
 `To Do`; `spec.md` present but not all proven → `In Progress`; `plan.md` present and ≥1 task
 in `tasks.md` with all checked → `Done-eligible`. "Done-eligible" is deliberately not
@@ -60,7 +68,11 @@ ONLY shortfall from Done-eligible is the analysis requirement gets a lag-style w
 naming the missing `analysis.md` (and where to save it) or the unresolved CRITICAL findings
 verbatim, so "Done is out of reach" is never a silent state; **unknown** (a status outside
 To Do / In Progress / Done) neither blocks nor warns.
-A linked task whose spec dir was deleted derives `To Do` and blocks anything above it.
+A linked task whose spec dir is gone from the tree **and** every searched ref derives `To Do`
+and blocks anything above it. **Branch-held specs still derive** (spec 058): `spec-source.mjs`
+reads a dir the tree lacks out of `HEAD` or a pushed `refs/remotes/origin/task-*` (read-only
+`git show`, memoized), so the claim protocol's unmerged window is not a false **exceeds**.
+Tree wins when present; `source` names the origin (`worktree`/`ref`/`none`).
 `hooks/hooks.json` wires the Stop hook through the standard `gate.sh` shim (node resolved
 via `command -v` with a login-shell fallback; when unavailable, a one-time stderr notice
 then exit 0) into `scripts/stop.mjs`
@@ -112,7 +124,7 @@ bypasses it (spawns nothing), so the check dogfoods itself.
 - Skills follow [[skill-patterns]] (link and sync are phase-separated; gates read, the
   `backlog` CLI writes); packaged by [[build-and-release]].
 - Covered by the [[test-suite]] (`test/spec-derive.test.mjs`, `test/spec-bridge.test.mjs`,
-  `test/phase-status.test.mjs`).
+  `test/phase-status.test.mjs`, `test/spec-source.test.mjs`, `test/branch-held-specs.test.mjs`).
 - Unlike [[research-plugin]]/[[educate-plugin]] lifecycles, the state vocabulary here is
   Backlog.md's own (To Do / In Progress / Done by default; optionally the board's own
   phase-level names) judged against derived Spec Kit stages.
