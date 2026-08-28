@@ -10,6 +10,70 @@ import {
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
 } from "../lib/board-mirror.mjs";
 
+const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
+
+/** Build a throwaway project with one linked Backlog task file, so `projectBacklog` has
+ *  something real to recompute against (mirrors parseLinkedTask's expected shape). */
+function backlogProjectWithOneTask({ id = "TASK-1", status = "To Do", specDir = "specs/001-a" } = {}) {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-cli-"));
+  const tasksDir = join(root, "backlog", "tasks");
+  mkdirSync(tasksDir, { recursive: true });
+  writeFileSync(
+    join(tasksDir, `${id}.md`),
+    `---\nid: ${id}\nstatus: ${status}\n---\n\nSpec: ${specDir}\n\n<!-- AC:BEGIN -->\n- [x] #1 first\n<!-- AC:END -->\n`,
+  );
+  return { root, done: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+function runCli(root) {
+  try {
+    const stdout = execFileSync("node", [CLI, "--check", "--root", root], { encoding: "utf8" });
+    return { status: 0, stdout };
+  } catch (e) {
+    return { status: e.status, stdout: e.stdout };
+  }
+}
+
+// AC #8 — the --check CLI.
+test("--check CLI: exits 0 with the stated line when no mirror exists", () => {
+  const p = project();
+  try {
+    const { status, stdout } = runCli(p.root);
+    assert.equal(status, 0);
+    assert.match(stdout, /no mirror; nothing to check/);
+  } finally {
+    p.done();
+  }
+});
+
+test("--check CLI: exits 0 on a freshly written mirror", () => {
+  const b = backlogProjectWithOneTask();
+  try {
+    writeMirror(b.root, { schema: 1, provider: "backlog", generatedAt: "x", links: projectBacklog(b.root) });
+    const { status, stdout } = runCli(b.root);
+    assert.equal(status, 0);
+    assert.match(stdout, /matches the recomputed projection/);
+  } finally {
+    b.done();
+  }
+});
+
+test("--check CLI: exits nonzero after a one-status hand edit, naming the drifted id", () => {
+  const b = backlogProjectWithOneTask({ id: "TASK-7" });
+  try {
+    writeMirror(b.root, { schema: 1, provider: "backlog", generatedAt: "x", links: projectBacklog(b.root) });
+    // Hand-edit: flip the on-disk status without touching the backlog task file it was
+    // projected from — this is exactly the drift a hand-edited mirror produces.
+    const raw = readFileSync(mirrorPath(b.root), "utf8");
+    writeFileSync(mirrorPath(b.root), raw.replace('"To Do"', '"In Progress"'));
+    const { status, stdout } = runCli(b.root);
+    assert.equal(status, 1);
+    assert.match(stdout, /TASK-7/);
+  } finally {
+    b.done();
+  }
+});
+
 function project() {
   const root = mkdtempSync(join(tmpdir(), "board-mirror-"));
   return { root, done: () => rmSync(root, { recursive: true, force: true }) };
