@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: 54d35e6d5db24414611d3067b0cd87bc6c268167
+verified_against: d6be2b825da7ce417bbe38392e44c1e09c5ca941
 ---
 
 # Test suite
