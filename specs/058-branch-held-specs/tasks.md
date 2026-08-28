@@ -27,15 +27,15 @@
 
 ## Phase 3 — prove the branch-held scenario
 
-- [ ] Test: spec dir committed only on a branch derives its true stage from a checkout that
+- [x] Test: spec dir committed only on a branch derives its true stage from a checkout that
       does not contain it (AC1).
-- [ ] Test: a worktree spec dir wins over a ref carrying a different version (AC2).
-- [ ] Test: absent everywhere → today's "nothing proven", no throw (AC3).
-- [ ] Test: `git status`, HEAD and the index are unchanged after a derivation (AC4).
-- [ ] Test: a directory with no `.git` derives without error (AC8).
-- [ ] Test: refs enumerated once across two derivations of the same spec dir (AC6).
-- [ ] Test: `source` provenance names the worktree or the specific ref (AC7).
-- [ ] Full suite green: `node --test test/`.
+- [x] Test: a worktree spec dir wins over a ref carrying a different version (AC2).
+- [x] Test: absent everywhere → today's "nothing proven", no throw (AC3).
+- [x] Test: `git status`, HEAD and the index are unchanged after a derivation (AC4).
+- [x] Test: a directory with no `.git` derives without error (AC8).
+- [x] Test: refs enumerated once across two derivations of the same spec dir (AC6).
+- [x] Test: `source` provenance names the worktree or the specific ref (AC7).
+- [x] Full suite green: `node --test test/`.
 
 ## Phase 4 — grounding and release
 
