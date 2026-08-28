@@ -39,9 +39,9 @@
 
 ## Phase 4 — grounding and release
 
-- [ ] Run `node grounding-wiki/gates/cli.mjs plan . docs/wiki`; classify each stale note
+- [x] Run `node grounding-wiki/gates/cli.mjs plan . docs/wiki`; classify each stale note
       RE-PIN-ONLY vs NEEDS-REVIEW.
-- [ ] Amend note prose for NEEDS-REVIEW entries **before** moving any pin.
-- [ ] Re-pin the classified notes to this branch's merge target.
-- [ ] Bump marketplace version and any edited skill's `version:` per `docs/releasing.md`.
-- [ ] `node scripts/check-docs.mjs` and the wiki freshness gate both green.
+- [x] Amend note prose for NEEDS-REVIEW entries **before** moving any pin.
+- [x] Re-pin the classified notes to this branch's merge target.
+- [x] Bump marketplace version and any edited skill's `version:` per `docs/releasing.md`.
+- [x] `node scripts/check-docs.mjs` and the wiki freshness gate both green.
