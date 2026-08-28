@@ -18,11 +18,11 @@
 
 ## Phase 2 — wire the resolver into the derivation
 
-- [ ] `deriveSpecState` obtains `has`/`read` from `resolveSpecSource(specDir)` instead of
+- [x] `deriveSpecState` obtains `has`/`read` from `resolveSpecSource(specDir)` instead of
       closing over `fs` directly.
-- [ ] Thread `source` into the returned state as `source` (additive field only).
-- [ ] Confirm no other line of `lib/spec-derive.mjs` changes.
-- [ ] `node --test test/spec-derive.test.mjs test/phase-status.test.mjs` passes with **no**
+- [x] Thread `source` into the returned state as `source` (additive field only).
+- [x] Confirm no other line of `lib/spec-derive.mjs` changes.
+- [x] `node --test test/spec-derive.test.mjs test/phase-status.test.mjs` passes with **no**
       edits to existing assertions.
 
 ## Phase 3 — prove the branch-held scenario
