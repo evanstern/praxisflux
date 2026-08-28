@@ -4,7 +4,7 @@ title: 'Jira provider: board:sync skill (MCP -> mirror), one-call spiking, assig
 status: To Do
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-27 16:15'
+updated_date: '2026-08-28 19:21'
 labels:
   - feature
   - spec-bridge
@@ -42,3 +42,9 @@ Spec: specs/056-jira-provider
 - [ ] #9 All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding
 - [ ] #10 Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+SWEEP HOLD (2026-08-28, orchestrator precondition gate). NOT signed off; do not claim. Finding F2 — the Atlassian MCP is HARD-BLOCKED on this host: three calls across two tools (getAccessibleAtlassianResources, atlassianUserInfo) and two AWS regions all returned an AWS WAF CAPTCHA challenge page rather than a tool result. That is a browser-verification wall — not a flake, not an auth error, and NOT 'no Jira configured'. Consequence: this spec's Phase 1 (the live write->read marker test) and every AC needing a live site cannot run until MCP access is restored. Gate for any session reaching this task: re-probe with ONE MCP call first and STOP if the response is HTML. Do not substitute fixtures for the live test Phase 1 exists to be — Phase 1 is knowledge-only precisely because the knowledge must come from the real site. Note also F1: this task's Phase 1 is the only test of spec 055's premise, so it must run BEFORE TASK-112 is claimed, inverting the runbook's lane order. Full detail: runbook findings F1/F2.
+<!-- SECTION:NOTES:END -->

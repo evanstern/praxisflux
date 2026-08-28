@@ -8,12 +8,16 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 `docs/design/jira-board-handoff.md` win. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** Lane 0 **done** (TASK-104 merged `a875256`, board Done) · awaiting sign-off to
-start Lane 1 · operator sign-off on Lane 0: 2026-08-28 · **sign-off on Lanes 1–4: PENDING**
+**Status:** **signed-off (partial)** — Lane 0 **done** (TASK-104 merged `a875256`, board
+Done) · **Lanes 1–2 SIGNED OFF 2026-08-28** (TASK-109, then TASK-110 ‖ TASK-111) · **Lanes
+3–4 HELD — NOT signed off** (TASK-112, TASK-113; see the premise-inversion checkpoint below)
 
 <!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
      operator on 2026-08-28 in answer to the blocker question: "Sweep TASK-104 first, then
-     the epic." Lanes 1–4 have NOT been signed off and must not execute until they are. -->
+     the epic." Lanes 1–2 were signed off by the operator on 2026-08-28 after the sweep's
+     precondition gate surfaced two findings (F1, F2 below); the operator's ruling was
+     "sign off Lanes 1–2 only; hold 3–4". Lanes 3–4 have NOT been signed off and must not
+     execute until they are. -->
 
 ## Read first (in this order)
 
@@ -34,7 +38,8 @@ start Lane 1 · operator sign-off on Lane 0: 2026-08-28 · **sign-off on Lanes 1
 - **Paused — untouched:** none. No task carries the `paused` label.
 - **Queued (this runbook's scope, in execution order):** ~~TASK-104 (Lane 0)~~ **Done
   2026-08-28** (PR #130, merge `a875256`, v0.58.0) — the epic's last blocker is cleared and
-  TASK-109 is now claimable. Remaining: TASK-109, TASK-110, TASK-111, TASK-112, TASK-113.
+  TASK-109 is now claimable. Remaining: **TASK-109, TASK-110, TASK-111 (signed off, Lanes
+  1–2)**; **TASK-112, TASK-113 (HELD — not signed off, see F1/F2)**.
 - **Also carded this session:** TASK-114 (flaky `team-review` id test that gates every commit
   and feeds the spec-bridge project-gate check) — not in this sweep's scope.
 - **Epic:** TASK-108 gets **no PR** (`docs/principles.md` P2).
@@ -150,6 +155,28 @@ but must still spot-check the first dispatch of any lane if the tier config has 
       `.claude/worktrees/task-<N>` (the harness isolation root, entered via `EnterWorktree`),
       not `.worktrees/`. Post-merge closures (tasks.md tick, `spec-bridge:sync` board-Done,
       the log row) ride the NEXT claimed task's branch; sweep-close lands via a wrap-up PR.
+- [ ] **F2 — Atlassian MCP is HARD-BLOCKED on this host (verified 2026-08-28).** Three calls
+      across two tools (`getAccessibleAtlassianResources`, `atlassianUserInfo`) and two AWS
+      regions all returned an **AWS WAF CAPTCHA challenge page**, not a tool result — a
+      browser-verification wall, not a flake and not an auth error. **Consequence, checkable:**
+      spec 056 Phase 1 (the live write→read marker test) **cannot run on this host** until MCP
+      access is restored, and neither can any 056 AC that requires a live site. Any session
+      that reaches TASK-113 must **first** re-probe with one MCP call and **STOP if it returns
+      HTML** — do not substitute fixtures for the live test that Phase 1 exists to be, and do
+      not read a CAPTCHA page as "no Jira configured".
+- [ ] **F1 — ORDERING INVERSION: spec 055 ships its premise untested (found 2026-08-28).**
+      Spec 055 (TASK-112, Lane 3) *builds* the `<!-- spec-phases -->` block render/parse pair
+      and `renderJira`; spec 056 (TASK-113, Lane 4) Phase 1 is the **only** place the premise —
+      that HTML comment markers and checkbox syntax survive a Jira description write→read
+      cycle — is ever tested against a live site. Lane 4 merges **last**, so 055's central
+      assumption is verified only *after* 055 has shipped. 055's own Phase 3 round-trips the
+      block against **fixtures** (`specs/055.../tasks.md` Phase 3), which cannot detect Jira
+      normalizing or stripping the markers. **Consequence, checkable:** TASK-112 must **not**
+      be claimed until either (a) 056 Phase 1's marker test has run against a live site and
+      recorded that markers survive (naming the `contentFormat` that preserved them), or
+      (b) the operator signs an explicit acceptance of the fixture-only risk in this file. If
+      the markers do **not** survive, that is an **amendment to spec 055** — never a local
+      workaround in 056.
 - [ ] **`grep` hides matches in `spec-bridge/gates/bridge.mjs`.** It contains a literal NUL
       byte at line 217 (a legitimate cache-key separator in a `command.join("\0")`), so grep
       classifies the file as **binary** and suppresses match output: `grep -n <pat> <file>`
@@ -187,9 +214,18 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 
 ## Operator checkpoints (do not proceed silently)
 
-- **Lanes 1–4 are NOT signed off.** Lane 0 (TASK-104) was authorized 2026-08-28; the epic
-  lanes need their own sign-off before the first claim.
-- **Spec 056 Phase 1 is knowledge-only and MUST run before any 056 implementation.** Spec
+- **Lanes 1–2 are signed off (2026-08-28); Lanes 3–4 are HELD.** TASK-109, then
+  TASK-110 ‖ TASK-111, may execute. **TASK-112 and TASK-113 must not be claimed** without a
+  fresh operator sign-off — the hold is not a scheduling artifact, it is finding **F1**: the
+  premise 055 builds on is only tested by 056, which runs after it. Lanes 1–2 are entirely
+  MCP-free and unaffected by **F2**.
+- **The premise-inversion checkpoint (F1) — the decision the operator holds.** Before Lane 3
+  can be signed off, ONE of: (a) 056 Phase 1's live marker test has run and recorded that the
+  markers survive, or (b) the operator accepts the fixture-only risk in writing here. This
+  session could not do (a): the MCP is CAPTCHA-walled (**F2**).
+- **Spec 056 Phase 1 is knowledge-only and MUST run before any 056 implementation — AND, per
+  F1, before TASK-112 (spec 055) is claimed at all**, because 055 builds the mechanism this
+  phase validates. **It cannot run on this host while F2 holds.** Spec
   055's entire phase-AC mechanism assumes HTML comment markers
   (`<!-- spec-phases BEGIN -->`) survive a Jira description write→read cycle. That is
   **untested**. Phase 1 tests it against a scratch issue in both `markdown` and `adf` content
@@ -206,6 +242,10 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 
 - TASK-104, TASK-109, TASK-110, TASK-111, TASK-112, TASK-113 each **Done on the board via
   their own merged PR**; TASK-108 (the epic) closed with **no PR of its own**.
+  **Scope note (2026-08-28):** only Lanes 0–2 are signed off, so this sweep's *signed*
+  completion is TASK-104 + TASK-109 + TASK-110 + TASK-111. TASK-112, TASK-113, and the epic
+  close-out remain owed and require the F1 checkpoint plus fresh sign-off — a Lanes-1–2 sweep
+  that reports "done" must say exactly that, not round up to the epic.
 - Every scoped card **still carries its Spec marker at sweep end** (re-run the
   `spec-bridge` links check — other sessions move the board while branches sit).
 - Every scoped task's `specs/NNN-*/` contains `spec.md` + `plan.md` + `tasks.md`, under the
