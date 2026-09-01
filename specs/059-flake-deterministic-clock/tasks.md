@@ -32,18 +32,18 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 - [x] Run the full suite **20 consecutive times**; all 20 must pass. Record the actual count
       and outcome in Notes — this is the artifact that proves the task (AC #4 / TASK-114 AC
       #3). Do not shorten the run and do not report fewer runs as if they were 20
-- [ ] Bump the marketplace version and `team-review`'s own skill `version:`
+- [x] Bump the marketplace version and `team-review`'s own skill `version:`
       (`team-review/` is released surface, `docs/releasing.md`); run
       `node scripts/sync-version.mjs`
-- [ ] Re-pin `docs/wiki/` via `node grounding-wiki/gates/cli.mjs plan . docs/wiki`; classify
+- [x] Re-pin `docs/wiki/` via `node grounding-wiki/gates/cli.mjs plan . docs/wiki`; classify
       each pin **RE-PIN-ONLY** or **NEEDS-REVIEW** and amend prose BEFORE bumping where the
       diff could have invalidated it
-- [ ] Do NOT widen `spec-bridge-plugin.md`'s or `test-suite-catalog-plugins-gates.md`'s
+- [x] Do NOT widen `spec-bridge-plugin.md`'s or `test-suite-catalog-plugins-gates.md`'s
       standing `size_budget_exempt` to absorb new prose — trim, split, or stop and report
-- [ ] All four gates green: `node --test`, `node scripts/check-docs.mjs`,
+- [x] All four gates green: `node --test`, `node scripts/check-docs.mjs`,
       `node scripts/sync-version.mjs --check`,
       `node grounding-wiki/gates/cli.mjs freshness . docs/wiki`
-- [ ] Commit
+- [x] Commit
 
 ## Notes
 
@@ -113,3 +113,44 @@ the rewritten same-second run-lifecycle test (`test/team-review.test.mjs:206`) w
 passing in all 20 runs. Log retained at
 `/Users/evanstern/.claude/jobs/4b3aa81c/tmp/task114-20run.log`. AC #4 / TASK-114 AC #3 proven —
 the flake is gone under the load condition that used to trigger it.
+
+Version bump: marketplace 0.59.0 -> 0.59.1 (patch — internal test-determinism fix, no
+user-facing behavior change per `docs/releasing.md`'s bump table); `team-review`'s own skill
+`version:` 1.3.0 -> 1.3.1 (same reasoning, scoped to the one skill). `sync-version.mjs
+0.59.1` ran clean; `--check` green afterward.
+
+Re-pin ledger (`node grounding-wiki/gates/cli.mjs plan . docs/wiki`, 12 stale notes, pin
+`ddd611deef8d7cb66fd73b7b383d51a460f74d14`):
+
+- **RE-PIN-ONLY** (version-stamp diff only, no versions quoted in prose — re-pinned as-is):
+  `build-plugin.md`, `codebase-to-course-plugin.md`, `educate-plugin.md`,
+  `gates-consumption-surface.md`, `grounding-wiki-plugin.md`, `research-plugin.md`,
+  `spec-bridge-plugin.md`.
+- **NEEDS-REVIEW**, verified against the real diff before re-pinning:
+  - `team-review-plugin.md` — prose quoted the skill version literally (`` `version: 1.3.0` ``
+    at line 21); amended to `1.3.1`. The run-id/collision-suffix description (lines 44-55) is
+    unaffected: `git diff` shows the new `TEAM_REVIEW_RUN_STAMP` seam is a test-only env
+    override, production path (`new Date()` default) byte-identical per R3 — no other prose
+    change needed.
+  - `build-and-release.md`, `pdlc-plugin.md`, `reorient-plugin.md` — each quotes version
+    literals (`0.3.0`, `v0.2.0`/`0.5.0`, `0.23.0`/`0.26.0`/`0.53.0`/`0.10.0`,
+    `0.5.0`/`0.2.0` respectively), but every one is a historical example, a "since"
+    feature-introduction marker, or a different skill's own version — none references the
+    marketplace version that just moved from 0.59.0 to 0.59.1. Verified by reading each cited
+    line in context; no prose change needed.
+  - `test-suite-catalog-plugins-gates.md` — lists `test/team-review.test.mjs` as a source
+    (this branch's Phase 1 rewrote 25/-14 lines of it). Read the diff and the note's bullet
+    (line 108-112): it describes behavior (`begin`/`finish`/`abandon`, id collisions,
+    self-review regressions) at the level the rewrite didn't change, and quotes no test
+    count. No prose change needed — the prior preliminary read-only finding is confirmed, not
+    just trusted.
+
+Over-budget notes: `spec-bridge-plugin.md` (8445/8000, TASK-104 exemption) and
+`test-suite-catalog-plugins-gates.md` (8231/8000, TASK-103 exemption) were both re-pinned
+without touching `size_budget_exempt` or adding prose — the freshness gate still reports both
+as `warn` (non-blocking) at unchanged sizes.
+
+All four gates green: `node --test` → 469/469 pass, 0 fail, exit 0; `node
+scripts/check-docs.mjs` → exit 0; `node scripts/sync-version.mjs --check` → exit 0; `node
+grounding-wiki/gates/cli.mjs freshness . docs/wiki` → exit 0 (2 pre-existing warn-only
+exemptions, 40 notes fresh).
