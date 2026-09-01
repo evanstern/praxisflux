@@ -29,7 +29,7 @@ phase needs it, it is a ticked box, a committed slice, or a note in this dir.
 
 ## Phase 2 — Prove it, bump, re-ground
 
-- [ ] Run the full suite **20 consecutive times**; all 20 must pass. Record the actual count
+- [x] Run the full suite **20 consecutive times**; all 20 must pass. Record the actual count
       and outcome in Notes — this is the artifact that proves the task (AC #4 / TASK-114 AC
       #3). Do not shorten the run and do not report fewer runs as if they were 20
 - [ ] Bump the marketplace version and `team-review`'s own skill `version:`
@@ -104,3 +104,12 @@ bump the marketplace version + `team-review`'s skill `version:`, re-pin `docs/wi
 project gates green. This implementer touched only `team-review/scripts/run.mjs`,
 `test/team-review.test.mjs`, and this `tasks.md` file — no version bump, no `docs/wiki/`
 edit, per instructions.
+
+### Phase 2 implementer (2026-09-01) — 20-run proof recorded
+
+20 consecutive full-suite runs, each a fresh `node --test` process: **20/20 exited 0**; every
+run reported `pass 469 / fail 0`; zero `not ok` / failure markers across the whole 20-run log;
+the rewritten same-second run-lifecycle test (`test/team-review.test.mjs:206`) was present and
+passing in all 20 runs. Log retained at
+`/Users/evanstern/.claude/jobs/4b3aa81c/tmp/task114-20run.log`. AC #4 / TASK-114 AC #3 proven —
+the flake is gone under the load condition that used to trigger it.
