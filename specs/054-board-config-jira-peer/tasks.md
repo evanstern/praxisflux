@@ -8,22 +8,22 @@ exist).
 
 ## Phase 1 — The config module
 
-- [ ] Read `lib/board-mirror.mjs` (052), `pdlc/templates/model-tiers.json`, and
+- [x] Read `lib/board-mirror.mjs` (052), `pdlc/templates/model-tiers.json`, and
       `pdlc/skills/bootstrap/SKILL.md`'s "Model tiers" section; record in Notes the
       operator-owned-config rules being copied (plant only when absent, outside markers,
       doctrine points at config)
-- [ ] Implement `loadBoardConfig(root)` in `lib/board-mirror.mjs`: `{ provider: "backlog" }`
+- [x] Implement `loadBoardConfig(root)` in `lib/board-mirror.mjs`: `{ provider: "backlog" }`
       when absent; **throws** on malformed JSON; **throws naming the known providers** on an
       unknown provider name
-- [ ] Confirm there is no silent fallback path for an unknown provider — a typo'd provider
+- [x] Confirm there is no silent fallback path for an unknown provider — a typo'd provider
       must never be treated as `backlog` (that reintroduces the silent no-op through a typo)
-- [ ] Implement `validateBoardConfig(config)` for R2's cases: `provider` as an array,
+- [x] Implement `validateBoardConfig(config)` for R2's cases: `provider` as an array,
       unknown provider, `jira` missing each of `cloudId`/`projectKey`/`issueTypeName`,
       non-object `statusMap`
-- [ ] Document the R3 status-mapping composition (stage → bridge status → site status) in the
+- [x] Document the R3 status-mapping composition (stage → bridge status → site status) in the
       module header with the diagram
-- [ ] Tests for ACs 1–3, including `{ "provider": "backlog" }` as a complete valid config
-- [ ] Commit
+- [x] Tests for ACs 1–3, including `{ "provider": "backlog" }` as a complete valid config
+- [x] Commit
 
 ## Phase 2 — `plant.mjs` peer plumbing and the grounding block
 
@@ -75,4 +75,51 @@ exist).
 
 ## Notes
 
-(Implementers append findings here — the phase-to-phase handoff artifact.)
+### Phase 1 (sonnet-implementer, re-dispatch)
+
+**Operator-owned-config rules copied from the `model-tiers.json` precedent** (per
+`pdlc/templates/model-tiers.json` + `bootstrap/SKILL.md`'s "Model tiers" section):
+1. Plant/write **only when absent** — a re-run must never revert an operator-changed value.
+2. Live **outside every marker** — a plain tracked file, one-line edits, no drift, no
+   `--force`, no re-plant.
+3. The planted doctrine block **points at** the config; it never restates its contents.
+4. The config is what you edit; something generated/derived is what holds.
+`.board.json` follows the same four rules — it is operator config, not planted doctrine.
+
+**Design ruling applied (from the dispatching orchestrator, resolving a real tension the
+spec text left implicit):** kept the projector `providers` registry in `board-mirror.mjs`
+untouched (`backlog` only — spec 056 still owns adding `jira`'s `project`/`requiresSync`
+entry there) and added a **separate**, smaller `BOARD_CONFIG_PROVIDERS` table
+(`{ backlog: { requiredFields: [] }, jira: { requiredFields: [...] } }`) that
+`loadBoardConfig`/`validateBoardConfig` consult. The split is commented at both the table's
+declaration and in the module header so a later reader doesn't "tidy" the two tables into one
+and re-couple config validation to projector implementation.
+
+**Implemented in `lib/board-mirror.mjs`:**
+- `loadBoardConfig(root)` — `{ provider: "backlog" }` when `.board.json` is absent; throws
+  `"<path>: malformed JSON (...)"` on bad JSON; throws
+  `"<path>: unknown board provider ... (known: backlog, jira)"` on an unrecognized provider.
+- `validateBoardConfig(config)` — returns `string[]`; covers provider-as-array, unknown
+  provider, missing `jira` required fields (one problem per missing field), non-object
+  `statusMap`. `{ provider: "backlog" }` validates to `[]`.
+- R3's stage→bridge-status→site-status diagram documented in the module header, next to a
+  paragraph distinguishing `.board.json` (config) from `.board/links.json` (state).
+
+**No-silent-fallback verification:** `loadBoardConfig` has exactly one branch that reaches a
+`return` for an unrecognized provider name — there is none; the only path is
+`if (!BOARD_CONFIG_PROVIDERS[name]) throw ...` executed *before* the function's only `return
+config` line, so an unknown name can never reach a return. Confirmed by a test asserting the
+throw for both a clearly-wrong name (`"trello"`) and a Jira-typo name (`"typo-of-jira"`), and
+by reading the function top-to-bottom: no `|| "backlog"`, no `??`, no catch-and-default
+anywhere in the load path. `validateBoardConfig`'s unknown-provider branch is likewise a
+terminal `problems.push(...)` in an `else if` chain — it never falls through to the
+required-fields check for a name `BOARD_CONFIG_PROVIDERS` doesn't have.
+
+**Ambiguity resolved:** none beyond the providers-table split, which the dispatch prompt had
+already ruled on (recorded above for Phase 2/3's grounding, since the `pdlc:peer:jira` block
+in Phase 2 references this same split).
+
+**For Phase 2/3:** `BOARD_CONFIG_PROVIDERS` and `loadBoardConfig`/`validateBoardConfig` are
+in place and tested; nothing else in `lib/board-mirror.mjs` changed. `providers` (the spec
+052/056 projector registry) is exactly as it was — still `backlog`-only. Baseline suite was
+468/468 before this phase; 479/479 after (11 new tests, all in `board-mirror.test.mjs`).
