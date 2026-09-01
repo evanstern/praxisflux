@@ -22,8 +22,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
-import { hasChild, findRootsDownwards } from "../lib/project-root.mjs";
-import { parseLinkedTask, findLinkedTasks } from "../lib/board-mirror.mjs";
+import { hasAnyChild, findRootsDownwards } from "../lib/project-root.mjs";
+import { parseLinkedTask, findLinkedTasks, readMirror, providers } from "../lib/board-mirror.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
@@ -264,6 +264,28 @@ const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_E
 // every existing import site still resolves.
 export { parseLinkedTask, findLinkedTasks };
 
+/**
+ * The one seam through which the bridge learns what's on the board (spec 053 R1). Resolution
+ * order, MIRROR FIRST:
+ *   1. `.board/links.json` present → its `links` (readMirror throws fail-closed on a
+ *      malformed/unknown-schema mirror; that throw is left to propagate so gate-runner.mjs
+ *      surfaces it as a blocking problem, never a silently empty board).
+ *   2. No mirror, but backlog/tasks/ present → project it live via `providers.backlog.project`
+ *      — the backward-compatibility path: a host that never adopts the mirror keeps working,
+ *      byte-identically, forever.
+ *   3. Neither → [].
+ * Mirror-first is deliberate, not incidental: a host that HAS adopted the mirror must be
+ * answered from that receipt, not from a live rescan of backlog/tasks/ — otherwise an adopted
+ * mirror is never actually exercised by the bridge, and 052's `--check` drift detection would
+ * be guarding a file nothing reads.
+ */
+export function boardLinks(root) {
+  const mirror = readMirror(root);
+  if (mirror) return mirror.links;
+  if (existsSync(join(root, "backlog", "tasks"))) return providers.backlog.project(root);
+  return [];
+}
+
 /** Compare a task's Backlog status to its derived status: "exceeds" | "lags" | "ok" | "unknown". */
 export function verdict(taskStatus, derivedStatus) {
   const t = RANK[String(taskStatus).toLowerCase()];
@@ -327,7 +349,7 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   const injected = run !== undefined;
   const execGates = runGates && !!gatesProfile && (injected || process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1");
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
-  for (const task of findLinkedTasks(root)) {
+  for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     // Opted-in boards are judged on the stage ladder against their own status names;
     // everyone else gets the 3-status comparison, untouched.
@@ -403,7 +425,7 @@ export function verifyBridge(root, { run } = {}) {
   const requireAnalysis = config.strictDone === true;
   // Share each distinct gate result across every spec this invocation checks (spec 050 defect 2).
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
-  for (const task of findLinkedTasks(root)) {
+  for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const anyTicked = (derived.phaseBoxes || []).some((p) => (p.boxes || []).some((b) => b.checked));
     if (!anyTicked) continue; // nothing claims greenness yet — no tick to outrun a gate
@@ -506,7 +528,7 @@ export function planBridge(root) {
   const config = loadBridgeConfig(root);
   const requireAnalysis = config.strictDone === true;
   const profile = vocabularyProfile(config);
-  for (const task of findLinkedTasks(root)) {
+  for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const v = profile ? stageVerdict(task.status, derived.stage, profile) : verdict(task.status, derived.status);
     if (v === "unknown") { skipped.push({ id: task.id, status: task.status }); continue; }
@@ -522,7 +544,7 @@ export function planBridge(root) {
  */
 export const bridgeGate = {
   name: "spec-bridge",
-  resolveRoots: (startDir) => findRootsDownwards(startDir, hasChild("backlog")),
+  resolveRoots: (startDir) => findRootsDownwards(startDir, hasAnyChild(".board", "backlog")),
   // The runner calls check() then warn() per root; run the (possibly costly) project-gate
   // commands only in check so a Stop pays for them once, not twice. Warnings never depend on
   // gate execution, so runGates:false loses nothing.

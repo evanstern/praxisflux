@@ -13,7 +13,7 @@
 //                                  board). Prints, NEVER executes — the sync skill runs them.
 import { resolve } from "node:path";
 import { deriveSpecState } from "../lib/spec-derive.mjs";
-import { findRootUpwards, hasChild } from "../lib/project-root.mjs";
+import { findRootUpwards, hasAnyChild } from "../lib/project-root.mjs";
 import { checkBridge, loadBridgeConfig, planBridge, verifyBridge, vocabularyProfile } from "./bridge.mjs";
 
 const [cmd, target] = process.argv.slice(2);
@@ -24,7 +24,9 @@ if (!cmd || !target) {
 
 if (cmd === "state") {
   // Honor the project's .spec-bridge.json (strictDone) — same config checkBridge uses.
-  const root = findRootUpwards(resolve(target), hasChild("backlog"));
+  // hasAnyChild(".board", "backlog") in lockstep with bridgeGate.resolveRoots (bridge.mjs) —
+  // the hook and this CLI must never disagree about what a project is (spec 053 R2).
+  const root = findRootUpwards(resolve(target), hasAnyChild(".board", "backlog"));
   const requireAnalysis = root ? loadBridgeConfig(root).strictDone === true : false;
   console.log(JSON.stringify(deriveSpecState(target, { requireAnalysis }), null, 2));
 } else if (cmd === "links") {
