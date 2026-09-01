@@ -16,7 +16,7 @@ sources:
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
 size_budget_exempt: at exactly 8000/8000 on main with zero headroom (TASK-103); the owed summary-style split is folded into TASK-95 by operator decision 2026-08-03. TASK-106 added ~230 chars cataloging the tier-config surface and takes this exemption rather than forcing the unplanned split under time pressure that TASK-103 exists to prevent. Remove when TASK-95 lands the split.
-verified_against: 2d86a04e3fd8b91decaaa01d07a92c17f931059b
+verified_against: ddd611deef8d7cb66fd73b7b383d51a460f74d14
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
