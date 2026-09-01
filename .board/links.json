@@ -1,0 +1,2613 @@
+{
+  "schema": 1,
+  "provider": "backlog",
+  "generatedAt": "2026-08-28T19:59:58.540Z",
+  "links": [
+    {
+      "id": "TASK-27",
+      "status": "Done",
+      "specDir": "specs/001-reconcile-endpoint",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "POST /reconcile executes plan's emitted backlog commands verbatim (no model) and reports what it ran"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Workflow tries Reconcile before any Agent round on gate failure; Agent remains the escalation for non-mechanical failures"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "exceeds and done-eligible fixture runs complete end-to-end with zero model cost, gate-verified"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Run log/README updated with the new ladder"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Endpoint"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Proven"
+        }
+      ]
+    },
+    {
+      "id": "TASK-33",
+      "status": "Done",
+      "specDir": "specs/008-principles-p2-refinements",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "P2 in docs/principles.md states the reason-to-approve test as part of the TASK definition"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "P2 states the three-tier model (EPIC groups / TASK = 1 PR / SUBTASK never a PR), task-system-agnostically"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The pdlc bootstrap grounding block reflects the refinements if it restates P2"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Wiki notes sourcing docs/principles.md re-pinned"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-34",
+      "status": "Done",
+      "specDir": "specs/009-p3-phase-status-gates",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "docs/principles.md gains P3 (artifact-gated seams: stages re-derive state from artifacts; trigger payloads are untrusted hints), following P1/P2's canonical-statement + reference-and-apply structure"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "spec-bridge derivation supports an opt-in phase-level status vocabulary derived from spec artifacts, backward compatible with 3-status boards"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The bridge gate (status-never-exceeds-artifacts) enforces at phase granularity when the finer vocabulary is opted into"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Consumer-facing docs (consuming-gates.md and/or spec-bridge README) document the phase-status contract and the opt-in"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Cross-reference recorded: Coda's workflow-split epic names this task as its upstream blocker"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-37",
+      "status": "Done",
+      "specDir": "specs/011-build-listing-decision",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The decision (keep-listed vs delist) is recorded in the task with rationale referencing the review's open question"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "build/README.md no longer claims 'not yet implemented' anything that TASK-29 shipped; the repo README row matches"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Marketplace catalog, check-docs, and version bump (per docs/releasing.md if released surface changes) all green after the change"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-38",
+      "status": "Done",
+      "specDir": "specs/013-design-inputs-rename",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Exactly one of the two names changes; the gitignored .handoff/ transport contract is untouched"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "All in-repo references to the renamed path resolve (grep clean); wiki freshness and check-docs green"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "docs/handoff-protocol.md or the renamed dir's README states the distinction so the collision cannot silently return"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-40",
+      "status": "Done",
+      "specDir": "specs/012-enforcement-honesty",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "README/CLAUDE.md/docs/consuming-gates.md framing states plainly that local Stop gates are advisory and CI is authoritative"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "README plugin table gains an enforcement column (Stop-hook enforced vs CLI/CI gate) matching each plugin's actual hooks/ wiring"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "gate.sh emits a one-time non-blocking stderr notice when node is missing instead of a fully silent exit 0"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "README plugin count/enumeration is checked mechanically against marketplace.json in check-docs (replacing or supplementing the backtick census), and the seven-vs-eight drift is fixed"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-41",
+      "status": "Done",
+      "specDir": "specs/006-courses-opt-in",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "docs/task-courses.md rewritten: courses are opt-in, the every-task mandate language is gone, and per-task vs per-feature granularity options are documented"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The opt-in mechanism is decided and recorded (standing project choice vs cycle-start prompt), including where the choice lives as an artifact"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The existing course gap (10 of 66 Done tasks) is reconciled with the new policy so no doc claims more than the artifacts prove"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "A freshness stance for opt-in courses is stated (pinned like the wiki, or explicitly snapshot-exempt per task-courses.md option 2)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-42",
+      "status": "Done",
+      "specDir": "specs/007-team-review-self-review-gate",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The porcelain comparison in team-review/gates/review.mjs ignores .handoff/ entries (or the snapshot is taken after the run record is written) so the transport's own residue never counts as a target mutation"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "run.mjs begin escalates its gitignore warning for the self-review case (invoking root == target and .handoff/ not ignored): a clear notice or hard fail, decided and recorded in the task"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "A regression test covers self-review: begin with invoking root == target, run record in-repo, finish passes on an untouched target and still blocks on a genuinely mutated one"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-43",
+      "status": "Done",
+      "specDir": "specs/010-bootstrap-dogfood",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": ".handoff/ is gitignored at the repo root (transport never clutters git status), making the CLAUDE.md claim true"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "pdlc:bootstrap has been run on the repo: .pdlc sentinel present, PDLC grounding block planted into the existing CLAUDE.md with all hand-written content preserved (append, never clobber)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "A team-review self-review of praxis completes begin -> finish cleanly as the end-to-end verification (pairs with the gate-fix task if it lands first)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-48",
+      "status": "Done",
+      "specDir": "specs/002-corpus-spec-v2",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "corpus-spec defines the consumption protocol: INDEX.md always loaded, notes loaded just-in-time via index routing, bulk-loading the corpus disallowed as default behavior"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Capsule tier specified: per-note frontmatter description capped at a stated token budget (~100-150 tokens), written for routing; CAPSULES.md rollup format defined (index line + capsule per note)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Note size cap specified (~2k tokens) with summary-style split discipline: split subtopics to child notes leaving summary + wikilink, with an explicit minimum-content counter-rule against stub splits"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "H2 sections defined as the addressable content unit within a note"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Capsules and CAPSULES.md declared drift surfaces covered by the same sources/verified_against provenance as notes"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "docs/wiki/grounded-corpus-spec.md note re-verified and re-pinned in the same PR"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-49",
+      "status": "Done",
+      "specDir": "specs/003-wiki-capsules-enforcement",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "wiki-build and wiki-update generate CAPSULES.md (index line + capsule per note) as part of corpus output"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Gate fails when a note description exceeds the capsule budget defined in corpus-spec v2"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Gate fails when a note body exceeds the size cap, with message pointing at the summary-style split rule"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "CAPSULES.md staleness is detected by the freshness machinery (regenerating it is part of the update pass)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "node --test suite covers the new gate checks and rollup generation"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Skill version and marketplace version bumped per docs/releasing.md"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-50",
+      "status": "Done",
+      "specDir": "specs/005-wiki-v2-conformance",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Every docs/wiki note description is within the capsule budget and written for routing"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "No note body exceeds the size cap; oversized notes (at minimum build-and-release.md) split per summary-style discipline with parent summaries + wikilinks"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "docs/wiki/CAPSULES.md generated and committed; INDEX.md updated for any new child notes"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Wiki freshness gate and check-docs pass on the reworked corpus"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-51",
+      "status": "Done",
+      "specDir": "specs/004-consumer-index-first-routing",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "pdlc bootstrap template CLAUDE.md block states the loading protocol: INDEX.md first, notes just-in-time, no bulk-loading"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "sweep SKILL.md orients on CAPSULES.md (when present) for whole-corpus grounding steps"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "reorient SKILL.md/evaluator prompts prefer the capsule rollup for corpus-wide orientation, full notes on demand"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Skill and marketplace versions bumped per docs/releasing.md"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-53",
+      "status": "Done",
+      "specDir": "specs/016-plant-peer-trace",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "plant.mjs leaves a deterministic trace of peers considered and omitted (sentinel field and/or stderr notice), covered by tests"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "bootstrap SKILL.md references the trace instead of relying on untraceable judgment"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Versions bumped per docs/releasing.md (pdlc released surface)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-54",
+      "status": "Done",
+      "specDir": "specs/017-plant-name-override",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "plant.mjs accepts an explicit name override (or derives from repo metadata with basename fallback), covered by tests including the worktree case"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "bootstrap SKILL.md documents the override; re-plant from a differently-named checkout is not spuriously drifted"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Versions bumped per docs/releasing.md (pdlc released surface)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-55",
+      "status": "Done",
+      "specDir": "specs/015-paused-lane-marker",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A documented, CLI-set paused marker exists and is machine-findable on the card"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "check-merge-drift.mjs downgrades paused tasks' branch/worktree findings to non-blocking info in all three modes"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "pdlc:sweep excludes paused tasks from lane conflict analysis and lists them as untouched in the runbook header"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Host repos pick the behavior up via a normal version bump (lockstep law)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-56",
+      "status": "Done",
+      "specDir": "specs/014-reorient-worktree-first",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "run.mjs begin refuses to open a run whose registry root is a shared primary checkout (.git directory) unless an explicit override is given; the refusal names the worktree recipe and the override; covered by tests including the worktree (.git file) case"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The override is recorded on the run manifest and surfaced by list/provenance output, covered by tests"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "SKILL.md documents worktree-first as the default doctrine and the explicit override path"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Versions bumped per docs/releasing.md (reorient released surface; skill version bump)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-57",
+      "status": "Done",
+      "specDir": "specs/018-sweep-merge-over-rebase",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "sweep concurrency doctrine (SKILL.md + templates/runbook.md): pin-carrying task branches reconcile by MERGING origin/main in and re-pinning conflicted pins to the merge commit; squash/rebase/force-push named as pin-breaking; rebase stays for pin-free branches"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "freshness probe prescribed directly after EVERY history move, not only when docs/wiki/ changed — pins also reference design-reference files, so a wiki-untouched diff can still be stale"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Versions bumped per docs/releasing.md (pdlc released surface: sweep SKILL.md + marketplace); wiki pdlc-plugin note re-verified + re-pinned"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-58",
+      "status": "Done",
+      "specDir": "specs/019-sweep-honest-repin",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Sweep doctrine routes post-merge-in staleness through the wiki-update plan loop (RE-PIN-ONLY vs NEEDS-REVIEW classified against the main-side diff) instead of mechanical merge-commit re-pins"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "No text in sweep SKILL.md or templates/runbook.md instructs bumping a pin without reading the covered diff"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "docs/wiki/pdlc-sweep.md re-grounded to the amended doctrine"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-59",
+      "status": "Done",
+      "specDir": "specs/020-freshness-gate-holes",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A note listing a source path absent from the tree is a blocking finding (or loud per-note warning), not a silent fresh"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Inline-array sources frontmatter is parsed and staleness-checked identically to block lists"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "CAPSULES regenerate-and-compare is corpusDir-spelling-invariant (absolute path / trailing slash regenerates byte-equal)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Regression tests cover all three (missing source, inline array, corpusDir spelling)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-60",
+      "status": "Done",
+      "specDir": "specs/025-sweep-doctrine-reconcile",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "SKILL Phase 2 loop and runbook claim protocol state one consistent ordering (claim commit precedes spec authoring), and the SKILL loop contains an explicit claim step"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Rejected-claim-push remedy is merge-based, executable under a repo-wide rebase ban, and never requires a force-push; wiki and template agree"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Drift-gate mode inventory is identical between SKILL and runbook (all four modes, probed for)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Re-ground step order makes the sync call effective (ticks before sync) and Done ownership matches spec-bridge doctrine"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Planted CLAUDE.md enforcement claims match what plugins actually ship"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-61",
+      "status": "Done",
+      "specDir": "specs/021-team-review-report-path",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "begin . resolves the default report path outside the target and finish passes on a self-review"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "SKILL.md report-path claim matches actual behavior"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Default report filenames are unique per run (run-id or equivalent), not date-keyed"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Self-review round-trip covered by a test"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-62",
+      "status": "Done",
+      "specDir": "specs/022-educate-check-convergence",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Single-topic --check on a vault-less topic converges with --sync (distinct no-vaults verdict or exit 0), and the check/sync exit-code contract is consistent"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Empty-array decksStandardForEveryLesson is handled consistently with isDelegated"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Planted CLAUDE.md gate/sync commands are runnable as written in a user project"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "start skill instructs placeholder substitution when planting the template"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-63",
+      "status": "Done",
+      "specDir": "specs/026-handoff-seam-ownership",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Exactly one side of the seam owns the progress.json write (handoff.returned + status), and that side instructs it in its skill"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Handoff artifact doctrine is .handoff/-only and internally consistent across lesson SKILL, planted template, and dod.mjs artifact derivation"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "handoff-protocol doc references resolve from an installed plugin context"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "A delegated-build round trip (educate hands off, build returns, gate passes at built) is covered by a test or scripted fixture"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-64",
+      "status": "Done",
+      "specDir": "specs/023-reorient-target-root",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Run manifests are written under the resolved target root, regardless of invoking cwd"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The dangling-run Stop gate fires for a session in the target project"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "finish run from the target resolves the run; worktree-first refusal evaluates the target checkout"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Cross-directory begin/finish covered by a test"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-65",
+      "status": "Done",
+      "specDir": "specs/024-gate-exit-contracts",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "An exception thrown during gate execution exits 1 (or a distinct documented code), never 2; docs/consuming-gates.md stays accurate; regression test with a throwing gate"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "stop-docs root comparison realpaths both sides and requires a path-separator boundary (symlinked launch fires the gate; sibling dirs never match)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "A crashing resolveRoots surfaces as a problem instead of resolving to zero roots"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-66",
+      "status": "Done",
+      "specDir": "specs/027-scripts-template-hygiene",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "All shipped hook commands and the scaffold template quote the plugin-root expansion"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "build --plugin rebuilds only its target without destroying other dist output, and missing argv value prints usage instead of crashing"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Scaffolding keeps check-docs green (count claims updated or contract amended); fixture README carries a count claim"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Non-semver base skill versions fail loudly (or are validated) instead of skipping the bump check"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-67",
+      "status": "Done",
+      "specDir": "specs/028-replant-grounding",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "This repo's CLAUDE.md planted block matches the bootstrap 0.6.0 template render (plant check clean; sentinel advanced)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Any hand edits found inside the block are preserved (relocated per the diff-first procedure), not clobbered"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "check-docs.mjs and the wiki freshness gate stay green (re-pin pdlc-plugin note if plant artifacts are among its sources)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-68",
+      "status": "Done",
+      "specDir": "specs/029-repin-commit-existence",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "repin.mjs refuses a well-formed hash that names no commit in the repo, with an error naming the hash"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Existing refusals (short hash, missing note, pinless file) unchanged"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Regression test covers the nonexistent-commit case"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-69",
+      "status": "Done",
+      "specDir": "specs/030-sync-version-argv",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Non-semver or missing argv (incl. --help style flags) prints usage and exits nonzero without touching any file"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Valid x.y.z behavior unchanged (all 11 files stamped, sync --check unchanged)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Regression test covers the refusal and the no-files-touched guarantee"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-70",
+      "status": "Done",
+      "specDir": "specs/031-team-review-residue-policy",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The residue policy is decided and recorded (SKILL.md + docs/wiki/team-review-plugin.md state one rule)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Behavior matches the recorded rule; if (b), the self-review round trip still passes on pure defaults (no gate deadlock regression)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Existing TASK-61 tests stay green; any new behavior is covered by a test"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-71",
+      "status": "Done",
+      "specDir": "specs/032-test-suite-catalog-closure",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Every test/*.test.mjs file has a catalog entry and appears in the catalog note's sources (set enumerated at execution time)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Note body within the 8000-char budget (further summary-style split if needed); INDEX/CAPSULES consistent"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Wiki freshness gate green with the expanded source list"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-72",
+      "status": "Done",
+      "specDir": "specs/033-refactor-triage",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "New skill pdlc/skills/refactor-triage/SKILL.md (frontmatter name/version/description) follows the precondition gate → phases → output gate shape per docs/skill-patterns.md"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Three entry modes work: commit range (post-sweep), whole-repo (periodic), and headless with a declared triage policy (harness/orchestration)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Evaluate phase orchestrates team-review:team-review when installed (range rides in via the lens) and degrades to an inline eval pass when absent; team-review itself is unchanged"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Range mode grounds an intent-drift pass against the sweep runbook, merged PR specs, and pinned docs/wiki notes"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Triage produces a tracked triage record with an accept/reject/defer disposition and rationale for every finding"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Accepted findings become backlog tasks via the CLI, each citing its finding (report + file evidence) and labeled for later sweeps"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Output gate enforces: no created task without a cited finding, no completion without report + triage record"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "pdlc:sweep's Handing off section names refactor-triage as the post-sweep review step"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Version bumps (skill + marketplace) per docs/releasing.md; tests under test/ green via node --test; wiki freshness gate and check-docs pass"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 11,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 12,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-73",
+      "status": "Done",
+      "specDir": "specs/034-demo-rig",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A single generator/reset command materializes the demo project from tracked fixtures as a fresh git repo with a tag per PDLC stage (0 bare, 1 grounded, 2 planned, 3 swept, 4 triaged) and can jump to any stage in seconds"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Every stage's artifacts are real captures from genuine plugin runs, and each stage passes its own gates when checked out (freshness gate green at stages 1/3/4; spec-bridge derivation consistent at 2/3)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Scratch GitHub sandbox remote wired: reset force-pushes stage state, canned history carries real merged PRs, and the live sweep opens a genuine PR there"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Live-thread support: one tiny pre-specced one-file task exists unmerged at stage-2 ready to sweep live, and stage-3 contains the same task merged as the canned fallback"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "A 30-minute runsheet doc scripts the demo: stage walk order, the live gate-break and spec-bridge-block moments, the background live task kickoff and close, refactor-triage (headless policy run or live debt-carding), and the fallback pivot per live moment"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "A CI test regenerates the demo repo and asserts the stage tags exist and per-stage gates pass, so the demo cannot rot silently"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "A docs/wiki note pins the rig (generator, fixtures, runsheet) listing the demoed skill files as sources, so the freshness gate flags the demo when those skills change"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Repeatability proven: two consecutive resets yield identical stage state (same demo-board task IDs, same tags, same narrative)"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 11,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-74",
+      "status": "Done",
+      "specDir": "specs/041-pdlc-enumeration-drift",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "pdlc/templates/CLAUDE.md pdlc bullet names all three verbs incl. refactor-triage"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "plugin.json + marketplace.json pdlc descriptions name the third skill (and keywords gain triage/debt)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "root README pdlc role cell consistent with what the plugin ships (style decision recorded)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "this repo's CLAUDE.md re-planted at current version; overview.md re-verified through wiki-update"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "version bumps per docs/releasing.md; gates green"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-75",
+      "status": "Done",
+      "specDir": "specs/040-refactor-triage-hardening",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Evaluate phase states the tracked-copy check + manual-copy fallback (no version coupling)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "headless mode has a named policy argument, a README example, and a detection rule"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "run-id minting rule stated for both engine and degraded modes"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "output gate enforces evaluation-report trackedness (or the 'both tracked' promise is removed)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "skill version 0.2.0 + marketplace bump; gates green"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-76",
+      "status": "Done",
+      "specDir": "specs/047-pdlc-test-deepening",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "refactor-triage SKILL tests assert the four-section skeleton and parse frontmatter via parseFrontmatter"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "phase-content anchors: triage-record path string, backlog-CLI-only Execute, lens framing present"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "a test pins refactor-triage's and team-review's docs/reviews path spelling to agree"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "bootstrap frontmatter test gains the description assertion; node --test green"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-78",
+      "status": "Done",
+      "specDir": "specs/044-wiki-budget-headroom",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "test-suite-catalog-plugins split summary-style with comfortable headroom; freshness green"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "pdlc-refactor-triage description trimmed below ~480 chars; CAPSULES regenerated"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "the note's sweep cross-claims are gate-visible (source added) or de-specified to the wikilink"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-79",
+      "status": "Done",
+      "specDir": "specs/045-sweep-hand-authored-specs-hatch",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "sweep precondition gate states the hand-authored-specs escape hatch and its recording requirement"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "concurrency/checkpoint doctrine states the runbook-amendment rule for gate softening"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-80",
+      "status": "Done",
+      "specDir": "specs/042-refactor-triage-last-run-at",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Every refactor-triage run writes a machine-findable last-run-at commit id into its tracked triage record (format documented in the skill)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Scope phase supports 'since last triage': resolves the latest record's last-run-at to <id>..HEAD, verifies the range resolves, and stops with a clear message when no prior record exists"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Skill version bumped per docs/releasing.md; node --test and check-docs green; wiki note pdlc-refactor-triage re-verified against the diff and re-pinned"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-84",
+      "status": "Done",
+      "specDir": "specs/038-speckit-degradation-hardening",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "sweep SKILL.md step 3 states the required artifacts by name (spec.md, plan.md, tasks.md) with the same mechanical specificity the claim step gets, including what to do when the host constitution is absent or unratified"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "spec-bridge:link moves from step 4 into the claim commit in step 2, so the bridge's Stop gate is armed from the branch's first commit rather than after the step it is meant to protect"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "templates/runbook.md gains a 'Per-task artifacts required before PR' section, so the obligation survives into the runbook and therefore across sessions"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "sweep Output gate adds: every scoped task's specs/NNN-*/ contains spec+plan+tasks, or the runbook records an operator-signed escape hatch (reconciled with TASK-79 so the two do not contradict)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "doctrine sentence: a precondition/Lane-0 decision that changes the per-task loop must be written as a checkable line in the runbook's gate section, not only as prose"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "TASK-79 and this task are cross-referenced and their fixes verified non-contradictory"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "skill version bump + marketplace bump; pdlc-sweep wiki note re-verified; gates green"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-85",
+      "status": "Done",
+      "specDir": "specs/046-two-track-landing-rule",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "pdlc/templates/CLAUDE.md's pdlc:peer:backlog block states the two-track landing rule: board/bookkeeping commits (cards, status flips, notes, AC ticks) direct to main; deliverable work by PR"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The wording derives the rule from the existing no-PR-for-its-own-sake principle so it does not read as an exception to one-task-one-PR"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "pdlc:bootstrap's update path refreshes the block on already-bootstrapped hosts"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "pdlc:sweep's doctrine references the rule rather than restating it, so sweeps stop having to ratify it per-host"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "plugin version bump + marketplace bump; pdlc wiki note re-verified; gates green"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-86",
+      "status": "Done",
+      "specDir": "specs/035-sweep-model-id-pinning",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "pdlc/skills/sweep/SKILL.md Phase 1 item 2 (model tier per task) requires the runbook to record an explicit model ID next to each tier label"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "SKILL.md step 5 (dispatch) instructs the orchestrator to pass that model ID explicitly to the implementer agent (e.g. Agent tool model param), never relying on session-model inheritance"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "templates/runbook.md has a slot for tier AND model id per task"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Marketplace version and sweep skill version bumped per docs/releasing.md"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-87",
+      "status": "Done",
+      "specDir": "specs/036-sweep-phase-scoped-dispatch",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "SKILL.md step 5 prescribes phase-scoped dispatch: a fresh implementer agent per tasks.md phase (or explicitly-grouped phases), re-grounded from spec artifacts + branch commits, with the rationale (context re-read cost) stated"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Doctrine states what the phase handoff artifact set is (spec dir, tasks.md tick-state, branch commits) and that nothing may be handed off via chat context"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "templates/runbook.md execution-log or per-task section accommodates multi-phase dispatch (phases dispatched/completed visible)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Marketplace version and sweep skill version bumped per docs/releasing.md"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-88",
+      "status": "Done",
+      "specDir": "specs/037-sweep-turn-hygiene-cost-accounting",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "SKILL.md dispatch guidance includes a turn-hygiene block for implementer prompts: batched parallel tool calls, minimal between-call narration, lower effort on mechanical phases"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "templates/runbook.md execution log gains a tokens/cost column (best-effort actuals per task)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "SKILL.md states the orchestrator should end its session at lane boundaries and resume from the runbook + board (session-portability rule already exists; this makes it a cost prescription, not just crash-resilience)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Marketplace version and sweep skill version bumped per docs/releasing.md"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-89",
+      "status": "Done",
+      "specDir": "specs/039-sweep-doctrine-consistency",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "step 5 gains the dispatch-boundary log-row clause; step 10 and the template state the same cadence (F1)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "the 'non-trivial' qualifier is removed or routed through the escape line (F2)"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Output gate re-checks every scoped card's Spec marker at sweep end; template end-check matches (F3)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Phase 1 item 2 gains the fallback-ID slot (record fallback for subscription-unavailability + which model actually served) (F4)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "template escape-line section carries the never-a-second-mechanism clause (F6)"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "T1/T2 redundancies trimmed without dropping any spec-mandated rationale"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-90",
+      "status": "Done",
+      "specDir": "specs/043-sweep-background-job-mode",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "sweep SKILL.md names the background-job/no-main-push execution mode (or records the sanctioned-deviation rule) covering worktree location, closure-rides-next-branch, wrap-up PR"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "step 2/9/10 wording acknowledges the mode instead of contradicting it"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "TASK-85 cross-referenced; wording reconciled, not implemented"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "skill version bump + marketplace bump; pdlc-sweep note re-verified; gates green"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Spec"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Implement"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Prove"
+        }
+      ]
+    },
+    {
+      "id": "TASK-91",
+      "status": "Done",
+      "specDir": "specs/048-bootstrap-tier-rubric",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "pdlc:bootstrap either plants a model-tier rubric stub in the grounding it stamps, or detects an absent rubric and tells the operator what to author and where — the choice recorded with its rationale"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Whatever bootstrap teaches names the pinning mechanism that actually holds: an explicit model ID in an agent definition's frontmatter, citing the 2026-07-31 field case where the dispatch-call model parameter was silently ignored"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "pdlc:sweep's Phase 1 item 2 names where the rubric is expected to live for a bootstrapped project, so 'the host project's rubric' resolves to a defined location"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "A test in test/pdlc.test.mjs pins the new bootstrap contract, matching the existing plugin test standard"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Plant the rubric"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Teach it in bootstrap"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Point sweep at it"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Pin the contract in tests"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Re-plant, bump, re-ground"
+        }
+      ]
+    },
+    {
+      "id": "TASK-93",
+      "status": "Done",
+      "specDir": "specs/049-wiki-sweep-history-backfill",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "history note carries 0.48.0/0.50.0/0.51.0 entries with field evidence, via a split keeping every body ≤8,000 and capsules ≤500"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "reciprocal wikilinks resolve; INDEX.md + CAPSULES.md regenerated verbatim"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "test-suite-catalog-plugins hub note pins real sources (its children or test/) or is explicitly marked index-kind"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "freshness gate green with zero warns; wiki-only, no version bump"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — Split design and measurement"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Perform the split"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Backfill 0.48.0 / 0.50.0 / 0.51.0"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — Hub note sources, regeneration, and the zero-warn gate"
+        }
+      ]
+    },
+    {
+      "id": "TASK-100",
+      "status": "Done",
+      "specDir": "specs/050-tick-vs-red-gate",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A gate detects the state 'tasks.md checkboxes ticked while a project gate this repo enforces is red' and blocks, naming the phase, the box, and the failing gate"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Phased work stays possible: the check distinguishes gates that are red by construction mid-PR (wiki freshness between a source edit and its re-pin commit) from gates that must be green, rather than blocking every tick while anything is red"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Done-eligible derivation is covered: an all-boxes-ticked spec while any enforced gate fails is a blocking finding, so the bridge cannot derive Done from boxes that were never true"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "A test pins the new behavior, and the docs that describe the gates convention name the rule"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Cites the 2026-08-01 field case (spec 048 phases 1-2: '254 pass, 0 fail' reported and ticked with four notes staled and the freshness gate red)"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — Design decision and config surface"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — The evaluator and its two entry points"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Tests, including the parity proof"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — Dogfood, docs, and re-ground"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Phase 5 — Close the two dogfood defects (blocking for merge)"
+        }
+      ]
+    },
+    {
+      "id": "TASK-101",
+      "status": "Done",
+      "specDir": "specs/051-root-guard-hook",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A board-sync commit scoped entirely to backlog/ is accepted regardless of what its commit message text contains — newlines, parentheses, quotes, semicolons, pipes and backticks all included"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The standard multi-line Co-Authored-By trailer, verbatim, commits successfully at root without a workaround"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The command classifier honors quoting across newlines rather than truncating the segment on a character class that can occur inside a quoted string"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "When the board-sync exception IS correctly denied, the refusal names the specific token it read as an out-of-scope pathspec, so the cause is self-diagnosing"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "The gate's fail-closed posture is preserved: no commit that was blocked for genuine scoping reasons becomes allowed by this fix, covered by a test per hazard character"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Decision recorded on whether pdlc ships the hook (planted like other peer artifacts) or the fix is documented for hosts to apply to their own copy; if shipped, the promptworld copy's divergence is noted"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — Read the source, decide the home, record the decisions"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — The quote-state scanner"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Port the policy and wire the hook"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — The both-directions hazard suite"
+        },
+        {
+          "index": 11,
+          "checked": true,
+          "text": "Spec phase: Phase 5 — Close the fail-open gap (R2a, blocking for merge)"
+        },
+        {
+          "index": 12,
+          "checked": true,
+          "text": "Spec phase: Phase 6 — Plant, posture, docs, re-ground"
+        }
+      ]
+    },
+    {
+      "id": "TASK-102",
+      "status": "Done",
+      "specDir": "specs/057-repo-state-placement",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — State the rule; compute the window"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Move the self-check; close the CI gap"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — pre-push warns; stop-docs becomes window-aware"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — Retire the softening, re-ground, close"
+        }
+      ]
+    },
+    {
+      "id": "TASK-104",
+      "status": "Done",
+      "specDir": "specs/058-branch-held-specs",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "The gate derives spec state for a spec directory that exists only on a pushed task branch, not solely from the project root's working tree"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "A task linked to a branch-only spec no longer reports as exceeding its artifacts when those artifacts are complete on the branch"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "A spec directory that exists at no ref and no working tree still derives as today — the gate does not become permissive"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "The branch-aware resolution is covered by a test using a real git fixture, following the repo's existing gate-test pattern"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — the git spec-source resolver"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — wire the resolver into the derivation"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — prove the branch-held scenario"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — grounding and release"
+        }
+      ]
+    },
+    {
+      "id": "TASK-109",
+      "status": "In Progress",
+      "specDir": "specs/052-board-adapter-seam",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "Schema documented and implemented with unknown keys round-tripping intact"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "readMirror returns null for absent and THROWS for malformed JSON or unknown schema"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "writeMirror is byte-deterministic; links sort naturally (TASK-9 before TASK-10)"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "validateMirror catches missing field, wrong type, duplicate id, duplicate specDir, non-monotonic ac index"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "mirrorStaleness returns stale+reason for non-ancestor sha, absent sha on requiresSync, and non-git root"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "backlog projector matches findLinkedTasks('.') entry-for-entry on id/status/specDir/acs"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "parseLinkedTask and the tasks-dir scan MOVED to lib/board-mirror.mjs; bridge.mjs re-exports; all import sites resolve"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "--check exits nonzero on a hand-edited backlog mirror naming the drifted id; 0 when fresh; 0 when absent"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "test/board-mirror.test.mjs covers AC 2-8; docs/wiki re-pinned for every touched source"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — Schema, read/write, validate"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — Move the parser, prove nothing broke"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — Staleness, provider registry, the Backlog projector"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground"
+        }
+      ]
+    },
+    {
+      "id": "TASK-110",
+      "status": "To Do",
+      "specDir": "specs/053-bridge-on-mirror",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "boardLinks(root) implements mirror-first / live-backlog / empty; all three entry points use it"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "backlog-only host produces byte-identical verdicts, messages, and planned commands"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "mirror-only host yields identical problems+warnings for equivalent state (differential fixture pair)"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "resolveRoots handles .board-only, backlog-only, and both; gates/cli.mjs resolves identically"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "stale requiresSync mirror yields one blocking problem naming reason and remedy"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "stale non-requiresSync mirror yields NO staleness problem (live projection preferred)"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "declared requiresSync provider with absent mirror yields the blocking no-evidence problem (asserted by message content)"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "planBridge returns structured intents for non-backlog providers; exact command strings for backlog"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "New coverage for AC 3-8; docs/wiki re-pinned (spec-bridge-plugin, gates-convention, project-root)"
+        }
+      ]
+    },
+    {
+      "id": "TASK-111",
+      "status": "To Do",
+      "specDir": "specs/054-board-config-jira-peer",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": ".board.json schema implemented; {\"provider\":\"backlog\"} is a complete valid config"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "loadBoardConfig defaults to backlog when absent, throws on malformed JSON, throws naming known providers on unknown provider"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "validateBoardConfig catches provider-as-array, unknown provider, jira missing each coordinate, non-object statusMap"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "PEERS includes jira; --peer jira keeps the block and omitting it strips it"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "--peer backlog --peer jira ERRORS with a message naming the one-board invariant"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "pdlc:peer:jira block contains ZERO backlog command strings (grep-asserted) and covers all six R5 points"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": ".pdlc records jira under peers/peersOmitted with no sentinel schema change"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "bootstrap/SKILL.md documents MCP-presence detection, discover-dont-ask, write-only-when-absent, the refusal, and the extended output gate; version bumped"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "test/pdlc.test.mjs extended for AC 4-7 with existing cases unedited; config tests for AC 1-3"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "README.md and CLAUDE.md peer enumeration updated (check-docs green); docs/wiki re-pinned"
+        }
+      ]
+    },
+    {
+      "id": "TASK-112",
+      "status": "To Do",
+      "specDir": "specs/055-board-verb-table",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "docs/board-verbs.md exists; every row names its preconditions AND its evidence artifact"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "All six skills reference verbs; grep for 'backlog ' in skills hits only table columns or scoped illustrations"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Every rewritten skill version bumped; diffs contain no unrelated edits (no paragraph reflow)"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Block parser yields [{index,checked,text}] matching mirror acs shape; round-trip test passes"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Mirror schema gains optional labels[]; both providers project it; a mirror without it still validates"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill"
+        }
+      ]
+    },
+    {
+      "id": "TASK-113",
+      "status": "To Do",
+      "specDir": "specs/056-jira-provider",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "providers.jira registered as requiresSync:true/project:null; lib/ has no mcp__ or fetch( (grep-asserted)"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "spec-bridge/skills/board-sync/SKILL.md in gate-work-gate pattern with all three sections"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "board:sync writes a valid mirror with observedAt+observedSha on every link, and COMMITS it"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "Unlinked issues (no Spec: marker) excluded from the mirror; count reported"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Status round-trips through statusMap both directions; unmapped falls through; non-injective map errors"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Reverse direction executes renderJira calls in order then re-syncs; git status clean under every spec dir"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "board:create is exactly ONE MCP call with zero discovery; missing coordinate is a named config error; spiking triggers no sync"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "defaultAssignee self resolves once per session; board:claim sets assignee AND status; name-is-not-an-id documented"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated"
+        }
+      ]
+    }
+  ]
+}

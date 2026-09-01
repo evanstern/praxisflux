@@ -14,13 +14,14 @@ sources:
   - spec-bridge/scripts/stop.mjs
   - lib/spec-derive.mjs
   - lib/spec-source.mjs
+  - lib/board-mirror.mjs
 size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TASK-104) adds the
   working-tree/git-ref resolver, which is load-bearing for every verdict this note describes and
   cannot be omitted. The splittable unit would be ~500 chars — under the ~1,500-char
   minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
   than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
   already own this note family's owed summary-style split; fold this into it and remove.
-verified_against: 1ac8f1d91ac8df0dd4c615bac7aac6219cb21164
+verified_against: 4694352e2b28ce3bc02d9865e9fbeeb9dff26290
 ---
 
 # spec-bridge plugin
@@ -56,8 +57,9 @@ removals highest-index-first, additions, check/uncheck at post-edit indexes, and
 change-only progress note (`Setup: 2/2 · Core: 4/7`) per touched task. Human-authored ACs
 (no `Spec phase:` prefix) are structurally untouchable; verdict-unknown tasks are reported on
 stderr, never guessed; a reconciled board plans nothing. The planner (`planLinkedTask` /
-`planBridge` in `gates/bridge.mjs`, fed by `parseLinkedTask` which also reads the task's
-AC:BEGIN/END block) stays read-only — plan prints, the skill executes and re-verifies.
+`planBridge` in `gates/bridge.mjs`, fed by `parseLinkedTask` — now in `lib/board-mirror.mjs`,
+re-exported here — which also reads the task's AC:BEGIN/END block) stays read-only — plan
+prints, the skill executes and re-verifies.
 
 **The gate.** `gates/bridge.mjs` finds project roots downwards (`findRootsDownwards` +
 `hasChild("backlog")`), parses linked tasks, and compares each task's frontmatter status to
@@ -133,8 +135,8 @@ bypasses it (spawns nothing), so the check dogfoods itself.
 
 - Read-only CLI backbone: `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir> |
   links <root> | check <root> | verify <root> | plan <root>`. `verify` runs the declared
-  `projectGates` against every ticked box (the mid-PR counterpart to the Done-eligible Stop-hook
-  check), exiting nonzero on a tick standing over a red/unrunnable gate.
+  `projectGates` against every ticked box, exiting nonzero on a tick standing over a
+  red/unrunnable gate.
 - Known tradeoff (from the README): Spec Kit works branch-per-feature, so a linked task file
   lives on the feature branch until merge — `main`'s board lags in-flight spec work; the
   board is authoritative per branch.
