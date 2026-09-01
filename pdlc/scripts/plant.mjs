@@ -34,7 +34,7 @@
 // checkout of the same project is `unchanged`, never spuriously `drifted`; only --name
 // changes it, and that change surfaces as honest drift (consent + --force).
 //
-//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] [--check] [--force]
+//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,7 +44,7 @@ import { render } from "../lib/template.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-export const PEERS = ["backlog", "spec-kit"];
+export const PEERS = ["backlog", "spec-kit", "jira"];
 // Opt-in planted hooks (spec 051). Each names a copy-into-host artifact wired via the host's
 // own .claude/settings.json — NOT a marked CLAUDE.md block and NOT a peer utility CLI.
 export const HOOKS = ["root-guard"];
@@ -167,6 +167,11 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
   const unknown = peers.filter((p) => !PEERS.includes(p));
   if (unknown.length) throw new Error(`unknown peer(s): ${unknown.join(", ")} (known: ${PEERS.join(", ")})`);
+  // Design invariant 2 (board-provider-seam.md): one board, singular. backlog and jira are
+  // both "the board" — opting into both would leave two plans of record.
+  if (peers.includes("backlog") && peers.includes("jira")) {
+    throw new Error("peers backlog and jira are mutually exclusive — one board is the plan of record");
+  }
   const unknownHooks = hooks.filter((h) => !HOOKS.includes(h));
   if (unknownHooks.length) throw new Error(`unknown hook(s): ${unknownHooks.join(", ")} (known: ${HOOKS.join(", ")})`);
   // The deterministic absent-peer trace: known peers not opted in, in KNOWN-peer order.
@@ -246,7 +251,7 @@ if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i === -1 ? undefined : args[i + 1]; };
   const root = opt("--root");
-  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] [--check] [--force]"); process.exit(2); }
+  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]"); process.exit(2); }
   const peers = args.flatMap((a, i) => (a === "--peer" ? [args[i + 1]] : []));
   const hooks = args.flatMap((a, i) => (a === "--hook" ? [args[i + 1]] : []));
   const check = args.includes("--check");

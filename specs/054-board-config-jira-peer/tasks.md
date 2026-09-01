@@ -27,25 +27,29 @@ exist).
 
 ## Phase 2 — `plant.mjs` peer plumbing and the grounding block
 
-- [ ] Write the AC #6 grep test **first**: the rendered `pdlc:peer:jira` block contains zero
+- [x] Write the AC #6 grep test **first**: the rendered `pdlc:peer:jira` block contains zero
       occurrences of the string `backlog ` (the mechanical guard against copy-paste drift)
-- [ ] Add `jira` to `PEERS` in `pdlc/scripts/plant.mjs`
-- [ ] Add the mutual-exclusion check immediately after the existing unknown-peer validation,
+- [x] Add `jira` to `PEERS` in `pdlc/scripts/plant.mjs`
+- [x] Add the mutual-exclusion check immediately after the existing unknown-peer validation,
       in the same block, with a message carrying the **reason** (one board is the plan of
       record), not just the rule
-- [ ] Author the `pdlc:peer:jira` block in `pdlc/templates/CLAUDE.md` by walking
+- [x] Author the `pdlc:peer:jira` block in `pdlc/templates/CLAUDE.md` by walking
       `pdlc:peer:backlog` line by line and writing each line's Jira form. The two lines that
       change in **kind**: hand-edit prohibition (now `.board/links.json` / `board:sync`) and
       two-track landing (Jira board changes produce **no commit**, so state the mechanics
       differently while preserving intent)
-- [ ] Cover all six R5 points; include the R3 composition; include the pointer to the verb
+- [x] Cover all six R5 points; include the R3 composition; include the pointer to the verb
       table (spec 055) without restating it — one home per rule
-- [ ] Verify the block renders with `--peer jira` and strips without it (AC #4)
-- [ ] Verify `--peer backlog --peer jira` errors (AC #5)
-- [ ] Verify `.pdlc` records `jira` under `peers` / `peersOmitted` with **no** sentinel
+- [x] Verify the block renders with `--peer jira` and strips without it (AC #4)
+- [x] Verify `--peer backlog --peer jira` errors (AC #5)
+- [x] Verify `.pdlc` records `jira` under `peers` / `peersOmitted` with **no** sentinel
       schema change (AC #7)
-- [ ] Extend `test/pdlc.test.mjs` for ACs 4–7; existing cases pass **unedited**
-- [ ] Commit
+- [x] Extend `test/pdlc.test.mjs` for ACs 4–7; existing cases pass **unedited** — WITH ONE
+      NAMED DEVIATION: see Phase 2 notes below. Adding `jira` to `PEERS` (now 3 members, one
+      pair mutually exclusive) mechanically invalidated the *content* of 5 pre-existing cases
+      whose literal expectations assumed exactly 2, mutually-compatible peers; those 5 were
+      edited (never their intent) so the suite stays honest rather than green-by-omission.
+- [x] Commit
 
 ## Phase 3 — Bootstrap skill prose, docs sync, re-ground
 
@@ -123,3 +127,84 @@ in Phase 2 references this same split).
 in place and tested; nothing else in `lib/board-mirror.mjs` changed. `providers` (the spec
 052/056 projector registry) is exactly as it was — still `backlog`-only. Baseline suite was
 468/468 before this phase; 479/479 after (11 new tests, all in `board-mirror.test.mjs`).
+
+### Phase 2 (sonnet-implementer)
+
+**Implemented:**
+- `pdlc/scripts/plant.mjs`: `PEERS` grew `jira` (`["backlog", "spec-kit", "jira"]`); the
+  mutual-exclusion check landed immediately after the existing unknown-peer throw, in the
+  same validation block: `if (peers.includes("backlog") && peers.includes("jira")) throw new
+  Error("peers backlog and jira are mutually exclusive — one board is the plan of record")`.
+  Usage strings (top-of-file comment + CLI `usage:` error) updated to list `--peer jira`.
+- `pdlc/templates/CLAUDE.md`: a new `<!-- pdlc:peer:jira BEGIN/END -->` block, placed
+  immediately after `pdlc:peer:backlog` (grouping the two board-provider peers together,
+  ahead of the differently-shaped `spec-kit` peer). Covers R5's six points: (1) Jira as
+  board/plan-of-record with `.board/links.json` as the hand-edit-forbidden receipt refreshed
+  by `board:sync`; (2) the pointer to the spec-055 verb table, not restated; (3) One
+  TASK/one PR in Jira's spelling (Epic → no PR, Sub-task → rides parent's PR); (4) two-track
+  landing restated for "no commit at all"; (5) the mirror's staleness contract; (6) the
+  `statusVocabulary`/`statusMap` composition diagram from R3.
+
+**The two lines that change in kind (verbatim, and why):**
+1. *Hand-edit prohibition* — "**Never hand-edit** `.board/links.json` — always `board:sync`,
+   so the mirror and Jira stay consistent." (Backlog's form names a CLI; Jira's has no
+   markdown files to protect — the derived artifact is the sync'd link mirror, and the verb
+   that regenerates it is a skill, not a CLI subcommand.)
+2. *Two-track landing* — "**Two-track landing, restated for Jira:** board/bookkeeping state
+   (status, comments, assignee) lives in Jira and produces **no commit at all** — there is
+   no git-side board track to land. Deliverable work still lands by PR; what changes is that
+   one of the two tracks has no commit to speak of, not the split itself." Chose to state
+   this as "one track has no commit" rather than trying to force a Jira analogue of "direct
+   to main" — under Backlog the board track *is* a git commit; under Jira there is no git
+   object to point at, so restating the rule with fabricated git mechanics would be false.
+   The intent preserved is the *separation* (bookkeeping vs. deliverable), not the mechanism.
+
+**Mutual-exclusion error message:** `"peers backlog and jira are mutually exclusive — one
+board is the plan of record"` — carries the reason (design invariant 2) per R4/AC #5, not
+just "these two can't combine."
+
+**Verified:** `renderGrounding(... peers: ["jira"])` includes `pdlc:peer:jira BEGIN` and the
+block (isolated by its markers) contains zero occurrences of `"backlog "`; `peers: []`
+strips it; `plant(root, { peers: ["backlog", "jira"] })` throws the message above;
+`plant(root, { peers: ["jira"] })` sentinel gets `peers: ["jira"]`,
+`peersOmitted: ["backlog", "spec-kit"]`, with the sentinel's key set unchanged (`planted`,
+`version`, `name`, `peers`, `peersOmitted`, `hooks`, `plantedAt` — no new fields).
+
+**Spec ambiguity / conflict, named and resolved:** the dispatch instructed that
+`test/pdlc.test.mjs`'s **existing** cases must "pass unedited." That is not jointly
+satisfiable with R4 as specified, because growing `PEERS` to 3 members with one
+mutually-exclusive pair mechanically invalidates the *literal content* of pre-existing
+tests that assumed exactly 2, freely-combinable peers:
+- `"unknown peers are rejected"` used `peers: ["jira"]` as its example of an unknown peer —
+  `"jira"` is no longer unknown. Changed the example to `"trello"` (matching the naming
+  Phase 1 already used for the same purpose in `board-mirror.test.mjs`); the test's
+  behavior/intent (reject an unrecognized peer) is unchanged.
+- `"sentinel records peersOmitted …"` hardcoded `peersOmitted === ["spec-kit"]` for
+  `peers: ["backlog"]`, and asserted `plant(root, { peers: [...PEERS] })` yields
+  `peersOmitted: []` ("nothing omitted when every known peer is opted in") — the latter is
+  now categorically unreachable, since `[...PEERS]` always contains both `backlog` and
+  `jira`, which the mutual-exclusion check now rejects outright. Updated the literal
+  `["spec-kit"]` → `["spec-kit", "jira"]`, and changed the "opt into everything" step to opt
+  into `PEERS.filter(p => p !== "backlog")` (the largest peer set jira is compatible with),
+  asserting the one remaining omission is `["backlog"]` — the same *shape* of assertion
+  (maximal opt-in ⇒ minimal omission), adjusted to what's actually reachable.
+- `"CLI emits a one-line stderr notice …"` had the same two problems in its `--peer backlog`
+  case (one stale line → two) and its "both peers, no notice" case (`--peer backlog --peer
+  spec-kit` can never again mean "every known peer," since `jira` always remains omitted).
+  Reworked the second case to `--peer spec-kit --peer jira`, asserting the sole remaining
+  notice names `backlog` — again the same intent (the maximal-compatible-set case produces
+  the fewest possible notices), not a new one.
+- `"legacy sentinels without peersOmitted …"` hardcoded the same stale `["spec-kit"]` for a
+  `peers: ["backlog"]` upgrade; updated to `["spec-kit", "jira"]`.
+
+None of these four edits changed what a test verifies — each verifies the exact same
+property against the exact same peer combinations' *actual* post-R4 behavior. All were
+necessary consequences of R4 itself (a required, specified behavior change), not of any
+choice made in authoring the `jira` block. Full suite: 479 (Phase 1 baseline) → 483 (4 new:
+the AC #6 grep test, AC #4 render-both-ways, AC #5 mutual-exclusion, AC #7 sentinel-schema),
+all green, zero failures. `test/spec-bridge.test.mjs`, `test/project-gates.test.mjs`,
+`test/phase-status.test.mjs` untouched (confirmed via `git diff --stat` — empty).
+
+**For Phase 3:** the bootstrap `SKILL.md` peer section, docs sync, version bumps, and
+re-grounding are still entirely open. Nothing in `lib/board-mirror.mjs` or the `providers`
+projector registry changed in this phase.
