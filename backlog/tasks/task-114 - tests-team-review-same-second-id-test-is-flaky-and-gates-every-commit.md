@@ -1,10 +1,11 @@
 ---
 id: TASK-114
 title: 'tests: team-review same-second id test is flaky and gates every commit'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-28 18:30'
-updated_date: '2026-09-01 14:12'
+updated_date: '2026-09-01 14:39'
 labels:
   - tests
   - debt
@@ -25,6 +26,8 @@ So it is rare, real, and load-bearing in the wrong way: the suite is the gate th
 The test appears to be a probabilistic collision-retry: it asserts distinct ids across attempts within the same second. Likely fix is to make id generation deterministic under test (inject a counter/clock) rather than retrying and hoping — but the actual mechanism should be read before choosing.
 
 Unrelated to spec 058, which touches only lib/spec-source.mjs and lib/spec-derive.mjs. Carded rather than fixed in-scope, per the sweep's scope-discipline rule.
+
+Spec: specs/059-flake-deterministic-clock
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -32,10 +35,14 @@ Unrelated to spec 058, which touches only lib/spec-source.mjs and lib/spec-deriv
 - [ ] #1 The intermittent failure at test/team-review.test.mjs:206 is reproduced or its mechanism explained from the code
 - [ ] #2 Id generation under test is made deterministic (or the assertion made non-probabilistic) so the test cannot fail by chance
 - [ ] #3 The full suite passes across at least 20 consecutive runs
+- [ ] #4 Spec phase: Phase 1 — The seam and the deterministic test
+- [ ] #5 Spec phase: Phase 2 — Prove it, bump, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 MECHANISM CONFIRMED from the code (2026-09-01, orchestrator; AC#1 evidence). test/team-review.test.mjs:206-223 computes stamp = new Date() truncated to the second, pre-writes a record for that stamp, then SPAWNS the CLI as a subprocess and asserts the id came back with the collision suffix ('x'). The assertion at :222 — assert.ok(collided, 'collision suffix path never exercised across 3 attempts') — holds only if the subprocess computes the SAME second the test did. If the wall clock crosses a second boundary during spawn latency, no collision occurs and that attempt is wasted. It retries 3x, so failure needs all three attempts to straddle a boundary — rare when the machine is idle, much likelier under a loaded full-suite run where spawn latency is both larger and more variable. That matches every observation: 12/12 and 16/16 pass in ISOLATION (fast spawns, boundary rarely crossed), intermittent failure only in FULL-SUITE runs. Measured suite duration on this host: 46.2s / 48.2s / ~45s, i.e. sustained load throughout. So AC#2's 'make it deterministic rather than retrying and hoping' is the right fix and the retry loop is the thing to remove: inject the clock (or the stamp) into the CLI under test so the test controls the second, instead of racing a real one. NOTE the blast radius is wider than 'a flaky test': the full suite is the 'tests' project gate the spec-bridge Stop hook consults, and a Done-eligible board amplifies ONE red gate into ~50 findings (one per Done-eligible spec) — observed 2026-08-28 (TASK-102) and again 2026-09-01 during TASK-109, where 55 findings all read 'the required gate "tests" is red (exited 1)'. Ruled out as causes on 2026-09-01, so a future session need not re-derive them: (1) NOT a gate-timeout — GATE_TIMEOUT_MS is 120000 and a single suite run is ~46s, and a timeout would have printed 'timed out after 120000ms', not 'exited 1'; (2) NOT the SPEC_BRIDGE_GATE_ACTIVE reentrancy guard — the suite exits 0 with 468/468 with that env var set; (3) NOT gate misattribution in the message builder — projectGateProblem/gateReason name whichever gate actually failed, and the two runs simply saw two different real failures (the flake first, then the expected mid-PR wiki-freshness staleness).
+
+CLAIMED by sweep orchestrator 2026-09-01. Folded into Lane 2 at operator request as a THIRD parallel item with its own branch and PR — TASK-114 is a top-level TASK, so one-TASK-one-PR means it does not ride TASK-110's or TASK-111's branch. Branch task-114-flake-fix off origin/main tip 5a9fce0; worktree .claude/worktrees/task-114 (background-job mode). Unlike 110/111, this task had NO pre-existing spec, so the orchestrator hand-authored specs/059-flake-deterministic-clock (spec.md + plan.md + tasks.md) under the runbook's operator-signed escape line — proportionate to a ~3-line fix, with the confirmed mechanism recorded in tasks.md Notes so the implementer does not re-derive it. TIER: sonnet · cc/claude-sonnet-5[1m] (defaultTier). NOTE: an orchestrator slip clobbered this card's description during the claim (a bad shell substitution passed empty text to -d); recovered verbatim from git HEAD and restored with the Spec marker appended. No content lost; the earlier mechanism note survived.
 <!-- SECTION:NOTES:END -->
