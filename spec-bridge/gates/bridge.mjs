@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import { hasAnyChild, findRootsDownwards } from "../lib/project-root.mjs";
-import { parseLinkedTask, findLinkedTasks, readMirror, providers } from "../lib/board-mirror.mjs";
+import { parseLinkedTask, findLinkedTasks, readMirror, providers, mirrorStaleness } from "../lib/board-mirror.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
@@ -286,6 +286,22 @@ export function boardLinks(root) {
   return [];
 }
 
+/**
+ * `.board.json` (spec 054, not yet merged) declares which provider a host uses. Read
+ * defensively — absent, unreadable, or malformed all collapse to `"backlog"` — so this spec
+ * lands and tests before 054 merges: `"backlog"` is the one provider that has ever worked
+ * without a mirror at all (boardLinks' live-projection fallback), so a host that predates
+ * `.board.json` entirely is judged exactly as it always was.
+ */
+function declaredProvider(root) {
+  try {
+    const raw = JSON.parse(readFileSync(join(root, ".board.json"), "utf8"));
+    return typeof raw?.provider === "string" && raw.provider ? raw.provider : "backlog";
+  } catch {
+    return "backlog";
+  }
+}
+
 /** Compare a task's Backlog status to its derived status: "exceeds" | "lags" | "ok" | "unknown". */
 export function verdict(taskStatus, derivedStatus) {
   const t = RANK[String(taskStatus).toLowerCase()];
@@ -338,6 +354,46 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   const requireAnalysis = config.strictDone === true;
   const profile = vocabularyProfile(config);
   const gatesProfile = projectGatesProfile(config);
+
+  // R3/R4 (spec 053 phase 2): fail-closed board-evidence findings. Computed once per call,
+  // independent of any particular linked task — the finding is about whether evidence EXISTS
+  // at all, not about a task's derived state. `readMirror` throws on a malformed/unknown-schema
+  // mirror; that throw is left to propagate (boardLinks() below re-reads it for the same
+  // reason) so gate-runner.mjs's evaluate() surfaces it as a blocking problem — never a
+  // silently empty board (lib/gate-runner.mjs :52-54).
+  const mirror = readMirror(root);
+  if (mirror) {
+    // R3: for a requiresSync:true provider (e.g. Jira) the mirror IS the evidence, so a stale
+    // one blocks — name the reason AND the remedy so the reader never needs a second lookup.
+    // For requiresSync:false (Backlog) a stale mirror is deliberately NOT blocking: boardLinks()
+    // step 2's live backlog/tasks/ projection is preferred over the stale receipt, so the gate
+    // recomputes instead of complaining. Same staleness fact, opposite consequence — this
+    // asymmetry is R3's point, not an inconsistency to "fix" into symmetry.
+    const providerInfo = providers[mirror.provider];
+    const requiresSync = providerInfo ? providerInfo.requiresSync : true; // unknown name: fail closed
+    if (requiresSync) {
+      const { stale, reason } = mirrorStaleness(root, mirror);
+      if (stale) {
+        problems.push(
+          `[spec-bridge] board mirror is stale (${reason}) — run the board:sync skill to refresh .board/links.json before claiming status.`
+        );
+      }
+    }
+  } else {
+    // R4: no mirror at all. `.board.json` declares which provider the host uses (absence =
+    // "backlog", the only provider that has ever worked mirror-less). A requiresSync provider
+    // with no mirror has NO evidence for this gate to check — that is the fail-closed finding
+    // this whole spec exists to add, never a silently empty board.
+    const provider = declaredProvider(root);
+    const providerInfo = providers[provider];
+    const requiresSync = providerInfo ? providerInfo.requiresSync : true;
+    if (requiresSync) {
+      problems.push(
+        `[spec-bridge] provider "${provider}" is declared but .board/links.json is missing — the gate has no board evidence to check. Run the board:sync skill.`
+      );
+    }
+  }
+
   // Run declared project gates only when they're opted into and the caller asked for it (the Stop
   // hook runs them in `check` but not the duplicate `warn` pass). SPEC_BRIDGE_GATE_ACTIVE, set on
   // every child runGateCommand spawns, is the reentrancy guard: a host gate command that itself

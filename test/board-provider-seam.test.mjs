@@ -10,7 +10,8 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
 import { hasAnyChild } from "../lib/project-root.mjs";
-import { bridgeGate } from "../spec-bridge/gates/bridge.mjs";
+import { bridgeGate, checkBridge } from "../spec-bridge/gates/bridge.mjs";
+import { evaluate } from "../lib/gate-runner.mjs";
 
 const CLI = new URL("../spec-bridge/gates/cli.mjs", import.meta.url).pathname;
 
@@ -69,3 +70,99 @@ for (const layout of layouts) {
     }
   });
 }
+
+/* ── spec 053 phase 2: the fail-closed findings (R3/R4) — asserted on message content, so
+ * the fail-closed path can never be mistaken for an empty board (ACs #5, #6, #7). ── */
+
+test("checkBridge: a stale requiresSync:true mirror yields exactly one blocking problem naming the reason and the remedy (AC #5)", () => {
+  const p = scratch();
+  try {
+    mkdirSync(join(p.root, ".board"), { recursive: true });
+    // provider "jira" isn't in the registry yet (spec 056) — unknown providers fail closed to
+    // requiresSync:true, same as a declared-but-unimplemented one would. No observedSha on a
+    // requiresSync provider is mirrorStaleness's "no observedSha" stale case. status is a custom
+    // value so the per-task verdict is "unknown" (no exceeds/lags noise) — isolates the finding.
+    writeFileSync(
+      join(p.root, ".board", "links.json"),
+      JSON.stringify({
+        schema: 1, provider: "jira", generatedAt: "x",
+        links: [{ id: "TASK-1", status: "Custom", specDir: "specs/001-a", acs: [] }],
+      })
+    );
+    const { problems } = checkBridge(p.root, { runGates: false });
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], /board mirror is stale/);
+    assert.match(problems[0], /no observedSha/);
+    assert.match(problems[0], /run the board:sync skill/);
+    assert.match(problems[0], /\.board\/links\.json/);
+  } finally {
+    p.done();
+  }
+});
+
+test("checkBridge: a stale requiresSync:false mirror yields NO staleness problem — live projection is preferred (AC #6)", () => {
+  const p = scratch();
+  try {
+    mkdirSync(join(p.root, ".board"), { recursive: true });
+    // provider "backlog" (requiresSync:false). observedSha references a commit this non-git
+    // root cannot verify — mirrorStaleness() itself would call this stale — but the R3
+    // asymmetry means checkBridge never even asks for requiresSync:false: it prefers
+    // recomputation over complaint, so no staleness problem should appear.
+    writeFileSync(
+      join(p.root, ".board", "links.json"),
+      JSON.stringify({
+        schema: 1, provider: "backlog", generatedAt: "x",
+        links: [{
+          id: "TASK-2", status: "Custom", specDir: "specs/002-a", acs: [],
+          observedSha: "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        }],
+      })
+    );
+    const { problems } = checkBridge(p.root, { runGates: false });
+    assert.equal(problems.length, 0);
+  } finally {
+    p.done();
+  }
+});
+
+test('checkBridge: a declared requiresSync:true provider with an absent mirror yields the R4 "no board evidence" problem (AC #7)', () => {
+  const p = scratch();
+  try {
+    writeFileSync(join(p.root, ".board.json"), JSON.stringify({ provider: "jira" }));
+    const { problems } = checkBridge(p.root, { runGates: false });
+    assert.equal(problems.length, 1);
+    assert.match(problems[0], /provider "jira" is declared/);
+    assert.match(problems[0], /\.board\/links\.json is missing/);
+    assert.match(problems[0], /no board evidence to check/);
+    assert.match(problems[0], /board:sync/);
+  } finally {
+    p.done();
+  }
+});
+
+test("checkBridge: no .board.json and no mirror default to provider \"backlog\" — no R3/R4 problem (backward compat)", () => {
+  const p = scratch();
+  try {
+    const { problems } = checkBridge(p.root, { runGates: false });
+    assert.equal(problems.length, 0);
+  } finally {
+    p.done();
+  }
+});
+
+// DoD #6: a throwing readMirror (malformed mirror JSON) must surface through gate-runner.mjs's
+// evaluate() as a blocking problem naming the gate — never a crash that takes down the Stop
+// hook process itself. Exercised end-to-end: real bridgeGate, real evaluate(), a real (broken)
+// mirror file on disk.
+test("gate-runner: a malformed mirror's readMirror throw surfaces as a blocking problem, not a crash (DoD #6)", () => {
+  const p = scratch();
+  try {
+    mkdirSync(join(p.root, ".board"), { recursive: true });
+    writeFileSync(join(p.root, ".board", "links.json"), "{ not valid json");
+    const verdict = evaluate({}, [bridgeGate], { cwd: p.root });
+    assert.equal(verdict.block, true);
+    assert.match(verdict.message, /\[spec-bridge\] crashed on .*: .*malformed JSON/);
+  } finally {
+    p.done();
+  }
+});
