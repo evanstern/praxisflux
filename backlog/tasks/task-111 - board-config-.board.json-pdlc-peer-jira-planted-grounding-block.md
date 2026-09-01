@@ -1,10 +1,11 @@
 ---
 id: TASK-111
 title: 'board config (.board.json) + pdlc:peer:jira planted grounding block'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-27 16:15'
+updated_date: '2026-09-01 14:35'
 labels:
   - feature
   - pdlc
@@ -37,4 +38,13 @@ Spec: specs/054-board-config-jira-peer
 - [ ] #8 bootstrap/SKILL.md documents MCP-presence detection, discover-dont-ask, write-only-when-absent, the refusal, and the extended output gate; version bumped
 - [ ] #9 test/pdlc.test.mjs extended for AC 4-7 with existing cases unedited; config tests for AC 1-3
 - [ ] #10 README.md and CLAUDE.md peer enumeration updated (check-docs green); docs/wiki re-pinned
+- [ ] #11 Spec phase: Phase 1 — The config module
+- [ ] #12 Spec phase: Phase 2 — `plant.mjs` peer plumbing and the grounding block
+- [ ] #13 Spec phase: Phase 3 — Bootstrap skill prose, docs sync, re-ground
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+CLAIMED by sweep orchestrator 2026-09-01 (Lane 2, signed off; TASK-109 dep Done). Branch task-111-board-config off origin/main tip 5a9fce0; worktree .claude/worktrees/task-111 (background-job mode). specs/054-board-config-jira-peer already complete on main (spec.md + plan.md + tasks.md, hand-authored under the operator-signed escape line) and the card already carried its Spec marker, so this claim carries the status flip + three phase ACs seeded from tasks.md. TIER: sonnet · cc/claude-sonnet-5[1m] (defaultTier). DEVELOPS IN PARALLEL with TASK-110 (verified disjoint footprints: 110 touches spec-bridge/gates/*, lib/gate-runner.mjs, lib/project-root.mjs; 111 touches pdlc/scripts/plant.mjs, pdlc/skills/bootstrap/SKILL.md, pdlc/templates/*). Shared files are lib/board-mirror.mjs (read-only consumer) and docs/releasing.md. GUARANTEED CONFLICT at merge on .claude-plugin/marketplace.json + every plugin.json since both PRs bump the version — that is why Lane 2 MERGES SERIALLY, smallest PR first.
+<!-- SECTION:NOTES:END -->
