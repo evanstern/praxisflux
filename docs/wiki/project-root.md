@@ -4,7 +4,7 @@ description: Chassis module that locates project roots by walking the filesystem
 kind: component
 sources:
   - lib/project-root.mjs
-verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
+verified_against: 5206515c5f118a291cfddcf01870a219ee28c3d9
 ---
 
 # Project Root
@@ -17,11 +17,18 @@ Zero-dependency; what counts as "a root" is delegated to a caller-supplied marke
 
 ## How it works
 
-Three exports:
+Four exports:
 
 - `hasChild(name)` — a marker-function factory. Returns `(dir) => existsSync(join(dir, name))`,
   i.e. "this directory is a root if it contains a child file/dir named `name`". Plugins use
   this to define their sentinel (for example a `topics/` child marks an educate home).
+
+- `hasAnyChild(...names)` — combines markers: `(dir) => names.some((n) => hasChild(n)(dir))`,
+  true when **any** named child is present. One definition composed from `hasChild`, so a
+  caller needing "either sentinel marks a project" (e.g. [[spec-bridge-plugin]]'s Stop hook
+  and its CLI, which resolve `.board` OR `backlog` and must never disagree with each other
+  about what a project is) shares it instead of duplicating the predicate inline at each call
+  site.
 
 - `findRootUpwards(startDir, markerFn)` — resolves `startDir` to an absolute path and walks
   parent-by-parent (`dirname`) until `markerFn(dir)` is truthy, returning that absolute
@@ -46,9 +53,11 @@ Three exports:
 
 This module feeds root resolution in [[gate-runner]]: each gate's `resolveRoots(startDir)`
 implementation is typically a thin wrapper over `findRootUpwards` or `findRootsDownwards` with
-a plugin-specific `hasChild` marker, per [[gates-convention]]. It ships inside every plugin as
-part of the [[chassis]] and is exercised by the [[test-suite]]. Consumers include the gates of
-[[research-plugin]], [[grounding-wiki-plugin]], and [[educate-plugin]].
+a plugin-specific `hasChild` (or `hasAnyChild`) marker, per [[gates-convention]]. It ships
+inside every plugin as part of the [[chassis]] and is exercised by the [[test-suite]].
+Consumers include the gates of [[research-plugin]], [[grounding-wiki-plugin]],
+[[educate-plugin]], and [[spec-bridge-plugin]] (`hasAnyChild(".board", "backlog")`, both at
+its Stop hook and its CLI).
 
 ## Operational notes
 

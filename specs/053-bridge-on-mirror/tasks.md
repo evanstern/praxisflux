@@ -59,16 +59,16 @@ dir plus the branch's commits. Nothing rides chat context between phases.
       one `backlog/tasks/*.md`, one `.board/links.json` — against the same spec dirs, and
       assert `problems` and `warnings` are **equal**. This tests the equivalence the design
       claims, which single-path assertions cannot
-- [ ] Bump the marketplace version (`spec-bridge/`, `lib/` are released surface); run
+- [x] Bump the marketplace version (`spec-bridge/`, `lib/` are released surface); run
       `node scripts/sync-version.mjs`
-- [ ] Bump `spec-bridge`'s edited skill `version:` if any SKILL.md changed
-      (`docs/releasing.md` requires it per-skill)
-- [ ] Re-pin `docs/wiki/` notes whose `sources:` this touches — at minimum
+- [x] Bump `spec-bridge`'s edited skill `version:` if any SKILL.md changed
+      (`docs/releasing.md` requires it per-skill) — N/A: no SKILL.md was touched by phases 1-3
+- [x] Re-pin `docs/wiki/` notes whose `sources:` this touches — at minimum
       `spec-bridge-plugin`, `gates-convention`, `project-root`; classify each
       **RE-PIN-ONLY** or **NEEDS-REVIEW** and amend prose before bumping where needed
-- [ ] All four project gates green: `node --test`, `check-docs.mjs`,
+- [x] All four project gates green: `node --test`, `check-docs.mjs`,
       `sync-version.mjs --check`, freshness
-- [ ] Commit
+- [x] Commit
 
 ## Notes
 
@@ -255,3 +255,103 @@ split into `planIntents`/`renderBacklog` (R5, AC #8) and the differential test (
 both still fully open. `checkBridge`'s new R3/R4 block sits above the existing per-task loop
 and reads `root` only (no `task` in scope yet at that point), so it should not interact with
 anything Phase 3 touches inside `planLinkedTask`.
+
+### Phase 3 (implemented on `task-110-bridge-on-mirror`)
+
+**The split:** `planLinkedTask` in `spec-bridge/gates/bridge.mjs` became two functions.
+`planIntents(task, derived, profile)` carries every ordering decision unchanged from the
+original single-shot planner — stale phase-AC removals sorted highest-index-first,
+check/uncheck computed at post-edit indexes over the same `finalList` construction — and
+returns a structured object: `{ id, statusFrom, statusTo, finalSummary, acRemove, acAdd,
+acCheck, acUncheck, note }` (the spec's minimum shape plus `finalSummary`, needed because the
+Done command's `--final-summary` text can't be reconstructed from `statusTo` alone).
+`renderBacklog(id, intents)` does no computation at all — it only maps each intent field to
+one `backlog task edit …` string, in the same order the original emitted them. `planLinkedTask`
+stays exported as `renderBacklog(task.id, planIntents(task, derived, profile))`: it is still a
+named import in `test/spec-bridge.test.mjs` (unedited, per AC #9), and an ESM named import that
+no longer resolves would crash that file's `import` line before a single test ran — so the
+wrapper is load-bearing for AC #9, not just tidiness.
+
+**`planBridge`'s provider split (AC #8):** a new internal `resolvedProvider(root)` — mirror's
+own `provider` field when `.board/links.json` exists, else `.board.json`'s declaration via the
+Phase-2 `declaredProvider` helper — decides the return shape. `provider === "backlog"`:
+`{ commands, skipped }`, `commands` built by `renderBacklog` over every task's intents, byte-
+identical to before the split. Any other provider: `{ intents, skipped, notice }` — the raw
+`planIntents` objects (one per linked task) plus a fixed notice string naming spec 055 as the
+owner of non-backlog rendering. No Jira (or any other) renderer is invented here, per the
+spec's explicit non-goal.
+
+**Tests added, all in `test/board-provider-seam.test.mjs`** (not one of the three protected
+files):
+1. A unit test asserting `planIntents`' ordering fields directly (`acRemove: [4, 2]`,
+   `acUncheck: [2]` for the same regeneration scenario spec-bridge.test.mjs's TASK-3 test
+   uses) — proving the ordering decisions live in `planIntents`, not deferred to
+   `renderBacklog` — plus `assert.deepEqual(renderBacklog(...), planLinkedTask(...))` as a
+   self-consistency check.
+2. The AC #8 test: one fixture, two mirrors (`provider: "backlog"` then `provider: "jira"`,
+   same link content) — asserts `planBridge` renders commands for the first and
+   `{ intents, skipped, notice }` for the second, with no `commands` key present on either
+   wrong side.
+3. **The AC #3 differential test:** two temp roots, no shared fixture helper (deliberately
+   duplicated the tiny bits inline rather than importing spec-bridge.test.mjs's `project()`
+   helper across test files) — one gets `backlog/tasks/*.md` (two tasks: TASK-1 "Done" over a
+   half-checked spec — an **exceeds**/problem; TASK-2 "To Do" under the same shape — a
+   **lags**/warning), the other gets a `.board/links.json` mirror with matching `id` /
+   `status` / `specDir` for both links, against byte-identical `specs/*/tasks.md` content on
+   both sides. `checkBridge(root, { runGates: false })` is called on each;
+   `assert.deepEqual` on both `.problems` and `.warnings` (plus a sanity assertion that both
+   arrays are non-empty, so the test cannot pass by both sides trivially returning `[]`).
+   `runGates: false` is used because the differential claim is about board-reading
+   equivalence, not project-gate execution.
+
+**Version + skill bump:** this branch's phases 1-2 had not bumped the version despite
+touching released surface (`spec-bridge/gates/bridge.mjs`, `lib/project-root.mjs`) — pre-commit
+only checks version *consistency* (`sync-version.mjs --check`), not that an increase happened;
+that increase check lives in pre-push/CI. Bumped 0.59.0 → 0.59.1 via
+`node scripts/sync-version.mjs 0.59.1` (this branch's own next version; reconciling against
+`main`'s state, if it has since moved, is explicitly the orchestrator's job per the dispatch).
+No SKILL.md was edited anywhere in phases 1-3, so no per-skill version bump was owed.
+
+**Re-grounding, and the discrepancy from the dispatch's own expectation:** the freshness
+`plan` command found only `project-root.md` and `spec-bridge-plugin.md` as NEEDS-REVIEW before
+the version bump; after committing the bump, six more notes appeared as mechanical
+RE-PIN-ONLY (`build-plugin`, `codebase-to-course-plugin`, `educate-plugin`,
+`gates-consumption-surface`, `grounding-wiki-plugin`, `research-plugin`) and four more as
+NEEDS-REVIEW flagged only for "quotes version literals" (`build-and-release`, `pdlc-plugin`,
+`reorient-plugin`, `team-review-plugin`) — checked each by hand and confirmed every quoted
+`x.y.z` in those four is a *historical* marker (a past release, a `SKILL.md` version at the
+time some fix landed) rather than a claim about the current lockstep version, so all were
+re-pinned as-is with no prose change. **`gates-convention.md` never appeared in either `plan`
+run** — its `sources:` are `docs/skill-patterns.md`, `lib/lifecycle.mjs`,
+`lib/gate-runner.mjs`, none of which phases 1-3 touched, so it was never stale; the dispatch's
+"at minimum expect … gates-convention" anticipation did not match this branch's actual diff,
+and the tool's own output (not the dispatch prompt) was trusted.
+
+`project-root.md`: genuine prose amendment — "Three exports" → "Four exports", a new bullet
+for `hasAnyChild`, and a Connections-section mention of `spec-bridge-plugin` as a consumer.
+
+`spec-bridge-plugin.md`: genuine prose amendment, and the over-budget note (8445/8000,
+already `size_budget_exempt`). Rewrote the "Syncing" paragraph (planner split, provider-neutral
+`planBridge`) and "The gate" paragraph (`hasAnyChild`, `boardLinks`, the R3/R4 fail-closed
+findings — genuinely new behavior this note said nothing about) — a net addition of ~800
+chars. Paid for it with trims elsewhere in the same note: tightened the "Project gates" and
+"Phase-level status" paragraphs (cut illustrative asides and one doctrinal citation, kept
+every mechanism they describe), and two small cuts in the first paragraph and the gate's
+no-op clause. Net body length after all edits: **8445 chars — identical to the pre-edit
+baseline**, measured with the corpus's own `noteBody()` (`grounding-wiki/gates/capsules.mjs`)
+at every step. Did not widen the exemption or touch `test-suite-catalog-plugins-gates.md`
+(TASK-103's separate over-budget exemption).
+
+**Cascade check:** re-ran `node grounding-wiki/gates/cli.mjs plan . docs/wiki` after
+committing all re-pins (code commit → version-bump commit → wiki-repin commit, in that
+order) — it came back empty, so no re-pin here staled a hub/catalog note that sources one of
+these. `node grounding-wiki/gates/cli.mjs freshness . docs/wiki` exits 0 with 40 notes fresh
+and the two pre-existing exempt-over-budget WARNs (this note and TASK-103's), same as before
+Phase 3 started.
+
+**Spec ambiguity / choices made:** none rose to the level of needing a stop-and-report. (1)
+`finalSummary` was added to the intents shape beyond the spec's literal minimum — necessary
+for `renderBacklog` to reproduce the `--final-summary` text, and additive so it does not
+conflict with 055's future renderer. (2) The version target (0.59.1) was chosen as this
+branch's own next value rather than guessing at `main`'s current state, per the dispatch's
+explicit instruction not to reconcile that here.
