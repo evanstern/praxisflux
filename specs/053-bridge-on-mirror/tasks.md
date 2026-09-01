@@ -48,14 +48,14 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 
 ## Phase 3 — Planner split, differential proof, re-ground
 
-- [ ] Split `planLinkedTask` into `planIntents(task, derived, profile)` and
+- [x] Split `planLinkedTask` into `planIntents(task, derived, profile)` and
       `renderBacklog(id, intents)`; **all ordering logic stays in `planIntents`** (removals
       highest-index-first, check/uncheck at post-edit indexes — reconciliation, not rendering)
-- [ ] `planBridge` for `backlog` returns today's exact command strings; for any other
+- [x] `planBridge` for `backlog` returns today's exact command strings; for any other
       provider returns intents plus the stated notice (AC #8)
-- [ ] Run the planner tests — they compare exact command strings and must pass **unedited**;
+- [x] Run the planner tests — they compare exact command strings and must pass **unedited**;
       a failure means the split moved logic across the line
-- [ ] **Differential test (AC #3):** build two temp projects with equivalent board state —
+- [x] **Differential test (AC #3):** build two temp projects with equivalent board state —
       one `backlog/tasks/*.md`, one `.board/links.json` — against the same spec dirs, and
       assert `problems` and `warnings` are **equal**. This tests the equivalence the design
       claims, which single-path assertions cannot

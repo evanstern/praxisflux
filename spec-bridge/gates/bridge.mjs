@@ -497,7 +497,7 @@ export function verifyBridge(root, { run } = {}) {
   return problems;
 }
 
-/* ── plan: the exact backlog edits that reconcile the board ────────────── */
+/* ── plan: reconciliation intents, and the Backlog renderer for them ───── */
 
 const PHASE_PREFIX = "Spec phase: ";
 
@@ -505,33 +505,32 @@ const PHASE_PREFIX = "Spec phase: ";
 const sq = (s) => `'${String(s).replace(/'/g, "'\\''")}'`;
 
 /**
- * Pure planner for ONE linked task: the ordered `backlog task edit` commands that reconcile
- * it to its derived state. Command order matters and is: status move → stale phase-AC
- * removals (highest index first, so earlier indexes stay valid) → phase-AC additions →
- * check/uncheck at post-edit indexes → one progress note (only when something changed).
- * ACs that don't start with "Spec phase: " are human-authored and are never touched.
+ * Pure reconciliation for ONE linked task (spec 053 R5): the board-neutral INTENT that would
+ * bring it in line with its derived state — decided here, rendered nowhere. ALL the ordering
+ * logic lives here, not in a renderer: stale phase-AC removals highest-index-first (so
+ * earlier indexes stay valid while they're being removed), check/uncheck computed at
+ * POST-EDIT indexes (after removals and additions have already renumbered the list). That
+ * ordering is load-bearing and hard-won — it is reconciliation, not rendering, which is
+ * exactly why the split puts it on this side of the line. ACs that don't start with
+ * "Spec phase: " are human-authored and are never touched.
+ *
+ * Shape (spec 053 R5's minimum, so a future provider's renderer has something to render):
+ *   { id, statusFrom, statusTo, finalSummary, acRemove, acAdd, acCheck, acUncheck, note }
+ * `statusTo` / `finalSummary` / `note` are null when nothing moves on that axis.
  *
  * With an opted-in vocabulary profile (third argument), status targets are the profile's
  * stage names instead of the 3-status collapse. Done keeps its meaning: a board that leaves
- * "reviewing" at its default still plans `-s Done` with the derived final summary; a board
- * that names it (say "In Review") is planned to that name, and moving to Done stays a
- * human/consumer act the gate already accepts (Done never exceeds a fully-proven spec).
+ * "reviewing" at its default still resolves `statusTo: "Done"` with the derived final
+ * summary; a board that names it (say "In Review") resolves to that name, and moving to Done
+ * stays a human/consumer act the gate already accepts (Done never exceeds a fully-proven spec).
  */
-export function planLinkedTask(task, derived, profile = null) {
-  const cmds = [];
-  const edit = (args) => cmds.push(`backlog task edit ${task.id} ${args}`);
-
+export function planIntents(task, derived, profile = null) {
   // Status — Done-eligible is the only path to Done and carries the derived final summary.
   const mapped = profile ? profile.names[derived.stage] : null;
   const target = derived.status === STATUS.DONE_ELIGIBLE
     ? (mapped && mapped.toLowerCase() !== "done" ? mapped : "Done")
     : (mapped ?? derived.status);
   const statusChanged = String(task.status).toLowerCase() !== target.toLowerCase();
-  if (statusChanged) {
-    if (target === "Done")
-      edit(`-s ${sq("Done")} --final-summary ${sq(`All spec tasks complete (${derived.progressNote}). Derived Done by spec-bridge sync.`)}`);
-    else edit(`-s ${sq(target)}`);
-  }
 
   // Phase-AC reconciliation. The bridge owns exactly the "Spec phase: " ACs.
   const phaseByName = new Map((derived.phases || []).map((p) => [p.name, p]));
@@ -543,10 +542,10 @@ export function planLinkedTask(task, derived, profile = null) {
     if (!phaseByName.has(name) || seen.has(name)) removed.add(a.index); // stale or duplicate
     else seen.add(name);
   }
-  for (const i of [...removed].sort((a, z) => z - a)) edit(`--remove-ac ${i}`);
+  const acRemove = [...removed].sort((a, z) => z - a); // highest index first, so earlier indexes stay valid
 
   const additions = (derived.phases || []).filter((p) => !seen.has(p.name));
-  for (const p of additions) edit(`--ac ${sq(PHASE_PREFIX + p.name)}`);
+  const acAdd = additions.map((p) => PHASE_PREFIX + p.name);
 
   // Post-edit indexes: survivors keep their relative order and renumber from 1; additions
   // append after them, unchecked. Check/uncheck against what each phase actually proves.
@@ -555,32 +554,87 @@ export function planLinkedTask(task, derived, profile = null) {
     ...survivors.map((a) => ({ text: a.text, checked: a.checked })),
     ...additions.map((p) => ({ text: PHASE_PREFIX + p.name, checked: false })),
   ];
+  const acCheck = [];
+  const acUncheck = [];
   finalList.forEach((item, i) => {
     if (!item.text.startsWith(PHASE_PREFIX)) return; // human-authored: never touched
     const p = phaseByName.get(item.text.slice(PHASE_PREFIX.length));
     if (!p) return;
     const want = p.total > 0 && p.done === p.total;
-    if (want && !item.checked) edit(`--check-ac ${i + 1}`);
-    else if (!want && item.checked) edit(`--uncheck-ac ${i + 1}`);
+    if (want && !item.checked) acCheck.push(i + 1);
+    else if (!want && item.checked) acUncheck.push(i + 1);
   });
 
-  // One note, only when this sync changed something — no churn in the task history.
-  if (cmds.length) {
-    const suffix = statusChanged ? ` — status ${task.status} → ${target}` : "";
-    edit(`--append-notes ${sq(`spec-bridge sync: ${derived.progressNote}${suffix}`)}`);
+  // Nothing to note when nothing changed — no churn in the task history.
+  const changed = statusChanged || acRemove.length > 0 || acAdd.length > 0 || acCheck.length > 0 || acUncheck.length > 0;
+  const suffix = statusChanged ? ` — status ${task.status} → ${target}` : "";
+
+  return {
+    id: task.id,
+    statusFrom: task.status,
+    statusTo: statusChanged ? target : null,
+    finalSummary: statusChanged && target === "Done"
+      ? `All spec tasks complete (${derived.progressNote}). Derived Done by spec-bridge sync.`
+      : null,
+    acRemove, acAdd, acCheck, acUncheck,
+    note: changed ? `spec-bridge sync: ${derived.progressNote}${suffix}` : null,
+  };
+}
+
+/**
+ * Render one task's intents as the exact `backlog task edit …` command strings — today's
+ * literal bytes (spec 053 R5). Order: status move → AC removals → AC additions → check →
+ * uncheck → one append-notes. `id` is taken as a parameter rather than read off `intents` so
+ * a renderer never has to trust the blob it's handed.
+ */
+export function renderBacklog(id, intents) {
+  const cmds = [];
+  const edit = (args) => cmds.push(`backlog task edit ${id} ${args}`);
+  if (intents.statusTo) {
+    if (intents.statusTo === "Done") edit(`-s ${sq("Done")} --final-summary ${sq(intents.finalSummary)}`);
+    else edit(`-s ${sq(intents.statusTo)}`);
   }
+  for (const i of intents.acRemove) edit(`--remove-ac ${i}`);
+  for (const text of intents.acAdd) edit(`--ac ${sq(text)}`);
+  for (const i of intents.acCheck) edit(`--check-ac ${i}`);
+  for (const i of intents.acUncheck) edit(`--uncheck-ac ${i}`);
+  if (intents.note) edit(`--append-notes ${sq(intents.note)}`);
   return cmds;
 }
 
 /**
- * Plan every linked task under <root>, in queue order. Returns:
- *   commands — ordered `backlog task edit` lines; empty on a reconciled board (no-op)
- *   skipped  — [{ id, status }] for verdict-unknown tasks (custom status: don't guess)
- * Read-only like everything in gates/: plan PRINTS edits, it never executes them.
+ * Backward-compatible single-shot planner: `planIntents` then `renderBacklog` in one call.
+ * Every call site inside this module now goes through the two halves directly; this wrapper
+ * exists only because it is still a public, imported symbol (spec 053 AC #9).
+ */
+export function planLinkedTask(task, derived, profile = null) {
+  return renderBacklog(task.id, planIntents(task, derived, profile));
+}
+
+/**
+ * Which provider `planBridge` renders for (spec 053 R5): the mirror's own declared provider
+ * when a mirror is on disk (it's the artifact that exists, so it's the truth), `.board.json`'s
+ * declaration otherwise — the same present-artifact split `checkBridge`'s R3/R4 block uses,
+ * for the same reason: don't let a config file override live mirror evidence when both exist.
+ */
+function resolvedProvider(root) {
+  const mirror = readMirror(root);
+  return mirror ? mirror.provider : declaredProvider(root);
+}
+
+/**
+ * Plan every linked task under <root>, in queue order (spec 053 R5). `skipped` — [{ id,
+ * status }] for verdict-unknown tasks (custom status: don't guess) — is returned either way.
+ * For the `backlog` provider: `{ commands, skipped }`, today's exact `backlog task edit`
+ * strings, byte-identical to before the split (empty `commands` on a reconciled board is
+ * still a no-op). For any other provider: `{ intents, skipped, notice }` — the same
+ * reconciliation as structured intents, plus a notice that command rendering is
+ * provider-specific (spec 055 owns that verb table; guessing it here would mean writing it
+ * twice). Read-only like everything in gates/: plan computes edits, it never executes them.
  */
 export function planBridge(root) {
-  const commands = [];
   const skipped = [];
+  const perTask = [];
   const config = loadBridgeConfig(root);
   const requireAnalysis = config.strictDone === true;
   const profile = vocabularyProfile(config);
@@ -588,9 +642,18 @@ export function planBridge(root) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const v = profile ? stageVerdict(task.status, derived.stage, profile) : verdict(task.status, derived.status);
     if (v === "unknown") { skipped.push({ id: task.id, status: task.status }); continue; }
-    commands.push(...planLinkedTask(task, derived, profile));
+    perTask.push(planIntents(task, derived, profile));
   }
-  return { commands, skipped };
+  if (resolvedProvider(root) === "backlog") {
+    return { commands: perTask.flatMap((intents) => renderBacklog(intents.id, intents)), skipped };
+  }
+  return {
+    intents: perTask,
+    skipped,
+    notice:
+      "command rendering is provider-specific — \"backlog\" is the only rendered provider today " +
+      "(spec 055 owns the verb table for the rest); these are structured intents, not commands.",
+  };
 }
 
 /**
