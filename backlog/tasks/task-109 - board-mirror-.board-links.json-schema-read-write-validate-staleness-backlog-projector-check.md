@@ -3,11 +3,11 @@ id: TASK-109
 title: >-
   board mirror: .board/links.json schema, read/write/validate, staleness,
   backlog projector, --check
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-28 20:12'
+updated_date: '2026-09-01 14:31'
 labels:
   - feature
   - chassis
@@ -44,10 +44,10 @@ Spec: specs/052-board-adapter-seam
 - [ ] #8 --check exits nonzero on a hand-edited backlog mirror naming the drifted id; 0 when fresh; 0 when absent
 - [ ] #9 test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files
 - [ ] #10 test/board-mirror.test.mjs covers AC 2-8; docs/wiki re-pinned for every touched source
-- [ ] #11 Spec phase: Phase 1 — Schema, read/write, validate
-- [ ] #12 Spec phase: Phase 2 — Move the parser, prove nothing broke
-- [ ] #13 Spec phase: Phase 3 — Staleness, provider registry, the Backlog projector
-- [ ] #14 Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground
+- [x] #11 Spec phase: Phase 1 — Schema, read/write, validate
+- [x] #12 Spec phase: Phase 2 — Move the parser, prove nothing broke
+- [x] #13 Spec phase: Phase 3 — Staleness, provider registry, the Backlog projector
+- [x] #14 Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -80,4 +80,12 @@ PHASE 3 COMPLETE (commit 412c935), verified independently. mirrorStaleness + pro
 PHASE 4 COMPLETE — all four gates verified INDEPENDENTLY by the orchestrator: node --test 468/468 0 fail; check-docs exit 0; sync-version --check 'all versions = 0.59.0'; wiki freshness EXIT 0, 40 notes fresh (only the two pre-existing size-budget WARNs remain, non-blocking). Commits: 19e7a67 (--check CLI + 3 AC#8 tests, 465->468), edea9b8 (dogfood .board/links.json, 58 links), 4694352 (0.58.0 -> 0.59.0), 990b61f (12-note re-ground), 5c47903 (tasks.md ticks + Notes). AC#9 HOLDS ACROSS THE WHOLE BRANCH: git diff --stat 415d5c8..HEAD over the three protected test files is EMPTY. THE OVER-BUDGET CONSTRAINT HELD, verified not assumed: git diff over docs/wiki/ shows ZERO added or widened size_budget_exempt lines. spec-bridge-plugin.md was handled by an HONEST re-pin — prose amended BEFORE the pin moved (lib/board-mirror.mjs added to sources:, the parseLinkedTask clause rewritten to say the symbol now lives in lib/board-mirror.mjs and is re-exported), paid for by trimming a genuinely redundant clause that restated the Project-gates paragraph; body net smaller, exemption text untouched. test-suite-catalog-plugins-gates.md correctly left alone — its sources: does not list test/board-mirror.test.mjs so it is not stale, and pushing an already-maxed note further would have been the dishonest option; the uncatalogued new test file is flagged as a gap for the TASK-95/103 split. Re-pin ledger: 6 RE-PIN-ONLY (pure version-stamp diffs), 6 NEEDS-REVIEW each verified against the real diff (build-and-release + pdlc-plugin + reorient-plugin + team-review-plugin quote historical/skill-scoped versions unaffected by the bump; overview needed no prose change; spec-bridge-plugin amended as above). chassis.md correctly NOT re-pinned despite the task item naming it — its sources were untouched, so it is genuinely fresh. Served model: implementer again explicit that it had no harness-provided evidence; pin-consistent, not ledger-proven.
 
 PR #132 OPENED (https://github.com/evanstern/praxisflux/pull/132), branch task-109-board-mirror, 10 commits 415d5c8..94f86ea. origin/main had NOT moved since 679492c, so no reconcile/merge-in was needed and no pins required reclassification. Both pre-push gates green (version-bump vs origin/main, wiki freshness). MUST MERGE AS A MERGE COMMIT, never squash — this branch carries wiki pins referencing its own commits (990b61f re-pins 12 notes to 4694352), and squashing would orphan those hashes and break the freshness gate. Awaiting operator review/merge per the runbook's serial-merge rule and the Lane 0 precedent (PR #130 was operator-merged after review). NOT self-merged. After merge, the post-merge closures (tasks.md tick at root, spec-bridge:sync's derived board-Done, the runbook log row completion) ride the NEXT claimed task's branch per background-job execution mode.
+
+spec-bridge sync: Phase 1 — Schema, read/write, validate: 10/10 · Phase 2 — Move the parser, prove nothing broke: 6/6 · Phase 3 — Staleness, provider registry, the Backlog projector: 7/7 · Phase 4 — The `--check` CLI, dogfood, and re-ground: 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Schema, read/write, validate: 10/10 · Phase 2 — Move the parser, prove nothing broke: 6/6 · Phase 3 — Staleness, provider registry, the Backlog projector: 7/7 · Phase 4 — The `--check` CLI, dogfood, and re-ground: 12/12). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
