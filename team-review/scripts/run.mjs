@@ -46,13 +46,19 @@ function findRun(key) {
 
 const save = (run) => { mkdirSync(RUNS, { recursive: true }); writeFileSync(runPath(run.id), JSON.stringify(run, null, 2) + "\n"); };
 
+// The second a new run id is keyed to. $TEAM_REVIEW_RUN_STAMP overrides it — a test seam (so a
+// test can force a same-second collision without racing the real clock across a spawned
+// subprocess boundary), NOT a user-facing knob; never document it. Default is today's
+// expression, verbatim.
+const runStamp = () => process.env.TEAM_REVIEW_RUN_STAMP || new Date().toISOString().replace(/[:T]/g, "-").slice(0, 19);
+
 if (runAsCli(import.meta.url)) {
   const [cmd, key, ...rest] = process.argv.slice(2);
 
   if (cmd === "begin") {
     const target = resolve(key || ".");
     if (!existsSync(target)) { console.error(`no such target: ${target}`); process.exit(1); }
-    const stamp = new Date().toISOString().replace(/[:T]/g, "-").slice(0, 19);
+    const stamp = runStamp();
     let id = `${basename(target)}-${stamp}`;
     while (existsSync(runPath(id))) id += "x"; // never overwrite an existing run record
     const ri = rest.indexOf("--report");
