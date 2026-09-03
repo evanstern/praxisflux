@@ -126,6 +126,18 @@ but must still spot-check the first dispatch of any lane if the tier config has 
   docs/wiki` — which computes RE-PIN-ONLY vs NEEDS-REVIEW and prints executable re-pin
   commands for the safe half. **Re-pin volume is larger than it looks:** a marketplace
   version bump touches every `plugin.json`, so a released-surface PR can stale ~17 notes.
+- **F4 — PUSH AFTER EVERY PHASE, not just at the claim (learned 2026-09-03).** The
+  claim-and-push-immediately rule saved this sweep when the entire repo relocated on disk
+  mid-session (an extra path segment inserted by a sandbox remount), breaking all three sweep
+  worktrees at once. All three branch **tips** were safe on `origin` because every claim was
+  pushed. But **phase commits are not covered by that rule** — TASK-111's Phase 1 and Phase 2
+  commits were local-only, and across this sweep four phase dispatches on three branches sat
+  unpushed. They survived only because the main repo's object store did; had the store gone
+  with the worktrees, that work was gone. **Push after each phase's commit**, not merely at
+  claim time: the cost is one command, and the exposure otherwise is every phase since the
+  claim. (Recovery that worked, for the next session: verify tips on `origin`, check whether
+  local-only commits still exist as objects via `git cat-file -t <sha>`, push them, then
+  `git worktree prune` and re-cut at the new path.)
 - **Note budgets bite.** Several notes sit near the 8,000-char cap and capsules near 500.
   On overflow take a summary-style split or a genuine trim; `size_budget_exempt` is for
   content that cannot be split, not for prose you just added.
