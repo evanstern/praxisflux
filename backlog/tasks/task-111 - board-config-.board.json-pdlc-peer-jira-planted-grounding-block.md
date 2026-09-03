@@ -1,11 +1,11 @@
 ---
 id: TASK-111
 title: 'board config (.board.json) + pdlc:peer:jira planted grounding block'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-03 19:24'
+updated_date: '2026-09-03 19:32'
 labels:
   - feature
   - pdlc
@@ -38,9 +38,9 @@ Spec: specs/054-board-config-jira-peer
 - [ ] #8 bootstrap/SKILL.md documents MCP-presence detection, discover-dont-ask, write-only-when-absent, the refusal, and the extended output gate; version bumped
 - [ ] #9 test/pdlc.test.mjs extended for AC 4-7 with existing cases unedited; config tests for AC 1-3
 - [ ] #10 README.md and CLAUDE.md peer enumeration updated (check-docs green); docs/wiki re-pinned
-- [ ] #11 Spec phase: Phase 1 — The config module
-- [ ] #12 Spec phase: Phase 2 — `plant.mjs` peer plumbing and the grounding block
-- [ ] #13 Spec phase: Phase 3 — Bootstrap skill prose, docs sync, re-ground
+- [x] #11 Spec phase: Phase 1 — The config module
+- [x] #12 Spec phase: Phase 2 — `plant.mjs` peer plumbing and the grounding block
+- [x] #13 Spec phase: Phase 3 — Bootstrap skill prose, docs sync, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -53,4 +53,14 @@ ENVIRONMENT INCIDENT AND FULL RECOVERY (2026-09-03). Mid-Phase-3, the entire rep
 PHASE 3 COMPLETE (commits d86d6c8 SKILL.md + docs + bump, 5beeb01 re-ground pass, 6049beb second-order cascade re-pin, 69c4f92 ticks + Notes) — all pushed as they landed, per the new F4 rule. Four gates verified INDEPENDENTLY by the orchestrator: node --test 483/483 0 fail; check-docs exit 0; sync-version --check 'all versions = 0.59.3'; freshness exit 0 with 40 notes fresh AND 'plan' now returns EMPTY (no re-pins outstanding). Also verified: AC#9 holds (three protected files byte-identical across the whole branch); local HEAD == origin/task-111-board-config; all 7 commits carry the correct 'Claude Opus 5' trailer; ZERO added or widened size_budget_exempt lines across docs/wiki/ on this branch. THE CASCADE FIRED TWICE and was handled correctly both times — vindicating the doctrine added during TASK-114. (1) The 0.59.3 bump itself staled 10 MORE notes beyond the original 4 (every plugin.json + action.yml + a README line), which the dispatch had not anticipated; the implementer found them by re-running 'plan' rather than trusting the prompt's list. (2) SECOND-ORDER: re-pinning test-suite-catalog-plugins-gates.md then staled its PARENT test-suite-catalog-plugins.md, which lists it as a source. Only a third 'plan' run came back clean. Honest re-pins throughout: two notes got genuine prose amendments (pdlc-grounding-block.md gained pdlc:peer:jira in its peer-conventions sentence; pdlc-plugin.md had its invocation example and whole 'Peer utilities' section rewritten for the third peer + mutual exclusion + MCP-presence detection), overview.md gained 'Jira' PAID FOR BY A TRIM (net -54 chars, bringing a note that had ZERO headroom back under the 8000 cap), and test-suite-catalog-plugins-gates.md's jira-peer addition was paid for by trimming redundant --force phrasing in the same bullet (net +10 on an already-exempt note, exemption untouched). spec-bridge-plugin.md was correctly RE-PIN-ONLY: its only source change since pin was Phase 1's lib/board-mirror.mjs addition, unrelated to what that note describes — which also meant its over-budget exemption needed no attention. CAPSULES.md regenerated since a description capsule changed. No test file was touched, so no existing expectation needed correcting. Out-of-scope observation left alone and reported: pdlc-plugin.md's description says 'across three skills' while pdlc/README.md says 'Four skills' (design-rounds) — a pre-existing inconsistency, not this phase's to fix.
 
 PR #135 OPENED (https://github.com/evanstern/praxisflux/pull/135), branch task-111-board-config, 8 commits f5525f8..8a67a3e, version 0.59.3. MERGE ORDER (operator ruling): #133 (0.59.1) first, then #134 (renumbers to 0.59.2), then this one — the PR body carries that warning at the top so it cannot be merged out of order by accident. This branch deliberately took 0.59.3 rather than 0.59.1 so all three PRs are mergeable in sequence without a further renumber. MUST MERGE AS A MERGE COMMIT, never squash: 5beeb01 and 6049beb re-pin notes to this branch's own commits, and squashing orphans those hashes and breaks the freshness gate. This branch is PIN-CARRYING, so if it needs reconciling with a moved main it MERGES origin/main IN (never rebase, never force-push) — rebasing would rewrite the hashes its own re-pins reference — and the merge-in licenses no pin bump: classify each staled pin RE-PIN-ONLY vs NEEDS-REVIEW against the main-side diff and amend prose before bumping. NOT self-merged.
+
+spec-bridge sync: Phase 1 — The config module: 7/7 · Phase 2 — `plant.mjs` peer plumbing and the grounding block: 10/10 · Phase 3 — Bootstrap skill prose, docs sync, re-ground: 11/11 — status In Progress → Done
+
+MERGED — PR #135 merged 2026-09-03 as e0ea7b2, v0.59.3 on main. NOTE THE MERGE ORDER INVERTED from the operator's 2026-09-01 ruling (which was #133, then #134, then this): #135 merged FIRST and is the only one of the three in main. #133 and #134 remain open, both still claiming 0.59.1, which is now BELOW main's 0.59.3 — so both need renumbering above main before they can pass the version-bump gate. Operator ruling 2026-09-03: #134 -> 0.59.4 first, then #133 -> 0.59.5. Board moved to Done by spec-bridge:sync's derived plan (28/28 spec boxes ticked), never hand-set.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The config module: 7/7 · Phase 2 — `plant.mjs` peer plumbing and the grounding block: 10/10 · Phase 3 — Bootstrap skill prose, docs sync, re-ground: 11/11). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
