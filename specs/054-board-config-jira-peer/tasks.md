@@ -53,29 +53,29 @@ exist).
 
 ## Phase 3 — Bootstrap skill prose, docs sync, re-ground
 
-- [ ] Rewrite `bootstrap/SKILL.md`'s peer section to handle a third peer whose availability is
+- [x] Rewrite `bootstrap/SKILL.md`'s peer section to handle a third peer whose availability is
       **MCP-tool presence, not `command -v`** — state the difference in kind explicitly so the
       skill never tells an operator to install a nonexistent Jira CLI
-- [ ] Document discover-don't-ask resolution, citing the SDLC-pipeline precedent:
+- [x] Document discover-don't-ask resolution, citing the SDLC-pipeline precedent:
       `getAccessibleAtlassianResources` → `cloudId`;
       `getVisibleJiraProjects` → `projectKey`;
       `getJiraProjectIssueTypesMetadata` → `issueTypeName`;
       `atlassianUserInfo` → the account id for `defaultAssignee: "self"`
-- [ ] Document write-`.board.json`-only-when-absent (the `model-tiers.json` rule)
-- [ ] Document the `backlog`+`jira` refusal and its reason
-- [ ] Extend the skill's Output gate: `.board.json` valid, planted block present, and for a
+- [x] Document write-`.board.json`-only-when-absent (the `model-tiers.json` rule)
+- [x] Document the `backlog`+`jira` refusal and its reason
+- [x] Extend the skill's Output gate: `.board.json` valid, planted block present, and for a
       `requiresSync` provider a stated reminder that `board:sync` must run before the gate has
       any evidence at all
-- [ ] Bump `bootstrap`'s skill `version:` (per-skill rule, `docs/releasing.md`)
-- [ ] Bump the marketplace version; run `node scripts/sync-version.mjs`
-- [ ] Update `README.md` and `CLAUDE.md` wherever they enumerate the peers —
+- [x] Bump `bootstrap`'s skill `version:` (per-skill rule, `docs/releasing.md`)
+- [x] Bump the marketplace version; run `node scripts/sync-version.mjs`
+- [x] Update `README.md` and `CLAUDE.md` wherever they enumerate the peers —
       `check-docs.mjs` enforces this
-- [ ] Re-pin `docs/wiki/` notes: `pdlc-plugin`, `pdlc-grounding-block`, plus any note listing
+- [x] Re-pin `docs/wiki/` notes: `pdlc-plugin`, `pdlc-grounding-block`, plus any note listing
       `plant.mjs` or the template as a source; classify each **RE-PIN-ONLY** or
       **NEEDS-REVIEW**
-- [ ] All four project gates green: `node --test`, `check-docs.mjs`,
+- [x] All four project gates green: `node --test`, `check-docs.mjs`,
       `sync-version.mjs --check`, freshness
-- [ ] Commit
+- [x] Commit
 
 ## Notes
 
@@ -208,3 +208,87 @@ all green, zero failures. `test/spec-bridge.test.mjs`, `test/project-gates.test.
 **For Phase 3:** the bootstrap `SKILL.md` peer section, docs sync, version bumps, and
 re-grounding are still entirely open. Nothing in `lib/board-mirror.mjs` or the `providers`
 projector registry changed in this phase.
+
+### Phase 3 (sonnet-implementer, re-dispatch after the repo-relocation interruption)
+
+**Implemented in `pdlc/skills/bootstrap/SKILL.md`** (version 0.11.0 → 0.12.0): the "Peer
+utilities" section now covers three peers. Jira's detection step states the difference in
+kind explicitly — no CLI exists to detect, so availability is Atlassian MCP tool presence,
+never `command -v`. Opt-in resolves coordinates by discovery, not by asking: `cloudId` ←
+`getAccessibleAtlassianResources`, `projectKey` ← `getVisibleJiraProjects`,
+`issueTypeName` ← `getJiraProjectIssueTypesMetadata`, the `defaultAssignee: "self"` account
+id ← `atlassianUserInfo` — the operator confirms the resolved project/site since discovery
+can return more than one candidate. `.board.json` is written **only when absent** (the
+`model-tiers.json` rule, restated for this file). A new step 4 refuses `backlog` + `jira`
+together, quoting `plant.mjs`'s own error message. The Output gate gained a step 3 (renumbering
+the report step to 4): for an opted-in `jira`, verify `.board.json` exists and
+`validateBoardConfig` returns no problems, and — since jira is a `requiresSync` provider —
+remind the operator `board:sync` must run before the bridge gate has any evidence at all.
+The Plant preview command example and the frontmatter description both gained `--peer jira`
+/ Jira mentions.
+
+**Docs sync (AC #10):** `README.md`'s pdlc row and `pdlc/README.md`'s peer paragraph both
+gained Jira and the mutual-exclusion note; `check-docs.mjs` stayed green throughout (it
+checks plugin-table/install-line/count/chassis-module/releasing-link invariants, none of
+which reference peer enumeration by name, so this was a correctness fix rather than a gate
+requirement). No generic peer enumeration exists in this repo's own root `CLAUDE.md` outside
+its single opted-in `pdlc:peer:backlog` block (accurate as this project's actual choice), so
+it needed no edit.
+
+**Version bump — not the obvious number:** per the dispatching orchestrator's ruling (two
+sibling PRs already claiming 0.59.1/0.59.2), bumped the marketplace straight to **0.59.3**
+via `node scripts/sync-version.mjs 0.59.3`, confirmed `--check` green.
+
+**Re-grounding — the ledger, per-note:**
+- **NEEDS-REVIEW, prose amended:** `pdlc-grounding-block.md` (the peer sub-block list line
+  gained `pdlc:peer:jira` — the one-line fix anticipated going in), `pdlc-plugin.md`
+  (description, the `plant.mjs` invocation example, and the whole "Peer utilities are
+  first-class, not assumed" section rewritten for the third peer + MCP-presence detection +
+  the mutual-exclusion rule), `test-suite-catalog-plugins-gates.md` (the `pdlc.test.mjs`
+  bullet gained the jira-peer test coverage — `PEERS` growing to three, the mutual-exclusion
+  throw, the `pdlc:peer:jira` render/strip + grep guard, the unchanged sentinel schema — paid
+  for with a genuine trim of redundant phrasing already in that same bullet, e.g. two
+  separate "never clobbered/overwritten without `--force`" mentions collapsed to one shared
+  statement covering both artifacts; net effect **+10 chars** on a note already over its
+  8000-char budget under a standing TASK-103 exemption — not a reduction, but not an
+  unpaid addition either, and the exemption needed no widening).
+- **RE-PIN-ONLY (reviewed, no prose change needed):** `spec-bridge-plugin.md` (its only
+  source change since its pin is Phase 1's `lib/board-mirror.mjs` addition, unrelated to
+  what the note describes — its standing over-budget exemption needed no attention either).
+- **The 0.59.3 bump's own cascade** (discovered by the tool, not anticipated by the
+  dispatch ledger — bumping the marketplace version touches every plugin's `plugin.json`,
+  `action.yml`, and a README line, which several other notes list as sources): `plan`
+  additionally reported `build-and-release.md`, `overview.md`, `reorient-plugin.md`, and
+  `team-review-plugin.md` as NEEDS-REVIEW (each "quotes version literals"), plus
+  `build-plugin.md`, `codebase-to-course-plugin.md`, `educate-plugin.md`,
+  `gates-consumption-surface.md`, `grounding-wiki-plugin.md`, and `research-plugin.md` as
+  RE-PIN-ONLY. Reviewed each NEEDS-REVIEW note's literal: every one is either a historical
+  anchor (`build-and-release.md`'s `v0.2.0`/`0.5.0` release-history examples) or a skill's
+  own independently-versioned frontmatter (`reorient-plugin.md`'s `version: 0.5.0`,
+  `team-review-plugin.md`'s `version: 1.3.0` — both still accurate, unchanged by this PR) —
+  none claims the current marketplace version, so all nine re-pinned with no prose change
+  **except** `overview.md`, whose pdlc bullet genuinely needed "Jira" added to its peer
+  list (README.md's real content change, not just a version stamp) — paid for by trimming a
+  duplicate build-and-release invocation example already stated in full in
+  `gates-consumption-surface.md` (net **-54 chars**, landing under the 8000 cap with no
+  exemption needed, versus sitting at exactly 8000/8000 before this PR).
+- **The re-pin commit's own cascade:** re-pinning `test-suite-catalog-plugins-gates.md`
+  staled its parent `test-suite-catalog-plugins.md` (which lists it as a `sources:` entry).
+  Reviewed: the parent is a pure summary index naming plugins and gate categories with no
+  per-test-file assertions, so nothing in it is contradicted — RE-PIN-ONLY, confirmed
+  `plan` reports nothing further after this second pass.
+- Regenerated `docs/wiki/CAPSULES.md` (`pdlc-plugin.md`'s description capsule changed).
+
+**Existing-test handling:** no existing test assertion needed correction in this phase —
+Phase 3 touched no test file. `test/spec-bridge.test.mjs`, `test/project-gates.test.mjs`,
+and `test/phase-status.test.mjs` stayed byte-identical (confirmed via
+`git diff db31501..HEAD -- <those three files>` — empty).
+
+**Suite:** 483/483 throughout (unchanged by this phase — no test file touched). All four
+project gates green after every commit: `node --test`, `check-docs.mjs`,
+`sync-version.mjs --check`, and the freshness gate (`OK: 40 note(s) fresh`, plus the two
+pre-existing exempted over-budget warns — unaffected by this phase's edits).
+
+Commits: `d86d6c8` (SKILL.md + docs sync + version bump), `5beeb01` (the re-ground pass for
+the notes `plan` reported after `d86d6c8`), `6049beb` (the cascade `5beeb01` itself staled).
+All three pushed to `task-111-board-config`.
