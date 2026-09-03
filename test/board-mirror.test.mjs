@@ -8,6 +8,7 @@ import { execFileSync } from "node:child_process";
 import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
+  loadBoardConfig, validateBoardConfig,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -312,4 +313,94 @@ test("projectBacklog matches findLinkedTasks(\".\") on id, status, specDir, acs"
 test("providers registry: backlog is requiresSync:false with a project function", () => {
   assert.equal(providers.backlog.requiresSync, false);
   assert.equal(typeof providers.backlog.project, "function");
+});
+
+// AC #1/#2 — loadBoardConfig: absent, malformed, unknown provider.
+test("loadBoardConfig: { provider: \"backlog\" } when .board.json is absent", () => {
+  const p = project();
+  try {
+    assert.deepEqual(loadBoardConfig(p.root), { provider: "backlog" });
+  } finally {
+    p.done();
+  }
+});
+
+test("loadBoardConfig: throws on malformed JSON", () => {
+  const p = project();
+  try {
+    writeFileSync(join(p.root, ".board.json"), "{not json");
+    assert.throws(() => loadBoardConfig(p.root), /malformed JSON/);
+  } finally {
+    p.done();
+  }
+});
+
+test("loadBoardConfig: throws naming the known providers on an unknown provider name", () => {
+  const p = project();
+  try {
+    writeFileSync(join(p.root, ".board.json"), JSON.stringify({ provider: "trello" }));
+    assert.throws(() => loadBoardConfig(p.root), /unknown board provider "trello".*backlog.*jira/);
+  } finally {
+    p.done();
+  }
+});
+
+test("loadBoardConfig: never falls back to backlog for an unrecognized provider — it throws instead", () => {
+  const p = project();
+  try {
+    writeFileSync(join(p.root, ".board.json"), JSON.stringify({ provider: "typo-of-jira" }));
+    assert.throws(() => loadBoardConfig(p.root));
+    // The throw above is the only behavior — there is no code path that returns a config here.
+  } finally {
+    p.done();
+  }
+});
+
+test("loadBoardConfig: reads a well-formed jira config back verbatim", () => {
+  const p = project();
+  try {
+    const config = { provider: "jira", jira: { cloudId: "x.atlassian.net", projectKey: "PROJ", issueTypeName: "Task" } };
+    writeFileSync(join(p.root, ".board.json"), JSON.stringify(config));
+    assert.deepEqual(loadBoardConfig(p.root), config);
+  } finally {
+    p.done();
+  }
+});
+
+// AC #1/#3 — validateBoardConfig's cases, including the complete-valid-config case.
+test("validateBoardConfig: { provider: \"backlog\" } is a complete valid config", () => {
+  assert.deepEqual(validateBoardConfig({ provider: "backlog" }), []);
+});
+
+test("validateBoardConfig: catches provider as an array", () => {
+  const problems = validateBoardConfig({ provider: ["backlog", "jira"] });
+  assert.ok(problems.some((m) => m.includes("array")));
+});
+
+test("validateBoardConfig: catches an unknown provider, naming the known set", () => {
+  const problems = validateBoardConfig({ provider: "trello" });
+  assert.ok(problems.some((m) => /unknown board provider "trello"/.test(m) && /backlog/.test(m) && /jira/.test(m)));
+});
+
+test("validateBoardConfig: catches jira missing each of cloudId/projectKey/issueTypeName", () => {
+  const problems = validateBoardConfig({ provider: "jira", jira: {} });
+  assert.ok(problems.some((m) => m.includes("jira.cloudId")));
+  assert.ok(problems.some((m) => m.includes("jira.projectKey")));
+  assert.ok(problems.some((m) => m.includes("jira.issueTypeName")));
+});
+
+test("validateBoardConfig: a complete jira config is clean", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x.atlassian.net", projectKey: "PROJ", issueTypeName: "Task", statusMap: { "To Do": "To Do" } },
+  });
+  assert.deepEqual(problems, []);
+});
+
+test("validateBoardConfig: catches a non-object statusMap", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusMap: "not an object" },
+  });
+  assert.ok(problems.some((m) => m.includes("statusMap")));
 });

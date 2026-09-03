@@ -198,6 +198,52 @@ test("renderGrounding substitutes tokens and strips non-opted peer blocks", () =
   assert.ok(!backlog.includes("pdlc:peer:spec-kit"), "spec-kit block must be stripped");
 });
 
+// --- Jira peer (spec 054 phase 2) ---
+// AC #6's grep test, written FIRST — before the pdlc:peer:jira block is authored — so the
+// block is written against a failing test rather than checked after the fact.
+
+test('pdlc:peer:jira block contains zero occurrences of "backlog " (AC #6 grep test)', () => {
+  const rendered = renderGrounding(TEMPLATE, { projectName: "acme", version: "9.9.9", peers: ["jira"] });
+  const begin = rendered.indexOf("<!-- pdlc:peer:jira BEGIN -->");
+  const end = rendered.indexOf("<!-- pdlc:peer:jira END -->");
+  assert.ok(begin !== -1 && end !== -1, "pdlc:peer:jira block must be present when opted in");
+  assert.ok(!rendered.slice(begin, end).includes("backlog "), "no backlog CLI command string in the jira block (copy-paste guard)");
+});
+
+test("PEERS names jira; the block renders with --peer jira and strips without it (AC #4)", () => {
+  assert.deepEqual(PEERS, ["backlog", "spec-kit", "jira"]);
+  const withJira = renderGrounding(TEMPLATE, { projectName: "acme", version: "9.9.9", peers: ["jira"] });
+  assert.ok(withJira.includes("pdlc:peer:jira BEGIN"));
+  const without = renderGrounding(TEMPLATE, { projectName: "acme", version: "9.9.9", peers: [] });
+  assert.ok(!without.includes("pdlc:peer:jira"));
+});
+
+test("backlog and jira peers are mutually exclusive, with the reason named (AC #5)", () => {
+  const { root, done } = proj();
+  try {
+    assert.throws(
+      () => plant(root, opts({ peers: ["backlog", "jira"] })),
+      /one board is the plan of record/,
+    );
+  } finally { done(); }
+});
+
+test("sentinel records jira under peers/peersOmitted with no sentinel schema change (AC #7)", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts({ peers: ["jira"] }));
+    assert.deepEqual(r.peersOmitted, ["backlog", "spec-kit"]);
+    const sentinel = JSON.parse(readFileSync(join(root, SENTINEL), "utf8"));
+    assert.deepEqual(sentinel.peers, ["jira"]);
+    assert.deepEqual(sentinel.peersOmitted, ["backlog", "spec-kit"]);
+    assert.deepEqual(
+      Object.keys(sentinel).sort(),
+      ["planted", "version", "name", "peers", "peersOmitted", "hooks", "plantedAt"].sort(),
+      "no new sentinel fields — jira rides the existing peers/peersOmitted shape",
+    );
+  } finally { done(); }
+});
+
 // --- planting ---
 
 test("fresh plant: creates CLAUDE.md, sentinel, and .handoff/ gitignore; then idempotent", () => {
@@ -290,8 +336,8 @@ test("sentinel records peersOmitted — known peers not opted in at plant time �
   const { root, done } = proj();
   try {
     const r = plant(root, opts({ peers: ["backlog"] }));
-    assert.deepEqual(r.peersOmitted, ["spec-kit"]);
-    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, ["spec-kit"]);
+    assert.deepEqual(r.peersOmitted, ["spec-kit", "jira"]);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, ["spec-kit", "jira"]);
 
     const before = readFileSync(join(root, SENTINEL), "utf8");
     const again = plant(root, opts({ peers: ["backlog"] }));
@@ -299,9 +345,12 @@ test("sentinel records peersOmitted — known peers not opted in at plant time �
     assert.equal(again.pdlcFile, "unchanged", "re-plant with the same peers must stay idempotent");
     assert.equal(readFileSync(join(root, SENTINEL), "utf8"), before, "sentinel bytes must not churn");
 
-    const all = plant(root, opts({ peers: [...PEERS], force: true }));
-    assert.deepEqual(all.peersOmitted, [], "nothing omitted when every known peer is opted in");
-    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, []);
+    // backlog + jira are mutually exclusive (R4) — [...PEERS] can no longer be opted into at
+    // once, so "nothing omitted" now means the largest peer set that excludes one of the pair.
+    const compatible = PEERS.filter((p) => p !== "backlog");
+    const all = plant(root, opts({ peers: compatible, force: true }));
+    assert.deepEqual(all.peersOmitted, ["backlog"], "backlog is the only known peer that can't join jira");
+    assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peersOmitted, ["backlog"]);
   } finally { done(); }
 });
 
@@ -313,6 +362,7 @@ test("CLI emits a one-line stderr notice naming each omitted peer's stripped blo
     assert.equal(r.status, 0);
     assert.deepEqual(r.stderr.trim().split("\n"), [
       'plant: peer "spec-kit" omitted — pdlc:peer:spec-kit block stripped (recorded in .pdlc peersOmitted)',
+      'plant: peer "jira" omitted — pdlc:peer:jira block stripped (recorded in .pdlc peersOmitted)',
     ]);
 
     const none = spawnSync(process.execPath, [cli, "--root", b.root], { encoding: "utf8" });
@@ -321,8 +371,14 @@ test("CLI emits a one-line stderr notice naming each omitted peer's stripped blo
       (p) => `plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in .pdlc peersOmitted)`,
     ), "one line per omitted peer, in known-peer order");
 
-    const both = spawnSync(process.execPath, [cli, "--root", a.root, "--peer", "backlog", "--peer", "spec-kit", "--force"], { encoding: "utf8" });
-    assert.equal(both.stderr, "", "no notice when every known peer is opted in");
+    // backlog + jira are mutually exclusive (R4), so no combination ever opts into every known
+    // peer at once anymore; opting into the two peers compatible with each other (spec-kit +
+    // jira) leaves exactly backlog — the one peer that can't join jira — as the sole notice.
+    const both = spawnSync(process.execPath, [cli, "--root", a.root, "--peer", "spec-kit", "--peer", "jira", "--force"], { encoding: "utf8" });
+    assert.equal(both.status, 0);
+    assert.deepEqual(both.stderr.trim().split("\n"), [
+      'plant: peer "backlog" omitted — pdlc:peer:backlog block stripped (recorded in .pdlc peersOmitted)',
+    ], "backlog is the only peer that can't join jira");
   } finally { a.done(); b.done(); }
 });
 
@@ -342,7 +398,7 @@ test("legacy sentinels without peersOmitted stay readable and re-plant as unchan
 
     const upgraded = plant(root, opts({ peers: ["backlog"], version: "10.0.0", force: true }));
     assert.equal(upgraded.pdlcFile, "updated");
-    assert.deepEqual(JSON.parse(readFileSync(sentinelPath, "utf8")).peersOmitted, ["spec-kit"], "a real update gains the field");
+    assert.deepEqual(JSON.parse(readFileSync(sentinelPath, "utf8")).peersOmitted, ["spec-kit", "jira"], "a real update gains the field");
   } finally { done(); }
 });
 
@@ -436,7 +492,9 @@ test("plain dirs keep basename(root); the CLI accepts --name and reports the res
 test("unknown peers are rejected", () => {
   const { root, done } = proj();
   try {
-    assert.throws(() => plant(root, opts({ peers: ["jira"] })), /unknown peer/);
+    // "jira" is now a KNOWN peer (spec 054) — use a name that stays unknown to keep testing
+    // the same behavior this test is actually named for.
+    assert.throws(() => plant(root, opts({ peers: ["trello"] })), /unknown peer/);
   } finally { done(); }
 });
 
