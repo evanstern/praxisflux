@@ -6,7 +6,7 @@ sources:
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
   - pdlc/scripts/tiers.mjs
-verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # The planted PDLC grounding block
@@ -24,8 +24,8 @@ Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers ren
 - **Honest drift handling** — a block differing from the current render reports `drifted`
   and is never overwritten without `--force`; the skill diffs and gets consent.
 
-Peer conventions are nested `pdlc:peer:backlog` / `pdlc:peer:spec-kit` sub-blocks, stripped
-at render time unless opted in.
+Peer conventions are nested `pdlc:peer:backlog` / `pdlc:peer:spec-kit` / `pdlc:peer:jira`
+sub-blocks, stripped at render time unless opted in.
 
 ## The 101 principles and their peer mappings
 

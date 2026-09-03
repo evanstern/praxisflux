@@ -16,7 +16,7 @@ sources:
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
 size_budget_exempt: at exactly 8000/8000 on main with zero headroom (TASK-103); the owed summary-style split is folded into TASK-95 by operator decision 2026-08-03. TASK-106 added ~230 chars cataloging the tier-config surface and takes this exemption rather than forcing the unplanned split under time pressure that TASK-103 exists to prevent. Remove when TASK-95 lands the split.
-verified_against: ddd611deef8d7cb66fd73b7b383d51a460f74d14
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -39,25 +39,27 @@ seam involved. One bullet per `test/*.test.mjs` file:
   fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
   and notes outside git, note untouched).
 - `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin registration +
-  bootstrap SKILL frontmatter (name/version/description, backported from refactor-triage — spec 047);
-  template markers carrying the 101 principles (`docs/principles.md`); `renderGrounding` token substitution, non-opted peer blocks stripped; the model-tier rubric (spec 048) — `##
-  Model tiers` inside the grounding markers before peer blocks, naming the agent-def
-  `model:` pin, authoritative over the planted default, IDs resolved against the live
-  harness (`claude-api`) — and its tier **config** surface (`pdlc/scripts/tiers.mjs`,
-  TASK-106): open tier map, generated `model:` equal to the config, named schema rejections,
-  `--check` exit codes, a hand-authored def `drifted` and never clobbered without `--force`,
-  the 2026-08-10 dispatch findings; planting fresh/append/idempotent,
-  a drifted block never overwritten without `--force`, peer-change drift, `--check` writing nothing
-  and exiting 1; the `peersOmitted` trace (one stderr notice per omitted peer, legacy sentinels readable); the `resolveProjectName` ladder (override > recorded > worktree gitdir
-  parse > basename) so worktree plants render the PRIMARY name; opt-in root-guard planting
-  (spec 051) — `--hook root-guard` copies BOTH hook files into `.claude/hooks/` and merges the two
-  `PreToolUse` entries into `.claude/settings.json`, idempotent, preserving pre-existing hooks,
-  `--check` writing nothing, unknown-hook rejection; and the refactor-triage skill shape (spec
-  033/047) — `parseFrontmatter` frontmatter plus the full phase skeleton (a gutted phase fails loud),
-  phase-content anchors (triage-record path, backlog-CLI-only Execute, team-review lens), three entry
-  modes + declared-policy headless rule, sweep's Handing off naming refactor-triage, and a
-  cross-plugin test that refactor-triage and team-review spell `docs/reviews/team-review-<run-id>.md`
-  identically.
+  bootstrap SKILL frontmatter (spec 047); template markers carrying the 101 principles
+  (`docs/principles.md`); `renderGrounding` token substitution, non-opted peer blocks stripped;
+  the model-tier rubric (spec 048) — `## Model tiers` inside the grounding markers before peer
+  blocks, the agent-def `model:` pin authoritative, IDs resolved against the live harness
+  (`claude-api`) — and its tier **config** surface (`pdlc/scripts/tiers.mjs`, TASK-106): open
+  tier map, generated `model:` equal to the config, named schema rejections; planting
+  fresh/append/idempotent, peer-change drift, `--check` writing nothing and exiting 1 — one
+  drifted/`--force` contract covers the CLAUDE.md block and a hand-authored tier def; the
+  `peersOmitted` trace (one stderr notice per omitted peer, legacy sentinels readable); the
+  `resolveProjectName` ladder (override > recorded > worktree > basename); the `jira` peer
+  (spec 054) — three-member `PEERS` with a `backlog`/`jira` mutual-exclusion throw,
+  `pdlc:peer:jira` render/strip via `--peer jira` plus its zero-`backlog `-string grep guard,
+  and the unchanged sentinel schema recording `jira` under `peers`/`peersOmitted`; opt-in
+  root-guard planting (spec 051) — `--hook root-guard` copies BOTH hook files into
+  `.claude/hooks/` and merges the two `PreToolUse` entries into `.claude/settings.json`,
+  idempotent, preserving pre-existing hooks, unknown-hook rejection; and the refactor-triage
+  skill shape (spec 033/047) — `parseFrontmatter` frontmatter plus the full phase skeleton (a
+  gutted phase fails loud), phase-content anchors (triage-record path, backlog-CLI-only
+  Execute, team-review lens), three entry modes + declared-policy headless rule, sweep's
+  Handing off naming refactor-triage, and a cross-plugin test that refactor-triage and
+  team-review spell `docs/reviews/team-review-<run-id>.md` identically.
 - `test/phase-status.test.mjs` — the opt-in phase-grain status vocabulary (additive to the
   spec-derive/spec-bridge suites): the five-stage derivation ladder (specifying →
   planning → implementing → validating → reviewing, incl. single-phase tasks.md and

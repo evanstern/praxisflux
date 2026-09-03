@@ -1,6 +1,6 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts into the peer utilities (Backlog.md, Spec Kit); design-rounds covers the pre-spec seam where the deliverable is unknowable until an operator chooses; sweep and refactor-triage have their own notes.
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts into the peer utilities (Backlog.md, Spec Kit, Jira — Backlog.md and Jira mutually exclusive); design-rounds covers the pre-spec seam where the deliverable is unknowable until an operator chooses; sweep and refactor-triage have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
@@ -11,7 +11,7 @@ sources:
   - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
-verified_against: ddd611deef8d7cb66fd73b7b383d51a460f74d14
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # pdlc plugin
@@ -53,7 +53,7 @@ A dual-use module (library + CLI, [[chassis-utilities]]' `runAsCli`) on the [[in
 chassis and `template.mjs`. One invocation:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--check] [--force]
+node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--check] [--force]
 ```
 
 renders the expected block and lands it (`created` | `appended` | `replaced` | `unchanged` |
@@ -79,12 +79,17 @@ gain it.
 
 ## Peer utilities are first-class, not assumed
 
-Backlog.md and GitHub Spec Kit are **officially supported peers**: the skill detects their
-CLIs (`backlog`, `specify`); when absent it recommends installation (the plant's trace is
-the durable record), when present it asks opt-in per peer and runs its init
-(`backlog init` / `specify init --here`), skipping if already initialized. Opt-ins
-select the planted convention blocks and are recorded in `.pdlc`; an update re-presents
-them as defaults.
+Backlog.md, GitHub Spec Kit, and Jira are **officially supported peers**. Backlog.md and
+Spec Kit are detected by CLI (`backlog`, `specify`); Jira differs **in kind** — there is no
+CLI to detect, so availability means the Atlassian MCP server's tools are present, never
+`command -v`. When a CLI peer is absent the skill recommends installation (the plant's
+trace is the durable record); when present, or when Jira's MCP tools are present, it asks
+opt-in per peer and runs its init (`backlog init` / `specify init --here`) or, for Jira,
+resolves `cloudId`/`projectKey` by discovery rather than asking, skipping if already
+initialized. **Backlog.md and Jira are mutually exclusive** — one board, singular (design
+invariant 2) — so `plant.mjs` throws naming that reason if both are passed. Opt-ins select
+the planted convention blocks and are recorded in `.pdlc`; an update re-presents them as
+defaults.
 
 ## Opt-in root-guard hook — the suite's first PreToolUse hook
 

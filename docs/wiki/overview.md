@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 4694352e2b28ce3bc02d9865e9fbeeb9dff26290
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # praxisflux — system overview
@@ -39,7 +39,7 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
   three skills: `bootstrap` stamps a new or existing project for the praxis development
   lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore, opt-in to the supported peer
-  utilities Backlog.md and Spec Kit); `sweep` runs a set of board tasks through the whole
+  utilities Backlog.md, Spec Kit, and Jira); `sweep` runs a set of board tasks through the whole
   lifecycle (operator-signed-off runbook, parallel lanes, serial merges); `refactor-triage`
   closes the post-sweep loop, triaging the merged work for debt and drift and carding accepted
   findings back onto the board.
@@ -62,9 +62,8 @@ at the invoking root.
 - [[skill-patterns]] — the authoring conventions that make the plugins look alike.
 - [[gates-convention]] — how gates keep every status backed by proven artifacts.
 - [[build-and-release]] — how the marketplace and self-contained plugin packages are produced,
-  and the CI consumption surface: other repos run the gates via the composite action
-  (`uses: evanstern/praxisflux@v<version>`) or anywhere via the `@praxisflux/gates` npm package
-  (`npx @praxisflux/gates`), see `docs/consuming-gates.md`.
+  and the CI consumption surface: other repos run the gates via the composite action or
+  the `@praxisflux/gates` npm package — see `docs/consuming-gates.md` for both invocations.
 
 ## Operational notes
 

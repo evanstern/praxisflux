@@ -12,7 +12,7 @@ sources:
   - grounding-wiki/scripts/capsules.mjs
   - grounding-wiki/scripts/repin.mjs
   - grounding-wiki/templates/note.md
-verified_against: ddd611deef8d7cb66fd73b7b383d51a460f74d14
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # Grounding-wiki plugin
