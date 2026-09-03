@@ -21,14 +21,14 @@ size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TAS
   minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
   than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
   already own this note family's owed summary-style split; fold this into it and remove.
-verified_against: 5206515c5f118a291cfddcf01870a219ee28c3d9
+verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
 ---
 
 # spec-bridge plugin
 
-The `spec-bridge` plugin makes the Backlog.md board a **derived kanban view over
-GitHub Spec Kit specs** — composed the praxisflux way, through files and gates, forking neither
-tool. One Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
+The `spec-bridge` plugin (lockstep with the marketplace version) makes the Backlog.md board a **derived kanban view over
+GitHub Spec Kit specs** — composed through files and gates, forking neither tool. One
+Backlog task per spec directory: the task's `Spec phase:` acceptance criteria
 mirror `tasks.md`'s phases, its status follows the spec's artifacts, and a Stop-hook gate
 enforces the house rule that status can't exceed proven artifacts.
 
@@ -36,7 +36,7 @@ enforces the house rule that status can't exceed proven artifacts.
 
 **One-way derivation.** The spec dir (`specs/NNN-feature/`) is the source of truth; the task
 is a derived view. `lib/spec-derive.mjs` (on the chassis) is the *only* place the spec
-lifecycle is interpreted, and it is a pure, stateless read — every call re-reads
+lifecycle is interpreted, a pure, stateless read — every call re-reads
 `spec.md`/`plan.md`/`tasks.md` (via `lib/spec-source.mjs`) and re-derives, so a regenerated
 `tasks.md` is a non-event
 (including honest status *regressions* when checkboxes get wiped). Rules: no `spec.md` →
@@ -50,82 +50,85 @@ marker and seeds `Spec phase: <name>` ACs from `tasks.md` — always via the `ba
 never by hand-editing task files; `gates/bridge.mjs` only reads them.
 
 **Syncing.** The **sync** skill reconciles one way, and its edits are **computed, not
-reasoned**, in two halves (spec 053): `planIntents` decides — status move (backwards
-included; `Done-eligible` → `Done` with a derived final summary, the only path to Done),
-`Spec phase:` AC removals highest-index-first, additions, check/uncheck at post-edit indexes,
-one change-only progress note (`Setup: 2/2 · Core: 4/7`) — and `renderBacklog` renders those
-intents as the exact `backlog task edit` commands `cli.mjs plan <root>` prints, in order.
-`planLinkedTask` is now a thin compatibility wrapper over both. Human-authored ACs (no
-`Spec phase:` prefix) are structurally untouchable; verdict-unknown tasks are reported on
-stderr, never guessed; a reconciled board plans nothing. `planBridge` renders those command
-strings only for the `backlog` provider; any other resolved provider gets the same
-reconciliation back as structured intents plus a notice — no guessed verb table (spec 055
-owns that). The planner stays read-only — plan prints, the skill executes and re-verifies.
+reasoned**: `cli.mjs plan <root>` computes, in execution order, the same reconciliation for
+every linked task — status moves (backwards included; `Done-eligible` plans `-s Done` with
+a derived final summary, the only path to Done), `Spec phase:` AC removals highest-index-first,
+additions, check/uncheck at post-edit indexes, and one change-only progress note
+(`Setup: 2/2 · Core: 4/7`) per touched task, rendered as exact `backlog task edit` command
+strings for the `backlog` provider (other providers get the same reconciliation as
+structured intents plus a notice, since command rendering is provider-specific — spec 053
+R5, spec 055 owns that verb table). Human-authored ACs (no `Spec phase:` prefix) are
+structurally untouchable; verdict-unknown tasks are reported on stderr, never guessed; a
+reconciled board plans nothing. The planner (`planLinkedTask` / `planBridge` in
+`gates/bridge.mjs`, fed by `parseLinkedTask` — now in `lib/board-mirror.mjs`, re-exported
+here — which also reads the task's AC:BEGIN/END block) stays read-only — plan computes, the
+skill executes and re-verifies.
 
 **The gate.** `gates/bridge.mjs` finds project roots downwards (`findRootsDownwards` +
-`hasAnyChild(".board", "backlog")` — a mirror or a Backlog dir either mark a project;
-`cli.mjs` resolves in lockstep, spec 053 R2) and reads the board through `boardLinks`: a
-`.board/links.json` mirror when present, else a live `backlog/tasks/*.md` projection, else
-none (mirror-first, so an adopted mirror is exercised, not bypassed). Two fail-closed
-findings guard the mirror itself: a stale mirror on a `requiresSync` provider (e.g. Jira)
-blocks, naming the reason and the `board:sync` remedy; a `requiresSync` provider declared
-(`.board.json`) with no mirror blocks as no-evidence — "cannot see the board" never
-renders as "the board is fine". Backlog (`requiresSync: false`) prefers live re-derivation
-over either complaint. Per task, compares frontmatter status to derived status: **exceeds** (status
-claims more than the artifacts prove) blocks the Stop; **lags** (artifacts ahead of status)
-warns to run sync, never blocks; **ok** is silent — except the strict-mode near-miss: an
-honest task with every checkbox checked whose ONLY shortfall from Done-eligible is the
-analysis requirement gets a lag-style warning naming the missing `analysis.md` (and where to
-save it) or the unresolved CRITICAL findings verbatim, so "Done is out of reach" is never a
-silent state; **unknown** (a status outside To Do / In Progress / Done) neither blocks nor
-warns.
+`hasAnyChild(".board", "backlog")`), reads tasks via `boardLinks(root)` — **mirror first**:
+`.board/links.json` when present (fail-closed if malformed), else a live `backlog/tasks/`
+projection, else `[]` — and compares each task's status to its derived
+status: **exceeds** (status claims more than the artifacts prove) blocks the Stop; **lags**
+(artifacts ahead of status) warns to run sync, never blocks; **ok** is silent — except the
+strict-mode near-miss: an honest task with every checkbox checked whose ONLY shortfall from
+Done-eligible is the analysis requirement gets a lag-style warning naming the missing
+`analysis.md` (and where to save it) or the unresolved CRITICAL findings verbatim, so "Done
+is out of reach" is never a silent state; **unknown** (a status outside To Do / In Progress
+/ Done) neither blocks nor warns.
 A linked task whose spec dir is gone from the tree **and** every searched ref derives `To Do`
 and blocks anything above it. **Branch-held specs still derive** (spec 058): `spec-source.mjs`
 reads a dir the tree lacks out of `HEAD` or a pushed `refs/remotes/origin/task-*` (read-only
 `git show`, memoized), so the claim protocol's unmerged window is not a false **exceeds**.
-Tree wins when present; `source` names the origin (`worktree`/`ref`/`none`).
-`hooks/hooks.json` wires the Stop hook through the standard `gate.sh` shim (node resolved
-via `command -v` with a login-shell fallback; when unavailable, a one-time stderr notice
-then exit 0) into `scripts/stop.mjs`
-on `runStopHook`; the gate is a no-op with neither sentinel, or with no linked tasks.
+Tree wins when present; `source` names the origin (`worktree`/`ref`/`none`). A stale or
+missing mirror under a declared `requiresSync` provider (Jira) is itself a blocking
+**R3/R4** finding, independent of any task — `backlog` never needs this (self-heals).
+`hooks/hooks.json` wires the Stop hook through the standard `gate.sh` shim (node missing →
+one-time stderr notice, then exit 0) into `scripts/stop.mjs` on `runStopHook`; the gate is a
+no-op with no board root or no linked tasks.
 
 **Strict Done (opt-in).** Checked boxes are necessary but weak proof. With
 `{ "strictDone": true }` in `.spec-bridge.json` at the project root, Done-eligible
-additionally requires the `/speckit.analyze` report saved as `<specDir>/analysis.md` (a
-durable artifact, not chat output) with no unresolved CRITICAL findings — the scan is
+additionally requires the `/speckit.analyze` report saved as `<specDir>/analysis.md` with no
+unresolved CRITICAL findings — the scan is
 line-based, a `CRITICAL` line counting unless it says `resolved` or carries a checked box.
-Missing or malformed config means checkbox-only mode.
+Missing/malformed config means checkbox-only mode.
 
 **Phase-level status (opt-in).** The derivation always names a finer *stage* under the
-3-status collapse — `specifying` → `planning` → `implementing` → `validating` → `reviewing`
-(identical to Done-eligible; `coarseStatus` is the fixed collapse). A `statusVocabulary` map
-in `.spec-bridge.json` (stage → the board's own status name; partial maps overlay the
-defaults; malformed or rename-free maps opt out) makes the board speak that ladder:
-`stageVerdict` ranks the same four verdicts on stage spans (a name covering several stages
-spans all of them; "Done" always covers the top stage), and plan targets the mapped names —
-a *mapped* `reviewing` (say "In Review") is planned instead of auto-Done. Absent the config,
-every path is bit-for-bit the 3-status contract.
+3-status collapse — `specifying` → `planning` → `implementing` → `validating` (only
+`tasks.md`'s final phase unchecked, needing ≥2 phases, or all boxes checked with strict-mode
+analysis outstanding) → `reviewing` (identical to Done-eligible; `coarseStatus` is the fixed
+collapse). A `statusVocabulary` map in `.spec-bridge.json` (stage → the board's own status
+name; partial maps overlay the defaults; malformed or rename-free maps opt out) makes the
+board speak that ladder: `stageVerdict` ranks the same four verdicts on stage spans (a name
+covering several stages spans all of them), and plan targets the mapped names — a *mapped*
+`reviewing` plans instead of auto-Done, keeping the move to Done deliberate. Absent the
+config, every path is bit-for-bit the 3-status contract — praxis P3 applied to the board as
+observability.
 
-**Project gates (opt-in, spec 050).** A ticked `tasks.md` checkbox IS status here, so it may
-not claim a greenness the project's own gates deny (spec 048's field case: a ticked box
-outran a red freshness gate). A `projectGates` map (`.spec-bridge.json`) makes the rule
-*data*: `required` gates must be green before Done-eligible; `redByConstruction` (freshness,
-mid-re-pin) MAY be red mid-PR, but not once Done-eligible. Each `command` is an **argv array**
-via `spawnSync` `shell:false` (no injection surface); ENOENT/timeout is *failed, never green*.
+**Project gates (opt-in, spec 050).** A ticked `tasks.md` checkbox IS status here — the
+derivation reads Done-eligibility from those boxes — so a box may not claim a greenness the
+project's gates would deny (field case: a spec ticked fully green while freshness sat red).
+A `projectGates` map (`.spec-bridge.json`) makes the rule
+*data*, two buckets: `required` gates must be green before Done-eligible; `redByConstruction`
+(freshness, between a source edit and its re-pin) MAY be red mid-PR (allowed silently), enforced
+again at Done-eligible once the re-pin box is ticked. Each `command` runs as an **argv
+array** via `spawnSync` `shell:false`; ENOENT/timeout fails closed, never green.
 `projectGatesProfile` mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒ every message
-byte-identical. `evaluateProjectGates` feeds both entry points — the Stop hook
-(`checkBridge`, both buckets) and the CLI `verify` (`verifyBridge`, `required` only) — sharing
-one memoized run per distinct command across every spec checked (else the set re-ran per
-Done-eligible spec). `SPEC_BRIDGE_GATE_ACTIVE` stops a gate command that re-invokes the bridge
-from recursing; an injected `run` (tests) bypasses it.
+byte-identical. `evaluateProjectGates` feeds two entry points: the **Stop hook**
+(`checkBridge`, Done-eligible, both buckets) and the CLI **`verify`** (`verifyBridge`,
+mid-PR, `required` only). Gates are project-wide, so each command runs **once per
+invocation**, shared across specs — findings stay per spec (else the set reran per spec,
+costly at scale). `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the **default** runner so a gate
+command re-invoking the bridge can't recurse; an injected `run` bypasses it — the check
+dogfoods itself.
 
 ## Connections
 
 - The plugin's whole premise is the [[gates-convention]] applied to Spec Kit artifacts; the
   gate rides [[gate-runner]] and [[project-root]] from the [[chassis]], where its
   derivation layer `spec-derive.mjs` also lives.
-- Skills follow [[skill-patterns]] (link and sync are phase-separated; gates read, the
-  `backlog` CLI writes); packaged by [[build-and-release]].
+- Skills follow [[skill-patterns]] (phase-separated; gates read, `backlog` CLI writes);
+  packaged by [[build-and-release]].
 - Covered by the [[test-suite]] (`test/spec-derive.test.mjs`, `test/spec-bridge.test.mjs`,
   `test/phase-status.test.mjs`, `test/spec-source.test.mjs`, `test/branch-held-specs.test.mjs`).
 - Unlike [[research-plugin]]/[[educate-plugin]] lifecycles, the state vocabulary here is
@@ -135,9 +138,8 @@ from recursing; an injected `run` (tests) bypasses it.
 ## Operational notes
 
 - Read-only CLI backbone: `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir> |
-  links <root> | check <root> | verify <root> | plan <root>`. `verify` runs the declared
-  `projectGates` against every ticked box, exiting nonzero on a tick standing over a
-  red/unrunnable gate.
-- Known tradeoff (from the README): Spec Kit works branch-per-feature, so a linked task file
-  lives on the feature branch until merge — `main`'s board lags in-flight spec work; the
-  board is authoritative per branch.
+  links <root> | check <root> | verify <root> | plan <root>`. `verify` checks declared
+  `projectGates` against ticked boxes, exiting nonzero on any red/unrunnable gate.
+- Known tradeoff: Spec Kit works branch-per-feature, so a linked task file lives on the
+  feature branch until merge — `main`'s board lags in-flight work; the board is
+  authoritative per branch.

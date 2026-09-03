@@ -17,10 +17,13 @@ items back onto the board as sweepable tasks.
   never silently overwritten).
 - Gitignores `.handoff/` and stamps a `.pdlc` sentinel recording the plugin version and peer
   choices (the marker `installMode` keys fresh vs. update on).
-- Treats **Backlog.md** and **GitHub Spec Kit** as officially supported peer utilities:
-  recommends installing them when their CLIs are absent; when present, asks the user to opt
-  in and, on opt-in, runs their init (`backlog init` / `specify init`, skipping when
-  `backlog/` or `.specify/` already exist) and plants their convention blocks.
+- Treats **Backlog.md**, **GitHub Spec Kit**, and **Jira** as officially supported peer
+  utilities (Backlog.md and Jira mutually exclusive — one board, singular): recommends
+  installing/connecting them when absent — Backlog.md/Spec Kit by CLI, Jira by MCP tool
+  presence, since there is no CLI to detect; when present, asks the user to opt in and, on
+  opt-in, runs their init (`backlog init` / `specify init`, skipping when `backlog/` or
+  `.specify/` already exist) or, for Jira, discovers `cloudId`/`projectKey`/`issueTypeName`
+  and writes `.board.json` (only when absent) — then plants the convention blocks.
 
 Deterministic planting lives in `scripts/plant.mjs` (chassis: `lib/installer.mjs`,
 `lib/template.mjs`); the skill supplies the judgment around it. Phase separation holds:

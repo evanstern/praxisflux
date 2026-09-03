@@ -158,6 +158,36 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
   relationships stay consistent.
 <!-- pdlc:peer:backlog END -->
 
+<!-- pdlc:peer:jira BEGIN -->
+## Jira — the board (officially supported peer)
+
+Jira is this project's board and the plan of record, configured in `.board.json`
+(`cloudId`, `projectKey`, `issueTypeName`). `.board/links.json` is the tracked **receipt**
+the gate reads — a mirror of Jira issue state, refreshed by the `board:sync` skill.
+
+- Start from the **board verb table** (spec 055) — the canonical vocabulary for creating,
+  claiming, updating, and closing a work item on the board. This block points at it rather
+  than restating it.
+- Record plans, progress, and status transitions on the Jira issue itself (fields,
+  comments, workflow transitions); `board:sync` re-mirrors them into `.board/links.json`.
+- **One TASK, one PR:** a top-level work item gets one branch and one PR. A **Sub-task**
+  is internal breakdown — it rides its parent's branch and merges in the parent's PR,
+  never its own. An **Epic** groups work items and gets no PR of its own.
+- **Two-track landing, restated for Jira:** board/bookkeeping state (status, comments,
+  assignee) lives in Jira and produces **no commit at all** — there is no git-side board
+  track to land. Deliverable work still lands by PR; what changes is that one of the two
+  tracks has no commit to speak of, not the split itself.
+- **The mirror's staleness contract:** a status read from `.board/links.json` is only as
+  good as its last `board:sync` — sync before trusting it, never infer from memory.
+- **Status composition:** `.spec-bridge.json`'s `statusVocabulary` maps a derivation stage
+  to a bridge status; `.board.json`'s `statusMap` then maps that bridge status to Jira's
+  workflow status name — `derivation stage ──statusVocabulary──▶ bridge status
+  ──statusMap──▶ Jira workflow status`. Neither mapping's meaning changes; this states
+  their precedence.
+- **Never hand-edit** `.board/links.json` — always `board:sync`, so the mirror and Jira
+  stay consistent.
+<!-- pdlc:peer:jira END -->
+
 <!-- pdlc:peer:spec-kit BEGIN -->
 ## Spec Kit — specs drive the work (officially supported peer)
 
