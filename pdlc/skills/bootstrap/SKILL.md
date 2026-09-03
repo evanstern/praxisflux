@@ -1,7 +1,7 @@
 ---
 name: bootstrap
-version: 0.11.0
-description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md and GitHub Spec Kit — recommending installation when absent and offering opt-in (running their inits) when present.
+version: 0.12.0
+description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present.
 ---
 
 # pdlc:bootstrap — stamp a project for the praxis development lifecycle
@@ -35,18 +35,26 @@ update. The heavy lifting is deterministic — `scripts/plant.mjs` on the chassi
 3. If `<root>` is not a git repository, say so and continue — planting still works; the
    `.gitignore` entry becomes meaningful once they `git init`.
 
-## Peer utilities — Backlog.md and Spec Kit
+## Peer utilities — Backlog.md, Spec Kit, and Jira
 
-Backlog.md (task board) and GitHub Spec Kit (spec-driven development) are **officially
-supported peer utilities** of the PDLC — spec-bridge exists to join them. Handle each:
+Backlog.md (task board), GitHub Spec Kit (spec-driven development), and Jira (task board)
+are **officially supported peer utilities** of the PDLC — spec-bridge exists to join
+Backlog.md and Spec Kit; Jira is a board in its own right. Handle each:
 
-1. **Detect:** `command -v backlog` and `command -v specify`.
-2. **Absent →** tell the user it is an officially supported peer and recommend installing:
+1. **Detect:** `command -v backlog` and `command -v specify` for the two CLI peers. Jira
+   differs **in kind, not degree**: there is no CLI to detect, and telling an operator to
+   install a Jira CLI would be telling them to install something that does not exist.
+   Jira's availability is **MCP tool presence** — whether the Atlassian MCP server's tools
+   (`mcp__…__getAccessibleAtlassianResources` etc.) are callable in this session — checked
+   by attempting the discovery call in the next step, never by a shell command.
+2. **Absent →** tell the user it is an officially supported peer and recommend installing
+   or connecting:
    - Backlog.md: `npm i -g backlog.md`
    - Spec Kit: `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git`
-   Offer to wait while they install (re-run detection afterwards); declining is fine — the
-   grounding is planted without that peer's block and opting in later is one re-run away.
-   Either way the outcome is deterministically traced, not left to this conversation:
+   - Jira: connect the Atlassian MCP server (host-specific; there is no package to install)
+   Offer to wait while they install/connect (re-run detection afterwards); declining is fine
+   — the grounding is planted without that peer's block and opting in later is one re-run
+   away. Either way the outcome is deterministically traced, not left to this conversation:
    `plant.mjs` records every known-but-not-opted-in peer in the `.pdlc` sentinel's
    `peersOmitted` field and prints a one-line stderr notice per omitted peer naming its
    stripped `pdlc:peer:<name>` block. Point the user at that trace as the durable record
@@ -60,7 +68,24 @@ supported peer utilities** of the PDLC — spec-bridge exists to join them. Hand
    - **Spec Kit:** if `<root>/.specify/` already exists, skip. Otherwise check
      `specify init --help` and run its init for **the current directory** with the
      **claude** assistant option (e.g. `specify init --here --ai claude`).
-4. Peer opt-ins decide which convention blocks the planted grounding carries — that wiring
+   - **Jira:** **discover, don't ask** — the same posture the skill already takes for the
+     SDLC pipeline's Jira fields. Resolve each coordinate with a tool call instead of asking
+     the operator to type an id:
+     - `cloudId` ← `mcp__…__getAccessibleAtlassianResources`
+     - `projectKey` ← `mcp__…__getVisibleJiraProjects`
+     - `issueTypeName` ← `mcp__…__getJiraProjectIssueTypesMetadata`
+     - the account id backing `defaultAssignee: "self"` ← `mcp__…__atlassianUserInfo`
+     Confirm the resolved project/site with the operator (a discovery call can still return
+     more than one candidate), then write `<root>/.board.json`. **Only when absent** — it is
+     the operator's file, exactly like `.claude/model-tiers.json`: a re-run must never
+     revert a value the operator hand-edited. If `.board.json` already exists, skip and
+     report what it already says.
+4. **Refuse `backlog` + `jira` together.** They are mutually exclusive — one board, one
+   plan of record (design invariant 2: `.board.json`'s `provider` is singular). If the
+   operator asks for both, decline and say why, the same message `plant.mjs` throws:
+   *"peers backlog and jira are mutually exclusive — one board is the plan of record."*
+   Ask which one is authoritative for this project instead of silently picking.
+5. Peer opt-ins decide which convention blocks the planted grounding carries — that wiring
    happens in the plant step via `--peer` flags.
 
 ## Root-guard hook — opt-in enforcement (advanced)
@@ -88,7 +113,7 @@ a default**:
 ## Plant
 
 1. Preview first: run
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--hook root-guard] --check`
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] --check`
    (one `--peer` per opt-in; `--hook root-guard` only if opted in above). The JSON report
    says what would happen: `created`, `appended`
    (existing `CLAUDE.md` gains the marked block at the end), `replaced`, `unchanged`, or
@@ -192,7 +217,14 @@ Model IDs date fast, and the config is where they live, so keep them honest:
    root-guard hook was opted in, `.pdlc`'s `hooks` lists `root-guard`, both
    `.claude/hooks/root-guard-hook.mjs` and `.claude/hooks/shell-scan.mjs` exist, and
    `.claude/settings.json` carries the two `PreToolUse` entries.
-3. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
+3. **If `jira` was opted in:** `<root>/.board.json` exists and `validateBoardConfig` (in
+   `lib/board-mirror.mjs`) returns no problems for it — read the file and run the
+   validator, don't assume the write above succeeded. If the resolved provider is a
+   `requiresSync` provider (jira is; see `providers` in `lib/board-mirror.mjs`), state a
+   reminder to the operator that `board:sync` must run at least once before the bridge gate
+   has any evidence at all — an unsynced `.board/links.json` is not a passing gate, it is an
+   absent one.
+4. Report exactly what was **created**, **refreshed**, **skipped** (e.g. `backlog init`
    skipped because `backlog/` existed), and **left untouched** (everything outside the
    markers; all user content).
 
