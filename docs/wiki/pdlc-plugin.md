@@ -11,7 +11,7 @@ sources:
   - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
-verified_against: 74f12d59c106253c3a6464eea1914257f10c2a6f
+verified_against: 3db5294185ca2c13c714714da62b0603c4849fdb
 ---
 
 # pdlc plugin

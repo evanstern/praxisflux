@@ -12,13 +12,13 @@ sources:
   - team-review/scripts/stop.mjs
   - team-review/scripts/run.mjs
   - team-review/scripts/orient.mjs
-verified_against: 74f12d59c106253c3a6464eea1914257f10c2a6f
+verified_against: 3db5294185ca2c13c714714da62b0603c4849fdb
 ---
 
 # team-review plugin
 
 The `team-review` plugin (lockstep with the marketplace version; skill at its own
-`version: 1.3.0`) runs a **lead-engineer-plus-team architecture review** of any codebase:
+`version: 1.3.1`) runs a **lead-engineer-plus-team architecture review** of any codebase:
 the lead orients, fans out specialist subagents in parallel (seniors for depth, scouts for
 breadth, team sized by the target's non-test line count), spot-checks their claims, and
 synthesizes one consolidated, evidence-backed report. The engagement is **read-only by

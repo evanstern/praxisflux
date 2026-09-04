@@ -10,7 +10,7 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: 74f12d59c106253c3a6464eea1914257f10c2a6f
+verified_against: 3db5294185ca2c13c714714da62b0603c4849fdb
 ---
 
 # reorient plugin
