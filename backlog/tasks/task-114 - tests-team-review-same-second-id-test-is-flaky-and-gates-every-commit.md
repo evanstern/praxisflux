@@ -1,11 +1,11 @@
 ---
 id: TASK-114
 title: 'tests: team-review same-second id test is flaky and gates every commit'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-28 18:30'
-updated_date: '2026-09-03 20:24'
+updated_date: '2026-09-04 21:31'
 labels:
   - tests
   - debt
@@ -32,11 +32,11 @@ Spec: specs/059-flake-deterministic-clock
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The intermittent failure at test/team-review.test.mjs:206 is reproduced or its mechanism explained from the code
-- [ ] #2 Id generation under test is made deterministic (or the assertion made non-probabilistic) so the test cannot fail by chance
-- [ ] #3 The full suite passes across at least 20 consecutive runs
-- [ ] #4 Spec phase: Phase 1 — The seam and the deterministic test
-- [ ] #5 Spec phase: Phase 2 — Prove it, bump, re-ground
+- [x] #1 The intermittent failure at test/team-review.test.mjs:206 is reproduced or its mechanism explained from the code
+- [x] #2 Id generation under test is made deterministic (or the assertion made non-probabilistic) so the test cannot fail by chance
+- [x] #3 The full suite passes across at least 20 consecutive runs
+- [x] #4 Spec phase: Phase 1 — The seam and the deterministic test
+- [x] #5 Spec phase: Phase 2 — Prove it, bump, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -57,4 +57,14 @@ PHASE 2 COMPLETE — four gates verified INDEPENDENTLY by the orchestrator: node
 PR #133 OPENED (https://github.com/evanstern/praxisflux/pull/133), branch task-114-flake-fix, 8 commits 5a9fce0..c7c589c. origin/main had not moved, so no reconcile and no pin reclassification was needed. MUST MERGE AS A MERGE COMMIT, never squash — the branch carries wiki pins referencing its own commits (b3fe130 and 8db7430 re-pin 13 notes to ddd611d), and squashing would orphan those hashes and break the freshness gate. Awaiting operator review/merge per the runbook's serial-merge rule; NOT self-merged. Note for the merge order: this PR bumps to 0.59.1, so whichever of TASK-110/TASK-111 merges after it will conflict on .claude-plugin/marketplace.json and every plugin.json and must reconcile with fresh origin/main before opening or updating its PR — that is the expected Lane 2 serial-merge tax, not a surprise.
 
 RECONCILE COMPLETE for PR #133 (commits 3db5294 merge, ec90f98 re-pin round 1 of 12 notes, 8875e82 round 2 cascade; all pushed). Renumbered 0.59.1 -> 0.59.5: the merge order inverted (#135 merged first, putting main at 0.59.3) and #134 took 0.59.4, so 0.59.5 is the next free number. Pin-carrying branch, so it MERGED origin/main IN (never rebased). 26 conflicts resolved; every wiki conflict was a verified_against PIN LINE ONLY, so the substantive prose from both sides merged cleanly. The runbook needed a genuine HAND-MERGE rather than a side-pick — both branches had added DIFFERENT findings (the cascade rule here, F4 on main), so both were kept; verified F1/F2/F3/F4 and the cascade rule each appear exactly once. Four gates verified independently by the orchestrator AFTER the reconcile: node --test 484/484 0 fail; check-docs exit 0; sync-version --check 'all versions = 0.59.5'; freshness exit 0 with 40 notes fresh AND plan EMPTY. AC#9 holds (three protected files byte-identical vs origin/main). ZERO added or widened size_budget_exempt lines vs origin/main; no prose was added to either over-budget note, so nothing needed trimming to pay for it. Merge integrity verified: this branch's TEAM_REVIEW_RUN_STAMP flake fix survived AND main's loadBoardConfig came through. Honest re-pin: only ONE genuine prose amendment was needed — team-review-plugin.md's quoted 'version: 1.3.0' -> '1.3.1' (this branch's own skill bump), with the run-id prose verified still accurate since the seam is test-only and production is byte-identical. pdlc-plugin.md and spec-bridge-plugin.md were both confirmed classifier FALSE POSITIVES by diffing every source against the pin directly — byte-identical except unquoted version stamps. Cascade took 2 passes. THE HOOK VISIBLY RAN on every commit (~25-27s each, not instant) — first commits this sweep with enforcement actually verified live, after the F5 core.hooksPath fix.
+
+spec-bridge sync: Phase 1 — The seam and the deterministic test: 8/8 · Phase 2 — Prove it, bump, re-ground: 6/6 — status In Progress → Done
+
+MERGED — PR #133 merged 2026-09-04 as dafff60, v0.59.5 on main. The deterministic-stamp fix is now on main, so the same-second flake that produced 55 phantom gate findings during TASK-109 is closed at the source. AC#1-3 (the original card's criteria) are satisfied by the recorded evidence: mechanism confirmed from the code, id generation made deterministic via the TEAM_REVIEW_RUN_STAMP test seam with the retry loop removed, and the 20-consecutive-run proof (20/20 exits 0, 469 pass / 0 fail each, zero failure markers, the previously-flaky test present in all 20). AC#4-5 derived by spec-bridge:sync from the 14/14 ticked spec-059 boxes. Board moved to Done by the derived plan, never hand-set.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The seam and the deterministic test: 8/8 · Phase 2 — Prove it, bump, re-ground: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
