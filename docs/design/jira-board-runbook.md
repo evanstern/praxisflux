@@ -160,6 +160,20 @@ but must still spot-check the first dispatch of any lane if the tier config has 
   claim. (Recovery that worked, for the next session: verify tips on `origin`, check whether
   local-only commits still exist as objects via `git cat-file -t <sha>`, push them, then
   `git worktree prune` and re-cut at the new path.)
+- **F5 — `core.hooksPath` IS ABSOLUTE LOCAL CONFIG AND BREAKS SILENTLY ON RELOCATION
+  (found 2026-09-03).** This repo's `core.hooksPath` was **local** config holding an
+  **absolute** path (`/Users/evanstern/projects/praxis/.githooks`). When the repo relocated
+  (see F4), that path stopped existing and **both the pre-commit and pre-push hooks went
+  silently inert repo-wide** — git does not warn when `core.hooksPath` does not resolve. Every
+  commit after the move was unguarded while appearing normal; the tell is latency (a real
+  pre-commit run takes ~26–47s here, an inert one returns instantly) and the absence of the
+  hook's own `pre-commit:` echo lines. **Never infer that "the hook passed" from a commit
+  succeeding.** Fixed by `git config core.hooksPath .githooks` — RELATIVE, so it survives any
+  future move — and verified by an empty commit that actually printed the gate output and took
+  ~26s. **Consequence, checkable:** on any host, and especially after any path change, confirm
+  `ls -d "$(git config --get core.hooksPath)"` resolves before trusting local enforcement; CI
+  remains the authoritative gate either way (`CLAUDE.md`'s enforcement-split doctrine), which
+  is exactly why that split exists.
 - **Note budgets bite.** Several notes sit near the 8,000-char cap and capsules near 500.
   On overflow take a summary-style split or a genuine trim; `size_budget_exempt` is for
   content that cannot be split, not for prose you just added.
