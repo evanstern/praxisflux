@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/wiki/test-suite-catalog-plugins-gates.md
   - docs/wiki/test-suite-catalog-plugins-pipeline.md
-verified_against: fc15534bf70121710d1e4ee52c28cbefd4c7bd61
+verified_against: 8a7f6e0c4229bf29713b2d08f4e22f8c4e7bdea1
 ---
 
 # Test suite — per-file coverage catalog (plugin gates & seams)
