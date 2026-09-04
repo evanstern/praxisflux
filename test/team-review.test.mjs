@@ -207,22 +207,33 @@ test("run lifecycle: a same-second begin never overwrites — ids stay distinct"
   const target = makeTarget();
   const { home, env } = scratchHome();
   try {
-    // pre-create the record the next begin would pick for every plausible stamp this second
-    // spans, forcing the collision suffix; retry across the boundary if the clock rolled.
-    let collided = false;
-    for (let attempt = 0; attempt < 3 && !collided; attempt++) {
-      const stamp = new Date().toISOString().replace(/[:T]/g, "-").slice(0, 19);
-      const expected = `${target.split("/").pop()}-${stamp}`;
-      writeFileSync(join(home, `${expected}.json`), JSON.stringify({ id: expected, state: "in-flight" }));
-      const begin = cli(env, home, "begin", target);
-      assert.equal(begin.status, 0, begin.stderr);
-      const id = begin.stdout.match(/run (\S+) in flight/)[1];
-      assert.notEqual(id, expected, "begin must never reuse an existing run id");
-      collided = id === `${expected}x`;
-    }
-    assert.ok(collided, "collision suffix path never exercised across 3 attempts");
+    // $TEAM_REVIEW_RUN_STAMP (see run.mjs) pins the subprocess's stamp to exactly what this
+    // test pre-writes as collision bait — no race against the real clock, no retries.
+    const stamp = "2026-01-01-00-00-00";
+    env.TEAM_REVIEW_RUN_STAMP = stamp;
+    const expected = `${target.split("/").pop()}-${stamp}`;
+    writeFileSync(join(home, `${expected}.json`), JSON.stringify({ id: expected, state: "in-flight" }));
+    const begin = cli(env, home, "begin", target);
+    assert.equal(begin.status, 0, begin.stderr);
+    const id = begin.stdout.match(/run (\S+) in flight/)[1];
+    assert.notEqual(id, expected, "begin must never reuse an existing run id");
+    assert.equal(id, `${expected}x`, "collision suffix path must be exercised");
     const ids = readdirSync(home).map((f) => f.replace(/\.json$/, ""));
     assert.equal(new Set(ids).size, ids.length);
+  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
+});
+
+test("run lifecycle: with no stamp override, begin's id shape is unchanged from today", () => {
+  const target = makeTarget();
+  const { home, env } = scratchHome();
+  delete env.TEAM_REVIEW_RUN_STAMP; // production path — the test seam is inactive
+  try {
+    const begin = cli(env, home, "begin", target);
+    assert.equal(begin.status, 0, begin.stderr);
+    const id = begin.stdout.match(/run (\S+) in flight/)[1];
+    const name = target.split("/").pop();
+    assert.match(id, new RegExp(`^${name}-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}x*$`),
+      "id must still be <target>-<19-char timestamp>, optionally x-suffixed");
   } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
 });
 

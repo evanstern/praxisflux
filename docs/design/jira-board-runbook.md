@@ -9,7 +9,10 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 ordering, doctrine, and the log.
 
 **Status:** **signed-off (partial)** — Lane 0 **done** (TASK-104 merged `a875256`, board
-Done) · **Lanes 1–2 COMPLETE as authored** — Lane 1 TASK-109 merged (`0c97243`, v0.59.0); Lane 2 = TASK-114 + TASK-110 + TASK-111, **all three delivered as open PRs #133 / #134 / #135 awaiting operator review and serial merge** · **Lanes
+Done) · **Lanes 1–2 COMPLETE as authored** — Lane 1 TASK-109 merged (`0c97243`, v0.59.0);
+Lane 2 = TASK-114 + TASK-110 + TASK-111, of which **TASK-111 is merged** (PR #135, `e0ea7b2`,
+v0.59.3) and **TASK-110 (#134, v0.59.4) + TASK-114 (#133, v0.59.5) are reconciled and awaiting
+merge** · **Lanes
 3–4 HELD — NOT signed off** (TASK-112, TASK-113; see the premise-inversion checkpoint below)
 
 <!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
@@ -40,8 +43,14 @@ Done) · **Lanes 1–2 COMPLETE as authored** — Lane 1 TASK-109 merged (`0c972
   2026-08-28** (PR #130, merge `a875256`, v0.58.0) — the epic's last blocker is cleared and
   TASK-109 is now claimable. Remaining: **TASK-109, TASK-110, TASK-111 (signed off, Lanes
   1–2)**; **TASK-112, TASK-113 (HELD — not signed off, see F1/F2)**.
-- **Also carded this session:** TASK-114 (flaky `team-review` id test that gates every commit
-  and feeds the spec-bridge project-gate check) — not in this sweep's scope.
+- **TASK-114** (flaky `team-review` id test that gates every commit and feeds the
+  spec-bridge project-gate check) — carded 2026-08-28 as out of scope, **folded into Lane 2 at
+  operator request 2026-09-01** after it caused 55 phantom gate findings during TASK-109.
+- **TASK-115** — the "Open Brain grounding gate" card another session created on `main` as a
+  SECOND `TASK-108` (`a6e9e68`); both files claimed `id: TASK-108`, so the CLI silently
+  resolved only the epic and the newer card was invisible to the board. Renumbered to
+  TASK-115 by operator decision 2026-09-01 (`b1c4f31`), duplicate archived. Not in this
+  sweep's scope.
 - **Epic:** TASK-108 gets **no PR** (`docs/principles.md` P2).
 
 ## Execution lanes (dependency-ordered; parallelize within a lane)
@@ -62,11 +71,16 @@ Rule of thumb: DEVELOP in parallel, MERGE serially.
   schema, read/write/validate, staleness, the Backlog projector, `--check`. A published
   interface unblocks consumers even while its internals lag.
 
-**Lane 2 — after TASK-109's contract lands (two tasks, disjoint files, develop in parallel):**
+**Lane 2 — after TASK-109's contract lands (three tasks, disjoint files, parallel BRANCHES — see the dispatch constraint below):**
 - **TASK-110 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 053: `bridge.mjs` reads the mirror;
   `resolveRoots` stops keying on `hasChild("backlog")`; fail-closed on stale/missing board.
 - **TASK-111 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 054: `.board.json` config +
   `pdlc:peer:jira` planted block + `--peer jira`.
+- **TASK-114 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 059: the flaky same-second
+  run-id test. Folded into this lane at operator request 2026-09-01. Its spec was
+  hand-authored by the orchestrator (no pre-existing spec) under the escape line. It is a
+  top-level TASK, so it gets its OWN branch and PR — it does not ride TASK-110's or
+  TASK-111's branch.
 
 **Lane 3 — after TASK-111:**
 - **TASK-112 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 055: `docs/board-verbs.md`, the verb
@@ -126,6 +140,14 @@ but must still spot-check the first dispatch of any lane if the tier config has 
   docs/wiki` — which computes RE-PIN-ONLY vs NEEDS-REVIEW and prints executable re-pin
   commands for the safe half. **Re-pin volume is larger than it looks:** a marketplace
   version bump touches every `plugin.json`, so a released-surface PR can stale ~17 notes.
+- **Re-pins CASCADE — re-run the freshness gate AFTER committing them (found 2026-09-01,
+  TASK-114).** A note that is itself listed in another note's `sources:` propagates staleness
+  when re-pinned: bumping `docs/wiki/test-suite-catalog-plugins-gates.md`'s `verified_against`
+  line made its parent `test-suite-catalog-plugins.md` go stale, because the parent sources the
+  child FILE. One re-pin pass is therefore NOT enough — a pass that greens the gate before
+  committing can leave it red after. Run the freshness gate again once the re-pin commit
+  exists, and expect a possible second (cascading) re-pin. Hub/catalog notes that source other
+  notes are where this bites.
 - **F4 — PUSH AFTER EVERY PHASE, not just at the claim (learned 2026-09-03).** The
   claim-and-push-immediately rule saved this sweep when the entire repo relocated on disk
   mid-session (an extra path segment inserted by a sandbox remount), breaking all three sweep
@@ -167,6 +189,22 @@ but must still spot-check the first dispatch of any lane if the tier config has 
       `.claude/worktrees/task-<N>` (the harness isolation root, entered via `EnterWorktree`),
       not `.worktrees/`. Post-merge closures (tasks.md tick, `spec-bridge:sync` board-Done,
       the log row) ride the NEXT claimed task's branch; sweep-close lands via a wrap-up PR.
+- [ ] **F3 — ONE ORCHESTRATOR SESSION CANNOT HOST CONCURRENT DISPATCHES ACROSS SIBLING
+      WORKTREES (verified 2026-09-01, the hard way).** A dispatched subagent's Bash sandbox is
+      bound to the **orchestrator session's** current worktree, NOT the worktree named in its
+      dispatch prompt. So switching the orchestrator session to a sibling worktree — to claim
+      the next task, say — **breaks the Bash tool of every dispatch already running**, which
+      then correctly refuses to act (guard: "this command's working directory resolved to the
+      shared checkout <other worktree>"). Field case: TASK-110 and TASK-111 Phase 1 were
+      dispatched, the session then moved on to claim TASK-111 and TASK-114, and **both agents
+      lost Bash and stopped** — zero edits, zero commits, both worktrees clean. Both behaved
+      correctly: they refused to operate in a worktree they had no authority over and refused
+      to edit code they could not test or commit. **Consequence, checkable:** "develop in
+      parallel" in this runbook means parallel **BRANCHES** (real, and it holds — claims are
+      pushed and independent), never concurrent dispatches from one orchestrator session on
+      this harness. Dispatch **serially**, with the orchestrator session parked in the target
+      worktree for the whole duration of that dispatch. A sweep that reads "parallelize within
+      a lane" as "launch N implementers at once from one session" will lose every one of them.
 - [ ] **F2 — Atlassian MCP is HARD-BLOCKED on this host (verified 2026-08-28).** Three calls
       across two tools (`getAccessibleAtlassianResources`, `atlassianUserInfo`) and two AWS
       regions all returned an **AWS WAF CAPTCHA challenge page**, not a tool result — a

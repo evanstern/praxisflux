@@ -1,6 +1,6 @@
 {
   "name": "research",
-  "version": "0.59.3",
+  "version": "0.59.5",
   "description": "Gather cited facts into an isolated, interlinked Markdown thinking-vault branch (embed -> query -> render). Drop-anywhere.",
   "author": {
     "name": "praxisflux maintainers"
