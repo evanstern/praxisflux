@@ -3,11 +3,11 @@ id: TASK-110
 title: >-
   spec-bridge gate reads the mirror: provider-neutral verdicts, fail-closed on
   stale/missing board
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-04 21:45'
+updated_date: '2026-09-04 21:43'
 labels:
   - feature
   - gates
@@ -30,19 +30,19 @@ Spec: specs/053-bridge-on-mirror
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 boardLinks(root) implements mirror-first / live-backlog / empty; all three entry points use it
-- [ ] #2 backlog-only host produces byte-identical verdicts, messages, and planned commands
-- [ ] #3 mirror-only host yields identical problems+warnings for equivalent state (differential fixture pair)
-- [ ] #4 resolveRoots handles .board-only, backlog-only, and both; gates/cli.mjs resolves identically
-- [ ] #5 stale requiresSync mirror yields one blocking problem naming reason and remedy
-- [ ] #6 stale non-requiresSync mirror yields NO staleness problem (live projection preferred)
-- [ ] #7 declared requiresSync provider with absent mirror yields the blocking no-evidence problem (asserted by message content)
-- [ ] #8 planBridge returns structured intents for non-backlog providers; exact command strings for backlog
-- [ ] #9 test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files
-- [ ] #10 New coverage for AC 3-8; docs/wiki re-pinned (spec-bridge-plugin, gates-convention, project-root)
-- [ ] #11 Spec phase: Phase 1 — The seam and root resolution (behavior must not change)
-- [ ] #12 Spec phase: Phase 2 — The fail-closed findings (new behavior, isolated)
-- [ ] #13 Spec phase: Phase 3 — Planner split, differential proof, re-ground
+- [x] #1 boardLinks(root) implements mirror-first / live-backlog / empty; all three entry points use it
+- [x] #2 backlog-only host produces byte-identical verdicts, messages, and planned commands
+- [x] #3 mirror-only host yields identical problems+warnings for equivalent state (differential fixture pair)
+- [x] #4 resolveRoots handles .board-only, backlog-only, and both; gates/cli.mjs resolves identically
+- [x] #5 stale requiresSync mirror yields one blocking problem naming reason and remedy
+- [x] #6 stale non-requiresSync mirror yields NO staleness problem (live projection preferred)
+- [x] #7 declared requiresSync provider with absent mirror yields the blocking no-evidence problem (asserted by message content)
+- [x] #8 planBridge returns structured intents for non-backlog providers; exact command strings for backlog
+- [x] #9 test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files
+- [x] #10 New coverage for AC 3-8; docs/wiki re-pinned (spec-bridge-plugin, gates-convention, project-root)
+- [x] #11 Spec phase: Phase 1 — The seam and root resolution (behavior must not change)
+- [x] #12 Spec phase: Phase 2 — The fail-closed findings (new behavior, isolated)
+- [x] #13 Spec phase: Phase 3 — Planner split, differential proof, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -59,4 +59,14 @@ PHASE 2 COMPLETE (commit 051793e), verified independently. Suite 472 -> 477/477,
 PHASE 3 COMPLETE (commits 6c77479 planner split + differential proof, 5206515 version bump, 639a10f re-ground). Suite 477 -> 480/480, 0 fail. All four gates verified independently by the orchestrator: node --test 480/480; check-docs exit 0; sync-version --check 'all versions = 0.59.1'; freshness 40 notes fresh, no new warns. AC#9 HOLDS across the whole branch (three protected files byte-identical) — which is also what proves the planner split is byte-faithful, since those files assert exact command strings. THE SPLIT'S HARD LINE HOLDS: grep for index/sort/reverse/slice inside renderBacklog finds NOTHING — all ordering arithmetic stayed in planIntents. The ordering test is real proof, not a formality: it asserts acRemove deepEquals [4,2] (highest-index-first) and acUncheck deepEquals [2] (Setup renumbered post-removal), then asserts renderBacklog(id, intents) deepEquals planLinkedTask(task, derived) — so the split is proven both structurally and byte-for-byte. planLinkedTask survives as a thin wrapper because the PROTECTED test file imports it by name; keeping it was correct, not laziness. Differential test (AC#3) builds two temp projects over identical spec dirs — one backlog/tasks/*.md, one .board/links.json with matching id/status/specDir — and asserts problems and warnings deepEqual AND non-empty on both channels, so it cannot pass trivially on two empty results. ORCHESTRATOR ERROR CAUGHT BY THE IMPLEMENTER: my dispatch asserted main had moved to 0.59.1 because PR #133 merged. It has NOT — #133 is still OPEN and origin/main is 0.59.0 (verified: gh pr view 133 state=OPEN mergedAt=null; git show origin/main:.claude-plugin/marketplace.json = 0.59.0). The agent trusted the tool output over my prompt and flagged it rather than reconciling, which is exactly right. CONSEQUENCE: task-110 and task-114 BOTH claim 0.59.1 — a real collision. Whichever PR merges second must renumber to 0.59.2 and re-pin the notes that bump stales. Operator decision on merge order pending. Also: gates-convention.md never appeared in either freshness plan run (its sources were untouched by phases 1-3), so it was correctly NOT re-pinned despite my dispatch naming it — tool output over prompt anticipation again.
 
 PR #134 OPENED (https://github.com/evanstern/praxisflux/pull/134), branch task-110-bridge-on-mirror, 7 commits c9a5354..e27c9d1. OWED BEFORE MERGE (operator ruling 2026-09-01, merge #133 first): renumber 0.59.1 -> 0.59.2 and re-pin the ~12 notes that bump stales, after #133 lands and this branch reconciles with fresh origin/main. The PR body carries a merge-order warning at the top so a reviewer cannot merge it out of order by accident. NOT self-merged. MUST MERGE AS A MERGE COMMIT, never squash — 639a10f re-pins 12 notes to 5206515, and squashing orphans those hashes and breaks the freshness gate. This branch is PIN-CARRYING, so at reconcile time it MERGES origin/main IN (never rebase, never force-push): rebasing would rewrite the hashes its own re-pins reference. Per the honest-re-pin rule, the merge-in itself licenses no pin bump — classify each staled pin RE-PIN-ONLY vs NEEDS-REVIEW against the main-side diff over that note's sources and amend prose before bumping.
+
+spec-bridge sync: Phase 1 — The seam and root resolution (behavior must not change): 11/11 · Phase 2 — The fail-closed findings (new behavior, isolated): 7/7 · Phase 3 — Planner split, differential proof, re-ground: 9/9 — status In Progress → Done
+
+MERGED — PR #134 merged 2026-09-04 as 5377710, v0.59.6 on main. Verified it landed as a MERGE COMMIT (3 tokens from git rev-list --parents: commit + 2 parents) and that the branch tip 997807c is an ancestor of origin/main, so every hash this branch's 12 wiki re-pins reference stays reachable and the freshness gate holds. Required TWO reconciles: the first (0.59.4) went stale when #133 merged 0.59.5, so a second merge-in took it to 0.59.6. ORCHESTRATOR SLIP CAUGHT BY CI, worth recording: sync-version.mjs 0.59.6 was run BEFORE the merge commit but only the conflicted paths were staged, so the bump sat uncommitted in the working tree and the merge shipped main's 0.59.5 unchanged. Local 'sync-version --check' read the DIRTY WORKING TREE and reported 0.59.6 — green-looking while HEAD said otherwise. CI's check-version-bump was right ('base 0.59.5, head 0.59.5'). Fixed in 3fcd64f with the 11 staled notes re-pinned in 997807c. LESSON: a gate run against a dirty working tree proves nothing about the commit — verify with 'git show HEAD:<file>', not by reading the file on disk. This is the one place all session where local --check output diverged from committed reality, and only CI caught it. Also note the card-merge resolution took main's older copy of this file, which had lost the claim's status flip; the derived plan correctly reported 'To Do -> Done' and the flip was reapplied here. Board moved to Done by the derived plan, never hand-set.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The seam and root resolution (behavior must not change): 11/11 · Phase 2 — The fail-closed findings (new behavior, isolated): 7/7 · Phase 3 — Planner split, differential proof, re-ground: 9/9). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->

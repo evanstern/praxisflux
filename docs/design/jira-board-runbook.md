@@ -9,10 +9,7 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 ordering, doctrine, and the log.
 
 **Status:** **signed-off (partial)** — Lane 0 **done** (TASK-104 merged `a875256`, board
-Done) · **Lanes 1–2 COMPLETE as authored** — Lane 1 TASK-109 merged (`0c97243`, v0.59.0);
-Lane 2 = TASK-114 + TASK-110 + TASK-111, of which **TASK-111 is merged** (PR #135, `e0ea7b2`,
-v0.59.3) and **TASK-110 (#134, v0.59.4) + TASK-114 (#133, v0.59.5) are reconciled and awaiting
-merge** · **Lanes
+Done) · **Lanes 1–2 COMPLETE AND MERGED** — Lane 1 TASK-109 (`0c97243`, v0.59.0); Lane 2 all three merged: TASK-111 (#135, `e0ea7b2`, v0.59.3), TASK-114 (#133, `dafff60`, v0.59.5), TASK-110 (#134, `5377710`, v0.59.6) · **Lanes
 3–4 HELD — NOT signed off** (TASK-112, TASK-113; see the premise-inversion checkpoint below)
 
 <!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
@@ -174,6 +171,19 @@ but must still spot-check the first dispatch of any lane if the tier config has 
   `ls -d "$(git config --get core.hooksPath)"` resolves before trusting local enforcement; CI
   remains the authoritative gate either way (`CLAUDE.md`'s enforcement-split doctrine), which
   is exactly why that split exists.
+- **F6 — A GATE RUN AGAINST A DIRTY WORKING TREE PROVES NOTHING ABOUT THE COMMIT
+  (found 2026-09-04, by CI, not locally).** During TASK-110's second reconcile,
+  `sync-version.mjs 0.59.6` was run *before* the merge commit, but only the conflicted paths
+  were staged — so the bump sat **uncommitted in the working tree** and the merge shipped
+  main's version unchanged. Local `sync-version.mjs --check` then read the dirty tree and
+  reported `0.59.6`: green-looking, while `git show HEAD:.claude-plugin/marketplace.json` said
+  `0.59.5`. CI's `check-version-bump.mjs` was right (`base 0.59.5, head 0.59.5`) and was the
+  only thing that caught it. **Consequence, checkable:** verify a commit's content with
+  `git show HEAD:<file>`, never by reading the file on disk, and treat every `--check` run as
+  a statement about the *tree* until the tree is clean (`git status --porcelain` empty). This
+  is the second finding this sweep where CI beat the local gate (see F5) — together they are
+  the concrete case for the repo's enforcement split: local checks are advisory, **CI is
+  authoritative**.
 - **Note budgets bite.** Several notes sit near the 8,000-char cap and capsules near 500.
   On overflow take a summary-style split or a genuine trim; `size_budget_exempt` is for
   content that cannot be split, not for prose you just added.
@@ -320,13 +330,37 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 - `git worktree list` shows no stale sweep worktrees.
 - This file's execution log complete and its status flipped to **done**.
 
+## Sweep status: Lanes 0–2 DONE (2026-09-04); Lanes 3–4 HELD
+
+**Delivered and merged:** TASK-104 (`a875256`, v0.58.0) · TASK-107 (`05bb793`) ·
+TASK-109 (`0c97243`, v0.59.0) · TASK-111 (`e0ea7b2`, v0.59.3) · TASK-114 (`dafff60`,
+v0.59.5) · TASK-110 (`5377710`, v0.59.6). Every one Done on the board via
+`spec-bridge:sync`'s derived plan, never hand-set; every PR landed as a merge commit so
+the wiki pins referencing branch commits stay reachable.
+
+**Still owed, and NOT this sweep's to take:** TASK-112 (spec 055) and TASK-113 (spec 056)
+remain **held** on findings **F1** (spec 055 builds the `<!-- spec-phases -->` mechanism
+while spec 056 Phase 1 is the only test of whether those markers survive a Jira
+write→read cycle — and it runs *after*) and **F2** (the Atlassian MCP is CAPTCHA-walled on
+this host, so that test cannot run here). TASK-108, the epic, stays open with **no PR of
+its own** (`docs/principles.md` P2). Clearing F1/F2 needs an operator decision, not more
+implementation.
+
+**Six findings this sweep produced**, all recorded above as checkable gate lines rather
+than prose: F1 premise inversion · F2 MCP hard-blocked · F3 no concurrent cross-worktree
+dispatches · F4 push after every phase · F5 `core.hooksPath` breaks silently on relocation
+· F6 a gate run against a dirty tree proves nothing. F3, F4, and F6 came from
+orchestrator errors; F5 was surfaced by an implementer. F5 and F6 are both cases where
+**CI caught what the local gate missed** — the concrete argument for the repo's
+advisory-local / authoritative-CI split.
+
 ## Execution log
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-08-28 | TASK-107 | — (board track, direct to `main`) | `05bb793` | ~257k subagent tokens (3 probes) | Done. Tier pins verified to actually serve via the 9router ledger, not self-report. Unblocked the epic by one of its two deps. |
 | 2026-08-28 | TASK-109 | [#132](https://github.com/evanstern/praxisflux/pull/132) | `0c97243` | ~686k subagent tokens (4 phase dispatches: ~158k + ~146k + ~147k + ~235k) | **Done.** Lane 1 complete; v0.59.0. Claim `415d5c8` (atomic: status flip + 4 phase ACs seeded from spec 052 tasks.md — the spec dir and Spec marker already existed on main under the hand-authored escape line). Phases: 1 `14b4577` (schema + read/write/validate, +9 tests), 2 `5580d51` (parser MOVED out of bridge.mjs, −46 lines, re-exported), 3 `412c935` (staleness + provider registry + projector, +7 tests), 4 `19e7a67`+`edea9b8`+`4694352`+`990b61f`+`5c47903` (--check CLI +3 tests, dogfood mirror, 0.59.0 bump, 12-note re-ground). All dispatches sonnet · `cc/claude-sonnet-5[1m]`; served model is pin-consistent self-report, NOT ledger-proven — every implementer stated it had no harness-provided evidence of its identity (router admin API rejects `ANTHROPIC_AUTH_TOKEN`). Orchestrator verified independently, not on report: suite 468/468, check-docs 0, versions 0.59.0, freshness exit 0; AC#9's three protected test files byte-identical across the whole branch; no provider-name conditional in `lib/`; ZERO new or widened `size_budget_exempt`. Merged as a merge commit (pins stay reachable); operator merged after review. Board Done via `spec-bridge:sync`'s derived plan, never by hand. **Gate lesson:** 55 Stop-hook findings reading 'required gate "tests" is red' were the TASK-114 flake, not misattribution — see TASK-114 for the confirmed mechanism and three ruled-out causes. |
-| 2026-09-01 | TASK-114 | [#133](https://github.com/evanstern/praxisflux/pull/133) | _open_ | ~660k subagent tokens (3 dispatches) | **PR open, awaiting review.** v0.59.1. Folded into Lane 2 at operator request; spec 059 hand-authored by the orchestrator. Fixed the same-second run-id flake that had amplified one red gate into 55 phantom findings. **Proof: 20/20 consecutive suite runs, 469 pass / 0 fail each, zero failure markers** — read from the raw log by the orchestrator, not from a summary. 8 lines of production code. Findings: re-pins CASCADE (a note in another note's `sources:` staleness-propagates), and F3 (one orchestrator session cannot host concurrent cross-worktree dispatches). |
-| 2026-09-01 | TASK-110 | [#134](https://github.com/evanstern/praxisflux/pull/134) | _open_ | ~640k subagent tokens (3 phase dispatches + 1 lost to F3) | **PR open, awaiting review.** Claims 0.59.1, **owes a renumber to 0.59.2** after #133 merges. `boardLinks(root)` seam, `hasAnyChild` in both resolvers in lockstep, R3/R4 fail-closed findings (as `problems`, never warnings — `gate-runner` swallows warnings), planner split with all ordering in `planIntents`, and a differential test asserting mirror and live paths are indistinguishable. Suite 480/480. |
-| 2026-09-03 | TASK-111 | [#135](https://github.com/evanstern/praxisflux/pull/135) | _open_ | ~540k subagent tokens (3 phase dispatches + 2 lost to F3/relocation) | **PR open, awaiting review.** v0.59.3 (deliberately after both siblings). `.board.json` config with NO silent unknown-provider fallback, two deliberately-separate provider tables, `jira` peer + mutual exclusion, `pdlc:peer:jira` block with zero backlog verbs. Suite 483/483. Survived the repo relocation with nothing lost → finding **F4** (push after every phase, not just the claim). The re-pin cascade fired **twice** here. |
+| 2026-09-01 | TASK-114 | [#133](https://github.com/evanstern/praxisflux/pull/133) | `dafff60` | ~660k subagent tokens (3 dispatches) | **Done** (v0.59.5, merged 2026-09-04). Folded into Lane 2 at operator request; spec 059 hand-authored by the orchestrator. Fixed the same-second run-id flake that had amplified one red gate into 55 phantom findings. **Proof: 20/20 consecutive suite runs, 469 pass / 0 fail each, zero failure markers** — read from the raw log by the orchestrator, not from a summary. 8 lines of production code. Findings: re-pins CASCADE (a note in another note's `sources:` staleness-propagates), and F3 (one orchestrator session cannot host concurrent cross-worktree dispatches). |
+| 2026-09-01 | TASK-110 | [#134](https://github.com/evanstern/praxisflux/pull/134) | `5377710` | ~640k subagent tokens (3 phase dispatches + 1 lost to F3) | **Done** (v0.59.6, merged 2026-09-04 — took TWO reconciles as the sibling merges moved main; CI caught an uncommitted-bump slip the local gate missed). `boardLinks(root)` seam, `hasAnyChild` in both resolvers in lockstep, R3/R4 fail-closed findings (as `problems`, never warnings — `gate-runner` swallows warnings), planner split with all ordering in `planIntents`, and a differential test asserting mirror and live paths are indistinguishable. Suite 480/480. |
+| 2026-09-03 | TASK-111 | [#135](https://github.com/evanstern/praxisflux/pull/135) | `e0ea7b2` | ~540k subagent tokens (3 phase dispatches + 2 lost to F3/relocation) | **Done** (v0.59.3, merged 2026-09-03 — merged FIRST, inverting the planned order). `.board.json` config with NO silent unknown-provider fallback, two deliberately-separate provider tables, `jira` peer + mutual exclusion, `pdlc:peer:jira` block with zero backlog verbs. Suite 483/483. Survived the repo relocation with nothing lost → finding **F4** (push after every phase, not just the claim). The re-pin cascade fired **twice** here. |
 | 2026-08-28 | TASK-104 | [#130](https://github.com/evanstern/praxisflux/pull/130) | `a875256` | ~407k subagent tokens (3 phase dispatches: ~152k + ~122k + ~133k) | **Done.** Lane 0 complete. Claim `3615c12` (atomic: card + spec 058 + link, pushed). All 4 phases: 1 `0608633` (resolver, +6 tests), 2 `c05631c` (wiring, +3/−7 in spec-derive), 3 `1b3e6f8` (+6 integration tests, AC1–AC8), 4 `70716f9` (re-pins + 0.58.0), plus `0d8685f` (the 11 notes the bump staled). All dispatches sonnet · `cc/claude-sonnet-5[1m]`, served model confirmed via router ledger. Merged as a merge commit (pins stay reachable); operator merged after review. Board moved to Done by `spec-bridge:sync`'s derived plan, never by hand. Suite 449/449; freshness exit 0; bridge check exit 0. |
