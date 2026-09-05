@@ -6,9 +6,10 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL, excludeSet } from "../pdlc/scripts/plant.mjs";
 import { generate, validateConfig, agentPath, CONFIG_PATH, GENERATED_MARKER } from "../pdlc/scripts/tiers.mjs";
 import { parseFrontmatter } from "../lib/markdown.mjs";
+import { ensureExclude } from "../lib/installer.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "CLAUDE.md"), "utf8");
@@ -795,4 +796,65 @@ test("the planted tier section teaches host-form IDs, dual pin mechanisms, and t
   assert.match(section, /2026-07-31/, "the dispatch-param field case");
   assert.match(section, /2026-08-10/, "the frontmatter-pin counter-case");
   assert.match(section, /session/i, "the agent registry is read at session start");
+});
+
+// --- local-only planting: exclude helper + scoped set (spec 060, Phase 1) ---
+
+/** A real (non-worktree) git repo in a fresh temp dir. */
+function gitRoot() {
+  const root = mkdtempSync(join(tmpdir(), "pdlc-git-"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  return { root, done: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+test("excludeSet: always-on lines only when no peers/hooks opted in; each opt-in adds exactly its lines", () => {
+  const base = excludeSet({ peers: [], hooks: [] });
+  assert.ok(!base.includes("/backlog/") && !base.includes("/.specify/"));
+  assert.ok(!base.includes("/.claude/settings.json") && !base.includes("/.claude/hooks/"));
+  for (const always of ["/.pdlc", "/CLAUDE.md", "/AGENTS.md", "/.handoff/", "/.worktrees/", "/specs/", "/docs/wiki/"]) {
+    assert.ok(base.includes(always), `always-on line ${always} missing`);
+  }
+  assert.deepEqual(excludeSet({ peers: ["backlog"] }).filter((l) => !base.includes(l)), ["/backlog/"]);
+  assert.deepEqual(excludeSet({ peers: ["spec-kit"] }).filter((l) => !base.includes(l)), ["/.specify/"]);
+  assert.deepEqual(
+    excludeSet({ hooks: ["root-guard"] }).filter((l) => !base.includes(l)),
+    ["/.claude/settings.json", "/.claude/hooks/"],
+  );
+  assert.equal(excludeSet().length, base.length, "no-args defaults to peers/hooks off");
+});
+
+test("ensureExclude: writes .git/info/exclude, idempotent, appends only missing lines", () => {
+  const { root, done } = gitRoot();
+  try {
+    const first = ensureExclude(root, ["/.pdlc", "/CLAUDE.md"]);
+    assert.deepEqual(first, { status: "added", added: ["/.pdlc", "/CLAUDE.md"] });
+    const excludePath = join(root, ".git", "info", "exclude");
+    const lines = readFileSync(excludePath, "utf8").split("\n");
+    assert.ok(lines.includes("/.pdlc") && lines.includes("/CLAUDE.md"));
+
+    const again = ensureExclude(root, ["/.pdlc", "/CLAUDE.md"]);
+    assert.deepEqual(again, { status: "unchanged", added: [] });
+
+    const grew = ensureExclude(root, ["/.pdlc", "/backlog/"]);
+    assert.deepEqual(grew, { status: "added", added: ["/backlog/"] }, "only the new line is added");
+    assert.equal(readFileSync(excludePath, "utf8").split("\n").filter((l) => l === "/.pdlc").length, 1);
+  } finally { done(); }
+});
+
+test("ensureExclude: .git as a worktree pointer file writes to the resolved gitdir", () => {
+  const { primary, wt, done } = gitPair("primary-exclude", "wt-exclude");
+  try {
+    const r = ensureExclude(wt, ["/.pdlc"]);
+    assert.equal(r.status, "added");
+    const realGitDir = join(primary, ".git", "worktrees", "wt-exclude");
+    assert.ok(readFileSync(join(realGitDir, "info", "exclude"), "utf8").includes("/.pdlc"));
+  } finally { done(); }
+});
+
+test("ensureExclude: no .git degrades to a reported no-git result, nothing written, never throws", () => {
+  const { root, done } = proj();
+  try {
+    assert.deepEqual(ensureExclude(root, ["/.pdlc"]), { status: "no-git", added: [] });
+    assert.ok(!existsSync(join(root, ".git")));
+  } finally { done(); }
 });

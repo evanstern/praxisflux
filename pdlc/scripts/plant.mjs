@@ -51,6 +51,25 @@ export const HOOKS = ["root-guard"];
 // The two files the root-guard hook needs in the host (the .mjs imports the scanner).
 const ROOT_GUARD_FILES = ["root-guard-hook.mjs", "shell-scan.mjs"];
 export const SENTINEL = ".pdlc";
+// Local-only planting mode (spec 060). Always-on: every artifact pdlc's OWN plant creates
+// or a peer init creates that the sweep touches regardless of which peer CLI is installed
+// (specs/, docs/wiki/ — this repo hand-authors both with no spec-kit). Peer- and
+// hook-conditional lines are added only for what was actually opted into (R2) — excluding a
+// path the host's own team tracks would hide their files from their own `git status`.
+const ALWAYS_ON_EXCLUDES = [
+  "/.pdlc", "/CLAUDE.md", "/AGENTS.md", "/.handoff/", "/.worktrees/",
+  "/specs/", "/docs/wiki/", "/.claude/agents/", "/.claude/model-tiers.json",
+  "/.claude/commands/", "/.claude/skills/",
+];
+
+/** The scoped `.git/info/exclude` line set for `{ peers, hooks }` (spec 060 R2). */
+export function excludeSet({ peers = [], hooks = [] } = {}) {
+  const lines = [...ALWAYS_ON_EXCLUDES];
+  if (peers.includes("backlog")) lines.push("/backlog/");
+  if (peers.includes("spec-kit")) lines.push("/.specify/");
+  if (hooks.includes("root-guard")) lines.push("/.claude/settings.json", "/.claude/hooks/");
+  return lines;
+}
 const BEGIN = /^<!-- pdlc:grounding BEGIN\b.*$/m;
 const END = "<!-- pdlc:grounding END -->";
 
