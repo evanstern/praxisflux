@@ -3,10 +3,11 @@ id: TASK-116
 title: >-
   pdlc:bootstrap — local-only planting mode: PDLC artifacts ride
   .git/info/exclude so a host repo's tracked tree stays untouched
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-05 00:18'
-updated_date: '2026-09-05 00:19'
+updated_date: '2026-09-05 00:27'
 labels:
   - pdlc
   - feature
@@ -33,6 +34,8 @@ kofile/ai-coe-plugins has been running the alternative by hand since 2026-08-27 
 Export the pattern: a local-only mode on `plant.mjs` that writes the same artifacts but routes the ignore lines to `.git/info/exclude`, records the mode in the `.pdlc` sentinel so `--check` and re-plants stay idempotent, and is OFFERED BY THE BOOTSTRAP SKILL as an explicit operator question — the same shape as the existing peer and hook opt-ins, not a flag you have to already know about. Bootstrap should ask whether this project is one we own (tracked planting, today's default) or one we are a guest in (local-only), and recommend based on what it can see: a repo whose remote/tracked tree shows no prior PDLC adoption is the guest case.
 
 Two real edges. `.git/info/exclude` does not exist before `git init` — bootstrap already handles the pre-git case and must degrade the same way. And the exclude entries have to land BEFORE the artifacts are written, or the first plant dirties `git status` in exactly the repo where that is the whole point.
+
+Spec: specs/060-local-only-planting
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
