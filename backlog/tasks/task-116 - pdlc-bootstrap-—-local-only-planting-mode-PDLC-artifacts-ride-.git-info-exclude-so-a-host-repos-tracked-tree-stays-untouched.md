@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-05 00:18'
-updated_date: '2026-09-05 00:27'
+updated_date: '2026-09-05 00:31'
 labels:
   - pdlc
   - feature
@@ -48,4 +48,9 @@ Spec: specs/060-local-only-planting
 - [ ] #6 Pre-git-init hosts degrade the same way tracked planting already does, with no crash and a stated next step
 - [ ] #7 test/pdlc.test.mjs pins local-only planting: exclude file targeted, .gitignore untouched, ordering, sentinel round-trip, and the bootstrap question's presence in SKILL.md
 - [ ] #8 Wiki re-pinned for any note whose sources this change touches; gates green
+- [ ] #9 Spec phase: Phase 1 — The exclude helper and the scoped set
+- [ ] #10 Spec phase: Phase 2 — Wire local-only into plant(), ordering first
+- [ ] #11 Spec phase: Phase 3 — Sentinel round-trip and mode-switch drift
+- [ ] #12 Spec phase: Phase 4 — The bootstrap question
+- [ ] #13 Spec phase: Phase 5 — Bump, re-ground, PR
 <!-- AC:END -->
