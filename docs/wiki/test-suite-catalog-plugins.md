@@ -1,11 +1,11 @@
 ---
 name: test-suite-catalog-plugins
-description: Entry point for the plugin half of the per-file test-suite map, split summary-style into two children — test-suite-catalog-plugins-gates (single-plugin output-gate suites: grounding-wiki, phase-status, reorient, research, spec-bridge, spec-derive, team-review, and pdlc's own gate suites one hop further at test-suite-catalog-plugins-gates-pdlc) and test-suite-catalog-plugins-pipeline (content-authoring pipeline and cross-plugin handoff suites: codebase-to-course, educate, toolkit-borrow). Repo-tooling suites live in test-suite-catalog.
+description: Entry point for the plugin half of the per-file test-suite map, split summary-style into two children — test-suite-catalog-plugins-gates (single-plugin output-gate suites; pdlc's own gate suites split further into test-suite-catalog-plugins-gates-pdlc) and test-suite-catalog-plugins-pipeline (content-authoring pipeline and cross-plugin handoff suites). Repo-tooling suites live in test-suite-catalog.
 kind: pattern
 sources:
   - docs/wiki/test-suite-catalog-plugins-gates.md
   - docs/wiki/test-suite-catalog-plugins-pipeline.md
-verified_against: 04d29d987abdb5249520e22dc79b875b592ce992
+verified_against: d0cf1f6cee60de1a9ee6588f7ef6b18057a250b8
 ---
 
 # Test suite — per-file coverage catalog (plugin gates & seams)
