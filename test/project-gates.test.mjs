@@ -101,14 +101,13 @@ test("evaluator fail-closed: a timed-out command is a blocking finding, never gr
  * Through the real Stop-hook wiring (checkBridge at Done-eligible), the message names the phase,
  * the box, and the failing gate — byte-for-byte. */
 
-test("blocking: Done-eligible spec + a red required gate blocks, naming phase, box, and gate", () => {
+test("blocking: Done-eligible spec + a red required gate blocks, naming the gate and affected count (spec 061 R1: collapsed, not per-spec)", () => {
   const p = project();
   try {
     bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
     const { problems, warnings } = checkBridge(p.root, { run: RED("exited 1") });
     assert.deepEqual(problems, [
-      `[spec-bridge] TASK-1 · specs/001-a: phase "Prove", box "node --test green" is ticked, but ` +
-      `the required gate "tests" is red (exited 1). ${TAIL}`,
+      `[spec-bridge] the required gate "tests" is red (exited 1) — 1 linked spec affected. ${TAIL}`,
     ]);
     assert.deepEqual(warnings, []); // a red gate is a problem, never a warning
   } finally { p.done(); }
@@ -152,8 +151,7 @@ test("boundary: the same redByConstruction gate red at Done-eligible blocks, nam
   try {
     bridged(p, "Done", ALL_DONE, BOTH_BUCKETS); // identical config to the allowance case; only the tick-state differs
     const expected = [
-      `[spec-bridge] TASK-1 · specs/001-a: phase "Prove", box "node --test green" is ticked, but ` +
-      `the red-by-construction gate "freshness" is red (exited 1). ${TAIL}`,
+      `[spec-bridge] the red-by-construction gate "freshness" is red (exited 1) — 1 linked spec affected. ${TAIL}`,
     ];
     // The Stop hook (checkBridge) evaluates BOTH buckets at Done-eligible…
     assert.deepEqual(checkBridge(p.root, { run: testsGreenFreshnessRed }).problems, expected);
@@ -227,7 +225,7 @@ test("defect 1: an injected run bypasses SPEC_BRIDGE_GATE_ACTIVE; the default ru
  * still spawn each command exactly once (not N×), while every spec gets its OWN finding naming its
  * own phase/box/gate — the gate RESULT is shared, never the finding. */
 
-test("defect 2: node --test is spawned ONCE across many Done-eligible specs, not once per spec", () => {
+test("defect 2 + spec 061 R1: node --test is spawned ONCE across many Done-eligible specs, and now yields ONE collapsed finding naming the count", () => {
   const p = project();
   try {
     p.config(REQUIRED_ONLY);
@@ -239,12 +237,14 @@ test("defect 2: node --test is spawned ONCE across many Done-eligible specs, not
     const spawned = [];
     const run = (cmd) => { spawned.push(cmd.join(" ")); return { ok: false, kind: "red", reason: "exited 1" }; };
     const { problems } = checkBridge(p.root, { run });
-    assert.equal(problems.length, N, "every Done-eligible spec still gets its own finding");
+    assert.deepEqual(problems, [
+      `[spec-bridge] the required gate "tests" is red (exited 1) — ${N} linked specs affected. ${TAIL}`,
+    ]);
     assert.deepEqual(spawned, ["node --test"], `expected a single spawn; got: ${JSON.stringify(spawned)}`);
   } finally { p.done(); }
 });
 
-test("defect 2: verifyBridge shares one gate result across specs — one spawn, one finding each", () => {
+test("defect 2 + spec 061 R1: verifyBridge shares one gate result across specs — one spawn, one collapsed finding naming the count", () => {
   const p = project();
   try {
     p.config(REQUIRED_ONLY);
@@ -256,8 +256,57 @@ test("defect 2: verifyBridge shares one gate result across specs — one spawn, 
     const spawned = [];
     const run = (cmd) => { spawned.push(cmd.join(" ")); return { ok: false, kind: "red", reason: "exited 1" }; };
     const problems = verifyBridge(p.root, { run });
-    assert.equal(problems.length, N, "every mid-PR spec with a ticked box gets its own finding");
+    assert.deepEqual(problems, [
+      `[spec-bridge] the required gate "tests" is red (exited 1) — ${N} linked specs affected. ${TAIL}`,
+    ]);
     assert.deepEqual(spawned, ["node --test"], `expected a single spawn; got: ${JSON.stringify(spawned)}`);
+  } finally { p.done(); }
+});
+
+/* ── spec 061 R1/R3.1: the fan-out regression, with its negative control ─────────────────────
+ * Pre-fix, one red gate produced one finding PER Done-eligible linked spec (see the defect-2
+ * tests above, which used to assert problems.length === N). Post-fix it must be exactly ONE,
+ * naming the gate and the affected count. The negative control (`notEqual(..., N)`) is what
+ * makes this a regression test rather than a tautology: an assertion of `=== 1` alone would
+ * also pass by coincidence if N happened to be 1, so the control pins N >= 2 and asserts the
+ * fixed count is NOT the old fan-out count. */
+
+test("R1 fan-out collapse: a red required gate + N (>=2) Done-eligible specs yields exactly ONE finding naming the gate, not N (negative control: pre-fix behavior was N)", () => {
+  const p = project();
+  try {
+    p.config(REQUIRED_ONLY);
+    const N = 3;
+    for (let i = 1; i <= N; i++) {
+      p.task(`TASK-${i}`, "Done", `Spec: specs/00${i}-a/`);
+      p.spec(`specs/00${i}-a`, { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    }
+    const { problems } = checkBridge(p.root, { run: RED("exited 1") });
+    // Negative control: pre-fix behavior was ONE finding PER spec (N total) — this would be
+    // true under the defect and false only once collapsed.
+    assert.notEqual(problems.length, N, `pre-fix fan-out would yield ${N} findings, one per spec`);
+    assert.equal(problems.length, 1, "one red gate must yield exactly one finding, not one per linked spec");
+    assert.match(problems[0], /"tests"/, "the single finding must name the failing gate");
+    assert.match(problems[0], new RegExp(String(N)), "the finding must state the affected count");
+  } finally { p.done(); }
+});
+
+test("R1 fan-out collapse: verifyBridge collapses the same way, preserving the bucket asymmetry", () => {
+  const p = project();
+  try {
+    p.config(BOTH_BUCKETS);
+    const N = 3;
+    for (let i = 1; i <= N; i++) {
+      p.task(`TASK-${i}`, "Done", `Spec: specs/00${i}-a/`); // Done-eligible: held to BOTH buckets
+      p.spec(`specs/00${i}-a`, { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    }
+    p.task("TASK-99", "In Progress", "Spec: specs/099-mid/"); // mid-PR: required only
+    p.spec("specs/099-mid", { "spec.md": "s", "plan.md": "p", "tasks.md": MID_PR });
+    const problems = verifyBridge(p.root, { run: testsGreenFreshnessRed });
+    // redByConstruction ("freshness") counts only the 3 Done-eligible specs it applies to —
+    // the mid-PR spec is never held to it, so it must NOT inflate the count to 4.
+    assert.deepEqual(problems, [
+      `[spec-bridge] the red-by-construction gate "freshness" is red (exited 1) — ${N} linked specs affected. ${TAIL}`,
+    ]);
   } finally { p.done(); }
 });
 

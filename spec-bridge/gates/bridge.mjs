@@ -228,14 +228,16 @@ function gateReason(result) {
   return `is red (${result.reason})`;
 }
 
+/** Shared tail clause for every project-gate finding, per-spec or collapsed alike. */
+const CANT_OUTRUN = "A ticked tasks.md checkbox cannot outrun a red project gate — make the gate pass or set the box back.";
+
 /** The blocking finding: names the phase, the box, and the failing gate (spec 050 AC #1). */
 function projectGateProblem({ id, specDir, witness, gate, result }) {
   const where = witness
     ? `phase "${witness.phase}", box "${witness.box}" is ticked, but `
     : "a ticked box stands over a gate that ";
   const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
-  return `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ` +
-    `A ticked tasks.md checkbox cannot outrun a red project gate — make the gate pass or set the box back.`;
+  return `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ${CANT_OUTRUN}`;
 }
 
 /**
@@ -244,6 +246,12 @@ function projectGateProblem({ id, specDir, witness, gate, result }) {
  * gate list (the caller picks the buckets — the two entry points differ there); `run` executes one
  * command and returns runGateCommand's shape (injected so tests need no subprocess). The witness box
  * is computed once from phaseBoxes so every finding names it.
+ *
+ * NOTE (spec 061 R1): `checkBridge`/`verifyBridge` no longer call this directly — one red project
+ * gate now yields ONE collapsed finding per invocation naming the gate and the affected count
+ * (see `collapsedGateProblems` below), not one finding per linked spec. This function remains the
+ * pure per-spec evaluator: exported for direct testing of the per-gate/per-spec decision logic,
+ * and available to any caller that wants the per-spec witness view (e.g. `cli.mjs state <specDir>`).
  */
 export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
   const witness = lastTickedBox(phaseBoxes);
@@ -252,6 +260,31 @@ export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
     const result = run(gate.command);
     if (result.ok) continue;
     problems.push(projectGateProblem({ id, specDir, witness, gate, result }));
+  }
+  return problems;
+}
+
+/**
+ * Collapsed evaluator (spec 061 R1): run each distinct gate ONCE (via the memoized `runOne`) and
+ * return at most one finding per non-green gate, naming the gate + bucket + `gateReason` + how
+ * many qualifying specs are affected — never enumerating them. `counts` is `{ required,
+ * redByConstruction }`, the number of specs the caller has already determined are held to each
+ * bucket (checkBridge: every Done-eligible spec, held to both; verifyBridge: every ticked spec
+ * for `required`, only the Done-eligible ones for `redByConstruction` — the bucket asymmetry).
+ * A gate whose bucket count is 0 is never even run — no spec is holding it, so nothing changes
+ * about WHICH gates run for WHICH specs, only how a non-green one is reported.
+ */
+function collapsedGateProblems(gates, counts, runOne) {
+  const problems = [];
+  for (const gate of gates) {
+    const count = counts[gate.bucket] ?? 0;
+    if (count === 0) continue;
+    const result = runOne(gate.command);
+    if (result.ok) continue;
+    const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
+    problems.push(
+      `[spec-bridge] the ${label} "${gate.name}" ${gateReason(result)} — ${count} linked spec${count === 1 ? "" : "s"} affected. ${CANT_OUTRUN}`
+    );
   }
   return problems;
 }
@@ -405,6 +438,7 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   const injected = run !== undefined;
   const execGates = runGates && !!gatesProfile && (injected || process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1");
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
+  let doneEligibleCount = 0; // spec 061 R1: gate findings collapse to one-per-gate after the loop
   for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     // Opted-in boards are judged on the stage ladder against their own status names;
@@ -442,19 +476,19 @@ export function checkBridge(root, { runGates = true, run } = {}) {
       );
     }
 
-    // Project-gate check (spec 050 R4): execute declared gates ONLY when the spec is
+    // Project-gate check (spec 050 R4): a spec is held to its declared gates ONLY when
     // Done-eligible — the one bounded moment a red gate under a ticked box changes an outcome,
     // so ordinary turns pay zero subprocess cost. At Done-eligible the mid-PR window has closed
     // (every box, including the re-pin box, is ticked), so BOTH buckets must be green: required,
     // AND redByConstruction — its "allowed red mid-PR" license has expired now that its re-pin
-    // was claimed done. Any red / unrunnable / timed-out gate is a blocking finding.
-    if (execGates && derived.status === STATUS.DONE_ELIGIBLE) {
-      const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
-      problems.push(
-        ...evaluateProjectGates(
-          { id: task.id, specDir: task.specDir, phaseBoxes: derived.phaseBoxes }, gates, runOne)
-      );
-    }
+    // was claimed done. Tally the count here; the gates themselves run once, after the loop
+    // (spec 061 R1: one finding per red gate, not one per linked spec).
+    if (execGates && derived.status === STATUS.DONE_ELIGIBLE) doneEligibleCount++;
+  }
+  if (doneEligibleCount > 0) {
+    const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
+    const counts = { required: doneEligibleCount, redByConstruction: doneEligibleCount };
+    problems.push(...collapsedGateProblems(gates, counts, runOne));
   }
   return { links, problems, warnings };
 }
@@ -469,32 +503,30 @@ export function checkBridge(root, { runGates = true, run } = {}) {
  * host's declared subprocesses but writes nothing itself. Injectable `run` for tests.
  */
 export function verifyBridge(root, { run } = {}) {
-  const problems = [];
   const config = loadBridgeConfig(root);
   const gatesProfile = projectGatesProfile(config);
-  if (!gatesProfile) return problems; // no opt-in → nothing to do
+  if (!gatesProfile) return []; // no opt-in → nothing to do
   // Reentrancy guard (spec 050 defect 1, Phase 5): a spawned gate command that re-invokes the
   // bridge with the DEFAULT runner short-circuits so it can't fork forever; an injected `run` is
   // a test double that spawns nothing, so it bypasses the guard.
   const injected = run !== undefined;
-  if (!injected && process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return problems;
+  if (!injected && process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return [];
   const requireAnalysis = config.strictDone === true;
   // Share each distinct gate result across every spec this invocation checks (spec 050 defect 2).
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
+  // Tally counts per bucket (spec 061 R1/R4): `required` covers every ticked spec; `redByConstruction`
+  // only the ticked specs that are ALSO Done-eligible — the bucket asymmetry, preserved exactly as
+  // before (which gates run for which specs is unchanged; only the reporting collapses).
+  const counts = { required: 0, redByConstruction: 0 };
   for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const anyTicked = (derived.phaseBoxes || []).some((p) => (p.boxes || []).some((b) => b.checked));
     if (!anyTicked) continue; // nothing claims greenness yet — no tick to outrun a gate
-    const buckets = derived.status === STATUS.DONE_ELIGIBLE
-      ? ["required", "redByConstruction"]
-      : ["required"];
-    const gates = gatesFor(gatesProfile, buckets);
-    problems.push(
-      ...evaluateProjectGates(
-        { id: task.id, specDir: task.specDir, phaseBoxes: derived.phaseBoxes }, gates, runOne)
-    );
+    counts.required += 1;
+    if (derived.status === STATUS.DONE_ELIGIBLE) counts.redByConstruction += 1;
   }
-  return problems;
+  const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
+  return collapsedGateProblems(gates, counts, runOne);
 }
 
 /* ── plan: reconciliation intents, and the Backlog renderer for them ───── */

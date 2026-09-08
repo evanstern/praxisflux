@@ -10,26 +10,26 @@ it on every commit, so a red phase blocks its own commit.
 
 ## Phase 1 — Collapse the fan-out (R1, R3.1)
 
-- [ ] T001 Write the fan-out regression FIRST, in `test/project-gates.test.mjs`: a red gate +
+- [x] T001 Write the fan-out regression FIRST, in `test/project-gates.test.mjs`: a red gate +
       **N ≥ 2** Done-eligible linked specs. Assert exactly **one** finding, and that it names
       the gate. Include the **negative control** — assert the count is 1 where the pre-fix
       behavior yields N, so the test distinguishes fixed from broken (TASK-118's convention).
-- [ ] T002 Run it against current behavior and **record the observed N** in the commit
+- [x] T002 Run it against current behavior and **record the observed N** in the commit
       message. A test that does not fail here is not testing the defect.
-- [ ] T003 Move gate evaluation out of `checkBridge`'s per-task loop: collect qualifying
+- [x] T003 Move gate evaluation out of `checkBridge`'s per-task loop: collect qualifying
       specs in the existing pass, then evaluate each distinct gate **once** and emit one
       finding per non-green gate naming gate + bucket + `gateReason` + **affected count**.
-- [ ] T004 Same collapse for `verifyBridge`, preserving its bucket asymmetry: track counts
+- [x] T004 Same collapse for `verifyBridge`, preserving its bucket asymmetry: track counts
       **per bucket** so a `redByConstruction` gate counts only the Done-eligible specs it
       applies to. Which gates run for which specs MUST NOT change — only the reporting.
-- [ ] T005 Keep `evaluateProjectGates` exported (imported by the test suite and documented as
+- [x] T005 Keep `evaluateProjectGates` exported (imported by the test suite and documented as
       the pure evaluator). If its shape changes, update its doc comment and every call site
       in the same commit.
-- [ ] T006 Confirm no collateral change: green gates still yield nothing; `exceeds`/`lags`
+- [x] T006 Confirm no collateral change: green gates still yield nothing; `exceeds`/`lags`
       and mirror findings untouched; the `SPEC_BRIDGE_GATE_ACTIVE` guard **and** its
       injected-`run` bypass (spec 050 defect 1) still hold — without the bypass this repo's
       own dogfood reddens its `tests` gate.
-- [ ] T007 Bare `node --test` green. Commit; **push**.
+- [x] T007 Bare `node --test` green. Commit; **push**.
 
 ## Phase 2 — Label the dirty-tree sample (R2, R3.2)
 
