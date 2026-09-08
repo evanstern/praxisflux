@@ -1,14 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync, statSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL } from "../pdlc/scripts/plant.mjs";
+import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL, excludeSet } from "../pdlc/scripts/plant.mjs";
 import { generate, validateConfig, agentPath, CONFIG_PATH, GENERATED_MARKER } from "../pdlc/scripts/tiers.mjs";
 import { parseFrontmatter } from "../lib/markdown.mjs";
+import { ensureExclude } from "../lib/installer.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "CLAUDE.md"), "utf8");
@@ -177,6 +178,20 @@ test("bootstrap SKILL.md resolves model IDs against the live harness, never from
   assert.match(skill, /\.claude\/agents\/<tier>-implementer\.md/, "the availability check keys on the agent-definition surface");
 });
 
+test("bootstrap SKILL.md asks the tracked-vs-local-only planting question", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
+  // Assert against the BODY, not the whole file: the `description:` frontmatter also names
+  // these phrases, so a whole-file match passes even when the section is deleted (verified
+  // 2026-09-08 by removing the section — the original assertions still passed). Strip the
+  // frontmatter so this guards the operator-facing section it claims to guard.
+  const body = skill.replace(/^---\n[\s\S]*?\n---\n/, "");
+  assert.match(body, /^## Planting mode — tracked vs\. local-only \(opt-in\)$/m,
+    "the planting-mode section itself must exist");
+  assert.match(body, /a project we own/i, "must name the tracked-ownership case");
+  assert.match(body, /a repo we are a guest in/i, "must name the local-only guest case");
+  assert.match(body, /--local-only/, "must name the opt-in flag passed to the plant step");
+});
+
 test("sweep Phase 1 item 2 names where a bootstrapped project's rubric lives", () => {
   const sweep = readFileSync(join(repo, "pdlc", "skills", "sweep", "SKILL.md"), "utf8");
   // R5 two-way contract: sweep must name both halves bootstrap plants — the planted section
@@ -236,10 +251,21 @@ test("sentinel records jira under peers/peersOmitted with no sentinel schema cha
     const sentinel = JSON.parse(readFileSync(join(root, SENTINEL), "utf8"));
     assert.deepEqual(sentinel.peers, ["jira"]);
     assert.deepEqual(sentinel.peersOmitted, ["backlog", "spec-kit"]);
+    // Spec 054's real intent, stated differentially: opting into jira must add NO sentinel
+    // field of its own — it rides the existing peers/peersOmitted shape. Comparing against a
+    // baseline plant rather than a hardcoded key list keeps this guard honest as other specs
+    // add non-peer axes (spec 060's localOnly was the first), instead of quietly weakening
+    // every time someone appends a name to a literal.
+    const { root: baseRoot, done: baseDone } = proj();
+    let baselineKeys;
+    try {
+      plant(baseRoot, opts({ peers: [] }));
+      baselineKeys = Object.keys(JSON.parse(readFileSync(join(baseRoot, SENTINEL), "utf8"))).sort();
+    } finally { baseDone(); }
     assert.deepEqual(
       Object.keys(sentinel).sort(),
-      ["planted", "version", "name", "peers", "peersOmitted", "hooks", "plantedAt"].sort(),
-      "no new sentinel fields — jira rides the existing peers/peersOmitted shape",
+      baselineKeys,
+      "jira adds no sentinel fields of its own — same key set as a plant with no peers",
     );
   } finally { done(); }
 });
@@ -795,4 +821,239 @@ test("the planted tier section teaches host-form IDs, dual pin mechanisms, and t
   assert.match(section, /2026-07-31/, "the dispatch-param field case");
   assert.match(section, /2026-08-10/, "the frontmatter-pin counter-case");
   assert.match(section, /session/i, "the agent registry is read at session start");
+});
+
+// --- local-only planting: exclude helper + scoped set (spec 060, Phase 1) ---
+
+/** A real (non-worktree) git repo in a fresh temp dir. */
+function gitRoot() {
+  const root = mkdtempSync(join(tmpdir(), "pdlc-git-"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  return { root, done: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+test("excludeSet: always-on lines only when no peers/hooks opted in; each opt-in adds exactly its lines", () => {
+  const base = excludeSet({ peers: [], hooks: [] });
+  assert.ok(!base.includes("/backlog/") && !base.includes("/.specify/"));
+  assert.ok(!base.includes("/.claude/settings.json") && !base.includes("/.claude/hooks/"));
+  for (const always of ["/.pdlc", "/CLAUDE.md", "/AGENTS.md", "/.handoff/", "/.worktrees/", "/specs/", "/docs/wiki/"]) {
+    assert.ok(base.includes(always), `always-on line ${always} missing`);
+  }
+  assert.deepEqual(excludeSet({ peers: ["backlog"] }).filter((l) => !base.includes(l)), ["/backlog/"]);
+  assert.deepEqual(excludeSet({ peers: ["spec-kit"] }).filter((l) => !base.includes(l)), ["/.specify/"]);
+  assert.deepEqual(
+    excludeSet({ hooks: ["root-guard"] }).filter((l) => !base.includes(l)),
+    ["/.claude/settings.json", "/.claude/hooks/"],
+  );
+  assert.equal(excludeSet().length, base.length, "no-args defaults to peers/hooks off");
+});
+
+test("ensureExclude: writes .git/info/exclude, idempotent, appends only missing lines", () => {
+  const { root, done } = gitRoot();
+  try {
+    const first = ensureExclude(root, ["/.pdlc", "/CLAUDE.md"]);
+    assert.deepEqual(first, { status: "added", added: ["/.pdlc", "/CLAUDE.md"] });
+    const excludePath = join(root, ".git", "info", "exclude");
+    const lines = readFileSync(excludePath, "utf8").split("\n");
+    assert.ok(lines.includes("/.pdlc") && lines.includes("/CLAUDE.md"));
+
+    const again = ensureExclude(root, ["/.pdlc", "/CLAUDE.md"]);
+    assert.deepEqual(again, { status: "unchanged", added: [] });
+
+    const grew = ensureExclude(root, ["/.pdlc", "/backlog/"]);
+    assert.deepEqual(grew, { status: "added", added: ["/backlog/"] }, "only the new line is added");
+    assert.equal(readFileSync(excludePath, "utf8").split("\n").filter((l) => l === "/.pdlc").length, 1);
+  } finally { done(); }
+});
+
+test("ensureExclude: .git as a worktree pointer file writes to the resolved gitdir", () => {
+  const { primary, wt, done } = gitPair("primary-exclude", "wt-exclude");
+  try {
+    const r = ensureExclude(wt, ["/.pdlc"]);
+    assert.equal(r.status, "added");
+    const realGitDir = join(primary, ".git", "worktrees", "wt-exclude");
+    assert.ok(readFileSync(join(realGitDir, "info", "exclude"), "utf8").includes("/.pdlc"));
+  } finally { done(); }
+});
+
+test("ensureExclude: no .git degrades to a reported no-git result, nothing written, never throws", () => {
+  const { root, done } = proj();
+  try {
+    assert.deepEqual(ensureExclude(root, ["/.pdlc"]), { status: "no-git", added: [] });
+    assert.ok(!existsSync(join(root, ".git")));
+  } finally { done(); }
+});
+
+// --- local-only planting: wired into plant(), ordering first (spec 060, Phase 2) ---
+
+test("plant --local-only writes the scoped exclude set and leaves .gitignore absent", () => {
+  const { root, done } = gitRoot();
+  try {
+    const r = plant(root, opts({ localOnly: true }));
+    assert.equal(r.gitignore, "skipped");
+    assert.equal(r.exclude, "added");
+    assert.ok(!existsSync(join(root, ".gitignore")), ".gitignore must not be created in local-only mode");
+    const exclude = readFileSync(join(root, ".git", "info", "exclude"), "utf8");
+    for (const line of excludeSet({ peers: [], hooks: [] })) {
+      assert.ok(exclude.split("\n").includes(line), `exclude missing ${line}`);
+    }
+    assert.deepEqual(r.missing, [], "CLAUDE.md + sentinel are the only required artifacts in local-only mode");
+
+    // idempotent re-plant
+    const again = plant(root, opts({ localOnly: true }));
+    assert.equal(again.exclude, "unchanged");
+  } finally { done(); }
+});
+
+test("plant tracked mode (default) is byte-for-byte unchanged from today", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts());
+    assert.deepEqual(
+      { mode: r.mode, claudeMd: r.claudeMd, gitignore: r.gitignore, exclude: r.exclude, pdlcFile: r.pdlcFile, missing: r.missing },
+      { mode: "fresh", claudeMd: "created", gitignore: "added", exclude: "skipped", pdlcFile: "written", missing: [] },
+    );
+    assert.ok(readFileSync(join(root, ".gitignore"), "utf8").split("\n").includes(".handoff/"));
+    assert.ok(!existsSync(join(root, ".git", "info", "exclude")), "tracked mode must never touch the exclude file");
+
+    const again = plant(root, opts());
+    assert.equal(again.gitignore, "present");
+    assert.equal(again.exclude, "skipped");
+  } finally { done(); }
+});
+
+test("R3 ordering: a first local-only plant into a real git repo leaves git status --porcelain empty", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts({ localOnly: true }));
+    const status = execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" });
+    assert.equal(status, "", "git status must be clean after a first local-only plant — the exclude write must land before every artifact write");
+
+    // The end-state check above passes even if the writes were reordered (by the time plant()
+    // returns, everything exists either way) — pin the ORDER itself via mtime, nanosecond-
+    // resolution on this filesystem, so a future edit that moves a write above the exclude
+    // call fails loud (R3; plan.md: "testable by asserting write order, not merely end state").
+    const nsOf = (rel) => statSync(join(root, ...rel.split("/")), { bigint: true }).mtimeNs;
+    const excludeNs = nsOf(".git/info/exclude");
+    assert.ok(excludeNs <= nsOf("CLAUDE.md"), "exclude must be written before CLAUDE.md");
+    assert.ok(excludeNs <= nsOf(SENTINEL), "exclude must be written before the sentinel");
+  } finally { done(); }
+});
+
+// --- local-only planting: sentinel round-trip and mode-switch drift (spec 060, Phase 3) ---
+
+test("sentinel records localOnly for both modes; tracked-mode re-plant is unchanged and does not churn the file", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts({ localOnly: true }));
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true);
+  } finally { done(); }
+
+  const b = gitRoot();
+  try {
+    const r = plant(b.root, opts());
+    assert.equal(r.pdlcFile, "written");
+    assert.equal(JSON.parse(readFileSync(join(b.root, SENTINEL), "utf8")).localOnly, false);
+
+    // Re-plant with identical options: pdlcFile reports unchanged AND the sentinel is not
+    // rewritten at all — bytes and mtime must be identical, not merely "equivalent content".
+    // A test that only re-parses and diffs JSON would pass even if plant() rewrote the file
+    // with a fresh plantedAt timestamp every time; comparing raw bytes/mtime catches that.
+    const before = readFileSync(join(b.root, SENTINEL));
+    const mtimeBefore = statSync(join(b.root, SENTINEL)).mtimeNs;
+    const again = plant(b.root, opts());
+    assert.equal(again.pdlcFile, "unchanged");
+    assert.deepEqual(readFileSync(join(b.root, SENTINEL)), before, "sentinel bytes must not churn on a no-op re-plant");
+    assert.equal(statSync(join(b.root, SENTINEL)).mtimeNs, mtimeBefore, "sentinel must not even be rewritten (mtime unchanged)");
+  } finally { b.done(); }
+});
+
+test("legacy sentinel without localOnly re-plants as unchanged and is left untouched", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts());
+    const sentinelPath = join(root, SENTINEL);
+    const legacy = JSON.parse(readFileSync(sentinelPath, "utf8"));
+    delete legacy.localOnly; // what a pre-060 plant wrote
+    writeFileSync(sentinelPath, JSON.stringify(legacy, null, 2) + "\n");
+    const before = readFileSync(sentinelPath);
+
+    const r = plant(root, opts()); // still tracked (no --local-only) — not a mode switch
+    assert.equal(r.claudeMd, "unchanged");
+    assert.equal(r.modeSwitch, "none", "requesting the same (tracked) mode a legacy host is in is not a switch");
+    assert.equal(r.pdlcFile, "unchanged", "gaining the localOnly field must not rewrite a legacy sentinel");
+    assert.deepEqual(readFileSync(sentinelPath), before, "legacy sentinel bytes left exactly as-is");
+    assert.ok(!("localOnly" in JSON.parse(readFileSync(sentinelPath, "utf8"))), "field not backfilled by a no-op replant");
+  } finally { done(); }
+});
+
+test("a mode switch surfaces as drift, does not advance the sentinel, and applies only with --force", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts()); // tracked (default)
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, false);
+    const before = readFileSync(join(root, SENTINEL));
+
+    // Ask for the OTHER mode without --force: honest drift, own field, sentinel unmoved.
+    const drifted = plant(root, opts({ localOnly: true }));
+    assert.equal(drifted.modeSwitch, "drifted");
+    assert.notEqual(drifted.modeSwitch, drifted.claudeMd, "diagnosable apart from claudeMd's own drift state");
+    assert.equal(drifted.claudeMd, "unchanged", "the grounding block is untouched by a mode switch");
+    assert.equal(drifted.pdlcFile, "unchanged", "sentinel must not advance past an unconfirmed switch");
+    assert.deepEqual(readFileSync(join(root, SENTINEL)), before, "sentinel bytes provably unchanged (not just same JSON)");
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, false, "still records the OLD mode");
+
+    // --check must also flag it as pending, the same consent gate as every other drift.
+    const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+    let status = 0;
+    try { execFileSync(process.execPath, [cli, "--root", root, "--local-only", "--check"]); }
+    catch (e) { status = e.status; }
+    assert.equal(status, 1, "--check must exit 1 while a mode switch is unconfirmed");
+
+    // --force is the consent path: the switch applies and the sentinel advances.
+    const forced = plant(root, opts({ localOnly: true, force: true }));
+    assert.equal(forced.modeSwitch, "applied");
+    assert.equal(forced.pdlcFile, "updated");
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true, "sentinel now records the new mode");
+
+    // And it's stable from here: re-plant in the now-current (local-only) mode is unchanged.
+    const settled = plant(root, opts({ localOnly: true }));
+    assert.equal(settled.modeSwitch, "none");
+    assert.equal(settled.pdlcFile, "unchanged");
+
+    // Flip direction: ask to go BACK to tracked (no --force) with every other facet already
+    // settled (gitignore already carries .handoff/ from the very first plant; exclude is
+    // "skipped" outright in the tracked branch) — isolates that modeSwitch alone, not some
+    // other pending facet, is what the --check gate is keying on.
+    const revert = plant(root, opts({ check: true }));
+    assert.equal(revert.modeSwitch, "drifted", "reverting without --force is itself an unconfirmed switch");
+    assert.equal(revert.claudeMd, "unchanged", "grounding content does not depend on planting mode");
+    assert.notEqual(revert.gitignore, "added");
+    assert.notEqual(revert.exclude, "added");
+    assert.notEqual(revert.exclude, "no-git");
+    assert.notEqual(revert.hooks, "installed");
+  } finally { done(); }
+});
+
+test("--check's exit-nonzero gate fires on a mode-switch-only drift, with no other facet pending", () => {
+  // Runs the real CLI end to end (same resolved version throughout, so there is no unrelated
+  // claudeMd version drift to confound the result) to prove the ACTUAL pending formula in
+  // plant.mjs — not a re-typed copy of it — trips on modeSwitch alone.
+  const { root, done } = gitRoot();
+  const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+  try {
+    execFileSync(process.execPath, [cli, "--root", root]); // tracked (default)
+    execFileSync(process.execPath, [cli, "--root", root, "--local-only", "--force"]); // confirmed switch
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true);
+
+    let status = 0, stdout = "";
+    try { stdout = execFileSync(process.execPath, [cli, "--root", root, "--check"], { encoding: "utf8" }); }
+    catch (e) { status = e.status; stdout = e.stdout; }
+    assert.equal(status, 1, "reverting to tracked without --force must fail --check");
+    const report = JSON.parse(stdout);
+    assert.equal(report.modeSwitch, "drifted");
+    assert.equal(report.claudeMd, "unchanged", "content itself is settled — not what's failing this check");
+    assert.notEqual(report.gitignore, "added", "gitignore already carries .handoff/ from the first plant");
+    assert.notEqual(report.exclude, "added", "exclude is skipped outright in the tracked branch");
+  } finally { done(); }
 });

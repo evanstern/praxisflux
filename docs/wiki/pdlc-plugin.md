@@ -1,6 +1,6 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/, and opts into the peer utilities (Backlog.md, Spec Kit, Jira — Backlog.md and Jira mutually exclusive); design-rounds covers the pre-spec seam where the deliverable is unknowable until an operator chooses; sweep and refactor-triage have their own notes.
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/ (tracked by default, or local-only via --local-only), and opts into the peer utilities (Backlog.md, Spec Kit, Jira); design-rounds covers the pre-spec seam; sweep and refactor-triage have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
@@ -11,7 +11,7 @@ sources:
   - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
-verified_against: 3fcd64f26f18465d7735d1929cf4de177e2ece90
+verified_against: 985ec436ff1158eda61e013b1c8383f55b76d321
 ---
 
 # pdlc plugin
@@ -53,15 +53,15 @@ A dual-use module (library + CLI, [[chassis-utilities]]' `runAsCli`) on the [[in
 chassis and `template.mjs`. One invocation:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--check] [--force]
+node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]
 ```
 
 renders the expected block and lands it (`created` | `appended` | `replaced` | `unchanged` |
-`drifted`), gitignores `.handoff/` (the [[handoff-protocol]] transport), and stamps the `.pdlc`
-sentinel — a JSON record of version + resolved name + peer choices that fresh-vs-update
-keys on. Two load-bearing properties: the sentinel never advances past an unconfirmed
-drifted block; `--check` writes nothing and exits 1 while planting is pending (the skill's
-output gate).
+`drifted`), gitignores `.handoff/` (the [[handoff-protocol]] transport — tracked or
+local-only, see below), and stamps the `.pdlc` sentinel — a JSON record of version +
+resolved name + peer choices + planting mode that fresh-vs-update keys on. Two load-bearing
+properties: the sentinel never advances past an unconfirmed drifted block; `--check` writes
+nothing and exits 1 while planting is pending (the skill's output gate).
 
 Since 0.23.0 absent peers leave a **deterministic trace** (TASK-43 finding #1: omission
 stays the opt-out, never silent): the sentinel records not-opted-in peers under
@@ -90,6 +90,30 @@ initialized. **Backlog.md and Jira are mutually exclusive** — one board, singu
 invariant 2) — so `plant.mjs` throws naming that reason if both are passed. Opt-ins select
 the planted convention blocks and are recorded in `.pdlc`; an update re-presents them as
 defaults.
+
+## Local-only planting mode — tracked vs. guest (spec 060)
+
+By default artifacts land tracked and `.handoff/` joins `.gitignore` via `ensureGitignore`
+([[installer]]) — wrong for a repo the operator is a **guest** in, not owns. `--local-only`
+(bootstrap 0.13.0) redirects the whole footprint into `<gitdir>/info/exclude` via
+[[installer]]'s `ensureExclude` instead — per-clone, never committed. The skill offers
+rather than assumes (own vs. guest; recommends local-only when the tracked tree shows no
+prior PDLC adoption; update mode defaults to the sentinel's prior choice).
+
+`excludeSet({ peers, hooks })` scopes lines to what's opted into (`/backlog/`,
+`/.specify/`, `/.claude/settings.json`+`/.claude/hooks/` per peer/hook) plus always-on
+lines (`.pdlc`, `CLAUDE.md`, `.handoff/`, `.worktrees/`, `specs/`, `docs/wiki/`,
+`.claude/agents|model-tiers.json|commands|skills`). `plant()` writes it **first**, before
+`CLAUDE.md`/sentinel/`wireRootGuard` (R3) — never a dirty `git status` for a beat. Report
+fields `gitignore`/`exclude` are complementary (one `skipped` per mode); `exclude:
+"no-git"` is the pre-`git init` degradation (R6) — nothing written or thrown, `--check`
+stays pending until a re-plant after `git init`.
+
+The sentinel records `localOnly` (absent-tolerant like `name`/`hooks`). A **mode switch**
+— sentinel vs. requested mode disagreeing — is drift on its own `modeSwitch` field
+(`none`|`drifted`|`applied`), distinct from `claudeMd: "drifted"` (block content, not
+mode); unconfirmed it doesn't advance, and `--force` is the same consent path drift
+already needs. No migration command — switching is always drift-plus-`--force`.
 
 ## Opt-in root-guard hook — the suite's first PreToolUse hook
 

@@ -3,10 +3,11 @@ id: TASK-116
 title: >-
   pdlc:bootstrap — local-only planting mode: PDLC artifacts ride
   .git/info/exclude so a host repo's tracked tree stays untouched
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-05 00:18'
-updated_date: '2026-09-05 00:19'
+updated_date: '2026-09-05 00:31'
 labels:
   - pdlc
   - feature
@@ -33,6 +34,8 @@ kofile/ai-coe-plugins has been running the alternative by hand since 2026-08-27 
 Export the pattern: a local-only mode on `plant.mjs` that writes the same artifacts but routes the ignore lines to `.git/info/exclude`, records the mode in the `.pdlc` sentinel so `--check` and re-plants stay idempotent, and is OFFERED BY THE BOOTSTRAP SKILL as an explicit operator question — the same shape as the existing peer and hook opt-ins, not a flag you have to already know about. Bootstrap should ask whether this project is one we own (tracked planting, today's default) or one we are a guest in (local-only), and recommend based on what it can see: a repo whose remote/tracked tree shows no prior PDLC adoption is the guest case.
 
 Two real edges. `.git/info/exclude` does not exist before `git init` — bootstrap already handles the pre-git case and must degrade the same way. And the exclude entries have to land BEFORE the artifacts are written, or the first plant dirties `git status` in exactly the repo where that is the whole point.
+
+Spec: specs/060-local-only-planting
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -45,4 +48,9 @@ Two real edges. `.git/info/exclude` does not exist before `git init` — bootstr
 - [ ] #6 Pre-git-init hosts degrade the same way tracked planting already does, with no crash and a stated next step
 - [ ] #7 test/pdlc.test.mjs pins local-only planting: exclude file targeted, .gitignore untouched, ordering, sentinel round-trip, and the bootstrap question's presence in SKILL.md
 - [ ] #8 Wiki re-pinned for any note whose sources this change touches; gates green
+- [ ] #9 Spec phase: Phase 1 — The exclude helper and the scoped set
+- [ ] #10 Spec phase: Phase 2 — Wire local-only into plant(), ordering first
+- [ ] #11 Spec phase: Phase 3 — Sentinel round-trip and mode-switch drift
+- [ ] #12 Spec phase: Phase 4 — The bootstrap question
+- [ ] #13 Spec phase: Phase 5 — Bump, re-ground, PR
 <!-- AC:END -->

@@ -1,10 +1,10 @@
 ---
 name: installer
-description: lib/installer.mjs — dotfile-safe, idempotent project-planting helpers (copyDir, copyFile, ensureGitignore, verifyPresent, installMode) used by plugin start skills
+description: lib/installer.mjs — dotfile-safe, idempotent project-planting helpers (copyDir, copyFile, ensureGitignore, ensureExclude, verifyPresent, installMode) used by plugin start skills
 kind: component
 sources:
   - lib/installer.mjs
-verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
+verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
 ---
 
 # Installer
@@ -17,7 +17,7 @@ has grown). The module is zero-dependency, using only `node:fs` and `node:path`.
 
 ## How it works
 
-Five exports:
+Six exports:
 
 - `copyDir(src, dest, { overwrite = true } = {})` — recursive copy via `cpSync` with
   `{ recursive: true, force: overwrite, errorOnExist: false }`. The deliberate point is
@@ -31,6 +31,16 @@ Five exports:
   `.handoff/`). It creates the file if absent, preserves existing lines, matches the
   trimmed entry against each existing trimmed line, and appends with a normalized
   trailing newline. Idempotent: returns `true` only when it actually added the line.
+- `ensureExclude(root, entries, { dryRun = false } = {})` — the **local-only** planting
+  counterpart (spec 060 R1/R2): guarantees `<gitdir>/info/exclude` contains every line in
+  `entries` instead of touching `.gitignore`, so the footprint never shows up as a tracked
+  diff. An internal `resolveGitDir` handles `<root>/.git` as either a directory or a
+  worktree pointer **file** (`gitdir: <path>`, resolved relative to `root`) and returns
+  `null` when `.git` is absent entirely; `ensureExclude` never throws on that — it
+  degrades to `{ status: "no-git", added: [] }` (R6). Otherwise it appends only lines not
+  already present (creating `info/` as needed) and returns
+  `{ status: "added"|"unchanged", added: string[] }`; `dryRun: true` (used by `plant`'s
+  `--check`) reports what would happen without writing.
 - `verifyPresent(root, relPaths)` — returns the subset of `relPaths` (relative to
   `root`) that are missing on disk; an empty array means everything planted is present.
   This is the "honest verify" step after an install.
@@ -47,6 +57,8 @@ Five exports:
 - Plugin start/init skills — e.g. [[educate-plugin]]'s start and the
   [[research-plugin]]'s vault setup — plant `CLAUDE.md` and templates through these
   helpers, following the planting pattern described in [[skill-patterns]].
+- [[pdlc-plugin]]'s `plant.mjs` calls `ensureExclude` for `--local-only` bootstrap
+  (spec 060), the same shape `ensureGitignore` serves for tracked planting.
 - Exercised by the [[test-suite]].
 
 ## Operational notes

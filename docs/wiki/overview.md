@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
+verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
 ---
 
 # praxisflux — system overview
@@ -38,8 +38,9 @@ grounding-wiki ────┘             (teach)          (implement)         
   view over GitHub Spec Kit specs, gated so status can't exceed proven spec artifacts.
 - [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
   three skills: `bootstrap` stamps a new or existing project for the praxis development
-  lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore, opt-in to the supported peer
-  utilities Backlog.md, Spec Kit, and Jira); `sweep` runs a set of board tasks through the whole
+  lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore — tracked, or
+  **local-only** via `--local-only` for a guest repo — opt-in to Backlog.md, Spec Kit,
+  and Jira); `sweep` runs a set of board tasks through the whole
   lifecycle (operator-signed-off runbook, parallel lanes, serial merges); `refactor-triage`
   closes the post-sweep loop, triaging the merged work for debt and drift and carding accepted
   findings back onto the board.
@@ -79,9 +80,9 @@ at the invoking root.
   root stays on `main` as the shared read surface every session reads the board, `specs/`, and
   `docs/wiki/` from (`CLAUDE.md`, "Worktree discipline").
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
-  `.claude-plugin/`) must bump the marketplace version — and any edited skill's own
-  `version:` — per `docs/releasing.md`; CI enforces it, and each merge to `main`
-  auto-publishes the GitHub Release `v<version>` (see [[build-and-release]]).
+  `.claude-plugin/`) must bump the marketplace version — and any edited skill's `version:`
+  — per `docs/releasing.md`; CI enforces it, and each merge to `main` auto-publishes the
+  GitHub Release `v<version>` (see [[build-and-release]]).
 - Docs are load-bearing: every PR keeps `docs/wiki/`, `README.md`, and `CLAUDE.md` in sync
   with the code. Enforced by `scripts/check-docs.mjs` plus the wiki freshness gate, run in
   CI, the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that

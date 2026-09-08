@@ -34,12 +34,12 @@
 // checkout of the same project is `unchanged`, never spuriously `drifted`; only --name
 // changes it, and that change surfaces as honest drift (consent + --force).
 //
-//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]
+//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { copyFile, ensureGitignore, verifyPresent } from "../lib/installer.mjs";
+import { copyFile, ensureExclude, ensureGitignore, verifyPresent } from "../lib/installer.mjs";
 import { render } from "../lib/template.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
@@ -51,6 +51,25 @@ export const HOOKS = ["root-guard"];
 // The two files the root-guard hook needs in the host (the .mjs imports the scanner).
 const ROOT_GUARD_FILES = ["root-guard-hook.mjs", "shell-scan.mjs"];
 export const SENTINEL = ".pdlc";
+// Local-only planting mode (spec 060). Always-on: every artifact pdlc's OWN plant creates
+// or a peer init creates that the sweep touches regardless of which peer CLI is installed
+// (specs/, docs/wiki/ — this repo hand-authors both with no spec-kit). Peer- and
+// hook-conditional lines are added only for what was actually opted into (R2) — excluding a
+// path the host's own team tracks would hide their files from their own `git status`.
+const ALWAYS_ON_EXCLUDES = [
+  "/.pdlc", "/CLAUDE.md", "/AGENTS.md", "/.handoff/", "/.worktrees/",
+  "/specs/", "/docs/wiki/", "/.claude/agents/", "/.claude/model-tiers.json",
+  "/.claude/commands/", "/.claude/skills/",
+];
+
+/** The scoped `.git/info/exclude` line set for `{ peers, hooks }` (spec 060 R2). */
+export function excludeSet({ peers = [], hooks = [] } = {}) {
+  const lines = [...ALWAYS_ON_EXCLUDES];
+  if (peers.includes("backlog")) lines.push("/backlog/");
+  if (peers.includes("spec-kit")) lines.push("/.specify/");
+  if (hooks.includes("root-guard")) lines.push("/.claude/settings.json", "/.claude/hooks/");
+  return lines;
+}
 const BEGIN = /^<!-- pdlc:grounding BEGIN\b.*$/m;
 const END = "<!-- pdlc:grounding END -->";
 
@@ -154,14 +173,22 @@ function wireRootGuard(root) {
 
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
- * Returns { mode, claudeMd, gitignore, pdlcFile, hooks, projectName, peersOmitted, missing } —
- * claudeMd is one of created | appended | replaced | unchanged | drifted; hooks is `absent`
- * (root-guard not opted in), `installed` (opted in and newly wired, or would be under --check),
- * or `unchanged` (opted in and already fully wired); projectName is the resolved heading name
- * (see resolveProjectName); peersOmitted lists the known peers not opted in at plant time
- * (their blocks were stripped from the rendered grounding).
+ * Returns { mode, claudeMd, gitignore, exclude, pdlcFile, hooks, projectName, peersOmitted,
+ * modeSwitch, missing } — claudeMd is one of created | appended | replaced | unchanged | drifted;
+ * gitignore is `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever
+ * written to `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude
+ * file is never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
+ * nothing written, no throw); hooks is `absent` (root-guard not opted in), `installed` (opted
+ * in and newly wired, or would be under --check), or `unchanged` (opted in and already fully
+ * wired); projectName is the resolved heading name (see resolveProjectName); peersOmitted
+ * lists the known peers not opted in at plant time (their blocks were stripped from the
+ * rendered grounding); modeSwitch is `none` (no prior sentinel, or it agrees with the requested
+ * localOnly), `drifted` (the sentinel recorded the other mode and --force was not given — the
+ * sentinel is NOT advanced), or `applied` (a genuine switch, confirmed with --force). This is
+ * diagnosable apart from `claudeMd: "drifted"`, which means the on-disk grounding block content
+ * differs from what this version renders — a different question entirely (spec 060 R4).
  */
-export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name } = {}) {
+export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name, localOnly = false } = {}) {
   root = resolve(root);
   templatePath ??= join(here, "..", "templates", "CLAUDE.md");
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
@@ -176,6 +203,22 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
   if (unknownHooks.length) throw new Error(`unknown hook(s): ${unknownHooks.join(", ")} (known: ${HOOKS.join(", ")})`);
   // The deterministic absent-peer trace: known peers not opted in, in KNOWN-peer order.
   const peersOmitted = PEERS.filter((p) => !peers.includes(p));
+
+  // R3: the ignore-write happens FIRST — before CLAUDE.md, before the sentinel, before
+  // wireRootGuard — so a first plant into a clean host never leaves `git status` dirty for a
+  // beat. Local-only mode writes the scoped set to `.git/info/exclude` and touches nothing
+  // under `.gitignore`, not even `.handoff/`; tracked mode is today's unchanged behaviour.
+  let gitignore, exclude;
+  if (localOnly) {
+    gitignore = "skipped";
+    const r = ensureExclude(root, excludeSet({ peers, hooks }), { dryRun: check });
+    exclude = r.status; // no-git | unchanged | added
+  } else {
+    exclude = "skipped";
+    gitignore = check
+      ? (readGitignoreHas(root, ".handoff/") ? "present" : "added")
+      : ensureGitignore(root, ".handoff/") ? "added" : "present";
+  }
 
   const sentinelPath = join(root, SENTINEL);
   let existing = null;
@@ -209,10 +252,6 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
   }
   if (!check && nextClaude !== undefined) writeFileSync(claudePath, nextClaude);
 
-  const gitignore = check
-    ? (readGitignoreHas(root, ".handoff/") ? "present" : "added")
-    : ensureGitignore(root, ".handoff/") ? "added" : "present";
-
   // Opt-in root-guard hook: copy both files + merge the PreToolUse entries. `absent` when not
   // opted in; else `installed` (needs wiring — reported in --check, done for real otherwise)
   // or `unchanged` (already fully wired). Independent of the grounding block.
@@ -222,23 +261,35 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
     if (!check && hooksReport === "installed") wireRootGuard(root);
   }
 
-  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted, hooks: [...hooks].sort() };
-  // peersOmitted is derived from peers, so comparing version + peers + name + hooks is enough
-  // — and tolerating an absent field keeps legacy sentinels (written before `peersOmitted`,
-  // `name`, or `hooks` existed) "unchanged" instead of churning them just to gain the field.
+  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted, hooks: [...hooks].sort(), localOnly };
+  // peersOmitted is derived from peers, so comparing version + peers + name + hooks + localOnly is
+  // enough — and tolerating an absent field keeps legacy sentinels (written before `peersOmitted`,
+  // `name`, `hooks`, or `localOnly` existed) "unchanged" instead of churning them just to gain the
+  // field (spec 060 R4).
   const same = existing && existing.version === desired.version &&
     JSON.stringify([...(existing.peers || [])].sort()) === JSON.stringify(desired.peers) &&
     (existing.name === undefined || existing.name === desired.name) &&
-    (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks));
-  // A drifted, unconfirmed block means nothing was planted — don't advance the sentinel past it.
-  const pdlcFile = claudeMd === "drifted" ? (existing ? "unchanged" : "skipped")
+    (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks)) &&
+    (existing.localOnly === undefined || existing.localOnly === desired.localOnly);
+  // Spec 060 R4: a MODE SWITCH — the sentinel recorded the other planting mode than what's being
+  // requested now — is honest drift, diagnosable apart from `claudeMd: "drifted"` (a different
+  // question: on-disk block content vs. this version's render). A legacy sentinel written before
+  // `localOnly` existed is tracked mode by definition (`?? false`), so replanting tracked over one
+  // is NOT a switch — only a genuine disagreement is. Unconfirmed, the sentinel must not advance
+  // past it; `--force` is the same consent path `claudeMd: "drifted"` already requires.
+  const modeSwitch = existing && (existing.localOnly ?? false) !== localOnly
+    ? (force ? "applied" : "drifted") : "none";
+  // A drifted, unconfirmed block — or an unconfirmed mode switch — means nothing was planted for
+  // that facet: don't advance the sentinel past either one.
+  const pdlcFile = claudeMd === "drifted" || modeSwitch === "drifted" ? (existing ? "unchanged" : "skipped")
     : same ? "unchanged" : existing ? "updated" : "written";
-  if (!check && !same && claudeMd !== "drifted") {
+  if (!check && !same && claudeMd !== "drifted" && modeSwitch !== "drifted") {
     writeFileSync(sentinelPath, JSON.stringify({ ...desired, plantedAt: new Date().toISOString() }, null, 2) + "\n");
   }
 
-  const missing = check ? [] : verifyPresent(root, ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, pdlcFile, hooks: hooksReport, projectName, peersOmitted, missing };
+  // .gitignore is never planted in local-only mode (R1), so it is not a required artifact there.
+  const missing = check ? [] : verifyPresent(root, localOnly ? ["CLAUDE.md", SENTINEL] : ["CLAUDE.md", SENTINEL, ".gitignore"]);
+  return { mode, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, modeSwitch, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -251,17 +302,25 @@ if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i === -1 ? undefined : args[i + 1]; };
   const root = opt("--root");
-  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]"); process.exit(2); }
+  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]"); process.exit(2); }
   const peers = args.flatMap((a, i) => (a === "--peer" ? [args[i + 1]] : []));
   const hooks = args.flatMap((a, i) => (a === "--hook" ? [args[i + 1]] : []));
   const check = args.includes("--check");
-  const report = plant(root, { peers, hooks, check, force: args.includes("--force"), name: opt("--name") });
+  const report = plant(root, {
+    peers, hooks, check, force: args.includes("--force"), name: opt("--name"),
+    localOnly: args.includes("--local-only"),
+  });
   for (const p of report.peersOmitted) {
     console.error(`plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in ${SENTINEL} peersOmitted)`);
   }
   console.log(JSON.stringify(report, null, 2));
+  // gitignore is "skipped" (never pending) in local-only mode; exclude is "skipped" (never
+  // pending) in tracked mode. "no-git" is honest degradation, not convergence — it stays
+  // pending until a real `git init` lets the exclude lines actually land (R6).
   const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
-    || report.gitignore !== "present" || report.hooks === "installed";
+    || report.gitignore === "added" || report.hooks === "installed"
+    || report.exclude === "added" || report.exclude === "no-git"
+    || report.modeSwitch === "drifted";
   if (check && pending) process.exit(1); // --check: nonzero when planting would change something
   if (report.missing.length) process.exit(1);
 }

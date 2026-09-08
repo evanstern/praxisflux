@@ -1,7 +1,7 @@
 ---
 name: bootstrap
-version: 0.12.0
-description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present.
+version: 0.13.0
+description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present. Also offers local-only planting mode (--local-only) for a repo the operator is a guest in, not a project we own — PDLC's footprint lands in .git/info/exclude instead of tracked files.
 ---
 
 # pdlc:bootstrap — stamp a project for the praxis development lifecycle
@@ -33,7 +33,11 @@ update. The heavy lifting is deterministic — `scripts/plant.mjs` on the chassi
    upgrade, or changing peer opt-ins; read the file — it records the previous choices).
    Absent → **fresh** (even if the folder already has code and a `CLAUDE.md`).
 3. If `<root>` is not a git repository, say so and continue — planting still works; the
-   `.gitignore` entry becomes meaningful once they `git init`.
+   `.gitignore` entry becomes meaningful once they `git init`. **Local-only mode degrades the
+   same way, one step further:** `.git/info/exclude` cannot exist before `.git/` does, so
+   there is nothing to write to yet. Say so plainly — the plant step reports `exclude:
+   "no-git"` rather than fabricate a `.git` dir — and name `git init` as the next step; a
+   re-plant afterwards lands the exclude lines for real.
 
 ## Peer utilities — Backlog.md, Spec Kit, and Jira
 
@@ -110,10 +114,37 @@ a default**:
 3. **There is no bypass flag by design.** Tell the user emergencies go through them editing
    the hook config in `.claude/settings.json`, visibly.
 
+## Planting mode — tracked vs. local-only (opt-in)
+
+By default every artifact this skill plants — `CLAUDE.md`, `.pdlc`, `.claude/agents/`,
+`model-tiers.json`, and (if opted in) `backlog/`, `.specify/`, the root-guard hook files —
+lands as ordinary tracked files, and `.handoff/` joins the host's own tracked `.gitignore`.
+That is right when the operator running this skill **owns** the project. It is wrong when
+PDLC is a tool brought to a repo shared with a team that has not adopted it: committing
+PDLC's files — or even a `.gitignore` line naming them — makes every teammate's `git status`
+and every fresh clone PDLC-shaped without their consent. Treat this like the root-guard hook:
+a real choice with a real default, not a flag you have to already know exists.
+
+1. **Offer, do not assume.** Ask which this is: **a project we own** (tracked planting —
+   today's default) or **a repo we are a guest in** (local-only). In update mode, present the
+   previous choice recorded in `.pdlc`'s `localOnly` field as the default.
+2. **Recommend from what is observable**, don't just ask blind: a repo whose remote/tracked
+   tree shows no prior PDLC adoption (no `.pdlc`, no `pdlc:grounding` marker in a tracked
+   `CLAUDE.md`) is the guest case — lean local-only. A repo that already carries tracked PDLC
+   artifacts is presumably one the operator owns — lean tracked.
+3. **On opt-in, pass `--local-only`** to the plant step. That sends the scoped exclude set
+   (`excludeSet` in `plant.mjs` — peer- and hook-conditional, only what was actually opted
+   into) to `.git/info/exclude`, which is per-clone and never committed, instead of
+   `.gitignore`; nothing is written to `.gitignore` at all. The choice is recorded in `.pdlc`
+   under `localOnly`.
+4. **There is no migration command.** Switching modes later surfaces as honest drift — the
+   same consent + `--force` path a drifted grounding block already takes — never applied
+   silently.
+
 ## Plant
 
 1. Preview first: run
-   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] --check`
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] --check`
    (one `--peer` per opt-in; `--hook root-guard` only if opted in above). The JSON report
    says what would happen: `created`, `appended`
    (existing `CLAUDE.md` gains the marked block at the end), `replaced`, `unchanged`, or
@@ -210,8 +241,13 @@ Model IDs date fast, and the config is where they live, so keep them honest:
 2. Verify on disk — never claim success without looking: `<root>/CLAUDE.md` contains the
    `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), the heading names
    the **project** (not a worktree/scratch folder), `<root>/.pdlc` records the resolved
-   `name` and the right peers (each declined peer under `peersOmitted`), `.gitignore`
-   contains `.handoff/`. `<root>/.claude/model-tiers.json` exists and every tier it declares
+   `name`, the right peers (each declined peer under `peersOmitted`), and the right
+   `localOnly`. In **tracked** mode, `.gitignore` contains `.handoff/`. In **local-only**
+   mode, verify the opposite pair: `<root>/.git/info/exclude` carries the scoped set
+   `excludeSet` would produce for the opted peers/hooks, and `.gitignore` was **not**
+   written — read its content (or confirm it doesn't exist) rather than assume, since a
+   missing `.handoff/` line there is exactly what proves this mode kept the host's tracked
+   tree untouched. `<root>/.claude/model-tiers.json` exists and every tier it declares
    has a generated `<root>/.claude/agents/<tier>-implementer.md` whose frontmatter `model:`
    **matches the config** — read the two and compare, don't assume the generator ran. If the
    root-guard hook was opted in, `.pdlc`'s `hooks` lists `root-guard`, both

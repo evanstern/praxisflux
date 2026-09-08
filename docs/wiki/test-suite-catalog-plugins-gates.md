@@ -1,29 +1,28 @@
 ---
 name: test-suite-catalog-plugins-gates
-description: Per-file coverage of the single-plugin output-gate suites — grounding-wiki's capsule + freshness gate, pdlc's plant surface and root-guard hook, phase-status's vocabulary ladder, project-gates' tick-vs-red check, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate — one bullet per file. Split summary-style; the pipeline/handoff half lives in test-suite-catalog-plugins-pipeline.
+description: Per-file coverage of single-plugin output-gate suites — grounding-wiki's capsule + freshness gate, phase-status's vocabulary ladder, project-gates' tick-vs-red check, reorient's output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's pure derivation, and team-review's output gate. pdlc's own gate suites (plant surface + root-guard hook) split out to test-suite-catalog-plugins-gates-pdlc.
 kind: pattern
 sources:
   - test/grounding-wiki.capsules.test.mjs
   - test/grounding-wiki.freshness.test.mjs
-  - test/pdlc.test.mjs
   - test/phase-status.test.mjs
   - test/project-gates.test.mjs
   - test/reorient.test.mjs
   - test/research-gates.test.mjs
-  - test/root-guard-hook.test.mjs
-  - test/root-guard-scan.test.mjs
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-size_budget_exempt: at exactly 8000/8000 on main with zero headroom (TASK-103); the owed summary-style split is folded into TASK-95 by operator decision 2026-08-03. TASK-106 added ~230 chars cataloging the tier-config surface and takes this exemption rather than forcing the unplanned split under time pressure that TASK-103 exists to prevent. Remove when TASK-95 lands the split.
-verified_against: fc15534bf70121710d1e4ee52c28cbefd4c7bd61
+verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
 
 One half of the plugin catalog, split summary-style from [[test-suite-catalog-plugins]]: the
 suites that prove one plugin's own output gate against its own fixtures, no cross-plugin
-seam involved. One bullet per `test/*.test.mjs` file:
+seam involved. pdlc's own gate suites — its plant surface and its opt-in root-guard hook —
+outgrew this note on their own and split further into
+[[test-suite-catalog-plugins-gates-pdlc]] (`test/pdlc.test.mjs`, `root-guard-hook.test.mjs`,
+`root-guard-scan.test.mjs`). One bullet per remaining `test/*.test.mjs` file:
 
 - `test/grounding-wiki.capsules.test.mjs` — the capsule tier (corpus-spec v2): CAPSULES.md
   generation (deterministic, headered, INDEX-ordered, corpusDir-spelling-invariant across
@@ -38,28 +37,6 @@ seam involved. One bullet per `test/*.test.mjs` file:
   stamp-only re-pin round-trip through `repin.mjs`, code-diff work orders,
   fresh-corpus silence, repin refusals — incl. a well-formed hash naming no commit
   and notes outside git, note untouched).
-- `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin registration +
-  bootstrap SKILL frontmatter (spec 047); template markers carrying the 101 principles
-  (`docs/principles.md`); `renderGrounding` token substitution, non-opted peer blocks stripped;
-  the model-tier rubric (spec 048) — `## Model tiers` inside the grounding markers before peer
-  blocks, the agent-def `model:` pin authoritative, IDs resolved against the live harness
-  (`claude-api`) — and its tier **config** surface (`pdlc/scripts/tiers.mjs`, TASK-106): open
-  tier map, generated `model:` equal to the config, named schema rejections; planting
-  fresh/append/idempotent, peer-change drift, `--check` writing nothing and exiting 1 — one
-  drifted/`--force` contract covers the CLAUDE.md block and a hand-authored tier def; the
-  `peersOmitted` trace (one stderr notice per omitted peer, legacy sentinels readable); the
-  `resolveProjectName` ladder (override > recorded > worktree > basename); the `jira` peer
-  (spec 054) — three-member `PEERS` with a `backlog`/`jira` mutual-exclusion throw,
-  `pdlc:peer:jira` render/strip via `--peer jira` plus its zero-`backlog `-string grep guard,
-  and the unchanged sentinel schema recording `jira` under `peers`/`peersOmitted`; opt-in
-  root-guard planting (spec 051) — `--hook root-guard` copies BOTH hook files into
-  `.claude/hooks/` and merges the two `PreToolUse` entries into `.claude/settings.json`,
-  idempotent, preserving pre-existing hooks, unknown-hook rejection; and the refactor-triage
-  skill shape (spec 033/047) — `parseFrontmatter` frontmatter plus the full phase skeleton (a
-  gutted phase fails loud), phase-content anchors (triage-record path, backlog-CLI-only
-  Execute, team-review lens), three entry modes + declared-policy headless rule, sweep's
-  Handing off naming refactor-triage, and a cross-plugin test that refactor-triage and
-  team-review spell `docs/reviews/team-review-<run-id>.md` identically.
 - `test/phase-status.test.mjs` — the opt-in phase-grain status vocabulary (additive to the
   spec-derive/spec-bridge suites): the five-stage derivation ladder (specifying →
   planning → implementing → validating → reviewing, incl. single-phase tasks.md and
@@ -93,13 +70,6 @@ seam involved. One bullet per `test/*.test.mjs` file:
   [[reorient-run-ownership]]).
 - `test/research-gates.test.mjs` — research's branch/analysis gates (`validateVault`,
   `validateBranch`, `validateAnalysis`) against a synthetic fixture vault.
-- `test/root-guard-scan.test.mjs` — the quote-state shell scanner (spec 051) as a pure
-  function: separators bound only OUTSIDE quotes; single/double, ANSI-C and locale runs,
-  escapes, line continuation; the Co-Authored-By trailer → FOUR tokens (message ONE); command-position detection; fail-closed on unbalanced input.
-- `test/root-guard-hook.test.mjs` — the planted root-guard hook over its `PreToolUse` stdin
-  contract (spec 051), every hazard BOTH ways: newline, `)`, `'`, `"`, `;`, `|`, backtick each
-  ALLOWED `backlog/`-scoped and still BLOCKED out of scope; heredocs, cross-repo jurisdiction,
-  the content false-positive, unparseable-implies-unexecutable, the deny set.
 - `test/spec-bridge.test.mjs` — the bridge gate: linked-task parsing (incl. the AC block),
   exceeds/lags/ok verdicts, `checkBridge` blocking, the Stop hook via gate-runner,
   `strictDone` mode (incl. the analysis-only near-miss warning), and the deterministic
@@ -116,8 +86,8 @@ seam involved. One bullet per `test/*.test.mjs` file:
 ## Connections
 
 - Parent note: [[test-suite-catalog-plugins]] — the plugin-half entry point.
+- Child: [[test-suite-catalog-plugins-gates-pdlc]] — pdlc's own plant + root-guard suites.
 - Sibling: [[test-suite-catalog-plugins-pipeline]] — the content-authoring pipeline and
   cross-plugin handoff suites.
 - Grandparent: [[test-suite]] — conventions, pre-commit/pre-push hooks, and the CI layer.
-- `reorient.test.mjs` proves the [[reorient-run-ownership]] doctrine; `pdlc.test.mjs` pins
-  the [[pdlc-plugin]] plant surface.
+- `reorient.test.mjs` proves the [[reorient-run-ownership]] doctrine.
