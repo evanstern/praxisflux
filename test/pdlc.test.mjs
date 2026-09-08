@@ -178,6 +178,13 @@ test("bootstrap SKILL.md resolves model IDs against the live harness, never from
   assert.match(skill, /\.claude\/agents\/<tier>-implementer\.md/, "the availability check keys on the agent-definition surface");
 });
 
+test("bootstrap SKILL.md asks the tracked-vs-local-only planting question", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
+  assert.match(skill, /a project we own/i, "must name the tracked-ownership case");
+  assert.match(skill, /a repo we are a guest in/i, "must name the local-only guest case");
+  assert.match(skill, /--local-only/, "must name the opt-in flag passed to the plant step");
+});
+
 test("sweep Phase 1 item 2 names where a bootstrapped project's rubric lives", () => {
   const sweep = readFileSync(join(repo, "pdlc", "skills", "sweep", "SKILL.md"), "utf8");
   // R5 two-way contract: sweep must name both halves bootstrap plants — the planted section
