@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 17:45'
+updated_date: '2026-09-08 18:11'
 labels:
   - tech-debt
   - spec-bridge
@@ -102,4 +102,23 @@ Round 9 (2026-09-08, mid-Phase-2) — fully accounted for, no new mystery. Two s
 Tests remain green throughout: 510/510, exit 0.
 
 Worth carrying into the wiki note: a plugin-supplied Stop hook always evaluates the INSTALLED version, so a repo that dogfoods its own plugin cannot observe its own gate fix from the branch that makes it. The in-process call is the only local proof available pre-merge.
+
+DEFECT FOUND IN VERIFICATION (2026-09-08, after Phase 3) — spec 050 defect 1, recurring in a new form. Found by exercising the new R4 instrumentation rather than by a test, which is itself the argument for R4.
+
+The trace record from a real bridgeGate.check invocation reported: node --test -> status 1, while a direct bare node --test in the same tree was green 525/525. Chasing that contradiction: the suite exits 1 under SPEC_BRIDGE_GATE_ACTIVE=1 — precisely the env the gate sets on every child it spawns.
+
+Five tests fail under that flag, all added by Phases 2-3, all of which call bridgeGate.check / bridgeGate.warn DIRECTLY:
+- bridgeGate: a dirty-tree gate warning reaches warn() from check()'s single gate run
+- R4: SPEC_BRIDGE_GATE_TRACE unset => no trace file written
+- R4: SPEC_BRIDGE_GATE_TRACE set => one JSONL record naming resolved roots
+- R4: bounded capture — stdout longer than the cap is truncated
+- R4 verdict-neutral: an unwritable trace path is swallowed
+
+Mechanism: checkBridge's execGates predicate is (runGates && gatesProfile && (injected || SPEC_BRIDGE_GATE_ACTIVE !== '1')). An INJECTED run bypasses the guard (spec 050 defect 1's fix), but bridgeGate.check has no injection seam — it hardcodes checkBridge(root,{runGates:true}). So under the flag these tests get execGates=false and see zero gate findings, and their assertions fail.
+
+Confirmed NEW, not pre-existing: both Phase 1's test file and origin/main's have ZERO occurrences of bridgeGate (git show <ref>:test/project-gates.test.mjs). The pre-sweep suite never exercised bridgeGate directly, so it never tripped this.
+
+Why it matters beyond the test suite: this repo's own  gate IS bare node --test, and the gate runs it with the flag set. So the repo's dogfood reddens its own tests gate whenever a bridgeGate-touching test exists — the exact failure mode spec 050 Phase 5 fixed for injected-run tests, reintroduced through a path with no injection seam. It also means the freshness gate was NOT the only red: rounds 8-10 had BOTH wiki-freshness (mine, legitimately mid-PR) and a genuine tests red that the collapse correctly reported as ONE finding but attributed to freshness because freshness is evaluated in the same pass.
+
+Remedy dispatched as Phase 3b: give bridgeGate.check/.warn an injection seam (or make the flag-guard aware that a test-owned invocation is not a re-entrant spawn), so a bridgeGate test is honest under the flag. Non-negotiable: the guard must still stop real recursive spawning.
 <!-- SECTION:NOTES:END -->

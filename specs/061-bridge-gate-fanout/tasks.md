@@ -70,6 +70,43 @@ it on every commit, so a red phase blocks its own commit.
       doc comment together, plus a test for dirty ⇒ non-blocking-and-labeled with the
       **clean ⇒ still blocks** control.
 
+## Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)
+
+Found in orchestrator verification (2026-09-08) by exercising the new R4 trace, not by a
+test — which is itself R4's argument. **Spec 050 defect 1, recurring through a path with no
+injection seam.**
+
+The trace from a real `bridgeGate.check` reported `node --test -> status 1` while a direct
+bare `node --test` was green 525/525. The suite exits **1** under
+`SPEC_BRIDGE_GATE_ACTIVE=1` — exactly the env the gate sets on every child it spawns. Five
+tests added by Phases 2–3 fail there, all of which call `bridgeGate.check`/`.warn`
+**directly**: the `bridgeGate` subprocess-count test and the four R4 trace tests.
+
+Mechanism: `checkBridge`'s `execGates` is
+`runGates && gatesProfile && (injected || SPEC_BRIDGE_GATE_ACTIVE !== "1")`. An **injected**
+`run` bypasses the guard (defect 1's fix), but `bridgeGate.check` has no injection seam — it
+hardcodes `checkBridge(root, { runGates: true })`. Under the flag those tests get
+`execGates: false`, see zero gate findings, and their assertions fail.
+
+Confirmed **new**, not pre-existing: `git show 0956e9b:test/project-gates.test.mjs` and
+`git show origin/main:test/project-gates.test.mjs` both contain **zero** occurrences of
+`bridgeGate`. The pre-sweep suite never exercised it directly, so it never tripped this.
+
+Why it is merge-blocking: this repo's own `tests` gate **is** bare `node --test`, and the
+gate runs it with the flag set. So the repo's dogfood reddens its own `tests` gate whenever a
+`bridgeGate`-touching test exists — a self-inflicted red that would outlive this PR.
+
+- [ ] T027 Give `bridgeGate.check`/`.warn` an injection seam (or make the guard distinguish a
+      test-owned invocation from a re-entrant spawn) so a `bridgeGate` test is honest under
+      `SPEC_BRIDGE_GATE_ACTIVE=1`. **Non-negotiable: the guard must still stop real recursive
+      spawning** — that is what defect 1 exists to prevent; do not simply delete the check.
+- [ ] T028 Prove it both ways: bare `node --test` green **AND**
+      `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` green, same counts. Report both.
+- [ ] T029 Add a regression test pinning the invariant that the suite is green under the flag,
+      so this cannot silently return — the defect's whole nature is that it is invisible to an
+      unflagged run.
+- [ ] T030 Commit; **push**.
+
 ## Phase 4 — Dogfood, catalog, bump, re-ground
 
 - [ ] T019 **Dogfood in situ:** with a deliberately red gate, this repo's own Stop-hook gate
