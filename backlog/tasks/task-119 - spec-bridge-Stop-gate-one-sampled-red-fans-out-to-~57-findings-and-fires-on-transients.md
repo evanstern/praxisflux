@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 15:35'
+updated_date: '2026-09-08 15:49'
 labels:
   - tech-debt
   - spec-bridge
@@ -40,3 +41,19 @@ Suggested directions (not decided): collapse the fan-out to one finding per red 
 - [ ] #3 Regression test: a red gate plus N Done-eligible specs yields one finding, not N; and a dirty tree yields a labeled/skipped verdict rather than a bare red
 - [ ] #4 The unexplained round-5 firing is either reproduced and explained, or explicitly recorded as unreproduced with what was ruled out
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Round 6 (2026-09-08, after TASK-116 merged): fired again, now including TASK-116's own Phase 5 box. Ruled out, each with the command run:
+
+- Dirty tree: root and worktree both clean (`git status --porcelain` empty).
+- Real failure: `node --test` exit 0, 508/508 on the branch, 496/496 at root.
+- My earlier manual reproductions were INVALID — `stop.mjs` reads hook input from stdin, so bare `bash gate.sh` may no-op instead of running the gate. Re-run correctly with `echo '{"stop_hook_active":false,"cwd":"..."}' | gate.sh`: still 0 findings, exit 0.
+- Minimal non-login shell env (the hook's actual environment): `env -i PATH=<node dir>:/usr/bin:/bin HOME=$HOME node --test` -> exit 0, 508/508. Not an env/PATH difference.
+- Load-sensitive flake: four concurrent full-suite runs, all 508/508 fail 0. Not contention.
+- Gate timeout: GATE_TIMEOUT_MS is 120000 and a timeout reports as "timed out", not "exited 1". The message says exited 1, a genuine nonzero.
+- Re-entrancy guard: SPEC_BRIDGE_GATE_ACTIVE unset in the calling shell, so the gate was not being skipped in my runs for that reason.
+
+STILL UNREPRODUCED. Six firings, one actionable. Whatever produces the nonzero happens only in the harness's own Stop invocation and not in any invocation reachable from a shell — which is itself the most useful clue for whoever picks this up: instrument the gate to log its captured stdout/stderr and exit code at Stop time, rather than trying to reproduce it from outside.
+<!-- SECTION:NOTES:END -->
