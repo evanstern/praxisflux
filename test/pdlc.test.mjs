@@ -180,9 +180,16 @@ test("bootstrap SKILL.md resolves model IDs against the live harness, never from
 
 test("bootstrap SKILL.md asks the tracked-vs-local-only planting question", () => {
   const skill = readFileSync(join(repo, "pdlc", "skills", "bootstrap", "SKILL.md"), "utf8");
-  assert.match(skill, /a project we own/i, "must name the tracked-ownership case");
-  assert.match(skill, /a repo we are a guest in/i, "must name the local-only guest case");
-  assert.match(skill, /--local-only/, "must name the opt-in flag passed to the plant step");
+  // Assert against the BODY, not the whole file: the `description:` frontmatter also names
+  // these phrases, so a whole-file match passes even when the section is deleted (verified
+  // 2026-09-08 by removing the section — the original assertions still passed). Strip the
+  // frontmatter so this guards the operator-facing section it claims to guard.
+  const body = skill.replace(/^---\n[\s\S]*?\n---\n/, "");
+  assert.match(body, /^## Planting mode — tracked vs\. local-only \(opt-in\)$/m,
+    "the planting-mode section itself must exist");
+  assert.match(body, /a project we own/i, "must name the tracked-ownership case");
+  assert.match(body, /a repo we are a guest in/i, "must name the local-only guest case");
+  assert.match(body, /--local-only/, "must name the opt-in flag passed to the plant step");
 });
 
 test("sweep Phase 1 item 2 names where a bootstrapped project's rubric lives", () => {
