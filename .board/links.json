@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-08-28T19:59:58.540Z",
+  "generatedAt": "2026-09-08T14:23:36.423Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2306,7 +2306,7 @@
     },
     {
       "id": "TASK-109",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/052-board-adapter-seam",
       "acs": [
         {
@@ -2361,86 +2361,101 @@
         },
         {
           "index": 11,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — Schema, read/write, validate"
         },
         {
           "index": 12,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — Move the parser, prove nothing broke"
         },
         {
           "index": 13,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — Staleness, provider registry, the Backlog projector"
         },
         {
           "index": 14,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground"
         }
       ]
     },
     {
       "id": "TASK-110",
-      "status": "To Do",
+      "status": "Done",
       "specDir": "specs/053-bridge-on-mirror",
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "boardLinks(root) implements mirror-first / live-backlog / empty; all three entry points use it"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "backlog-only host produces byte-identical verdicts, messages, and planned commands"
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "mirror-only host yields identical problems+warnings for equivalent state (differential fixture pair)"
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "resolveRoots handles .board-only, backlog-only, and both; gates/cli.mjs resolves identically"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "stale requiresSync mirror yields one blocking problem naming reason and remedy"
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "stale non-requiresSync mirror yields NO staleness problem (live projection preferred)"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "declared requiresSync provider with absent mirror yields the blocking no-evidence problem (asserted by message content)"
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "planBridge returns structured intents for non-backlog providers; exact command strings for backlog"
         },
         {
           "index": 9,
-          "checked": false,
+          "checked": true,
           "text": "test/spec-bridge, test/project-gates, test/phase-status pass with NO edits to those files"
         },
         {
           "index": 10,
-          "checked": false,
+          "checked": true,
           "text": "New coverage for AC 3-8; docs/wiki re-pinned (spec-bridge-plugin, gates-convention, project-root)"
+        },
+        {
+          "index": 11,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The seam and root resolution (behavior must not change)"
+        },
+        {
+          "index": 12,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — The fail-closed findings (new behavior, isolated)"
+        },
+        {
+          "index": 13,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Planner split, differential proof, re-ground"
         }
       ]
     },
     {
       "id": "TASK-111",
-      "status": "To Do",
+      "status": "Done",
       "specDir": "specs/054-board-config-jira-peer",
       "acs": [
         {
@@ -2492,12 +2507,27 @@
           "index": 10,
           "checked": false,
           "text": "README.md and CLAUDE.md peer enumeration updated (check-docs green); docs/wiki re-pinned"
+        },
+        {
+          "index": 11,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The config module"
+        },
+        {
+          "index": 12,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — `plant.mjs` peer plumbing and the grounding block"
+        },
+        {
+          "index": 13,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Bootstrap skill prose, docs sync, re-ground"
         }
       ]
     },
     {
       "id": "TASK-112",
-      "status": "To Do",
+      "status": "In Progress",
       "specDir": "specs/055-board-verb-table",
       "acs": [
         {
@@ -2549,12 +2579,32 @@
           "index": 10,
           "checked": false,
           "text": "check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — Enumerate the real call sites, author the verb table"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — The block render/parse pair and `renderJira`"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground"
         }
       ]
     },
     {
       "id": "TASK-113",
-      "status": "To Do",
+      "status": "In Progress",
       "specDir": "specs/056-jira-provider",
       "acs": [
         {
@@ -2606,6 +2656,58 @@
           "index": 10,
           "checked": false,
           "text": "Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — Verify the MCP surface (output is knowledge, not code)"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — Read path: provider, JQL, extraction, mirror"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — Write path: execute the renderer's calls"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground"
+        }
+      ]
+    },
+    {
+      "id": "TASK-114",
+      "status": "Done",
+      "specDir": "specs/059-flake-deterministic-clock",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The intermittent failure at test/team-review.test.mjs:206 is reproduced or its mechanism explained from the code"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Id generation under test is made deterministic (or the assertion made non-probabilistic) so the test cannot fail by chance"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The full suite passes across at least 20 consecutive runs"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The seam and the deterministic test"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Prove it, bump, re-ground"
         }
       ]
     }
