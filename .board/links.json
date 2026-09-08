@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-08T17:22:10.498Z",
+  "generatedAt": "2026-09-08T18:50:23.571Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2790,42 +2790,42 @@
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "A single red project gate produces ONE finding naming that gate, not one per linked spec"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "The project-gate run either skips or explicitly labels its verdict when the working tree is dirty, so a mid-dispatch sample cannot read as a real failure"
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Regression test: a red gate plus N Done-eligible specs yields one finding, not N; and a dirty tree yields a labeled/skipped verdict rather than a bare red"
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "The unexplained round-5 firing is either reproduced and explained, or explicitly recorded as unreproduced with what was ruled out"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — Collapse the fan-out (R1, R3.1)"
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — Label the dirty-tree sample (R2, R3.2)"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — Instrumentation for the unreproduced firings (R4)"
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground"
         }
       ]
