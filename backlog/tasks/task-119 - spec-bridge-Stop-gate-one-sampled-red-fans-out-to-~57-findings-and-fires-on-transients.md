@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 18:50'
+updated_date: '2026-09-08 18:56'
 labels:
   - tech-debt
   - spec-bridge
@@ -48,8 +48,6 @@ Spec: specs/061-bridge-gate-fanout
 - [x] #7 Spec phase: Phase 3 — Instrumentation for the unreproduced firings (R4)
 - [x] #8 Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -125,4 +123,19 @@ Why it matters beyond the test suite: this repo's own  gate IS bare node --test,
 Remedy dispatched as Phase 3b: give bridgeGate.check/.warn an injection seam (or make the flag-guard aware that a test-owned invocation is not a re-entrant spawn), so a bridgeGate test is honest under the flag. Non-negotiable: the guard must still stop real recursive spawning.
 
 T019 dogfood evidence (Phase 4, 2026-09-08): forced this repo's own 'tests' gate red via an injected run (only 'tests' red, other 3 gates left green) and called checkBridge(root) in-process against this repo's real board (58 Done-eligible linked specs). AFTER (collapsed, spec 061 R1): exactly 1 finding — '[spec-bridge] the required gate "tests" is red (exited 1) — 58 linked specs affected. ...'. BEFORE (reconstructed): the pre-collapse per-spec loop (evaluateProjectGates called once per Done-eligible linked task) would have produced 58 findings, one per spec, all naming the ticked box rather than the gate. Caveat: the INSTALLED plugin under ~/.claude/plugins/cache/ still runs the pre-fix code, so the live Stop hook cannot show this collapse until this PR merges and the cache refreshes — this evidence is from the in-process call against the worktree's own source, not from triggering a real Stop hook.
+
+Round 13 (2026-09-08, after PR #137 opened, CI green) — UNREPRODUCED from a shell, and it matters that I say so rather than reuse the round 9-12 explanation. What was eliminated this time, each with the command:
+
+- My worktree, branch code, all four gates: SPEC_BRIDGE_GATE_TRACE captured node --test => 0, check-docs => 0, sync-version --check => 0, freshness => 0. Every declared gate green.
+- The shared root checkout (on main, without the fix): node --test 508/508 exit 0, freshness exit 0. Also green.
+- Resolved roots: exactly ONE (my worktree). CLAUDE_PROJECT_DIR is EMPTY in this session, so gate-runner falls back to input.cwd/cwd; findRootsDownwards returned a single root. The orphan tree is gone from consideration (still on disk, but dot-dir skipped).
+- INSTALLED plugin code (0.59.6, pre-collapse) run in-process against my worktree: 0 problems. So it is not simply old-code-vs-new-code: the old code, pointed at this tree, also finds nothing.
+
+So: two trees, two code versions, four combinations, all green — and the harness's own Stop invocation still emitted the ~57-line fan-out naming tests red. That is EXACTLY the round 5/6 signature: unreproducible from any invocation reachable from a shell.
+
+Correcting myself: my rounds 9-12 accounting attributed the firings to (a) the installed plugin lacking the collapse plus (b) a genuinely red freshness/tests gate. Both were true THEN and verified at the time. Neither explains round 13, where everything is green. I should not have implied the general mystery was closed — AC #4's reproduction closed the ROUND 5-8 case (freshness misattributed as tests), and that finding stands on its own evidence. Whatever produces a red exit inside the harness's Stop invocation specifically, with a clean tree and green gates, is STILL not explained.
+
+Which is precisely why R4's instrumentation shipped, and it is now the tool for this: the next firing can be diagnosed from the inside once 0.61.0 is the installed version and SPEC_BRIDGE_GATE_TRACE is set in the hook's environment. Until then the Stop hook runs 0.59.6, which has no tracer.
+
+Recommend after merge: set SPEC_BRIDGE_GATE_TRACE in the hook env and let the next firing write its record. That is the first time this bug will be observable where it actually happens.
 <!-- SECTION:NOTES:END -->
