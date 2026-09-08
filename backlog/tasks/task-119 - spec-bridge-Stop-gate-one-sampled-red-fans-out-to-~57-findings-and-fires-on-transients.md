@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 15:49'
+updated_date: '2026-09-08 16:11'
 labels:
   - tech-debt
   - spec-bridge
@@ -56,4 +56,17 @@ Round 6 (2026-09-08, after TASK-116 merged): fired again, now including TASK-116
 - Re-entrancy guard: SPEC_BRIDGE_GATE_ACTIVE unset in the calling shell, so the gate was not being skipped in my runs for that reason.
 
 STILL UNREPRODUCED. Six firings, one actionable. Whatever produces the nonzero happens only in the harness's own Stop invocation and not in any invocation reachable from a shell — which is itself the most useful clue for whoever picks this up: instrument the gate to log its captured stdout/stderr and exit code at Stop time, rather than trying to reproduce it from outside.
+
+Round 7 (2026-09-08, during TASK-119 sweep runbook authoring): fired again, ~57 findings, all downstream of `tests` red (exited 1). STILL UNREPRODUCED, but this round eliminated two more candidates AND found a real hazard.
+
+Newly ruled out (each with the command run):
+- `SPEC_BRIDGE_GATE_ACTIVE=1` on the child: round 6 only checked the flag was UNSET in the calling shell, never ran the suite WITH it set — which is what the gate actually does. `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` -> exit 0, 508/508. Not the re-entrancy flag leaking into the child.
+- Worktree cwd: the gate resolved its root to a worktree this time (orchestrator was isolated in .claude/worktrees/task-119, a condition no earlier round had). `node --test` from the worktree -> exit 0, 508/508. Root checkout also 0, 508/508.
+- Faithful spawn replay: a probe replicating runGateCommand exactly (spawnSync, argv, shell:false, SPEC_BRIDGE_GATE_ACTIVE=1, cwd) against BOTH the root and the worktree returned status 0 / fail 0 / no error for each. The gate command as the gate invokes it does not reproduce the nonzero.
+
+NEW HAZARD FOUND (real, independent of this bug): `.claude/worktrees/refactor-triage-2026-07-31/` is a months-old leftover tree that is NOT a registered worktree (`git worktree list` shows only the root) but DOES contain a `backlog/` dir and a `docs/wiki/`. Its suite exits 1 — 36 wiki notes whose pins are 'not a known commit' in that tree. So a red `backlog/`-bearing tree is sitting inside the checkout.
+
+This is a CANDIDATE MECHANISM, not a confirmed one, and the distinction matters: bridgeGate resolves roots via findRootsDownwards, whose defaultSkip skips dot-dirs, so from the root checkout OR from task-119 the resolver returns exactly ONE root (verified by calling it directly). The stale tree is only reachable if some invocation starts the walk at `.claude/worktrees/` itself, where neither child name is dot-prefixed and BOTH would resolve as roots — one of them red. Whether the harness ever passes such a startDir is exactly what cannot be determined from outside, and is what AC #4's instrumentation should capture: log the resolved roots alongside the captured stdout/stderr and exit code at Stop time.
+
+Round tally: seven firings, one actionable. Recommend the stale tree be removed on its own merits regardless of whether it is this bug's cause.
 <!-- SECTION:NOTES:END -->

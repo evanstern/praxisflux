@@ -54,10 +54,15 @@ ordering, doctrine, and the log.
 - **Tier config:** `node <pdlc>/scripts/tiers.mjs --root . --check` exits 0; all three
   agent definitions `unchanged`. **Nothing was regenerated, so no session restart is owed
   before dispatch.**
-- **Stale non-sweep worktree dir:** `.claude/worktrees/refactor-triage-2026-07-31/` exists
-  on disk but is **not** a registered worktree (`git worktree list` shows only the root).
-  It is not this sweep's and not a paused task's — leave it alone; it is not a stale *sweep*
-  worktree for Output-gate purposes.
+- **Stale non-sweep worktree dir — AND A RED `backlog/`-BEARING TREE:**
+  `.claude/worktrees/refactor-triage-2026-07-31/` exists on disk but is **not** a registered
+  worktree (`git worktree list` shows only the root). It carries its own `backlog/` and
+  `docs/wiki/`, and **its suite exits 1** (36 wiki pins "not a known commit" in that tree).
+  It is not this sweep's and not a paused task's, so this sweep does not clean it — but it is
+  a live hazard for any root-resolving gate and a candidate mechanism for the unexplained
+  firings (see design ruling 3). **Recommend removing it on its own merits**; that is an
+  operator call, not a silent sweep action. It is not a stale *sweep* worktree for
+  Output-gate purposes.
 
 ## Execution lanes (dependency-ordered; parallelize within a lane)
 
@@ -113,14 +118,27 @@ These are resolved **from existing artifacts and principles**, not re-asked as p
    bridge's root, and a repo where that cannot be determined **fails closed** (treated as
    clean, i.e. blocking) — consistent with the gate-runner contract that an
    unrunnable check is never silently green.
-3. **AC #4 scope: record, and instrument.** The card's Implementation Notes (commit
-   c8bd2cf) already satisfy AC #4's "explicitly recorded as unreproduced with what was
-   ruled out" — seven eliminations, each with its command. This sweep does **not** re-run
-   that elimination sweep. It adds what the card itself names as the useful next step:
-   opt-in instrumentation that logs the gate command's captured stdout/stderr and exit code
-   **at Stop time**, so the next firing is diagnosable from the inside rather than
-   unreproducible from the outside. Off by default (a Stop hook must not write on every
-   turn); enabled by an env var; writes outside the tracked tree.
+3. **AC #4 scope: record, and instrument.** The card's Implementation Notes already satisfy
+   AC #4's "explicitly recorded as unreproduced with what was ruled out" — nine eliminations
+   now, each with its command (rounds 6 and 7). This sweep does **not** re-run that
+   elimination sweep. It adds what the card itself names as the useful next step: opt-in
+   instrumentation that logs, **at Stop time**, the gate command's captured stdout/stderr and
+   exit code **and the roots `resolveRoots` returned**, so the next firing is diagnosable from
+   the inside rather than unreproducible from the outside. Off by default (a Stop hook must
+   not write on every turn); enabled by an env var; writes outside the tracked tree.
+   **Log the resolved roots, not just the exit code** — round 7 (this session) fired while
+   the orchestrator was isolated in a worktree, ruled out the `SPEC_BRIDGE_GATE_ACTIVE`
+   child flag and the worktree cwd (both green, 508/508), and showed a faithful
+   `runGateCommand` spawn replay returning status 0 against both trees. What it also found:
+   `.claude/worktrees/refactor-triage-2026-07-31/` is an unregistered leftover tree that
+   carries its own `backlog/` and whose suite **exits 1** (36 pins "not a known commit").
+   `findRootsDownwards`'s `defaultSkip` skips dot-dirs, so from either checkout the resolver
+   returns exactly one root — verified by calling it directly — which means the stale tree is
+   reachable ONLY if some invocation starts the walk at `.claude/worktrees/` itself, where
+   neither child is dot-prefixed and both resolve as roots, one of them red. That is a
+   **candidate mechanism, not a confirmed cause**, and only in-hook instrumentation can
+   settle it. Keep the distinction in spec.md: the instrumentation is the deliverable; the
+   diagnosis is not promised.
 
 ## Per-PR gates this project enforces (enumerated — implementers cannot miss these)
 
@@ -331,4 +349,4 @@ future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-08 | TASK-119 | — | — | — | runbook authored; awaiting operator sign-off on the lane + design rulings + escape line |
+| 2026-09-08 | TASK-119 | — | — | — | runbook authored; awaiting operator sign-off on the lane + design rulings + escape line. Round-7 firing observed live during authoring; two more causes ruled out and a red unregistered `backlog/` tree found (recorded on the card, folded into ruling 3) |
