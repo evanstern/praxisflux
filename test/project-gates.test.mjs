@@ -10,12 +10,14 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
   evaluateProjectGates, runGateCommand, checkBridge, verifyBridge, GATE_TIMEOUT_MS,
+  isTreeDirty, bridgeGate,
 } from "../spec-bridge/gates/bridge.mjs";
 
 /* ── fixtures (same shapes as the pre-existing spec-bridge / phase-status tests) ─────────── */
@@ -351,5 +353,118 @@ test("no projectGates: the exceeds message is byte-identical to the 3-status con
       '[spec-bridge] TASK-5 is "Done" but specs/001-pay only proves "In Progress": ' +
       '1 of 2 tasks unchecked (Setup: 1/1 · Core: 0/1). Finish the spec work or set the task back (backlog task edit TASK-5 -s "...").',
     ]);
+  } finally { p.done(); }
+});
+
+/* ── spec 061 R2/R3.2: the dirty-tree label — a verdict sampled against an uncommitted tree
+ * proves nothing about the commit (this repo's own F6 finding, mirrored here for false reds
+ * instead of false greens) and must not block. `isDirty` is injectable, same pattern as `run`,
+ * so every case below drives the decision without a real git spawn — except the one bridgeGate
+ * integration test at the end, which has no injection seam and proves the actual wiring with a
+ * real (tiny) subprocess. */
+
+test("isTreeDirty fail-closed: a spawn that throws is treated as clean (blocks), never dirty", () => {
+  const spawn = () => { throw new Error("boom"); };
+  assert.equal(isTreeDirty("/nonexistent", { spawn }), false);
+});
+
+test("isTreeDirty fail-closed: a nonzero git exit is treated as clean (blocks), never dirty", () => {
+  const spawn = () => ({ status: 128, stdout: "", stderr: "fatal: not a git repository" });
+  assert.equal(isTreeDirty("/nonexistent", { spawn }), false);
+});
+
+test("isTreeDirty: non-empty porcelain output is dirty", () => {
+  const spawn = () => ({ status: 0, stdout: " M some/file.js\n", stderr: "" });
+  assert.equal(isTreeDirty("/whatever", { spawn }), true);
+});
+
+test("isTreeDirty: empty porcelain output is clean", () => {
+  const spawn = () => ({ status: 0, stdout: "", stderr: "" });
+  assert.equal(isTreeDirty("/whatever", { spawn }), false);
+});
+
+test("R2: dirty tree + red required gate ⇒ labeled, non-blocking (routed to warnings, not problems)", () => {
+  const p = project();
+  try {
+    bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
+    const { problems, warnings } = checkBridge(p.root, { run: RED("exited 1"), isDirty: () => true });
+    assert.deepEqual(problems, [], "a dirty-tree sample must not block");
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /"tests"/);
+    assert.match(warnings[0], /DIRTY working tree/, "must be unmistakably labeled as a dirty-tree sample");
+  } finally { p.done(); }
+});
+
+test("R2 control: clean tree + the SAME red required gate still blocks", () => {
+  const p = project();
+  try {
+    bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
+    const { problems, warnings } = checkBridge(p.root, { run: RED("exited 1"), isDirty: () => false });
+    assert.deepEqual(problems, [
+      `[spec-bridge] the required gate "tests" is red (exited 1) — 1 linked spec affected. ${TAIL}`,
+    ]);
+    assert.deepEqual(warnings, []);
+  } finally { p.done(); }
+});
+
+test("R2 fail-closed: undeterminable dirtiness (real isTreeDirty against a non-git tmpdir) still blocks", () => {
+  const p = project(); // a plain tmpdir, not a git repo — `git status` fails, isTreeDirty fails closed to false
+  try {
+    bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
+    const { problems, warnings } = checkBridge(p.root, { run: RED("exited 1") }); // default isDirty = real isTreeDirty
+    assert.equal(problems.length, 1, "undeterminable dirtiness must fail closed to blocking, not warn");
+    assert.deepEqual(warnings, []);
+  } finally { p.done(); }
+});
+
+test("R2: non-gate findings are unaffected by the dirty-tree label — exceeds still blocks, the gate finding still warns", () => {
+  const p = project();
+  try {
+    p.config(REQUIRED_ONLY);
+    // TASK-1: Done-eligible — holds the required gate, which is red.
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    // TASK-2: claims Done over an incomplete spec — a non-gate "exceeds" finding, which reads
+    // committed board/spec artifacts, not a sampled tree, so the dirty-tree label never applies.
+    p.task("TASK-2", "Done", "Spec: specs/002-b/");
+    p.spec("specs/002-b", { "spec.md": "s", "plan.md": "p", "tasks.md": "## Phase\n- [ ] not done\n" });
+    const { problems, warnings } = checkBridge(p.root, { run: RED("exited 1"), isDirty: () => true });
+    assert.equal(problems.length, 1, "the exceeds finding must still block, dirty tree or not");
+    assert.match(problems[0], /TASK-2/);
+    assert.match(problems[0], /only proves/);
+    assert.equal(warnings.length, 1, "the gate finding is labeled and routed to warnings instead");
+    assert.match(warnings[0], /"tests"/);
+  } finally { p.done(); }
+});
+
+/* ── T011: bridgeGate.check()/warn() wiring — the dirty-tree label must reach warn() WITHOUT
+ * running gates a second time. `bridgeGate.warn` deliberately calls `checkBridge(root, {
+ * runGates: false })` so a Stop pays for gate subprocesses once, not twice (the cost regression
+ * spec 050 fixed); flipping that to re-run gates so warn() can see the dirty-tree label would
+ * reopen it. bridgeGate has no injection seam (it matches gate-runner's fixed `(root) => …`
+ * shape), so this is the one test here that spawns a real subprocess — a spy command counts its
+ * own invocations, proving the gate ran exactly once across check()+warn() combined. */
+
+test("bridgeGate: a dirty-tree gate warning reaches warn() from check()'s single gate run — subprocess count does not increase", () => {
+  const p = project();
+  const spy = join(p.root, "spy.count");
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root }); // untracked files alone make the tree dirty — no commit needed
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", "require('fs').appendFileSync(process.env.SPY_FILE,'x');process.exit(1)"] },
+    ] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    process.env.SPY_FILE = spy;
+    try {
+      const problems = bridgeGate.check(p.root);
+      assert.deepEqual(problems, [], "a dirty-tree sample must not block, even through the real Stop-hook wiring");
+      const warnings = bridgeGate.warn(p.root);
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0], /"tests"/);
+      assert.match(warnings[0], /DIRTY working tree/);
+    } finally { delete process.env.SPY_FILE; }
+    const spawnCount = existsSync(spy) ? readFileSync(spy, "utf8").length : 0;
+    assert.equal(spawnCount, 1, "the gate command must run exactly once across check()+warn(), not twice");
   } finally { p.done(); }
 });

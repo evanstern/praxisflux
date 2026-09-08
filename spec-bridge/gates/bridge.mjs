@@ -185,6 +185,38 @@ export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spaw
   return { ok: false, kind: "red", reason: `exited ${res.status}` };
 }
 
+/**
+ * Whether <root>'s working tree has uncommitted changes (spec 061 R2), via `git status
+ * --porcelain` — non-empty stdout = dirty. **Fail closed**: any failure to determine (nonzero
+ * exit, spawn error, git absent) => `false` (treated clean, gate keeps blocking) — an
+ * undeterminable condition must never silently disarm the gate, the same posture
+ * `runGateCommand` takes for a command that cannot run. Argv only, shell:false, cwd = root —
+ * this reads the same tree a gate command would run against, never the CWD it happened to be
+ * invoked from.
+ */
+export function isTreeDirty(root, { spawn = spawnSync } = {}) {
+  let res;
+  try {
+    res = spawn("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8", shell: false });
+  } catch {
+    return false;
+  }
+  if (res.error || res.status !== 0) return false;
+  return typeof res.stdout === "string" && res.stdout.trim().length > 0;
+}
+
+/**
+ * Clause appended to a collapsed gate finding sampled against a dirty tree (spec 061 R2): the
+ * mirror image of this repo's own F6 finding ("a gate run against a dirty working tree proves
+ * nothing about the commit"), recorded there for false greens and here producing false reds.
+ * Rounds 1/2/4 of this repo's own fan-out chase were exactly this — an implementer's
+ * uncommitted mid-dispatch edits, sampled and misread as a broken commit. The verdict is not
+ * dropped (silence would hide a genuine red) but it must not block.
+ */
+const DIRTY_TREE_CLAUSE =
+  " This verdict was sampled against a DIRTY working tree, not a commit — it proves nothing " +
+  "about the commit and must not block. Commit or stash the tree, then re-run for a real verdict.";
+
 /** The last ticked box in document order — the tick that (in sequence) claimed the most, and so
  *  the box a red gate most directly stands over. Null when nothing is ticked. */
 function lastTickedBox(phaseBoxes) {
@@ -376,10 +408,14 @@ function shortfall(root, specDir, derived) {
 /**
  * Judge every linked task under <root>. Returns:
  *   links    — [{ id, status, specDir, derived, verdict }]
- *   problems — blocking messages, one per "exceeds"
- *   warnings — non-blocking messages, one per "lags"
+ *   problems — blocking messages, one per "exceeds", plus one per non-green declared project
+ *              gate (spec 061 R1) — UNLESS the tree is dirty, in which case that gate finding
+ *              moves to `warnings`, labeled (spec 061 R2): a verdict sampled against an
+ *              uncommitted tree proves nothing about the commit and must not block.
+ *   warnings — non-blocking messages: one per "lags", plus any dirty-tree-labeled gate finding.
+ * `isDirty(root)` (default `isTreeDirty`) is injectable for tests, same pattern as `run`.
  */
-export function checkBridge(root, { runGates = true, run } = {}) {
+export function checkBridge(root, { runGates = true, run, isDirty = isTreeDirty } = {}) {
   const links = [];
   const problems = [];
   const warnings = [];
@@ -488,7 +524,15 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   if (doneEligibleCount > 0) {
     const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
     const counts = { required: doneEligibleCount, redByConstruction: doneEligibleCount };
-    problems.push(...collapsedGateProblems(gates, counts, runOne));
+    const found = collapsedGateProblems(gates, counts, runOne);
+    if (found.length > 0) {
+      // spec 061 R2: dirtiness is computed ONCE per invocation (T009) — only reached at all
+      // when there is at least one non-green gate to label. A dirty tree routes the finding
+      // into `warnings` (non-blocking, labeled); clean or undeterminable (fail-closed) keeps
+      // it in `problems`, unchanged from today.
+      if (isDirty(root)) warnings.push(...found.map((p) => p + DIRTY_TREE_CLAUSE));
+      else problems.push(...found);
+    }
   }
   return { links, problems, warnings };
 }
@@ -688,6 +732,14 @@ export function planBridge(root) {
   };
 }
 
+// spec 061 R2/T011: `bridgeGate.warn` deliberately calls `checkBridge(root, { runGates: false })`
+// so a Stop pays for the gate subprocesses once, not twice (the cost regression spec 050
+// fixed). A dirty-tree gate warning is only knowable from the runGates:true pass, so `check`
+// stashes it here, keyed by root, for `warn` to read-and-clear on the very next call for that
+// same root (lib/gate-runner.mjs calls check(root) then warn(root) in that order, per root, in
+// one evaluate() pass — see gate-runner.mjs's evaluate loop). No second gate run, ever.
+const dirtyTreeGateWarningsByRoot = new Map();
+
 /**
  * The Stop-hook gate, in gate-runner shape. Roots are directories holding a backlog/ dir;
  * a root with no linked tasks yields no problems, so the gate is a natural no-op outside
@@ -698,7 +750,16 @@ export const bridgeGate = {
   resolveRoots: (startDir) => findRootsDownwards(startDir, hasAnyChild(".board", "backlog")),
   // The runner calls check() then warn() per root; run the (possibly costly) project-gate
   // commands only in check so a Stop pays for them once, not twice. Warnings never depend on
-  // gate execution, so runGates:false loses nothing.
-  check: (root) => checkBridge(root, { runGates: true }).problems,
-  warn: (root) => checkBridge(root, { runGates: false }).warnings,
+  // gate execution, so runGates:false loses nothing — except the dirty-tree gate label (spec
+  // 061 R2), which check() computed for free as part of running the gates and stashes below.
+  check: (root) => {
+    const { problems, warnings } = checkBridge(root, { runGates: true });
+    dirtyTreeGateWarningsByRoot.set(root, warnings.filter((w) => w.includes(DIRTY_TREE_CLAUSE)));
+    return problems;
+  },
+  warn: (root) => {
+    const stashed = dirtyTreeGateWarningsByRoot.get(root) || [];
+    dirtyTreeGateWarningsByRoot.delete(root);
+    return [...checkBridge(root, { runGates: false }).warnings, ...stashed];
+  },
 };

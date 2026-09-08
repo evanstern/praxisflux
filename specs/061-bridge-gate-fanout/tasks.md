@@ -33,19 +33,19 @@ it on every commit, so a red phase blocks its own commit.
 
 ## Phase 2 — Label the dirty-tree sample (R2, R3.2)
 
-- [ ] T008 Add `isTreeDirty(root)`: `spawnSync("git", ["status", "--porcelain"], { cwd: root })`,
+- [x] T008 Add `isTreeDirty(root)`: `spawnSync("git", ["status", "--porcelain"], { cwd: root })`,
       argv only, `shell:false`. Non-empty stdout = dirty. **Fail closed** — non-zero exit,
       spawn error, or git absent ⇒ `false` (treated clean, keeps blocking).
-- [ ] T009 Compute dirtiness **once per invocation**, not per gate or per spec.
-- [ ] T010 Route a dirty-tree gate verdict into `warnings` instead of `problems`, labeled:
+- [x] T009 Compute dirtiness **once per invocation**, not per gate or per spec.
+- [x] T010 Route a dirty-tree gate verdict into `warnings` instead of `problems`, labeled:
       the sample was taken against a dirty tree and proves nothing about the commit.
-- [ ] T011 **Do not flip `runGates: true` in `bridgeGate.warn`** — that doubles every gate
+- [x] T011 **Do not flip `runGates: true` in `bridgeGate.warn`** — that doubles every gate
       subprocess and re-opens the cost regression spec 050 fixed. Have the gate-running pass
       surface its dirty-tree warnings instead. **State in the commit message which mechanism
       was used, and confirm the subprocess count did not increase.**
-- [ ] T012 Tests: dirty + red ⇒ labeled non-blocking; **clean + red ⇒ still blocks** (the
+- [x] T012 Tests: dirty + red ⇒ labeled non-blocking; **clean + red ⇒ still blocks** (the
       control); undeterminable ⇒ blocks (fail-closed). Non-gate findings unaffected.
-- [ ] T013 Bare `node --test` green. Commit; **push**.
+- [x] T013 Bare `node --test` green. Commit; **push**.
 
 ## Phase 3 — Instrumentation for the unreproduced firings (R4)
 
