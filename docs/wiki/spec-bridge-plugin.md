@@ -101,22 +101,23 @@ the gate accepts. Absent the config, every path is bit-for-bit the 3-status cont
 is praxis P3 (artifact-gated seams, `docs/principles.md`) applied to the board as a
 pipeline's observability surface.
 
-**Project gates (opt-in, spec 050).** A ticked `tasks.md` checkbox IS status here — the
+**Project gates (opt-in, spec 050/061).** A ticked `tasks.md` checkbox IS status here — the
 derivation reads Done-eligibility from those boxes — so a box may not claim a greenness the
-project's gates would deny (2026-08-01 field case: spec 048 ticked "254 pass, 0 fail" while four
-notes staled and freshness was red). A `projectGates` map (`.spec-bridge.json`) makes the rule
-*data*, two buckets: `required` gates must be green before Done-eligible; `redByConstruction`
-(freshness, between a source edit and its re-pin) MAY be red mid-PR (allowed silently), enforced
-again at Done-eligible once the re-pin box is ticked. Each `command` is an **argv array** run via
-`spawnSync` `shell:false` (no injection surface); ENOENT/timeout is *failed, never green*
-(fail-closed). `projectGatesProfile` mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒
-every message byte-identical. One `evaluateProjectGates` feeds two entry points: the **Stop
-hook** (`checkBridge`) at Done-eligible, both buckets; the CLI **`verify`** (`verifyBridge`),
-mid-PR, `required` only. Gates are project-wide, so each command runs **once per invocation**, its
-result shared across specs — findings stay per spec, naming phase/box/gate (else the set ran once
-per Done-eligible spec: 49× here, ~358s→~6.6s). `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the
-**default** runner so a gate command re-invoking the bridge can't recurse; an injected `run`
-bypasses it (spawns nothing), so the check dogfoods itself.
+project's gates would deny (field case: a ticked green claim standing over a red freshness
+gate). A `projectGates` map (`.spec-bridge.json`) makes the rule *data*, two buckets: `required`
+green before Done-eligible; `redByConstruction` (freshness) MAY be red mid-PR, enforced
+once the re-pin box is ticked. Each `command` is an **argv array** via `spawnSync`
+`shell:false`; ENOENT/timeout is *failed, never green* (fail-closed). `projectGatesProfile`
+mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒ byte-identical. `collapsedGateProblems`
+feeds both entry points — **Stop hook** (`checkBridge`) at Done-eligible, both buckets; CLI
+**`verify`** (`verifyBridge`), mid-PR, `required` only, both now `{ problems, warnings }` —
+running each command **once per invocation** and emitting exactly **ONE** finding per non-green
+gate, naming gate + bucket + reason + affected count, never one per spec. A dirty tree
+(`isTreeDirty`, fail-closed to clean) routes that finding to `warnings`, labeled non-blocking
+(this note's F6, inverted). `evaluateProjectGates` stays exported as the pure per-spec
+evaluator. `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the **default** runner so a gate command
+re-invoking the bridge can't recurse; an injected `run` bypasses it, so the check dogfoods
+itself.
 
 ## Connections
 

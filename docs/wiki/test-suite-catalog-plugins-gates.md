@@ -48,14 +48,28 @@ outgrew this note on their own and split further into
   vocabulary (a named review stage plans no auto-Done); and config-absent gate + plan
   output byte-identical to the 3-status contract. Also (spec 050) `projectGatesProfile` cases
   (opt-out, string-command rejection, bucket normalization, name-trim, malformed drop).
-- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050): a ticked box can't outrun a
-  red declared gate. Drives `evaluateProjectGates` via injected `run`; `runGateCommand` real only
-  where tested. Cases: **blocking** (Done-eligible + red `required` ⇒ byte-identical phase/box/gate
-  finding); **allowance** (`verifyBridge` mid-PR runs `required` only, `checkBridge` none);
-  **boundary** (`redByConstruction` red at Done-eligible ⇒ blocks); **fail-closed**
-  (ENOENT/timeout ⇒ never green); **no-config parity** (0 gate calls; frozen 3-status strings);
-  **guard/sharing (Phase 5)** (injected `run` bypasses `SPEC_BRIDGE_GATE_ACTIVE` while the default
-  runner short-circuits; each command spawned once, one finding per spec).
+- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050) plus its fan-out and
+  dirty-tree fixes (spec 061): a ticked box can't outrun a red declared gate, and one red gate
+  now yields exactly **one** collapsed finding per invocation (naming gate + bucket + reason +
+  affected count), never one per linked spec. Drives `evaluateProjectGates`/`collapsedGateProblems`
+  via injected `run`; `runGateCommand` real only where tested. Cases: **blocking** (Done-eligible
+  + red `required` ⇒ one collapsed finding); **fan-out** (N ≥ 2 Done-eligible specs still yield
+  ONE finding, not N — negative control asserts the count is *not* N); **allowance** (`verifyBridge`
+  mid-PR runs `required` only, `checkBridge` none), preserving the bucket asymmetry under the
+  collapse (`redByConstruction` counts only the Done-eligible subset); **boundary**
+  (`redByConstruction` red at Done-eligible ⇒ blocks, both entry points agree); **fail-closed**
+  (ENOENT/timeout ⇒ never green; `isTreeDirty` itself fails closed to clean/blocking on any spawn
+  error); **dirty-tree label** (a red gate on a dirty tree ⇒ labeled, non-blocking warning; the
+  same red gate on a clean tree ⇒ still blocks, the control; both `checkBridge` and `verifyBridge`,
+  the latter now `{ problems, warnings }` rather than a flat array, T018a); **no-config parity**
+  (0 gate calls; frozen 3-status strings); **guard/sharing** (injected `run` bypasses
+  `SPEC_BRIDGE_GATE_ACTIVE` while the default runner short-circuits; each command spawned once);
+  **`bridgeGate` wiring** (the dirty-tree warning reaches `warn()` from `check()`'s single gate
+  run, subprocess count unchanged; a `gateActive` seam lets these tests call the real Stop-hook
+  wrapper honestly even when the suite itself runs as this repo's own `tests` gate child under
+  `SPEC_BRIDGE_GATE_ACTIVE=1`); **R4 trace** (opt-in `SPEC_BRIDGE_GATE_TRACE`: absent ⇒ no file
+  written, verdict unchanged; set ⇒ one JSONL record naming resolved roots + bounded per-command
+  argv/status/stdout/stderr; a write failure is swallowed, never affecting the verdict).
 - `test/reorient.test.mjs` — reorient end to end: the output gate (`checkReorient` blocks
   until analyses + synthesis exist, demands every corpus branch named plus the sections,
   refuses in-corpus syntheses and empty lenses; adhoc corpus needs no analysis note),
