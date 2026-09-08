@@ -40,17 +40,17 @@ committed and **pushed** (runbook F4).
 
 ## Phase 3 — Sentinel round-trip and mode-switch drift
 
-- [ ] Record `localOnly` in the `.pdlc` sentinel's `desired` object.
-- [ ] Extend the `same` comparison with an absent-tolerant clause, mirroring how `name` and
+- [x] Record `localOnly` in the `.pdlc` sentinel's `desired` object.
+- [x] Extend the `same` comparison with an absent-tolerant clause, mirroring how `name` and
       `hooks` already tolerate legacy sentinels (R4).
-- [ ] A **mode switch** (sentinel disagrees with the requested mode) is honest drift:
+- [x] A **mode switch** (sentinel disagrees with the requested mode) is honest drift:
       reported through its own field, not applied without `--force`, and the sentinel does
       not advance past an unconfirmed switch. Keep it diagnosable apart from
       `claudeMd: "drifted"`, which means something else.
-- [ ] Tests: sentinel records the field; re-plant reports `unchanged` and the bytes do not
+- [x] Tests: sentinel records the field; re-plant reports `unchanged` and the bytes do not
       churn; a legacy sentinel without the field re-plants `unchanged`; the mode switch
       surfaces as drift and applies only with `--force`.
-- [ ] Bare `node --test` green. Commit and **push**.
+- [x] Bare `node --test` green. Commit and **push**.
 
 ## Phase 4 — The bootstrap question
 

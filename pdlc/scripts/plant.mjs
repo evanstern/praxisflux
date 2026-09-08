@@ -174,15 +174,19 @@ function wireRootGuard(root) {
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
  * Returns { mode, claudeMd, gitignore, exclude, pdlcFile, hooks, projectName, peersOmitted,
- * missing } — claudeMd is one of created | appended | replaced | unchanged | drifted; gitignore
- * is `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever written
- * to `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude file
- * is never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
+ * modeSwitch, missing } — claudeMd is one of created | appended | replaced | unchanged | drifted;
+ * gitignore is `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever
+ * written to `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude
+ * file is never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
  * nothing written, no throw); hooks is `absent` (root-guard not opted in), `installed` (opted
  * in and newly wired, or would be under --check), or `unchanged` (opted in and already fully
  * wired); projectName is the resolved heading name (see resolveProjectName); peersOmitted
  * lists the known peers not opted in at plant time (their blocks were stripped from the
- * rendered grounding).
+ * rendered grounding); modeSwitch is `none` (no prior sentinel, or it agrees with the requested
+ * localOnly), `drifted` (the sentinel recorded the other mode and --force was not given — the
+ * sentinel is NOT advanced), or `applied` (a genuine switch, confirmed with --force). This is
+ * diagnosable apart from `claudeMd: "drifted"`, which means the on-disk grounding block content
+ * differs from what this version renders — a different question entirely (spec 060 R4).
  */
 export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name, localOnly = false } = {}) {
   root = resolve(root);
@@ -257,24 +261,35 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
     if (!check && hooksReport === "installed") wireRootGuard(root);
   }
 
-  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted, hooks: [...hooks].sort() };
-  // peersOmitted is derived from peers, so comparing version + peers + name + hooks is enough
-  // — and tolerating an absent field keeps legacy sentinels (written before `peersOmitted`,
-  // `name`, or `hooks` existed) "unchanged" instead of churning them just to gain the field.
+  const desired = { planted: "pdlc:bootstrap", version, name: projectName, peers: [...peers].sort(), peersOmitted, hooks: [...hooks].sort(), localOnly };
+  // peersOmitted is derived from peers, so comparing version + peers + name + hooks + localOnly is
+  // enough — and tolerating an absent field keeps legacy sentinels (written before `peersOmitted`,
+  // `name`, `hooks`, or `localOnly` existed) "unchanged" instead of churning them just to gain the
+  // field (spec 060 R4).
   const same = existing && existing.version === desired.version &&
     JSON.stringify([...(existing.peers || [])].sort()) === JSON.stringify(desired.peers) &&
     (existing.name === undefined || existing.name === desired.name) &&
-    (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks));
-  // A drifted, unconfirmed block means nothing was planted — don't advance the sentinel past it.
-  const pdlcFile = claudeMd === "drifted" ? (existing ? "unchanged" : "skipped")
+    (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks)) &&
+    (existing.localOnly === undefined || existing.localOnly === desired.localOnly);
+  // Spec 060 R4: a MODE SWITCH — the sentinel recorded the other planting mode than what's being
+  // requested now — is honest drift, diagnosable apart from `claudeMd: "drifted"` (a different
+  // question: on-disk block content vs. this version's render). A legacy sentinel written before
+  // `localOnly` existed is tracked mode by definition (`?? false`), so replanting tracked over one
+  // is NOT a switch — only a genuine disagreement is. Unconfirmed, the sentinel must not advance
+  // past it; `--force` is the same consent path `claudeMd: "drifted"` already requires.
+  const modeSwitch = existing && (existing.localOnly ?? false) !== localOnly
+    ? (force ? "applied" : "drifted") : "none";
+  // A drifted, unconfirmed block — or an unconfirmed mode switch — means nothing was planted for
+  // that facet: don't advance the sentinel past either one.
+  const pdlcFile = claudeMd === "drifted" || modeSwitch === "drifted" ? (existing ? "unchanged" : "skipped")
     : same ? "unchanged" : existing ? "updated" : "written";
-  if (!check && !same && claudeMd !== "drifted") {
+  if (!check && !same && claudeMd !== "drifted" && modeSwitch !== "drifted") {
     writeFileSync(sentinelPath, JSON.stringify({ ...desired, plantedAt: new Date().toISOString() }, null, 2) + "\n");
   }
 
   // .gitignore is never planted in local-only mode (R1), so it is not a required artifact there.
   const missing = check ? [] : verifyPresent(root, localOnly ? ["CLAUDE.md", SENTINEL] : ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, missing };
+  return { mode, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, modeSwitch, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -304,7 +319,8 @@ if (runAsCli(import.meta.url)) {
   // pending until a real `git init` lets the exclude lines actually land (R6).
   const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
     || report.gitignore === "added" || report.hooks === "installed"
-    || report.exclude === "added" || report.exclude === "no-git";
+    || report.exclude === "added" || report.exclude === "no-git"
+    || report.modeSwitch === "drifted";
   if (check && pending) process.exit(1); // --check: nonzero when planting would change something
   if (report.missing.length) process.exit(1);
 }

@@ -239,8 +239,10 @@ test("sentinel records jira under peers/peersOmitted with no sentinel schema cha
     assert.deepEqual(sentinel.peersOmitted, ["backlog", "spec-kit"]);
     assert.deepEqual(
       Object.keys(sentinel).sort(),
-      ["planted", "version", "name", "peers", "peersOmitted", "hooks", "plantedAt"].sort(),
-      "no new sentinel fields — jira rides the existing peers/peersOmitted shape",
+      // localOnly is spec 060's addition — jira itself still rides the existing peers/peersOmitted
+      // shape and adds nothing of its own.
+      ["planted", "version", "name", "peers", "peersOmitted", "hooks", "localOnly", "plantedAt"].sort(),
+      "jira adds no sentinel fields of its own beyond spec 060's localOnly",
     );
   } finally { done(); }
 });
@@ -912,5 +914,123 @@ test("R3 ordering: a first local-only plant into a real git repo leaves git stat
     const excludeNs = nsOf(".git/info/exclude");
     assert.ok(excludeNs <= nsOf("CLAUDE.md"), "exclude must be written before CLAUDE.md");
     assert.ok(excludeNs <= nsOf(SENTINEL), "exclude must be written before the sentinel");
+  } finally { done(); }
+});
+
+// --- local-only planting: sentinel round-trip and mode-switch drift (spec 060, Phase 3) ---
+
+test("sentinel records localOnly for both modes; tracked-mode re-plant is unchanged and does not churn the file", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts({ localOnly: true }));
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true);
+  } finally { done(); }
+
+  const b = gitRoot();
+  try {
+    const r = plant(b.root, opts());
+    assert.equal(r.pdlcFile, "written");
+    assert.equal(JSON.parse(readFileSync(join(b.root, SENTINEL), "utf8")).localOnly, false);
+
+    // Re-plant with identical options: pdlcFile reports unchanged AND the sentinel is not
+    // rewritten at all — bytes and mtime must be identical, not merely "equivalent content".
+    // A test that only re-parses and diffs JSON would pass even if plant() rewrote the file
+    // with a fresh plantedAt timestamp every time; comparing raw bytes/mtime catches that.
+    const before = readFileSync(join(b.root, SENTINEL));
+    const mtimeBefore = statSync(join(b.root, SENTINEL)).mtimeNs;
+    const again = plant(b.root, opts());
+    assert.equal(again.pdlcFile, "unchanged");
+    assert.deepEqual(readFileSync(join(b.root, SENTINEL)), before, "sentinel bytes must not churn on a no-op re-plant");
+    assert.equal(statSync(join(b.root, SENTINEL)).mtimeNs, mtimeBefore, "sentinel must not even be rewritten (mtime unchanged)");
+  } finally { b.done(); }
+});
+
+test("legacy sentinel without localOnly re-plants as unchanged and is left untouched", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts());
+    const sentinelPath = join(root, SENTINEL);
+    const legacy = JSON.parse(readFileSync(sentinelPath, "utf8"));
+    delete legacy.localOnly; // what a pre-060 plant wrote
+    writeFileSync(sentinelPath, JSON.stringify(legacy, null, 2) + "\n");
+    const before = readFileSync(sentinelPath);
+
+    const r = plant(root, opts()); // still tracked (no --local-only) — not a mode switch
+    assert.equal(r.claudeMd, "unchanged");
+    assert.equal(r.modeSwitch, "none", "requesting the same (tracked) mode a legacy host is in is not a switch");
+    assert.equal(r.pdlcFile, "unchanged", "gaining the localOnly field must not rewrite a legacy sentinel");
+    assert.deepEqual(readFileSync(sentinelPath), before, "legacy sentinel bytes left exactly as-is");
+    assert.ok(!("localOnly" in JSON.parse(readFileSync(sentinelPath, "utf8"))), "field not backfilled by a no-op replant");
+  } finally { done(); }
+});
+
+test("a mode switch surfaces as drift, does not advance the sentinel, and applies only with --force", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts()); // tracked (default)
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, false);
+    const before = readFileSync(join(root, SENTINEL));
+
+    // Ask for the OTHER mode without --force: honest drift, own field, sentinel unmoved.
+    const drifted = plant(root, opts({ localOnly: true }));
+    assert.equal(drifted.modeSwitch, "drifted");
+    assert.notEqual(drifted.modeSwitch, drifted.claudeMd, "diagnosable apart from claudeMd's own drift state");
+    assert.equal(drifted.claudeMd, "unchanged", "the grounding block is untouched by a mode switch");
+    assert.equal(drifted.pdlcFile, "unchanged", "sentinel must not advance past an unconfirmed switch");
+    assert.deepEqual(readFileSync(join(root, SENTINEL)), before, "sentinel bytes provably unchanged (not just same JSON)");
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, false, "still records the OLD mode");
+
+    // --check must also flag it as pending, the same consent gate as every other drift.
+    const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+    let status = 0;
+    try { execFileSync(process.execPath, [cli, "--root", root, "--local-only", "--check"]); }
+    catch (e) { status = e.status; }
+    assert.equal(status, 1, "--check must exit 1 while a mode switch is unconfirmed");
+
+    // --force is the consent path: the switch applies and the sentinel advances.
+    const forced = plant(root, opts({ localOnly: true, force: true }));
+    assert.equal(forced.modeSwitch, "applied");
+    assert.equal(forced.pdlcFile, "updated");
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true, "sentinel now records the new mode");
+
+    // And it's stable from here: re-plant in the now-current (local-only) mode is unchanged.
+    const settled = plant(root, opts({ localOnly: true }));
+    assert.equal(settled.modeSwitch, "none");
+    assert.equal(settled.pdlcFile, "unchanged");
+
+    // Flip direction: ask to go BACK to tracked (no --force) with every other facet already
+    // settled (gitignore already carries .handoff/ from the very first plant; exclude is
+    // "skipped" outright in the tracked branch) — isolates that modeSwitch alone, not some
+    // other pending facet, is what the --check gate is keying on.
+    const revert = plant(root, opts({ check: true }));
+    assert.equal(revert.modeSwitch, "drifted", "reverting without --force is itself an unconfirmed switch");
+    assert.equal(revert.claudeMd, "unchanged", "grounding content does not depend on planting mode");
+    assert.notEqual(revert.gitignore, "added");
+    assert.notEqual(revert.exclude, "added");
+    assert.notEqual(revert.exclude, "no-git");
+    assert.notEqual(revert.hooks, "installed");
+  } finally { done(); }
+});
+
+test("--check's exit-nonzero gate fires on a mode-switch-only drift, with no other facet pending", () => {
+  // Runs the real CLI end to end (same resolved version throughout, so there is no unrelated
+  // claudeMd version drift to confound the result) to prove the ACTUAL pending formula in
+  // plant.mjs — not a re-typed copy of it — trips on modeSwitch alone.
+  const { root, done } = gitRoot();
+  const cli = join(repo, "pdlc", "scripts", "plant.mjs");
+  try {
+    execFileSync(process.execPath, [cli, "--root", root]); // tracked (default)
+    execFileSync(process.execPath, [cli, "--root", root, "--local-only", "--force"]); // confirmed switch
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, true);
+
+    let status = 0, stdout = "";
+    try { stdout = execFileSync(process.execPath, [cli, "--root", root, "--check"], { encoding: "utf8" }); }
+    catch (e) { status = e.status; stdout = e.stdout; }
+    assert.equal(status, 1, "reverting to tracked without --force must fail --check");
+    const report = JSON.parse(stdout);
+    assert.equal(report.modeSwitch, "drifted");
+    assert.equal(report.claudeMd, "unchanged", "content itself is settled — not what's failing this check");
+    assert.notEqual(report.gitignore, "added", "gitignore already carries .handoff/ from the first plant");
+    assert.notEqual(report.exclude, "added", "exclude is skipped outright in the tracked branch");
   } finally { done(); }
 });
