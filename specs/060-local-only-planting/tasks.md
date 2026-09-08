@@ -71,17 +71,21 @@ committed and **pushed** (runbook F4).
 
 ## Phase 5 — Bump, re-ground, PR
 
-- [ ] Bump: marketplace version + `pdlc/skills/bootstrap/SKILL.md` `version:` 0.12.0 →
+- [x] Bump: marketplace version + `pdlc/skills/bootstrap/SKILL.md` `version:` 0.12.0 →
       0.13.0 (`docs/releasing.md`). Verify with `git show HEAD:<file>`, never the on-disk
       file (runbook F6).
-- [ ] `node scripts/check-docs.mjs` — update `README.md`/`CLAUDE.md` if what the repo ships
-      changed.
-- [ ] `node grounding-wiki/gates/cli.mjs plan . docs/wiki` — classify every stale note
+- [x] `node scripts/check-docs.mjs` — update `README.md`/`CLAUDE.md` if what the repo ships
+      changed. (README's pdlc row gained the `--local-only` sentence.)
+- [x] `node grounding-wiki/gates/cli.mjs plan . docs/wiki` — classify every stale note
       RE-PIN-ONLY or NEEDS-REVIEW against its own diff; amend prose before bumping any pin.
-      Expect `pdlc-plugin`, `installer`, `pdlc-grounding-block`,
-      `test-suite-catalog-plugins-gates`, plus ~17 from the version bump.
-- [ ] **`test-suite-catalog-plugins-gates.md` is at 7987/8000** — take a genuine trim or a
-      summary-style split for the pdlc test-file bullet. Not `size_budget_exempt`.
-- [ ] Re-run the freshness gate **after** the re-pin commit exists — re-pins cascade through
-      hub notes; expect a possible second pass.
-- [ ] Full bare `node --test` green; commit, push, open the PR (merge commit, never squash).
+      `pdlc-grounding-block` never went stale (its sources carry no version stamp and were
+      untouched); `pdlc-plugin` and `installer` were real NEEDS-REVIEW; the version bump
+      staled the rest RE-PIN-ONLY.
+- [x] **`test-suite-catalog-plugins-gates.md`** — operator ruling 2026-09-08 superseded the
+      "trim" framing: full rewrite, split summary-style into a new
+      `test-suite-catalog-plugins-gates-pdlc.md` child (pdlc's own gate suites). No
+      `size_budget_exempt` added; the old one removed.
+- [x] Re-run the freshness gate **after** the re-pin commit exists — re-pins cascade through
+      hub notes; hit a second pass (`test-suite-catalog-plugins.md`, the hub one level up).
+- [x] Full bare `node --test` green (508/508); commit, push. **PR intentionally not opened —
+      out of this dispatch's scope; orchestrator opens it.**
