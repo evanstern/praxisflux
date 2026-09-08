@@ -237,12 +237,21 @@ test("sentinel records jira under peers/peersOmitted with no sentinel schema cha
     const sentinel = JSON.parse(readFileSync(join(root, SENTINEL), "utf8"));
     assert.deepEqual(sentinel.peers, ["jira"]);
     assert.deepEqual(sentinel.peersOmitted, ["backlog", "spec-kit"]);
+    // Spec 054's real intent, stated differentially: opting into jira must add NO sentinel
+    // field of its own — it rides the existing peers/peersOmitted shape. Comparing against a
+    // baseline plant rather than a hardcoded key list keeps this guard honest as other specs
+    // add non-peer axes (spec 060's localOnly was the first), instead of quietly weakening
+    // every time someone appends a name to a literal.
+    const { root: baseRoot, done: baseDone } = proj();
+    let baselineKeys;
+    try {
+      plant(baseRoot, opts({ peers: [] }));
+      baselineKeys = Object.keys(JSON.parse(readFileSync(join(baseRoot, SENTINEL), "utf8"))).sort();
+    } finally { baseDone(); }
     assert.deepEqual(
       Object.keys(sentinel).sort(),
-      // localOnly is spec 060's addition — jira itself still rides the existing peers/peersOmitted
-      // shape and adds nothing of its own.
-      ["planted", "version", "name", "peers", "peersOmitted", "hooks", "localOnly", "plantedAt"].sort(),
-      "jira adds no sentinel fields of its own beyond spec 060's localOnly",
+      baselineKeys,
+      "jira adds no sentinel fields of its own — same key set as a plant with no peers",
     );
   } finally { done(); }
 });
