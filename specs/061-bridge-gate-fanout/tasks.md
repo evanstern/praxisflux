@@ -125,28 +125,61 @@ gate runs it with the flag set. So the repo's dogfood reddens its own `tests` ga
 
 ## Phase 4 — Dogfood, catalog, bump, re-ground
 
-- [ ] T019 **Dogfood in situ:** with a deliberately red gate, this repo's own Stop-hook gate
+- [x] T019 **Dogfood in situ:** with a deliberately red gate, this repo's own Stop-hook gate
       emits **one** finding rather than ~57. This is R1's acceptance evidence — the change is
       *about* this repo's own gate. Record the before/after count.
-- [ ] T020 Catalog the test changes in `docs/wiki/test-suite-catalog-plugins-gates.md`
+      Done: in-process `checkBridge(root)` against this repo's real board (58 Done-eligible
+      linked specs), one gate ("tests") forced red — AFTER (collapsed): 1 finding, naming the
+      gate + "58 linked specs affected". BEFORE (reconstructed via the pre-collapse per-spec
+      loop over the same board): 58 findings. Caveat recorded on the board task: the installed
+      plugin cache still runs pre-fix code, so a real Stop hook can't show this until merge.
+- [x] T020 Catalog the test changes in `docs/wiki/test-suite-catalog-plugins-gates.md`
       (6,820/8,000 — real headroom; takes its per-file bullet normally).
-- [ ] T021 Marketplace version bump + re-sync every `plugin.json`:
+      Done: bullet expanded to cover the fan-out collapse, dirty-tree label + controls,
+      T018a's `{problems,warnings}` shape, the `bridgeGate` wiring test, the `gateActive` seam
+      (T027-T029), and the R4 trace. Body 5,882 -> 7,232 chars, still under 8,000.
+- [x] T021 Marketplace version bump + re-sync every `plugin.json`:
       `node scripts/sync-version.mjs <version>` (released surface — `spec-bridge/` is a plugin
       dir). Bump a skill's `version:` **only** if a file under `spec-bridge/skills/` changed;
       `gates/` is not a skill dir.
-- [ ] T022 `docs/wiki/spec-bridge-plugin.md`: prose comes out **net-neutral-or-smaller** in
+      Done: 0.60.0 -> 0.61.0 (minor: a behavior change to a shipped gate). No file under
+      `spec-bridge/skills/` changed this task, so no skill version was owed.
+- [x] T022 `docs/wiki/spec-bridge-plugin.md`: prose comes out **net-neutral-or-smaller** in
       body chars (already 8,446 and `size_budget_exempt`) — say the new thing by replacing the
       sentence it supersedes. Do **not** extend the exemption; do **not** attempt TASK-95's
       owed split.
-- [ ] T023 Honest re-pins: classify every staled note via
+      Done: the "Project gates" paragraph's stale sentences (one-evaluateProjectGates-call-
+      per-spec, flat `verifyBridge` return) replaced with the collapse + dirty-tree-label +
+      `{problems,warnings}` facts, trimmed elsewhere in the same paragraph to net out smaller:
+      body 8,446 -> 8,444 chars. Exemption clause untouched, not extended.
+- [x] T023 Honest re-pins: classify every staled note via
       `git diff <old-pin>..<new> -- <sources>` as RE-PIN-ONLY or NEEDS-REVIEW; amend prose
       before bumping. The version bump touches every `plugin.json` (~17 notes staleable).
-- [ ] T024 **Re-run the freshness gate AFTER the re-pin commit** — cascade:
+      Done: 13 notes classified and re-pinned — 6 RE-PIN-ONLY (build-plugin,
+      codebase-to-course-plugin, educate-plugin, gates-consumption-surface,
+      grounding-wiki-plugin, research-plugin); 5 NEEDS-REVIEW verified as needing no prose
+      change (build-and-release, pdlc-plugin, reorient-plugin, team-review-plugin,
+      test-suite-catalog-plugins — every quoted version number is a skill version or a
+      historical milestone, none the marketplace version that moved); spec-bridge-plugin.md
+      and test-suite-catalog-plugins-gates.md already amended in the T020/T022 commit, just
+      re-pinned here.
+- [x] T024 **Re-run the freshness gate AFTER the re-pin commit** — cascade:
       `test-suite-catalog-plugins-gates.md` is a hub note pinning a test file this task edits.
       One pass is not enough.
-- [ ] T025 All four green: bare `node --test`, `scripts/check-docs.mjs`,
+      Done: took 3 freshness passes to converge — (1) post-bump: 13 notes NEEDS-REVIEW/
+      RE-PIN-ONLY; (2) post-re-pin-commit: the re-pin itself re-staled
+      `test-suite-catalog-plugins.md` (its hub source's pin line moved, +1/-1, no content
+      change) — re-pinned again; (3) clean: 41/41 fresh, exit 0, `plan` prints nothing.
+- [x] T025 All four green: bare `node --test`, `scripts/check-docs.mjs`,
       `scripts/sync-version.mjs --check`, freshness gate. Verify committed content with
       `git show HEAD:<file>` (F6), not by reading disk.
+      Done: `node --test` 526/526 (both unflagged and `SPEC_BRIDGE_GATE_ACTIVE=1`);
+      `check-docs.mjs` exit 0; `sync-version.mjs --check` exit 0 (0.61.0); freshness exit 0.
+      Verified via `git show HEAD:docs/wiki/{spec-bridge-plugin,test-suite-catalog-plugins-gates}.md`.
 - [ ] T026 Merge `origin/main` **in** (pin-carrying branch — never rebase/squash/force-push);
       re-run gates **and** the freshness probe unconditionally after the merge. Commit; push;
       open the PR (lands as a **merge commit**).
+      `origin/main` is 0 commits ahead of this branch's base (re-verified before and after
+      Phase 4's commits) — no merge-in was needed. Committed and **pushed**
+      (`task-119-bridge-gate-fanout`, pre-push version-bump and freshness hooks both `ok`).
+      Opening the PR is the orchestrator's step, per dispatch scope — left undone here.
