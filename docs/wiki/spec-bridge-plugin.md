@@ -21,7 +21,7 @@ size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TAS
   minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
   than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
   already own this note family's owed summary-style split; fold this into it and remove.
-verified_against: 106dd731c7343728c272bf26cc86de3ed14aae70
+verified_against: 985ec436ff1158eda61e013b1c8383f55b76d321
 ---
 
 # spec-bridge plugin
