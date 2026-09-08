@@ -96,16 +96,32 @@ Why it is merge-blocking: this repo's own `tests` gate **is** bare `node --test`
 gate runs it with the flag set. So the repo's dogfood reddens its own `tests` gate whenever a
 `bridgeGate`-touching test exists — a self-inflicted red that would outlive this PR.
 
-- [ ] T027 Give `bridgeGate.check`/`.warn` an injection seam (or make the guard distinguish a
+- [x] T027 Give `bridgeGate.check`/`.warn` an injection seam (or make the guard distinguish a
       test-owned invocation from a re-entrant spawn) so a `bridgeGate` test is honest under
       `SPEC_BRIDGE_GATE_ACTIVE=1`. **Non-negotiable: the guard must still stop real recursive
       spawning** — that is what defect 1 exists to prevent; do not simply delete the check.
-- [ ] T028 Prove it both ways: bare `node --test` green **AND**
+      Done: `checkBridge` gained a third injectable-with-real-default param, `gateActive =
+      process.env.SPEC_BRIDGE_GATE_ACTIVE === "1"` (same shape as `run`/`isDirty`), and
+      `execGates` now reads `gateActive` instead of the env var directly. `bridgeGate.check`/
+      `.warn` thread an optional second `opts` arg's `opts.gateActive` through to it — gate-
+      runner's real `ctx` (`{ sessionId, input }`) never carries that key, so every production
+      call keeps reading the real env exactly as before; only a test that explicitly passes
+      `{ gateActive: false }` bypasses the flag.
+- [x] T028 Prove it both ways: bare `node --test` green **AND**
       `SPEC_BRIDGE_GATE_ACTIVE=1 node --test` green, same counts. Report both.
-- [ ] T029 Add a regression test pinning the invariant that the suite is green under the flag,
+      Done: bare `node --test` → 526/526 pass, 0 fail. `SPEC_BRIDGE_GATE_ACTIVE=1 node --test`
+      → 526/526 pass, 0 fail. Same counts both ways (525 baseline + 1 new T029 test).
+- [x] T029 Add a regression test pinning the invariant that the suite is green under the flag,
       so this cannot silently return — the defect's whole nature is that it is invisible to an
       unflagged run.
-- [ ] T030 Commit; **push**.
+      Done: `test/project-gates.test.mjs` — "T027-T029 regression: bridgeGate.check stays
+      honest under SPEC_BRIDGE_GATE_ACTIVE via the gateActive seam, and the reentrancy guard
+      still holds without it" sets the flag directly and asserts both halves in one process
+      (no nested `node --test` spawn): `gateActive:false` still runs the declared gate for
+      real (catches the red result, proves the command actually spawned via a spy file), and
+      the plain `bridgeGate.check(root)` call (no seam) still returns `[]` under the same set
+      flag — the reentrancy guard remains fully armed.
+- [x] T030 Commit; **push**.
 
 ## Phase 4 — Dogfood, catalog, bump, re-ground
 

@@ -489,8 +489,21 @@ function shortfall(root, specDir, derived) {
  * `trace` (spec 061 R4, opt-in instrumentation): a callback forwarded to the DEFAULT gate
  * runner's `runGateCommand` calls only — an injected `run` (every test) never reaches it, so
  * tests are unaffected whether or not it's provided.
+ *
+ * `gateActive` (spec 061 Phase 3b, T027): the reentrancy signal itself, injectable with a real
+ * default — `process.env.SPEC_BRIDGE_GATE_ACTIVE === "1"` — same shape as `run`/`isDirty`. Every
+ * real caller (cli.mjs, bridgeGate's production wiring) leaves it at the default, so the actual
+ * env is still what decides for them; only a caller that explicitly passes `gateActive: false`
+ * (a test-owned invocation, e.g. `bridgeGate.check(root, { gateActive: false })`) can make this
+ * DEFAULT runner execute gates while an ambient SPEC_BRIDGE_GATE_ACTIVE=1 is set. This is what
+ * lets `bridgeGate` tests (below) stay honest when this repo's own dogfood `tests` gate — bare
+ * `node --test` — runs the whole suite as a child of a real gate spawn: those tests opt out of
+ * the flag explicitly; nothing else does, so real recursive spawning is stopped exactly as before.
  */
-export function checkBridge(root, { runGates = true, run, isDirty = isTreeDirty, trace } = {}) {
+export function checkBridge(root, {
+  runGates = true, run, isDirty = isTreeDirty, trace,
+  gateActive = process.env.SPEC_BRIDGE_GATE_ACTIVE === "1",
+} = {}) {
   const links = [];
   const problems = [];
   const warnings = [];
@@ -547,7 +560,7 @@ export function checkBridge(root, { runGates = true, run, isDirty = isTreeDirty,
   // Without this bypass the bridge's own dogfood reddens its `tests` gate: `node --test` runs the
   // Phase-3 suite with the flag set, and every injected-run test there fail-closes to [].
   const injected = run !== undefined;
-  const execGates = runGates && !!gatesProfile && (injected || process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1");
+  const execGates = runGates && !!gatesProfile && (injected || !gateActive);
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root, trace })));
   let doneEligibleCount = 0; // spec 061 R1: gate findings collapse to one-per-gate after the loop
   for (const task of boardLinks(root)) {
@@ -838,6 +851,14 @@ let lastResolvedRootsForTrace = null;
  * The Stop-hook gate, in gate-runner shape. Roots are directories holding a backlog/ dir;
  * a root with no linked tasks yields no problems, so the gate is a natural no-op outside
  * bridged projects. "exceeds" blocks; "lags" only warns.
+ *
+ * `check`/`warn` take an optional second arg beyond gate-runner's own `(root, ctx)` call —
+ * gate-runner's `ctx` is always `{ sessionId, input }` (spec 061 Phase 3b: neither key is
+ * named `gateActive`), so a real invocation's `opts.gateActive` is always `undefined` and
+ * `checkBridge`'s own default (the real env read) decides, exactly as before. Only a test that
+ * explicitly calls e.g. `bridgeGate.check(root, { gateActive: false })` can force the DEFAULT
+ * runner to execute under an ambient SPEC_BRIDGE_GATE_ACTIVE=1 — see `checkBridge`'s `gateActive`
+ * doc above for why that can't be reached by anything spawned as a real gate command.
  */
 export const bridgeGate = {
   name: "spec-bridge",
@@ -850,20 +871,21 @@ export const bridgeGate = {
   // commands only in check so a Stop pays for them once, not twice. Warnings never depend on
   // gate execution, so runGates:false loses nothing — except the dirty-tree gate label (spec
   // 061 R2), which check() computed for free as part of running the gates and stashes below.
-  check: (root) => {
+  check: (root, opts = {}) => {
     const path = tracePath(); // spec 061 R4: null unless SPEC_BRIDGE_GATE_TRACE is set
     const commandRecords = path ? [] : null;
     const { problems, warnings } = checkBridge(root, {
       runGates: true,
       trace: commandRecords ? (rec) => commandRecords.push(rec) : undefined,
+      gateActive: opts.gateActive,
     });
     dirtyTreeGateWarningsByRoot.set(root, warnings.filter((w) => w.includes(DIRTY_TREE_CLAUSE)));
     if (commandRecords) traceGateRun(root, lastResolvedRootsForTrace, commandRecords);
     return problems;
   },
-  warn: (root) => {
+  warn: (root, opts = {}) => {
     const stashed = dirtyTreeGateWarningsByRoot.get(root) || [];
     dirtyTreeGateWarningsByRoot.delete(root);
-    return [...checkBridge(root, { runGates: false }).warnings, ...stashed];
+    return [...checkBridge(root, { runGates: false, gateActive: opts.gateActive }).warnings, ...stashed];
   },
 };

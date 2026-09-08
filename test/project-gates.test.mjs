@@ -460,9 +460,13 @@ test("bridgeGate: a dirty-tree gate warning reaches warn() from check()'s single
     p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
     process.env.SPY_FILE = spy;
     try {
-      const problems = bridgeGate.check(p.root);
+      // T027: gateActive:false makes this call hermetic to the caller's own environment (the
+      // suite may itself be running as this repo's declared `tests` gate, i.e. under an
+      // ambient SPEC_BRIDGE_GATE_ACTIVE=1) — same principle as "defect 1"'s save/restore, via
+      // the injectable seam instead of touching process.env.
+      const problems = bridgeGate.check(p.root, { gateActive: false });
       assert.deepEqual(problems, [], "a dirty-tree sample must not block, even through the real Stop-hook wiring");
-      const warnings = bridgeGate.warn(p.root);
+      const warnings = bridgeGate.warn(p.root, { gateActive: false });
       assert.equal(warnings.length, 1);
       assert.match(warnings[0], /"tests"/);
       assert.match(warnings[0], /DIRTY working tree/);
@@ -525,7 +529,9 @@ test("R4: SPEC_BRIDGE_GATE_TRACE unset ⇒ no trace file is written and the verd
     spawnSync("git", ["-C", p.root, "add", "-A"]);
     spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
     delete process.env.SPEC_BRIDGE_GATE_TRACE;
-    const problems = bridgeGate.check(p.root);
+    // T027: gateActive:false — hermetic to whatever SPEC_BRIDGE_GATE_ACTIVE the caller's own
+    // process happens to carry (this suite may itself be running as the `tests` gate's child).
+    const problems = bridgeGate.check(p.root, { gateActive: false });
     assert.equal(problems.length, 1, "a clean tree with a red required gate must still block");
     const after = existsSync(defaultTrace) ? readFileSync(defaultTrace, "utf8").length : null;
     assert.equal(after, before, "absent env var must not write to the default trace location — not one extra syscall");
@@ -550,7 +556,8 @@ test("R4: SPEC_BRIDGE_GATE_TRACE set ⇒ one JSONL record naming resolved roots 
     // Real Stop-hook wiring calls resolveRoots(start) once, then check(root) per resolved root
     // (lib/gate-runner.mjs's evaluate loop) — mirror that order so the trace sees a real roots list.
     bridgeGate.resolveRoots(p.root);
-    try { problems = bridgeGate.check(p.root); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    // T027: gateActive:false — hermetic to the caller's own SPEC_BRIDGE_GATE_ACTIVE.
+    try { problems = bridgeGate.check(p.root, { gateActive: false }); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     assert.equal(problems.length, 1, "enabling the trace must not change the verdict");
     const lines = readFileSync(tracePath, "utf8").trim().split("\n");
     assert.equal(lines.length, 1, "one record per bridgeGate.check() invocation");
@@ -580,7 +587,8 @@ test("R4: bounded capture — stdout longer than the cap is truncated, not dropp
     spawnSync("git", ["-C", p.root, "add", "-A"]);
     spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
     process.env.SPEC_BRIDGE_GATE_TRACE = tracePath;
-    try { bridgeGate.check(p.root); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    // T027: gateActive:false — hermetic to the caller's own SPEC_BRIDGE_GATE_ACTIVE.
+    try { bridgeGate.check(p.root, { gateActive: false }); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     const record = JSON.parse(readFileSync(tracePath, "utf8").trim());
     assert.ok(record.commands[0].stdout.length < 10000, "a 10000-char stream must be capped, not stored in full");
     assert.match(record.commands[0].stdout, /truncated/);
@@ -601,8 +609,53 @@ test("R4 verdict-neutral: an unwritable trace path is swallowed — the gate ver
     // A path inside a nonexistent directory: appendFileSync throws ENOENT.
     process.env.SPEC_BRIDGE_GATE_TRACE = join(p.root, "no-such-dir", "trace.jsonl");
     let problems;
-    try { assert.doesNotThrow(() => { problems = bridgeGate.check(p.root); }); }
+    // T027: gateActive:false — hermetic to the caller's own SPEC_BRIDGE_GATE_ACTIVE.
+    try { assert.doesNotThrow(() => { problems = bridgeGate.check(p.root, { gateActive: false }); }); }
     finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     assert.equal(problems.length, 1, "a swallowed trace failure must not affect the gate verdict");
   } finally { p.done(); }
+});
+
+/* ── spec 061 Phase 3b, T027-T029: this repo's own dogfood defect ────────────────────────────
+ * Diagnosis: this repo's `.spec-bridge.json` declares its `tests` gate as bare `node --test` —
+ * so a REAL Stop-hook run of `bridgeGate.check` on THIS repo spawns the whole suite as a child
+ * with SPEC_BRIDGE_GATE_ACTIVE=1 (runGateCommand's own reentrancy guard, spec 050 defect 1).
+ * Every `bridgeGate.check`/`.warn` test above calls the real Stop-hook wrapper directly (no
+ * injected `run` — that's the point, they prove the REAL wiring), so before T027 they inherited
+ * that ambient flag and silently saw zero gate findings whenever the suite happened to be run
+ * under it — invisible unflagged, exactly the shape of spec 050 defect 1 recurring through a
+ * path (bridgeGate.check/.warn) that had no injection seam at all. Reproduced directly (not by
+ * shelling out to a nested `node --test`, which would be pathologically slow): flip the SAME
+ * flag this test's own ambient environment might or might not carry, and prove BOTH halves
+ * without needing to know which:
+ *   1. the seam — `gateActive: false` — makes bridgeGate.check honest regardless of the flag.
+ *   2. the guard — omitting the seam — still stops the DEFAULT runner cold under the flag,
+ *      exactly as spec 050 defect 1 requires (no recursive spawning is ever green-lit).
+ * This is what T029 asks for: an assertion that would have caught the defect from inside the
+ * suite, on both a flagged AND an unflagged run, with the invariant pinned either way. */
+
+test("T027-T029 regression: bridgeGate.check stays honest under SPEC_BRIDGE_GATE_ACTIVE via the gateActive seam, and the reentrancy guard still holds without it", () => {
+  const p = project();
+  const saved = process.env.SPEC_BRIDGE_GATE_ACTIVE;
+  process.env.SPEC_BRIDGE_GATE_ACTIVE = "1"; // simulate being spawned as this repo's own `tests` gate child
+  try {
+    bridged(p, "Done", ALL_DONE, REQUIRED_ONLY); // a red required gate would block if it ran
+    const spy = join(p.root, "spy.count");
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", "require('fs').appendFileSync(process.env.SPY_FILE,'x');process.exit(1)"] },
+    ] } });
+    process.env.SPY_FILE = spy;
+    try {
+      // 1. Test-owned seam: real gate execution happens even under the ambient flag.
+      const honest = bridgeGate.check(p.root, { gateActive: false });
+      assert.equal(honest.length, 1, "gateActive:false must run the declared gate for real, catching the red result");
+      assert.equal(existsSync(spy) && readFileSync(spy, "utf8").length, 1, "the declared command must actually have spawned");
+    } finally { delete process.env.SPY_FILE; }
+    // 2. No seam: the DEFAULT runner still short-circuits — real recursive spawning stays blocked.
+    assert.deepEqual(bridgeGate.check(p.root), [], "without the seam, the flag must still fully arm the reentrancy guard");
+  } finally {
+    if (saved === undefined) delete process.env.SPEC_BRIDGE_GATE_ACTIVE;
+    else process.env.SPEC_BRIDGE_GATE_ACTIVE = saved;
+    p.done();
+  }
 });
