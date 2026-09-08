@@ -1,10 +1,10 @@
 ---
 id: TASK-112
 title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-28 19:21'
+updated_date: '2026-09-08 14:17'
 labels:
   - feature
   - doctrine
@@ -40,10 +40,16 @@ Spec: specs/055-board-verb-table
 - [ ] #8 docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)
 - [ ] #9 renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes
 - [ ] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
+- [ ] #11 Spec phase: Phase 1 — Enumerate the real call sites, author the verb table
+- [ ] #12 Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
+- [ ] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
+- [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 SWEEP HOLD (2026-08-28, orchestrator precondition gate). NOT signed off; do not claim. Finding F1 — ORDERING INVERSION: this spec (055) BUILDS the <!-- spec-phases --> block render/parse pair and renderJira, but the premise those rest on — that HTML comment markers and checkbox syntax survive a Jira description write->read cycle — is only ever tested by spec 056 (TASK-113) Phase 1, which merges LAST in the runbook's lane order. 055's own Phase 3 round-trips against fixtures only, which cannot detect Jira normalizing or stripping the markers. Gate: do not claim TASK-112 until either (a) 056 Phase 1's live marker test has run and recorded that markers survive, naming the contentFormat that preserved them, or (b) the operator signs written acceptance of the fixture-only risk in docs/design/jira-board-runbook.md. If markers do NOT survive, that is an AMENDMENT to spec 055 — not a local workaround in 056. Full detail: runbook findings F1/F2.
+
+spec-bridge sync: Phase 1 — Enumerate the real call sites, author the verb table: 0/6 · Phase 2 — Mirror labels and the paused-lane fix (correctness, early): 0/6 · Phase 3 — The block render/parse pair and `renderJira`: 0/8 · Phase 4 — The six skill rewrites, labels doc, versions, re-ground: 0/11 — status To Do → In Progress
 <!-- SECTION:NOTES:END -->
