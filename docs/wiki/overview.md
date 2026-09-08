@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
+verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
 ---
 
 # praxisflux — system overview
@@ -38,8 +38,10 @@ grounding-wiki ────┘             (teach)          (implement)         
   view over GitHub Spec Kit specs, gated so status can't exceed proven spec artifacts.
 - [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
   three skills: `bootstrap` stamps a new or existing project for the praxis development
-  lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore, opt-in to the supported peer
-  utilities Backlog.md, Spec Kit, and Jira); `sweep` runs a set of board tasks through the whole
+  lifecycle (planted CLAUDE.md grounding, `.handoff/` gitignore — tracked by default, or
+  **local-only** into `.git/info/exclude` via `--local-only` for a repo the operator is a
+  guest in — opt-in to the supported peer utilities Backlog.md, Spec Kit, and Jira);
+  `sweep` runs a set of board tasks through the whole
   lifecycle (operator-signed-off runbook, parallel lanes, serial merges); `refactor-triage`
   closes the post-sweep loop, triaging the merged work for debt and drift and carding accepted
   findings back onto the board.
