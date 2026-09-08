@@ -46,6 +46,16 @@ ordering, doctrine, and the log.
   the label. (A plain `grep -rl paused backlog/tasks/` is a FALSE POSITIVE trap here: it
   matches TASK-54/55/99/112, which merely *discuss* pausing in their bodies. TASK-55 is
   itself the card that would build the marker. Check the frontmatter list, not the file.)
+- **TASK-112/113 read In Progress but are NOT being worked** (operator question, 2026-09-08).
+  Evidence: both have spec dirs (055, 056) with **zero phase boxes ticked** (0/6 and 0/7 on
+  Phase 1), **no branch exists** for either (`git ls-remote --heads origin` finds none), and
+  their 2026-09-08 14:17 timestamps are the 109/110/111 closure sync, not work. The status is
+  honest by derivation — a spec dir with a `plan.md` and an untouched `tasks.md` derives
+  `implementing` — but it is **useless as a liveness signal**: it means "claimed, spec
+  written, nobody implementing." Hand-setting them back to `To Do` would contradict their
+  artifacts and the gate would report the mismatch, so the legitimate remedies are the
+  `paused` label (TASK-55's marker) or sweeping them (both are next in dependency order after
+  111; 113 also depends on 112). **Operator decision pending; this sweep touches neither.**
 - **Queued (this runbook's scope):** **TASK-119, alone.**
 - **Next free spec number at authoring:** **061** (`origin/main:specs/` tops out at
   `060-local-only-planting`). No remote branch matches `task-119*`
@@ -349,4 +359,5 @@ future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-08 | TASK-119 | — | — | — | runbook authored; awaiting operator sign-off on the lane + design rulings + escape line. Round-7 firing observed live during authoring; two more causes ruled out and a red unregistered `backlog/` tree found (recorded on the card, folded into ruling 3) |
+| 2026-09-08 | TASK-119 | — | — | — | runbook authored; round-7 firing observed live during authoring; two more causes ruled out and an ORPHANED red `backlog/`-bearing tree found (recorded on the card, folded into ruling 3) |
+| 2026-09-08 | TASK-119 | — | — | — | operator signed off (lane + 3 design rulings + escape line). Claimed atomically at `43223bc` (card→In Progress + spec 061 stub + Spec marker + mirror regen). **Mirror regen was REQUIRED to claim:** `boardLinks()` is mirror-first and unconditional, so a stale mirror made the freshly-marked card invisible to the links CLI *and to the gate itself* — a live instance of TASK-117. Spec cycle (real spec/plan/tasks, 4 phases, 26 boxes) at `6ee8f90`; 8 phase+card ACs seeded. `phases: 1 dispatched` (sonnet · `cc/claude-sonnet-5[1m]` · via `.claude/agents/sonnet-implementer.md`) |

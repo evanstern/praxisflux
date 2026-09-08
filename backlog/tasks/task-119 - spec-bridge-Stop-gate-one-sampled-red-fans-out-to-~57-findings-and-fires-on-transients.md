@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 17:22'
+updated_date: '2026-09-08 17:23'
 labels:
   - tech-debt
   - spec-bridge
@@ -49,8 +49,6 @@ Spec: specs/061-bridge-gate-fanout
 - [ ] #8 Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -80,4 +78,6 @@ This is a CANDIDATE MECHANISM, not a confirmed one, and the distinction matters:
 Round tally: seven firings, one actionable. Recommend the stale tree be removed on its own merits regardless of whether it is this bug's cause.
 
 Round 7 addendum (2026-09-08): the stale tree is an ORPHAN, not a registered worktree. Its pointer file references a PREVIOUS repo location (/Users/evanstern/neumo/projects/praxis) that no longer exists — a test for that directory fails. It is a detached copy left behind by the repo relocation: the current repo has no registration for it, which is why the worktree listing never showed it and why its 36 wiki pins read 'not a known commit' — the objects those pins name live in an object store that is gone, not in this repo. This REFINES the candidate mechanism rather than confirming it: the orphan sits under .claude/, which findRootsDownwards's defaultSkip skips, so it is still reachable only if some invocation starts its walk at .claude/worktrees/ itself. AC #4's instrumentation logging resolved roots remains the way to settle it. Operator approved removal 2026-09-08; the harness's destructive-action guard declined to execute the removal without the path named explicitly in an operator turn, so removal is pending an operator hand. It is independent of this task's deliverable.
+
+Dispatch record (2026-09-08): tier sonnet, model ID cc/claude-sonnet-5[1m], via the generated agent definition .claude/agents/sonnet-implementer.md (frontmatter pin is what this harness honors). Rubric justification: defaultTier — the card's ACs plus spec 061's three orchestrator-settled design rulings leave no judgment call for the implementer; this is work to a written spec against an existing in-repo pattern (memoizeRun already de-duplicates the gate RESULT across specs; this extends the same de-duplication to the FINDING). No escalation, no operator checkpoint owed for tier. Served model to be recorded from the first dispatch's transcript before any sibling dispatch.
 <!-- SECTION:NOTES:END -->
