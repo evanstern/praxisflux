@@ -5,38 +5,38 @@ committed and **pushed** (runbook F4).
 
 ## Phase 1 — The exclude helper and the scoped set
 
-- [ ] Read `lib/installer.mjs` (`ensureGitignore` is the ancestor) and `pdlc/scripts/plant.mjs`
+- [x] Read `lib/installer.mjs` (`ensureGitignore` is the ancestor) and `pdlc/scripts/plant.mjs`
       end to end, plus the `--hook root-guard` opt-in as the pattern being followed.
-- [ ] Add `ensureExclude(root, entries)` to `lib/installer.mjs`: targets
+- [x] Add `ensureExclude(root, entries)` to `lib/installer.mjs`: targets
       `<root>/.git/info/exclude`, appends only lines not already present, creates
       `.git/info/` if missing, returns what it did. Handles `.git` as a **file** (worktree
       pointer, `gitdir:` shape — see `resolveProjectName` in plant.mjs) as well as a
       directory. Returns a `no-git` result when `.git` is absent — never throws (R6).
-- [ ] Add the exclude-set builder to `pdlc/scripts/plant.mjs`: takes `{ peers, hooks }`,
+- [x] Add the exclude-set builder to `pdlc/scripts/plant.mjs`: takes `{ peers, hooks }`,
       returns the scoped line list per spec R2 — always-on lines plus `/backlog/` only for
       the backlog peer, `/.specify/` only for spec-kit, `/.claude/settings.json` +
       `/.claude/hooks/` only for the root-guard hook. Export it; the tests pin it directly.
-- [ ] `lib/` is chassis — run `node scripts/sync-shared.mjs` if it vendors `lib/` into
+- [x] `lib/` is chassis — run `node scripts/sync-shared.mjs` if it vendors `lib/` into
       plugin dirs, so the copies do not drift.
-- [ ] Tests: the scoped set (peers/hooks off ⇒ the conditional lines absent; each opt-in
+- [x] Tests: the scoped set (peers/hooks off ⇒ the conditional lines absent; each opt-in
       adds exactly its lines); `ensureExclude` idempotence; the `.git`-as-file case; the
       no-git degradation.
-- [ ] Bare `node --test` green. Commit and **push**.
+- [x] Bare `node --test` green. Commit and **push**.
 
 ## Phase 2 — Wire local-only into plant(), ordering first
 
-- [ ] Add the `localOnly` option to `plant()` and the `--local-only` CLI flag (usage string
+- [x] Add the `localOnly` option to `plant()` and the `--local-only` CLI flag (usage string
       and the `--check` pending logic included).
-- [ ] **Move the ignore-write to the top of `plant()`**, before the `CLAUDE.md` write, the
+- [x] **Move the ignore-write to the top of `plant()`**, before the `CLAUDE.md` write, the
       sentinel write, and `wireRootGuard` (R3). In local-only mode call `ensureExclude` with
       the scoped set and write **nothing** to `.gitignore`; in tracked mode keep today's
       `ensureGitignore(root, ".handoff/")` and touch no exclude file.
-- [ ] Report the outcome in the returned object alongside `gitignore` — including the
+- [x] Report the outcome in the returned object alongside `gitignore` — including the
       pre-git degradation — so `--check` and the skill can both surface it.
-- [ ] Tests: local-only writes the exclude file and leaves `.gitignore` absent; tracked mode
+- [x] Tests: local-only writes the exclude file and leaves `.gitignore` absent; tracked mode
       is byte-for-byte unchanged from today; **`git status --porcelain` is empty after a
       first local-only plant into a real git repo** (the ordering assertion, R3).
-- [ ] Bare `node --test` green. Commit and **push**.
+- [x] Bare `node --test` green. Commit and **push**.
 
 ## Phase 3 — Sentinel round-trip and mode-switch drift
 
