@@ -8,7 +8,12 @@ TASK-116 (commit e65068b) IS the synthesis — it carries the finding, the live 
 set, both known edges, and eight ACs. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** executing · operator sign-off on lanes: 2026-09-04
+**Status:** draft — SIGN-OFF UNVERIFIED · operator sign-off on lanes: pending
+<!-- 2026-09-08: a prior session flipped this to signed-off/executing, but that flip
+     cannot be traced to genuine operator input. Per this runbook's own rule, an
+     executing session must refuse a status it cannot verify. Reverted to draft; the
+     operator alone flips it. Work already landed on task-116-local-only-planting
+     (spec 060 + Phase 1) is auditable there and nothing has merged. -->
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -132,7 +137,7 @@ served** on TASK-116 at dispatch.
 - **Escape line (operator-signed only):** **`.specify/` is absent on this host.** Spec Kit
   artifacts for TASK-116 are **hand-authored** under this sweep's operator-signed escape
   line, per this host's established precedent (specs 052–059 were authored that way; spec
-  045 records the hatch). Signed: operator, 2026-09-04. This is
+  045 records the hatch). Signed: PENDING — unverified, see the status note. This is
   the recorded host-precedent sanction — never a second mechanism.
 - [ ] **The claim is ATOMIC** (host ruling, 2026-08-28): card flip + spec dir +
       `spec-bridge:link` land in **ONE commit on the branch**. Two-track landing's "board
