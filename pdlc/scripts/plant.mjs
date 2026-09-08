@@ -34,12 +34,12 @@
 // checkout of the same project is `unchanged`, never spuriously `drifted`; only --name
 // changes it, and that change surfaces as honest drift (consent + --force).
 //
-//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]
+//   node plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { copyFile, ensureGitignore, verifyPresent } from "../lib/installer.mjs";
+import { copyFile, ensureExclude, ensureGitignore, verifyPresent } from "../lib/installer.mjs";
 import { render } from "../lib/template.mjs";
 import { runAsCli } from "../lib/cli.mjs";
 
@@ -173,14 +173,18 @@ function wireRootGuard(root) {
 
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
- * Returns { mode, claudeMd, gitignore, pdlcFile, hooks, projectName, peersOmitted, missing } —
- * claudeMd is one of created | appended | replaced | unchanged | drifted; hooks is `absent`
- * (root-guard not opted in), `installed` (opted in and newly wired, or would be under --check),
- * or `unchanged` (opted in and already fully wired); projectName is the resolved heading name
- * (see resolveProjectName); peersOmitted lists the known peers not opted in at plant time
- * (their blocks were stripped from the rendered grounding).
+ * Returns { mode, claudeMd, gitignore, exclude, pdlcFile, hooks, projectName, peersOmitted,
+ * missing } — claudeMd is one of created | appended | replaced | unchanged | drifted; gitignore
+ * is `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever written
+ * to `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude file
+ * is never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
+ * nothing written, no throw); hooks is `absent` (root-guard not opted in), `installed` (opted
+ * in and newly wired, or would be under --check), or `unchanged` (opted in and already fully
+ * wired); projectName is the resolved heading name (see resolveProjectName); peersOmitted
+ * lists the known peers not opted in at plant time (their blocks were stripped from the
+ * rendered grounding).
  */
-export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name } = {}) {
+export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name, localOnly = false } = {}) {
   root = resolve(root);
   templatePath ??= join(here, "..", "templates", "CLAUDE.md");
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
@@ -195,6 +199,22 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
   if (unknownHooks.length) throw new Error(`unknown hook(s): ${unknownHooks.join(", ")} (known: ${HOOKS.join(", ")})`);
   // The deterministic absent-peer trace: known peers not opted in, in KNOWN-peer order.
   const peersOmitted = PEERS.filter((p) => !peers.includes(p));
+
+  // R3: the ignore-write happens FIRST — before CLAUDE.md, before the sentinel, before
+  // wireRootGuard — so a first plant into a clean host never leaves `git status` dirty for a
+  // beat. Local-only mode writes the scoped set to `.git/info/exclude` and touches nothing
+  // under `.gitignore`, not even `.handoff/`; tracked mode is today's unchanged behaviour.
+  let gitignore, exclude;
+  if (localOnly) {
+    gitignore = "skipped";
+    const r = ensureExclude(root, excludeSet({ peers, hooks }), { dryRun: check });
+    exclude = r.status; // no-git | unchanged | added
+  } else {
+    exclude = "skipped";
+    gitignore = check
+      ? (readGitignoreHas(root, ".handoff/") ? "present" : "added")
+      : ensureGitignore(root, ".handoff/") ? "added" : "present";
+  }
 
   const sentinelPath = join(root, SENTINEL);
   let existing = null;
@@ -228,10 +248,6 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
   }
   if (!check && nextClaude !== undefined) writeFileSync(claudePath, nextClaude);
 
-  const gitignore = check
-    ? (readGitignoreHas(root, ".handoff/") ? "present" : "added")
-    : ensureGitignore(root, ".handoff/") ? "added" : "present";
-
   // Opt-in root-guard hook: copy both files + merge the PreToolUse entries. `absent` when not
   // opted in; else `installed` (needs wiring — reported in --check, done for real otherwise)
   // or `unchanged` (already fully wired). Independent of the grounding block.
@@ -256,8 +272,9 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
     writeFileSync(sentinelPath, JSON.stringify({ ...desired, plantedAt: new Date().toISOString() }, null, 2) + "\n");
   }
 
-  const missing = check ? [] : verifyPresent(root, ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, pdlcFile, hooks: hooksReport, projectName, peersOmitted, missing };
+  // .gitignore is never planted in local-only mode (R1), so it is not a required artifact there.
+  const missing = check ? [] : verifyPresent(root, localOnly ? ["CLAUDE.md", SENTINEL] : ["CLAUDE.md", SENTINEL, ".gitignore"]);
+  return { mode, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -270,17 +287,24 @@ if (runAsCli(import.meta.url)) {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i === -1 ? undefined : args[i + 1]; };
   const root = opt("--root");
-  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--check] [--force]"); process.exit(2); }
+  if (!root) { console.error("usage: plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]"); process.exit(2); }
   const peers = args.flatMap((a, i) => (a === "--peer" ? [args[i + 1]] : []));
   const hooks = args.flatMap((a, i) => (a === "--hook" ? [args[i + 1]] : []));
   const check = args.includes("--check");
-  const report = plant(root, { peers, hooks, check, force: args.includes("--force"), name: opt("--name") });
+  const report = plant(root, {
+    peers, hooks, check, force: args.includes("--force"), name: opt("--name"),
+    localOnly: args.includes("--local-only"),
+  });
   for (const p of report.peersOmitted) {
     console.error(`plant: peer "${p}" omitted — pdlc:peer:${p} block stripped (recorded in ${SENTINEL} peersOmitted)`);
   }
   console.log(JSON.stringify(report, null, 2));
+  // gitignore is "skipped" (never pending) in local-only mode; exclude is "skipped" (never
+  // pending) in tracked mode. "no-git" is honest degradation, not convergence — it stays
+  // pending until a real `git init` lets the exclude lines actually land (R6).
   const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
-    || report.gitignore !== "present" || report.hooks === "installed";
+    || report.gitignore === "added" || report.hooks === "installed"
+    || report.exclude === "added" || report.exclude === "no-git";
   if (check && pending) process.exit(1); // --check: nonzero when planting would change something
   if (report.missing.length) process.exit(1);
 }

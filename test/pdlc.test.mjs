@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync, statSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
@@ -856,5 +856,61 @@ test("ensureExclude: no .git degrades to a reported no-git result, nothing writt
   try {
     assert.deepEqual(ensureExclude(root, ["/.pdlc"]), { status: "no-git", added: [] });
     assert.ok(!existsSync(join(root, ".git")));
+  } finally { done(); }
+});
+
+// --- local-only planting: wired into plant(), ordering first (spec 060, Phase 2) ---
+
+test("plant --local-only writes the scoped exclude set and leaves .gitignore absent", () => {
+  const { root, done } = gitRoot();
+  try {
+    const r = plant(root, opts({ localOnly: true }));
+    assert.equal(r.gitignore, "skipped");
+    assert.equal(r.exclude, "added");
+    assert.ok(!existsSync(join(root, ".gitignore")), ".gitignore must not be created in local-only mode");
+    const exclude = readFileSync(join(root, ".git", "info", "exclude"), "utf8");
+    for (const line of excludeSet({ peers: [], hooks: [] })) {
+      assert.ok(exclude.split("\n").includes(line), `exclude missing ${line}`);
+    }
+    assert.deepEqual(r.missing, [], "CLAUDE.md + sentinel are the only required artifacts in local-only mode");
+
+    // idempotent re-plant
+    const again = plant(root, opts({ localOnly: true }));
+    assert.equal(again.exclude, "unchanged");
+  } finally { done(); }
+});
+
+test("plant tracked mode (default) is byte-for-byte unchanged from today", () => {
+  const { root, done } = proj();
+  try {
+    const r = plant(root, opts());
+    assert.deepEqual(
+      { mode: r.mode, claudeMd: r.claudeMd, gitignore: r.gitignore, exclude: r.exclude, pdlcFile: r.pdlcFile, missing: r.missing },
+      { mode: "fresh", claudeMd: "created", gitignore: "added", exclude: "skipped", pdlcFile: "written", missing: [] },
+    );
+    assert.ok(readFileSync(join(root, ".gitignore"), "utf8").split("\n").includes(".handoff/"));
+    assert.ok(!existsSync(join(root, ".git", "info", "exclude")), "tracked mode must never touch the exclude file");
+
+    const again = plant(root, opts());
+    assert.equal(again.gitignore, "present");
+    assert.equal(again.exclude, "skipped");
+  } finally { done(); }
+});
+
+test("R3 ordering: a first local-only plant into a real git repo leaves git status --porcelain empty", () => {
+  const { root, done } = gitRoot();
+  try {
+    plant(root, opts({ localOnly: true }));
+    const status = execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" });
+    assert.equal(status, "", "git status must be clean after a first local-only plant — the exclude write must land before every artifact write");
+
+    // The end-state check above passes even if the writes were reordered (by the time plant()
+    // returns, everything exists either way) — pin the ORDER itself via mtime, nanosecond-
+    // resolution on this filesystem, so a future edit that moves a write above the exclude
+    // call fails loud (R3; plan.md: "testable by asserting write order, not merely end state").
+    const nsOf = (rel) => statSync(join(root, ...rel.split("/")), { bigint: true }).mtimeNs;
+    const excludeNs = nsOf(".git/info/exclude");
+    assert.ok(excludeNs <= nsOf("CLAUDE.md"), "exclude must be written before CLAUDE.md");
+    assert.ok(excludeNs <= nsOf(SENTINEL), "exclude must be written before the sentinel");
   } finally { done(); }
 });
