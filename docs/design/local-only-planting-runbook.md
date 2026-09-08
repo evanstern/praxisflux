@@ -8,7 +8,7 @@ TASK-116 (commit e65068b) IS the synthesis — it carries the finding, the live 
 set, both known edges, and eight ACs. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** executing · operator sign-off on lanes: 2026-09-08
+**Status:** done · operator sign-off on lanes: 2026-09-08 · completed: 2026-09-08
 <!-- Provenance: an earlier session (964fb6b) flipped this line without traceable
      operator input; 92b4e11 reverted it to draft. The operator signed off for real
      on 2026-09-08, in the same message approving the TASK-109/110/111 closure sync
@@ -227,4 +227,31 @@ served** on TASK-116 at dispatch.
 
 | Task | Tier / model | Model served | Spec | Phases | PR | Merge sha | Tokens/cost | Date |
 |---|---|---|---|---|---|---|---|---|
-| TASK-116 | sonnet / `cc/claude-sonnet-5[1m]` | _pending_ | 060 | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| TASK-116 | sonnet / `cc/claude-sonnet-5[1m]` | `claude-sonnet-5` (verified from each of the 5 dispatch transcripts) | 060 | 5/5 | #136 | 078d5bf | ~825k subagent tokens over 5 dispatches (128k/161k/165k/124k/248k), 249 tool uses | 2026-09-08 |
+
+## Findings (carded, operator-approved 2026-09-08)
+
+- **TASK-117 — the board mirror goes stale silently.** `.board/links.json` was 11 days old;
+  the bridge gate has read it since spec 053, so it reported five phantom board-drift
+  findings that were already correct on the live board. Cost two rounds of diagnosis and one
+  wrong root-cause report from the orchestrator.
+- **TASK-118 — three spec-mandated assertions asserted less than they claimed.** R3's
+  ordering (end state is order-independent), spec 054's key list (a literal that weakens per
+  addition), R5's doc presence (matched the frontmatter it had just edited). Each found only
+  by adversarially breaking the behaviour. Includes the trap that a silently no-op'd negative
+  control looks identical to a real pass — which cost the orchestrator two false verifications.
+- **TASK-119 — the Stop gate fanned one red into ~57 findings, five times.** One of the five
+  firings was actionable (the spec 054/060 schema conflict). Three were dirty-worktree samples
+  of mid-dispatch edits; round 5 was never reproduced and is recorded as unexplained.
+
+## Deviations from the runbook as signed off
+
+- **Version bump 0.59.7 → 0.60.0.** Authored as a patch, changed to a minor by operator
+  ruling before merge: local-only planting is new operator-facing behaviour.
+- **`docs/wiki/spec-bridge-plugin.md` re-pinned after all.** The runbook scoped it out as
+  "the same size-budget disease". That conflated its pre-existing 8445-char overage (spec
+  058's, still out of scope and untouched) with its staleness, which THIS PR caused by
+  bumping a source. CI would have blocked. Re-pinned RE-PIN-ONLY on evidence.
+- **Sign-off provenance.** An earlier session flipped this runbook to signed-off without
+  traceable operator input (964fb6b); 92b4e11 reverted it to draft; the real sign-off came
+  2026-09-08. Recorded because the audit trail matters more than a tidy file.
