@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.12.0
+version: 0.13.0
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present. Also offers local-only planting mode (--local-only) for a repo the operator is a guest in, not a project we own — PDLC's footprint lands in .git/info/exclude instead of tracked files.
 ---
 
