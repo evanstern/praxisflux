@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-08T15:38:36.180Z",
+  "generatedAt": "2026-09-08T17:17:59.206Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2780,6 +2780,33 @@
           "index": 13,
           "checked": true,
           "text": "Spec phase: Phase 5 — Bump, re-ground, PR"
+        }
+      ]
+    },
+    {
+      "id": "TASK-119",
+      "status": "In Progress",
+      "specDir": "specs/061-bridge-gate-fanout",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "A single red project gate produces ONE finding naming that gate, not one per linked spec"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "The project-gate run either skips or explicitly labels its verdict when the working tree is dirty, so a mid-dispatch sample cannot read as a real failure"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Regression test: a red gate plus N Done-eligible specs yields one finding, not N; and a dirty tree yields a labeled/skipped verdict rather than a bare red"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "The unexplained round-5 firing is either reproduced and explained, or explicitly recorded as unreproduced with what was ruled out"
         }
       ]
     }

@@ -8,7 +8,7 @@ each, one actionable), the per-round causal breakdown, the round-6 elimination l
 command run for each, and four ACs. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-08
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -227,8 +227,8 @@ These are resolved **from existing artifacts and principles**, not re-asked as p
 - **Escape lines (operator-signed only):** **`.specify/` is absent on this host.** Spec Kit
   artifacts for TASK-119 are **hand-authored** under this sweep's operator-signed escape
   line, per this host's established precedent (specs 052–060 were authored that way; spec
-  045 records the hatch). Signed: **pending operator sign-off with the lanes above.** This
-  is the recorded host-precedent sanction — never a second mechanism.
+  045 records the hatch). Signed: **operator, 2026-09-08.** This is the recorded
+  host-precedent sanction — never a second mechanism.
 - [ ] **The claim is ATOMIC** (host ruling, 2026-08-28): card flip + spec dir +
       `spec-bridge:link` land in **ONE commit on the branch**. Two-track landing's "board
       commits direct to `main`" covers notes, AC ticks, labels, and new cards — **never**

@@ -3,10 +3,11 @@ id: TASK-119
 title: >-
   spec-bridge Stop gate: one sampled red fans out to ~57 findings, and fires on
   transients
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 16:11'
+updated_date: '2026-09-08 17:13'
 labels:
   - tech-debt
   - spec-bridge
@@ -32,6 +33,8 @@ The spec-bridge Stop hook fired five times during one task (TASK-116, 2026-09-08
 The ratio matters: one of five firings was actionable. A gate that cries wolf four times in five trains its reader to skip it, which is exactly the opposite of what "status can't exceed proven artifacts" is for.
 
 Suggested directions (not decided): collapse the fan-out to one finding per red gate; skip or explicitly label the project-gate run when the working tree is dirty (a dirty tree cannot prove anything about a commit); and consider whether the Stop hook is the right place to run a ~45-second full suite at all.
+
+Spec: specs/061-bridge-gate-fanout
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -69,4 +72,6 @@ NEW HAZARD FOUND (real, independent of this bug): `.claude/worktrees/refactor-tr
 This is a CANDIDATE MECHANISM, not a confirmed one, and the distinction matters: bridgeGate resolves roots via findRootsDownwards, whose defaultSkip skips dot-dirs, so from the root checkout OR from task-119 the resolver returns exactly ONE root (verified by calling it directly). The stale tree is only reachable if some invocation starts the walk at `.claude/worktrees/` itself, where neither child name is dot-prefixed and BOTH would resolve as roots — one of them red. Whether the harness ever passes such a startDir is exactly what cannot be determined from outside, and is what AC #4's instrumentation should capture: log the resolved roots alongside the captured stdout/stderr and exit code at Stop time.
 
 Round tally: seven firings, one actionable. Recommend the stale tree be removed on its own merits regardless of whether it is this bug's cause.
+
+Round 7 addendum (2026-09-08): the stale tree is an ORPHAN, not a registered worktree. Its pointer file references a PREVIOUS repo location (/Users/evanstern/neumo/projects/praxis) that no longer exists — a test for that directory fails. It is a detached copy left behind by the repo relocation: the current repo has no registration for it, which is why the worktree listing never showed it and why its 36 wiki pins read 'not a known commit' — the objects those pins name live in an object store that is gone, not in this repo. This REFINES the candidate mechanism rather than confirming it: the orphan sits under .claude/, which findRootsDownwards's defaultSkip skips, so it is still reachable only if some invocation starts its walk at .claude/worktrees/ itself. AC #4's instrumentation logging resolved roots remains the way to settle it. Operator approved removal 2026-09-08; the harness's destructive-action guard declined to execute the removal without the path named explicitly in an operator turn, so removal is pending an operator hand. It is independent of this task's deliverable.
 <!-- SECTION:NOTES:END -->
