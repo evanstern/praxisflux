@@ -95,6 +95,21 @@ seam: a `warnings` channel written to stderr on an exit-0 stop.
 - The dirty-tree label applies to gate findings only. Non-gate findings (`exceeds` verdicts,
   mirror staleness, provider evidence) are unaffected — they read committed board and spec
   artifacts, not a sampled tree.
+- **Both entry points, and `verify` in particular** (orchestrator ruling, 2026-09-08, in
+  answer to the Phase 2 implementer's flagged judgment call). Phase 2 scoped R2 to
+  `checkBridge` (the Stop hook) because this requirement's prose and plan.md's design section
+  both discuss that path; `verifyBridge` was left hard-blocking on a dirty sample. That
+  reading is **overturned**: R2 says "a non-green project gate MUST NOT block" without
+  restricting the entry point, and `verify` exists precisely for **the mid-PR case — the
+  window in which a tree is most likely to be dirty**. Leaving `verify` to hard-block on a
+  sample that proves nothing reproduces P2 in the one place it is most likely to fire, and
+  breaks the "agree by construction" property R1 preserves. `verifyBridge` returns a flat
+  array (no warnings channel), so the shape question is real: it MUST NOT block on a
+  dirty-tree gate verdict, and MUST surface the labeled verdict rather than dropping it
+  silently — Phase 3 carries this as **T018a** with the mechanism left to the implementer
+  (a `{problems, warnings}` return with `cli.mjs verify` updated to print warnings and exit
+  0, or an equivalent that keeps the label visible). Silence is not an acceptable resolution;
+  the label is the deliverable.
 
 ### R3 — Regression tests
 

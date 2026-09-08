@@ -59,6 +59,16 @@ it on every commit, so a red phase blocks its own commit.
 - [ ] T017 **Verdict-neutral:** instrumentation failure is swallowed and never turns a green
       gate red. Test that the default path writes nothing and the verdict is unchanged.
 - [ ] T018 Bare `node --test` green. Commit; **push**.
+- [ ] T018a **Close the `verify` dirty-tree gap** (orchestrator ruling, 2026-09-08 — see
+      R2's last bullet). Phase 2 scoped the dirty-tree label to `checkBridge`; `verifyBridge`
+      still hard-blocks on a sample taken against a dirty tree, which reproduces P2 in the
+      **mid-PR window where trees are dirtiest** and breaks the "agree by construction"
+      property. `verifyBridge` MUST NOT block on a dirty-tree gate verdict and MUST keep the
+      label **visible** — dropping it silently is not an acceptable resolution. Mechanism is
+      yours: a `{problems, warnings}` return with `cli.mjs verify` printing warnings and
+      exiting 0, or an equivalent. Update `cli.mjs`'s `verify` branch and the `verifyBridge`
+      doc comment together, plus a test for dirty ⇒ non-blocking-and-labeled with the
+      **clean ⇒ still blocks** control.
 
 ## Phase 4 — Dogfood, catalog, bump, re-ground
 

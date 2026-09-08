@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 17:34'
+updated_date: '2026-09-08 17:45'
 labels:
   - tech-debt
   - spec-bridge
@@ -92,4 +92,14 @@ So the red gate was ALWAYS wiki-freshness — a redByConstruction gate that is l
 This closes AC #4 by REPRODUCTION AND EXPLANATION rather than by 'recorded as unreproduced'. The earlier nine eliminations were all correct AND all irrelevant — they were eliminating causes of a red that did not exist. The orphaned worktree (round 7) is a real hazard but NOT this bug's cause.
 
 Consequence for the spec: R1 is not just noise reduction, it is a CORRECTNESS fix. One finding per gate names the gate that is actually red; the fan-out actively misdirected diagnosis for eight firings across two days. Worth stating in spec.md and in the wiki note.
+
+Round 9 (2026-09-08, mid-Phase-2) — fully accounted for, no new mystery. Two separate reasons the old output persists:
+
+1. THE STOP HOOK RUNS THE INSTALLED PLUGIN, NOT THE BRANCH. hooks.json invokes gate.sh from the plugin cache (~/.claude/plugins/cache/praxisflux/spec-bridge/0.59.6). Verified: the installed gates/bridge.mjs has ZERO occurrences of collapsedGateProblems; the branch copy has four. So the collapse cannot affect Stop output until this PR merges AND the installed plugin is updated. Every firing between now and then will show the old ~57-line fan-out naming the wrong gate. This is expected and is NOT evidence the fix failed — the in-process check (checkBridge from the branch) returns exactly 1 finding.
+
+2. The underlying red is STILL wiki-freshness, and it is MINE. Phase 1's commit 0956e9b edited spec-bridge/gates/bridge.mjs and test/project-gates.test.mjs, which staled the two notes that pin them: spec-bridge-plugin.md (since 985ec436ff11) and test-suite-catalog-plugins-gates.md (since fc8cac785cef). That is a redByConstruction gate being legitimately red mid-PR between a source edit and its re-pin commit — exactly the window the bucket exists to license. Phase 4 (T020/T022/T023/T024) closes it.
+
+Tests remain green throughout: 510/510, exit 0.
+
+Worth carrying into the wiki note: a plugin-supplied Stop hook always evaluates the INSTALLED version, so a repo that dogfoods its own plugin cannot observe its own gate fix from the branch that makes it. The in-process call is the only local proof available pre-merge.
 <!-- SECTION:NOTES:END -->
