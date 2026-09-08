@@ -1,10 +1,10 @@
 ---
 id: TASK-113
 title: 'Jira provider: board:sync skill (MCP -> mirror), one-call spiking, assignees'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-08-28 19:21'
+updated_date: '2026-09-08 14:17'
 labels:
   - feature
   - spec-bridge
@@ -41,10 +41,16 @@ Spec: specs/056-jira-provider
 - [ ] #8 defaultAssignee self resolves once per session; board:claim sets assignee AND status; name-is-not-an-id documented
 - [ ] #9 All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding
 - [ ] #10 Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated
+- [ ] #11 Spec phase: Phase 1 — Verify the MCP surface (output is knowledge, not code)
+- [ ] #12 Spec phase: Phase 2 — Read path: provider, JQL, extraction, mirror
+- [ ] #13 Spec phase: Phase 3 — Write path: execute the renderer's calls
+- [ ] #14 Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 SWEEP HOLD (2026-08-28, orchestrator precondition gate). NOT signed off; do not claim. Finding F2 — the Atlassian MCP is HARD-BLOCKED on this host: three calls across two tools (getAccessibleAtlassianResources, atlassianUserInfo) and two AWS regions all returned an AWS WAF CAPTCHA challenge page rather than a tool result. That is a browser-verification wall — not a flake, not an auth error, and NOT 'no Jira configured'. Consequence: this spec's Phase 1 (the live write->read marker test) and every AC needing a live site cannot run until MCP access is restored. Gate for any session reaching this task: re-probe with ONE MCP call first and STOP if the response is HTML. Do not substitute fixtures for the live test Phase 1 exists to be — Phase 1 is knowledge-only precisely because the knowledge must come from the real site. Note also F1: this task's Phase 1 is the only test of spec 055's premise, so it must run BEFORE TASK-112 is claimed, inverting the runbook's lane order. Full detail: runbook findings F1/F2.
+
+spec-bridge sync: Phase 1 — Verify the MCP surface (output is knowledge, not code): 0/7 · Phase 2 — Read path: provider, JQL, extraction, mirror: 0/14 · Phase 3 — Write path: execute the renderer's calls: 0/6 · Phase 4 — Spike, assignees, sweep proof, re-ground: 0/12 — status To Do → In Progress
 <!-- SECTION:NOTES:END -->

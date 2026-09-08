@@ -8,7 +8,12 @@ TASK-116 (commit e65068b) IS the synthesis — it carries the finding, the live 
 set, both known edges, and eight ACs. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** executing · operator sign-off on lanes: 2026-09-04
+**Status:** executing · operator sign-off on lanes: 2026-09-08
+<!-- Provenance: an earlier session (964fb6b) flipped this line without traceable
+     operator input; 92b4e11 reverted it to draft. The operator signed off for real
+     on 2026-09-08, in the same message approving the TASK-109/110/111 closure sync
+     and the wiki-note rewrite ruling below. Phase 1 had already landed on the branch
+     under the unverified flip; it was independently re-verified (500/500) and stands. -->
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -107,8 +112,13 @@ served** on TASK-116 at dispatch.
   the test file it pins** — expect the cascade.
 - **`test-suite-catalog-plugins-gates.md` is at 7987/8000 chars (TASK-103, open).** This
   task adds tests to `test/pdlc.test.mjs`, whose per-file bullet lives in that note. Adding
-  a sentence there will **overflow the 8,000-char budget**. Take a genuine trim or a
-  summary-style split in this PR; `size_budget_exempt` is not the answer.
+  a sentence there will **overflow the 8,000-char budget**.
+  **OPERATOR RULING 2026-09-08 (amendment):** do a **full rewrite** of that note, splitting
+  it summary-style if that is what keeps it under budget — not a minimal trim, and not
+  `size_budget_exempt`. This supersedes the "genuine trim or summary-style split" wording
+  this line originally carried. Checkable: after Phase 5, the note (and any split sibling)
+  is under 8,000 chars with no `size_budget_exempt` added, its capsule is under 500, and
+  `CAPSULES.md` is regenerated in the same slice as any `description:` change.
 - **A GATE RUN AGAINST A DIRTY WORKING TREE PROVES NOTHING ABOUT THE COMMIT** (F6,
   2026-09-04, caught by CI not locally). Verify a commit's content with
   `git show HEAD:<file>`, never by reading the file on disk; treat every `--check` run as
@@ -132,7 +142,7 @@ served** on TASK-116 at dispatch.
 - **Escape line (operator-signed only):** **`.specify/` is absent on this host.** Spec Kit
   artifacts for TASK-116 are **hand-authored** under this sweep's operator-signed escape
   line, per this host's established precedent (specs 052–059 were authored that way; spec
-  045 records the hatch). Signed: operator, 2026-09-04. This is
+  045 records the hatch). Signed: operator, 2026-09-08. This is
   the recorded host-precedent sanction — never a second mechanism.
 - [ ] **The claim is ATOMIC** (host ruling, 2026-08-28): card flip + spec dir +
       `spec-bridge:link` land in **ONE commit on the branch**. Two-track landing's "board
