@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 17:23'
+updated_date: '2026-09-08 17:34'
 labels:
   - tech-debt
   - spec-bridge
@@ -80,4 +80,16 @@ Round tally: seven firings, one actionable. Recommend the stale tree be removed 
 Round 7 addendum (2026-09-08): the stale tree is an ORPHAN, not a registered worktree. Its pointer file references a PREVIOUS repo location (/Users/evanstern/neumo/projects/praxis) that no longer exists — a test for that directory fails. It is a detached copy left behind by the repo relocation: the current repo has no registration for it, which is why the worktree listing never showed it and why its 36 wiki pins read 'not a known commit' — the objects those pins name live in an object store that is gone, not in this repo. This REFINES the candidate mechanism rather than confirming it: the orphan sits under .claude/, which findRootsDownwards's defaultSkip skips, so it is still reachable only if some invocation starts its walk at .claude/worktrees/ itself. AC #4's instrumentation logging resolved roots remains the way to settle it. Operator approved removal 2026-09-08; the harness's destructive-action guard declined to execute the removal without the path named explicitly in an operator turn, so removal is pending an operator hand. It is independent of this task's deliverable.
 
 Dispatch record (2026-09-08): tier sonnet, model ID cc/claude-sonnet-5[1m], via the generated agent definition .claude/agents/sonnet-implementer.md (frontmatter pin is what this harness honors). Rubric justification: defaultTier — the card's ACs plus spec 061's three orchestrator-settled design rulings leave no judgment call for the implementer; this is work to a written spec against an existing in-repo pattern (memoizeRun already de-duplicates the gate RESULT across specs; this extends the same de-duplication to the FINDING). No escalation, no operator checkpoint owed for tier. Served model to be recorded from the first dispatch's transcript before any sibling dispatch.
+
+SOLVED (2026-09-08, round 8, during Phase 1) — the 'transient' firings were NEVER transient. The fan-out was MISLABELING which gate was red.
+
+Round 8 fired with my worktree clean and the suite green (508/508, exit 0), so the dirty-tree hypothesis was out. Running the bridge's own path from that same clean tree: checkBridge(runGates:true) -> 58 problems, every one of them naming the 'tests' gate as red. But running each declared gate individually via runGateCommand in the same process: tests {ok:true}, docs-in-sync {ok:true}, versions-consistent {ok:true}, wiki-freshness {ok:true}. A flat contradiction.
+
+Phase 1's collapse resolved it. Post-collapse, the same invocation returns exactly ONE problem: 'the red-by-construction gate wiki-freshness is red (exited 1) - 58 linked specs affected'. Confirmed directly: the freshness gate exits 1 with two STALE notes (spec-bridge-plugin.md and test-suite-catalog-plugins-gates.md, both staled by Phase 1's own commit 0956e9b).
+
+So the red gate was ALWAYS wiki-freshness — a redByConstruction gate that is legitimately red mid-PR between a source edit and its re-pin commit. The pre-collapse finding text attributed it to 'tests' and repeated that attribution 57 more times. Six of the eight firings were the freshness gate doing exactly its job, reported under the wrong gate's name, which is precisely why every attempt to reproduce a red 'tests' from a shell came back green: tests was never red.
+
+This closes AC #4 by REPRODUCTION AND EXPLANATION rather than by 'recorded as unreproduced'. The earlier nine eliminations were all correct AND all irrelevant — they were eliminating causes of a red that did not exist. The orphaned worktree (round 7) is a real hazard but NOT this bug's cause.
+
+Consequence for the spec: R1 is not just noise reduction, it is a CORRECTNESS fix. One finding per gate names the gate that is actually red; the fan-out actively misdirected diagnosis for eight firings across two days. Worth stating in spec.md and in the wiki note.
 <!-- SECTION:NOTES:END -->
