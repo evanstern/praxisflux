@@ -52,5 +52,6 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[test-suite]] — node --test suite conventions covering chassis, gates, and cross-plugin seams
 - [[test-suite-catalog]] — per-file coverage catalog, repo-tooling half: chassis, packaging, scaffolding, docs-drift, install-path, and CI-runner test files, one bullet per file
 - [[test-suite-catalog-plugins]] — plugin-half catalog entry point, split summary-style into [[test-suite-catalog-plugins-gates]] and [[test-suite-catalog-plugins-pipeline]]
-- [[test-suite-catalog-plugins-gates]] — per-file coverage, single-plugin output-gate suites: grounding-wiki, pdlc, phase-status, project-gates, reorient, research, spec-bridge, spec-derive, team-review
+- [[test-suite-catalog-plugins-gates]] — per-file coverage, single-plugin output-gate suites: grounding-wiki, phase-status, project-gates, reorient, research, spec-bridge, spec-derive, team-review; pdlc's own suites split further into [[test-suite-catalog-plugins-gates-pdlc]]
+- [[test-suite-catalog-plugins-gates-pdlc]] — per-file coverage, pdlc's own gate suites: the plant/tiers surface and the opt-in root-guard hook
 - [[test-suite-catalog-plugins-pipeline]] — per-file coverage, content-authoring pipeline & cross-plugin handoff suites: codebase-to-course, educate deck/wiki roll-up, handoff/return-leg seam, toolkit-borrow

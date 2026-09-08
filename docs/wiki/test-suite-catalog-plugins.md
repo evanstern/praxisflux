@@ -1,11 +1,11 @@
 ---
 name: test-suite-catalog-plugins
-description: Entry point for the plugin half of the per-file test-suite map, split summary-style into two children — test-suite-catalog-plugins-gates (single-plugin output-gate suites: grounding-wiki, pdlc, phase-status, reorient, research, spec-bridge, spec-derive, team-review) and test-suite-catalog-plugins-pipeline (content-authoring pipeline and cross-plugin handoff suites: codebase-to-course, educate, toolkit-borrow). Repo-tooling suites live in test-suite-catalog.
+description: Entry point for the plugin half of the per-file test-suite map, split summary-style into two children — test-suite-catalog-plugins-gates (single-plugin output-gate suites: grounding-wiki, phase-status, reorient, research, spec-bridge, spec-derive, team-review, and pdlc's own gate suites one hop further at test-suite-catalog-plugins-gates-pdlc) and test-suite-catalog-plugins-pipeline (content-authoring pipeline and cross-plugin handoff suites: codebase-to-course, educate, toolkit-borrow). Repo-tooling suites live in test-suite-catalog.
 kind: pattern
 sources:
   - docs/wiki/test-suite-catalog-plugins-gates.md
   - docs/wiki/test-suite-catalog-plugins-pipeline.md
-verified_against: 8a7f6e0c4229bf29713b2d08f4e22f8c4e7bdea1
+verified_against: 04d29d987abdb5249520e22dc79b875b592ce992
 ---
 
 # Test suite — per-file coverage catalog (plugin gates & seams)
@@ -16,9 +16,10 @@ past comfortable headroom and split again, summary-style, into two children:
 
 - [[test-suite-catalog-plugins-gates]] — the single-plugin output-gate suites: each
   plugin's own gate proven against its own fixtures — grounding-wiki's capsule tier and
-  freshness gate, pdlc's plant surface, phase-status's vocabulary ladder, reorient's
-  output gate and run lifecycle, research's branch/analysis gates, spec-bridge's bridge
-  gate, spec-derive's pure derivation, and team-review's output gate and run CLI.
+  freshness gate, phase-status's vocabulary ladder, reorient's output gate and run
+  lifecycle, research's branch/analysis gates, spec-bridge's bridge gate, spec-derive's
+  pure derivation, and team-review's output gate and run CLI. pdlc's own plant-surface and
+  root-guard-hook suites split further into [[test-suite-catalog-plugins-gates-pdlc]].
 - [[test-suite-catalog-plugins-pipeline]] — the content-authoring pipeline and
   cross-plugin handoff suites: codebase-to-course's two gates, educate's deck
   self-containment and topic-wiki roll-up, the build↔educate handoff/return-leg seam
