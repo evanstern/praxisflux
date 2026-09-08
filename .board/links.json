@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-08T17:17:59.206Z",
+  "generatedAt": "2026-09-08T17:22:10.498Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2807,6 +2807,26 @@
           "index": 4,
           "checked": false,
           "text": "The unexplained round-5 firing is either reproduced and explained, or explicitly recorded as unreproduced with what was ruled out"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — Collapse the fan-out (R1, R3.1)"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — Label the dirty-tree sample (R2, R3.2)"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — Instrumentation for the unreproduced firings (R4)"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground"
         }
       ]
     }

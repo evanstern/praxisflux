@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 17:13'
+updated_date: '2026-09-08 17:22'
 labels:
   - tech-debt
   - spec-bridge
@@ -43,7 +43,13 @@ Spec: specs/061-bridge-gate-fanout
 - [ ] #2 The project-gate run either skips or explicitly labels its verdict when the working tree is dirty, so a mid-dispatch sample cannot read as a real failure
 - [ ] #3 Regression test: a red gate plus N Done-eligible specs yields one finding, not N; and a dirty tree yields a labeled/skipped verdict rather than a bare red
 - [ ] #4 The unexplained round-5 firing is either reproduced and explained, or explicitly recorded as unreproduced with what was ruled out
+- [ ] #5 Spec phase: Phase 1 — Collapse the fan-out (R1, R3.1)
+- [ ] #6 Spec phase: Phase 2 — Label the dirty-tree sample (R2, R3.2)
+- [ ] #7 Spec phase: Phase 3 — Instrumentation for the unreproduced firings (R4)
+- [ ] #8 Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
