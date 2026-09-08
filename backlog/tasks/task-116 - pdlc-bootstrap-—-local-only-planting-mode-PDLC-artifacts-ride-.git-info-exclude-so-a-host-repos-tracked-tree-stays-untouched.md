@@ -3,11 +3,11 @@ id: TASK-116
 title: >-
   pdlc:bootstrap — local-only planting mode: PDLC artifacts ride
   .git/info/exclude so a host repo's tracked tree stays untouched
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-05 00:18'
-updated_date: '2026-09-05 00:31'
+updated_date: '2026-09-08 15:37'
 labels:
   - pdlc
   - feature
@@ -40,17 +40,31 @@ Spec: specs/060-local-only-planting
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 plant.mjs takes a local-only mode that appends the PDLC artifact set to .git/info/exclude instead of the host's tracked .gitignore, and writes nothing to .gitignore in that mode
-- [ ] #2 The excluded set covers every artifact pdlc plants or a peer init creates (sentinel, CLAUDE.md, AGENTS.md, .handoff/, .worktrees/, backlog/, specs/, docs/wiki/, .specify/, and the .claude/ paths), scoped to the peers and hooks actually opted into
-- [ ] #3 Exclude entries are written BEFORE any artifact is created, so a first plant in a clean host leaves git status clean
-- [ ] #4 The mode is recorded in the .pdlc sentinel; re-planting and --check are idempotent and report unchanged, and switching modes surfaces as honest drift needing consent
-- [ ] #5 pdlc:bootstrap ASKS the operator whether to plant tracked or local-only, presenting it like the existing peer/hook opt-ins with a recommendation grounded in what it can observe about the repo; the choice is re-presented as a default on update
-- [ ] #6 Pre-git-init hosts degrade the same way tracked planting already does, with no crash and a stated next step
-- [ ] #7 test/pdlc.test.mjs pins local-only planting: exclude file targeted, .gitignore untouched, ordering, sentinel round-trip, and the bootstrap question's presence in SKILL.md
-- [ ] #8 Wiki re-pinned for any note whose sources this change touches; gates green
-- [ ] #9 Spec phase: Phase 1 — The exclude helper and the scoped set
-- [ ] #10 Spec phase: Phase 2 — Wire local-only into plant(), ordering first
-- [ ] #11 Spec phase: Phase 3 — Sentinel round-trip and mode-switch drift
-- [ ] #12 Spec phase: Phase 4 — The bootstrap question
-- [ ] #13 Spec phase: Phase 5 — Bump, re-ground, PR
+- [x] #1 plant.mjs takes a local-only mode that appends the PDLC artifact set to .git/info/exclude instead of the host's tracked .gitignore, and writes nothing to .gitignore in that mode
+- [x] #2 The excluded set covers every artifact pdlc plants or a peer init creates (sentinel, CLAUDE.md, AGENTS.md, .handoff/, .worktrees/, backlog/, specs/, docs/wiki/, .specify/, and the .claude/ paths), scoped to the peers and hooks actually opted into
+- [x] #3 Exclude entries are written BEFORE any artifact is created, so a first plant in a clean host leaves git status clean
+- [x] #4 The mode is recorded in the .pdlc sentinel; re-planting and --check are idempotent and report unchanged, and switching modes surfaces as honest drift needing consent
+- [x] #5 pdlc:bootstrap ASKS the operator whether to plant tracked or local-only, presenting it like the existing peer/hook opt-ins with a recommendation grounded in what it can observe about the repo; the choice is re-presented as a default on update
+- [x] #6 Pre-git-init hosts degrade the same way tracked planting already does, with no crash and a stated next step
+- [x] #7 test/pdlc.test.mjs pins local-only planting: exclude file targeted, .gitignore untouched, ordering, sentinel round-trip, and the bootstrap question's presence in SKILL.md
+- [x] #8 Wiki re-pinned for any note whose sources this change touches; gates green
+- [x] #9 Spec phase: Phase 1 — The exclude helper and the scoped set
+- [x] #10 Spec phase: Phase 2 — Wire local-only into plant(), ordering first
+- [x] #11 Spec phase: Phase 3 — Sentinel round-trip and mode-switch drift
+- [x] #12 Spec phase: Phase 4 — The bootstrap question
+- [x] #13 Spec phase: Phase 5 — Bump, re-ground, PR
 <!-- AC:END -->
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+spec-bridge sync: Phase 1 — The exclude helper and the scoped set: 6/6 · Phase 2 — Wire local-only into plant(), ordering first: 5/5 · Phase 3 — Sentinel round-trip and mode-switch drift: 5/5 · Phase 4 — The bootstrap question: 6/6 · Phase 5 — Bump, re-ground, PR: 6/6 — status In Progress → Done
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The exclude helper and the scoped set: 6/6 · Phase 2 — Wire local-only into plant(), ordering first: 5/5 · Phase 3 — Sentinel round-trip and mode-switch drift: 5/5 · Phase 4 — The bootstrap question: 6/6 · Phase 5 — Bump, re-ground, PR: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->

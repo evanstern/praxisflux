@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-08T15:20:37.788Z",
+  "generatedAt": "2026-09-08T15:38:36.180Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2713,72 +2713,72 @@
     },
     {
       "id": "TASK-116",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/060-local-only-planting",
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "plant.mjs takes a local-only mode that appends the PDLC artifact set to .git/info/exclude instead of the host's tracked .gitignore, and writes nothing to .gitignore in that mode"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "The excluded set covers every artifact pdlc plants or a peer init creates (sentinel, CLAUDE.md, AGENTS.md, .handoff/, .worktrees/, backlog/, specs/, docs/wiki/, .specify/, and the .claude/ paths), scoped to the peers and hooks actually opted into"
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Exclude entries are written BEFORE any artifact is created, so a first plant in a clean host leaves git status clean"
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "The mode is recorded in the .pdlc sentinel; re-planting and --check are idempotent and report unchanged, and switching modes surfaces as honest drift needing consent"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "pdlc:bootstrap ASKS the operator whether to plant tracked or local-only, presenting it like the existing peer/hook opt-ins with a recommendation grounded in what it can observe about the repo; the choice is re-presented as a default on update"
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Pre-git-init hosts degrade the same way tracked planting already does, with no crash and a stated next step"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "test/pdlc.test.mjs pins local-only planting: exclude file targeted, .gitignore untouched, ordering, sentinel round-trip, and the bootstrap question's presence in SKILL.md"
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Wiki re-pinned for any note whose sources this change touches; gates green"
         },
         {
           "index": 9,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — The exclude helper and the scoped set"
         },
         {
           "index": 10,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — Wire local-only into plant(), ordering first"
         },
         {
           "index": 11,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — Sentinel round-trip and mode-switch drift"
         },
         {
           "index": 12,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — The bootstrap question"
         },
         {
           "index": 13,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 5 — Bump, re-ground, PR"
         }
       ]
