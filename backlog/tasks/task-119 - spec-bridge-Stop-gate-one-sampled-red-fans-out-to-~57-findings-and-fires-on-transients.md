@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 18:11'
+updated_date: '2026-09-08 18:36'
 labels:
   - tech-debt
   - spec-bridge
@@ -121,4 +121,6 @@ Confirmed NEW, not pre-existing: both Phase 1's test file and origin/main's have
 Why it matters beyond the test suite: this repo's own  gate IS bare node --test, and the gate runs it with the flag set. So the repo's dogfood reddens its own tests gate whenever a bridgeGate-touching test exists — the exact failure mode spec 050 Phase 5 fixed for injected-run tests, reintroduced through a path with no injection seam. It also means the freshness gate was NOT the only red: rounds 8-10 had BOTH wiki-freshness (mine, legitimately mid-PR) and a genuine tests red that the collapse correctly reported as ONE finding but attributed to freshness because freshness is evaluated in the same pass.
 
 Remedy dispatched as Phase 3b: give bridgeGate.check/.warn an injection seam (or make the flag-guard aware that a test-owned invocation is not a re-entrant spawn), so a bridgeGate test is honest under the flag. Non-negotiable: the guard must still stop real recursive spawning.
+
+T019 dogfood evidence (Phase 4, 2026-09-08): forced this repo's own 'tests' gate red via an injected run (only 'tests' red, other 3 gates left green) and called checkBridge(root) in-process against this repo's real board (58 Done-eligible linked specs). AFTER (collapsed, spec 061 R1): exactly 1 finding — '[spec-bridge] the required gate "tests" is red (exited 1) — 58 linked specs affected. ...'. BEFORE (reconstructed): the pre-collapse per-spec loop (evaluateProjectGates called once per Done-eligible linked task) would have produced 58 findings, one per spec, all naming the ticked box rather than the gate. Caveat: the INSTALLED plugin under ~/.claude/plugins/cache/ still runs the pre-fix code, so the live Stop hook cannot show this collapse until this PR merges and the cache refreshes — this evidence is from the in-process call against the worktree's own source, not from triggering a real Stop hook.
 <!-- SECTION:NOTES:END -->
