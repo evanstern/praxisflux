@@ -125,7 +125,7 @@ test("allowance: mid-PR, verify runs required only — a red redByConstruction g
     bridged(p, "In Progress", MID_PR, BOTH_BUCKETS);
     const ran = [];
     const run = (cmd) => { ran.push(cmd.join(" ")); return testsGreenFreshnessRed(cmd); };
-    const problems = verifyBridge(p.root, { run });
+    const { problems } = verifyBridge(p.root, { run });
     assert.deepEqual(problems, []); // required is green; redByConstruction is not held mid-PR
     assert.ok(ran.includes("node --test"), `required gate should run mid-PR; ran: ${ran}`);
     assert.ok(!ran.some((c) => c.includes("gw.mjs")), `redByConstruction must NOT run mid-PR; ran: ${ran}`);
@@ -158,7 +158,7 @@ test("boundary: the same redByConstruction gate red at Done-eligible blocks, nam
     // The Stop hook (checkBridge) evaluates BOTH buckets at Done-eligible…
     assert.deepEqual(checkBridge(p.root, { run: testsGreenFreshnessRed }).problems, expected);
     // …and the CLI verify entry point agrees by construction (both buckets when Done-eligible).
-    assert.deepEqual(verifyBridge(p.root, { run: testsGreenFreshnessRed }), expected);
+    assert.deepEqual(verifyBridge(p.root, { run: testsGreenFreshnessRed }).problems, expected);
   } finally { p.done(); }
 });
 
@@ -211,10 +211,10 @@ test("defect 1: an injected run bypasses SPEC_BRIDGE_GATE_ACTIVE; the default ru
     bridged(p, "Done", ALL_DONE, REQUIRED_ONLY);
     // Injected run (a test double, spawns nothing): bypasses the guard, red required gate is caught.
     assert.equal(checkBridge(p.root, { run: RED("exited 1") }).problems.length, 1, "injected run must bypass the guard");
-    assert.equal(verifyBridge(p.root, { run: RED("exited 1") }).length, 1, "injected run must bypass the guard");
+    assert.equal(verifyBridge(p.root, { run: RED("exited 1") }).problems.length, 1, "injected run must bypass the guard");
     // Default runner + flag set: the guard holds — zero commands spawned, no findings, no recursion.
     assert.deepEqual(checkBridge(p.root).problems, [], "default runner must short-circuit under the flag");
-    assert.deepEqual(verifyBridge(p.root), [], "default runner must short-circuit under the flag");
+    assert.deepEqual(verifyBridge(p.root).problems, [], "default runner must short-circuit under the flag");
   } finally {
     if (saved === undefined) delete process.env.SPEC_BRIDGE_GATE_ACTIVE;
     else process.env.SPEC_BRIDGE_GATE_ACTIVE = saved;
@@ -257,7 +257,7 @@ test("defect 2 + spec 061 R1: verifyBridge shares one gate result across specs �
     }
     const spawned = [];
     const run = (cmd) => { spawned.push(cmd.join(" ")); return { ok: false, kind: "red", reason: "exited 1" }; };
-    const problems = verifyBridge(p.root, { run });
+    const { problems } = verifyBridge(p.root, { run });
     assert.deepEqual(problems, [
       `[spec-bridge] the required gate "tests" is red (exited 1) — ${N} linked specs affected. ${TAIL}`,
     ]);
@@ -303,7 +303,7 @@ test("R1 fan-out collapse: verifyBridge collapses the same way, preserving the b
     }
     p.task("TASK-99", "In Progress", "Spec: specs/099-mid/"); // mid-PR: required only
     p.spec("specs/099-mid", { "spec.md": "s", "plan.md": "p", "tasks.md": MID_PR });
-    const problems = verifyBridge(p.root, { run: testsGreenFreshnessRed });
+    const { problems } = verifyBridge(p.root, { run: testsGreenFreshnessRed });
     // redByConstruction ("freshness") counts only the 3 Done-eligible specs it applies to —
     // the mid-PR spec is never held to it, so it must NOT inflate the count to 4.
     assert.deepEqual(problems, [
@@ -331,12 +331,15 @@ test("no projectGates: a Done-eligible spec runs ZERO gates — problems/warning
   } finally { p.done(); }
 });
 
-test("no projectGates: verifyBridge is inert — returns [] and runs nothing", () => {
+test("no projectGates: verifyBridge is inert — returns { problems: [], warnings: [] } and runs nothing", () => {
   const p = project();
   try {
     bridged(p, "In Progress", MID_PR, null); // ticked boxes present, but no opt-in
     let calls = 0;
-    assert.deepEqual(verifyBridge(p.root, { run: (cmd) => { calls++; return { ok: false, kind: "red", reason: "exited 1" }; } }), []);
+    assert.deepEqual(
+      verifyBridge(p.root, { run: (cmd) => { calls++; return { ok: false, kind: "red", reason: "exited 1" }; } }),
+      { problems: [], warnings: [] }
+    );
     assert.equal(calls, 0, "verify with no projectGates config must not execute anything");
   } finally { p.done(); }
 });
@@ -466,5 +469,140 @@ test("bridgeGate: a dirty-tree gate warning reaches warn() from check()'s single
     } finally { delete process.env.SPY_FILE; }
     const spawnCount = existsSync(spy) ? readFileSync(spy, "utf8").length : 0;
     assert.equal(spawnCount, 1, "the gate command must run exactly once across check()+warn(), not twice");
+  } finally { p.done(); }
+});
+
+/* ── spec 061 T018a: close the `verify` dirty-tree gap ───────────────────────────────────────
+ * Phase 2 scoped R2's dirty-tree label to checkBridge only; verifyBridge (the mid-PR CLI
+ * counterpart) still hard-blocked on a dirty-tree sample — reproducing P2 in exactly the window
+ * (mid-PR) where a tree is dirtiest. verifyBridge now returns { problems, warnings }, same
+ * shape and same routing as checkBridge: dirty ⇒ labeled and non-blocking; clean ⇒ unchanged. */
+
+test("T018a: verify — dirty tree + red required gate ⇒ labeled, non-blocking (routed to warnings, not problems)", () => {
+  const p = project();
+  try {
+    bridged(p, "In Progress", MID_PR, REQUIRED_ONLY);
+    const { problems, warnings } = verifyBridge(p.root, { run: RED("exited 1"), isDirty: () => true });
+    assert.deepEqual(problems, [], "verify must not block on a dirty-tree sample");
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /"tests"/);
+    assert.match(warnings[0], /DIRTY working tree/, "the label must stay visible, not be dropped silently");
+  } finally { p.done(); }
+});
+
+test("T018a control: verify — clean tree + the SAME red required gate still blocks", () => {
+  const p = project();
+  try {
+    bridged(p, "In Progress", MID_PR, REQUIRED_ONLY);
+    const { problems, warnings } = verifyBridge(p.root, { run: RED("exited 1"), isDirty: () => false });
+    assert.deepEqual(problems, [
+      `[spec-bridge] the required gate "tests" is red (exited 1) — 1 linked spec affected. ${TAIL}`,
+    ]);
+    assert.deepEqual(warnings, []);
+  } finally { p.done(); }
+});
+
+/* ── spec 061 R4 (T014-T017): opt-in Stop-time instrumentation ───────────────────────────────
+ * Off by default: SPEC_BRIDGE_GATE_TRACE unset ⇒ no file written, verdict unchanged. Set ⇒ one
+ * JSONL record per bridgeGate.check() call, naming the resolved roots and each gate command's
+ * argv/cwd/status/stdout/stderr (bounded). Verdict-neutral in both directions: a write failure
+ * never flips a green gate red, and enabling tracing never changes the verdict itself. */
+
+test("R4: SPEC_BRIDGE_GATE_TRACE unset ⇒ no trace file is written and the verdict is unchanged", () => {
+  const p = project();
+  // The default trace destination this repo's own scratch convention would use — proving THIS
+  // path gains nothing is the closest thing to proving "no file is created" without guessing
+  // every possible location on disk.
+  const defaultTrace = join(process.env.CLAUDE_JOB_DIR || tmpdir(), "spec-bridge-gate-trace.jsonl");
+  const before = existsSync(defaultTrace) ? readFileSync(defaultTrace, "utf8").length : null;
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root });
+    p.config({ projectGates: { required: [{ name: "tests", command: ["node", "-e", "process.exit(1)"] }] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    spawnSync("git", ["-C", p.root, "config", "user.email", "test@example.com"]);
+    spawnSync("git", ["-C", p.root, "config", "user.name", "Test"]);
+    spawnSync("git", ["-C", p.root, "add", "-A"]);
+    spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+    delete process.env.SPEC_BRIDGE_GATE_TRACE;
+    const problems = bridgeGate.check(p.root);
+    assert.equal(problems.length, 1, "a clean tree with a red required gate must still block");
+    const after = existsSync(defaultTrace) ? readFileSync(defaultTrace, "utf8").length : null;
+    assert.equal(after, before, "absent env var must not write to the default trace location — not one extra syscall");
+  } finally { p.done(); }
+});
+
+test("R4: SPEC_BRIDGE_GATE_TRACE set ⇒ one JSONL record naming resolved roots + bounded per-command capture, verdict unchanged", () => {
+  const p = project();
+  const traceDir = mkdtempSync(join(tmpdir(), "gate-trace-"));
+  const tracePath = join(traceDir, "trace.jsonl");
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root });
+    p.config({ projectGates: { required: [{ name: "tests", command: ["node", "-e", "process.stdout.write('x'.repeat(10)); process.exit(1)"] }] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    spawnSync("git", ["-C", p.root, "config", "user.email", "test@example.com"]);
+    spawnSync("git", ["-C", p.root, "config", "user.name", "Test"]);
+    spawnSync("git", ["-C", p.root, "add", "-A"]);
+    spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+    process.env.SPEC_BRIDGE_GATE_TRACE = tracePath;
+    let problems;
+    // Real Stop-hook wiring calls resolveRoots(start) once, then check(root) per resolved root
+    // (lib/gate-runner.mjs's evaluate loop) — mirror that order so the trace sees a real roots list.
+    bridgeGate.resolveRoots(p.root);
+    try { problems = bridgeGate.check(p.root); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    assert.equal(problems.length, 1, "enabling the trace must not change the verdict");
+    const lines = readFileSync(tracePath, "utf8").trim().split("\n");
+    assert.equal(lines.length, 1, "one record per bridgeGate.check() invocation");
+    const record = JSON.parse(lines[0]);
+    assert.ok(record.ts, "record must carry a timestamp");
+    assert.ok(Array.isArray(record.roots) && record.roots.includes(p.root), "record must name the resolved roots (R4's point)");
+    assert.equal(record.commands.length, 1);
+    assert.equal(record.commands[0].command.join(" "), "node -e process.stdout.write('x'.repeat(10)); process.exit(1)");
+    assert.equal(record.commands[0].status, 1);
+    assert.equal(record.commands[0].stdout, "x".repeat(10));
+  } finally { rmSync(traceDir, { recursive: true, force: true }); p.done(); }
+});
+
+test("R4: bounded capture — stdout longer than the cap is truncated, not dropped or unbounded", () => {
+  const p = project();
+  const traceDir = mkdtempSync(join(tmpdir(), "gate-trace-"));
+  const tracePath = join(traceDir, "trace.jsonl");
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root });
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", "process.stdout.write('y'.repeat(10000)); process.exit(1)"] },
+    ] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    spawnSync("git", ["-C", p.root, "config", "user.email", "test@example.com"]);
+    spawnSync("git", ["-C", p.root, "config", "user.name", "Test"]);
+    spawnSync("git", ["-C", p.root, "add", "-A"]);
+    spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+    process.env.SPEC_BRIDGE_GATE_TRACE = tracePath;
+    try { bridgeGate.check(p.root); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    const record = JSON.parse(readFileSync(tracePath, "utf8").trim());
+    assert.ok(record.commands[0].stdout.length < 10000, "a 10000-char stream must be capped, not stored in full");
+    assert.match(record.commands[0].stdout, /truncated/);
+  } finally { rmSync(traceDir, { recursive: true, force: true }); p.done(); }
+});
+
+test("R4 verdict-neutral: an unwritable trace path is swallowed — the gate verdict is unaffected, nothing throws", () => {
+  const p = project();
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root });
+    p.config({ projectGates: { required: [{ name: "tests", command: ["node", "-e", "process.exit(1)"] }] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    spawnSync("git", ["-C", p.root, "config", "user.email", "test@example.com"]);
+    spawnSync("git", ["-C", p.root, "config", "user.name", "Test"]);
+    spawnSync("git", ["-C", p.root, "add", "-A"]);
+    spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+    // A path inside a nonexistent directory: appendFileSync throws ENOENT.
+    process.env.SPEC_BRIDGE_GATE_TRACE = join(p.root, "no-such-dir", "trace.jsonl");
+    let problems;
+    try { assert.doesNotThrow(() => { problems = bridgeGate.check(p.root); }); }
+    finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    assert.equal(problems.length, 1, "a swallowed trace failure must not affect the gate verdict");
   } finally { p.done(); }
 });

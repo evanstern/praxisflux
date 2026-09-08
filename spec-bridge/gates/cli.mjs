@@ -41,7 +41,10 @@ if (cmd === "state") {
   }
   console.log(`spec-bridge ok: ${links.length} linked task(s), none exceed their artifacts`);
 } else if (cmd === "verify") {
-  const problems = verifyBridge(target);
+  // spec 061 T018a: verifyBridge now returns { problems, warnings } — a dirty-tree gate finding
+  // is never dropped, only routed to warnings (printed, non-blocking) instead of problems.
+  const { problems, warnings } = verifyBridge(target);
+  for (const w of warnings) console.log(`warn: ${w}`);
   if (problems.length) {
     console.log(`\nGATE FAILED (${problems.length} issue(s)):`);
     for (const p of problems) console.log(`  - ${p}`);

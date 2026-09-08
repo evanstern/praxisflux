@@ -49,17 +49,17 @@ it on every commit, so a red phase blocks its own commit.
 
 ## Phase 3 — Instrumentation for the unreproduced firings (R4)
 
-- [ ] T014 Env-gated capture, **off by default** — absent ⇒ byte-identical behavior, not one
+- [x] T014 Env-gated capture, **off by default** — absent ⇒ byte-identical behavior, not one
       extra syscall.
-- [ ] T015 Record per invocation: timestamp, the resolved **roots** (`resolveRoots`'s return
+- [x] T015 Record per invocation: timestamp, the resolved **roots** (`resolveRoots`'s return
       — the point of R4, not just the exit code), and per gate command argv/cwd/status/signal
       plus **bounded** stdout/stderr (a 45s suite's output is large — cap it).
-- [ ] T016 Write append-only JSONL **outside the tracked tree** (never inside the repo — a
+- [x] T016 Write append-only JSONL **outside the tracked tree** (never inside the repo — a
       Stop hook that dirties the tree would poison the very check Phase 2 adds).
-- [ ] T017 **Verdict-neutral:** instrumentation failure is swallowed and never turns a green
+- [x] T017 **Verdict-neutral:** instrumentation failure is swallowed and never turns a green
       gate red. Test that the default path writes nothing and the verdict is unchanged.
-- [ ] T018 Bare `node --test` green. Commit; **push**.
-- [ ] T018a **Close the `verify` dirty-tree gap** (orchestrator ruling, 2026-09-08 — see
+- [x] T018 Bare `node --test` green. Commit; **push**.
+- [x] T018a **Close the `verify` dirty-tree gap** (orchestrator ruling, 2026-09-08 — see
       R2's last bullet). Phase 2 scoped the dirty-tree label to `checkBridge`; `verifyBridge`
       still hard-blocks on a sample taken against a dirty tree, which reproduces P2 in the
       **mid-PR window where trees are dirtiest** and breaks the "agree by construction"
