@@ -54,20 +54,20 @@ committed and **pushed** (runbook F4).
 
 ## Phase 4 — The bootstrap question
 
-- [ ] Add the planting-mode section to `pdlc/skills/bootstrap/SKILL.md`, positioned and
+- [x] Add the planting-mode section to `pdlc/skills/bootstrap/SKILL.md`, positioned and
       voiced like "Root-guard hook — opt-in enforcement (advanced)": offer, do not assume;
       ask "a project we own" (tracked, default) vs "a repo we are a guest in" (local-only);
       recommend from what is observable — a repo whose remote/tracked tree shows no prior
       PDLC adoption is the guest case; present the previous `.pdlc` choice as the default in
       update mode; pass `--local-only` on opt-in (R5).
-- [ ] Extend the skill's Precondition gate step 3 (the not-a-git-repo case) to state the
+- [x] Extend the skill's Precondition gate step 3 (the not-a-git-repo case) to state the
       local-only degradation and its next step (R6).
-- [ ] Extend the skill's Output gate: in local-only mode assert `.git/info/exclude` carries
+- [x] Extend the skill's Output gate: in local-only mode assert `.git/info/exclude` carries
       the scoped set and `.gitignore` was **not** written.
-- [ ] Update the plant-step command line and the skill's `description:` frontmatter to name
+- [x] Update the plant-step command line and the skill's `description:` frontmatter to name
       the new opt-in.
-- [ ] Test: `SKILL.md` contains the bootstrap question (doc-presence assertion, R7).
-- [ ] Bare `node --test` green. Commit and **push**.
+- [x] Test: `SKILL.md` contains the bootstrap question (doc-presence assertion, R7).
+- [x] Bare `node --test` green. Commit and **push**.
 
 ## Phase 5 — Bump, re-ground, PR
 
