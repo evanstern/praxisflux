@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 15:51'
+updated_date: '2026-09-09 16:05'
 labels:
   - tech-debt
   - spec-bridge
@@ -57,8 +57,6 @@ Spec: specs/062-gate-runner-cwd
 - [ ] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -79,4 +77,18 @@ FIX APPLIED (root checkout, main): added the CLAUDE_PROJECT_DIR save/delete/rest
 NOTE ON SCOPE: the fix repairs the one test's isolation. The deeper design question is untouched and worth its own decision — whether gate-runner.mjs should prefer an explicitly-passed cwd OVER the ambient env var, since today any in-process caller's cwd argument is silently overridden. Three call sites already work around it by hand (reorient.test.mjs, phase-status.test.mjs, and now this one), which is the smell.
 
 AC #4: the orphan-tree removal did NOT end the firings — this ninth firing came after it. The orphan tree was not the cause, as this card anticipated.
+
+SWEEP CLAIM 2026-09-09 (Lane 2.5, inserted by operator ruling — runs BEFORE TASK-112/113 because every remaining phase of those dispatches under the Stop hook this defect makes falsely red). Claimed atomically at c900820 on branch task-0122-gate-runner-cwd: status flip + specs/062-gate-runner-cwd/{spec,plan,tasks}.md + Spec marker in one commit, pushed.
+
+Tier: sonnet / cc/claude-sonnet-5[1m] (defaultTier per .claude/model-tiers.json; tiers.mjs --check exit 0, all three unchanged). No escalation. Justification: the spec settles the judgment calls — the precedence order and its rationale are decided in plan.md, so the implementer is working to a written spec. Served model to be verified from the first dispatch's transcript before any sibling dispatch.
+
+TWO THINGS VERIFIED WHILE SPECIFYING, both narrowing the risk:
+1. The ONLY production caller of evaluate() is runStopHook (lib/gate-runner.mjs:77) and it passes NO cwd — so the real Stop-hook path lands in the unchanged branch of the new precedence by construction. Every caller that DOES pass a cwd is a test, and all eight already delete the env var to get the behaviour this change makes the default. The fix moves the code toward what every caller already wants.
+2. lib/gate-runner.mjs is vendored into NINE plugins by scripts/sync-shared.mjs (build, codebase-to-course, educate, grounding-wiki, pdlc, reorient, research, spec-bridge, team-review) and ~10 wiki notes source it. AC#6's bump + re-pin are real obligations.
+
+PRECEDENCE DECIDED (AC#2, recorded in plan.md so the implementer does not re-litigate it): explicit { cwd } > CLAUDE_PROJECT_DIR > input.cwd > process.cwd(). Rationale: an explicit argument is a caller naming a directory on purpose and must never be silently overridden; the env var is the harness's authoritative statement of the project root and stays ahead of input.cwd, because input.cwd is merely where the hook happened to fire (a worktree, a subdir) while the env var names the project. Nothing-passed behaviour is byte-identical to today. Mechanical note for the implementer: the signature must distinguish 'no cwd passed' from a passed value, so default the option to undefined and fall back inside the expression — today's { cwd = process.cwd() } erases that distinction, which is why the bug was possible at all.
+
+TWO CORRECTIONS TO MY OWN EARLIER CLAIMS (both were wrong; recorded so neither is re-acted-on):
+- I said THREE test files hand-work around this precedence. Correct count is EIGHT, verified by grep. The other session's number was right and mine was wrong.
+- I briefly concluded backlog's new zero_padded_ids: 4 made TASK-0121/0122 invisible to the bridge. FALSE. parseLinkedTask reads id: from frontmatter and is format-agnostic; called directly it returns TASK-0122 with all 10 ACs. The real reason 'cli.mjs links' omits the card is that checkBridge reads the COMMITTED .board/links.json mirror — a 61-link snapshot predating both cards. The live gate is unaffected (exit 0) because the backlog provider is requiresSync:false, so live projection wins over the stale mirror. Worth knowing separately: the committed mirror in this repo is stale by two cards.
 <!-- SECTION:NOTES:END -->
