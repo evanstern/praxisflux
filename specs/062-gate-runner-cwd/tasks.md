@@ -10,15 +10,15 @@ in `spec.md` — do not re-derive it.
 
 ## Phase 1 — The decoy regression test, captured RED first
 
-- [ ] Add a decoy test to `test/board-provider-seam.test.mjs`: set `CLAUDE_PROJECT_DIR` to a
+- [x] Add a decoy test to `test/board-provider-seam.test.mjs`: set `CLAUDE_PROJECT_DIR` to a
       decoy directory, pass an explicit `{ cwd }` pointing at a real fixture, and assert the
       gate resolved against the fixture rather than the decoy
-- [ ] **Run it against UNMODIFIED `lib/` and capture the failure output in the commit
+- [x] **Run it against UNMODIFIED `lib/` and capture the failure output in the commit
       message.** A regression test that never failed is not evidence — this RED is the
       artifact proving the defect
-- [ ] Guard the new test's own state: restore `CLAUDE_PROJECT_DIR` in a `finally` so it
+- [x] Guard the new test's own state: restore `CLAUDE_PROJECT_DIR` in a `finally` so it
       cannot leak into sibling tests
-- [ ] Commit (test only, still red) and push
+- [x] Commit (test only, still red) and push
 
 ## Phase 2 — The precedence change
 
