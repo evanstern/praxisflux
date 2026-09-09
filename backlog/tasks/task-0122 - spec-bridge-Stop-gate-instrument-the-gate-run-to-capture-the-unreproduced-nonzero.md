@@ -57,8 +57,6 @@ Spec: specs/062-gate-runner-cwd
 - [ ] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -93,4 +91,23 @@ PRECEDENCE DECIDED (AC#2, recorded in plan.md so the implementer does not re-lit
 TWO CORRECTIONS TO MY OWN EARLIER CLAIMS (both were wrong; recorded so neither is re-acted-on):
 - I said THREE test files hand-work around this precedence. Correct count is EIGHT, verified by grep. The other session's number was right and mine was wrong.
 - I briefly concluded backlog's new zero_padded_ids: 4 made TASK-0121/0122 invisible to the bridge. FALSE. parseLinkedTask reads id: from frontmatter and is format-agnostic; called directly it returns TASK-0122 with all 10 ACs. The real reason 'cli.mjs links' omits the card is that checkBridge reads the COMMITTED .board/links.json mirror — a 61-link snapshot predating both cards. The live gate is unaffected (exit 0) because the backlog provider is requiresSync:false, so live projection wins over the stale mirror. Worth knowing separately: the committed mirror in this repo is stale by two cards.
+
+PHASES 1-2 DONE AND ORCHESTRATOR-VERIFIED (2026-09-09, branch task-0122-gate-runner-cwd).
+
+Phase 1 (3203b5e) — the decoy regression test, captured RED on purpose. Verified independently, not on report: lib/ confirmed untouched (git diff origin/main...HEAD -- lib/ empty), and the RED reproduces at 527 tests / 526 pass / 1 fail with that one failure being the precedence assertion itself ('must resolve against the passed fixture, not $CLAUDE_PROJECT_DIR's decoy'). Committed --no-verify, disclosed in the message body — correct, since the pre-commit hook would rightly block a deliberate RED. The test is stronger than the pre-existing DoD#6 guard: it sets the env var to a POPULATED decoy whose content yields a different verdict, rather than merely deleting the var.
+
+Phase 2 (020db3b) — the precedence change. Committed content verified via git show:
+  export function evaluate(input, gates, { cwd = undefined } = {}) {
+    const start = cwd || process.env.CLAUDE_PROJECT_DIR || (input && input.cwd) || process.cwd();
+Both halves present: the corrected order AND the undefined default that makes 'no cwd passed' distinguishable from a passed value — the mechanical reason the bug was possible at all (the old { cwd = process.cwd() } destructuring default erased that distinction). The contract comment states the four-step order and its rationale, including why the env var still outranks input.cwd.
+
+Suite verified by the orchestrator, both ways, bare node --test: CLAUDE_PROJECT_DIR SET → 527/527 exit 0; UNSET → 527/527 exit 0. Previously the SET case was 526/1.
+
+R2 proven directly, not argued: with nothing passed, evaluate() still resolves the env var over input.cwd (probe with CLAUDE_PROJECT_DIR=/tmp/env-wins and input.cwd=/tmp/input-cwd resolved /tmp/env-wins). The real Stop-hook path is byte-identical, as runStopHook passes no cwd.
+
+THE ORIGINAL SYMPTOM IS GONE: the spec-bridge Stop gate run from this worktree no longer reports 'tests red'. What it now reports is 'wiki-freshness' red — which is Phase 4's own obligation (the version bump has not happened yet), not a regression.
+
+Served model VERIFIED for both dispatches: claude-sonnet-5, read from the transcripts' per-request records rather than agent self-report (34 requests on Phase 1). Tier held at sonnet / cc/claude-sonnet-5[1m]; no escalation. Cost so far: ~136k + ~138k subagent tokens.
+
+ACs ticked on verified evidence only: #1, #2, #3 (and phases #7, #8). AC#5 deliberately left unticked until Phase 3's guard audit lands, because that phase can still move the suite.
 <!-- SECTION:NOTES:END -->
