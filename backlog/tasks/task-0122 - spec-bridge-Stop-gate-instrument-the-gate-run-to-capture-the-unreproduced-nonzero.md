@@ -57,8 +57,6 @@ Spec: specs/062-gate-runner-cwd
 - [ ] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -112,4 +110,16 @@ THE ORIGINAL SYMPTOM IS GONE: the spec-bridge Stop gate run from this worktree n
 Served model VERIFIED for both dispatches: claude-sonnet-5, read from the transcripts' per-request records rather than agent self-report (34 requests on Phase 1). Tier held at sonnet / cc/claude-sonnet-5[1m]; no escalation. Cost so far: ~136k + ~138k subagent tokens.
 
 ACs ticked on verified evidence only: #1, #2, #3 (and phases #7, #8). AC#5 deliberately left unticked until Phase 3's guard audit lands, because that phase can still move the suite.
+
+PHASE 3 DONE AND VERIFIED (a590d4b). The eight-file guard audit came back 9 KEEP / 5 REMOVE, and the classification is correct on inspection — I checked the removals rather than trusting the pass.
+
+Every REMOVE site was confirmed to already pass an explicit { cwd } to evaluate(), which the Phase 2 fix now honours: team-review's stop-hook test (1) and reorient's three guards (3) and board-provider-seam's DoD#6 guard (1). The KEEPs are load-bearing for two distinct reasons, both real: SUBPROCESS tests (install-path, root-guard-hook, team-review's cli() sites) whose children inherit the ambient env no matter what the parent argument said, and IN-PROCESS calls that pass only input.cwd and no explicit { cwd } option (spec-bridge's and phase-status's evalAt) — input.cwd sits BELOW the env var in the new precedence, so pinning is still required there. Every KEEP carries a stated reason, per AC#4.
+
+Two findings from the audit worth recording:
+1. test/pdlc.test.mjs was NOT actually one of the eight. Its only CLAUDE_PROJECT_DIR match is a doc comment about hook wiring — no env manipulation exists there to classify. So the real count of files carrying guards is SEVEN, not eight. Both the other session's count and mine were derived from a filename grep that caught a comment. The defect's severity is unchanged; the census was off by one.
+2. The protected files (spec-bridge, phase-status) each gained 3 lines — COMMENT ONLY, no test logic touched. Checked whether this violates their protection: there is no mechanical hash/byte assertion anywhere in the suite; 'byte-faithful' in board-provider-seam:208 refers to the exact COMMAND STRINGS those tests assert, which comment additions preserve. The agent's conservative KEEP-with-comment call in those files was right.
+
+Suite verified by the orchestrator after the audit, both ways, bare node --test: SET → 527/527 exit 0; UNSET → 527/527 exit 0. AC#5 now earned and ticked (it was deliberately held back through Phases 1-2 because a guard audit can move the suite).
+
+Remaining: AC#6 only — Phase 4's release obligations (version bump, re-sync the nine vendored lib/gate-runner.mjs copies, re-pin the wiki notes sourcing it).
 <!-- SECTION:NOTES:END -->
