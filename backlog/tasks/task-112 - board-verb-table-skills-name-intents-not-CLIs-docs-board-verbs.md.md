@@ -4,7 +4,7 @@ title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
 status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 18:15'
+updated_date: '2026-09-09 18:19'
 labels:
   - feature
   - doctrine
@@ -39,7 +39,7 @@ Spec: specs/055-board-verb-table
 - [x] #7 Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis
 - [x] #8 docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)
 - [x] #9 renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes
-- [ ] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
+- [x] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
 - [x] #11 Spec phase: Phase 1 — Enumerate the real call sites, author the verb table
 - [x] #12 Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
 - [x] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
@@ -112,4 +112,6 @@ TWO JUDGMENT CALLS THE IMPLEMENTER SURFACED RATHER THAN MAKING SILENTLY, both so
 Tier held sonnet / cc/claude-sonnet-5[1m]; ~248k subagent tokens, 71 tool uses.
 
 Phase 4: rewrote all six skills to name board verbs (docs/board-verbs.md) instead of literal backlog CLI commands, per findings/phase-1-call-sites.md's operative census (link 6, sweep 3, refactor-triage 1, sync 2, bootstrap 1, reorient 1). AC#7 finished: sweep's paused-lane doctrine now resolves via isPausedLink off the .board/links.json mirror instead of reading backlog/tasks/*.md frontmatter directly. AC#8: task-labels.md plumbing made provider-neutral, 28 label rows unchanged. Skill versions + marketplace 0.62.0 bumped and committed (eca0dd9).
+
+Phase 4 re-ground: 16 stale notes found by grounding-wiki plan; 6 RE-PIN-ONLY (version-stamp-only diffs), 10 NEEDS-REVIEW. Of the NEEDS-REVIEW set, only pdlc-sweep.md's prose needed a real amendment (paused-lane detection now describes isPausedLink/.board/links.json mirror resolution instead of raw frontmatter reads) -- pdlc-plugin.md, pdlc-refactor-triage.md, the three pdlc-sweep-history* notes, reorient-plugin.md, spec-bridge-plugin.md (already known stale, at its 8000-char budget cap with 2 chars headroom -- left body untouched, no claim in it was falsified by this diff) all held up under review with no claim invalidated, so re-pinned as-is. All 10 re-pinned. Cascade check: freshness re-run after committing re-pins is clean (41 notes fresh); only one note (test-suite-catalog-plugins.md) sources other wiki notes and neither of its two wiki-note sources was touched, so no cascade. .board/links.json regenerated via projectBacklog+writeMirror (62 links); board-mirror --check reports match.
 <!-- SECTION:NOTES:END -->
