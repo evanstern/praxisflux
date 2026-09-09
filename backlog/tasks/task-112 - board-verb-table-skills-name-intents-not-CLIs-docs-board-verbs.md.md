@@ -4,7 +4,7 @@ title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
 status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 18:14'
+updated_date: '2026-09-09 18:15'
 labels:
   - feature
   - doctrine
@@ -36,7 +36,7 @@ Spec: specs/055-board-verb-table
 - [x] #4 Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error
 - [x] #5 Block parser yields [{index,checked,text}] matching mirror acs shape; round-trip test passes
 - [x] #6 Mirror schema gains optional labels[]; both providers project it; a mirror without it still validates
-- [ ] #7 Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis
+- [x] #7 Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis
 - [x] #8 docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)
 - [x] #9 renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes
 - [ ] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
@@ -45,8 +45,6 @@ Spec: specs/055-board-verb-table
 - [x] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
 - [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -112,4 +110,6 @@ TWO JUDGMENT CALLS THE IMPLEMENTER SURFACED RATHER THAN MAKING SILENTLY, both so
 2. ARCHITECTURAL GAP, recorded for spec 056: given only (id, intents, config) and no task snapshot, renderJira cannot resolve a surviving AC's original text, so it cannot build a literal final description. Its editJiraIssue call carries the RAW DIFF (acRemove/acAdd/acCheck/acUncheck) as args; resolving that against the live block — fetch, parse, apply, render, write — is spec 056's skill's job. This is precisely why the render/parse pair is a standalone primitive rather than something renderJira calls internally. Also noted: renderJira is not yet wired into planBridge's non-backlog branch; no Phase 3 AC asked for it, and it is 056's call.
 
 Tier held sonnet / cc/claude-sonnet-5[1m]; ~248k subagent tokens, 71 tool uses.
+
+Phase 4: rewrote all six skills to name board verbs (docs/board-verbs.md) instead of literal backlog CLI commands, per findings/phase-1-call-sites.md's operative census (link 6, sweep 3, refactor-triage 1, sync 2, bootstrap 1, reorient 1). AC#7 finished: sweep's paused-lane doctrine now resolves via isPausedLink off the .board/links.json mirror instead of reading backlog/tasks/*.md frontmatter directly. AC#8: task-labels.md plumbing made provider-neutral, 28 label rows unchanged. Skill versions + marketplace 0.62.0 bumped and committed (eca0dd9).
 <!-- SECTION:NOTES:END -->
