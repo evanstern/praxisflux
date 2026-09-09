@@ -36,7 +36,7 @@ One bullet per `test/*.test.mjs` file:
   `PreToolUse` entries into `.claude/settings.json`, idempotent, preserving pre-existing
   hooks, unknown-hook rejection; the refactor-triage skill shape (spec 033/047) —
   `parseFrontmatter` frontmatter plus the full phase skeleton (a gutted phase fails loud),
-  phase-content anchors (triage-record path, backlog-CLI-only Execute, team-review lens),
+  phase-content anchors (triage-record path, `board:create`-routed Execute, team-review lens),
   three entry modes + declared-policy headless rule, sweep's Handing off naming
   refactor-triage, and a cross-plugin test that refactor-triage and team-review spell
   `docs/reviews/team-review-<run-id>.md` identically; and **local-only planting mode**

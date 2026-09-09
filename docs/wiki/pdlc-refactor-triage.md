@@ -1,6 +1,6 @@
 ---
 name: pdlc-refactor-triage
-description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; four entry modes (range, whole-repo, headless, since-last-triage); team-review is the evaluation engine via its lens (inline pass when absent); a range-only intent-drift pass vs runbook + specs + pinned wiki notes; accept/reject/defer dispositions in a tracked record; accepted findings carded as backlog tasks.
+description: The pdlc:refactor-triage skill — the post-sweep (and periodic) debt evaluator: sweep → refactor-triage → debt tasks → next sweep; four entry modes (range, whole-repo, headless, since-last-triage); team-review is the evaluation engine via its lens (inline pass when absent); a range-only intent-drift pass vs runbook + specs + pinned wiki notes; accept/reject/defer dispositions in a tracked record; accepted findings carded via the `board:create` verb.
 kind: component
 sources:
   - pdlc/skills/refactor-triage/SKILL.md
@@ -64,7 +64,8 @@ Gate → four phases → gate:
   high-water mark — the scanned range's resolved right endpoint, or HEAD at scan time in
   whole-repo mode — that the Scope phase's since-last-triage entry reads to scope the next
   run (0.3.0, TASK-80).
-- **Execute** — each **accepted** finding becomes a backlog task via the `backlog` CLI
+- **Execute** — each **accepted** finding becomes a board item via the `board:create`
+  verb (`docs/board-verbs.md`), never a raw CLI
   (never hand-edited board files), citing its finding (report path + file:line) in the
   body, labeled (e.g. `debt`), dependency-noted — immediately sweepable. Rejected and
   deferred items live in the record only.
