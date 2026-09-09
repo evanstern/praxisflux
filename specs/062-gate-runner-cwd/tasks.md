@@ -39,18 +39,18 @@ in `spec.md` — do not re-derive it.
 
 ## Phase 3 — Audit the eight hand-rolled guards
 
-- [ ] For each of `install-path`, `spec-bridge`, `root-guard-hook`, `phase-status`, `pdlc`,
+- [x] For each of `install-path`, `spec-bridge`, `root-guard-hook`, `phase-status`, `pdlc`,
       `team-review`, `reorient`, `board-provider-seam`: read what its guard protects and
       classify it — REMOVE (redundant after the fix) or KEEP (with a one-line comment
       stating why)
-- [ ] Expect KEEPs: a test that spawns a **subprocess** still needs the env var managed,
+- [x] Expect KEEPs: a test that spawns a **subprocess** still needs the env var managed,
       because the precedence change governs in-process resolution only and a child inherits
       the ambient environment regardless. Classify per file — a blanket removal
       reintroduces failures in exactly the subprocess-shaped tests
-- [ ] Every guard that stays carries its stated reason; a guard kept without one is a guard
+- [x] Every guard that stays carries its stated reason; a guard kept without one is a guard
       nobody can retire later
-- [ ] Full suite green both ways after the audit
-- [ ] Commit and push
+- [x] Full suite green both ways after the audit
+- [x] Commit and push
 
 ## Phase 4 — Release obligations and re-ground
 

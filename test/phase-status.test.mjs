@@ -43,6 +43,9 @@ function project() {
   };
 }
 
+// kept (spec 062 R5): this calls evaluate() with no explicit { cwd } option (only input.cwd,
+// which sits BELOW $CLAUDE_PROJECT_DIR in the precedence) — so the var must still be pinned
+// to `root` here, or the Stop hook running this suite would leak the real repo's root in.
 function evalAt(root) {
   const saved = process.env.CLAUDE_PROJECT_DIR;
   process.env.CLAUDE_PROJECT_DIR = root;

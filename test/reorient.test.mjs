@@ -186,10 +186,10 @@ test("run CLI: begin records manifest, finish blocks then passes; gate-runner in
 
   // Stop-hook path: an in-flight run under this cwd blocks with actionable problems.
   // The gate resolves the runs dir in-process, so it needs the same $REORIENT_HOME.
+  // removed (spec 062 R5): evaluate() below passes an explicit { cwd: root }, which now wins
+  // over $CLAUDE_PROJECT_DIR, so no guard for that var is needed — only REORIENT_HOME.
   const prevHome = process.env.REORIENT_HOME;
-  const prevProj = process.env.CLAUDE_PROJECT_DIR; // evaluate() prefers it over the passed cwd
   process.env.REORIENT_HOME = home;
-  delete process.env.CLAUDE_PROJECT_DIR;
   try {
     assert.equal(reorientGate.resolveRoots(root).length, 1, "in-flight run must resolve as a root");
     const verdict = evaluate({}, [reorientGate], { cwd: root });
@@ -205,7 +205,6 @@ test("run CLI: begin records manifest, finish blocks then passes; gate-runner in
     assert.equal(reorientGate.resolveRoots(root).length, 0, "done runs never block");
   } finally {
     if (prevHome === undefined) delete process.env.REORIENT_HOME; else process.env.REORIENT_HOME = prevHome;
-    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
   }
 
   rmSync(root, { recursive: true, force: true });
@@ -341,10 +340,10 @@ test("run CLI: begin stamps owner + heartbeat; synthesis is run-id-keyed so same
 test("reorientGate: blocks only the owning session; foreign runs warn only once the heartbeat is stale", () => {
   const root = makeProject();
   const { home } = scratchHome();
+  // removed (spec 062 R5): every evaluate() call below passes an explicit { cwd: root }, which
+  // now wins over $CLAUDE_PROJECT_DIR, so only REORIENT_HOME needs pinning here.
   const prevHome = process.env.REORIENT_HOME;
-  const prevProj = process.env.CLAUDE_PROJECT_DIR;
   process.env.REORIENT_HOME = home;
-  delete process.env.CLAUDE_PROJECT_DIR;
   try {
     const now = new Date().toISOString();
     const run = { ...makeRun(root), id: "owned-1", owner: { sessionId: "sess-A", user: "ua", host: "ha" }, startedAt: now, heartbeatAt: now };
@@ -374,7 +373,6 @@ test("reorientGate: blocks only the owning session; foreign runs warn only once 
     assert.equal(evaluate({ session_id: "sess-B" }, [reorientGate], { cwd: root }).block, true);
   } finally {
     if (prevHome === undefined) delete process.env.REORIENT_HOME; else process.env.REORIENT_HOME = prevHome;
-    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
   }
   rmSync(root, { recursive: true, force: true });
   rmSync(home, { recursive: true, force: true });
@@ -466,11 +464,11 @@ test("run CLI: registry lives at the TARGET root, not the invoking cwd — begin
 
   // R2: the Stop gate resolves the run for sessions working in the target...
   // (evaluate() falls back to $CLAUDE_CODE_SESSION_ID, so the harness's own id must not leak in)
+  // removed (spec 062 R5): every evaluate() call below passes an explicit { cwd }, which now
+  // wins over $CLAUDE_PROJECT_DIR, so that var no longer needs deleting/restoring here.
   const prevHome = process.env.REORIENT_HOME;
-  const prevProj = process.env.CLAUDE_PROJECT_DIR;
   const prevSess = process.env.CLAUDE_CODE_SESSION_ID;
   delete process.env.REORIENT_HOME;
-  delete process.env.CLAUDE_PROJECT_DIR;
   delete process.env.CLAUDE_CODE_SESSION_ID;
   try {
     assert.equal(reorientGate.resolveRoots(rootB, {}).length, 1, "a session in the target sees the run");
@@ -481,7 +479,6 @@ test("run CLI: registry lives at the TARGET root, not the invoking cwd — begin
     assert.equal(reorientGate.resolveRoots(dirA, { sessionId: "sess-B" }).length, 0, "the invoking dir's registry is empty");
   } finally {
     if (prevHome !== undefined) process.env.REORIENT_HOME = prevHome;
-    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
     if (prevSess !== undefined) process.env.CLAUDE_CODE_SESSION_ID = prevSess;
   }
 

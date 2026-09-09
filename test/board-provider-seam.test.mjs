@@ -159,12 +159,9 @@ test("checkBridge: no .board.json and no mirror default to provider \"backlog\" 
 // mirror file on disk.
 test("gate-runner: a malformed mirror's readMirror throw surfaces as a blocking problem, not a crash (DoD #6)", () => {
   const p = scratch();
-  // evaluate() prefers $CLAUDE_PROJECT_DIR over the passed cwd (lib/gate-runner.mjs), and the
-  // Stop hook that runs this suite sets it — so without this guard the gate reads the REAL
-  // repo (valid mirror, no crash) instead of the broken fixture below, and this test fails
-  // only when run from the hook. Same guard as test/reorient.test.mjs.
-  const prevProj = process.env.CLAUDE_PROJECT_DIR;
-  delete process.env.CLAUDE_PROJECT_DIR;
+  // removed (spec 062 R5): an explicitly-passed { cwd } now wins over $CLAUDE_PROJECT_DIR, so
+  // the guard that used to delete/restore the var here is redundant — evaluate() below already
+  // passes { cwd: p.root } and resolves against the fixture regardless of the ambient var.
   try {
     mkdirSync(join(p.root, ".board"), { recursive: true });
     writeFileSync(join(p.root, ".board", "links.json"), "{ not valid json");
@@ -173,7 +170,6 @@ test("gate-runner: a malformed mirror's readMirror throw surfaces as a blocking 
     assert.match(verdict.message, /\[spec-bridge\] crashed on .*: .*malformed JSON/);
   } finally {
     p.done();
-    if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
   }
 });
 

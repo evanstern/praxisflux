@@ -60,7 +60,10 @@ const makeRun = (target, report, extra = {}) =>
 function scratchHome() {
   const home = realpathSync(mkdtempSync(join(tmpdir(), "team-review-home-")));
   const env = { ...process.env, TEAM_REVIEW_HOME: home };
-  delete env.CLAUDE_PROJECT_DIR; // the session's own project dir must not leak into run scoping
+  // kept (spec 062 R5): this env feeds spawned run.mjs subprocesses (cli() below), which
+  // inherit the ambient var regardless of evaluate()'s in-process precedence — the session's
+  // own project dir must not leak into run scoping.
+  delete env.CLAUDE_PROJECT_DIR;
   return { home, env };
 }
 
@@ -246,7 +249,8 @@ test("run lifecycle: self-review with in-repo run records passes untouched, stil
   const report = join(outside, "report.md");
   const env = { ...process.env };
   delete env.TEAM_REVIEW_HOME; // records must land at the invoking root — which IS the target
-  delete env.CLAUDE_PROJECT_DIR;
+  delete env.CLAUDE_PROJECT_DIR; // kept (spec 062 R5): cli() spawns run.mjs as a subprocess,
+  // which inherits the ambient var regardless of evaluate()'s in-process precedence
   try {
     const begin = cli(env, target, "begin", target, "--report", report);
     assert.equal(begin.status, 0, begin.stderr);
@@ -278,7 +282,8 @@ test("run lifecycle: self-review round trip passes on the DEFAULT report path �
   const target = makeTarget();
   const env = { ...process.env };
   delete env.TEAM_REVIEW_HOME; // the real self-review shape: runs home root == the target
-  delete env.CLAUDE_PROJECT_DIR;
+  delete env.CLAUDE_PROJECT_DIR; // kept (spec 062 R5): cli() spawns run.mjs as a subprocess,
+  // which inherits the ambient var regardless of evaluate()'s in-process precedence
   try {
     const begin = cli(env, target, "begin", ".");
     assert.equal(begin.status, 0, begin.stderr);
@@ -302,7 +307,8 @@ test("run lifecycle: pure-defaults self-review lands a tracked copy on finish, r
   const target = makeTarget();
   const env = { ...process.env };
   delete env.TEAM_REVIEW_HOME; // the real self-review shape: runs home root == the target
-  delete env.CLAUDE_PROJECT_DIR;
+  delete env.CLAUDE_PROJECT_DIR; // kept (spec 062 R5): cli() spawns run.mjs as a subprocess,
+  // which inherits the ambient var regardless of evaluate()'s in-process precedence
   const outside = mkdtempSync(join(tmpdir(), "team-review-out-"));
   try {
     const begin = cli(env, target, "begin", ".");
@@ -361,10 +367,10 @@ test("run lifecycle: two same-day begins default to DISTINCT report paths", () =
 test("stop hook: blocks an in-flight run in scope, with finish/abandon guidance", () => {
   const target = makeTarget();
   const { home, env } = scratchHome();
+  // removed (spec 062 R5): every evaluate() call below passes an explicit { cwd }, which now
+  // wins over $CLAUDE_PROJECT_DIR, so that var no longer needs deleting/restoring here.
   const prev = process.env.TEAM_REVIEW_HOME;
-  const prevProject = process.env.CLAUDE_PROJECT_DIR;
   process.env.TEAM_REVIEW_HOME = home;
-  delete process.env.CLAUDE_PROJECT_DIR; // evaluate() prefers it over input.cwd
   try {
     const begin = cli(env, home, "begin", target, "--report", join(home, "report.md"));
     const id = begin.stdout.match(/run (\S+) in flight/)[1];
@@ -387,7 +393,6 @@ test("stop hook: blocks an in-flight run in scope, with finish/abandon guidance"
     assert.equal(evaluate({ cwd: home }, [reviewGate], { cwd: home }).block, false);
   } finally {
     if (prev === undefined) delete process.env.TEAM_REVIEW_HOME; else process.env.TEAM_REVIEW_HOME = prev;
-    if (prevProject !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProject;
     rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true });
   }
 });

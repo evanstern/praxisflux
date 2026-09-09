@@ -72,6 +72,9 @@ function stageOnly(repo, ...paths) {
 }
 
 function drive(command, { cwd, projectDir }) {
+  // kept (spec 062 R5): spawns root-guard-hook.mjs as a real subprocess and sets
+  // CLAUDE_PROJECT_DIR to match what the harness sets for every hook invocation — not a
+  // workaround for evaluate()'s in-process precedence, so there is nothing here to remove.
   const r = spawnSync("node", [HOOK, "pre-bash"], {
     input: JSON.stringify({ tool_input: { command }, cwd }),
     env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
