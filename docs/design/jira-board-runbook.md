@@ -412,7 +412,21 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 - `git worktree list` shows no stale sweep worktrees.
 - This file's execution log complete and its status flipped to **done**.
 
-## RESUME HERE (fresh session, 2026-09-09) — Lane 3' done; Lane 3 is next
+## RESUME HERE — Lane 4 is the last task; READ `docs/design/lane-4-handoff.md` FIRST
+
+**Updated 2026-09-09 (later).** Lane 2.5 (**TASK-0122**, the gate-runner cwd-precedence
+defect) and Lane 3 (**TASK-112**, spec 055) are both **DONE and merged** — PR #138
+(`8014a35`, v0.61.1) and PR #139 (`5c7bc70`, v0.62.0), plus `85560c7` recovering an AC#2 fix
+the #139 merge raced past. **Only Lane 4 remains: TASK-113, Phases 2–4.**
+
+**The handoff for it is `docs/design/lane-4-handoff.md`** — it carries the operator's
+authorized Jira scope (AICOE only), the `statusMap` propose-then-ratify ruling, the
+UI-Done proof protocol, and every execution rule this sweep learned the hard way. Read it
+before the sections below; this file remains the doctrine, that file is the task.
+
+<!-- The superseded Lane 3 resume block follows, kept for the audit trail. -->
+
+## (superseded) RESUME HERE (fresh session, 2026-09-09) — Lane 3' done; Lane 3 is next
 
 **Read this block first; it is the whole handoff.** Lane 3' (TASK-113 spec 056 Phase 1,
 the live marker test) is **COMPLETE**, and with it **finding F1 is DISCHARGED**. The
@@ -460,7 +474,7 @@ fixed test-only in `10ed971`, which is a symptom patch, not the defect.
 - Branch `task-113-jira-provider` is **pushed and parked** at `1cc5afe` with Phase 1's
   findings + tick + board note. TASK-113 Phases 2–4 ride that SAME branch and PR.
 
-## Sweep status: Lanes 0–2 DONE (2026-09-04); Lane 3' DONE (2026-09-09); Lanes 3–4 EXECUTING
+## Sweep status: Lanes 0–3 DONE (2026-09-09); LANE 4 IS ALL THAT REMAINS
 
 **Delivered and merged:** TASK-104 (`a875256`, v0.58.0) · TASK-107 (`05bb793`) ·
 TASK-109 (`0c97243`, v0.59.0) · TASK-111 (`e0ea7b2`, v0.59.3) · TASK-114 (`dafff60`,
@@ -468,7 +482,12 @@ v0.59.5) · TASK-110 (`5377710`, v0.59.6). Every one Done on the board via
 `spec-bridge:sync`'s derived plan, never hand-set; every PR landed as a merge commit so
 the wiki pins referencing branch commits stay reachable.
 
-**Now in flight (Lanes 3–4, signed off 2026-09-09):** TASK-112 (spec 055) and TASK-113
+**Lane 4 only (TASK-113, spec 056 Phases 2–4).** Lanes 0–3 are all Done and merged:
+TASK-104, 107, 109, 110, 111, 114, **TASK-0122** (#138, v0.61.1) and **TASK-112** (#139,
+v0.62.0). See `docs/design/lane-4-handoff.md` for the remaining task's contract, the
+operator's authorized Jira scope, and the rulings that gate it.
+
+**Superseded text follows.** ~~Now in flight (Lanes 3–4, signed off 2026-09-09):~~ TASK-112 (spec 055) and TASK-113
 (spec 056). Both holds are discharged: **F2 is CLEARED** — the Atlassian MCP is reachable
 on this host again after an operator `/mcp` re-auth — and **F1 is satisfied via option (a)**:
 the operator ruled that TASK-113 Phase 1's live marker test runs BEFORE TASK-112 is claimed,
@@ -492,6 +511,8 @@ advisory-local / authoritative-CI split.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-09 | TASK-0122 (Lane 2.5) | [#138](https://github.com/evanstern/praxisflux/pull/138) | `8014a35` (v0.61.1) | ~772k subagent tokens (4 phase dispatches: ~136k + ~138k + ~209k + ~183k) | **Done.** The gate-runner cwd-precedence defect — root cause of the false `tests` red that TASK-119/0122 tracked across EIGHT sightings as an unreproduced transient. `lib/gate-runner.mjs:39` preferred `$CLAUDE_PROJECT_DIR` over an explicitly-passed `{ cwd }`; SEVEN test files hand-worked around it. Fix: explicit cwd wins, env var stays the fallback (the real hook path passes no cwd, so it is byte-identical — proven by probe). Suite went 526/1 → **527/527 with the var SET**, and the Stop gate that fired nine times now exits 0 silent. Phase 1 captured the RED deliberately (`--no-verify`, disclosed). Guard audit 9 KEEP / 5 REMOVE — KEEPs are load-bearing for two distinct reasons (subprocess tests inherit ambient env; in-process calls passing only `input.cwd`, which still sits below the env var). Census correction: `test/pdlc.test.mjs` was never one of the eight — its only hit is a doc comment. Board Done via `spec-bridge:sync`'s derived plan. |
+| 2026-09-09 | TASK-112 (Lane 3) | [#139](https://github.com/evanstern/praxisflux/pull/139) | `5c7bc70` (v0.62.0) + `85560c7` | ~956k subagent tokens (4 phase dispatches: ~190k + ~222k + ~248k + ~296k) | **Done.** `docs/board-verbs.md` (13 verbs, each with preconditions + evidence artifact); mirror `labels[]` + `isPausedLink` (the paused-lane correctness fix — without it a sweep on a Jira host claims an operator's parked branch); `renderSpecPhasesBlock`/`parseSpecPhasesBlock` **tolerating both live Jira normalizations** F1 existed to catch; `renderJira` pure and ordered, `renderBacklog` byte-identical (verified by `cmp`). Six skills rewritten to verbs, own versions bumped, zero provider conditionals, 47+/40− across six files (line-swaps, not reflow); labels doc 28 rows → 28. **The spec's own census was wrong** — operative counts are link 6, sweep 3, refactor-triage 1, sync 2, bootstrap 1, reorient 1, and a grep both over- AND under-counts (one real site is grep-invisible). **A 7th operative site surfaced during the orchestrator's AC#2 audit**, and fixing it collided with a TASK-76 test pinning that exact wording as ratified contract — surfaced to the operator rather than settled by whoever edited last; ruling: AC#2 wins, verb preserves and widens TASK-76's intent. That fix landed as `85560c7` after #139's merge raced it. Wiki re-pinned honestly (prose before pin) with a CAPSULES cascade. |
 | 2026-09-09 | TASK-113 (Lane 3' — Phase 1 only) | open on `task-113-jira-provider` (Phases 2–4 ride the same PR) | not merged | orchestrator-run, no implementer dispatch (knowledge-only phase) | **F1 DISCHARGED.** Live marker test PASSED: `<!-- spec-phases -->` markers, checkbox syntax, checked/unchecked state and the `Spec:` marker all survive a Jira description write→read cycle in `contentFormat: markdown`; a second write with a different tick pattern persisted with byte-identical normalization, so the cycle is **idempotent, not degrading** — the proof that mattered, since the bridge rewrites this block repeatedly. Spec 055 needs **no amendment**; TASK-112 clear to claim. Four things fixtures could not have shown: (1) blank line inserted after `BEGIN`, (2) trailing whitespace on the last checkbox, (3) block contract is **markdown-only** — an `html` read escapes the markers, converts checkboxes to an ADF task-list, and swallows `END` inside the final `<li>`, (4) host workflow is non-injective on `statusCategory` (9 transitions from `Open`; 4 `new`, 3 `indeterminate`) so Phase 2 must map on status **name**. Also corrected two wrong tool names in the spec (`listJiraIssueTransitions`, `listJiraProjectIssueTypesMetadata`) and confirmed token-based JQL pagination. Phase 1 ticked **6/7** — the resolution quirk left honestly unverified (needs workflow writes; sign-off covered a description round-trip only). Commits `4b0b870` findings, `d874b88` tick, `1cc5afe` board note; all pushed per F4. **Near-miss recorded as F7 below.** |
 | 2026-08-28 | TASK-107 | — (board track, direct to `main`) | `05bb793` | ~257k subagent tokens (3 probes) | Done. Tier pins verified to actually serve via the 9router ledger, not self-report. Unblocked the epic by one of its two deps. |
 | 2026-08-28 | TASK-109 | [#132](https://github.com/evanstern/praxisflux/pull/132) | `0c97243` | ~686k subagent tokens (4 phase dispatches: ~158k + ~146k + ~147k + ~235k) | **Done.** Lane 1 complete; v0.59.0. Claim `415d5c8` (atomic: status flip + 4 phase ACs seeded from spec 052 tasks.md — the spec dir and Spec marker already existed on main under the hand-authored escape line). Phases: 1 `14b4577` (schema + read/write/validate, +9 tests), 2 `5580d51` (parser MOVED out of bridge.mjs, −46 lines, re-exported), 3 `412c935` (staleness + provider registry + projector, +7 tests), 4 `19e7a67`+`edea9b8`+`4694352`+`990b61f`+`5c47903` (--check CLI +3 tests, dogfood mirror, 0.59.0 bump, 12-note re-ground). All dispatches sonnet · `cc/claude-sonnet-5[1m]`; served model is pin-consistent self-report, NOT ledger-proven — every implementer stated it had no harness-provided evidence of its identity (router admin API rejects `ANTHROPIC_AUTH_TOKEN`). Orchestrator verified independently, not on report: suite 468/468, check-docs 0, versions 0.59.0, freshness exit 0; AC#9's three protected test files byte-identical across the whole branch; no provider-name conditional in `lib/`; ZERO new or widened `size_budget_exempt`. Merged as a merge commit (pins stay reachable); operator merged after review. Board Done via `spec-bridge:sync`'s derived plan, never by hand. **Gate lesson:** 55 Stop-hook findings reading 'required gate "tests" is red' were the TASK-114 flake, not misattribution — see TASK-114 for the confirmed mechanism and three ruled-out causes. |
