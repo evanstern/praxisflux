@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-09 00:41'
+updated_date: '2026-09-09 14:02'
 labels:
   - tech-debt
   - spec-bridge
@@ -165,6 +165,20 @@ Two independent staleness layers, both verified at the time:
 The merge itself was correct: gh api reported merged=true, merge_commit_sha ab0755b, and origin/main's log showed a MERGE COMMIT (not a squash), so the hashes the wiki notes pin as verified_against stayed reachable.
 
 Both layers are now resolved: /reload-plugins pulled 0.61.0 (5 occurrences of collapsedGateProblems) and the root was fast-forwarded to ab0755b, then to 44a8096 with the closure. Round 15 is the first firing on the fixed code — and it emitted ONE line.
+
+TRACER ARMED (2026-09-09, operator-approved). Added to the env block of ~/.claude/settings.json:
+
+  SPEC_BRIDGE_GATE_TRACE=/Users/evanstern/.claude/spec-bridge-gate-trace.jsonl
+
+An explicit path rather than '1' deliberately: '1' resolves to CLAUDE_JOB_DIR-or-tmpdir, which scatters records across per-job scratch dirs and makes them hard for a later session to find. The pinned path is stable and outside every tracked tree.
+
+Settings edit verified: valid JSON, 7 env keys and 13 top-level keys intact, backup at the job's tmp dir. The var lives in the HOOK's environment, which is the whole point — fifteen firings were diagnosed from shells that could not reproduce the red.
+
+WHAT THE NEXT SESSION SHOULD DO when the gate next fires: read that JSONL file. Each record carries the resolved ROOTS, and per gate command the argv, cwd, exit status, signal, and captured stdout/stderr (capped at 4000 chars each). That is the first observation from inside the invocation that actually produces the nonzero.
+
+Specifically worth checking in the record: (a) whether 'roots' contains more than the one root a shell resolves — the orphan tree at .claude/worktrees/refactor-triage-2026-07-31 carries its own backlog/ and its suite exits 1; (b) whether the tests command's status is 1 (a genuine nonzero) or null with an ENOENT error (the PATH mechanism now recorded on TASK-10); (c) the captured stderr, which no shell reproduction has ever seen.
+
+Note the tracer is only in 0.61.0+, so it works from now on and could not have been used for rounds 1-15.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
