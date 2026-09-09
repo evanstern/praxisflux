@@ -780,6 +780,76 @@ export function renderBacklog(id, intents) {
 }
 
 /**
+ * Render one task's intents as ordered Jira MCP call descriptions (spec 055 R6): `renderBacklog`'s
+ * sibling for the `jira` provider. Each entry is `{ tool, args, why }` — `tool` a bare MCP tool
+ * name, unprefixed (the connector-specific prefix these Atlassian tools carry, and the actual
+ * dispatch, are spec 056's skill's job, not this module's), `args` a plain object, `why` the
+ * human-legible reason (feeds the sync skill's progress note). PURE: no MCP call, no network, no
+ * remote fetch of any kind — this is what keeps `lib/` (and this gate) network-free
+ * (docs/design/board-provider-seam.md invariant 4).
+ *
+ * `config` is `.board.json`'s `jira` sub-object (spec 054); only `statusMap` is consulted.
+ *
+ * The AC-block collapse: the Backlog renderer above issues one command PER acRemove/acAdd/
+ * acCheck/acUncheck entry, because Backlog's AC list has a partial-edit CLI. Jira's marked
+ * description block (docs/board-verbs.md R2) has no partial-edit form — it is replaced
+ * wholesale — so every ac* array here folds into exactly ONE `editJiraIssue` call, whatever the
+ * mix of adds/removes/checks/unchecks. That call's `args` carries the RAW diff, not a
+ * fully-resolved description string: resolving it against the block's CURRENT text needs the
+ * live issue (read via `getJiraIssue`, parsed with `parseSpecPhasesBlock`, the diff applied,
+ * re-rendered with `renderSpecPhasesBlock` — both `lib/board-mirror.mjs`), which needs live data
+ * this pure function neither has nor is allowed to fetch. That resolution is spec 056's skill's
+ * job — this function only describes the diff to make, in order; executing (and resolving) it
+ * is not this module's job.
+ */
+export function renderJira(id, intents, config = {}) {
+  const statusMap = config?.statusMap ?? {};
+  const calls = [];
+
+  if (intents.statusTo) {
+    const target = statusMap[intents.statusTo] ?? intents.statusTo;
+    if (intents.statusTo === "Done" && intents.finalSummary) {
+      // board:final's jira column: comment the summary, THEN transition — so the summary is on
+      // record before the issue moves, mirroring Backlog's combined `-s Done --final-summary`.
+      calls.push({
+        tool: "addOrEditJiraIssueComment",
+        args: { issueIdOrKey: id, commentBody: intents.finalSummary },
+        why: intents.finalSummary,
+      });
+    }
+    calls.push({
+      tool: "transitionJiraIssue",
+      args: { issueIdOrKey: id, status: target },
+      why: `status ${intents.statusFrom} -> ${intents.statusTo}`,
+    });
+  }
+
+  const acChanged = intents.acRemove.length > 0 || intents.acAdd.length > 0
+    || intents.acCheck.length > 0 || intents.acUncheck.length > 0;
+  if (acChanged) {
+    calls.push({
+      tool: "editJiraIssue",
+      args: {
+        issueIdOrKey: id,
+        acRemove: intents.acRemove, acAdd: intents.acAdd,
+        acCheck: intents.acCheck, acUncheck: intents.acUncheck,
+      },
+      why: intents.note ?? "phase ACs reconciled",
+    });
+  }
+
+  if (intents.note) {
+    calls.push({
+      tool: "addOrEditJiraIssueComment",
+      args: { issueIdOrKey: id, commentBody: intents.note },
+      why: intents.note,
+    });
+  }
+
+  return calls;
+}
+
+/**
  * Backward-compatible single-shot planner: `planIntents` then `renderBacklog` in one call.
  * Every call site inside this module now goes through the two halves directly; this wrapper
  * exists only because it is still a public, imported symbol (spec 053 AC #9).

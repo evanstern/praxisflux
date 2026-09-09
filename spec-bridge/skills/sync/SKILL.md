@@ -1,6 +1,6 @@
 ---
 name: sync
-version: 0.2.0
+version: 0.3.0
 description: Catch the Backlog board up to what the Spec Kit artifacts prove — move each linked task's status, re-mirror phase acceptance criteria from tasks.md, and record progress notes. Use after working a spec, when the user says "sync the board", "update the kanban from the specs", or when the spec-bridge Stop gate warns a task lags its spec.
 ---
 
@@ -26,18 +26,19 @@ The reconciling edits are **computed, not reasoned**. Run:
 node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs plan <root>
 ```
 
-It prints, in execution order, the exact `backlog task edit` commands that reconcile every
-linked task — status moves (including honest *backwards* moves after a regenerated
-`tasks.md`, and `Done-eligible → -s Done` with a derived final summary, the ONLY path that
-moves a linked task to Done), `Spec phase:` AC add/remove/check/uncheck at correct post-edit
+It prints, in execution order, the provider's rendered reconciling actions
+(`renderBacklog`/`renderJira` — see `docs/board-verbs.md`) that reconcile every linked task —
+status moves (including honest *backwards* moves after a regenerated `tasks.md`, and
+`Done-eligible → board:final` with a derived final summary, the ONLY path that moves a
+linked task to Done), `Spec phase:` AC add/remove/check/uncheck at correct post-edit
 indexes, and one change-only progress note per touched task. An already-reconciled board
-prints nothing. `plan` never executes anything; running the commands is this skill's job.
+prints nothing. `plan` never executes anything; running the actions is this skill's job.
 
 1. **Scope** — if the user scoped sync to one task/spec, keep only that task's lines
    (commands are grouped per task, in queue order).
-2. **Sanity-check the lines** — every line must be `backlog task edit <linked-task-id> …` and
+2. **Sanity-check the actions** — every action must target the linked task id and
    must never name an AC that doesn't start with `Spec phase:` (those are human-authored; the
-   planner is built to leave them alone — a line that touches one is a bug, stop and report).
+   planner is built to leave them alone — an action that touches one is a bug, stop and report).
 3. **Execute verbatim, in order** — the order is load-bearing (removals are emitted
    highest-index-first; check/uncheck indexes assume the removals and additions already ran).
    Do not reorder, dedupe, or "improve" the commands.

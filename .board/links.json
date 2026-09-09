@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-09T17:14:29.386Z",
+  "generatedAt": "2026-09-09T18:23:01.756Z",
   "links": [
     {
       "id": "TASK-27",
@@ -411,6 +411,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "wiki-token-economy"
       ]
     },
     {
@@ -463,6 +466,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "wiki-token-economy"
       ]
     },
     {
@@ -505,6 +511,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "wiki-token-economy"
       ]
     },
     {
@@ -547,6 +556,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "wiki-token-economy"
       ]
     },
     {
@@ -584,6 +596,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "dogfood"
       ]
     },
     {
@@ -621,6 +637,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "dogfood"
       ]
     },
     {
@@ -663,6 +683,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "gates"
       ]
     },
     {
@@ -705,6 +729,11 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "reorient",
+        "gates",
+        "design"
       ]
     },
     {
@@ -742,6 +771,11 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "sweep",
+        "doctrine"
       ]
     },
     {
@@ -779,6 +813,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -821,6 +858,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -868,6 +908,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -910,6 +953,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -952,6 +998,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -994,6 +1043,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -1036,6 +1088,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -1073,6 +1128,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -1115,6 +1173,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "downstream-bug-find"
       ]
     },
     {
@@ -1152,6 +1213,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-followup"
       ]
     },
     {
@@ -1189,6 +1253,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-followup"
       ]
     },
     {
@@ -1226,6 +1293,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-followup"
       ]
     },
     {
@@ -1263,6 +1333,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-followup"
       ]
     },
     {
@@ -1300,6 +1373,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-followup"
       ]
     },
     {
@@ -1476,6 +1552,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1523,6 +1602,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1565,6 +1647,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1602,6 +1687,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1639,6 +1727,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1676,6 +1767,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc"
       ]
     },
     {
@@ -1733,6 +1827,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1780,6 +1877,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "debt"
       ]
     },
     {
@@ -1822,6 +1922,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-cost",
+        "pdlc-sweep"
       ]
     },
     {
@@ -1864,6 +1968,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-cost",
+        "pdlc-sweep"
       ]
     },
     {
@@ -1906,6 +2014,10 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "sweep-cost",
+        "pdlc-sweep"
       ]
     },
     {
@@ -1963,6 +2075,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc-sweep"
       ]
     },
     {
@@ -2005,6 +2120,9 @@
           "checked": true,
           "text": "Spec phase: Prove"
         }
+      ],
+      "labels": [
+        "pdlc-sweep"
       ]
     },
     {
@@ -2057,6 +2175,11 @@
           "checked": true,
           "text": "Spec phase: Re-plant, bump, re-ground"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "pdlc-sweep",
+        "doctrine"
       ]
     },
     {
@@ -2104,6 +2227,10 @@
           "checked": true,
           "text": "Spec phase: Phase 4 — Hub note sources, regeneration, and the zero-warn gate"
         }
+      ],
+      "labels": [
+        "debt",
+        "wiki"
       ]
     },
     {
@@ -2161,6 +2288,12 @@
           "checked": true,
           "text": "Spec phase: Phase 5 — Close the two dogfood defects (blocking for merge)"
         }
+      ],
+      "labels": [
+        "debt",
+        "pdlc",
+        "spec-bridge",
+        "doctrine"
       ]
     },
     {
@@ -2228,6 +2361,11 @@
           "checked": true,
           "text": "Spec phase: Phase 6 — Plant, posture, docs, re-ground"
         }
+      ],
+      "labels": [
+        "gates",
+        "bug",
+        "downstream-bug-find"
       ]
     },
     {
@@ -2255,6 +2393,11 @@
           "checked": true,
           "text": "Spec phase: Phase 4 — Retire the softening, re-ground, close"
         }
+      ],
+      "labels": [
+        "debt",
+        "gates",
+        "tests"
       ]
     },
     {
@@ -2379,6 +2522,11 @@
           "checked": true,
           "text": "Spec phase: Phase 4 — The `--check` CLI, dogfood, and re-ground"
         }
+      ],
+      "labels": [
+        "feature",
+        "chassis",
+        "spec-bridge"
       ]
     },
     {
@@ -2451,6 +2599,11 @@
           "checked": true,
           "text": "Spec phase: Phase 3 — Planner split, differential proof, re-ground"
         }
+      ],
+      "labels": [
+        "feature",
+        "gates",
+        "spec-bridge"
       ]
     },
     {
@@ -2523,6 +2676,11 @@
           "checked": true,
           "text": "Spec phase: Phase 3 — Bootstrap skill prose, docs sync, re-ground"
         }
+      ],
+      "labels": [
+        "feature",
+        "pdlc",
+        "chassis"
       ]
     },
     {
@@ -2532,67 +2690,67 @@
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "docs/board-verbs.md exists; every row names its preconditions AND its evidence artifact"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "All six skills reference verbs; grep for 'backlog ' in skills hits only table columns or scoped illustrations"
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Every rewritten skill version bumped; diffs contain no unrelated edits (no paragraph reflow)"
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Block parser yields [{index,checked,text}] matching mirror acs shape; round-trip test passes"
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Mirror schema gains optional labels[]; both providers project it; a mirror without it still validates"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis"
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)"
         },
         {
           "index": 9,
-          "checked": false,
+          "checked": true,
           "text": "renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes"
         },
         {
           "index": 10,
-          "checked": false,
+          "checked": true,
           "text": "check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill"
         },
         {
           "index": 11,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — Enumerate the real call sites, author the verb table"
         },
         {
           "index": 12,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)"
         },
         {
           "index": 13,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — The block render/parse pair and `renderJira`"
         },
         {
@@ -2600,6 +2758,12 @@
           "checked": false,
           "text": "Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground"
         }
+      ],
+      "labels": [
+        "feature",
+        "doctrine",
+        "pdlc",
+        "spec-bridge"
       ]
     },
     {
@@ -2677,6 +2841,11 @@
           "checked": false,
           "text": "Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground"
         }
+      ],
+      "labels": [
+        "feature",
+        "spec-bridge",
+        "gates"
       ]
     },
     {
@@ -2709,6 +2878,11 @@
           "checked": true,
           "text": "Spec phase: Phase 2 — Prove it, bump, re-ground"
         }
+      ],
+      "labels": [
+        "tests",
+        "debt",
+        "flake"
       ]
     },
     {
@@ -2781,6 +2955,12 @@
           "checked": true,
           "text": "Spec phase: Phase 5 — Bump, re-ground, PR"
         }
+      ],
+      "labels": [
+        "pdlc",
+        "feature",
+        "doctrine",
+        "downstream-bug-find"
       ]
     },
     {
@@ -2833,6 +3013,11 @@
           "checked": true,
           "text": "Spec phase: Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)"
         }
+      ],
+      "labels": [
+        "tech-debt",
+        "spec-bridge",
+        "gates"
       ]
     },
     {
@@ -2890,6 +3075,11 @@
           "checked": true,
           "text": "Spec phase: Phase 4 — Release obligations and re-ground"
         }
+      ],
+      "labels": [
+        "tech-debt",
+        "spec-bridge",
+        "gates"
       ]
     }
   ]

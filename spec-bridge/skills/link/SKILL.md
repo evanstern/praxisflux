@@ -1,6 +1,6 @@
 ---
 name: link
-version: 0.1.0
+version: 0.2.0
 description: Attach a Backlog.md task to a GitHub Spec Kit spec directory so the spec drives the task across the kanban. Use when the user wants a spec on the board, says "link specs/NNN-feature to backlog", "track this spec in Backlog", or "put this feature on the board". Creates or updates the task with a machine-findable Spec marker and seeds phase acceptance criteria from tasks.md.
 ---
 
@@ -21,7 +21,9 @@ statuses the artifacts don't prove.
    (e.g. `specs/001-payment-flow/`) must exist under it. If the user didn't name one, list
    `specs/*/` and ask which to link; if `specs/` doesn't exist, STOP — this project has no
    Spec Kit layout (offer `specify init`).
-2. `backlog --help` must work (Backlog.md CLI installed). If not, STOP and say so.
+2. The provider's tooling must be reachable (`docs/board-verbs.md`'s common preconditions —
+   `backlog --help` succeeding, or `.board.json` naming a configured provider). If not, STOP
+   and say so.
 3. Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs links <root>` — if a task already links this
    spec dir, you are in **update mode**: reuse that task; never create a second one.
 
@@ -31,17 +33,17 @@ All Backlog writes go through the `backlog` CLI. Never edit files under `backlog
 
 1. **Create mode** — no task links this spec dir yet:
    - Derive the feature title from the spec dir name or `spec.md`'s heading.
-   - `backlog search "<title>" --plain` first: an existing unlinked task that clearly IS this
-     feature gets updated instead of duplicated (confirm with the user if ambiguous).
-   - Create with the marker as the last line of the description:
-     `backlog task create "<title>" -d "<one-line outcome from spec.md>"$'\n\n'"Spec: <specDir>"`
-     (the marker line is exactly `Spec: ` + the spec dir path relative to the project root).
-2. **Update mode** — task exists (found via `links` or search): read its description with
-   `backlog task view <id> --plain`; if the marker line is missing, re-set the description via
-   `backlog task edit <id> -d "..."` preserving the existing text and appending the marker line.
-3. **Seed phase ACs** from `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir>`: for each
-   phase, add an acceptance criterion spelled exactly `Spec phase: <name>` (e.g.
-   `--ac "Spec phase: Setup"`). Add only the ones not already present — phase ACs belong to the
+   - `board:list` (search form — see `docs/board-verbs.md`) first: an existing unlinked task
+     that clearly IS this feature gets updated instead of duplicated (confirm with the user
+     if ambiguous).
+   - Create the item with the marker as the last line of the description (`board:create` +
+     `board:link-spec` — see `docs/board-verbs.md`; the marker line is exactly `Spec: ` + the
+     spec dir path relative to the project root).
+2. **Update mode** — task exists (found via `links` or search): read its description
+   (`board:view`); if the marker line is missing, re-set the description (`board:link-spec`)
+   preserving the existing text and appending the marker line.
+3. **Seed phase ACs** (`board:ac-set`) from `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs state <specDir>`: for each
+   phase, add an acceptance criterion spelled exactly `Spec phase: <name>`. Add only the ones not already present — phase ACs belong to the
    bridge (sync re-mirrors them); leave any human-authored ACs untouched. If the spec has no
    `tasks.md` yet, skip — sync will seed them when phases appear.
 4. **Set the honest starting status** from the same `state` output: derived `To Do` → `To Do`;
@@ -51,7 +53,7 @@ All Backlog writes go through the `backlog` CLI. Never edit files under `backlog
 ## Output gate
 
 Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs check <root>`: it must exit 0 and list the new
-link. Then `backlog task view <id> --plain` and confirm the marker line and phase ACs are
+link. Then read the item (`board:view`) and confirm the marker line and phase ACs are
 present. Fix anything missing before declaring the link done.
 
 ## Handing off

@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-version: 0.13.0
+version: 0.13.1
 description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present. Also offers local-only planting mode (--local-only) for a repo the operator is a guest in, not a project we own — PDLC's footprint lands in .git/info/exclude instead of tracked files.
 ---
 
@@ -67,8 +67,9 @@ Backlog.md and Spec Kit; Jira is a board in its own right. Handle each:
    present the previous choice from `.pdlc` as the default). Opting in means bootstrap does
    the setup:
    - **Backlog.md:** if `<root>/backlog/` already exists, skip (already initialized).
-     Otherwise run `backlog init "<project name>"` from `<root>`; it may prompt — accept
-     defaults unless the user directs otherwise.
+     Otherwise run `board:init` (`docs/board-verbs.md`): on a Backlog.md host that's
+     `backlog init "<project name>"` from `<root>`; it may prompt — accept defaults unless
+     the user directs otherwise.
    - **Spec Kit:** if `<root>/.specify/` already exists, skip. Otherwise check
      `specify init --help` and run its init for **the current directory** with the
      **claude** assistant option (e.g. `specify init --here --ai claude`).
