@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-09 00:29'
+updated_date: '2026-09-09 00:40'
 labels:
   - tech-debt
   - spec-bridge
@@ -141,6 +141,20 @@ Which is precisely why R4's instrumentation shipped, and it is now the tool for 
 Recommend after merge: set SPEC_BRIDGE_GATE_TRACE in the hook env and let the next firing write its record. That is the first time this bug will be observable where it actually happens.
 
 spec-bridge sync: Phase 1 — Collapse the fan-out (R1, R3.1): 7/7 · Phase 2 — Label the dirty-tree sample (R2, R3.2): 6/6 · Phase 3 — Instrumentation for the unreproduced firings (R4): 6/6 · Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge): 4/4 · Phase 4 — Dogfood, catalog, bump, re-ground: 8/8 — status In Progress → Done
+
+Round 15 (2026-09-09, first firing with 0.61.0 INSTALLED) — THE COLLAPSE WORKS IN PRODUCTION.
+
+The entire Stop-hook output was ONE line: 'the required gate tests is red (exited 1) — 59 linked specs affected'. Previous fourteen firings emitted ~57 near-identical lines each. That is R1 delivering exactly what it promised, in the live hook, on the real board. The count reads 59 rather than 58 because TASK-119 itself became Done-eligible.
+
+The residual (round 13's) mystery is UNCHANGED and still unreproduced. Eliminated this round:
+- Root checkout: node --test 526/526 exit 0, tree clean (git status --porcelain empty).
+- Root under the hook's own env: SPEC_BRIDGE_GATE_ACTIVE=1 node --test -> 526/526, exit 0.
+- Full R4 trace from the root via the INSTALLED 0.61.0: all four declared gates status 0 (tests, check-docs, sync-version --check, freshness). Resolved roots: exactly one, the root checkout.
+- The task-119 worktree (still on pre-merge 8f3430f): node --test 526/526 exit 0, and bridgeGate.check from inside it returns 0 findings.
+
+One NEW fact found, which is a real hazard even if it is not proven to be the cause: the task-119 worktree is DIRTY — it carries a modified TASK-119 task file (round 13/14 notes, superseded by the merge). So there is a second backlog/-bearing tree on disk with uncommitted state. findRootsDownwards skips dot-dirs, so from the root the resolver still returns one root, and running the gate from inside that worktree returns 0 findings. It is therefore still not a demonstrated path to the red — but a dirty backlog-bearing sibling tree is exactly the shape R2's dirty-tree label exists to neutralize, and it should not be left lying around.
+
+Net: R1 is proven in production. R2 and R4 are shipped and exercised. The harness-only red remains unexplained after fifteen firings, and is now cheap rather than expensive to live with — one line, correctly attributed to a named gate, instead of 57 misattributed ones. Next diagnostic step unchanged: set SPEC_BRIDGE_GATE_TRACE in the HOOK's own environment (not a shell) so the next firing writes its record from inside the invocation that actually produces the nonzero.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
