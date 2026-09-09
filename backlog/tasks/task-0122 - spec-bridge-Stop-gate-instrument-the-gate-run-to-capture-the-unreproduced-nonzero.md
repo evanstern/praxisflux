@@ -1,10 +1,11 @@
 ---
 id: TASK-0122
 title: 'gate-runner: an explicitly-passed cwd must win over ambient CLAUDE_PROJECT_DIR'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 15:32'
+updated_date: '2026-09-09 15:51'
 labels:
   - tech-debt
   - spec-bridge
@@ -35,7 +36,11 @@ ALREADY DONE, do not redo (2026-09-09, commit 10ed971 on main):
 - TASK-119's AC #4 is answered: the orphaned `.claude/worktrees/refactor-triage-2026-07-31` tree (deleted 2026-09-09) was NOT the cause — a firing came after its removal.
 - The instrumentation the original version of this card asked for turned out to already ship: `SPEC_BRIDGE_GATE_TRACE` (bridge.mjs `tracePath()` — note the name, not `SPEC_BRIDGE_TRACE`). Its JSONL showed `['node','--test']` at status 1 while every sibling gate returned 0. No new logging is needed.
 
-WHAT REMAINS is this card: change the precedence in `lib/gate-runner.mjs` so an explicit cwd wins, then retire the eight hand-rolled guards. This touches `lib/` — released surface — so it needs a marketplace version bump per docs/releasing.md, and it changes a contract other plugins' gates rest on, so it wants its own spec and a deliberate read of every call site rather than a quick edit.
+WHAT REMAINS is this card: change the precedence in `lib/gate-runner.mjs` so an explicit cwd wins, then retire the eight hand-rolled guards. This touches `lib/` — released surface, vendored into NINE plugins by scripts/sync-shared.mjs — so it needs a marketplace version bump per docs/releasing.md and a docs/wiki re-pin.
+
+CLAIMED into the sweep as Lane 2.5 (operator ruling 2026-09-09): it runs BEFORE TASK-112/113 because every remaining phase of those dispatches under the Stop hook this defect makes falsely red. Verified while specifying: the only production caller of evaluate() is runStopHook (lib/gate-runner.mjs:77), which passes NO cwd — so the real hook path lands in the unchanged branch of the precedence by construction, and every caller that does pass a cwd is a test that already deletes the env var to get the new behaviour.
+
+Spec: specs/062-gate-runner-cwd
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -46,6 +51,10 @@ WHAT REMAINS is this card: change the precedence in `lib/gate-runner.mjs` so an 
 - [ ] #4 The eight test files carrying hand-rolled save/delete/restore guards are audited; guards made redundant by the fix are removed, and any kept are kept for a stated reason
 - [ ] #5 Full suite passes BOTH ways — with CLAUDE_PROJECT_DIR set and unset — since only the former reproduces the original defect
 - [ ] #6 Marketplace version bumped per docs/releasing.md (lib/ is released surface); docs/wiki re-pinned for every note sourcing lib/gate-runner.mjs
+- [ ] #7 Spec phase: Phase 1 — The decoy regression test, captured RED first
+- [ ] #8 Spec phase: Phase 2 — The precedence change
+- [ ] #9 Spec phase: Phase 3 — Audit the eight hand-rolled guards
+- [ ] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
 
 
