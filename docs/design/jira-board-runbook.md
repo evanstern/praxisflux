@@ -10,14 +10,34 @@ ordering, doctrine, and the log.
 
 **Status:** **signed-off (partial)** — Lane 0 **done** (TASK-104 merged `a875256`, board
 Done) · **Lanes 1–2 COMPLETE AND MERGED** — Lane 1 TASK-109 (`0c97243`, v0.59.0); Lane 2 all three merged: TASK-111 (#135, `e0ea7b2`, v0.59.3), TASK-114 (#133, `dafff60`, v0.59.5), TASK-110 (#134, `5377710`, v0.59.6) · **Lanes
-3–4 HELD — NOT signed off** (TASK-112, TASK-113; see the premise-inversion checkpoint below)
+3–4 SIGNED OFF 2026-09-09, ORDER INVERTED** (TASK-112, TASK-113 — see the
+premise-inversion checkpoint below; **F2 is CLEARED**, so F1 is satisfied via option (a):
+TASK-113 Phase 1 runs BEFORE TASK-112 is claimed)
 
 <!-- Only the OPERATOR flips draft → signed-off. Lane 0 (TASK-104) was authorized by the
      operator on 2026-08-28 in answer to the blocker question: "Sweep TASK-104 first, then
      the epic." Lanes 1–2 were signed off by the operator on 2026-08-28 after the sweep's
      precondition gate surfaced two findings (F1, F2 below); the operator's ruling was
      "sign off Lanes 1–2 only; hold 3–4". Lanes 3–4 have NOT been signed off and must not
-     execute until they are. -->
+     "sign off Lanes 1–2 only; hold 3–4".
+
+     LANES 3–4 SIGNED OFF BY THE OPERATOR 2026-09-09, in answer to this session's
+     precondition gate, with two rulings:
+       1. ORDER INVERTED (F1 option (a)): claim TASK-113 and run ONLY its Phase 1
+          (knowledge-only, no code) to test marker survival against a live site FIRST;
+          record the result; THEN claim TASK-112 (spec 055). TASK-113 Phases 2–4 merge
+          last, on the SAME branch and PR as its Phase 1. The operator explicitly chose
+          the live test over signing acceptance of the fixture-only risk (option (b)).
+       2. SCRATCH PROJECT: exactly ONE operator-named project is authorized for Phase 1's
+          live write→read test. Its key and the site coordinates are deliberately NOT
+          recorded in this file: praxisflux is a PUBLIC repo that auto-publishes a GitHub
+          Release on every merge to main, and the host site is a real corporate instance,
+          so its cloudId/accountId/project keys are third-party infrastructure data that
+          must not land here. They live untracked in the operator's local board config;
+          a session that needs them asks the operator. Write exactly one scratch issue in
+          the named project, clean up after it, and treat every other project as
+          unauthorized.
+     No tier escalation: every task stays sonnet (`defaultTier`). -->
 
 ## Read first (in this order)
 
@@ -39,7 +59,8 @@ Done) · **Lanes 1–2 COMPLETE AND MERGED** — Lane 1 TASK-109 (`0c97243`, v0.
 - **Queued (this runbook's scope, in execution order):** ~~TASK-104 (Lane 0)~~ **Done
   2026-08-28** (PR #130, merge `a875256`, v0.58.0) — the epic's last blocker is cleared and
   TASK-109 is now claimable. Remaining: **TASK-109, TASK-110, TASK-111 (signed off, Lanes
-  1–2)**; **TASK-112, TASK-113 (HELD — not signed off, see F1/F2)**.
+  1–2)**; **TASK-112, TASK-113 (signed off 2026-09-09 once F2 cleared; F1 satisfied via
+  option (a) — see the checkpoint section)**.
 - **TASK-114** (flaky `team-review` id test that gates every commit and feeds the
   spec-bridge project-gate check) — carded 2026-08-28 as out of scope, **folded into Lane 2 at
   operator request 2026-09-01** after it caused 55 phantom gate findings during TASK-109.
@@ -79,14 +100,25 @@ Rule of thumb: DEVELOP in parallel, MERGE serially.
   top-level TASK, so it gets its OWN branch and PR — it does not ride TASK-110's or
   TASK-111's branch.
 
-**Lane 3 — after TASK-111:**
-- **TASK-112 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 055: `docs/board-verbs.md`, the verb
-  table skills resolve their board sentences against.
+**Lane 3' — RUNS BEFORE LANE 3 (operator ruling 2026-09-09, F1 option (a)):**
+- **TASK-113 Phase 1 ONLY (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 056 Phase 1 is
+  knowledge-only: no implementation, findings committed to the spec dir. It is the ONLY
+  test of spec 055's premise (that `<!-- spec-phases -->` markers and checkbox syntax
+  survive a Jira description write→read cycle), so it runs BEFORE TASK-112 is claimed.
+  Live scratch issue in the ONE operator-named project only (coordinates out of tree — ask
+  the operator; see the sign-off note). **If the markers do NOT survive: STOP
+  and surface it** — that is an amendment to spec 055, never a local workaround in 056.
 
-**Lane 4 — merges last; the only spec touching MCP:**
-- **TASK-113 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 056: the Jira provider —
-  `board:sync` skill, one-call spiking, assignees. **Phase 1 is a knowledge-only phase and
-  MUST run first** (see Operator checkpoints).
+**Lane 3 — after Lane 3' records marker survival (TASK-111 already merged):**
+- **TASK-112 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 055: `docs/board-verbs.md`, the
+  verb table skills resolve their board sentences against. Claimable only once Lane 3' has
+  recorded that the markers survive, naming the `contentFormat` that preserved them.
+
+**Lane 4 — merges last; the rest of the only spec touching MCP:**
+- **TASK-113 Phases 2–4 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 056: the Jira
+  provider — `board:sync` skill, one-call spiking, assignees. Rides the SAME branch and
+  the SAME PR as Phase 1 (one task, one PR: Phase 1's findings commit is simply the first
+  commit on that branch, never a PR of its own).
 
 Tiers and model IDs come from **`.claude/model-tiers.json`**, not memory.
 `node <pdlc>/scripts/tiers.mjs --root . --check` exited **0** on 2026-08-28 (all three tiers
@@ -229,15 +261,25 @@ but must still spot-check the first dispatch of any lane if the tier config has 
       this harness. Dispatch **serially**, with the orchestrator session parked in the target
       worktree for the whole duration of that dispatch. A sweep that reads "parallelize within
       a lane" as "launch N implementers at once from one session" will lose every one of them.
-- [ ] **F2 — Atlassian MCP is HARD-BLOCKED on this host (verified 2026-08-28).** Three calls
-      across two tools (`getAccessibleAtlassianResources`, `atlassianUserInfo`) and two AWS
-      regions all returned an **AWS WAF CAPTCHA challenge page**, not a tool result — a
-      browser-verification wall, not a flake and not an auth error. **Consequence, checkable:**
-      spec 056 Phase 1 (the live write→read marker test) **cannot run on this host** until MCP
-      access is restored, and neither can any 056 AC that requires a live site. Any session
-      that reaches TASK-113 must **first** re-probe with one MCP call and **STOP if it returns
-      HTML** — do not substitute fixtures for the live test that Phase 1 exists to be, and do
-      not read a CAPTCHA page as "no Jira configured".
+- [x] **F2 — CLEARED 2026-09-09. Atlassian MCP is REACHABLE on this host.** It was
+      hard-blocked on 2026-08-28: three calls across two tools
+      (`getAccessibleAtlassianResources`, `atlassianUserInfo`) and two AWS regions all
+      returned an **AWS WAF CAPTCHA challenge page** rather than a tool result — a
+      browser-verification wall, not a flake and not an auth error. **Re-probed and cleared
+      by this session's precondition gate (2026-09-09):** `getAccessibleAtlassianResources`
+      returned a real cloudId with jira + confluence read-write, `atlassianUserInfo`
+      returned a real accountId, and a live `getVisibleJiraProjects` returned a real
+      project list. (Identifiers withheld deliberately — see the sign-off note; this repo
+      is public.) Access was restored by an operator `/mcp` re-auth
+      ("Authentication successful") at the head of that session, so the wall was
+      auth-adjacent after all, though it did not present as an auth error. **Consequence:**
+      spec 056 Phase 1's live write→read marker test **can now run**, which is what let the
+      operator satisfy F1 via option (a). The site is a **real corporate instance**
+      with many unrelated projects; only the ONE operator-named project is authorized for
+      the scratch issue. **Still checkable for any future session:** re-probe with ONE MCP call
+      before trusting access, **STOP if the response is HTML**, never substitute fixtures
+      for the live test Phase 1 exists to be, and never read a CAPTCHA page as "no Jira
+      configured".
 - [ ] **F1 — ORDERING INVERSION: spec 055 ships its premise untested (found 2026-08-28).**
       Spec 055 (TASK-112, Lane 3) *builds* the `<!-- spec-phases -->` block render/parse pair
       and `renderJira`; spec 056 (TASK-113, Lane 4) Phase 1 is the **only** place the premise —
@@ -288,18 +330,19 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 
 ## Operator checkpoints (do not proceed silently)
 
-- **Lanes 1–2 are signed off (2026-08-28); Lanes 3–4 are HELD.** TASK-109, then
-  TASK-110 ‖ TASK-111, may execute. **TASK-112 and TASK-113 must not be claimed** without a
-  fresh operator sign-off — the hold is not a scheduling artifact, it is finding **F1**: the
-  premise 055 builds on is only tested by 056, which runs after it. Lanes 1–2 are entirely
-  MCP-free and unaffected by **F2**.
-- **The premise-inversion checkpoint (F1) — the decision the operator holds.** Before Lane 3
-  can be signed off, ONE of: (a) 056 Phase 1's live marker test has run and recorded that the
-  markers survive, or (b) the operator accepts the fixture-only risk in writing here. This
-  session could not do (a): the MCP is CAPTCHA-walled (**F2**).
+- **ALL LANES NOW SIGNED OFF.** Lanes 1–2 signed 2026-08-28; **Lanes 3–4 signed 2026-09-09**
+  once F2 cleared. TASK-112 and TASK-113 are claimable — in the INVERTED order the operator
+  ruled: TASK-113 Phase 1 (knowledge-only, live marker test) FIRST, then TASK-112, then
+  TASK-113 Phases 2–4. Lanes 1–2 were entirely MCP-free and were never affected by **F2**.
+- **The premise-inversion checkpoint (F1) — RESOLVED via option (a), 2026-09-09.** The
+  decision was the operator's: of (a) run 056 Phase 1's live marker test first, or (b) sign
+  written acceptance of the fixture-only risk, the operator chose **(a)**. The 2026-08-28
+  session could not offer (a) because the MCP was CAPTCHA-walled (**F2**); that wall is gone.
+  **The checkpoint is therefore not closed by this sign-off — it is DISCHARGED BY RUNNING
+  THE TEST.** If the markers do not survive, spec 055 is AMENDED before TASK-112 is claimed.
 - **Spec 056 Phase 1 is knowledge-only and MUST run before any 056 implementation — AND, per
   F1, before TASK-112 (spec 055) is claimed at all**, because 055 builds the mechanism this
-  phase validates. **It cannot run on this host while F2 holds.** Spec
+  phase validates. **It can now run: F2 is cleared (2026-09-09).** Spec
   055's entire phase-AC mechanism assumes HTML comment markers
   (`<!-- spec-phases BEGIN -->`) survive a Jira description write→read cycle. That is
   **untested**. Phase 1 tests it against a scratch issue in both `markdown` and `adf` content
@@ -330,7 +373,7 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 - `git worktree list` shows no stale sweep worktrees.
 - This file's execution log complete and its status flipped to **done**.
 
-## Sweep status: Lanes 0–2 DONE (2026-09-04); Lanes 3–4 HELD
+## Sweep status: Lanes 0–2 DONE (2026-09-04); Lanes 3–4 EXECUTING (signed off 2026-09-09)
 
 **Delivered and merged:** TASK-104 (`a875256`, v0.58.0) · TASK-107 (`05bb793`) ·
 TASK-109 (`0c97243`, v0.59.0) · TASK-111 (`e0ea7b2`, v0.59.3) · TASK-114 (`dafff60`,
@@ -338,13 +381,14 @@ v0.59.5) · TASK-110 (`5377710`, v0.59.6). Every one Done on the board via
 `spec-bridge:sync`'s derived plan, never hand-set; every PR landed as a merge commit so
 the wiki pins referencing branch commits stay reachable.
 
-**Still owed, and NOT this sweep's to take:** TASK-112 (spec 055) and TASK-113 (spec 056)
-remain **held** on findings **F1** (spec 055 builds the `<!-- spec-phases -->` mechanism
-while spec 056 Phase 1 is the only test of whether those markers survive a Jira
-write→read cycle — and it runs *after*) and **F2** (the Atlassian MCP is CAPTCHA-walled on
-this host, so that test cannot run here). TASK-108, the epic, stays open with **no PR of
-its own** (`docs/principles.md` P2). Clearing F1/F2 needs an operator decision, not more
-implementation.
+**Now in flight (Lanes 3–4, signed off 2026-09-09):** TASK-112 (spec 055) and TASK-113
+(spec 056). Both holds are discharged: **F2 is CLEARED** — the Atlassian MCP is reachable
+on this host again after an operator `/mcp` re-auth — and **F1 is satisfied via option (a)**:
+the operator ruled that TASK-113 Phase 1's live marker test runs BEFORE TASK-112 is claimed,
+inverting the original lane order, rather than signing acceptance of the fixture-only risk.
+The live scratch issue is authorized in ONE operator-named project only — a real corporate
+project, not a sandbox; its coordinates stay out of this public repo. TASK-108, the epic, stays open with **no PR of its own**
+(`docs/principles.md` P2) and closes when both tasks land.
 
 **Six findings this sweep produced**, all recorded above as checkable gate lines rather
 than prose: F1 premise inversion · F2 MCP hard-blocked · F3 no concurrent cross-worktree
