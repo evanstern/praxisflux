@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 16:05'
+updated_date: '2026-09-09 16:18'
 labels:
   - tech-debt
   - spec-bridge
@@ -45,17 +45,19 @@ Spec: specs/062-gate-runner-cwd
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 evaluate() honours an explicitly-passed { cwd } over process.env.CLAUDE_PROJECT_DIR; the env var still wins over nothing-passed, so the real Stop-hook path is unchanged
-- [ ] #2 input.cwd precedence versus the env var is decided deliberately and stated in the gate contract comment at the top of lib/gate-runner.mjs
-- [ ] #3 Regression test: with CLAUDE_PROJECT_DIR set to a decoy dir, a gate given an explicit cwd resolves against the passed cwd, not the decoy
+- [x] #1 evaluate() honours an explicitly-passed { cwd } over process.env.CLAUDE_PROJECT_DIR; the env var still wins over nothing-passed, so the real Stop-hook path is unchanged
+- [x] #2 input.cwd precedence versus the env var is decided deliberately and stated in the gate contract comment at the top of lib/gate-runner.mjs
+- [x] #3 Regression test: with CLAUDE_PROJECT_DIR set to a decoy dir, a gate given an explicit cwd resolves against the passed cwd, not the decoy
 - [ ] #4 The eight test files carrying hand-rolled save/delete/restore guards are audited; guards made redundant by the fix are removed, and any kept are kept for a stated reason
 - [ ] #5 Full suite passes BOTH ways — with CLAUDE_PROJECT_DIR set and unset — since only the former reproduces the original defect
 - [ ] #6 Marketplace version bumped per docs/releasing.md (lib/ is released surface); docs/wiki re-pinned for every note sourcing lib/gate-runner.mjs
-- [ ] #7 Spec phase: Phase 1 — The decoy regression test, captured RED first
-- [ ] #8 Spec phase: Phase 2 — The precedence change
+- [x] #7 Spec phase: Phase 1 — The decoy regression test, captured RED first
+- [x] #8 Spec phase: Phase 2 — The precedence change
 - [ ] #9 Spec phase: Phase 3 — Audit the eight hand-rolled guards
 - [ ] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
