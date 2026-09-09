@@ -4,7 +4,7 @@ description: The pdlc:refactor-triage skill — the post-sweep (and periodic) de
 kind: component
 sources:
   - pdlc/skills/refactor-triage/SKILL.md
-verified_against: 253e0a979a77df83ef234ddc2bfb89e175da6ef6
+verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
 ---
 
 # pdlc:refactor-triage — evaluate merged work, card the debt

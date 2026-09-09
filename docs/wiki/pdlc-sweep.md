@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 9c4e990449912ee5e56c596794ac63e83ea4b686
+verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -64,10 +64,13 @@ precondition probe finds one (`scripts/check-merge-drift.mjs`, four modes
 each re-ground) consume the corpus per [[grounded-corpus-spec]] v2 — `CAPSULES.md`
 when present, full bodies only for touched concepts.
 
-**Paused lanes.** A task labeled `paused` (set/cleared only via
-`backlog task edit --labels`, provenance in an append-note) is not a live lane:
-authoring excludes it from conflict analysis, execution never claims, rebases, or
-cleans its branches/worktrees; drift-gate hosts downgrade its findings to info.
+**Paused lanes.** A task labeled `paused` (set/cleared only via `board:label`,
+provenance in an append-note) is not a live lane: lane-conflict analysis resolves the
+label from the `.board/links.json` mirror (`isPausedLink`, `lib/board-mirror.mjs`)
+rather than reading Backlog frontmatter directly, so it holds on a mirror-only (Jira)
+project — authoring excludes it from conflict analysis, execution never claims,
+rebases, or cleans its branches/worktrees; drift-gate hosts downgrade its findings to
+info.
 
 **Reconciliation and honest re-pins.** A **pin-carrying branch** merges `origin/main`
 in and its PR lands as a merge commit, never a squash (squash/rebase/force-push rewrite
