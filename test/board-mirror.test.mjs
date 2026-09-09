@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
-  loadBoardConfig, validateBoardConfig,
+  loadBoardConfig, validateBoardConfig, isPausedLink,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -207,6 +207,53 @@ test("validateMirror is clean on a well-formed mirror", () => {
   assert.deepEqual(validateMirror(BASE_MIRROR), []);
 });
 
+// AC #6 (spec 055 R4) — labels[] is optional and additive; a mirror written before this
+// field existed has no `labels` key at all and must still validate (backward compat).
+test("validateMirror: a link with no labels key at all is still valid", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] }],
+  };
+  assert.deepEqual(validateMirror(mirror), []);
+});
+
+test("validateMirror: a well-formed labels list round-trips clean", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: ["paused", "chassis"] }],
+  };
+  assert.deepEqual(validateMirror(mirror), []);
+});
+
+test("validateMirror: a non-array labels is an error naming the offending link", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: "paused" }],
+  };
+  const problems = validateMirror(mirror);
+  assert.ok(problems.some((m) => m === "links[0].labels: expected array, got string"));
+});
+
+test("validateMirror: a labels array with a non-string entry is an error naming the link and index", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: ["paused", 42] }],
+  };
+  const problems = validateMirror(mirror);
+  assert.ok(problems.some((m) => m === "links[0].labels[1]: expected string, got number"));
+});
+
+test("writeMirror + readMirror round-trip a link's labels", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, { ...BASE_MIRROR, links: [{ ...BASE_MIRROR.links[0], labels: ["paused"] }] });
+    const back = readMirror(p.root);
+    assert.deepEqual(back.links.find((l) => l.id === "TASK-9").labels, ["paused"]);
+  } finally {
+    p.done();
+  }
+});
+
 // AC #5 — mirrorStaleness's three fail-closed cases.
 
 function gitRepoWithTwoCommits() {
@@ -306,6 +353,70 @@ test("projectBacklog matches findLinkedTasks(\".\") on id, status, specDir, acs"
   assert.ok(projected.length > 0, "this repo's own backlog/tasks/ must have linked tasks to compare against");
   const strip = (t) => ({ id: t.id, status: t.status, specDir: t.specDir, acs: t.acs });
   assert.deepEqual(projected.map(strip), found.map(strip));
+});
+
+// AC #6 (spec 055 R4) — projectBacklog reads labels from frontmatter's `labels:` list.
+test("projectBacklog: projects labels from a task's frontmatter labels: block list", () => {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-labels-"));
+  try {
+    const tasksDir = join(root, "backlog", "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    writeFileSync(
+      join(tasksDir, "task-1.md"),
+      "---\nid: TASK-1\nstatus: To Do\nlabels:\n  - paused\n  - chassis\n---\n\nSpec: specs/001-a\n",
+    );
+    const [link] = projectBacklog(root);
+    assert.deepEqual(link.labels, ["paused", "chassis"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("projectBacklog: an unlabelled task (labels: [] or the key absent) projects with no labels key at all", () => {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-nolabels-"));
+  try {
+    const tasksDir = join(root, "backlog", "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    writeFileSync(join(tasksDir, "task-1.md"), "---\nid: TASK-1\nstatus: To Do\nlabels: []\n---\n\nSpec: specs/001-a\n");
+    writeFileSync(join(tasksDir, "task-2.md"), "---\nid: TASK-2\nstatus: To Do\n---\n\nSpec: specs/002-b\n");
+    const links = projectBacklog(root);
+    assert.deepEqual(links.map((l) => "labels" in l), [false, false], "an unlabelled task's projected link stays byte-identical to before this field existed");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// AC #7 — the paused-lane doctrine works from mirror labels alone: a mirror-only project (no
+// backlog/tasks/ present at all) whose link carries `paused` is excluded from conflict
+// analysis, proving the fix a Jira-only host needs (spec 055 R4).
+test("isPausedLink: a mirror-only project's paused-labelled link is excluded from lane-conflict analysis using mirror labels alone (AC #7)", () => {
+  const p = project(); // no backlog/tasks/ anywhere under p.root — the mirror is the ONLY board file
+  try {
+    const mirror = {
+      schema: 1, provider: "backlog", generatedAt: "x",
+      links: [
+        { id: "TASK-1", status: "In Progress", specDir: "specs/001-a", acs: [], labels: ["paused"] },
+        { id: "TASK-2", status: "In Progress", specDir: "specs/002-b", acs: [] },
+      ],
+    };
+    writeMirror(p.root, mirror);
+    const read = readMirror(p.root);
+    assert.deepEqual(validateMirror(read), []);
+    const forConflictAnalysis = read.links.filter((l) => !isPausedLink(l));
+    assert.deepEqual(
+      forConflictAnalysis.map((l) => l.id),
+      ["TASK-2"],
+      "TASK-1 is paused and must be excluded, resolved entirely from the mirror's labels with no backlog/tasks/ to fall back on",
+    );
+  } finally {
+    p.done();
+  }
+});
+
+test("isPausedLink: false for a link with no labels, or a labels list without \"paused\"", () => {
+  assert.equal(isPausedLink({ id: "TASK-1" }), false);
+  assert.equal(isPausedLink({ id: "TASK-1", labels: ["chassis"] }), false);
+  assert.equal(isPausedLink({ id: "TASK-1", labels: ["paused"] }), true);
 });
 
 // R4 — the registry shape itself: no provider-name conditional, `requiresSync`/`project`

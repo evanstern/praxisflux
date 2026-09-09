@@ -25,17 +25,17 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 
 ## Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
 
-- [ ] Add optional `labels: []` per link to the mirror schema in `lib/board-mirror.mjs`;
+- [x] Add optional `labels: []` per link to the mirror schema in `lib/board-mirror.mjs`;
       additive and round-tripped when an older writer omits it
-- [ ] Project `labels` in the `backlog` projector (from task-file frontmatter `labels:`)
-- [ ] Record the schema addition in `lib/board-mirror.mjs`'s header **and** in
+- [x] Project `labels` in the `backlog` projector (from task-file frontmatter `labels:`)
+- [x] Record the schema addition in `lib/board-mirror.mjs`'s header **and** in
       `docs/design/board-provider-seam.md`, so a reader of spec 052 alone is not misled
-- [ ] Test AC #6: a mirror written without `labels` still validates; one with them
+- [x] Test AC #6: a mirror written without `labels` still validates; one with them
       round-trips
-- [ ] Test AC #7: a mirror-only project whose link carries `paused` is **excluded** from
+- [x] Test AC #7: a mirror-only project whose link carries `paused` is **excluded** from
       lane-conflict analysis — this is the destructive bug the fix prevents (a sweep claiming
       an operator's parked branch)
-- [ ] Commit
+- [x] Commit
 
 ## Phase 3 — The block render/parse pair and `renderJira`
 
@@ -121,3 +121,33 @@ Dropped `board:plan` (no real call site in any of the six skills — a `CLAUDE.m
 convention, not one these skills resolve). Added `board:init` beyond spec.md's sketch table
 (real call site: `pdlc:bootstrap`'s peer-initialization step, with a genuine per-provider
 resolution, precondition, and evidence artifact).
+
+### Phase 2 (2026-09-09)
+
+`labels` added to `LINK_KEYS` (optional — a missing key round-trips through
+`orderedObject`/`serializeMirror` unchanged, no code path requires it). `validateMirror` only
+checks `labels` when the key is present: not-an-array or a non-string entry is an error naming
+`links[i].labels[j]`; a link with no `labels` key at all passes clean (proven against this
+repo's own `.board/links.json`, which has none). `parseLinkedTask` parses frontmatter's
+`labels:` (both the real Backlog.md block-list form and an inline `[]`/`[a, b]` form) but
+**omits the key** when the list is empty — load-bearing, because `test/spec-bridge.test.mjs`
+(frozen per the design doc's invariant 1) asserts `parseLinkedTask`'s exact return shape for an
+unlabelled task; `projectBacklog` rides the same omission through unchanged. Added
+`isPausedLink(link)` — reads `labels` off a mirror link only, never `backlog/tasks/*.md` — as
+the primitive AC #7 needs: proven with a mirror-only fixture (no `backlog/tasks/` on disk at
+all) whose one link carries `labels: ["paused"]`, filtered out of a stand-in "conflict
+analysis" list using only `isPausedLink`. **Scope note:** wiring this primitive into
+`pdlc:sweep`'s actual runbook-authoring prose (today it reads `paused` from Backlog frontmatter
+directly) is Phase 4's skill-rewrite job, not Phase 2's — `isPausedLink` is the mirror-side
+half of the fix; the sweep-side consumer is unchanged here.
+
+Running `node lib/board-mirror.mjs --check --root .` after this change: still reports exactly
+one drifted id, `TASK-112` — pre-existing before this phase (Phase 1's commit ticked ACs #1/#4
+in the task file's frontmatter without re-running `board:sync-mirror`; unrelated to labels).
+Separately, and expectedly, 50 already-linked tasks now carry real frontmatter labels the
+committed mirror predates — recomputing shows a `labels` diff for each (the CLI's per-id
+drilldown doesn't surface them, since it compares only `{id,status,specDir,acs}`, but the
+overall byte comparison correctly fails). This is the intended effect of AC #6/#7, not a bug:
+the mirror is now stale w.r.t. labels until the next `board:sync-mirror` regenerates it — left
+undone here as out of this phase's scope (regenerating 50 entries' worth of label data is a
+bigger, unrelated diff than a schema-and-projector phase should carry).
