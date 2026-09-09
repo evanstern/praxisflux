@@ -4,7 +4,7 @@ title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
 status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 17:27'
+updated_date: '2026-09-09 17:37'
 labels:
   - feature
   - doctrine
@@ -30,21 +30,23 @@ Spec: specs/055-board-verb-table
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 docs/board-verbs.md exists; every row names its preconditions AND its evidence artifact
+- [x] #1 docs/board-verbs.md exists; every row names its preconditions AND its evidence artifact
 - [ ] #2 All six skills reference verbs; grep for 'backlog ' in skills hits only table columns or scoped illustrations
 - [ ] #3 Every rewritten skill version bumped; diffs contain no unrelated edits (no paragraph reflow)
-- [ ] #4 Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error
+- [x] #4 Marked-block contract documented: outside-markers never touched, block replaced wholesale, Spec: line outside, two blocks = error
 - [ ] #5 Block parser yields [{index,checked,text}] matching mirror acs shape; round-trip test passes
 - [ ] #6 Mirror schema gains optional labels[]; both providers project it; a mirror without it still validates
 - [ ] #7 Paused-lane doctrine works from mirror labels — mirror-only project with paused link excluded from conflict analysis
 - [ ] #8 docs/task-labels.md plumbing is provider-neutral; the label list is unchanged (no rows added or removed)
 - [ ] #9 renderJira returns ordered {tool,args,why}, is pure with no MCP/network, unit-tested; renderBacklog unchanged bytes
 - [ ] #10 check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill
-- [ ] #11 Spec phase: Phase 1 — Enumerate the real call sites, author the verb table
+- [x] #11 Spec phase: Phase 1 — Enumerate the real call sites, author the verb table
 - [ ] #12 Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
 - [ ] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
 - [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
