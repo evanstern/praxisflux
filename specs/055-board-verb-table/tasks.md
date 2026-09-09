@@ -8,20 +8,20 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 
 ## Phase 1 — Enumerate the real call sites, author the verb table
 
-- [ ] Enumerate **every** board command across the six skills (`spec-bridge:link` 6,
+- [x] Enumerate **every** board command across the six skills (`spec-bridge:link` 6,
       `pdlc:sweep` 3, `pdlc:refactor-triage` 3, `spec-bridge:sync` 2, `pdlc:bootstrap` 2,
       `reorient:reorient` 1) and record the list in Notes with file:line for each
-- [ ] Group them by **intent** and derive the smallest verb set that covers the real call
+- [x] Group them by **intent** and derive the smallest verb set that covers the real call
       sites — no speculative verbs (`board:assign`, `board:reprioritize`) that no skill uses
-- [ ] Author `docs/board-verbs.md` with one row per verb and, for each,
+- [x] Author `docs/board-verbs.md` with one row per verb and, for each,
       **all four** columns: verb name, per-provider resolution, **preconditions**, and
       **evidence artifact**
-- [ ] Audit the table: any row whose evidence column would read "none" is a design smell —
+- [x] Audit the table: any row whose evidence column would read "none" is a design smell —
       find the artifact or drop the verb. Record any dropped verb and why
-- [ ] Document R2's marked-block contract in the table doc: text outside markers never
+- [x] Document R2's marked-block contract in the table doc: text outside markers never
       touched, block replaced wholesale, `Spec:` line stays outside, one block per issue,
       two blocks = validation error
-- [ ] Commit
+- [x] Commit
 
 ## Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
 
@@ -88,3 +88,36 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 ## Notes
 
 (Implementers append findings here — the phase-to-phase handoff artifact.)
+
+### Phase 1 (2026-09-09)
+
+Full call-site enumeration (file:line, operative-vs-incidental classification) recorded in
+`specs/055-board-verb-table/findings/phase-1-call-sites.md` — not inline here, since Phase 4
+needs to grep/scan it per skill and a separate file is easier to diff against as skills get
+rewritten.
+
+**Spec.md's claimed counts, verified against the actual files:**
+
+| Skill | Spec claim | Raw `backlog ` grep | Real operative call sites |
+|---|---|---|---|
+| `spec-bridge:link` | 6 | 6 | 6 |
+| `pdlc:sweep` | 3 | 3 | 3 |
+| `pdlc:refactor-triage` | 3 | 3 | **1** (2 of 3 hits are incidental prose) |
+| `spec-bridge:sync` | 2 | 2 | 2 |
+| `pdlc:bootstrap` | 2 | **3** | **1** (raw count is wrong; 2 of 3 hits are incidental) |
+| `reorient:reorient` | 1 | 1 | 1 |
+
+`pdlc:bootstrap`'s raw grep count is 3, not the 2 spec.md claims. Separately, two skills
+(`pdlc:bootstrap`, `pdlc:refactor-triage`) have grep hits that turn out to be incidental
+mentions (a cross-skill reference, a quoted error message, a "backlog task" noun phrase) —
+not commands to replace. One real operative call site (`spec-bridge:link`'s `--ac "Spec
+phase: Setup"`, line 44) is invisible to a `backlog ` grep entirely. Full detail and
+per-line classification in the findings file above.
+
+**Verb set:** 13 verbs — `board:list`, `board:view`, `board:create`, `board:link-spec`,
+`board:ac-set`, `board:ac-check`, `board:status`, `board:claim`, `board:final`, `board:note`,
+`board:label`, `board:sync-mirror`, `board:init` — authored in `docs/board-verbs.md`.
+Dropped `board:plan` (no real call site in any of the six skills — a `CLAUDE.md`-level
+convention, not one these skills resolve). Added `board:init` beyond spec.md's sketch table
+(real call site: `pdlc:bootstrap`'s peer-initialization step, with a genuine per-provider
+resolution, precondition, and evidence artifact).
