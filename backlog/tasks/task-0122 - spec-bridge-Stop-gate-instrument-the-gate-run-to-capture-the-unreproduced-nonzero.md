@@ -1,12 +1,10 @@
 ---
 id: TASK-0122
-title: >-
-  spec-bridge Stop gate: instrument the gate run to capture the unreproduced
-  nonzero
+title: 'gate-runner: an explicitly-passed cwd must win over ambient CLAUDE_PROJECT_DIR'
 status: To Do
 assignee: []
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 15:07'
+updated_date: '2026-09-09 15:32'
 labels:
   - tech-debt
   - spec-bridge
@@ -20,25 +18,37 @@ ordinal: 153000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-As a future implementer, I want the spec-bridge Stop gate to log what its project-gate child process actually returned, so that the unreproduced nonzero `tests` exit can be diagnosed from evidence instead of guessed at from outside.
+As a gate author, I want `evaluate(input, gates, { cwd })` to honour the cwd I pass, so that an ambient `CLAUDE_PROJECT_DIR` in the environment cannot silently redirect a gate at a different project than the caller named.
 
-Follow-up to TASK-119 (Done), which collapsed the fan-out and labeled dirty-tree samples but left the root cause open. Its notes record SEVEN firings, one actionable, with every externally-reachable candidate ruled out (each with the command run): dirty tree, real failure, PATH/env in a minimal non-login shell, load-sensitive flake, gate timeout, SPEC_BRIDGE_GATE_ACTIVE=1 on the child, worktree cwd, and a faithful spawnSync replay of runGateCommand against both root and worktree. All returned exit 0.
+ROOT CAUSE (found 2026-09-09, was the TASK-119 mystery — see that card's eight firings). `lib/gate-runner.mjs:39` resolves its start dir as:
 
-TASK-119's own conclusion names the remaining route: "instrument the gate to log its captured stdout/stderr and exit code at Stop time, rather than trying to reproduce it from outside." The nonzero happens only in the harness's own Stop invocation and not in any invocation reachable from a shell.
+    process.env.CLAUDE_PROJECT_DIR || (input && input.cwd) || cwd
 
-Eighth firing observed 2026-09-09 (this session, read-only — no code changes in the tree), reporting `tests` red / exited 1 / 59 linked specs, while `node --test` at root exited 0 with 526/526 passing. Consistent with the known transient.
+The env var wins over BOTH `input.cwd` and the explicit `{ cwd }` option. So any in-process caller that passes a cwd is silently overridden whenever the variable is set — which the harness sets for every hook invocation.
 
-One hazard from TASK-119 Round 7 is now CLOSED, and should not be re-investigated as a cause: the orphaned `.claude/worktrees/refactor-triage-2026-07-31/` tree — unregistered, carrying its own `backlog/` and `docs/wiki/`, suite exiting 1 (254 tests, 1 fail), `.git` pointing at the nonexistent path `/Users/evanstern/neumo/projects/praxis` — was deleted 2026-09-09. If firings continue after that removal, the orphan tree was not the cause.
+WHY THIS IS THE REAL DEFECT, not the one test. Eight test files already hand-work around this by saving, deleting, and restoring the env var: install-path, spec-bridge, root-guard-hook, phase-status, pdlc, team-review, reorient, and board-provider-seam. Two of them carry comments naming the hazard verbatim ("evaluate() prefers it over the passed cwd"). Eight independent workarounds for one precedence rule is the smell; the next test to pass a cwd without knowing the folklore fails the same way, and only under the hook, where it is hardest to diagnose.
+
+The precedence is also backwards on its merits: an argument a caller passes explicitly is more specific than an ambient environment variable, and the env var should be the FALLBACK for when no caller said otherwise — which is exactly what it is for in the real Stop-hook path, where nobody passes a cwd.
+
+ALREADY DONE, do not redo (2026-09-09, commit 10ed971 on main):
+- The immediate red was fixed by adding the save/delete/restore guard to the one failing test (`test/board-provider-seam.test.mjs`, the DoD #6 mirror test). Suite verified 526/526 exit 0 both with and without the env var set. That commit is test-only, so no version bump was owed.
+- TASK-119's AC #4 is answered: the orphaned `.claude/worktrees/refactor-triage-2026-07-31` tree (deleted 2026-09-09) was NOT the cause — a firing came after its removal.
+- The instrumentation the original version of this card asked for turned out to already ship: `SPEC_BRIDGE_GATE_TRACE` (bridge.mjs `tracePath()` — note the name, not `SPEC_BRIDGE_TRACE`). Its JSONL showed `['node','--test']` at status 1 while every sibling gate returned 0. No new logging is needed.
+
+WHAT REMAINS is this card: change the precedence in `lib/gate-runner.mjs` so an explicit cwd wins, then retire the eight hand-rolled guards. This touches `lib/` — released surface — so it needs a marketplace version bump per docs/releasing.md, and it changes a contract other plugins' gates rest on, so it wants its own spec and a deliberate read of every call site rather than a quick edit.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The gate logs its project-gate child's exit code, stdout and stderr at Stop time, to a durable location readable after the fact
-- [ ] #2 The log records the resolved project root and cwd the gate sampled, so a root-vs-worktree mismatch is visible in evidence
-- [ ] #3 A firing after instrumentation lands yields a captured artifact naming what the child actually returned — not a reasoned guess
-- [ ] #4 Whether the orphan-tree removal (2026-09-09) ended the firings is recorded either way
-- [ ] #5 The instrumentation cannot itself block Stop: a logging failure degrades to advisory, per the repo's advisory-local posture
+- [ ] #1 evaluate() honours an explicitly-passed { cwd } over process.env.CLAUDE_PROJECT_DIR; the env var still wins over nothing-passed, so the real Stop-hook path is unchanged
+- [ ] #2 input.cwd precedence versus the env var is decided deliberately and stated in the gate contract comment at the top of lib/gate-runner.mjs
+- [ ] #3 Regression test: with CLAUDE_PROJECT_DIR set to a decoy dir, a gate given an explicit cwd resolves against the passed cwd, not the decoy
+- [ ] #4 The eight test files carrying hand-rolled save/delete/restore guards are audited; guards made redundant by the fix are removed, and any kept are kept for a stated reason
+- [ ] #5 Full suite passes BOTH ways — with CLAUDE_PROJECT_DIR set and unset — since only the former reproduces the original defect
+- [ ] #6 Marketplace version bumped per docs/releasing.md (lib/ is released surface); docs/wiki re-pinned for every note sourcing lib/gate-runner.mjs
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
