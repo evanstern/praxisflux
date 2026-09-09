@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-09T18:19:19.612Z",
+  "generatedAt": "2026-09-09T18:23:01.756Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2735,7 +2735,7 @@
         },
         {
           "index": 10,
-          "checked": false,
+          "checked": true,
           "text": "check-docs green; docs/wiki re-pinned for every note sourcing a rewritten skill"
         },
         {
