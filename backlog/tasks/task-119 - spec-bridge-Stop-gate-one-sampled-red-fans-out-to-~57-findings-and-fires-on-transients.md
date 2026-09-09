@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-09 00:40'
+updated_date: '2026-09-09 00:41'
 labels:
   - tech-debt
   - spec-bridge
@@ -155,6 +155,16 @@ The residual (round 13's) mystery is UNCHANGED and still unreproduced. Eliminate
 One NEW fact found, which is a real hazard even if it is not proven to be the cause: the task-119 worktree is DIRTY — it carries a modified TASK-119 task file (round 13/14 notes, superseded by the merge). So there is a second backlog/-bearing tree on disk with uncommitted state. findRootsDownwards skips dot-dirs, so from the root the resolver still returns one root, and running the gate from inside that worktree returns 0 findings. It is therefore still not a demonstrated path to the red — but a dirty backlog-bearing sibling tree is exactly the shape R2's dirty-tree label exists to neutralize, and it should not be left lying around.
 
 Net: R1 is proven in production. R2 and R4 are shipped and exercised. The harness-only red remains unexplained after fifteen firings, and is now cheap rather than expensive to live with — one line, correctly attributed to a named gate, instead of 57 misattributed ones. Next diagnostic step unchanged: set SPEC_BRIDGE_GATE_TRACE in the HOOK's own environment (not a shell) so the next firing writes its record from inside the invocation that actually produces the nonzero.
+
+Round 14 (2026-09-09, after PR #137 merged as ab0755b) — recovered from the task-119 worktree, where it was written on the branch after the merge and so never reached main. Expected behavior; it named the two remaining install steps rather than any code defect.
+
+Two independent staleness layers, both verified at the time:
+1. PLUGIN CACHE held 0.56.0, 0.59.0, 0.59.6, 0.60.0 — not 0.61.0, where the collapse shipped. Checked 0.60.0's gates/bridge.mjs: zero occurrences of collapsedGateProblems. The Stop hook was still executing pre-collapse code.
+2. ROOT CHECKOUT also had zero occurrences and marketplace.json still read 0.60.0 — it had not been fast-forwarded since the merge.
+
+The merge itself was correct: gh api reported merged=true, merge_commit_sha ab0755b, and origin/main's log showed a MERGE COMMIT (not a squash), so the hashes the wiki notes pin as verified_against stayed reachable.
+
+Both layers are now resolved: /reload-plugins pulled 0.61.0 (5 occurrences of collapsedGateProblems) and the root was fast-forwarded to ab0755b, then to 44a8096 with the closure. Round 15 is the first firing on the fixed code — and it emitted ONE line.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
