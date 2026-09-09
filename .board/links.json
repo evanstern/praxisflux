@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-08T18:57:06.907Z",
+  "generatedAt": "2026-09-09T00:31:00.852Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2785,7 +2785,7 @@
     },
     {
       "id": "TASK-119",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/061-bridge-gate-fanout",
       "acs": [
         {
@@ -2827,6 +2827,11 @@
           "index": 8,
           "checked": true,
           "text": "Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)"
         }
       ]
     }

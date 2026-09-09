@@ -176,7 +176,7 @@ gate runs it with the flag set. So the repo's dogfood reddens its own `tests` ga
       Done: `node --test` 526/526 (both unflagged and `SPEC_BRIDGE_GATE_ACTIVE=1`);
       `check-docs.mjs` exit 0; `sync-version.mjs --check` exit 0 (0.61.0); freshness exit 0.
       Verified via `git show HEAD:docs/wiki/{spec-bridge-plugin,test-suite-catalog-plugins-gates}.md`.
-- [ ] T026 Merge `origin/main` **in** (pin-carrying branch — never rebase/squash/force-push);
+- [x] T026 Merge `origin/main` **in** (pin-carrying branch — never rebase/squash/force-push);
       re-run gates **and** the freshness probe unconditionally after the merge. Commit; push;
       open the PR (lands as a **merge commit**).
       `origin/main` is 0 commits ahead of this branch's base (re-verified before and after
