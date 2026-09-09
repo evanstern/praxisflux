@@ -1,10 +1,10 @@
 ---
 id: TASK-112
 title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 19:40'
+updated_date: '2026-09-09 19:41'
 labels:
   - feature
   - doctrine
@@ -45,8 +45,6 @@ Spec: specs/055-board-verb-table
 - [x] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
 - [x] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -117,3 +115,9 @@ Phase 4: rewrote all six skills to name board verbs (docs/board-verbs.md) instea
 
 Phase 4 re-ground: 16 stale notes found by grounding-wiki plan; 6 RE-PIN-ONLY (version-stamp-only diffs), 10 NEEDS-REVIEW. Of the NEEDS-REVIEW set, only pdlc-sweep.md's prose needed a real amendment (paused-lane detection now describes isPausedLink/.board/links.json mirror resolution instead of raw frontmatter reads) -- pdlc-plugin.md, pdlc-refactor-triage.md, the three pdlc-sweep-history* notes, reorient-plugin.md, spec-bridge-plugin.md (already known stale, at its 8000-char budget cap with 2 chars headroom -- left body untouched, no claim in it was falsified by this diff) all held up under review with no claim invalidated, so re-pinned as-is. All 10 re-pinned. Cascade check: freshness re-run after committing re-pins is clean (41 notes fresh); only one note (test-suite-catalog-plugins.md) sources other wiki notes and neither of its two wiki-note sources was touched, so no cascade. .board/links.json regenerated via projectBacklog+writeMirror (62 links); board-mirror --check reports match.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Enumerate the real call sites, author the verb table: 6/6 · Phase 2 — Mirror labels and the paused-lane fix (correctness, early): 6/6 · Phase 3 — The block render/parse pair and `renderJira`: 8/8 · Phase 4 — The six skill rewrites, labels doc, versions, re-ground: 11/11). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
