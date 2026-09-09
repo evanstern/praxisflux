@@ -46,8 +46,6 @@ Spec: specs/055-board-verb-table
 - [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -82,4 +80,20 @@ Two deliberate deviations from spec.md's sketched table, both justified and both
 Gates at Phase 1: suite 527/527, check-docs 0, sync-version --check 0 (0.61.1), check-version-bump no bump required (docs/specs are exempt surface). No --no-verify.
 
 Tier held sonnet / cc/claude-sonnet-5[1m]; ~190k subagent tokens, 43 tool uses.
+
+PHASE 2 DONE AND ORCHESTRATOR-VERIFIED (eb1b150) — the correctness slice, deliberately early. Suite 536/536 (527 baseline + 9 new tests).
+
+AC#6 PROVEN AGAINST THE HARDEST AVAILABLE CASE, not a fixture: this repo's OWN committed mirror carries 62 links and ZERO labels keys, and validateMirror returns no problems on it. Backward compatibility holds on real data. The schema adds 'labels' to LINK_KEYS as optional; validateMirror only enters the labels branch when the key is present, so a labels-less mirror never touches it. Both providers project it (the jira projector is spec 056's, and the schema supports it without requiring it).
+
+A DESIGN DETAIL THAT TURNED OUT LOAD-BEARING, worth keeping: parseLinkedTask OMITS the labels key entirely for an unlabelled task rather than emitting labels: []. That is not cosmetic — the frozen test/spec-bridge.test.mjs asserts parseLinkedTask's exact return shape for an unlabelled task, and an always-present labels: [] broke it on the first run. The omission is what keeps the protected file's byte assertions true.
+
+AC#7's mirror-side primitive landed as a new export isPausedLink(link), which reads labels off a MIRROR LINK only and never off backlog/tasks/*.md — verified directly: paused label true, other labels false, absent key false. Tested against a mirror-only fixture (temp dir with .board/links.json and NO backlog/tasks/ at all), which is the shape AC#7 actually names. HONEST SCOPE NOTE from the implementer, and it is right: pdlc:sweep's SKILL.md prose still reads 'paused' from Backlog frontmatter directly, and rewiring the sweep to consult the mirror is Phase 4's skill-rewrite territory. So AC#7 is HALF DONE — primitive proven, consumer not yet rewired — and I have NOT ticked it. AC#6 ticked; AC#7 stays open until Phase 4.
+
+WHY THIS SLICE MATTERS (from spec.md): without labels[] on the mirror, a sweep running on a Jira host would CLAIM AN OPERATOR'S PARKED BRANCH. That is the bug this phase closes.
+
+EXPECTED, NOT A DEFECT — the committed mirror is now knowingly stale in two ways, both verified by me: (1) TASK-112's own AC ticks from Phase 1 drifted it, and (2) label projection now surfaces labels for 50 already-linked tasks the committed mirror predates (live projection 62 links, 50 carrying labels; mirror 62 links, 0 carrying labels). board-mirror --check therefore FAILS right now by design. Regenerating is board:sync-mirror's job at closure, not a mid-phase edit — a 50-entry diff would bury the phase's real change. Phase 3 was told explicitly not to 'fix' it.
+
+Also amended docs/design/board-provider-seam.md with a Schema amendments section recording the addition. check-docs clean. Version bump and wiki re-pin correctly deferred to Phase 4 (the pre-push hook already flags docs/wiki/spec-bridge-plugin.md as stale, since it pins lib/board-mirror.mjs).
+
+Tier held sonnet / cc/claude-sonnet-5[1m]; ~222k subagent tokens, 71 tool uses.
 <!-- SECTION:NOTES:END -->
