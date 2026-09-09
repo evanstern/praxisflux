@@ -46,8 +46,6 @@ Spec: specs/055-board-verb-table
 - [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -68,4 +66,18 @@ TWO CONSTRAINTS THE LIVE TEST PUT ON THIS SPEC's implementation, neither derivab
 Tier: sonnet / cc/claude-sonnet-5[1m] (defaultTier per .claude/model-tiers.json; tiers.mjs --check exit 0, all three unchanged). No escalation — the spec settles the judgment calls. Served model verified claude-sonnet-5 on all four TASK-0122 dispatches this session, read from transcript request records rather than self-report.
 
 Dispatch plan: 4 phases, one fresh implementer each (31 boxes total: 6/6/8/11). Phase 1 dispatched — enumerate the real call sites and author docs/board-verbs.md. Phase 1 is also asked to VERIFY the spec's claimed per-skill command counts (link 6, sweep 3, refactor-triage 3, sync 2, bootstrap 2, reorient 1) rather than trust them.
+
+PHASE 1 DONE AND ORCHESTRATOR-VERIFIED (55df892). docs/board-verbs.md authored: 13 verbs — board:list, view, create, link-spec, ac-set, ac-check, status, claim, final, note, label, sync-mirror, init — each carrying intent, PRECONDITIONS, EVIDENCE ARTIFACT, and both provider resolutions. Verified by inspection: 13 rows, none thin, and the markdown-only constraint from spec 056's live test landed on the ac-set/ac-check rows where it belongs (AC#1, AC#4 ticked).
+
+THE CENSUS IN spec.md IS WRONG, and Phase 1 was right to check rather than trust it. Verified both claims myself with grep:
+- pdlc:bootstrap has THREE raw 'backlog ' hits, not the spec's 2.
+- More useful than the raw counts: a grep hit and an operative instruction are not the same thing IN EITHER DIRECTION. pdlc:refactor-triage greps 3 but has only 1 real call site (the other two are a cross-skill reference and a 'backlog task' noun phrase); bootstrap greps 3 but has 1 (a quoted error message and an 'e.g.' illustration). Conversely spec-bridge:link line 44 carries a REAL call site — --ac "Spec phase: Setup" — that NO 'backlog ' grep can find at all. Verified: that line exists as described.
+
+Operative call sites, corrected: link 6, sweep 3, refactor-triage 1, sync 2, bootstrap 1, reorient 1. Phase 4's rewrites should work from this enumeration (specs/055-board-verb-table/findings/phase-1-call-sites.md, per-line classification) rather than from spec.md's table or from a fresh grep — a grep alone both over- and under-counts.
+
+Two deliberate deviations from spec.md's sketched table, both justified and both recorded: DROPPED board:plan (no call site among the six skills exercises a task's --plan field) and ADDED board:init (pdlc:bootstrap's peer-initialization step is a real call site that already branches per peer, with a genuine per-provider resolution/precondition/evidence). Findings filed in the spec dir rather than inlined in the canonical doc, matching the precedent spec 056 set — keeps docs/board-verbs.md forward-facing.
+
+Gates at Phase 1: suite 527/527, check-docs 0, sync-version --check 0 (0.61.1), check-version-bump no bump required (docs/specs are exempt surface). No --no-verify.
+
+Tier held sonnet / cc/claude-sonnet-5[1m]; ~190k subagent tokens, 43 tool uses.
 <!-- SECTION:NOTES:END -->
