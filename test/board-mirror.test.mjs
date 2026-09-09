@@ -9,6 +9,7 @@ import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
   loadBoardConfig, validateBoardConfig, isPausedLink,
+  renderSpecPhasesBlock, parseSpecPhasesBlock,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -514,4 +515,76 @@ test("validateBoardConfig: catches a non-object statusMap", () => {
     jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusMap: "not an object" },
   });
   assert.ok(problems.some((m) => m.includes("statusMap")));
+});
+
+/* ── spec 055 Phase 3 (R2/AC #5) — the marked spec-phases description block ── */
+
+// AC #5 — render -> parse round-trips to the mirror's own acs shape, 1-based positional.
+test("renderSpecPhasesBlock/parseSpecPhasesBlock: clean round-trip yields [{ index, checked, text }]", () => {
+  const items = [
+    { checked: true, text: "Spec phase: Seam" },
+    { checked: false, text: "Spec phase: Provider" },
+  ];
+  const block = renderSpecPhasesBlock(items);
+  assert.equal(
+    block,
+    "<!-- spec-phases BEGIN -->\n- [x] Spec phase: Seam\n- [ ] Spec phase: Provider\n<!-- spec-phases END -->",
+  );
+  assert.deepEqual(parseSpecPhasesBlock(block), [
+    { index: 1, checked: true, text: "Spec phase: Seam" },
+    { index: 2, checked: false, text: "Spec phase: Provider" },
+  ]);
+});
+
+// The two live-observed Jira normalizations (spec 056 phase 1 findings, every read) — a parser
+// that assumes clean fixtures misses exactly this. Fixture below reproduces both in one string:
+// a blank line right after BEGIN, and two trailing spaces on the LAST checkbox line.
+test("parseSpecPhasesBlock: tolerates a blank line after BEGIN and trailing whitespace on the last checkbox line (live Jira normalizations)", () => {
+  const observed =
+    "<!-- spec-phases BEGIN -->\n" +
+    "\n" + // Jira inserts this blank line on every read
+    "- [x] Spec phase: Seam\n" +
+    "- [ ] Spec phase: Provider  \n" + // two trailing spaces, only on the last line
+    "<!-- spec-phases END -->";
+  assert.deepEqual(parseSpecPhasesBlock(observed), [
+    { index: 1, checked: true, text: "Spec phase: Seam" },
+    { index: 2, checked: false, text: "Spec phase: Provider" },
+  ]);
+});
+
+// Idempotence: parsing this repo's own render output, then re-rendering the parsed shape, must
+// reproduce byte-identical text — the write→read→write cycle spec 056 phase 1 observed converges
+// rather than rotting.
+test("renderSpecPhasesBlock(parseSpecPhasesBlock(x)) is idempotent once normalized", () => {
+  const items = [{ checked: true, text: "Spec phase: Setup" }, { checked: false, text: "Spec phase: Core" }];
+  const first = renderSpecPhasesBlock(items);
+  const reparsed = parseSpecPhasesBlock(first).map(({ checked, text }) => ({ checked, text }));
+  assert.equal(renderSpecPhasesBlock(reparsed), first);
+});
+
+test("parseSpecPhasesBlock: no block present returns [] (absent is not an error)", () => {
+  assert.deepEqual(parseSpecPhasesBlock("just some human prose\nSpec: specs/001-a\n"), []);
+});
+
+// AC #4 — two blocks in one description is a validation error, not a merge.
+test("parseSpecPhasesBlock: a second BEGIN or END marker throws, naming the counts", () => {
+  const doubled = renderSpecPhasesBlock([{ checked: true, text: "a" }]) + "\n" +
+    renderSpecPhasesBlock([{ checked: false, text: "b" }]);
+  assert.throws(() => parseSpecPhasesBlock(doubled), /2 BEGIN marker\(s\) and 2 END marker\(s\)/);
+});
+
+// R2: the `Spec: <dir>` marker line stays OUTSIDE the block and after it — confirm bridge.mjs's
+// MARKER regex (replicated here verbatim; it is a private const in spec-bridge/gates/bridge.mjs)
+// still matches when a spec-phases block sits between the human prose and the marker line. Do
+// not assume — that regex arms the whole bridge gate.
+test("R2 fixture: the Spec: marker still matches bridge.mjs's MARKER when it follows a spec-phases block", () => {
+  const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m; // bridge.mjs:253, replicated for verification only
+  const block = renderSpecPhasesBlock([
+    { checked: true, text: "Spec phase: Seam" },
+    { checked: false, text: "Spec phase: Provider" },
+  ]);
+  const description = `Human-authored prose, never touched.\n\n${block}\nSpec: specs/052-board-adapter-seam\n`;
+  const match = description.match(MARKER);
+  assert.ok(match, "MARKER must still match with a spec-phases block preceding it");
+  assert.equal(match[1], "specs/052-board-adapter-seam");
 });

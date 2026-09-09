@@ -11,7 +11,7 @@ import { execFileSync } from "node:child_process";
 
 import { hasAnyChild } from "../lib/project-root.mjs";
 import {
-  bridgeGate, checkBridge, planBridge, planIntents, renderBacklog, planLinkedTask,
+  bridgeGate, checkBridge, planBridge, planIntents, renderBacklog, planLinkedTask, renderJira,
 } from "../spec-bridge/gates/bridge.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 import { deriveSpecState } from "../lib/spec-derive.mjs";
@@ -344,4 +344,69 @@ test("differential (AC #3): equivalent backlog/tasks/*.md and .board/links.json 
     rmSync(live, { recursive: true, force: true });
     rmSync(mirrored, { recursive: true, force: true });
   }
+});
+
+/* ── spec 055 Phase 3 (R6/AC #9) — renderJira: renderBacklog's sibling for the jira provider.
+ * Fixture intents throughout (not run through planIntents) — renderJira's own AC asks for it to
+ * be "unit-tested against fixture intents", independent of how planIntents happens to shape a
+ * given scenario. ── */
+
+const noAcChange = { acRemove: [], acAdd: [], acCheck: [], acUncheck: [] };
+
+test("renderJira: a plain status move resolves through config.statusMap and emits one transitionJiraIssue call", () => {
+  const intents = {
+    id: "TASK-9", statusFrom: "To Do", statusTo: "In Progress", finalSummary: null, note: null, ...noAcChange,
+  };
+  const calls = renderJira("TASK-9", intents, { statusMap: { "In Progress": "In Dev" } });
+  assert.deepEqual(calls, [
+    { tool: "transitionJiraIssue", args: { issueIdOrKey: "TASK-9", status: "In Dev" }, why: "status To Do -> In Progress" },
+  ]);
+});
+
+test("renderJira: an unmapped status target falls through unchanged (same rule as .board.json's statusMap elsewhere)", () => {
+  const intents = { id: "TASK-9", statusFrom: "To Do", statusTo: "In Progress", finalSummary: null, note: null, ...noAcChange };
+  const calls = renderJira("TASK-9", intents, {});
+  assert.equal(calls[0].args.status, "In Progress");
+});
+
+test("renderJira: Done comments the final summary THEN transitions (board:final's jira column), and a separate note comment lands after", () => {
+  const intents = {
+    id: "TASK-9", statusFrom: "In Progress", statusTo: "Done",
+    finalSummary: "All spec tasks complete (Setup: 1/1). Derived Done by spec-bridge sync.",
+    note: "spec-bridge sync: Setup: 1/1 — status In Progress → Done",
+    ...noAcChange,
+  };
+  const calls = renderJira("TASK-9", intents, { statusMap: { Done: "Closed" } });
+  assert.deepEqual(calls.map((c) => c.tool), ["addOrEditJiraIssueComment", "transitionJiraIssue", "addOrEditJiraIssueComment"]);
+  assert.equal(calls[0].args.commentBody, intents.finalSummary);
+  assert.equal(calls[1].args.status, "Closed");
+  assert.equal(calls[2].args.commentBody, intents.note);
+});
+
+test("renderJira: all four ac* arrays collapse into exactly ONE editJiraIssue call carrying the raw diff", () => {
+  const intents = {
+    id: "TASK-9", statusFrom: "In Progress", statusTo: null, finalSummary: null,
+    note: "spec-bridge sync: Setup: 1/1 · Core: 1/2",
+    acRemove: [4, 2], acAdd: ["Spec phase: Core"], acCheck: [1], acUncheck: [2],
+  };
+  const calls = renderJira("TASK-9", intents, {});
+  assert.equal(calls.length, 2, "one editJiraIssue call plus the trailing note comment — never one call per ac* entry");
+  assert.deepEqual(calls[0], {
+    tool: "editJiraIssue",
+    args: { issueIdOrKey: "TASK-9", acRemove: [4, 2], acAdd: ["Spec phase: Core"], acCheck: [1], acUncheck: [2] },
+    why: intents.note,
+  });
+  assert.equal(calls[1].tool, "addOrEditJiraIssueComment");
+});
+
+test("renderJira: nothing changed emits no calls", () => {
+  const intents = { id: "TASK-9", statusFrom: "To Do", statusTo: null, finalSummary: null, note: null, ...noAcChange };
+  assert.deepEqual(renderJira("TASK-9", intents, {}), []);
+});
+
+test("renderJira is pure: no MCP tool prefix and no network primitive appears anywhere in bridge.mjs's source", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../spec-bridge/gates/bridge.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /mcp__/);
+  assert.doesNotMatch(src, /\bfetch\(/);
 });

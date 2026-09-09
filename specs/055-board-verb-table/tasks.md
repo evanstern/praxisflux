@@ -39,25 +39,25 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 
 ## Phase 3 — The block render/parse pair and `renderJira`
 
-- [ ] Implement render + parse for the `<!-- spec-phases -->` block **as a pair in one
+- [x] Implement render + parse for the `<!-- spec-phases -->` block **as a pair in one
       module**, reusing `lib/spec-derive.mjs`'s `TASK_LINE` regex family — do **not** write a
       third checkbox parser
-- [ ] Document in the header that block indexes are **positional** (1-based within the
+- [x] Document in the header that block indexes are **positional** (1-based within the
       block), not identities — a reordered block renumbers
-- [ ] Round-trip test (AC #5): render → parse → identical `[{ index, checked, text }]`,
+- [x] Round-trip test (AC #5): render → parse → identical `[{ index, checked, text }]`,
       matching the mirror's `acs` shape
-- [ ] Verify the `Spec: <dir>` marker still matches `MARKER`
+- [x] Verify the `Spec: <dir>` marker still matches `MARKER`
       (`/^Spec:\s*(\S+?)\/?\s*$/m`, `bridge.mjs:238`) when it follows the block in a
       description — **confirm with a fixture, do not assume**; that regex arms the whole gate
-- [ ] Implement `renderJira(id, intents, config)` → ordered `{ tool, args, why }`; **pure, no
+- [x] Implement `renderJira(id, intents, config)` → ordered `{ tool, args, why }`; **pure, no
       MCP, no network**
-- [ ] Map intents to tools: `statusTo` → `transitionJiraIssue` via `statusMap`; all AC
+- [x] Map intents to tools: `statusTo` → `transitionJiraIssue` via `statusMap`; all AC
       operations → **one** `editJiraIssue` rewriting the block wholesale; `note` →
       `addCommentToJiraIssue`. Comment the AC collapse — a reader who knows the Backlog path
       will look for the index-ordering dance and correctly not find it
-- [ ] Unit-test `renderJira` against fixture intents; confirm `renderBacklog` still produces
+- [x] Unit-test `renderJira` against fixture intents; confirm `renderBacklog` still produces
       today's exact strings (AC #9)
-- [ ] Commit
+- [x] Commit
 
 ## Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 
@@ -151,3 +151,56 @@ overall byte comparison correctly fails). This is the intended effect of AC #6/#
 the mirror is now stale w.r.t. labels until the next `board:sync-mirror` regenerates it — left
 undone here as out of this phase's scope (regenerating 50 entries' worth of label data is a
 bigger, unrelated diff than a schema-and-projector phase should carry).
+
+### Phase 3 (2026-09-09)
+
+**Placement, decided against the README chassis-registration gate:** `scripts/check-docs.mjs`
+requires every `lib/*.mjs` file to be named in README's chassis section, so a brand-new `lib/`
+module for the block pair would force an out-of-scope README edit (Phase 4 owns doc/version
+work). Both new pieces therefore landed inside **existing** modules instead: the render/parse
+pair (`renderSpecPhasesBlock`/`parseSpecPhasesBlock`) in `lib/board-mirror.mjs`, right after
+`isPausedLink` — it produces and consumes exactly that file's own `acs` shape and needs nothing
+else; `renderJira` in `spec-bridge/gates/bridge.mjs`, immediately after `renderBacklog` (its
+literal sibling, same file, same `(id, intents[, config])` shape). `TASK_LINE` was exported
+from `lib/spec-derive.mjs` (one-word change, `const` → `export const`) rather than duplicated —
+the parser reuses it verbatim.
+
+**A real architectural gap, resolved and documented in `renderJira`'s own header:** given only
+`(id, intents, config)` — no task snapshot, no `derived` — `renderJira` cannot know a surviving
+AC's original text (only its post-edit index), so it cannot resolve a literal final description
+string for the wholesale block rewrite. Its `editJiraIssue` call therefore carries the **raw
+diff** (`acRemove`/`acAdd`/`acCheck`/`acUncheck`, exactly as intents holds them) as `args`, not a
+computed description. Resolving that diff against the block's *current* live text — read via
+`getJiraIssue`, `parseSpecPhasesBlock`, apply the diff, `renderSpecPhasesBlock`, write via
+`editJiraIssue` — needs live data a pure function neither has nor is allowed to fetch; it is
+spec 056's skill's job. This is exactly why the render/parse pair is a separate, independently
+reusable primitive rather than something `renderJira` calls internally.
+
+**Ordering:** status move → AC block (collapsed to one call) → note, mirroring
+`renderBacklog`'s order. Done is special-cased per `docs/board-verbs.md`'s `board:final` row,
+jira column: comment the final summary, *then* transition — Backlog's single combined
+`-s Done --final-summary` has no Jira analogue, so it splits into two ordered calls. The
+separate progress `note` (always present when anything changed, independent of `finalSummary`)
+still lands as its own trailing comment either way — same redundancy Backlog's renderer already
+has (a `--append-notes` call fires whether or not the same turn set `--final-summary`).
+
+**Round-trip proof (AC #5) and both live Jira normalizations, tested as one fixture**
+(`test/board-mirror.test.mjs`): a block with a blank line right after `<!-- spec-phases BEGIN
+-->` and two trailing spaces on the *last* checkbox line parses to the clean
+`[{ index, checked, text }]` shape with no special-casing needed — blank lines are skipped
+outright, and `TASK_LINE`'s own `(\S.*?)\s*$` already strips trailing whitespace from the
+captured text (spec-derive.mjs's own guarantee, now cited from its export comment). A second
+round-trip test proves `renderSpecPhasesBlock(parseSpecPhasesBlock(x))` is idempotent once
+normalized. "Two blocks is an error" is enforced by counting BEGIN/END occurrences before doing
+anything else. The `Spec: <dir>` marker fixture confirms `MARKER` still matches with a block
+preceding it (the regex is per-line-anchored, so this was never really in doubt, but it's now
+proven rather than assumed, per the phase brief).
+
+**`renderBacklog` is untouched** — confirmed both by the unmodified protected tests passing and
+by a direct AST-adjacent byte comparison of the function body against `HEAD` (identical).
+
+**Scope note for Phase 4:** `renderJira` is not wired into `planBridge`'s non-backlog branch
+(that still returns the AC #8 `intents` + notice shape, unchanged) — spec 056's skill is the
+stated consumer of `renderJira`, and wiring it into `planBridge` isn't asked for by any AC here;
+doing so would also require deciding how the skill's live-fetched data reaches `renderJira`,
+which is 056's design, not this phase's.
