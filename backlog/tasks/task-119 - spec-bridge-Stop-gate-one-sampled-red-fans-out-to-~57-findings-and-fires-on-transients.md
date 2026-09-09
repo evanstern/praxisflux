@@ -50,10 +50,6 @@ Spec: specs/061-bridge-gate-fanout
 - [x] #9 Spec phase: Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -143,6 +139,8 @@ Correcting myself: my rounds 9-12 accounting attributed the firings to (a) the i
 Which is precisely why R4's instrumentation shipped, and it is now the tool for this: the next firing can be diagnosed from the inside once 0.61.0 is the installed version and SPEC_BRIDGE_GATE_TRACE is set in the hook's environment. Until then the Stop hook runs 0.59.6, which has no tracer.
 
 Recommend after merge: set SPEC_BRIDGE_GATE_TRACE in the hook env and let the next firing write its record. That is the first time this bug will be observable where it actually happens.
+
+spec-bridge sync: Phase 1 — Collapse the fan-out (R1, R3.1): 7/7 · Phase 2 — Label the dirty-tree sample (R2, R3.2): 6/6 · Phase 3 — Instrumentation for the unreproduced firings (R4): 6/6 · Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge): 4/4 · Phase 4 — Dogfood, catalog, bump, re-ground: 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
