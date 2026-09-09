@@ -100,6 +100,16 @@ Rule of thumb: DEVELOP in parallel, MERGE serially.
   top-level TASK, so it gets its OWN branch and PR — it does not ride TASK-110's or
   TASK-111's branch.
 
+**Lane 2.5 — INSERTED 2026-09-09 (operator ruling); RUNS BEFORE LANE 3:**
+- **TASK-0122 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 062: `lib/gate-runner.mjs`'s cwd
+  precedence. The env var beats an explicitly-passed `{ cwd }`, and **eight** test files
+  hand-work around it. **Why it goes first:** every remaining 112/113 phase dispatches under
+  the Stop hook this defect makes falsely red, so fixing it once removes the gate-tripping
+  from the rest of the sweep instead of fighting it seven more times. Released surface
+  (vendored into nine plugins, ~10 wiki notes source it) ⇒ version bump + re-pin owed.
+  Full detail and ACs on the card; do not re-derive the root cause — it is found and
+  recorded.
+
 **Lane 3' — RUNS BEFORE LANE 3 (operator ruling 2026-09-09, F1 option (a)):**
 - **TASK-113 Phase 1 ONLY (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 056 Phase 1 is
   knowledge-only: no implementation, findings committed to the spec dir. It is the ONLY
@@ -109,7 +119,7 @@ Rule of thumb: DEVELOP in parallel, MERGE serially.
   the operator; see the sign-off note). **If the markers do NOT survive: STOP
   and surface it** — that is an amendment to spec 055, never a local workaround in 056.
 
-**Lane 3 — after Lane 3' records marker survival (TASK-111 already merged):**
+**Lane 3 — after Lane 2.5 merges and Lane 3' records marker survival (TASK-111 already merged):**
 - **TASK-112 (sonnet · `cc/claude-sonnet-5[1m]`)** — spec 055: `docs/board-verbs.md`, the
   verb table skills resolve their board sentences against. Claimable only once Lane 3' has
   recorded that the markers survive, naming the `contentFormat` that preserved them.
@@ -409,8 +419,17 @@ the live marker test) is **COMPLETE**, and with it **finding F1 is DISCHARGED**.
 operator ruled that the remaining lanes run in **fresh sessions, one per lane** — the
 lane-boundary prescription below, taken deliberately as a cost lever.
 
-**What is next, exactly:** claim **TASK-112** (spec 055) and run its four phases. It is
-clear to claim — the markers survive, so spec 055 needs no amendment.
+**What is next, exactly:** **TASK-0122** (Lane 2.5, spec 062) — the `lib/gate-runner.mjs`
+cwd-precedence defect — then TASK-112 (spec 055, clear to claim: the markers survive so 055
+needs no amendment), then TASK-113 Phases 2–4.
+
+**Lane 2.5 was inserted by operator ruling 2026-09-09** and this session made sole owner of
+all three, with no other session modifying `main`. The gate defect goes first because every
+remaining phase dispatches under the Stop hook it makes falsely red. Its root cause is
+FOUND and recorded on TASK-0122 — do not re-derive it: `lib/gate-runner.mjs:39` prefers
+`process.env.CLAUDE_PROJECT_DIR` over an explicitly-passed `{ cwd }`, and eight test files
+hand-work around it. Two sessions found it independently; the immediate red was already
+fixed test-only in `10ed971`, which is a symptom patch, not the defect.
 
 **The three things Lane 3' proved that TASK-112's implementer MUST honor** (full detail in
 `specs/056-jira-provider/findings/phase-1-mcp-surface.md`, on branch
