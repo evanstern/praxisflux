@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 17:13'
+updated_date: '2026-09-09 17:14'
 labels:
   - tech-debt
   - spec-bridge
@@ -133,6 +133,8 @@ Verified by the orchestrator rather than taken on report:
 - CI PASSES on PR #138 (both jobs). This matters more than the local run: CI is this repo's authoritative gate, and it is what caught F5 and F6 when the local gates lied.
 
 Commits: c58d21d (bump), 0925650 (re-ground), 1d1dad9 (cascade re-pin). PR #138 open, MERGEABLE, 41 files, +474/-72. NOT merged — merge is the operator's, and it MUST land as a merge commit, never a squash: squashing would rewrite the hashes that this branch's own wiki re-pins reference as verified_against, breaking the freshness gate it just made green.
+
+spec-bridge sync: Phase 1 — The decoy regression test, captured RED first: 4/4 · Phase 2 — The precedence change: 6/6 · Phase 3 — Audit the eight hand-rolled guards: 5/5 · Phase 4 — Release obligations and re-ground: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
