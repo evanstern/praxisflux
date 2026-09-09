@@ -8,26 +8,26 @@ all exist.
 
 ## Phase 1 — Verify the MCP surface (output is knowledge, not code)
 
-- [ ] Read the actual tool signatures for each of: `getAccessibleAtlassianResources`,
+- [x] Read the actual tool signatures for each of: `getAccessibleAtlassianResources`,
       `getVisibleJiraProjects`, `getJiraProjectIssueTypesMetadata`,
       `searchJiraIssuesUsingJql`, `getJiraIssue`, `createJiraIssue`, `editJiraIssue`,
       `transitionJiraIssue`, `addCommentToJiraIssue`, `atlassianUserInfo`,
       `lookupJiraAccountId`, `getTransitionsForJiraIssue`. Record required params per tool
-- [ ] **THE CRITICAL TEST — do this first:** write a `<!-- spec-phases -->` block with
+- [x] **THE CRITICAL TEST — do this first:** write a `<!-- spec-phases -->` block with
       checkboxes to a scratch issue's description, read it back, and confirm the HTML comment
       markers **and** the checkbox syntax survive. Test both `contentFormat: "markdown"` and
       `"adf"`; record which preserves them
-- [ ] **If the markers do NOT survive: STOP and surface it.** A delimiter change is an
+- [x] **If the markers do NOT survive: STOP and surface it.** A delimiter change is an
       amendment to spec 055, not a local workaround. Do not invent a substitute silently
-- [ ] Confirm the transition two-step: `transitionJiraIssue` takes a transition **id**, not a
+- [x] Confirm the transition two-step: `transitionJiraIssue` takes a transition **id**, not a
       status name, and available transitions depend on current status + workflow. Record the
       `getTransitionsForJiraIssue` → `transitionJiraIssue` sequence
-- [ ] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards
+- [ ] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards  <!-- UNVERIFIED 2026-09-09: needs workflow writes on a real corporate project; the operator's sign-off covered a description round-trip only and the permission boundary declined. Owed before Phase 3. -->
       transition, and clearing it via `editJiraIssue` is the fix. The bridge **does** move
       statuses backwards, so record how to handle it
-- [ ] Confirm `searchJiraIssuesUsingJql` pagination (`maxResults` cap, `nextPageToken`) and
+- [x] Confirm `searchJiraIssuesUsingJql` pagination (`maxResults` cap, `nextPageToken`) and
       which `fields` are needed (`summary`, `status`, `description`, `labels` — not `*all`)
-- [ ] Record every finding in Notes; commit (findings only, no implementation)
+- [x] Record every finding in Notes; commit (findings only, no implementation)
 
 ## Phase 2 — Read path: provider, JQL, extraction, mirror
 
