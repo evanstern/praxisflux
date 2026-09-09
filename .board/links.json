@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-09T18:23:01.756Z",
+  "generatedAt": "2026-09-09T19:41:39.701Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2685,7 +2685,7 @@
     },
     {
       "id": "TASK-112",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/055-board-verb-table",
       "acs": [
         {
@@ -2755,7 +2755,7 @@
         },
         {
           "index": 14,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground"
         }
       ],

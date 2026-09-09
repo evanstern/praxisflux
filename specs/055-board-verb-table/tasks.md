@@ -61,29 +61,29 @@ dir plus the branch's commits. Nothing rides chat context between phases.
 
 ## Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 
-- [ ] Rewrite board-action sentences in each skill to name a verb + link the table:
+- [x] Rewrite board-action sentences in each skill to name a verb + link the table:
       `spec-bridge:link`, `spec-bridge:sync`, `pdlc:sweep`, `pdlc:refactor-triage`,
       `pdlc:bootstrap`, `reorient:reorient`
-- [ ] **Do not reflow surrounding paragraphs.** The diff must contain only board-action
+- [x] **Do not reflow surrounding paragraphs.** The diff must contain only board-action
       sentences (AC #3); rationale prose about *reconciliation* (e.g. sync's "the order is
       load-bearing") is not about the CLI and stays byte-identical
-- [ ] Confirm no skill gained a provider conditional — a skill names the verb; the table
+- [x] Confirm no skill gained a provider conditional — a skill names the verb; the table
       resolves it
-- [ ] Make `docs/task-labels.md`'s plumbing sentences provider-neutral (`board:label`); the
+- [x] Make `docs/task-labels.md`'s plumbing sentences provider-neutral (`board:label`); the
       label **list** is unchanged (AC #8 — diff shows no rows added or removed)
-- [ ] Grep check (AC #2): `backlog ` across `*/skills/**/SKILL.md` appears only in the
+- [x] Grep check (AC #2): `backlog ` across `*/skills/**/SKILL.md` appears only in the
       table's `backlog` column or in explicitly-scoped "on a Backlog host" illustrations
-- [ ] Bump **every** rewritten skill's own `version:`; run
+- [x] Bump **every** rewritten skill's own `version:`; run
       `node scripts/check-version-bump.mjs` locally to confirm the per-skill rule is satisfied
-- [ ] Bump the marketplace version; run `node scripts/sync-version.mjs`
-- [ ] Re-pin `docs/wiki/` notes whose `sources:` list a rewritten skill — at minimum
+- [x] Bump the marketplace version; run `node scripts/sync-version.mjs`
+- [x] Re-pin `docs/wiki/` notes whose `sources:` list a rewritten skill — at minimum
       `pdlc-sweep`, `pdlc-sweep-history-recent`, `pdlc-refactor-triage`,
       `spec-bridge-plugin`, `reorient-plugin`; classify each **RE-PIN-ONLY** or
       **NEEDS-REVIEW** and amend prose before bumping
-- [ ] Add a corpus note or INDEX row for the verb table if the corpus needs one
-- [ ] All four project gates green: `node --test`, `check-docs.mjs`,
+- [x] Add a corpus note or INDEX row for the verb table if the corpus needs one
+- [x] All four project gates green: `node --test`, `check-docs.mjs`,
       `sync-version.mjs --check`, freshness
-- [ ] Commit
+- [x] Commit
 
 ## Notes
 
