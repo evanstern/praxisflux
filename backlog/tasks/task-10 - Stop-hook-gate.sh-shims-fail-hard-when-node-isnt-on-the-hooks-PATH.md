@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-07-10 02:40'
-updated_date: '2026-07-13 20:09'
+updated_date: '2026-09-09 14:01'
 labels: []
 dependencies: []
 ordinal: 42000
@@ -38,6 +38,20 @@ research/scripts/gate.sh and educate/scripts/gate.sh both do 'exec node ...'. Bo
 
 <!-- SECTION:NOTES:BEGIN -->
 Resolved node via 'command -v node', falling back to "${SHELL:-/bin/sh} -lc 'command -v node'" to pick up nvm/volta/Homebrew PATH set up in the user's shell rc, without hardcoding any path. If neither resolves a binary, the shim exits 0 (silent no-op) instead of erroring. Verified manually: (1) normal PATH -> gate runs stop.mjs and allows; (2) env -i with PATH stripped to /usr/bin:/bin but real SHELL set -> fallback correctly resolves /opt/homebrew/bin/node; (3) env -i with PATH stripped and SHELL=/bin/sh (no rc) -> both resolution attempts fail, shim exits 0 with no output, no error banner.
+
+Reproduced a concrete PATH mechanism (2026-09-09, during the TASK-119 sweep) — this card's exact subject, with commands.
+
+The shim at spec-bridge/scripts/gate.sh resolves node in two steps: 'command -v node', then falling back to "$SHELL -lc 'command -v node'". On this machine that login-shell fallback returns /opt/homebrew/bin/node (v26.3.1), NOT the shell's volta node (v24.17.0) — two different runtimes, and the shim picks the homebrew one.
+
+The gap: the shim execs that resolved node but does NOT put its directory on PATH. Meanwhile runGateCommand spawns a BARE 'node' with shell:false, which resolves from PATH. So the parent runs under a node the child cannot necessarily find.
+
+Reproduced directly: spawnSync('node',['--test'],{shell:false, env:{PATH:'/usr/bin:/bin:/usr/sbin:/sbin'}}) returns error ENOENT, status null. And in a minimal PATH, 'which node' finds nothing at all.
+
+IMPORTANT LIMIT on this finding: ENOENT surfaces through runGateCommand as kind:'error' — 'could not be executed' — whereas the Stop hook's actual message says 'exited 1', a genuine nonzero. Two variants WITH the volta shim dir on PATH (with and without HOME) both returned status 0. So the PATH fragility is real and reproduced, but it is NOT proven to be the cause of the observed red. Recorded as a real defect in its own right, not as a diagnosis of TASK-119's residual.
+
+Also ruled out: all three node versions on disk run the suite green — 22.23.0, 24.17.0, and 26.3.1 each give 526/526 exit 0.
+
+Fix shape (not decided): have the shim prepend the resolved node's dirname to PATH before exec, so a bare-'node' child resolves the same runtime the parent got. That is a one-line change to gate.sh and would make parent and child agree by construction.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
