@@ -4,7 +4,7 @@ title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
 status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 18:19'
+updated_date: '2026-09-09 19:40'
 labels:
   - feature
   - doctrine
@@ -43,8 +43,10 @@ Spec: specs/055-board-verb-table
 - [x] #11 Spec phase: Phase 1 — Enumerate the real call sites, author the verb table
 - [x] #12 Spec phase: Phase 2 — Mirror labels and the paused-lane fix (correctness, early)
 - [x] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
-- [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
+- [x] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
