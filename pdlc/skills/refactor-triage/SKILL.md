@@ -1,6 +1,6 @@
 ---
 name: refactor-triage
-version: 0.3.1
+version: 0.3.2
 description: Evaluate a body of merged work — a post-sweep commit range or the whole repo — for tech debt and intent drift, triage every finding with the operator (accept / reject / defer, rationale recorded), and execute accepted findings onto the Backlog board as cited, labeled, immediately sweepable debt tasks. Use when the user wants to "triage the merged work", "evaluate for tech debt", "card the debt", run a "post-sweep review" or "refactor triage", asks what debt or drift a sweep left behind, or a harness invokes it headless with a scope plus a declared triage policy. Orchestrates team-review:team-review as the evaluation engine when installed (inline eval pass when absent); team-review itself is unchanged.
 ---
 
@@ -140,7 +140,7 @@ extracts to scope `<id>..HEAD` for the next run.
 
 ## Phase 4 — EXECUTE
 
-Each **accepted** finding becomes a backlog task **via the `backlog` CLI** — never
+Each **accepted** finding becomes a board item via **`board:create`** — never
 hand-edit board files. Every created task:
 
 - **cites its finding** in the body: the evaluation report's path plus the file:line
