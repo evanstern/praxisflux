@@ -4,7 +4,7 @@ title: 'board verb table: skills name intents, not CLIs (docs/board-verbs.md)'
 status: In Progress
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 18:05'
+updated_date: '2026-09-09 18:07'
 labels:
   - feature
   - doctrine
@@ -45,8 +45,6 @@ Spec: specs/055-board-verb-table
 - [x] #13 Spec phase: Phase 3 — The block render/parse pair and `renderJira`
 - [ ] #14 Spec phase: Phase 4 — The six skill rewrites, labels doc, versions, re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -98,4 +96,18 @@ EXPECTED, NOT A DEFECT — the committed mirror is now knowingly stale in two wa
 Also amended docs/design/board-provider-seam.md with a Schema amendments section recording the addition. check-docs clean. Version bump and wiki re-pin correctly deferred to Phase 4 (the pre-push hook already flags docs/wiki/spec-bridge-plugin.md as stale, since it pins lib/board-mirror.mjs).
 
 Tier held sonnet / cc/claude-sonnet-5[1m]; ~222k subagent tokens, 71 tool uses.
+
+PHASE 3 DONE AND ORCHESTRATOR-VERIFIED (97dc973). Suite 548/548 (536 + 13 new). This is the phase finding F1 existed to protect, and the protection paid off.
+
+THE TWO LIVE-JIRA NORMALIZATIONS ARE TOLERATED — verified by running the parser against the observed shape myself, not from the report: given a block with a blank line after BEGIN and two trailing spaces on the last checkbox, parseSpecPhasesBlock yields exactly [{1,checked:true,'Spec phase: Seam'},{2,checked:false,'Spec phase: Provider'}] — blank line skipped, trailing whitespace stripped. Round-trip through renderSpecPhasesBlock is idempotent. Two blocks in one description throws, naming the count ('found 2 BEGIN marker(s) and 2 END'). Neither normalization needed special-casing: blank lines are skipped outright and spec-derive's TASK_LINE regex already ends (\S.*?)\s*$. A parser built against 055's clean fixtures alone would have passed its own tests and failed against a live site — exactly the gap F1 named.
+
+AC#9 PROVEN BY BYTE COMPARISON, not inspection: extracted renderBacklog's function body from origin/main and from HEAD and ran cmp — BYTE-IDENTICAL. The one diff line mentioning renderBacklog is an added comment in renderJira's header that merely references it. renderJira returns ordered {tool,args,why} and is pure. ACs #5, #9, #13 ticked.
+
+MY DISPATCH INSTRUCTION WAS WRONG AND THE IMPLEMENTER WAS RIGHT TO PUSH BACK. I said grep -rn 'mcp__|fetch(' lib/ 'must return nothing'. It does not, and never did: lib/selfcontained.mjs:17 holds a DETECTOR REGEX whose string literal contains fetch( (it exists to catch forbidden external fetches in generated HTML), and lib/toolkit/code-translation.md:37 is a markdown teaching snippet. Both are pre-existing on origin/main and untouched by this branch — verified. The files Phase 3 actually changed (board-mirror.mjs, spec-derive.mjs) are clean. Correct check is scoped to the changed files, not the whole directory.
+
+TWO JUDGMENT CALLS THE IMPLEMENTER SURFACED RATHER THAN MAKING SILENTLY, both sound:
+1. PLACEMENT: no new lib/*.mjs file, because a new chassis module would trip check-docs' requirement that every module be named in README's chassis section — a doc/version edit that is Phase 4's job. So render/parse landed in lib/board-mirror.mjs (whose acs shape they produce/consume) and renderJira beside renderBacklog in spec-bridge/gates/bridge.mjs. TASK_LINE was exported from spec-derive.mjs (one word, const -> export const) so the block parser reuses it instead of a third checkbox regex.
+2. ARCHITECTURAL GAP, recorded for spec 056: given only (id, intents, config) and no task snapshot, renderJira cannot resolve a surviving AC's original text, so it cannot build a literal final description. Its editJiraIssue call carries the RAW DIFF (acRemove/acAdd/acCheck/acUncheck) as args; resolving that against the live block — fetch, parse, apply, render, write — is spec 056's skill's job. This is precisely why the render/parse pair is a standalone primitive rather than something renderJira calls internally. Also noted: renderJira is not yet wired into planBridge's non-backlog branch; no Phase 3 AC asked for it, and it is 056's call.
+
+Tier held sonnet / cc/claude-sonnet-5[1m]; ~248k subagent tokens, 71 tool uses.
 <!-- SECTION:NOTES:END -->
