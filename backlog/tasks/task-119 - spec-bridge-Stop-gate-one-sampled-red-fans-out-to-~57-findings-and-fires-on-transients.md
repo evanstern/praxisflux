@@ -3,11 +3,11 @@ id: TASK-119
 title: >-
   spec-bridge Stop gate: one sampled red fans out to ~57 findings, and fires on
   transients
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-08 18:56'
+updated_date: '2026-09-09 00:28'
 labels:
   - tech-debt
   - spec-bridge
@@ -139,3 +139,9 @@ Which is precisely why R4's instrumentation shipped, and it is now the tool for 
 
 Recommend after merge: set SPEC_BRIDGE_GATE_TRACE in the hook env and let the next firing write its record. That is the first time this bug will be observable where it actually happens.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Collapse the fan-out (R1, R3.1): 7/7 · Phase 2 — Label the dirty-tree sample (R2, R3.2): 6/6 · Phase 3 — Instrumentation for the unreproduced firings (R4): 6/6 · Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge): 4/4 · Phase 4 — Dogfood, catalog, bump, re-ground: 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
