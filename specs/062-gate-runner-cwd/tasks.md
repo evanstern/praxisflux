@@ -22,20 +22,20 @@ in `spec.md` — do not re-derive it.
 
 ## Phase 2 — The precedence change
 
-- [ ] Change `lib/gate-runner.mjs`'s resolution so an explicitly-passed `{ cwd }` wins, then
+- [x] Change `lib/gate-runner.mjs`'s resolution so an explicitly-passed `{ cwd }` wins, then
       `CLAUDE_PROJECT_DIR`, then `input.cwd`, then `process.cwd()`
-- [ ] Make "no cwd passed" distinguishable from a passed value: default the option to
+- [x] Make "no cwd passed" distinguishable from a passed value: default the option to
       `undefined` and fall back inside the expression, NOT in the destructuring default
       (today's `{ cwd = process.cwd() }` erases the distinction — the mechanical reason this
       bug was possible)
-- [ ] State the four-step ordering AND its rationale in the contract comment at the top of
+- [x] State the four-step ordering AND its rationale in the contract comment at the top of
       `lib/gate-runner.mjs` (why explicit beats ambient; why the env var still beats
       `input.cwd`)
-- [ ] Confirm the real Stop-hook path is untouched: `runStopHook` (line ~77) passes no cwd,
+- [x] Confirm the real Stop-hook path is untouched: `runStopHook` (line ~77) passes no cwd,
       so nothing-passed behaviour must be byte-identical to before
-- [ ] Phase 1's decoy test now PASSES; full suite green **both** with `CLAUDE_PROJECT_DIR`
+- [x] Phase 1's decoy test now PASSES; full suite green **both** with `CLAUDE_PROJECT_DIR`
       set and unset
-- [ ] Commit and push
+- [x] Commit and push
 
 ## Phase 3 — Audit the eight hand-rolled guards
 
