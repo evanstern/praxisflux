@@ -18,9 +18,10 @@
 // derivation-stage ladder against the board's own status names. Absent that config, every
 // path below behaves exactly as described above.
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import { hasAnyChild, findRootsDownwards } from "../lib/project-root.mjs";
 import { parseLinkedTask, findLinkedTasks, readMirror, providers, mirrorStaleness } from "../lib/board-mirror.mjs";
@@ -165,8 +166,14 @@ export const GATE_TIMEOUT_MS = 120000;
  * is the gate-runner contract applied one level down — a crash is a blocking problem, not a
  * silent pass). Sets SPEC_BRIDGE_GATE_ACTIVE on the child env so a declared command that itself
  * invokes the bridge short-circuits instead of recursing (see checkBridge/verifyBridge).
+ *
+ * `trace` (spec 061 R4) is an optional callback invoked with the RAW outcome — { command, cwd,
+ * status, signal, stdout, stderr, error } — before it's classified into the shape above. It
+ * exists solely for opt-in instrumentation (see `bridgeGate.check`); omitted (the default for
+ * every existing caller and every test), it costs one falsy check, never a syscall. A throwing
+ * `trace` is swallowed here too — instrumentation must never affect this function's verdict.
  */
-export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spawn = spawnSync } = {}) {
+export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spawn = spawnSync, trace } = {}) {
   let res;
   try {
     res = spawn(command[0], command.slice(1), {
@@ -174,7 +181,18 @@ export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spaw
       env: { ...process.env, SPEC_BRIDGE_GATE_ACTIVE: "1" },
     });
   } catch (e) {
+    if (trace) try { trace({ command, cwd, status: null, signal: null, stdout: "", stderr: "", error: e.code || e.message }); } catch { /* swallowed */ }
     return { ok: false, kind: "error", reason: e.code || e.message };
+  }
+  if (trace) {
+    try {
+      trace({
+        command, cwd,
+        status: res.status ?? null, signal: res.signal ?? null,
+        stdout: res.stdout || "", stderr: res.stderr || "",
+        error: res.error ? (res.error.code || res.error.message) : null,
+      });
+    } catch { /* swallowed: instrumentation must never affect the verdict */ }
   }
   if (res.error) {
     if (res.error.code === "ETIMEDOUT") return { ok: false, kind: "timeout", timeoutMs };
@@ -183,6 +201,92 @@ export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spaw
   if (res.status === 0) return { ok: true };
   if (res.status == null) return { ok: false, kind: "red", reason: res.signal ? `killed by ${res.signal}` : "no exit status" };
   return { ok: false, kind: "red", reason: `exited ${res.status}` };
+}
+
+/**
+ * Whether <root>'s working tree has uncommitted changes (spec 061 R2), via `git status
+ * --porcelain` — non-empty stdout = dirty. **Fail closed**: any failure to determine (nonzero
+ * exit, spawn error, git absent) => `false` (treated clean, gate keeps blocking) — an
+ * undeterminable condition must never silently disarm the gate, the same posture
+ * `runGateCommand` takes for a command that cannot run. Argv only, shell:false, cwd = root —
+ * this reads the same tree a gate command would run against, never the CWD it happened to be
+ * invoked from.
+ */
+export function isTreeDirty(root, { spawn = spawnSync } = {}) {
+  let res;
+  try {
+    res = spawn("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8", shell: false });
+  } catch {
+    return false;
+  }
+  if (res.error || res.status !== 0) return false;
+  return typeof res.stdout === "string" && res.stdout.trim().length > 0;
+}
+
+/**
+ * Clause appended to a collapsed gate finding sampled against a dirty tree (spec 061 R2): the
+ * mirror image of this repo's own F6 finding ("a gate run against a dirty working tree proves
+ * nothing about the commit"), recorded there for false greens and here producing false reds.
+ * Rounds 1/2/4 of this repo's own fan-out chase were exactly this — an implementer's
+ * uncommitted mid-dispatch edits, sampled and misread as a broken commit. The verdict is not
+ * dropped (silence would hide a genuine red) but it must not block.
+ */
+const DIRTY_TREE_CLAUSE =
+  " This verdict was sampled against a DIRTY working tree, not a commit — it proves nothing " +
+  "about the commit and must not block. Commit or stash the tree, then re-run for a real verdict.";
+
+/* ── R4 instrumentation: opt-in record of what a Stop invocation actually saw ────────────────
+ *
+ * Rounds 5-7 of this repo's own fan-out chase were unreproduced (see the card's elimination
+ * list). Round 7's candidate mechanism — an orphaned worktree tree resolving as a SECOND root —
+ * can only be settled by seeing, from a real Stop invocation, exactly which roots resolveRoots
+ * returned and what each gate command actually did. This is that instrumentation:
+ *
+ *   - OFF by default: `SPEC_BRIDGE_GATE_TRACE` unset ⇒ `tracePath()` returns null ⇒ every call
+ *     site below is a single falsy check, never a write, never a spawn.
+ *   - Append-only JSONL, OUTSIDE the tracked tree: `$CLAUDE_JOB_DIR` if set (this repo's own
+ *     scratch convention), else the OS temp dir — never inside the repo, or a Stop hook writing
+ *     it would dirty the very tree Phase 2's dirty-tree check reads.
+ *   - Verdict-neutral: every write is wrapped in try/catch. A trace failure is swallowed and
+ *     can never turn a green gate red or vice versa.
+ *
+ * Wired ONLY into `bridgeGate.check` (the real Stop-hook path) — not into `checkBridge` callers
+ * generally and not into `verifyBridge` — because R4 is about diagnosing Stop-time firings, and
+ * an injected `run` (every test) never touches `runGateCommand`, so tests are unaffected whether
+ * or not the env var happens to be set.
+ */
+
+/** Truthy env var → the JSONL path to append to. `"1"`/`"true"` mean "use the default scratch
+ *  location"; any other value is used as an explicit path override. Unset ⇒ null (off). */
+function tracePath() {
+  const v = process.env.SPEC_BRIDGE_GATE_TRACE;
+  if (!v) return null;
+  if (v === "1" || v === "true") return join(process.env.CLAUDE_JOB_DIR || tmpdir(), "spec-bridge-gate-trace.jsonl");
+  return v;
+}
+
+const TRACE_CAP = 4000; // bound stdout/stderr — the `tests` gate's own output is large
+
+/** Bound a captured stream to TRACE_CAP chars, noting how much was cut. */
+function capTrace(s) {
+  if (typeof s !== "string" || s.length <= TRACE_CAP) return s;
+  return s.slice(0, TRACE_CAP) + `…[${s.length - TRACE_CAP} more bytes truncated]`;
+}
+
+/** Append one JSONL record for this bridgeGate.check() invocation. Never throws — a write
+ *  failure (unwritable path, ENOENT, disk full) is swallowed, never affecting the gate verdict. */
+function traceGateRun(root, roots, commandRecords) {
+  const path = tracePath();
+  if (!path) return;
+  try {
+    const record = {
+      ts: new Date().toISOString(),
+      root,
+      roots,
+      commands: commandRecords.map((r) => ({ ...r, stdout: capTrace(r.stdout), stderr: capTrace(r.stderr) })),
+    };
+    appendFileSync(path, JSON.stringify(record) + "\n");
+  } catch { /* verdict-neutral: instrumentation failure is swallowed */ }
 }
 
 /** The last ticked box in document order — the tick that (in sequence) claimed the most, and so
@@ -228,14 +332,16 @@ function gateReason(result) {
   return `is red (${result.reason})`;
 }
 
+/** Shared tail clause for every project-gate finding, per-spec or collapsed alike. */
+const CANT_OUTRUN = "A ticked tasks.md checkbox cannot outrun a red project gate — make the gate pass or set the box back.";
+
 /** The blocking finding: names the phase, the box, and the failing gate (spec 050 AC #1). */
 function projectGateProblem({ id, specDir, witness, gate, result }) {
   const where = witness
     ? `phase "${witness.phase}", box "${witness.box}" is ticked, but `
     : "a ticked box stands over a gate that ";
   const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
-  return `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ` +
-    `A ticked tasks.md checkbox cannot outrun a red project gate — make the gate pass or set the box back.`;
+  return `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ${CANT_OUTRUN}`;
 }
 
 /**
@@ -244,6 +350,12 @@ function projectGateProblem({ id, specDir, witness, gate, result }) {
  * gate list (the caller picks the buckets — the two entry points differ there); `run` executes one
  * command and returns runGateCommand's shape (injected so tests need no subprocess). The witness box
  * is computed once from phaseBoxes so every finding names it.
+ *
+ * NOTE (spec 061 R1): `checkBridge`/`verifyBridge` no longer call this directly — one red project
+ * gate now yields ONE collapsed finding per invocation naming the gate and the affected count
+ * (see `collapsedGateProblems` below), not one finding per linked spec. This function remains the
+ * pure per-spec evaluator: exported for direct testing of the per-gate/per-spec decision logic,
+ * and available to any caller that wants the per-spec witness view (e.g. `cli.mjs state <specDir>`).
  */
 export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
   const witness = lastTickedBox(phaseBoxes);
@@ -252,6 +364,31 @@ export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
     const result = run(gate.command);
     if (result.ok) continue;
     problems.push(projectGateProblem({ id, specDir, witness, gate, result }));
+  }
+  return problems;
+}
+
+/**
+ * Collapsed evaluator (spec 061 R1): run each distinct gate ONCE (via the memoized `runOne`) and
+ * return at most one finding per non-green gate, naming the gate + bucket + `gateReason` + how
+ * many qualifying specs are affected — never enumerating them. `counts` is `{ required,
+ * redByConstruction }`, the number of specs the caller has already determined are held to each
+ * bucket (checkBridge: every Done-eligible spec, held to both; verifyBridge: every ticked spec
+ * for `required`, only the Done-eligible ones for `redByConstruction` — the bucket asymmetry).
+ * A gate whose bucket count is 0 is never even run — no spec is holding it, so nothing changes
+ * about WHICH gates run for WHICH specs, only how a non-green one is reported.
+ */
+function collapsedGateProblems(gates, counts, runOne) {
+  const problems = [];
+  for (const gate of gates) {
+    const count = counts[gate.bucket] ?? 0;
+    if (count === 0) continue;
+    const result = runOne(gate.command);
+    if (result.ok) continue;
+    const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
+    problems.push(
+      `[spec-bridge] the ${label} "${gate.name}" ${gateReason(result)} — ${count} linked spec${count === 1 ? "" : "s"} affected. ${CANT_OUTRUN}`
+    );
   }
   return problems;
 }
@@ -343,10 +480,30 @@ function shortfall(root, specDir, derived) {
 /**
  * Judge every linked task under <root>. Returns:
  *   links    — [{ id, status, specDir, derived, verdict }]
- *   problems — blocking messages, one per "exceeds"
- *   warnings — non-blocking messages, one per "lags"
+ *   problems — blocking messages, one per "exceeds", plus one per non-green declared project
+ *              gate (spec 061 R1) — UNLESS the tree is dirty, in which case that gate finding
+ *              moves to `warnings`, labeled (spec 061 R2): a verdict sampled against an
+ *              uncommitted tree proves nothing about the commit and must not block.
+ *   warnings — non-blocking messages: one per "lags", plus any dirty-tree-labeled gate finding.
+ * `isDirty(root)` (default `isTreeDirty`) is injectable for tests, same pattern as `run`.
+ * `trace` (spec 061 R4, opt-in instrumentation): a callback forwarded to the DEFAULT gate
+ * runner's `runGateCommand` calls only — an injected `run` (every test) never reaches it, so
+ * tests are unaffected whether or not it's provided.
+ *
+ * `gateActive` (spec 061 Phase 3b, T027): the reentrancy signal itself, injectable with a real
+ * default — `process.env.SPEC_BRIDGE_GATE_ACTIVE === "1"` — same shape as `run`/`isDirty`. Every
+ * real caller (cli.mjs, bridgeGate's production wiring) leaves it at the default, so the actual
+ * env is still what decides for them; only a caller that explicitly passes `gateActive: false`
+ * (a test-owned invocation, e.g. `bridgeGate.check(root, { gateActive: false })`) can make this
+ * DEFAULT runner execute gates while an ambient SPEC_BRIDGE_GATE_ACTIVE=1 is set. This is what
+ * lets `bridgeGate` tests (below) stay honest when this repo's own dogfood `tests` gate — bare
+ * `node --test` — runs the whole suite as a child of a real gate spawn: those tests opt out of
+ * the flag explicitly; nothing else does, so real recursive spawning is stopped exactly as before.
  */
-export function checkBridge(root, { runGates = true, run } = {}) {
+export function checkBridge(root, {
+  runGates = true, run, isDirty = isTreeDirty, trace,
+  gateActive = process.env.SPEC_BRIDGE_GATE_ACTIVE === "1",
+} = {}) {
   const links = [];
   const problems = [];
   const warnings = [];
@@ -403,8 +560,9 @@ export function checkBridge(root, { runGates = true, run } = {}) {
   // Without this bypass the bridge's own dogfood reddens its `tests` gate: `node --test` runs the
   // Phase-3 suite with the flag set, and every injected-run test there fail-closes to [].
   const injected = run !== undefined;
-  const execGates = runGates && !!gatesProfile && (injected || process.env.SPEC_BRIDGE_GATE_ACTIVE !== "1");
-  const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
+  const execGates = runGates && !!gatesProfile && (injected || !gateActive);
+  const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root, trace })));
+  let doneEligibleCount = 0; // spec 061 R1: gate findings collapse to one-per-gate after the loop
   for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     // Opted-in boards are judged on the stage ladder against their own status names;
@@ -442,18 +600,26 @@ export function checkBridge(root, { runGates = true, run } = {}) {
       );
     }
 
-    // Project-gate check (spec 050 R4): execute declared gates ONLY when the spec is
+    // Project-gate check (spec 050 R4): a spec is held to its declared gates ONLY when
     // Done-eligible — the one bounded moment a red gate under a ticked box changes an outcome,
     // so ordinary turns pay zero subprocess cost. At Done-eligible the mid-PR window has closed
     // (every box, including the re-pin box, is ticked), so BOTH buckets must be green: required,
     // AND redByConstruction — its "allowed red mid-PR" license has expired now that its re-pin
-    // was claimed done. Any red / unrunnable / timed-out gate is a blocking finding.
-    if (execGates && derived.status === STATUS.DONE_ELIGIBLE) {
-      const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
-      problems.push(
-        ...evaluateProjectGates(
-          { id: task.id, specDir: task.specDir, phaseBoxes: derived.phaseBoxes }, gates, runOne)
-      );
+    // was claimed done. Tally the count here; the gates themselves run once, after the loop
+    // (spec 061 R1: one finding per red gate, not one per linked spec).
+    if (execGates && derived.status === STATUS.DONE_ELIGIBLE) doneEligibleCount++;
+  }
+  if (doneEligibleCount > 0) {
+    const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
+    const counts = { required: doneEligibleCount, redByConstruction: doneEligibleCount };
+    const found = collapsedGateProblems(gates, counts, runOne);
+    if (found.length > 0) {
+      // spec 061 R2: dirtiness is computed ONCE per invocation (T009) — only reached at all
+      // when there is at least one non-green gate to label. A dirty tree routes the finding
+      // into `warnings` (non-blocking, labeled); clean or undeterminable (fail-closed) keeps
+      // it in `problems`, unchanged from today.
+      if (isDirty(root)) warnings.push(...found.map((p) => p + DIRTY_TREE_CLAUSE));
+      else problems.push(...found);
     }
   }
   return { links, problems, warnings };
@@ -464,37 +630,48 @@ export function checkBridge(root, { runGates = true, run } = {}) {
  * linked spec that has at least one ticked box — a box claiming greenness — run the declared
  * gates and return the blocking findings. A Done-eligible spec is held to BOTH buckets (as the
  * Stop hook does); a mid-PR spec to `required` only, because redByConstruction gates are
- * legitimately red between a source edit and its re-pin commit. Shares evaluateProjectGates, so
- * it and the Stop hook agree by construction. Read-only like the rest of gates/: it runs the
- * host's declared subprocesses but writes nothing itself. Injectable `run` for tests.
+ * legitimately red between a source edit and its re-pin commit. Shares collapsedGateProblems
+ * (spec 061 R1), so it and the Stop hook agree by construction. Read-only like the rest of
+ * gates/: it runs the host's declared subprocesses but writes nothing itself. Injectable `run`
+ * for tests.
+ *
+ * Returns `{ problems, warnings }` (spec 061 T018a — this used to be a flat `problems` array;
+ * `verify` is the mid-PR entry point, exactly the window where a working tree is dirtiest, so
+ * R2's "a non-green project gate must not block on a dirty-tree sample" applies here too, not
+ * only to `checkBridge`. A dirty-tree gate finding is never dropped — it moves to `warnings`,
+ * still labeled, never silently disappearing. `isDirty(root)` (default `isTreeDirty`) is
+ * injectable, same pattern as `checkBridge`.
  */
-export function verifyBridge(root, { run } = {}) {
-  const problems = [];
+export function verifyBridge(root, { run, isDirty = isTreeDirty } = {}) {
   const config = loadBridgeConfig(root);
   const gatesProfile = projectGatesProfile(config);
-  if (!gatesProfile) return problems; // no opt-in → nothing to do
+  if (!gatesProfile) return { problems: [], warnings: [] }; // no opt-in → nothing to do
   // Reentrancy guard (spec 050 defect 1, Phase 5): a spawned gate command that re-invokes the
   // bridge with the DEFAULT runner short-circuits so it can't fork forever; an injected `run` is
   // a test double that spawns nothing, so it bypasses the guard.
   const injected = run !== undefined;
-  if (!injected && process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return problems;
+  if (!injected && process.env.SPEC_BRIDGE_GATE_ACTIVE === "1") return { problems: [], warnings: [] };
   const requireAnalysis = config.strictDone === true;
   // Share each distinct gate result across every spec this invocation checks (spec 050 defect 2).
   const runOne = memoizeRun(run || ((command) => runGateCommand(command, { cwd: root })));
+  // Tally counts per bucket (spec 061 R1/R4): `required` covers every ticked spec; `redByConstruction`
+  // only the ticked specs that are ALSO Done-eligible — the bucket asymmetry, preserved exactly as
+  // before (which gates run for which specs is unchanged; only the reporting collapses).
+  const counts = { required: 0, redByConstruction: 0 };
   for (const task of boardLinks(root)) {
     const derived = deriveSpecState(join(root, task.specDir), { requireAnalysis });
     const anyTicked = (derived.phaseBoxes || []).some((p) => (p.boxes || []).some((b) => b.checked));
     if (!anyTicked) continue; // nothing claims greenness yet — no tick to outrun a gate
-    const buckets = derived.status === STATUS.DONE_ELIGIBLE
-      ? ["required", "redByConstruction"]
-      : ["required"];
-    const gates = gatesFor(gatesProfile, buckets);
-    problems.push(
-      ...evaluateProjectGates(
-        { id: task.id, specDir: task.specDir, phaseBoxes: derived.phaseBoxes }, gates, runOne)
-    );
+    counts.required += 1;
+    if (derived.status === STATUS.DONE_ELIGIBLE) counts.redByConstruction += 1;
   }
-  return problems;
+  const gates = gatesFor(gatesProfile, ["required", "redByConstruction"]);
+  const found = collapsedGateProblems(gates, counts, runOne);
+  if (found.length === 0) return { problems: [], warnings: [] };
+  // spec 061 T018a: same dirty-tree routing as checkBridge — labeled and non-blocking, never
+  // silently dropped. Computed only once found.length > 0, matching checkBridge's shape.
+  if (isDirty(root)) return { problems: [], warnings: found.map((p) => p + DIRTY_TREE_CLAUSE) };
+  return { problems: found, warnings: [] };
 }
 
 /* ── plan: reconciliation intents, and the Backlog renderer for them ───── */
@@ -656,17 +833,59 @@ export function planBridge(root) {
   };
 }
 
+// spec 061 R2/T011: `bridgeGate.warn` deliberately calls `checkBridge(root, { runGates: false })`
+// so a Stop pays for the gate subprocesses once, not twice (the cost regression spec 050
+// fixed). A dirty-tree gate warning is only knowable from the runGates:true pass, so `check`
+// stashes it here, keyed by root, for `warn` to read-and-clear on the very next call for that
+// same root (lib/gate-runner.mjs calls check(root) then warn(root) in that order, per root, in
+// one evaluate() pass — see gate-runner.mjs's evaluate loop). No second gate run, ever.
+const dirtyTreeGateWarningsByRoot = new Map();
+
+// spec 061 R4: the full roots list from the MOST RECENT resolveRoots() call, read (not
+// consumed) by check() so its trace record can show what resolveRoots returned this
+// invocation — round 7's candidate mechanism (an orphaned worktree resolving as a second
+// root) is only visible in that full list, not in the single root check() is handed.
+let lastResolvedRootsForTrace = null;
+
 /**
  * The Stop-hook gate, in gate-runner shape. Roots are directories holding a backlog/ dir;
  * a root with no linked tasks yields no problems, so the gate is a natural no-op outside
  * bridged projects. "exceeds" blocks; "lags" only warns.
+ *
+ * `check`/`warn` take an optional second arg beyond gate-runner's own `(root, ctx)` call —
+ * gate-runner's `ctx` is always `{ sessionId, input }` (spec 061 Phase 3b: neither key is
+ * named `gateActive`), so a real invocation's `opts.gateActive` is always `undefined` and
+ * `checkBridge`'s own default (the real env read) decides, exactly as before. Only a test that
+ * explicitly calls e.g. `bridgeGate.check(root, { gateActive: false })` can force the DEFAULT
+ * runner to execute under an ambient SPEC_BRIDGE_GATE_ACTIVE=1 — see `checkBridge`'s `gateActive`
+ * doc above for why that can't be reached by anything spawned as a real gate command.
  */
 export const bridgeGate = {
   name: "spec-bridge",
-  resolveRoots: (startDir) => findRootsDownwards(startDir, hasAnyChild(".board", "backlog")),
+  resolveRoots: (startDir) => {
+    const roots = findRootsDownwards(startDir, hasAnyChild(".board", "backlog"));
+    lastResolvedRootsForTrace = roots;
+    return roots;
+  },
   // The runner calls check() then warn() per root; run the (possibly costly) project-gate
   // commands only in check so a Stop pays for them once, not twice. Warnings never depend on
-  // gate execution, so runGates:false loses nothing.
-  check: (root) => checkBridge(root, { runGates: true }).problems,
-  warn: (root) => checkBridge(root, { runGates: false }).warnings,
+  // gate execution, so runGates:false loses nothing — except the dirty-tree gate label (spec
+  // 061 R2), which check() computed for free as part of running the gates and stashes below.
+  check: (root, opts = {}) => {
+    const path = tracePath(); // spec 061 R4: null unless SPEC_BRIDGE_GATE_TRACE is set
+    const commandRecords = path ? [] : null;
+    const { problems, warnings } = checkBridge(root, {
+      runGates: true,
+      trace: commandRecords ? (rec) => commandRecords.push(rec) : undefined,
+      gateActive: opts.gateActive,
+    });
+    dirtyTreeGateWarningsByRoot.set(root, warnings.filter((w) => w.includes(DIRTY_TREE_CLAUSE)));
+    if (commandRecords) traceGateRun(root, lastResolvedRootsForTrace, commandRecords);
+    return problems;
+  },
+  warn: (root, opts = {}) => {
+    const stashed = dirtyTreeGateWarningsByRoot.get(root) || [];
+    dirtyTreeGateWarningsByRoot.delete(root);
+    return [...checkBridge(root, { runGates: false, gateActive: opts.gateActive }).warnings, ...stashed];
+  },
 };
