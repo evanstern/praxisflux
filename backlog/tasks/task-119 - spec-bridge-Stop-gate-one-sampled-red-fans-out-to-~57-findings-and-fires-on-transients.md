@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-09 14:02'
+updated_date: '2026-09-09 14:12'
 labels:
   - tech-debt
   - spec-bridge
@@ -179,6 +179,22 @@ WHAT THE NEXT SESSION SHOULD DO when the gate next fires: read that JSONL file. 
 Specifically worth checking in the record: (a) whether 'roots' contains more than the one root a shell resolves — the orphan tree at .claude/worktrees/refactor-triage-2026-07-31 carries its own backlog/ and its suite exits 1; (b) whether the tests command's status is 1 (a genuine nonzero) or null with an ENOENT error (the PATH mechanism now recorded on TASK-10); (c) the captured stderr, which no shell reproduction has ever seen.
 
 Note the tracer is only in 0.61.0+, so it works from now on and could not have been used for rounds 1-15.
+
+ROUND 16 — THE TRACER PAID OFF, and it found a defect I introduced.
+
+The trace file (~/.claude/spec-bridge-gate-trace.jsonl) captured the firing from inside the hook. Round 16's record: root = the repo root, roots = exactly ONE, and node --test => status 1, signal null, error none. So it IS a genuine nonzero from a real test run, not ENOENT and not a multi-root sampling artifact. That eliminates both leading hypotheses (TASK-10's PATH gap, and the orphan-tree root).
+
+But the record ALSO exposed two defects in the instrumentation itself:
+
+DEFECT A — THE CAPTURE KEEPS THE HEAD, SO IT THROWS AWAY THE ANSWER. capTrace() slices the FIRST 4000 chars: '...[59774 more bytes truncated]'. node --test prints its failure summary and the '✖ failing tests' block at the END. So the one record that finally caught a red discarded the part naming the failure. The cap is right; the END is the diagnostic half. Fix: keep the tail, or keep head+tail and elide the middle.
+
+DEFECT B — THE ENV VAR LEAKS INTO THE SUITE AND THE SUITE TRACES ITSELF. Of 50 records, 49 have roots pointing at the suite's OWN temp fixtures (/var/folders/.../spec-bridge-bP1dLn, phase-status-proj-...) with commands:[] — those are the test suite's bridge calls writing trace records, because SPEC_BRIDGE_GATE_TRACE is now in the session env and node --test inherits it. Only ONE record of the 50 is a real gate invocation.
+
+That leak is more than noise: the gate spawns node --test with its env, so the suite runs WITH the tracer on and every bridgeGate.check inside it appends to the operator's trace file. Cross-contamination of a diagnostic artifact by the thing being diagnosed, and a plausible contributor to the red itself — the suite's assertions were written assuming the tracer is off (R4's 'default path writes nothing' test explicitly deletes the var, but others do not).
+
+Directly relevant: I could NOT reproduce the red from a shell even with the exact env (SPEC_BRIDGE_GATE_TRACE + SPEC_BRIDGE_GATE_ACTIVE set, homebrew v26 node, repo root) — 526/526 exit 0 each time. So the red remains intermittent, but for the first time we know it is a real test failure and we know why we cannot read which test.
+
+FIX SHAPE (new card owed, not this task's scope): (1) capTrace keeps the tail; (2) runGateCommand must NOT propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children — strip it the way the code already sets SPEC_BRIDGE_GATE_ACTIVE, so a traced gate run does not hand tracing to the suite it invokes.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
