@@ -4,7 +4,7 @@ description: The shared Stop-hook harness in lib/gate-runner.mjs — reads Claud
 kind: component
 sources:
   - lib/gate-runner.mjs
-verified_against: 28c3dcb019ec83b5a806412a6d1cfb748ece0a9b
+verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
 ---
 
 # Gate Runner
@@ -33,8 +33,15 @@ Three exports:
   returns `{ block, message, warnings }`:
   - If `input.stop_hook_active === true` it short-circuits to `{ block: false }` — the hook is
     already re-firing after a block, and honoring this flag prevents infinite stop loops.
-  - The start directory is resolved in priority order: `CLAUDE_PROJECT_DIR` env var, then
-    `input.cwd` from the hook payload, then `process.cwd()`.
+  - The start directory is resolved in priority order, most specific first (spec 062): an
+    explicit `{ cwd }` option (defaulted to `undefined`, not `process.cwd()`, so "no cwd
+    passed" is distinguishable from a passed value), then the `CLAUDE_PROJECT_DIR` env var,
+    then `input.cwd` from the hook payload, then `process.cwd()`. An explicit argument is a
+    caller naming a directory on purpose and must never be silently overridden by an ambient
+    variable; the env var still outranks `input.cwd` because it's the harness's authoritative
+    statement of the project root, while `input.cwd` is merely where the hook happened to fire.
+    The only production caller, `runStopHook` below, passes no `cwd`, so this ordering is
+    byte-identical to before for the real Stop-hook path.
   - For each gate it calls `resolveRoots(start, ctx)`; a falsy result is coerced to `[]`, and
     **a gate that resolves no roots is a no-op** ("this isn't its kind of project") — with no
     roots anywhere, nothing blocks. A **crashing** `resolveRoots`, by contrast, becomes the
@@ -69,9 +76,10 @@ every plugin as part of the [[chassis]]; covered by the [[test-suite]].
 
 ## Operational notes
 
-- Environment: `CLAUDE_PROJECT_DIR` overrides the hook payload's `cwd` as the search start;
-  `CLAUDE_CODE_SESSION_ID` supplies `ctx.sessionId` when the hook input carries no
-  `session_id`.
+- Environment: `CLAUDE_PROJECT_DIR` overrides the hook payload's `cwd` as the search start, but
+  an explicitly-passed `{ cwd }` option overrides `CLAUDE_PROJECT_DIR` in turn — see the
+  `evaluate` resolution order above. `CLAUDE_CODE_SESSION_ID` supplies `ctx.sessionId` when the
+  hook input carries no `session_id`.
 - Failure posture: a crashing `check` or `resolveRoots` **blocks** (surfaced as a problem
   naming the gate); only a crashing `warn` is swallowed — warnings are best-effort by design.
 - `exit` is injectable for tests; default is `process.exit`.

@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: 3d7edf1c266c6263b1b974c31e71917c57da1cd7
+verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
 ---
 
 # Gates convention
@@ -39,8 +39,12 @@ best-effort `before(input)` upkeep callback, and exits 0 (allow) or 2 (block, pr
 stderr). Key behaviors:
 
 - Honors `stop_hook_active: true` — never blocks a second time, preventing loops.
-- The start directory is `CLAUDE_PROJECT_DIR`, else the hook input's `cwd`, else `process.cwd()`;
-  `ctx.sessionId` is the input's `session_id`, else `$CLAUDE_CODE_SESSION_ID`, else null.
+- The start directory, most specific first: an explicitly-passed `{ cwd }` option, else
+  `CLAUDE_PROJECT_DIR`, else the hook input's `cwd`, else `process.cwd()` (spec 062 — an
+  explicit argument beats the ambient env var, which still beats the hook's own report of
+  where it fired). The only production caller, `runStopHook`, passes no `cwd`, so the real
+  Stop-hook path is unchanged. `ctx.sessionId` is the input's `session_id`, else
+  `$CLAUDE_CODE_SESSION_ID`, else null.
 - **A gate that resolves no roots is a no-op** — the hook never fires outside its own project
   type, so each plugin ships its own hook and gates compose additively across installed plugins.
 - A crashing `check` becomes a blocking problem naming the gate and root, and a crashing
@@ -105,7 +109,8 @@ check above (2026-08-27). praxisflux runs its own at
 
 - Stop-hook contract: stdin JSON `{ stop_hook_active, session_id, cwd, … }`; exit 0 allows the
   stop, exit 2 blocks with stderr as the message the model sees.
-- `CLAUDE_PROJECT_DIR`, when set, overrides the hook input's `cwd` as the search start.
+- `CLAUDE_PROJECT_DIR`, when set, overrides the hook input's `cwd` as the search start — but an
+  explicitly-passed `{ cwd }` option overrides `CLAUDE_PROJECT_DIR` in turn (see above).
 - `readStdin` resolves to an empty string on a TTY, so a hook entry is safe to run by hand.
 - Warnings never block: blocking problems win, otherwise warnings print to stderr and the hook
   still exits 0.

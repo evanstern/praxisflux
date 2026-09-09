@@ -54,21 +54,24 @@ in `spec.md` — do not re-derive it.
 
 ## Phase 4 — Release obligations and re-ground
 
-- [ ] `node scripts/sync-shared.mjs`, then verify all NINE vendored `lib/gate-runner.mjs`
+- [x] `node scripts/sync-shared.mjs`, then verify all NINE vendored `lib/gate-runner.mjs`
       copies match the source (build, codebase-to-course, educate, grounding-wiki, pdlc,
       reorient, research, spec-bridge, team-review)
-- [ ] Marketplace version bump per `docs/releasing.md`; `node scripts/sync-version.mjs
+- [x] Marketplace version bump per `docs/releasing.md`; `node scripts/sync-version.mjs
       --check` exits 0
-- [ ] **Verify the bump landed in the COMMIT via `git show HEAD:<file>`, never by reading the
+- [x] **Verify the bump landed in the COMMIT via `git show HEAD:<file>`, never by reading the
       working tree** (runbook F6: a `--check` against a dirty tree proves nothing)
-- [ ] Re-ground via the classifier `node grounding-wiki/gates/cli.mjs plan . docs/wiki`;
+- [x] Re-ground via the classifier `node grounding-wiki/gates/cli.mjs plan . docs/wiki`;
       classify every stale pin RE-PIN-ONLY vs NEEDS-REVIEW by reading the diff over its
       sources, and amend prose BEFORE bumping any pin
-- [ ] Treat `docs/wiki/gate-runner.md`, `chassis.md`, and `gates-convention.md` as
+- [x] Treat `docs/wiki/gate-runner.md`, `chassis.md`, and `gates-convention.md` as
       NEEDS-REVIEW candidates — they describe the resolution contract this spec changes — and
-      update `gate-runner.md`'s resolution-order prose
-- [ ] **Re-run the freshness gate AFTER committing the re-pins** and expect a possible second
+      update `gate-runner.md`'s resolution-order prose (`chassis.md` doesn't list
+      `lib/gate-runner.mjs` in its own `sources:`, so the classifier never flagged it stale;
+      confirmed no prose there describes the resolution order)
+- [x] **Re-run the freshness gate AFTER committing the re-pins** and expect a possible second
       cascading pass (runbook: a note in another note's `sources:` propagates staleness);
-      check whether `CAPSULES.md` needs a line
-- [ ] All three required project gates exit 0 (suite, `check-docs`, `sync-version --check`)
+      check whether `CAPSULES.md` needs a line (no note's `description:` changed, so it
+      doesn't)
+- [x] All three required project gates exit 0 (suite, `check-docs`, `sync-version --check`)
       plus freshness; commit, push, open ONE PR, merge as a merge commit
