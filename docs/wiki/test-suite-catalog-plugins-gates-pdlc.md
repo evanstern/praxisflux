@@ -6,7 +6,7 @@ sources:
   - test/pdlc.test.mjs
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
-verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
+verified_against: 4381ba8816e043ceec8c6d5dbcf0aa1c5467c045
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
