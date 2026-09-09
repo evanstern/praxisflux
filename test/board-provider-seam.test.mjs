@@ -159,12 +159,9 @@ test("checkBridge: no .board.json and no mirror default to provider \"backlog\" 
 // mirror file on disk.
 test("gate-runner: a malformed mirror's readMirror throw surfaces as a blocking problem, not a crash (DoD #6)", () => {
   const p = scratch();
-  // evaluate() prefers $CLAUDE_PROJECT_DIR over the passed cwd (lib/gate-runner.mjs), and the
-  // Stop hook that runs this suite sets it — so without this guard the gate reads the REAL
-  // repo (valid mirror, no crash) instead of the broken fixture below, and this test fails
-  // only when run from the hook. Same guard as test/reorient.test.mjs.
-  const prevProj = process.env.CLAUDE_PROJECT_DIR;
-  delete process.env.CLAUDE_PROJECT_DIR;
+  // removed (spec 062 R5): an explicitly-passed { cwd } now wins over $CLAUDE_PROJECT_DIR, so
+  // the guard that used to delete/restore the var here is redundant — evaluate() below already
+  // passes { cwd: p.root } and resolves against the fixture regardless of the ambient var.
   try {
     mkdirSync(join(p.root, ".board"), { recursive: true });
     writeFileSync(join(p.root, ".board", "links.json"), "{ not valid json");
@@ -173,7 +170,35 @@ test("gate-runner: a malformed mirror's readMirror throw surfaces as a blocking 
     assert.match(verdict.message, /\[spec-bridge\] crashed on .*: .*malformed JSON/);
   } finally {
     p.done();
+  }
+});
+
+// spec 062 R4/AC#3 — decoy regression: an explicitly-passed { cwd } must win over
+// CLAUDE_PROJECT_DIR, not just "not lose to a deleted one" (that's the DoD#6 guard above).
+// Here the env var is SET to a decoy directory whose content would produce a different,
+// distinguishable verdict (no board evidence -> resolveRoots []) than the fixture passed as
+// cwd (malformed mirror -> crash-on-malformed-JSON problem, same shape as DoD#6). Today's
+// lib/gate-runner.mjs:39 lets $CLAUDE_PROJECT_DIR win, so this test resolves against the
+// decoy and gets block:false — RED against unmodified lib/. Phase 2 makes it pass.
+test("gate-runner: an explicit cwd wins over CLAUDE_PROJECT_DIR set to a decoy (spec 062 R4)", () => {
+  const fixture = scratch();
+  const decoy = scratch();
+  const prevProj = process.env.CLAUDE_PROJECT_DIR;
+  try {
+    mkdirSync(join(fixture.root, ".board"), { recursive: true });
+    writeFileSync(join(fixture.root, ".board", "links.json"), "{ not valid json");
+    // decoy stays empty: no .board, no backlog -> resolveRoots finds nothing there, so if the
+    // buggy precedence samples the decoy instead of the fixture, no gate even runs.
+
+    process.env.CLAUDE_PROJECT_DIR = decoy.root;
+    const verdict = evaluate({}, [bridgeGate], { cwd: fixture.root });
+    assert.equal(verdict.block, true, "must resolve against the passed fixture, not $CLAUDE_PROJECT_DIR's decoy");
+    assert.match(verdict.message, /\[spec-bridge\] crashed on .*: .*malformed JSON/);
+  } finally {
+    fixture.done();
+    decoy.done();
     if (prevProj !== undefined) process.env.CLAUDE_PROJECT_DIR = prevProj;
+    else delete process.env.CLAUDE_PROJECT_DIR;
   }
 });
 
