@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-09T00:31:00.852Z",
+  "generatedAt": "2026-09-09T17:14:29.386Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2832,6 +2832,63 @@
           "index": 9,
           "checked": true,
           "text": "Spec phase: Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)"
+        }
+      ]
+    },
+    {
+      "id": "TASK-0122",
+      "status": "Done",
+      "specDir": "specs/062-gate-runner-cwd",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "evaluate() honours an explicitly-passed { cwd } over process.env.CLAUDE_PROJECT_DIR; the env var still wins over nothing-passed, so the real Stop-hook path is unchanged"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "input.cwd precedence versus the env var is decided deliberately and stated in the gate contract comment at the top of lib/gate-runner.mjs"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Regression test: with CLAUDE_PROJECT_DIR set to a decoy dir, a gate given an explicit cwd resolves against the passed cwd, not the decoy"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "The eight test files carrying hand-rolled save/delete/restore guards are audited; guards made redundant by the fix are removed, and any kept are kept for a stated reason"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Full suite passes BOTH ways — with CLAUDE_PROJECT_DIR set and unset — since only the former reproduces the original defect"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Marketplace version bumped per docs/releasing.md (lib/ is released surface); docs/wiki re-pinned for every note sourcing lib/gate-runner.mjs"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The decoy regression test, captured RED first"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — The precedence change"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — Audit the eight hand-rolled guards"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — Release obligations and re-ground"
         }
       ]
     }
