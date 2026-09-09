@@ -241,10 +241,20 @@ but must still spot-check the first dispatch of any lane if the tier config has 
       commits direct to `main`" covers notes, AC ticks, labels, and new cards — **never** the
       status flip that claims a task, which is deliverable state. Splitting it in a prior
       session produced **~50 gate findings from one status flip**.
-- [ ] **Background-job execution mode applies to this sweep.** Worktrees live at
+- [x] **EXECUTION MODE: INTERACTIVE (amended 2026-09-09, operator ruling).** Earlier lanes
+      ran in background-job / no-main-push mode. That mode no longer matches reality: this
+      session pushed the Lanes 3–4 sign-off commit **directly to `main`** (`c3999f6`), so
+      main-push rights demonstrably exist. Operator ruling: run the remaining lanes
+      interactive. **Post-merge closures — tasks.md ticks, `spec-bridge:sync`'s board-Done,
+      and the log row — land as ordinary root commits on `main`**, not riding the next
+      claimed task's branch, and sweep-close needs **no wrap-up PR**. Board/spec commands
+      run from the root while it is on `main`.
+      **Worktree location is UNCHANGED:** task worktrees still live at
       `.claude/worktrees/task-<N>` (the harness isolation root, entered via `EnterWorktree`),
-      not `.worktrees/`. Post-merge closures (tasks.md tick, `spec-bridge:sync` board-Done,
-      the log row) ride the NEXT claimed task's branch; sweep-close lands via a wrap-up PR.
+      not `.worktrees/` — that is where `task-113-jira-provider` already sits, and moving it
+      mid-sweep would strand it. If main-push is ever revoked mid-sweep, fall back to the
+      background-job degradation this line replaced (closures ride the next branch;
+      wrap-up PR at close) rather than inventing a third rule.
 - [ ] **F3 — ONE ORCHESTRATOR SESSION CANNOT HOST CONCURRENT DISPATCHES ACROSS SIBLING
       WORKTREES (verified 2026-09-01, the hard way).** A dispatched subagent's Bash sandbox is
       bound to the **orchestrator session's** current worktree, NOT the worktree named in its
@@ -293,6 +303,25 @@ but must still spot-check the first dispatch of any lane if the tier config has 
       (b) the operator signs an explicit acceptance of the fixture-only risk in this file. If
       the markers do **not** survive, that is an **amendment to spec 055** — never a local
       workaround in 056.
+- [x] **F7 — THIS REPO IS PUBLIC; NEVER WRITE LIVE SITE IDENTIFIERS INTO A TRACKED FILE
+      (near-miss, 2026-09-09).** `evanstern/praxisflux` is a **public** repo and every merge
+      to `main` **auto-publishes a GitHub Release**, so any tracked file here is a publishing
+      surface. The host Jira is a **real corporate instance** with many unrelated projects.
+      Writing up the Lanes 3–4 sign-off, this orchestrator put the authorized scratch
+      project's key and id, the site `cloudId`, and the caller's `accountId` — all harvested
+      from the precondition gate's own MCP probes — straight into this runbook. The
+      **permission classifier blocked the `git push`** and was right to. Nothing left the
+      machine: the offending commit sat on no remote and was squashed away locally at
+      operator instruction, so the identifiers exist in **no pushed object**.
+      **The principle: authorization to ACT on an external system is not authorization to
+      NAME it publicly.** The operator's answer authorized *writing a scratch issue to* a
+      project; it said nothing about publishing that project's coordinates.
+      **Consequence, checkable:** record the *doctrine* in the tracked artifact ("exactly ONE
+      operator-named project; one scratch issue; clean up after") and keep the *coordinates*
+      out of tree — untracked local config, or ask the operator. Before committing any doc
+      that quotes MCP output, **grep it for cloudIds, accountIds, org names, and project
+      keys**. This is also why the F2 clearance line above states that access was restored
+      without naming the site.
 - [ ] **`grep` hides matches in `spec-bridge/gates/bridge.mjs`.** It contains a literal NUL
       byte at line 217 (a legitimate cache-key separator in a `command.join("\0")`), so grep
       classifies the file as **binary** and suppresses match output: `grep -n <pat> <file>`
@@ -373,7 +402,46 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 - `git worktree list` shows no stale sweep worktrees.
 - This file's execution log complete and its status flipped to **done**.
 
-## Sweep status: Lanes 0–2 DONE (2026-09-04); Lanes 3–4 EXECUTING (signed off 2026-09-09)
+## RESUME HERE (fresh session, 2026-09-09) — Lane 3' done; Lane 3 is next
+
+**Read this block first; it is the whole handoff.** Lane 3' (TASK-113 spec 056 Phase 1,
+the live marker test) is **COMPLETE**, and with it **finding F1 is DISCHARGED**. The
+operator ruled that the remaining lanes run in **fresh sessions, one per lane** — the
+lane-boundary prescription below, taken deliberately as a cost lever.
+
+**What is next, exactly:** claim **TASK-112** (spec 055) and run its four phases. It is
+clear to claim — the markers survive, so spec 055 needs no amendment.
+
+**The three things Lane 3' proved that TASK-112's implementer MUST honor** (full detail in
+`specs/056-jira-provider/findings/phase-1-mcp-surface.md`, on branch
+`task-113-jira-provider`, commit `d874b88` — read it, do not re-derive it):
+
+1. The block parser must tolerate **two silent normalizations** Jira applies to every
+   description read: a **blank line inserted after the `BEGIN` marker**, and **trailing
+   whitespace appended to the last checkbox line**. Test against those observed shapes, not
+   only 055's clean fixtures — fixtures produce neither, which is the exact gap F1 named.
+2. The block contract is **markdown-only**, and `docs/board-verbs.md` must say so. An
+   `html` read returns the markers as **escaped entities** (not comment nodes), converts the
+   checkboxes to a native **ADF task-list** with server-assigned UUIDs, and **swallows the
+   `END` marker inside the final `<li>`**.
+3. For TASK-113 Phase 2 later: **map `statusMap` on status NAME, not `statusCategory`.** The
+   host workflow offers nine transitions from `Open` with several distinct statuses sharing
+   one category (four `new`, three `indeterminate`), so a category-keyed map is
+   non-injective **by construction**.
+
+**Still owed, and NOT blocking Lane 3:**
+- **The resolution quirk is UNVERIFIED** (spec 056 Phase 1 box 5, deliberately left
+  unticked at 6/7). Testing it needs workflow writes on a real corporate project; the
+  sign-off covered a description round-trip only and the permission boundary declined it.
+  **Owed before Phase 3** (the write path) relies on backwards transitions.
+- **The operator deletes or closes the scratch issue** (`[SCRATCH — praxisflux spec 056
+  Phase 1] …`). The orchestrator has no delete authorization.
+- **`.claude/worktrees/task-119`** is a merged leftover (PR #137, merged 2026-09-09). Its
+  janitor cleanup was declined by the permission classifier. Inert; blocks nothing.
+- Branch `task-113-jira-provider` is **pushed and parked** at `1cc5afe` with Phase 1's
+  findings + tick + board note. TASK-113 Phases 2–4 ride that SAME branch and PR.
+
+## Sweep status: Lanes 0–2 DONE (2026-09-04); Lane 3' DONE (2026-09-09); Lanes 3–4 EXECUTING
 
 **Delivered and merged:** TASK-104 (`a875256`, v0.58.0) · TASK-107 (`05bb793`) ·
 TASK-109 (`0c97243`, v0.59.0) · TASK-111 (`e0ea7b2`, v0.59.3) · TASK-114 (`dafff60`,
@@ -390,11 +458,14 @@ The live scratch issue is authorized in ONE operator-named project only — a re
 project, not a sandbox; its coordinates stay out of this public repo. TASK-108, the epic, stays open with **no PR of its own**
 (`docs/principles.md` P2) and closes when both tasks land.
 
-**Six findings this sweep produced**, all recorded above as checkable gate lines rather
-than prose: F1 premise inversion · F2 MCP hard-blocked · F3 no concurrent cross-worktree
-dispatches · F4 push after every phase · F5 `core.hooksPath` breaks silently on relocation
-· F6 a gate run against a dirty tree proves nothing. F3, F4, and F6 came from
-orchestrator errors; F5 was surfaced by an implementer. F5 and F6 are both cases where
+**Seven findings this sweep produced**, all recorded above as checkable gate lines rather
+than prose: F1 premise inversion (**discharged 2026-09-09**) · F2 MCP hard-blocked
+(**cleared 2026-09-09**) · F3 no concurrent cross-worktree dispatches · F4 push after every
+phase · F5 `core.hooksPath` breaks silently on relocation · F6 a gate run against a dirty
+tree proves nothing · **F7 this repo is public — never write live site identifiers into a
+tracked file**. F3, F4, F6, and F7 came from orchestrator errors; F5 was surfaced by an
+implementer. F1 is the one finding a *later* session was able to discharge with evidence
+rather than argument, which is what the hold was for. F5 and F6 are both cases where
 **CI caught what the local gate missed** — the concrete argument for the repo's
 advisory-local / authoritative-CI split.
 
@@ -402,6 +473,7 @@ advisory-local / authoritative-CI split.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-09 | TASK-113 (Lane 3' — Phase 1 only) | open on `task-113-jira-provider` (Phases 2–4 ride the same PR) | not merged | orchestrator-run, no implementer dispatch (knowledge-only phase) | **F1 DISCHARGED.** Live marker test PASSED: `<!-- spec-phases -->` markers, checkbox syntax, checked/unchecked state and the `Spec:` marker all survive a Jira description write→read cycle in `contentFormat: markdown`; a second write with a different tick pattern persisted with byte-identical normalization, so the cycle is **idempotent, not degrading** — the proof that mattered, since the bridge rewrites this block repeatedly. Spec 055 needs **no amendment**; TASK-112 clear to claim. Four things fixtures could not have shown: (1) blank line inserted after `BEGIN`, (2) trailing whitespace on the last checkbox, (3) block contract is **markdown-only** — an `html` read escapes the markers, converts checkboxes to an ADF task-list, and swallows `END` inside the final `<li>`, (4) host workflow is non-injective on `statusCategory` (9 transitions from `Open`; 4 `new`, 3 `indeterminate`) so Phase 2 must map on status **name**. Also corrected two wrong tool names in the spec (`listJiraIssueTransitions`, `listJiraProjectIssueTypesMetadata`) and confirmed token-based JQL pagination. Phase 1 ticked **6/7** — the resolution quirk left honestly unverified (needs workflow writes; sign-off covered a description round-trip only). Commits `4b0b870` findings, `d874b88` tick, `1cc5afe` board note; all pushed per F4. **Near-miss recorded as F7 below.** |
 | 2026-08-28 | TASK-107 | — (board track, direct to `main`) | `05bb793` | ~257k subagent tokens (3 probes) | Done. Tier pins verified to actually serve via the 9router ledger, not self-report. Unblocked the epic by one of its two deps. |
 | 2026-08-28 | TASK-109 | [#132](https://github.com/evanstern/praxisflux/pull/132) | `0c97243` | ~686k subagent tokens (4 phase dispatches: ~158k + ~146k + ~147k + ~235k) | **Done.** Lane 1 complete; v0.59.0. Claim `415d5c8` (atomic: status flip + 4 phase ACs seeded from spec 052 tasks.md — the spec dir and Spec marker already existed on main under the hand-authored escape line). Phases: 1 `14b4577` (schema + read/write/validate, +9 tests), 2 `5580d51` (parser MOVED out of bridge.mjs, −46 lines, re-exported), 3 `412c935` (staleness + provider registry + projector, +7 tests), 4 `19e7a67`+`edea9b8`+`4694352`+`990b61f`+`5c47903` (--check CLI +3 tests, dogfood mirror, 0.59.0 bump, 12-note re-ground). All dispatches sonnet · `cc/claude-sonnet-5[1m]`; served model is pin-consistent self-report, NOT ledger-proven — every implementer stated it had no harness-provided evidence of its identity (router admin API rejects `ANTHROPIC_AUTH_TOKEN`). Orchestrator verified independently, not on report: suite 468/468, check-docs 0, versions 0.59.0, freshness exit 0; AC#9's three protected test files byte-identical across the whole branch; no provider-name conditional in `lib/`; ZERO new or widened `size_budget_exempt`. Merged as a merge commit (pins stay reachable); operator merged after review. Board Done via `spec-bridge:sync`'s derived plan, never by hand. **Gate lesson:** 55 Stop-hook findings reading 'required gate "tests" is red' were the TASK-114 flake, not misattribution — see TASK-114 for the confirmed mechanism and three ruled-out causes. |
 | 2026-09-01 | TASK-114 | [#133](https://github.com/evanstern/praxisflux/pull/133) | `dafff60` | ~660k subagent tokens (3 dispatches) | **Done** (v0.59.5, merged 2026-09-04). Folded into Lane 2 at operator request; spec 059 hand-authored by the orchestrator. Fixed the same-second run-id flake that had amplified one red gate into 55 phantom findings. **Proof: 20/20 consecutive suite runs, 469 pass / 0 fail each, zero failure markers** — read from the raw log by the orchestrator, not from a summary. 8 lines of production code. Findings: re-pins CASCADE (a note in another note's `sources:` staleness-propagates), and F3 (one orchestrator session cannot host concurrent cross-worktree dispatches). |
