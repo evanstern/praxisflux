@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:35'
-updated_date: '2026-09-09 00:28'
+updated_date: '2026-09-09 00:29'
 labels:
   - tech-debt
   - spec-bridge
@@ -47,7 +47,10 @@ Spec: specs/061-bridge-gate-fanout
 - [x] #6 Spec phase: Phase 2 — Label the dirty-tree sample (R2, R3.2)
 - [x] #7 Spec phase: Phase 3 — Instrumentation for the unreproduced firings (R4)
 - [x] #8 Spec phase: Phase 4 — Dogfood, catalog, bump, re-ground
+- [ ] #9 Spec phase: Phase 3b — Fix the dogfood red this task's own tests introduced (BLOCKING for merge)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
