@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:50'
-updated_date: '2026-09-09 16:41'
+updated_date: '2026-09-09 16:42'
 labels:
   - tech-debt
   - spec-bridge
@@ -56,8 +56,6 @@ Spec: specs/062-gate-runner-cwd
 - [x] #9 Spec phase: Phase 3 — Audit the eight hand-rolled guards
 - [x] #10 Spec phase: Phase 4 — Release obligations and re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -124,4 +122,15 @@ Two findings from the audit worth recording:
 Suite verified by the orchestrator after the audit, both ways, bare node --test: SET → 527/527 exit 0; UNSET → 527/527 exit 0. AC#5 now earned and ticked (it was deliberately held back through Phases 1-2 because a guard audit can move the suite).
 
 Remaining: AC#6 only — Phase 4's release obligations (version bump, re-sync the nine vendored lib/gate-runner.mjs copies, re-pin the wiki notes sourcing it).
+
+PHASE 4 DONE AND VERIFIED; PR #138 OPEN, ALL 10 ACs TICKED ON EVIDENCE (2026-09-09).
+
+Verified by the orchestrator rather than taken on report:
+- VERSION BUMP IS IN THE COMMIT, not just the tree (finding F6's exact trap — F6 was a case where sync-version --check read a dirty tree and reported green while the commit shipped the old version, and CI was the only thing that caught it). git show HEAD:.claude-plugin/marketplace.json → 0.61.1; git status --porcelain empty. Patch bump is the right call: the real Stop-hook path is byte-identical and no skill files were touched.
+- ALL NINE VENDORED COPIES byte-identical to lib/gate-runner.mjs, checked with cmp per plugin (build, codebase-to-course, educate, grounding-wiki, pdlc, reorient, research, spec-bridge, team-review). sync-shared.mjs was a no-op because Phase 2's edit had already propagated — verified rather than assumed.
+- THE RE-PINS ARE HONEST, which is the claim easiest to fake green. Checked that docs/wiki/gate-runner.md's PROSE actually changed and not merely its pin: the resolution-order paragraph was rewritten to the new four-step precedence with its rationale, and the Environment section was amended to say an explicit { cwd } now outranks CLAUDE_PROJECT_DIR. 18 notes re-pinned across two commits — 8 RE-PIN-ONLY, 2 NEEDS-REVIEW with prose amended (gate-runner.md, gates-convention.md), 7 NEEDS-REVIEW verified accurate with no change needed. The re-pin CASCADE fired once as the runbook warns: re-pinning test-suite-catalog-plugins-gates.md staled its parent test-suite-catalog-plugins.md, which sources it; second pass cleaned it.
+- ALL FOUR GATES GREEN, run independently at the tip: suite 527/527 with CLAUDE_PROJECT_DIR SET and 527/527 UNSET; check-docs exit 0; sync-version --check exit 0; wiki freshness exit 0 (one pre-existing untouched size_budget_exempt warning on spec-bridge-plugin.md). No new or widened size_budget_exempt.
+- CI PASSES on PR #138 (both jobs). This matters more than the local run: CI is this repo's authoritative gate, and it is what caught F5 and F6 when the local gates lied.
+
+Commits: c58d21d (bump), 0925650 (re-ground), 1d1dad9 (cascade re-pin). PR #138 open, MERGEABLE, 41 files, +474/-72. NOT merged — merge is the operator's, and it MUST land as a merge commit, never a squash: squashing would rewrite the hashes that this branch's own wiki re-pins reference as verified_against, breaking the freshness gate it just made green.
 <!-- SECTION:NOTES:END -->
