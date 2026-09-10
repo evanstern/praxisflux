@@ -1,10 +1,10 @@
 ---
 id: TASK-113
 title: 'Jira provider: board:sync skill (MCP -> mirror), one-call spiking, assignees'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-09 14:31'
+updated_date: '2026-09-10 14:52'
 labels:
   - feature
   - spec-bridge
@@ -68,3 +68,9 @@ Tier: this phase was knowledge-only and run by the orchestrator directly (no imp
 
 OWED TO THE OPERATOR: delete or close the scratch issue (titled '[SCRATCH — praxisflux spec 056 Phase 1] marker survival test, safe to delete'). The orchestrator has no delete authorization.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Verify the MCP surface (output is knowledge, not code): 7/7 · Phase 2 — Read path: provider, JQL, extraction, mirror: 14/14 · Phase 3 — Write path: execute the renderer's calls: 6/6 · Phase 4 — Spike, assignees, sweep proof, re-ground: 12/12). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
