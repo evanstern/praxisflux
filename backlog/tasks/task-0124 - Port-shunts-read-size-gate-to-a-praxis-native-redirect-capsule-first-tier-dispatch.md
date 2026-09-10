@@ -36,12 +36,12 @@ Spec: specs/064-read-size-gate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 PreToolUse hooks for Read and Bash deny above a configurable line threshold using the current hookSpecificOutput.permissionDecision schema
-- [ ] #2 The deny reason names the praxis cheap path (capsule-first corpus loading and tier dispatch), not any external service
-- [ ] #3 Exemptions cover docs/wiki/, specs/, worktree roots, and targeted reads (offset/limit set, piped or redirected bash)
-- [ ] #4 An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives
-- [ ] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
-- [ ] #6 check-docs, wiki-freshness, and spec-bridge gates green
+- [x] #1 PreToolUse hooks for Read and Bash deny above a configurable line threshold using the current hookSpecificOutput.permissionDecision schema
+- [x] #2 The deny reason names the praxis cheap path (capsule-first corpus loading and tier dispatch), not any external service
+- [x] #3 Exemptions cover docs/wiki/, specs/, worktree roots, and targeted reads (offset/limit set, piped or redirected bash)
+- [x] #4 An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives
+- [x] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
+- [x] #6 check-docs, wiki-freshness, and spec-bridge gates green
 - [x] #7 Spec phase: Phase 1 — The hook and its fail-closed tests
 - [x] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
@@ -52,6 +52,8 @@ Spec: specs/064-read-size-gate
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — port of an analyzed upstream design, hazards already carded; served model recorded at dispatch
 
 spec-bridge sync: Phase 1 — The hook and its fail-closed tests: 7/7 · Phase 2 — Planting doc, versions, wiki: 5/5 — status In Progress → Done
+
+ACs 1-6 verified against merged PR #142: current permissionDecision schema + praxis-native deny reason + exemptions (paths, offset/limit, piped bash) + PRAXIS_READ_GATE_OFF kill-switch documented in README-read-size-gate.md + fail-closed test with obsolete-schema negative control + all gates green on main
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
