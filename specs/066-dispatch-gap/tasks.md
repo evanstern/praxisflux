@@ -19,13 +19,13 @@ the new gate fails this repo immediately.
 
 ## Phase 2 — The lane-handoff template (R2, R5)
 
-- [ ] Create `pdlc/skills/sweep/templates/lane-handoff.md`
-- [ ] **First line assigns the role** — orchestrator, not implementer; dispatch to `<tier>-implementer`; verify the served model — before the reader learns anything about the work. Not a field, not a table row
-- [ ] In the body, express the tier as an instruction to **dispatch**, never as a bare label, with the verify-the-served-model step attached
-- [ ] Mirror `runbook.md`'s `{{PLACEHOLDER}}` conventions so the templates read as one family
-- [ ] Reference the template from `pdlc/skills/sweep/SKILL.md` (bundled resources + where it discusses handing a lane off) — a template nothing references is a file, not a mechanism
-- [ ] Bump the sweep skill's own `version:` per `docs/releasing.md`
-- [ ] Commit
+- [x] Create `pdlc/skills/sweep/templates/lane-handoff.md`
+- [x] **First line assigns the role** — orchestrator, not implementer; dispatch to `<tier>-implementer`; verify the served model — before the reader learns anything about the work. Not a field, not a table row
+- [x] In the body, express the tier as an instruction to **dispatch**, never as a bare label, with the verify-the-served-model step attached
+- [x] Mirror `runbook.md`'s `{{PLACEHOLDER}}` conventions so the templates read as one family
+- [x] Reference the template from `pdlc/skills/sweep/SKILL.md` (bundled resources + where it discusses handing a lane off) — a template nothing references is a file, not a mechanism
+- [x] Bump the sweep skill's own `version:` per `docs/releasing.md`
+- [x] Commit
 
 ## Phase 3 — The dispatch record and its fail-closed check (R3)
 

@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.21.0
+version: 0.22.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -298,7 +298,16 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
     prescription, not just crash-resilience: orchestrator context grows
     monotonically, and the tail is the expensive part (field case: one main session
     grew 172k→548k; its last fifth cost as much as its first two-fifths). The runbook
-    is the contract that makes the fresh resumption safe.
+    is the contract that makes the fresh resumption safe. **When the lane is only
+    partly done, write the resuming session a lane handoff from
+    `templates/lane-handoff.md`** — the runbook carries ordering and doctrine, not
+    where one lane's work sits, what it already proved, or what it still owes. Use the
+    template's shape, not just its content: its opening lines assign the reader's role
+    (orchestrator, dispatch to `<tier>-implementer`, verify the served model) before it
+    says anything about the work, and the tier appears only as an instruction to
+    dispatch. Field case 2026-09-10: a handoff that named `sonnet` as a field two
+    screens down was resumed by a session that implemented the whole lane inline on
+    Opus, every gate green (`docs/design/lane-4-dispatch-gap.md`).
 
 ### Concurrency doctrine (conflicts are routine, not exceptional)
 
@@ -431,6 +440,14 @@ intent drift, triage the findings, and card accepted items back onto the board a
 sweepable tasks; or the next sweep — and if the tasks came from a reorientation, its
 synthesis's parked questions may now be answerable. Suggest; don't start.
 
+Handing off **mid-sweep** is a different thing and has its own artifact: write the next
+session a lane handoff from `templates/lane-handoff.md` (see step 10).
+
 ## Bundled resources
 
 - `templates/runbook.md` — the runbook skeleton Phase 1 fills in.
+- `templates/lane-handoff.md` — the lane-handoff skeleton, for when a session ends
+  mid-lane and the next one resumes it (step 10's lane-boundary prescription). Its first
+  lines assign the reader's role — orchestrator, dispatch to `<tier>-implementer` — before
+  any content, and the tier appears only as a dispatch instruction. Not the `.handoff/`
+  inter-plugin transport.
