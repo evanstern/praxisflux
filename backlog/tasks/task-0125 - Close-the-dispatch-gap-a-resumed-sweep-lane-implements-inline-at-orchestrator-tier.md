@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 15:18'
+updated_date: '2026-09-10 17:00'
 labels:
   - pdlc
   - doctrine
@@ -45,6 +45,12 @@ Spec: specs/066-dispatch-gap
 - [ ] #4 REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation
 - [x] #5 Operator has triaged the candidates and the chosen set is recorded
 - [ ] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
+- [ ] #7 Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
+- [ ] #8 Spec phase: Phase 2 — The lane-handoff template (R2, R5)
+- [ ] #9 Spec phase: Phase 3 — The dispatch record and its fail-closed check (R3)
+- [ ] #10 Spec phase: Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5
+- [ ] #11 Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4
+- [ ] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
 
 ## Comments
@@ -103,5 +109,27 @@ SWEEP CLAIM 2026-09-10 — runbook `docs/design/dispatch-gap-runbook.md` (signed
 - **F3 — fix 3 needs no new surface.** `parseLinkedTask` (`lib/board-mirror.mjs:361`) already parses a linked card's raw text and `checkBridge` already walks every linked card, so the dispatch record is checkable by the gate that already reads it — corroborating comment #2's choice of the board-task record over the execution-log line.
 
 **Sufficiency tests written into the runbook, because both ACs are easy to fake:** AC #4 needs a POSITIVE written rejection record (silence does not tick it), and AC #3 must FAIL CLOSED — a check that reports a missing dispatch record, not documentation of the expectation.
+---
+
+author: @claude
+created: 2026-09-10 17:00
+---
+CORRECTION 2026-09-10 — finding F1 in comment #3 is WRONG, and ruling R3b's mechanism with it. Recorded here because comment #3 is what a resuming session reads.
+
+**What #3 claimed:** `plant --check` "prints `claudeMd: \"drifted\"` and **exits 0**", so a stale planted block is silent — and therefore making it exit nonzero would be a breaking released-surface change for downstream CI.
+
+**What is actually true:** `node pdlc/scripts/plant.mjs --root . --peer backlog --check` **exits 1** on this repo's drifted block. `pdlc/scripts/plant.mjs:324` has carried `if (check && pending) process.exit(1)` all along, with `pending` covering `claudeMd !== "unchanged"` and `modeSwitch === "drifted"`.
+
+**Why I got it wrong:** the probe piped node's output to `head`, so the shell reported `head`'s exit status rather than node's. My own measurement error, not a repo defect.
+
+**What this changes:**
+
+- **The operator's ruling stands in intent** — *"we need to stop the bleed"* — but it was ruled against a misdescription I gave them. There is **no breaking change** to make.
+- **The real gap is INVOCATION, not the exit code.** Nothing runs `plant --check`: not `.github/workflows/ci.yml`, not a git hook, not `scripts/check-docs.mjs` (verified by grep over `.github/`, `.githooks/`, `scripts/`). A working gate that no surface invokes is why this repo has been running a v0.57.0 block against a v0.63.0 marketplace — six versions stale — unnoticed. R7b is therefore **wiring an existing check**.
+- **Two obligations are WITHDRAWN** with the false premise: the breaking-change version bump, and the "downstream CI may start failing" warning in the upgrade instructions. An ordinary version bump applies.
+- **`plant --check`'s exit-code contract must NOT be changed** — it is already correct.
+- **The R4 sequencing constraint is unaffected:** praxis's own block is drifted right now, so the re-plant (Phase 4) still must land before the check is wired (Phase 5), or the newly-wired gate fails this repo immediately. That ordering came from the drift, not from any exit-code change.
+
+The correction is carried in `docs/design/dispatch-gap-runbook.md` (finding F1, its status line, the amended R3b gate line, R4, and the checkpoint list) and in `specs/066-dispatch-gap/{spec,plan}.md`, committed as `8981f68`. tasks.md Phase 1 makes the implementer re-verify the measurement first-hand — with no pipe — before building on it in either direction, and STOP if it comes back 0.
 ---
 <!-- COMMENTS:END -->
