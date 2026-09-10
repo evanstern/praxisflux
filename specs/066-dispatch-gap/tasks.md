@@ -62,7 +62,7 @@ the new gate fails this repo immediately.
 ## Phase 6 — Release obligations and close (all ACs)
 
 - [ ] Marketplace version bump + every edited skill's own `version:` per `docs/releasing.md` — an **ordinary** bump, not breaking
-- [ ] `npm test` green
+- [ ] Test suite green: `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`. **There is no `npm test` in this repo — no root `package.json` exists.** The env-scrub is mandatory in a worktree: git hands worktree hooks an absolute `GIT_DIR`, which the suite's fixture repos would inherit and commit onto the real branch (`.githooks/pre-commit:8-11`)
 - [ ] `node scripts/check-docs.mjs` green
 - [ ] `node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness` green
 - [ ] `README.md` / `CLAUDE.md` updated if what the repo ships changed

@@ -145,10 +145,17 @@ immediately, and the tempting fix is to weaken it.
 
 ## Gates before PR
 
-`npm test` · `node scripts/check-docs.mjs` ·
+`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test` ·
+`node scripts/check-docs.mjs` ·
 `node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness` ·
-`node scripts/sync-version.mjs --check` (or the repo's equivalent) · marketplace + skill
+`node scripts/sync-version.mjs --check` · marketplace + skill
 `version:` bumps per `docs/releasing.md` — an **ordinary** bump, not breaking.
+
+**The test command is `node --test`, NOT `npm test`** — this repo has no root
+`package.json`. In a worktree the env-scrub is mandatory: git hands worktree hooks an
+absolute `GIT_DIR`, which the suite's fixture repos (which `execFileSync` git with a tmpdir
+cwd) would inherit and commit onto the real branch. `.githooks/pre-commit:8-11` documents
+it. (Corrected after Phase 1 reported that an earlier draft of this plan said `npm test`.)
 
 ## Concurrency
 

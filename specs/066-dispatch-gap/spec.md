@@ -74,10 +74,13 @@ This must land as a **positive written artifact** — text stating the carve-out
 and refused, with its reasoning. **Silence does not satisfy it.**
 
 Why refused: *"knowledge-shaped"* is not a boundary — any lane can be argued into it after
-the fact, which is precisely how the Lane 4 miss would be retroactively legitimized. The
-decisive evidence is this repo's own history: `docs/design/sweep-cost-levers-runbook.md`
-dispatched **TASK-86, TASK-87 and TASK-88** — all pure doctrine/prose edits to a SKILL.md —
-to an **opus implementer** rather than inline, logging each one's subagent token count. If
+the fact, **by the party that did the work**, which is precisely how the Lane 4 miss would
+be retroactively legitimized. The decisive evidence is this repo's own history: on
+**2026-07-30** (`docs/design/sweep-cost-levers-runbook.md`, execution-log rows 189–191, PRs
+#100–#102, v0.41.0–v0.43.0) **TASK-86, TASK-87 and TASK-88** — all pure doctrine/prose edits
+to a SKILL.md — were dispatched to an **opus implementer** rather than done inline, logging
+~408k / ~98k / ~116k subagent tokens respectively. **Cite that date, not a guessed one** —
+verified against the runbook 2026-09-10 after Phase 1's first draft invented 2026-08-04. If
 inline is ever right it is an **operator checkpoint recorded before the work**, structurally
 identical to how escalation is already handled.
 
