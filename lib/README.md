@@ -7,6 +7,10 @@ Planned modules (**TASK-1.2**): `project-root` · `gate-runner` (Stop-hook harne
 · `selfcontained` (HTML verifier) · `lifecycle` (status-cannot-exceed-proven-artifacts) ·
 `installer` · `dates` · `template`.
 
+Also shipped: `structured-offload` — schema-validated, fail-soft calls to a local
+Ollama/OpenAI-compatible endpoint, config-driven (`.claude/structured-offload.json`),
+opt-in and absent-by-default. See `docs/wiki/chassis.md`.
+
 Also shipped here: `handoff-protocol.md` — a stamped copy of the canonical
 `docs/handoff-protocol.md` (re-stamped by `scripts/sync-shared.mjs`), so skills can reference
 the protocol as `${CLAUDE_PLUGIN_ROOT}/lib/handoff-protocol.md` from an installed plugin.

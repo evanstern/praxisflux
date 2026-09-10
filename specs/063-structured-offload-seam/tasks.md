@@ -41,15 +41,30 @@ existing invariant check.
 
 ## Phase 2 — Documentation, versions, wiki
 
-- [ ] Add the module row to `lib/README.md`
-- [ ] Document the config surface (`.claude/structured-offload.json`, fields, fail-soft
+- [x] Add the module row to `lib/README.md`
+- [x] Document the config surface (`.claude/structured-offload.json`, fields, fail-soft
       semantics, opt-in default) in `docs/wiki/chassis.md` with a pointer where the
       model-tier ladder is described
-- [ ] Bump versions per `docs/releasing.md` (marketplace + plugin versions lockstep via
+- [x] Bump versions per `docs/releasing.md` (marketplace + plugin versions lockstep via
       `sync-version.mjs`)
-- [ ] Honest re-pin pass over wiki notes whose sources this branch touched (`chassis`,
+- [x] Honest re-pin pass over wiki notes whose sources this branch touched (`chassis`,
       `test-suite`, `test-suite-catalog`): classify per diff, amend prose where needed,
       re-pin
-- [ ] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
+- [x] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
       freshness gate all green
-- [ ] Commit and push
+- [x] Commit and push
+
+**Deviations:**
+- `docs/wiki/test-suite.md` was not re-pinned: its `sources:` are only
+  `.githooks/pre-commit`/`.githooks/pre-push`, untouched by this branch, so the freshness
+  gate never flagged it and it doesn't enumerate `test/*.test.mjs` files itself (that's
+  `test-suite-catalog`'s job, which was updated).
+- The model-tier ladder is described only inside the marked `pdlc:grounding` block in
+  `CLAUDE.md` (bootstrap-owned, lines 116–276) — no repo-owned orientation text describes
+  it outside that block. Per the dispatch instructions, the pointer lands in
+  `docs/wiki/chassis.md` alone (linking `[[pdlc-grounding-block]]`), and `CLAUDE.md` was
+  not touched.
+- `lib/README.md`'s "Planned modules" heading (unrelated to this task) is pre-existing
+  stale documentation — it still lists several already-shipped modules (project-root,
+  gate-runner, etc.) as "planned". Left as found; added `structured-offload` as a
+  separate "Also shipped" line rather than expanding scope to rewrite the whole file.

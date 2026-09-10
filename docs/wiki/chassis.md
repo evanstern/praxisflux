@@ -6,7 +6,8 @@ sources:
   - lib/README.md
   - scripts/build.mjs
   - lib/toolkit/README.md
-verified_against: 25d53c222befab08aa10e8ef18463c2efe4df314
+  - lib/structured-offload.mjs
+verified_against: 9a6575cee47e611caa39df5af3c827df858c32a4
 ---
 
 # Chassis
@@ -50,6 +51,8 @@ The module roster in `lib/`:
 - `dates.mjs`, `template.mjs`, `handoff.mjs`, `cli.mjs` — small utilities for dates, file
   templating, the inter-plugin handoff transport, and the symlink-safe run-as-CLI guard
   ([[chassis-utilities]])
+- `structured-offload.mjs` — schema-validated, fail-soft calls to a local Ollama or
+  OpenAI-compatible endpoint (spec 063); see "Local-model offload" below
 - `html/base.html` — the shared CSS custom-property token schema referenced by toolkit snippets
 - `handoff-protocol.md` — a stamped copy of the canonical `docs/handoff-protocol.md`
   (re-stamped by `scripts/sync-shared.mjs`, drift-tested), shipped here so skills can cite
@@ -61,6 +64,31 @@ The module roster in `lib/`:
   `${CLAUDE_PLUGIN_ROOT}/lib/toolkit/<module>.md` and must degrade gracefully when a module
   is absent. Its README also indexes plugin-owned versioned chrome (currently
   codebase-to-course's course chrome), which lives with its owning plugin rather than in `lib/`.
+
+## Local-model offload
+
+`structured-offload.mjs` (`offload({ prompt, schema, config, timeoutMs })`) lets narrow,
+mechanically-checkable work (classification into a closed enum, path lookups) run against
+a local model instead of spending orchestrator context — but only work whose output is
+verifiable against a schema; free-text summaries are permanently out of scope (they'd
+become undetectable corpus rot behind a `verified_against` pin).
+
+- **Config as data**, beside the model-tier ladder (`.claude/model-tiers.json` — see
+  [[pdlc-grounding-block]] for the ladder itself): `.claude/structured-offload.json` with
+  `endpoint`, `api` (`"ollama"` or `"openai"`), `model`, optional `timeoutMs`, and optional
+  `residuePath` (a JSON-lines log of `{ backend, model, outcome, reason?, ms }` per call).
+- **Opt-in, absent by default:** no config file (or one that's unreadable/malformed/missing
+  a required field) means `loadConfig` returns `null` and `offload` reports
+  `{ ok: false, reason: 'unconfigured' }` — behavior is byte-identical to a host that never
+  installed this module.
+- **Fail-soft, never throws:** every failure path — unconfigured, `timeout` (via
+  `AbortSignal.timeout`), `refused` (connection error), `http-error` (non-2xx),
+  `invalid-json`, `schema-mismatch` — resolves to `{ ok: false, reason, residue }`; the
+  caller does the work in-session, exactly as if the module didn't exist. Constrained
+  decoding (Ollama `format`, OpenAI-compatible `response_format: json_schema`) passes the
+  schema to the backend itself, not just the prompt, so the model is structurally
+  prevented from returning prose.
+- The seam has no consumers yet — this task ships the mechanism only.
 
 ## Connections
 
