@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 17:00'
+updated_date: '2026-09-10 17:02'
 labels:
   - pdlc
   - doctrine
@@ -131,5 +131,22 @@ CORRECTION 2026-09-10 — finding F1 in comment #3 is WRONG, and ruling R3b's me
 - **The R4 sequencing constraint is unaffected:** praxis's own block is drifted right now, so the re-plant (Phase 4) still must land before the check is wired (Phase 5), or the newly-wired gate fails this repo immediately. That ordering came from the drift, not from any exit-code change.
 
 The correction is carried in `docs/design/dispatch-gap-runbook.md` (finding F1, its status line, the amended R3b gate line, R4, and the checkpoint list) and in `specs/066-dispatch-gap/{spec,plan}.md`, committed as `8981f68`. tasks.md Phase 1 makes the implementer re-verify the measurement first-hand — with no pipe — before building on it in either direction, and STOP if it comes back 0.
+---
+
+author: @claude
+created: 2026-09-10 17:02
+---
+DISPATCH RECORD 2026-09-10 — Phase 1 of spec 066.
+
+Recorded BEFORE the dispatch, per the tier rubric and the sweep's requirement that tier + model ID + justification land on the board task at dispatch time. This task is the one that makes such a record load-bearing (AC #3), so it complies with its own rule.
+
+- **Tier:** `opus` — marked `escalation: true` in `.claude/model-tiers.json`
+- **Agent:** `opus-implementer` (`.claude/agents/opus-implementer.md`)
+- **Model ID pinned:** `cc/claude-opus-5[1m]`
+- **Fallback if unavailable in the subscription:** `cc/claude-opus-4-8[1m]`
+- **Model that actually served:** TO BE FILLED from the dispatch transcript before any sibling dispatch. A green `tiers.mjs --check` proves the file says opus, not that opus ran.
+- **Escalation justification (operator checkpoint recorded at runbook sign-off 2026-09-10):** cross-surface doctrine. This task rewrites the always-on planted block that binds every PDLC host, creates a new template genre, and adds an enforcement rule to a shipped gate — judgment the spec cannot fully settle in advance. The repo's own precedent is exact: `docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86/87/88, all pure doctrine prose edits, to an opus implementer rather than inline.
+- **Precondition:** `node pdlc/scripts/tiers.mjs --root . --check` → exit 0, all three definitions `unchanged`. Nothing regenerated, so no session-restart obligation before dispatch.
+- **Dispatch scope:** phase-scoped — one fresh implementer per tasks.md phase, re-grounded from the spec dir plus the branch's commits. Not one agent across the whole task.
 ---
 <!-- COMMENTS:END -->
