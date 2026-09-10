@@ -37,13 +37,13 @@ Spec: specs/065-wiki-triage-offload
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 wiki-update's triage step routes classification through the structured-offload seam when configured, and behaves exactly as today when it is not
-- [ ] #2 The response schema is a closed enum per note plus a deciding file path that must appear in the diff; anything else falls back
-- [ ] #3 The local model never writes a note body, sets a pin, or decides a pin is earned — routing only, with source reads for needs-review notes unchanged
-- [ ] #4 Prompt and schema encode the conservative bias: when uncertain, route to needs-review
-- [ ] #5 A real wiki-update pass over the praxis corpus is measured seam-on vs seam-off, recording tokens, wall-clock, fallback rate, and misroute rate vs Claude-as-ground-truth
-- [ ] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
-- [ ] #7 check-docs, wiki-freshness, and spec-bridge gates green
+- [x] #1 wiki-update's triage step routes classification through the structured-offload seam when configured, and behaves exactly as today when it is not
+- [x] #2 The response schema is a closed enum per note plus a deciding file path that must appear in the diff; anything else falls back
+- [x] #3 The local model never writes a note body, sets a pin, or decides a pin is earned — routing only, with source reads for needs-review notes unchanged
+- [x] #4 Prompt and schema encode the conservative bias: when uncertain, route to needs-review
+- [x] #5 A real wiki-update pass over the praxis corpus is measured seam-on vs seam-off, recording tokens, wall-clock, fallback rate, and misroute rate vs Claude-as-ground-truth
+- [x] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
+- [x] #7 check-docs, wiki-freshness, and spec-bridge gates green
 - [x] #8 Spec phase: Phase 1 — The triage-offload script and its tests
 - [x] #9 Spec phase: Phase 2 — Skill wiring, versions, wiki
 - [x] #10 Spec phase: Phase 3 — The measurement (endpoint required)
@@ -55,6 +55,8 @@ Spec: specs/065-wiki-triage-offload
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — consumer wiring to the merged 0126 seam plus a measurement protocol the card specifies; served model recorded at dispatch; dep TASK-0126 Done
 
 spec-bridge sync: Phase 1 — The triage-offload script and its tests: 4/4 · Phase 2 — Skill wiring, versions, wiki: 5/5 · Phase 3 — The measurement (endpoint required): 4/4 — status In Progress → Done
+
+ACs 1-7 verified against merged PR #143: opt-in seam routing (unconfigured = today) + closed enum + deciding-path-in-diff check + routing-only invariant held + conservative bias (measured: 0 false computed-re-pins) + real measurement over 9-note REVIEW pile + explicit verdict in docs/design/triage-offload-measurement.md (second consumer NOT justified as-is; re-tune and re-measure) + gates green
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
