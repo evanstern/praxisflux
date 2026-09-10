@@ -73,12 +73,24 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 
 ## Model tiers — who does what work
 
-A sweep dispatches each task's implementation to a subagent; which model that subagent runs
-on drives both cost and quality. **The posture: thinking is Opus/Fable-tier, execution is
-Sonnet/Haiku-tier.** The orchestrator plans, gates, and judges at the top of the ladder; the
+**Implementation work is dispatched to an implementer agent at the task's tier — your own
+hands do not do it.** That obligation is on you, right now, however this work reached you:
+through `pdlc:sweep`, through a handoff document, or as a direct request from the operator.
+If you are holding a spec, a task id, or a handoff and are about to edit the files it names,
+the next action is a dispatch, not an edit. **The posture: thinking is Opus/Fable-tier,
+execution is Sonnet/Haiku-tier.** You plan, gate, and judge at the top of the ladder; the
 work of implementing a written spec runs at the cheapest tier that can hold it. An escalation
 tier exists for tasks whose judgment calls the spec does not already settle — reaching for it
 is an operator checkpoint, not an implementer's own call.
+
+**There is no "this one is knowledge-shaped" exemption — it was considered and refused.**
+Doctrine, prose and docs edits are dispatched like everything else: on 2026-07-30
+`docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86/87/88 — all pure prose edits to
+a SKILL.md — to an opus implementer rather than inline, logging each one's token count. "Knowledge-shaped" is not a boundary: any lane
+can be argued into it after the fact, by the party that did the work, which is precisely how
+the 2026-09-10 Lane 4 miss (`docs/design/lane-4-dispatch-gap.md`) would be retroactively
+legitimized. If inline is ever right it is an **operator checkpoint recorded before the
+work** — structurally identical to a tier escalation, not a new category.
 
 **Where the ladder lives: `.claude/model-tiers.json`.** That file — not this block — declares
 the tiers, their model IDs, their scopes, and which one is the default. It is a plain tracked

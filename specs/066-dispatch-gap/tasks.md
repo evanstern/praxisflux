@@ -9,13 +9,13 @@ the new gate fails this repo immediately.
 
 ## Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
 
-- [ ] Re-verify finding F1 first-hand: run `node pdlc/scripts/plant.mjs --root . --peer backlog --check`, then `echo $?` **with no pipe**. Confirm it exits 1 on this repo's drifted block. If it exits 0, STOP — the spec's correction is itself wrong and the operator needs to know
-- [ ] Re-verify finding F2: confirm no lane-handoff template exists (`pdlc/skills/sweep/templates/` holds only `runbook.md`) and that `docs/handoff-protocol.md` + `lib/handoff.mjs` are the inter-plugin `.handoff/` transport, not a lane handoff
-- [ ] Rewrite the opening of `pdlc/templates/CLAUDE.md`'s `## Model tiers` section so its grammatical subject is the reader, not "a sweep" — a standing obligation on whoever is implementing, however they arrived (sweep, handoff doc, or direct request)
-- [ ] Keep the rest of that section intact (config location, host-form model IDs, the two pin mechanisms, verify-the-served-model, registry-read-at-session-start, which surface is authoritative)
-- [ ] Apply the R1 test to the new text: would a session that arrived via a handoff document, never having loaded `pdlc:sweep`, read this as binding on itself right now?
-- [ ] Land the R4 rejection record as **positive text**: the inline carve-out was considered and refused, with the reasoning and the TASK-86/87/88 precedent; ensure no doctrine surface contradicts it. Silence does not satisfy AC #4
-- [ ] Commit
+- [x] Re-verify finding F1 first-hand: run `node pdlc/scripts/plant.mjs --root . --peer backlog --check`, then `echo $?` **with no pipe**. Confirm it exits 1 on this repo's drifted block. If it exits 0, STOP — the spec's correction is itself wrong and the operator needs to know
+- [x] Re-verify finding F2: confirm no lane-handoff template exists (`pdlc/skills/sweep/templates/` holds only `runbook.md`) and that `docs/handoff-protocol.md` + `lib/handoff.mjs` are the inter-plugin `.handoff/` transport, not a lane handoff
+- [x] Rewrite the opening of `pdlc/templates/CLAUDE.md`'s `## Model tiers` section so its grammatical subject is the reader, not "a sweep" — a standing obligation on whoever is implementing, however they arrived (sweep, handoff doc, or direct request)
+- [x] Keep the rest of that section intact (config location, host-form model IDs, the two pin mechanisms, verify-the-served-model, registry-read-at-session-start, which surface is authoritative)
+- [x] Apply the R1 test to the new text: would a session that arrived via a handoff document, never having loaded `pdlc:sweep`, read this as binding on itself right now?
+- [x] Land the R4 rejection record as **positive text**: the inline carve-out was considered and refused, with the reasoning and the TASK-86/87/88 precedent; ensure no doctrine surface contradicts it. Silence does not satisfy AC #4
+- [x] Commit
 
 ## Phase 2 — The lane-handoff template (R2, R5)
 
