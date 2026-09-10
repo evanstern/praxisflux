@@ -6,7 +6,7 @@ sources:
   - test/pdlc.test.mjs
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
-verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
+verified_against: 4381ba8816e043ceec8c6d5dbcf0aa1c5467c045
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
@@ -36,7 +36,7 @@ One bullet per `test/*.test.mjs` file:
   `PreToolUse` entries into `.claude/settings.json`, idempotent, preserving pre-existing
   hooks, unknown-hook rejection; the refactor-triage skill shape (spec 033/047) —
   `parseFrontmatter` frontmatter plus the full phase skeleton (a gutted phase fails loud),
-  phase-content anchors (triage-record path, backlog-CLI-only Execute, team-review lens),
+  phase-content anchors (triage-record path, `board:create`-routed Execute, team-review lens),
   three entry modes + declared-policy headless rule, sweep's Handing off naming
   refactor-triage, and a cross-plugin test that refactor-triage and team-review spell
   `docs/reviews/team-review-<run-id>.md` identically; and **local-only planting mode**

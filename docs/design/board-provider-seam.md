@@ -100,6 +100,18 @@ unblocks consumers; its internals don't — sweep Phase 1 rule). **054** can dev
 parallel with 053 (disjoint files). **055** follows 054. **056** merges last and is the only
 spec that touches MCP.
 
+## Schema amendments
+
+- **Spec 055 R4 (2026-09-09):** `.board/links.json`'s per-link schema gains an OPTIONAL
+  `labels: string[]`. Additive to 052's schema above and round-tripped by the unknown-key
+  rule: a mirror written before this field existed has no `labels` key and still validates,
+  and `projectBacklog` itself omits the key for an unlabelled task rather than emitting an
+  empty array. It exists so `docs/task-labels.md`'s Reserved `paused` label — machine-read by
+  `pdlc:sweep`'s paused-lane doctrine — can be resolved from the mirror alone, without
+  assuming `backlog/tasks/*.md` is present to read frontmatter from directly (the case a
+  Jira-only project is in). See `lib/board-mirror.mjs`'s header and `isPausedLink` for the
+  exact shape and the primitive that reads it.
+
 ## Pre-sweep gate — do not sweep this epic until these land
 
 Found 2026-08-27 by running `pdlc:sweep`'s own precondition gate against this host. Recorded

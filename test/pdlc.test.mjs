@@ -70,9 +70,14 @@ test("refactor-triage phase-content anchors: triage-record path, backlog-CLI-onl
     skill, /docs\/reviews\/refactor-triage-<run-id>\.md/,
     "the tracked triage-record path template must be named",
   );
+  // spec 055 AC#2: the contract TASK-76 pinned here is "never hand-edit board files", which
+  // predates docs/board-verbs.md — back then naming the `backlog` CLI was the only way to say
+  // it. The verb says the same thing for EVERY provider, so the intent is preserved and
+  // widened; a literal CLI string here would be the one operative `backlog` instruction left
+  // in any skill, which is exactly what AC#2 forbids.
   assert.match(
-    skill, /via the `backlog` CLI/,
-    "Phase 4 must state the backlog-CLI-only Execute contract",
+    skill, /via \*\*`board:create`\*\*/,
+    "Phase 4 must route creation through the board:create verb, never a raw CLI",
   );
   assert.match(
     skill, /lens parameter/,

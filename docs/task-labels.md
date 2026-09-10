@@ -9,7 +9,8 @@ That purpose sets the rule: **labels name what the work is about, not how it fee
 earns its place only if you would plausibly sweep, filter, or report on the whole set it names.
 
 ```
-backlog task list --labels demo-rig --plain      # the set
+board:list --labels demo-rig                     # the set (docs/board-verbs.md; on a Backlog
+                                                  # host: backlog task list --labels demo-rig --plain)
 /pdlc:sweep  →  "sweep the demo-rig tasks"       # the set, executed
 ```
 
@@ -23,9 +24,10 @@ backlog task list --labels demo-rig --plain      # the set
 4. Label the work's *substance*, not its incidental touches. Nearly every task ends with a wiki
    re-pin and a version bump — that does not make it `wiki` or `tooling`. Ask what a sweep of
    that label should have picked up.
-5. Set labels through the CLI only (`backlog task edit TASK-x --add-label <label>`), never by
-   hand-editing files under `backlog/`. Note that `--add-label` honors only the **last** flag
-   per invocation — run it once per label and read back the result.
+5. Set labels only through the board (`board:label` — see `docs/board-verbs.md`; on a Backlog
+   host that's `backlog task edit TASK-x --add-label <label>`), never by hand-editing board
+   files directly. Note that Backlog's `--add-label` honors only the **last** flag per
+   invocation — run it once per label and read back the result.
 
 ## Area — where the work lands
 

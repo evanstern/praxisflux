@@ -148,6 +148,9 @@ test("Stop hook via gate-runner: blocks on exceed, allows and warns on lag, no-o
     assert.match(r.warnings, /TASK-2/);
 
     // stop_hook_active short-circuits (no infinite block loops)
+    // kept (spec 062 R5, conservative — protected file): harmless either way, since
+    // stop_hook_active===true makes evaluate() return before cwd is even resolved; left as-is
+    // rather than edited in this byte-faithful-asserting file.
     process.env.CLAUDE_PROJECT_DIR = p.root;
     try {
       p.task("TASK-1", "Done", "Spec: specs/001-a/");

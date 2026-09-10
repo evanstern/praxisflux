@@ -71,6 +71,9 @@ function spawnStopHook(installed, projectDir, { stopHookActive = false } = {}) {
     command && command.includes("${CLAUDE_PLUGIN_ROOT}"),
     `${installed}: hooks.json must wire a Stop command rooted at \${CLAUDE_PLUGIN_ROOT}, got: ${command}`,
   );
+  // kept (spec 062 R5): this spawns the hook as a real subprocess and sets CLAUDE_PROJECT_DIR
+  // deliberately to match what the harness does for every hook invocation — not a workaround
+  // for evaluate()'s precedence, so there is nothing here to remove.
   return spawnSync("bash", ["-c", command.replaceAll("${CLAUDE_PLUGIN_ROOT}", installed)], {
     input: JSON.stringify({ hook_event_name: "Stop", stop_hook_active: stopHookActive, cwd: projectDir }),
     encoding: "utf8",

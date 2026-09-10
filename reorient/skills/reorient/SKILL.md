@@ -1,6 +1,6 @@
 ---
 name: reorient
-version: 0.5.0
+version: 0.5.1
 description: Corpus-grounded reorientation of a project's direction — N parallel evaluator subagents each judge one research branch under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and the lead merges everything into one decisions-and-course-of-action synthesis that executes onto the board. Use when the user wants to "reorient" a project against research, "evaluate the vault branches against our purpose", "merge these analyses into a plan", "run the research → evaluate → synthesize loop", or asks what a body of research means for the roadmap — not for reviewing code (team-review) or gathering new research (research-vault).
 ---
 
@@ -101,8 +101,8 @@ concurrently in the background). Each evaluator prompt must include:
    source-of-truth); ground against the project wiki via its `CAPSULES.md` when present —
    the whole-corpus capsule view — loading a full note only for claims the report
    actually cites; absent a rollup, route from `INDEX.md` and load notes just-in-time
-   (README/docs when no wiki at all); scan the board via `backlog task list --plain` /
-   `task view` (skip when no board).
+   (README/docs when no wiki at all); scan the board (`board:list` / `board:view` — see
+   `docs/board-verbs.md`; skip when no board).
 4. **The report structure** (dense, evidence-backed, ~1500 words):
    - **Verdict** — how well the project serves the lens, and the single biggest gap.
    - **Patterns that fit** — which corpus findings map onto WHICH existing pieces (cite

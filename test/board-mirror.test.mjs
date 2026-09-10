@@ -8,7 +8,8 @@ import { execFileSync } from "node:child_process";
 import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
-  loadBoardConfig, validateBoardConfig,
+  loadBoardConfig, validateBoardConfig, isPausedLink,
+  renderSpecPhasesBlock, parseSpecPhasesBlock,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -207,6 +208,53 @@ test("validateMirror is clean on a well-formed mirror", () => {
   assert.deepEqual(validateMirror(BASE_MIRROR), []);
 });
 
+// AC #6 (spec 055 R4) — labels[] is optional and additive; a mirror written before this
+// field existed has no `labels` key at all and must still validate (backward compat).
+test("validateMirror: a link with no labels key at all is still valid", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] }],
+  };
+  assert.deepEqual(validateMirror(mirror), []);
+});
+
+test("validateMirror: a well-formed labels list round-trips clean", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: ["paused", "chassis"] }],
+  };
+  assert.deepEqual(validateMirror(mirror), []);
+});
+
+test("validateMirror: a non-array labels is an error naming the offending link", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: "paused" }],
+  };
+  const problems = validateMirror(mirror);
+  assert.ok(problems.some((m) => m === "links[0].labels: expected array, got string"));
+});
+
+test("validateMirror: a labels array with a non-string entry is an error naming the link and index", () => {
+  const mirror = {
+    schema: 1, provider: "backlog", generatedAt: "x",
+    links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [], labels: ["paused", 42] }],
+  };
+  const problems = validateMirror(mirror);
+  assert.ok(problems.some((m) => m === "links[0].labels[1]: expected string, got number"));
+});
+
+test("writeMirror + readMirror round-trip a link's labels", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, { ...BASE_MIRROR, links: [{ ...BASE_MIRROR.links[0], labels: ["paused"] }] });
+    const back = readMirror(p.root);
+    assert.deepEqual(back.links.find((l) => l.id === "TASK-9").labels, ["paused"]);
+  } finally {
+    p.done();
+  }
+});
+
 // AC #5 — mirrorStaleness's three fail-closed cases.
 
 function gitRepoWithTwoCommits() {
@@ -308,6 +356,70 @@ test("projectBacklog matches findLinkedTasks(\".\") on id, status, specDir, acs"
   assert.deepEqual(projected.map(strip), found.map(strip));
 });
 
+// AC #6 (spec 055 R4) — projectBacklog reads labels from frontmatter's `labels:` list.
+test("projectBacklog: projects labels from a task's frontmatter labels: block list", () => {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-labels-"));
+  try {
+    const tasksDir = join(root, "backlog", "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    writeFileSync(
+      join(tasksDir, "task-1.md"),
+      "---\nid: TASK-1\nstatus: To Do\nlabels:\n  - paused\n  - chassis\n---\n\nSpec: specs/001-a\n",
+    );
+    const [link] = projectBacklog(root);
+    assert.deepEqual(link.labels, ["paused", "chassis"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("projectBacklog: an unlabelled task (labels: [] or the key absent) projects with no labels key at all", () => {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-nolabels-"));
+  try {
+    const tasksDir = join(root, "backlog", "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    writeFileSync(join(tasksDir, "task-1.md"), "---\nid: TASK-1\nstatus: To Do\nlabels: []\n---\n\nSpec: specs/001-a\n");
+    writeFileSync(join(tasksDir, "task-2.md"), "---\nid: TASK-2\nstatus: To Do\n---\n\nSpec: specs/002-b\n");
+    const links = projectBacklog(root);
+    assert.deepEqual(links.map((l) => "labels" in l), [false, false], "an unlabelled task's projected link stays byte-identical to before this field existed");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// AC #7 — the paused-lane doctrine works from mirror labels alone: a mirror-only project (no
+// backlog/tasks/ present at all) whose link carries `paused` is excluded from conflict
+// analysis, proving the fix a Jira-only host needs (spec 055 R4).
+test("isPausedLink: a mirror-only project's paused-labelled link is excluded from lane-conflict analysis using mirror labels alone (AC #7)", () => {
+  const p = project(); // no backlog/tasks/ anywhere under p.root — the mirror is the ONLY board file
+  try {
+    const mirror = {
+      schema: 1, provider: "backlog", generatedAt: "x",
+      links: [
+        { id: "TASK-1", status: "In Progress", specDir: "specs/001-a", acs: [], labels: ["paused"] },
+        { id: "TASK-2", status: "In Progress", specDir: "specs/002-b", acs: [] },
+      ],
+    };
+    writeMirror(p.root, mirror);
+    const read = readMirror(p.root);
+    assert.deepEqual(validateMirror(read), []);
+    const forConflictAnalysis = read.links.filter((l) => !isPausedLink(l));
+    assert.deepEqual(
+      forConflictAnalysis.map((l) => l.id),
+      ["TASK-2"],
+      "TASK-1 is paused and must be excluded, resolved entirely from the mirror's labels with no backlog/tasks/ to fall back on",
+    );
+  } finally {
+    p.done();
+  }
+});
+
+test("isPausedLink: false for a link with no labels, or a labels list without \"paused\"", () => {
+  assert.equal(isPausedLink({ id: "TASK-1" }), false);
+  assert.equal(isPausedLink({ id: "TASK-1", labels: ["chassis"] }), false);
+  assert.equal(isPausedLink({ id: "TASK-1", labels: ["paused"] }), true);
+});
+
 // R4 — the registry shape itself: no provider-name conditional, `requiresSync`/`project`
 // carry the distinction.
 test("providers registry: backlog is requiresSync:false with a project function", () => {
@@ -403,4 +515,76 @@ test("validateBoardConfig: catches a non-object statusMap", () => {
     jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusMap: "not an object" },
   });
   assert.ok(problems.some((m) => m.includes("statusMap")));
+});
+
+/* ── spec 055 Phase 3 (R2/AC #5) — the marked spec-phases description block ── */
+
+// AC #5 — render -> parse round-trips to the mirror's own acs shape, 1-based positional.
+test("renderSpecPhasesBlock/parseSpecPhasesBlock: clean round-trip yields [{ index, checked, text }]", () => {
+  const items = [
+    { checked: true, text: "Spec phase: Seam" },
+    { checked: false, text: "Spec phase: Provider" },
+  ];
+  const block = renderSpecPhasesBlock(items);
+  assert.equal(
+    block,
+    "<!-- spec-phases BEGIN -->\n- [x] Spec phase: Seam\n- [ ] Spec phase: Provider\n<!-- spec-phases END -->",
+  );
+  assert.deepEqual(parseSpecPhasesBlock(block), [
+    { index: 1, checked: true, text: "Spec phase: Seam" },
+    { index: 2, checked: false, text: "Spec phase: Provider" },
+  ]);
+});
+
+// The two live-observed Jira normalizations (spec 056 phase 1 findings, every read) — a parser
+// that assumes clean fixtures misses exactly this. Fixture below reproduces both in one string:
+// a blank line right after BEGIN, and two trailing spaces on the LAST checkbox line.
+test("parseSpecPhasesBlock: tolerates a blank line after BEGIN and trailing whitespace on the last checkbox line (live Jira normalizations)", () => {
+  const observed =
+    "<!-- spec-phases BEGIN -->\n" +
+    "\n" + // Jira inserts this blank line on every read
+    "- [x] Spec phase: Seam\n" +
+    "- [ ] Spec phase: Provider  \n" + // two trailing spaces, only on the last line
+    "<!-- spec-phases END -->";
+  assert.deepEqual(parseSpecPhasesBlock(observed), [
+    { index: 1, checked: true, text: "Spec phase: Seam" },
+    { index: 2, checked: false, text: "Spec phase: Provider" },
+  ]);
+});
+
+// Idempotence: parsing this repo's own render output, then re-rendering the parsed shape, must
+// reproduce byte-identical text — the write→read→write cycle spec 056 phase 1 observed converges
+// rather than rotting.
+test("renderSpecPhasesBlock(parseSpecPhasesBlock(x)) is idempotent once normalized", () => {
+  const items = [{ checked: true, text: "Spec phase: Setup" }, { checked: false, text: "Spec phase: Core" }];
+  const first = renderSpecPhasesBlock(items);
+  const reparsed = parseSpecPhasesBlock(first).map(({ checked, text }) => ({ checked, text }));
+  assert.equal(renderSpecPhasesBlock(reparsed), first);
+});
+
+test("parseSpecPhasesBlock: no block present returns [] (absent is not an error)", () => {
+  assert.deepEqual(parseSpecPhasesBlock("just some human prose\nSpec: specs/001-a\n"), []);
+});
+
+// AC #4 — two blocks in one description is a validation error, not a merge.
+test("parseSpecPhasesBlock: a second BEGIN or END marker throws, naming the counts", () => {
+  const doubled = renderSpecPhasesBlock([{ checked: true, text: "a" }]) + "\n" +
+    renderSpecPhasesBlock([{ checked: false, text: "b" }]);
+  assert.throws(() => parseSpecPhasesBlock(doubled), /2 BEGIN marker\(s\) and 2 END marker\(s\)/);
+});
+
+// R2: the `Spec: <dir>` marker line stays OUTSIDE the block and after it — confirm bridge.mjs's
+// MARKER regex (replicated here verbatim; it is a private const in spec-bridge/gates/bridge.mjs)
+// still matches when a spec-phases block sits between the human prose and the marker line. Do
+// not assume — that regex arms the whole bridge gate.
+test("R2 fixture: the Spec: marker still matches bridge.mjs's MARKER when it follows a spec-phases block", () => {
+  const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m; // bridge.mjs:253, replicated for verification only
+  const block = renderSpecPhasesBlock([
+    { checked: true, text: "Spec phase: Seam" },
+    { checked: false, text: "Spec phase: Provider" },
+  ]);
+  const description = `Human-authored prose, never touched.\n\n${block}\nSpec: specs/052-board-adapter-seam\n`;
+  const match = description.match(MARKER);
+  assert.ok(match, "MARKER must still match with a spec-phases block preceding it");
+  assert.equal(match[1], "specs/052-board-adapter-seam");
 });

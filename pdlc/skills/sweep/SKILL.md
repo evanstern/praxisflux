@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.20.0
+version: 0.21.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -68,7 +68,7 @@ above: ordering, parallelism, merges, re-grounding, and the operator checkpoints
 
 ## Phase 1 — AUTHOR the runbook (skip when adopting one)
 
-Read every input task (`backlog task view <id> --plain`), the synthesis/design doc that
+Read every input task (`board:view` — see `docs/board-verbs.md`), the synthesis/design doc that
 produced them, and the project's own gate machinery (check scripts, freshness gates,
 constitution/tier rubric). Orient on the project's grounded corpus (`docs/wiki/` or
 similar) capsule-first: read `CAPSULES.md` — not the note bodies — for the whole-corpus
@@ -353,12 +353,14 @@ must too:
 ### Paused lanes — the `paused` marker
 
 An operator can pause an In Progress task without moving it on the board. The marker is
-a **`paused` label on the task**, set and cleared **only** via
-`backlog task edit TASK-<n> --labels …` (never a hand edit), which makes the pause
-machine-findable: the label appears in the task file's frontmatter `labels:` list.
-Provenance rides an append-note written at pause time —
-`backlog task edit TASK-<n> --append-notes "paused by <who> <date>: <why>"` — so a stale
-pause is auditable; clearing the label gets a matching resume note.
+a **`paused` label on the task**, set and cleared **only** via `board:label` (never a hand
+edit — see `docs/board-verbs.md`). Lane-conflict analysis resolves the label from the
+mirror, not from `backlog/tasks/*.md` frontmatter directly — `isPausedLink`
+(`lib/board-mirror.mjs`) reads `.board/links.json`'s `labels: []` for the task's link, so
+the same check holds on a mirror-only project (a Jira host has no `backlog/tasks/*.md` to
+read at all). Provenance rides an append-note written at pause time (`board:note`) —
+"paused by <who> <date>: <why>" — so a stale pause is auditable; clearing the label gets a
+matching resume note.
 
 A paused task is **not a live lane**. Its branch and worktree are the pausing operator's
 parked state, so the sweep **never claims, rebases, or cleans a paused task's branches
