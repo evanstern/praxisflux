@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-10T14:56:31.018Z",
+  "generatedAt": "2026-09-10T17:01:51.269Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3080,6 +3080,63 @@
         "tech-debt",
         "spec-bridge",
         "gates"
+      ]
+    },
+    {
+      "id": "TASK-0126",
+      "status": "Done",
+      "specDir": "specs/063-structured-offload-seam",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A chassis helper takes prompt plus JSON schema plus endpoint config and returns a validated object"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Constrained/structured decoding is requested from the backend where supported, rather than relying on prompt instructions alone"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Validation failure, timeout, or unreachable endpoint falls back to in-session handling — never an error surfaced to the user and never a blocked sweep"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "With no endpoint configured the behavior is byte-identical to today (opt-in, absent by default)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Endpoint and model are configuration data, not hardcoded, and the config surface is documented next to the model-tier ladder"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The module and its tests"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Documentation, versions, wiki"
+        }
+      ],
+      "labels": [
+        "chassis",
+        "feature",
+        "sweep-cost"
       ]
     }
   ]
