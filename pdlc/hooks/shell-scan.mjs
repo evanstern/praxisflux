@@ -91,7 +91,8 @@ const ANSI_C_ESCAPES = {
  * input.
  *
  * @param {string} command
- * @returns {{ok: true, segments: Array<Array<{value: string, index: number}>>}
+ * @returns {{ok: true, segments: Array<Array<{value: string, index: number}>>,
+ *            terminators: Array<string|null>}
  *          | {ok: false, reason: 'unbalanced-single-quote'
  *                              | 'unbalanced-double-quote'
  *                              | 'dangling-escape'}}
@@ -99,11 +100,16 @@ const ANSI_C_ESCAPES = {
  *   carries its `value` (quotes/escapes resolved) and the `index` (char
  *   offset in `command`) where the token began — Phase 3 needs the index to
  *   resolve each invocation's effective dir (`cd`/`-C` before it).
+ *   `terminators[i]` is the unquoted separator character that ENDED
+ *   `segments[i]` (one of SEPARATORS), or `null` when the segment ran to the
+ *   end of input with no trailing separator — spec 064 needs this to tell a
+ *   piped segment (`|`) from one merely followed by `;`/`&`/newline/etc.
  */
 export function scanCommand(command) {
   if (typeof command !== 'string') return { ok: false, reason: 'dangling-escape' };
 
   const segments = [];
+  const terminators = [];
   let segment = [];
 
   let cur = '';
@@ -128,9 +134,10 @@ export function scanCommand(command) {
       tokenIndex = -1;
     }
   };
-  const endSegment = () => {
+  const endSegment = (terminator) => {
     endToken();
     segments.push(segment);
+    terminators.push(terminator ?? null);
     segment = [];
   };
 
@@ -241,7 +248,7 @@ export function scanCommand(command) {
     }
 
     if (SEPARATORS.has(ch)) {
-      endSegment(); // unquoted separator ends token AND segment
+      endSegment(ch); // unquoted separator ends token AND segment
       continue;
     }
 
@@ -252,8 +259,8 @@ export function scanCommand(command) {
   if (inSingle || inAnsiC) return { ok: false, reason: 'unbalanced-single-quote' };
   if (inDouble) return { ok: false, reason: 'unbalanced-double-quote' };
 
-  endSegment();
-  return { ok: true, segments };
+  endSegment(null); // ran to end of input: no trailing separator
+  return { ok: true, segments, terminators };
 }
 
 /**
