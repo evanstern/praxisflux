@@ -31,6 +31,8 @@ The invariant this must not cross, and the reason the consumer is triage rather 
 Deliberately conservative bias: misrouting a needs-review note to computed-re-pin is the expensive error (a false pin), while the reverse just costs a read Claude was going to do anyway. Prompt and schema should reflect that asymmetry, and the measurement should report it.
 
 Measurement is a deliverable, not a nice-to-have: run a real wiki-update pass over the praxis corpus (43 notes) with the seam on and off, and record tokens, wall-clock, fallback rate, and misroute rate against Claude's own classification as ground truth. That result — not intuition — decides whether a second consumer gets built or the seam gets reverted.
+
+Spec: specs/065-wiki-triage-offload
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
