@@ -188,3 +188,5 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-10 | TASK-0126 | — | — | — | claimed; spec 063 committed; phases: 1 dispatched (sonnet) |
+| 2026-09-10 | TASK-0124 | — | — | — | claimed; spec 064 committed; phases: dispatch pending served-model verify |
