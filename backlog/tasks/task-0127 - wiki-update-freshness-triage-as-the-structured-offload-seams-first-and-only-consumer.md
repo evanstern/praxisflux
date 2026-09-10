@@ -3,9 +3,11 @@ id: TASK-0127
 title: >-
   wiki-update freshness triage as the structured-offload seam's first (and only)
   consumer
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:29'
+updated_date: '2026-09-10 17:44'
 labels:
   - grounding-wiki
   - feature
@@ -29,6 +31,8 @@ The invariant this must not cross, and the reason the consumer is triage rather 
 Deliberately conservative bias: misrouting a needs-review note to computed-re-pin is the expensive error (a false pin), while the reverse just costs a read Claude was going to do anyway. Prompt and schema should reflect that asymmetry, and the measurement should report it.
 
 Measurement is a deliverable, not a nice-to-have: run a real wiki-update pass over the praxis corpus (43 notes) with the seam on and off, and record tokens, wall-clock, fallback rate, and misroute rate against Claude's own classification as ground truth. That result — not intuition — decides whether a second consumer gets built or the seam gets reverted.
+
+Spec: specs/065-wiki-triage-offload
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -40,4 +44,15 @@ Measurement is a deliverable, not a nice-to-have: run a real wiki-update pass ov
 - [ ] #5 A real wiki-update pass over the praxis corpus is measured seam-on vs seam-off, recording tokens, wall-clock, fallback rate, and misroute rate vs Claude-as-ground-truth
 - [ ] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
 - [ ] #7 check-docs, wiki-freshness, and spec-bridge gates green
+- [ ] #8 Spec phase: Phase 1 — The triage-offload script and its tests
+- [ ] #9 Spec phase: Phase 2 — Skill wiring, versions, wiki
+- [ ] #10 Spec phase: Phase 3 — The measurement (endpoint required)
 <!-- AC:END -->
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — consumer wiring to the merged 0126 seam plus a measurement protocol the card specifies; served model recorded at dispatch; dep TASK-0126 Done
+<!-- SECTION:NOTES:END -->

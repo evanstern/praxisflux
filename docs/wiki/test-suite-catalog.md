@@ -16,8 +16,9 @@ sources:
   - test/structured-offload.test.mjs
   - test/sync-shared.test.mjs
   - test/sync-version.test.mjs
+  - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 9a6575cee47e611caa39df5af3c827df858c32a4
+verified_against: 8b6a6e692c19fcab8a8478876c3160de8530c7e0
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -99,6 +100,13 @@ One bullet per `test/*.test.mjs` file:
   config file to `unconfigured`; residue (`backend, model, outcome, reason?, ms`) is
   recorded to `residuePath` on both a success and a fallback; `validateSchema` is also
   exercised directly against the documented subset (enum, required, items, integer).
+- `test/triage-offload.test.mjs` — `grounding-wiki/scripts/triage-offload.mjs` (spec 065),
+  the wiki-update REVIEW-pile offload consumer, against `structured-offload`'s stub-server
+  conventions: a valid `computed-re-pin` whose `deciding_path` is in the diff's file list is
+  honored; a `deciding_path` outside that list, a prose response, and a wrong enum value all
+  fall back per note; no `.claude/structured-offload.json` routes every REVIEW note to
+  fallback, byte-identical to today's in-session triage; a fresh corpus (no REVIEW entries)
+  routes nothing; the script never writes (before/after file snapshots match).
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
 - `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version

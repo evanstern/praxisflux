@@ -10,13 +10,13 @@ sources:
   - reorient/scripts/gate.sh
   - reorient/scripts/stop.mjs
   - reorient/scripts/run.mjs
-verified_against: e87f7caa1b9edadf94fdaab5db8d4c0ebb10ae8f
+verified_against: a77adff956564db44d79ad172f5acc1db3ce1299
 ---
 
 # reorient plugin
 
 The `reorient` plugin (lockstep with the marketplace version; skill at its own
-`version: 0.5.0`) runs a **corpus-grounded reorientation** of a project's direction: the
+`version: 0.5.1`) runs a **corpus-grounded reorientation** of a project's direction: the
 lead takes N already-gathered corpus branches and a **lens** (the project's purpose
 statement), fans out one evaluator subagent per branch to judge the corpus against the
 project's wiki and board, checkpoints operator decisions between rounds, has the

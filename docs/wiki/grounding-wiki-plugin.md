@@ -11,8 +11,9 @@ sources:
   - grounding-wiki/gates/cli.mjs
   - grounding-wiki/scripts/capsules.mjs
   - grounding-wiki/scripts/repin.mjs
+  - grounding-wiki/scripts/triage-offload.mjs
   - grounding-wiki/templates/note.md
-verified_against: e87f7caa1b9edadf94fdaab5db8d4c0ebb10ae8f
+verified_against: a77adff956564db44d79ad172f5acc1db3ce1299
 ---
 
 # Grounding-wiki plugin
@@ -47,10 +48,15 @@ bookkeeping and judgment — **RE-PIN-ONLY** entries (the one provably safe clas
 line since the pin is a lockstep version stamp AND the note quotes no semver literal, scanned
 on the raw body since notes quote versions in backticks) print runnable
 `scripts/repin.mjs <note> <head>` commands, while everything else defaults to
-**NEEDS-REVIEW** with a per-file `+/-` work order. For review notes the skill reads the diff
-(`git diff P..HEAD -- <sources>`), updates every claim to match current source, then re-pins
-via `repin.mjs` — the hard rule is **never bump a pin without reading the diff**, except
-through plan's RE-PIN-ONLY lines whose point is that the planner proved the diff safe.
+**NEEDS-REVIEW** with a per-file `+/-` work order. Opt-in (`structured-offload.json` present):
+`scripts/triage-offload.mjs` (spec 065) first routes each REVIEW entry through the shared
+`structured-offload` seam — ROUTE ONLY, never the note's prose — `computed-re-pin` or
+`needs-review` plus deciding path; a checked-out `computed-re-pin` re-pins as a
+RE-PIN-ONLY line, everything else (incl. fallback) falls into the loop unchanged. No config:
+a no-op. For review notes the skill reads the diff (`git diff P..HEAD -- <sources>`),
+updates every claim to match current source, then re-pins via `repin.mjs` — the hard rule is
+**never bump a pin without reading the diff**, except through RE-PIN-ONLY lines (or a
+validated offloaded `computed-re-pin`) whose point is that the diff is proven safe.
 `scripts/repin.mjs` is the pin loop's one writer (full 40-char hashes only, which must name a
 real commit in the note's repo — probed with `git cat-file -e` before any write — and refuses
 pinless or missing notes, or a note outside any git repo); the planner itself stays read-only. Update passes end by regenerating
