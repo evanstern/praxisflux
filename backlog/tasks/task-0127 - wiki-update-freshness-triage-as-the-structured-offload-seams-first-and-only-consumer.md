@@ -3,9 +3,11 @@ id: TASK-0127
 title: >-
   wiki-update freshness triage as the structured-offload seam's first (and only)
   consumer
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:29'
+updated_date: '2026-09-10 17:35'
 labels:
   - grounding-wiki
   - feature
@@ -41,3 +43,9 @@ Measurement is a deliverable, not a nice-to-have: run a real wiki-update pass ov
 - [ ] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
 - [ ] #7 check-docs, wiki-freshness, and spec-bridge gates green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — consumer wiring to the merged 0126 seam plus a measurement protocol the card specifies; served model recorded at dispatch; dep TASK-0126 Done
+<!-- SECTION:NOTES:END -->
