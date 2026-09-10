@@ -11,7 +11,7 @@ only ordering, doctrine, and the log.
 implemented inline instead of dispatching. A session that authors this runbook and then
 implements TASK-0125 itself has reproduced the very defect the task fixes. **Dispatch it.**
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-10
+**Status:** signed-off · operator sign-off on lanes: 2026-09-10 (lanes approved; spec 066 confirmed; R3b ruled breaking-change-accepted)
 
 ## Read first (in this order)
 
@@ -108,6 +108,12 @@ task. The prose fixes and the enforcement fix land together.
 6 versions behind; shipping a template edit without re-planting would widen that gap in
 the very repo the task is fixing.
 
+**R4 — SEQUENCING (follows from R3b + F1).** Making `plant --check` fail on drift while
+this repo's own block is drifted would land a gate that fails praxis immediately. So within
+this task: **re-plant `CLAUDE.md` (R2) BEFORE wiring the new exit code**, and let the
+implementer's tasks.md phases reflect that order. A green suite at the end of the task is
+the check that this held.
+
 **R3 — the downstream upgrade path is IN SCOPE.** Raised by the operator mid-authoring:
 *"We may need an upgrade path if we are changing CLAUDE.md planted version — all downstream
 dependants will need a way to update. Please fold that in, if necessary along with
@@ -196,14 +202,26 @@ artifact this task makes load-bearing, so TASK-0125 must satisfy its own new rul
       it** → consent → re-plant with `--force`; note that `.pdlc` stamps the planted
       version so `<planted version> < <plugin version>` is the staleness test, and that
       **user edits belong OUTSIDE the markers** or a re-plant discards them.
-- [ ] **R3b (upgrade path — discoverability).** Per F1 a stale block is **silent**:
-      `plant --check` prints `claudeMd: "drifted"` and still **exits 0**, which is why
-      praxis itself sat 6 versions behind unnoticed. Make the stale condition
-      *discoverable* — the minimum bar is that a host running a check can tell. **Changing
-      `plant --check`'s exit code is a released-surface contract change**: if the
-      implementer judges that warranted, it is an **operator checkpoint**, not an
-      implementer's call (see Operator checkpoints). A non-breaking alternative — surfacing
-      it through this repo's own docs/CI path — satisfies this line.
+- [ ] **R3b (upgrade path — discoverability). DECIDED: `plant --check` must EXIT NONZERO
+      on a drifted block.** Per F1 a stale block is silent today — `--check` prints
+      `claudeMd: "drifted"` and still exits 0 — which is why praxis sat 6 versions behind
+      unnoticed. The operator ruled on 2026-09-10, on being shown that this is a
+      **breaking released-surface change** for downstream CI: *"yes, we need to stop the
+      bleed."* So this is no longer a checkpoint — it is a requirement:
+      - `--check` **exits nonzero** when the on-disk grounding block differs from what the
+        installed plugin version renders (`claudeMd: "drifted"`), and when a mode switch is
+        unconfirmed (`modeSwitch: "drifted"`). It stays **exit 0** for `unchanged`.
+      - The failure line **names the fix** (re-run `pdlc:bootstrap`; diff; re-plant with
+        `--force`) per this repo's gate convention — a gate whose output doesn't say what
+        to do is half a gate.
+      - **`--check` must not mutate anything** — no sentinel advance, no write — it is a
+        read-only probe; only its exit status changes.
+      - **This is a BREAKING change to a documented contract.** It needs: a version bump
+        that reflects a breaking change per `docs/releasing.md`, an explicit note in the
+        R3a upgrade instructions telling downstream hosts their CI may start failing and
+        that the fix is a re-plant, and tests covering both exit paths.
+      - The non-`--check` plant path keeps its current drift behavior (report `drifted`,
+        never overwrite without `--force`) — unchanged.
 - [ ] **R3c — this is the SAME defect shape as the task's subject; keep them distinct.**
       A stale planted block and a skipped dispatch are both *written doctrine with no
       residue a gate enforces*. The fix for R3 must not be folded into fix 3's
@@ -257,9 +275,13 @@ This sweep runs as a **Claude Code background job**, so the no-main-push mode ap
 - **If fix 3's fail-closed check would break existing green cards** (e.g. every already-Done
   linked card lacks a dispatch record): STOP. Retrofitting history vs. applying the rule
   only to newly-claimed tasks is an operator decision, not an implementer's.
-- **If R3b would change `plant --check`'s exit code** (today: reports `drifted`, exits 0):
-  that is a **released-surface contract change** — every downstream CI calling it could
-  start failing. STOP and ask before changing it; prefer the non-breaking path.
+- **R3b's exit-code change is RULED, not open** (operator, 2026-09-10, with the breaking
+  consequence stated: *"yes, we need to stop the bleed"*). Do not re-ask it, and do not
+  soften it to a warning. What DOES remain a checkpoint: if making `--check` exit nonzero
+  turns out to break this repo's OWN CI or hooks in a way that can't be fixed by
+  re-planting (F1 means praxis is itself drifted, so expect the new gate to fail here
+  until the R2 re-plant lands) — sequence the re-plant BEFORE wiring the gate, and if
+  that still doesn't hold, STOP and report rather than weakening the gate.
 - **Scope discipline:** discovered out-of-scope work → stop and ask. No follow-up cards
   without approval.
 - **Sibling-sweep collisions (F4):** if a reconcile with their merged PRs turns into a

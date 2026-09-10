@@ -3,10 +3,11 @@ id: TASK-0125
 title: >-
   Close the dispatch gap: a resumed sweep lane implements inline at orchestrator
   tier
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 14:48'
+updated_date: '2026-09-10 15:18'
 labels:
   - pdlc
   - doctrine
@@ -32,6 +33,8 @@ WHY NO GATE CAUGHT IT: an inline-implemented task leaves artifacts identical to 
 Four candidate fixes are recorded in the design doc (not decided): (1) rewrite the always-on Model tiers section to bind any implementing session, not just a sweep; (2) make the handoff template say "dispatch to <tier>-implementer" rather than naming a tier; (3) give the dispatch a durable residue so a gate can check it — e.g. require the execution-log line naming the model that served before a task's PR is merge-ready; (4) if inline is acceptable for knowledge-shaped lanes, write that carve-out with a boundary instead of leaving it to per-session judgment.
 
 Needs operator triage on which combination to adopt before implementation.
+
+Spec: specs/066-dispatch-gap
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -76,5 +79,29 @@ AMENDED 2026-09-10 after review by a sister session that independently flagged t
 This supersedes candidate 4 in my earlier comment and the corresponding paragraph in `docs/design/lane-4-dispatch-gap.md`, updated in the same commit.
 
 **Caveat raised, already resolved:** the sister session noted `docs/design/lane-4-dispatch-gap.md` was unreachable from `origin/main` (commit 1ddccb5). Accurate when written; it rode PR #140, merged as `fbe5b4c`, and is on `main` now — verified with `git merge-base --is-ancestor`. No dangling reference remains.
+---
+
+author: @claude
+created: 2026-09-10 15:18
+---
+SWEEP CLAIM 2026-09-10 — runbook `docs/design/dispatch-gap-runbook.md` (signed off), branch `task-0125-dispatch-gap`, spec `specs/066-dispatch-gap`.
+
+**Spec number: 066, not 063.** A sibling sweep (`docs/design/sweep-cost-offload-runbook.md`, signed off `390ca61`) is in flight over TASK-0126/0124/0127 and reserves 063/064/065. It also declares `.claude-plugin/marketplace.json` + every `plugin.json` version field and `CLAUDE.md` as hotspots — the same files this task's version bump and re-plant touch, so expect version-file conflicts and reconcile by merging `origin/main` in (this branch is pin-carrying; never rebase/squash/force-push).
+
+**OPERATOR RULINGS at sign-off — these supersede comment #1's sequencing note:**
+
+- **R1 — ONE PR, all four fixes.** Comment #1 said fix 3 "should be specced separately"; the operator ruled fixes 1, 2, 3 and 5 ride one spec dir, one branch, one PR. One TASK = one PR.
+- **R2 — re-plant in the SAME PR.** AC #6's `CLAUDE.md` re-plant and `pdlc-grounding-block` re-pin ride this PR, not a follow-up.
+- **R3 — the downstream upgrade path is IN SCOPE** (raised mid-authoring): downstream dependants need a documented way to update a stale planted block. Landed as runbook gate lines R3a (write the instructions in `docs/releasing.md`, which says nothing about re-planting today), R3b (make staleness discoverable), R3c (keep it distinct from fix 3's dispatch record — separate rules over separate artifacts).
+- **R3b DECIDED — `plant --check` must EXIT NONZERO on a drifted block.** Shown that this is a breaking released-surface change for downstream CI, the operator ruled: *"yes, we need to stop the bleed."* Requires a breaking-change version bump, an explicit warning in the R3a instructions, and tests on both exit paths. `--check` stays read-only; only its exit status changes.
+- **R4 — SEQUENCING:** re-plant `CLAUDE.md` BEFORE wiring the new exit code, or the new gate fails this repo immediately (see F1).
+
+**FINDINGS from the precondition probes (full text in the runbook):**
+
+- **F1 — praxis's own planted block is 6 versions stale and nothing says so.** `.pdlc` records `version: 0.57.0`; the marketplace is at v0.63.0. `plant --check` prints `claudeMd: "drifted"` and **exits 0**. This is the same defect shape as the dispatch gap itself: written doctrine, detectable drift, no residue a gate enforces. It is why R3b was ruled a requirement rather than a checkpoint.
+- **F2 — there is NO lane-handoff template in the repo.** `lane-4-handoff.md` and `jira-board-handoff.md` are hand-authored one-offs; `docs/handoff-protocol.md` + `lib/handoff.mjs` are the unrelated inter-plugin `.handoff/` transport. ACs #1/#2 require CREATING a template (natural home `pdlc/skills/sweep/templates/`), not editing one.
+- **F3 — fix 3 needs no new surface.** `parseLinkedTask` (`lib/board-mirror.mjs:361`) already parses a linked card's raw text and `checkBridge` already walks every linked card, so the dispatch record is checkable by the gate that already reads it — corroborating comment #2's choice of the board-task record over the execution-log line.
+
+**Sufficiency tests written into the runbook, because both ACs are easy to fake:** AC #4 needs a POSITIVE written rejection record (silence does not tick it), and AC #3 must FAIL CLOSED — a check that reports a missing dispatch record, not documentation of the expectation.
 ---
 <!-- COMMENTS:END -->
