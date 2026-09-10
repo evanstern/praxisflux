@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 14:30'
+updated_date: '2026-09-10 14:48'
 labels:
   - pdlc
   - doctrine
@@ -36,11 +36,12 @@ Needs operator triage on which combination to adopt before implementation.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The dispatch obligation is stated where a resumed session actually reads it — the always-on planted block and/or the handoff template — not only in pdlc:sweep's SKILL.md
-- [ ] #2 The handoff template names the DISPATCH (to <tier>-implementer), not merely the tier, so naming a tier cannot be satisfied by implementing inline
-- [ ] #3 A skipped dispatch leaves a detectable residue OR the inline carve-out is explicitly written with a stated boundary — the current state where neither holds is closed
-- [x] #4 Operator has triaged the four candidate fixes in docs/design/lane-4-dispatch-gap.md and the chosen combination is recorded
-- [ ] #5 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
+- [ ] #1 Fixes 1 and 2 land: the dispatch obligation is stated in the always-on planted block AND the handoff template, binding any implementing session however it arrived — not only in pdlc:sweep's SKILL.md
+- [ ] #2 Fix 5 lands: the handoff template's OPENING LINE fixes the reader's role ("you are the orchestrator for this lane, not its implementer; dispatch to <tier>-implementer") before the reader learns what the work is — role before content, not a tier field in a table
+- [ ] #3 Fix 3 lands and is SUFFICIENT on its own terms: a task's PR is not merge-ready until its board task carries a dispatch record naming the model that actually served. Fails closed — no record, no merge. Reuses the tier+model+justification record sweep already mandates and the card the gate already reads; no new surface
+- [ ] #4 REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation
+- [x] #5 Operator has triaged the candidates and the chosen set is recorded
+- [ ] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
 <!-- AC:END -->
 
 ## Comments
@@ -57,5 +58,23 @@ OPERATOR TRIAGE 2026-09-10: **all four candidate fixes adopted.** AC #4 satisfie
 4. **The inline carve-out gets an explicit boundary.** The doctrine already implies one ("the orchestrator's hands touch specs, the board, worktree/PR plumbing, and grounding docs"). Lane 4's MCP probing, the three operator rulings, and the wiki classification fell inside it; the ~12 tests and the provider/mapping code did not. Needs a hard edge — a written carve-out is also a written excuse.
 
 Sequencing note for whoever implements: 1, 2 and 4 are prose changes to planted/template surface and can ride one PR. 3 changes enforcement and should be specced separately rather than folded in.
+---
+
+author: @claude
+created: 2026-09-10 14:48
+---
+AMENDED 2026-09-10 after review by a sister session that independently flagged this issue. Four points raised; three adopted outright, one reversing an earlier decision. The ACs above are rewritten accordingly — the original "four candidates, pick a combination" framing is superseded.
+
+**1. The fixes are not alternatives — ADOPTED, and this is the important correction.** 1+2 are *necessary*; only 3 is *sufficient*. Doctrine placement closes the honest miss but leaves the gap open to a session under pressure; only a residue makes a skipped dispatch detectable. The old AC #3 read "residue OR carve-out", which let the cheap half satisfy it — exactly the failure mode of naming a tier and then implementing inline. Now separate, both-required ACs.
+
+**2. The residue already exists in doctrine — ADOPTED, and cheaper than what I proposed.** I had suggested the runbook execution-log line. Better: sweep ALREADY requires tier + model ID + justification recorded on the board task at dispatch time. So the rule is "a task's PR is not merge-ready until its board task carries a dispatch record naming the model that served." The check reads a card the gate already reads, needs no new surface, and fails closed. Strictly better than an execution-log convention, which is prose in a doc nothing parses.
+
+**3. A FIFTH candidate, and the highest-leverage one — ADOPTED as its own AC.** Make the handoff document itself the dispatch. The gap opens because a handoff is prose a session reads and then acts on: by the time the resumed session reaches a "Model tier: sonnet" field, it is already the implementer. Putting "you are the orchestrator for this lane, not its implementer; dispatch to <tier>-implementer" as the OPENING LINE fixes the role before the reader knows what the work is. This targets the actual mechanism — role ambiguity at resume — rather than missing information, and it is the precise diagnosis of what happened in Lane 4.
+
+**4. Do not write the inline carve-out — ADOPTED, REVERSING the earlier decision to adopt candidate 4.** The cited precedent is stronger than stated: `docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86, TASK-87 and TASK-88 — all pure doctrine/prose edits to SKILL.md — to an *opus implementer* rather than inline, logging subagent token counts for each. The repo's own history already refutes "knowledge-shaped work is orchestrator work." A boundary defined as "knowledge-shaped" is not a boundary. If inline is ever correct it should be an operator checkpoint recorded BEFORE the work — structurally identical to escalation, which this repo already handles that way.
+
+This supersedes candidate 4 in my earlier comment and the corresponding paragraph in `docs/design/lane-4-dispatch-gap.md`, updated in the same commit.
+
+**Caveat raised, already resolved:** the sister session noted `docs/design/lane-4-dispatch-gap.md` was unreachable from `origin/main` (commit 1ddccb5). Accurate when written; it rode PR #140, merged as `fbe5b4c`, and is on `main` now — verified with `git merge-base --is-ancestor`. No dangling reference remains.
 ---
 <!-- COMMENTS:END -->
