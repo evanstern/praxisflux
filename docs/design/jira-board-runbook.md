@@ -8,7 +8,8 @@ conflicts as routine. Direction is decided; do not re-litigate it:
 `docs/design/jira-board-handoff.md` win. Plan-of-record is the board; this file carries only
 ordering, doctrine, and the log.
 
-**Status:** **signed-off (partial)** — Lane 0 **done** (TASK-104 merged `a875256`, board
+**Status:** **CLOSED 2026-09-10 — all lanes merged, epic Done.** (Historical status below.)
+**Was:** signed-off (partial) — Lane 0 **done** (TASK-104 merged `a875256`, board
 Done) · **Lanes 1–2 COMPLETE AND MERGED** — Lane 1 TASK-109 (`0c97243`, v0.59.0); Lane 2 all three merged: TASK-111 (#135, `e0ea7b2`, v0.59.3), TASK-114 (#133, `dafff60`, v0.59.5), TASK-110 (#134, `5377710`, v0.59.6) · **Lanes
 3–4 SIGNED OFF 2026-09-09, ORDER INVERTED** (TASK-112, TASK-113 — see the
 premise-inversion checkpoint below; **F2 is CLEARED**, so F1 is satisfied via option (a):
@@ -412,7 +413,47 @@ but must still spot-check the first dispatch of any lane if the tier config has 
 - `git worktree list` shows no stale sweep worktrees.
 - This file's execution log complete and its status flipped to **done**.
 
-## RESUME HERE — Lane 4 is the last task; READ `docs/design/lane-4-handoff.md` FIRST
+## SWEEP CLOSED — 2026-09-10. All lanes done; the epic is closed.
+
+**TASK-113 (Lane 4) merged as PR #140 (`fbe5b4c`, v0.63.0)** and the **TASK-108 epic is
+Done with no PR of its own** (`docs/principles.md` P2). Nothing in this runbook is
+actionable; it stands as the audit trail.
+
+Final execution log:
+
+| Lane | Task | PR | Merge | Notes |
+|---|---|---|---|---|
+| 0 | TASK-104 | #130 | `a875256` | v0.58.0 — the unblocker |
+| — | TASK-107 | — | `05bb793` | tier pins verified to actually serve |
+| 1 | TASK-109 | — | `0c97243` | v0.59.0 — spec 052, the mirror seam |
+| 2 | TASK-111 | #135 | `e0ea7b2` | v0.59.3 — spec 054, config + jira peer |
+| 2 | TASK-114 | #133 | `dafff60` | v0.59.5 — flaky-id fix folded in |
+| 2 | TASK-110 | #134 | `5377710` | v0.59.6 — spec 053, bridge over the mirror |
+| 2.5 | TASK-0122 | #138 | `8014a35` | v0.61.1 — gate-runner cwd precedence |
+| 3 | TASK-112 | #139 | `5c7bc70` | v0.62.0 — spec 055, verbs + renderJira |
+| 4 | TASK-113 | #140 | `fbe5b4c` | v0.63.0 — spec 056, the Jira provider |
+
+**What Lane 4 added to the findings, beyond F1–F7:** a THIRD description normalization
+(trailing whitespace on the END marker line) which **compounds** if echoed back —
+contradicting Phase 1's "idempotent, not degrading" verdict, since amended in place; the
+resolution quirk verified (the backwards move is *not* blocked, but the forward move
+silently sets `resolution` and the backwards one does not clear it); transition **names**
+are non-unique, so moves resolve by `id` matched on `to.name`; and a target status may need
+more than one hop.
+
+**Carried forward, not rounded up:**
+- **TASK-113 ACs #3 and #6 unchecked** — `board:sync` and the reverse direction are proven
+  at the mechanism level but never run end-to-end against a Jira-configured host, which this
+  repo cannot be while remaining a backlog host (invariant 2).
+- **TASK-0125** — the dispatch gap the operator found mid-Lane-4: this lane ran inline on the
+  orchestrator's model instead of dispatching to the assigned `sonnet` implementer, and no
+  gate could see it. Triaged; four fixes adopted, one rejected.
+  See `docs/design/lane-4-dispatch-gap.md`.
+- **Scratch issues** in the sanctioned project are the operator's to delete.
+
+<!-- superseded resume block below, kept for the audit trail -->
+
+## (superseded) RESUME HERE — Lane 4 is the last task; READ `docs/design/lane-4-handoff.md` FIRST
 
 **Updated 2026-09-09 (later).** Lane 2.5 (**TASK-0122**, the gate-runner cwd-precedence
 defect) and Lane 3 (**TASK-112**, spec 055) are both **DONE and merged** — PR #138
