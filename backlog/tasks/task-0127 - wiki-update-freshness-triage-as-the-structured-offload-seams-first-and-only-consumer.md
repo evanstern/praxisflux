@@ -45,9 +45,11 @@ Spec: specs/065-wiki-triage-offload
 - [ ] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
 - [ ] #7 check-docs, wiki-freshness, and spec-bridge gates green
 - [x] #8 Spec phase: Phase 1 — The triage-offload script and its tests
-- [ ] #9 Spec phase: Phase 2 — Skill wiring, versions, wiki
+- [x] #9 Spec phase: Phase 2 — Skill wiring, versions, wiki
 - [ ] #10 Spec phase: Phase 3 — The measurement (endpoint required)
 <!-- AC:END -->
+
+
 
 
 
