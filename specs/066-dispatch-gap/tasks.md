@@ -45,7 +45,9 @@ the new gate fails this repo immediately.
 - [ ] Confirm `.pdlc`'s `version` advances off `0.57.0` and the block's BEGIN marker stamps the new version
 - [ ] Amend `docs/wiki/pdlc-grounding-block.md`'s prose where R1 changed what it describes — **NEEDS-REVIEW, not RE-PIN-ONLY.** Read the diff you are pinning over (`git diff <old-pin>..HEAD -- pdlc/templates/CLAUDE.md`) before touching the pin
 - [ ] Only then bump that note's `verified_against`
-- [ ] Check whether `docs/wiki/pdlc-sweep.md`'s pinned sources were touched by Phase 2/3; if so, same classify-then-pin treatment
+- [ ] **SIX notes are stale, not two — measured after the Phase-2 merge-in, not guessed.** Run `node scripts/run-gates.mjs --gates spec-bridge,wiki-freshness` first and work its actual list. As of the `4d97944` merge it reports: `pdlc-grounding-block` (Phase 1's `pdlc/templates/CLAUDE.md` rewrite), `pdlc-plugin` (2 commits, incl. the merge), and the whole **`pdlc-sweep` family — `pdlc-sweep`, `pdlc-sweep-history`, `pdlc-sweep-history-early`, `pdlc-sweep-history-recent`** — all four pinned on `pdlc/skills/sweep/SKILL.md` + `templates/runbook.md`, staled by Phase 2's `6504ad9`
+- [ ] Classify each of the six against its own source diff (`git diff <old-pin>..HEAD -- <sources>`): **RE-PIN-ONLY** only where the diff provably cannot invalidate the note's prose. `pdlc-grounding-block` and `pdlc-sweep` are **NEEDS-REVIEW** — both describe surfaces this task rewrote. The three history notes are likely RE-PIN-ONLY (they narrate past releases, and this task adds a new template rather than changing that history) — **but read each diff before deciding; do not take that guess as the answer**
+- [ ] The `pdlc-sweep` note has a documented ~8,000-char body cap (see its history: TASK-88 tightened it to 7,999/8,000 and TASK-87 to 7,973/8,000). If describing the lane-handoff template pushes it over, split summary-style rather than truncating meaning
 - [ ] Commit
 
 ## Phase 5 — The upgrade path (R7) — AFTER Phase 4
