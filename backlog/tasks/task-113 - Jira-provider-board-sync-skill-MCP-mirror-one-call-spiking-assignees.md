@@ -47,14 +47,6 @@ Spec: specs/056-jira-provider
 - [x] #14 Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -75,6 +67,8 @@ Phase 1 ticked 6/7. The resolution quirk is UNVERIFIED and owed before Phase 3: 
 Tier: this phase was knowledge-only and run by the orchestrator directly (no implementer dispatch, so no served-model note applies). Phases 2-4 remain sonnet / cc/claude-sonnet-5[1m] per the runbook.
 
 OWED TO THE OPERATOR: delete or close the scratch issue (titled '[SCRATCH — praxisflux spec 056 Phase 1] marker survival test, safe to delete'). The orchestrator has no delete authorization.
+
+spec-bridge sync: Phase 1 — Verify the MCP surface (output is knowledge, not code): 7/7 · Phase 2 — Read path: provider, JQL, extraction, mirror: 14/14 · Phase 3 — Write path: execute the renderer's calls: 6/6 · Phase 4 — Spike, assignees, sweep proof, re-ground: 12/12 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
