@@ -32,14 +32,14 @@ phase's commit. Run the suite as bare `node --test`.
 
 ## Phase 3 — The measurement (endpoint required)
 
-- [ ] Preflight: `curl http://localhost:11434/api/tags` answers and lists
+- [x] Preflight: `curl http://localhost:11434/api/tags` answers and lists
       `deepseek-r1:latest`. If unreachable: STOP this phase, leave its boxes unticked,
       note the park on the board task, surface to the operator (runbook checkpoint 2
       ruling) — never fabricate a measurement
-- [ ] Reconstruct a REVIEW-heavy staleness window on a scratch clone/worktree (the
+- [x] Reconstruct a REVIEW-heavy staleness window on a scratch clone/worktree (the
       #141/#142 version-bump window) and run seam-off (Claude classifies in-session —
       ground truth) and seam-on (`triage-offload.mjs` vs Ollama `deepseek-r1:latest`)
       over identical inputs
-- [ ] Write `docs/design/triage-offload-measurement.md`: tokens, wall-clock, fallback
+- [x] Write `docs/design/triage-offload-measurement.md`: tokens, wall-clock, fallback
       rate, misroute rate by direction, and an explicit second-consumer verdict
-- [ ] Commit and push
+- [x] Commit and push
