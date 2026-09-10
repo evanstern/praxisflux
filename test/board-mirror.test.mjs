@@ -618,6 +618,45 @@ test("lib/ contains no MCP or network calls (spec 056 AC #1)", () => {
     `unexpected MCP/network reference in lib/: ${JSON.stringify(out)}`);
 });
 
+/* ── spec 056 Phase 2 — the LIVE read path, against verbatim bytes returned by a real Jira
+ * JQL read on 2026-09-10 (not hand-written fixtures). Fixtures are what finding F1 warned
+ * about: they produce none of Jira's silent normalizations. These strings are copied exactly
+ * from the wire. ── */
+
+// Verbatim from the live response. Note THREE normalizations, not the two Phase 1 recorded:
+//   1. a blank line inserted after BEGIN,
+//   2. two trailing spaces on the last checkbox line,
+//   3. NEW — two trailing spaces on the END MARKER LINE itself.
+const LIVE_LINKED = "Scratch issue for praxisflux spec 056 Phase 2/3 verification. Safe to close or delete.\n\nThis line is human-authored text that the bridge must never modify.\n\n<!-- spec-phases BEGIN -->\n\n- [x] Phase 1 — Verify the MCP surface\n- [ ] Phase 2 — Read path\n- [ ] Phase 3 — Write path  \n<!-- spec-phases END -->  \nSpec: specs/056-jira-provider\n\n";
+const LIVE_UNLINKED = "Scratch issue for praxisflux spec 056. Safe to close or delete.\n\nThis issue deliberately has NO Spec: marker. It must be EXCLUDED from the mirror and counted as unlinked.";
+
+test("parseSpecPhasesBlock: live Jira bytes parse to the mirror's acs shape (3 normalizations)", () => {
+  assert.deepEqual(parseSpecPhasesBlock(LIVE_LINKED), [
+    { index: 1, checked: true, text: "Phase 1 — Verify the MCP surface" },
+    { index: 2, checked: false, text: "Phase 2 — Read path" },
+    { index: 3, checked: false, text: "Phase 3 — Write path" },
+  ]);
+});
+
+// Normalization 3, isolated: Jira appends trailing whitespace to the END MARKER LINE. The
+// parser slices on indexOf(END) so the trailing spaces land AFTER the slice and never reach
+// an item — but the marker line is no longer byte-equal to what we wrote, so any future
+// exact-line comparison against SPEC_PHASES_END would silently stop matching. Pinned here so
+// that change fails loudly rather than emptying every block.
+test("parseSpecPhasesBlock: trailing whitespace on the END marker line is tolerated", () => {
+  const items = parseSpecPhasesBlock("<!-- spec-phases BEGIN -->\n- [x] A\n<!-- spec-phases END -->  \nSpec: specs/001-x");
+  assert.deepEqual(items, [{ index: 1, checked: true, text: "A" }]);
+});
+
+// AC #4 — an issue with no Spec: marker is not bridged work and must be excluded. Same
+// MARKER regex bridge.mjs uses, asserted against live bytes.
+test("the Spec: marker survives live normalization, and an unlinked issue yields none", () => {
+  const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
+  assert.equal(LIVE_LINKED.match(MARKER)?.[1], "specs/056-jira-provider",
+    "the marker must still match with trailing whitespace on the preceding END line");
+  assert.equal(LIVE_UNLINKED.match(MARKER), null, "an unlinked issue must produce no specDir");
+});
+
 /* ── spec 055 Phase 3 (R2/AC #5) — the marked spec-phases description block ── */
 
 // AC #5 — render -> parse round-trips to the mirror's own acs shape, 1-based positional.

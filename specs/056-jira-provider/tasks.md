@@ -31,14 +31,14 @@ all exist.
 
 ## Phase 2 — Read path: provider, JQL, extraction, mirror
 
-- [ ] Register `providers.jira = { requiresSync: true, project: null }` in
+- [x] Register `providers.jira = { requiresSync: true, project: null }` in
       `lib/board-mirror.mjs` — and change nothing else there
-- [ ] Assert `lib/` stays MCP-free and network-free: `grep -rn "mcp__\|fetch(" lib/` returns
+- [x] Assert `lib/` stays MCP-free and network-free: `grep -rn "mcp__\|fetch(" lib/` returns
       nothing (AC #1)
-- [ ] Create `spec-bridge/skills/board-sync/SKILL.md` in the gate → work → gate pattern;
+- [x] Create `spec-bridge/skills/board-sync/SKILL.md` in the gate → work → gate pattern;
       record in its header **why it lives in spec-bridge, not pdlc** (it maintains the
       artifact the bridge gate reads)
-- [ ] Precondition gate: `.board.json` with a `requiresSync: true` provider (else STOP —
+- [x] Precondition gate: `.board.json` with a `requiresSync: true` provider (else STOP —
       a backlog host recomputes and needs no skill); config valid; MCP reachable, and a
       missing MCP server **stops with a stated reason**, never a partial sync
 - [ ] Implement the JQL query scoped to `projectKey` + open statuses, requesting only the
@@ -48,7 +48,7 @@ all exist.
 - [ ] Extract per issue: key → `id`; status reverse-mapped through `statusMap` → the bridge
       vocabulary; the `Spec: <dir>` marker; the `<!-- spec-phases -->` block → `acs` via
       055's parser; labels → `labels`
-- [ ] Build the inverse `statusMap` at load and **error on a non-injective map**, naming the
+- [x] Build the inverse `statusMap` at load and **error on a non-injective map**, naming the
       colliding pair — a silent "first wins" makes verdicts depend on key order. If this
       belongs in 054's validator, record it as an amendment rather than doing it quietly
 - [ ] **Skip unlinked issues** (no `Spec:` marker) and report the count (AC #4)
@@ -59,7 +59,7 @@ all exist.
 - [ ] Output gate: `board-mirror --check` exits 0; `spec-bridge/gates/cli.mjs check` exits 0
       **or** its findings are reported verbatim — a sync that reveals a dishonest status has
       done its job and must **not** "fix" the board to make the gate pass
-- [ ] Tests for ACs 3, 4, 5 (both mapping directions, unmapped falls through)
+- [x] Tests for ACs 3, 4, 5 (both mapping directions, unmapped falls through)
 - [ ] Commit
 
 ## Phase 3 — Write path: execute the renderer's calls

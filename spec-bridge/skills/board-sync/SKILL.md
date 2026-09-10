@@ -66,10 +66,16 @@ writing the reconciling edits back is `spec-bridge:sync`'s job. Keep them separa
 5. **Skip unlinked issues.** An issue with no `Spec:` marker is not bridged work — it belongs on
    the board but not in the mirror. **Report the count** so the operator can see what was
    excluded rather than wondering.
-6. **Write the mirror** with `writeMirror`, stamping `observedAt` (now, ISO) and `observedSha`
+6. **Two issues claiming the same `specDir` is a STOP, not a choice.** Observed live on
+   2026-09-10: a superseded scratch card and its replacement both carried
+   `Spec: specs/056-jira-provider`. `validateMirror` rejects it (`duplicate specDir: <dir>`),
+   and that is the correct outcome — picking the newer, the higher-keyed, or the first-seen
+   would make the gate's verdict depend on an arbitrary tiebreak nobody declared. **Report both
+   issue keys and stop**; the operator un-links one. Do not write a mirror that drops either.
+7. **Write the mirror** with `writeMirror`, stamping `observedAt` (now, ISO) and `observedSha`
    (`git rev-parse HEAD`) on **every** link. Never hand-edit the JSON — `writeMirror` is
    byte-deterministic and the `--check` path byte-compares.
-7. **Commit it.** An uncommitted mirror is invisible to CI, which is where enforcement actually
+8. **Commit it.** An uncommitted mirror is invisible to CI, which is where enforcement actually
    lives. Under a sweep's no-main-push mode, follow that mode's existing degradation (the commit
    rides the next claimed branch) — do not invent a second rule.
 
