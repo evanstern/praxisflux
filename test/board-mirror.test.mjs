@@ -633,17 +633,19 @@ test("validateBoardConfig: catches a non-object statusReadMap", () => {
   assert.ok(problems.some((m) => m.includes("statusReadMap")));
 });
 
-// AC #1 — lib/ stays MCP-free and network-free (design invariant 4): the whole point of
-// `project: null` is that the MCP half lives in a SKILL, never here. Two standing exceptions,
-// both verified non-calls: lib/selfcontained.mjs holds a DETECTOR regex containing the literal
-// `fetch(`, and lib/toolkit/code-translation.md is a teaching document. Asserting against the
-// real file list (not a bare grep) is what keeps this honest as lib/ grows — a new real call
-// site fails here loudly.
-test("lib/ contains no MCP or network calls (spec 056 AC #1)", () => {
+// AC #1 — lib/ stays MCP-free (design invariant 4): the whole point of `project: null`
+// is that the MCP half lives in a SKILL, never here. Three standing exceptions:
+// lib/selfcontained.mjs holds a DETECTOR regex containing the literal `fetch(`,
+// lib/toolkit/code-translation.md is a teaching document, and lib/structured-offload.mjs
+// (spec 063) makes real `fetch()` calls — deliberately, to a local/user-configured
+// endpoint only, opt-in and fail-soft, never MCP. Asserting against the real file list
+// (not a bare grep) is what keeps this honest as lib/ grows — a new real call site
+// fails here loudly.
+test("lib/ contains no MCP calls, and network calls are limited to named exceptions (spec 056 AC #1, spec 063)", () => {
   const libDir = new URL("../lib/", import.meta.url).pathname;
   const out = execFileSync("grep", ["-rl", "mcp__\\|fetch(", libDir], { encoding: "utf8" })
     .split("\n").filter(Boolean).map((f) => f.replace(libDir, "")).sort();
-  assert.deepEqual(out, ["selfcontained.mjs", "toolkit/code-translation.md"],
+  assert.deepEqual(out, ["selfcontained.mjs", "structured-offload.mjs", "toolkit/code-translation.md"],
     `unexpected MCP/network reference in lib/: ${JSON.stringify(out)}`);
 });
 
