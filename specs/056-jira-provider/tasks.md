@@ -8,37 +8,37 @@ all exist.
 
 ## Phase 1 — Verify the MCP surface (output is knowledge, not code)
 
-- [ ] Read the actual tool signatures for each of: `getAccessibleAtlassianResources`,
+- [x] Read the actual tool signatures for each of: `getAccessibleAtlassianResources`,
       `getVisibleJiraProjects`, `getJiraProjectIssueTypesMetadata`,
       `searchJiraIssuesUsingJql`, `getJiraIssue`, `createJiraIssue`, `editJiraIssue`,
       `transitionJiraIssue`, `addCommentToJiraIssue`, `atlassianUserInfo`,
       `lookupJiraAccountId`, `getTransitionsForJiraIssue`. Record required params per tool
-- [ ] **THE CRITICAL TEST — do this first:** write a `<!-- spec-phases -->` block with
+- [x] **THE CRITICAL TEST — do this first:** write a `<!-- spec-phases -->` block with
       checkboxes to a scratch issue's description, read it back, and confirm the HTML comment
       markers **and** the checkbox syntax survive. Test both `contentFormat: "markdown"` and
       `"adf"`; record which preserves them
-- [ ] **If the markers do NOT survive: STOP and surface it.** A delimiter change is an
+- [x] **If the markers do NOT survive: STOP and surface it.** A delimiter change is an
       amendment to spec 055, not a local workaround. Do not invent a substitute silently
-- [ ] Confirm the transition two-step: `transitionJiraIssue` takes a transition **id**, not a
+- [x] Confirm the transition two-step: `transitionJiraIssue` takes a transition **id**, not a
       status name, and available transitions depend on current status + workflow. Record the
       `getTransitionsForJiraIssue` → `transitionJiraIssue` sequence
-- [ ] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards
+- [x] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards  <!-- VERIFIED 2026-09-10 under the operator's write authorization: the backwards move is NOT blocked on this workflow, but the forward move to Closed silently SETS resolution and the backwards move does not clear it. editJiraIssue with an explicit null clears it. See findings/phase-3-resolution-quirk.md. -->
       transition, and clearing it via `editJiraIssue` is the fix. The bridge **does** move
       statuses backwards, so record how to handle it
-- [ ] Confirm `searchJiraIssuesUsingJql` pagination (`maxResults` cap, `nextPageToken`) and
+- [x] Confirm `searchJiraIssuesUsingJql` pagination (`maxResults` cap, `nextPageToken`) and
       which `fields` are needed (`summary`, `status`, `description`, `labels` — not `*all`)
-- [ ] Record every finding in Notes; commit (findings only, no implementation)
+- [x] Record every finding in Notes; commit (findings only, no implementation)
 
 ## Phase 2 — Read path: provider, JQL, extraction, mirror
 
-- [ ] Register `providers.jira = { requiresSync: true, project: null }` in
+- [x] Register `providers.jira = { requiresSync: true, project: null }` in
       `lib/board-mirror.mjs` — and change nothing else there
-- [ ] Assert `lib/` stays MCP-free and network-free: `grep -rn "mcp__\|fetch(" lib/` returns
+- [x] Assert `lib/` stays MCP-free and network-free: `grep -rn "mcp__\|fetch(" lib/` returns
       nothing (AC #1)
-- [ ] Create `spec-bridge/skills/board-sync/SKILL.md` in the gate → work → gate pattern;
+- [x] Create `spec-bridge/skills/board-sync/SKILL.md` in the gate → work → gate pattern;
       record in its header **why it lives in spec-bridge, not pdlc** (it maintains the
       artifact the bridge gate reads)
-- [ ] Precondition gate: `.board.json` with a `requiresSync: true` provider (else STOP —
+- [x] Precondition gate: `.board.json` with a `requiresSync: true` provider (else STOP —
       a backlog host recomputes and needs no skill); config valid; MCP reachable, and a
       missing MCP server **stops with a stated reason**, never a partial sync
 - [ ] Implement the JQL query scoped to `projectKey` + open statuses, requesting only the
@@ -48,7 +48,7 @@ all exist.
 - [ ] Extract per issue: key → `id`; status reverse-mapped through `statusMap` → the bridge
       vocabulary; the `Spec: <dir>` marker; the `<!-- spec-phases -->` block → `acs` via
       055's parser; labels → `labels`
-- [ ] Build the inverse `statusMap` at load and **error on a non-injective map**, naming the
+- [x] Build the inverse `statusMap` at load and **error on a non-injective map**, naming the
       colliding pair — a silent "first wins" makes verdicts depend on key order. If this
       belongs in 054's validator, record it as an amendment rather than doing it quietly
 - [ ] **Skip unlinked issues** (no `Spec:` marker) and report the count (AC #4)
@@ -59,17 +59,17 @@ all exist.
 - [ ] Output gate: `board-mirror --check` exits 0; `spec-bridge/gates/cli.mjs check` exits 0
       **or** its findings are reported verbatim — a sync that reveals a dishonest status has
       done its job and must **not** "fix" the board to make the gate pass
-- [ ] Tests for ACs 3, 4, 5 (both mapping directions, unmapped falls through)
+- [x] Tests for ACs 3, 4, 5 (both mapping directions, unmapped falls through)
 - [ ] Commit
 
 ## Phase 3 — Write path: execute the renderer's calls
 
-- [ ] Extend `spec-bridge:sync` to execute `renderJira`'s `{ tool, args, why }` list when the
+- [x] Extend `spec-bridge:sync` to execute `renderJira`'s `{ tool, args, why }` list when the
       provider is `jira`, **in the returned order** (later calls assume earlier ones landed —
       same discipline as the Backlog path)
-- [ ] Use the phase-1 transition sequence for status moves; handle the resolution-blocks-reopen
+- [x] Use the phase-1 transition sequence for status moves; handle the resolution-blocks-reopen
       case for backwards moves
-- [ ] Re-sync the mirror after execution, so it reflects post-edit Jira rather than the state
+- [x] Re-sync the mirror after execution, so it reflects post-edit Jira rather than the state
       that motivated the edits
 - [ ] Assert the one-way contract: `git status` shows **no** modification under any spec dir
       (AC #6)

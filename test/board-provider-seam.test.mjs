@@ -410,3 +410,48 @@ test("renderJira is pure: no MCP tool prefix and no network primitive appears an
   assert.doesNotMatch(src, /mcp__/);
   assert.doesNotMatch(src, /\bfetch\(/);
 });
+
+/* ── spec 056 Phase 2 (AC #9 point 3) — THE feature's reason for existing.
+ * A card set Done in the Jira UI over unchecked tasks.md boxes must produce a BLOCKING
+ * finding. Reproduced live against a real Jira board on 2026-09-10 and pinned here (issue key
+ * neutralized — finding F7: no live site identifiers in this public, auto-published repo).
+ * The subtlety worth keeping: the MIRROR is valid and fresh — board-mirror --check exits 0.
+ * The dishonesty is not a broken artifact, it is a status outrunning its evidence, and only
+ * the bridge gate can see it. A test that asserted only on the mirror would pass while the
+ * hole stayed open. ── */
+test("jira: a card Done in the UI over unchecked boxes is a BLOCKING bridge finding", () => {
+  const root = mkdtempSync(join(tmpdir(), "jira-ui-done-"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+
+  const specDir = "specs/056-jira-provider";
+  mkdirSync(join(root, specDir), { recursive: true });
+  writeFileSync(join(root, specDir, "spec.md"), "# spec\n");
+  writeFileSync(join(root, specDir, "plan.md"), "# plan\n");
+  writeFileSync(join(root, specDir, "tasks.md"),
+    "# tasks\n## Phase 1 — Read path\n- [x] done thing\n## Phase 2 — Write path\n- [ ] NOT done\n- [ ] also not done\n");
+  execFileSync("git", ["add", "-A"], { cwd: root });
+  execFileSync("git", ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "spec"], { cwd: root });
+  const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+
+  // The mirror as board-sync would write it after a human dragged the card to Done.
+  mkdirSync(join(root, ".board"), { recursive: true });
+  writeFileSync(join(root, ".board", "links.json"), JSON.stringify({
+    schema: 1, provider: "jira", generatedAt: "2026-09-10T14:00:00.000Z",
+    links: [{
+      id: "SCRATCH-122", status: "Done", specDir,
+      acs: [{ index: 1, checked: true, text: "Phase 1 — Read path" },
+            { index: 2, checked: false, text: "Phase 2 — Write path" }],
+      observedAt: "2026-09-10T14:00:00.000Z", observedSha: sha,
+    }],
+  }, null, 2) + "\n");
+
+  const { problems } = checkBridge(root, { runGates: false });
+  const hit = problems.find((m) => String(m).includes("SCRATCH-122"));
+  assert.ok(hit, `expected a blocking problem for the Done-over-unchecked card, got ${JSON.stringify(problems)}`);
+  const msg = String(hit);
+  assert.match(msg, /"Done"/, "the finding must name the dishonest claimed status");
+  assert.match(msg, /In Progress/, "and what the artifacts actually prove");
+  assert.match(msg, /unchecked/, "and why");
+
+  rmSync(root, { recursive: true, force: true });
+});

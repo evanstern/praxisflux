@@ -21,7 +21,7 @@ size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TAS
   minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
   than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
   already own this note family's owed summary-style split; fold this into it and remove.
-verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
+verified_against: 409422e7533e6313aae100e406789704daf9b6bd
 ---
 
 # spec-bridge plugin
@@ -55,11 +55,11 @@ commands that reconcile every linked task — status moves (backwards included; 
 plans `-s Done` with a derived final summary, the only path to Done), `Spec phase:` AC
 removals highest-index-first, additions, check/uncheck at post-edit indexes, and one
 change-only progress note (`Setup: 2/2 · Core: 4/7`) per touched task. Human-authored ACs
-(no `Spec phase:` prefix) are structurally untouchable; verdict-unknown tasks are reported on
-stderr, never guessed; a reconciled board plans nothing. The planner (`planLinkedTask` /
-`planBridge` in `gates/bridge.mjs`, fed by `parseLinkedTask` — now in `lib/board-mirror.mjs`,
-re-exported here — which also reads the task's AC:BEGIN/END block) stays read-only — plan
-prints, the skill executes and re-verifies.
+(no `Spec phase:` prefix) are structurally untouchable; verdict-unknown tasks go to stderr,
+never guessed; a reconciled board plans nothing. The planner (`planLinkedTask` / `planBridge`
+in `gates/bridge.mjs`, fed by `parseLinkedTask` — now in `lib/board-mirror.mjs`, re-exported
+here — which also reads the task's AC:BEGIN/END block) stays read-only: plan prints, the skill
+executes and re-verifies.
 
 **The gate.** `gates/bridge.mjs` finds project roots downwards (`findRootsDownwards` +
 `hasChild("backlog")`), parses linked tasks, and compares each task's frontmatter status to
@@ -80,44 +80,44 @@ via `command -v` with a login-shell fallback; when unavailable, a one-time stder
 then exit 0) into `scripts/stop.mjs`
 on `runStopHook`; the gate is a no-op in projects with no `backlog/` dir or no linked tasks.
 
-**Strict Done (opt-in).** Checked boxes are necessary but weak proof. With
-`{ "strictDone": true }` in `.spec-bridge.json` at the project root, Done-eligible
-additionally requires the `/speckit.analyze` report saved as `<specDir>/analysis.md` (a
-durable artifact, not chat output) with no unresolved CRITICAL findings — the scan is
-line-based, a `CRITICAL` line counting unless it says `resolved` or carries a checked box.
-Missing or malformed config means checkbox-only mode.
+**Strict Done (opt-in).** Checked boxes are weak proof. With `{ "strictDone": true }` in
+`.spec-bridge.json`, Done-eligible also requires the `/speckit.analyze` report saved as
+`<specDir>/analysis.md` (a durable artifact, not chat output) with no unresolved CRITICAL
+findings — the scan is line-based, a `CRITICAL` line counting unless it says `resolved` or
+carries a checked box. Missing or malformed config means checkbox-only mode.
 
 **Phase-level status (opt-in).** The derivation always names a finer *stage* under the
-3-status collapse — `specifying` → `planning` → `implementing` → `validating` (only
-`tasks.md`'s final phase unchecked, needing ≥2 phases, or all boxes checked with strict-mode
-analysis outstanding) → `reviewing` (identical to Done-eligible; `coarseStatus` is the fixed
-collapse). A `statusVocabulary` map in `.spec-bridge.json` (stage → the board's own status
-name; partial maps overlay the defaults; malformed or rename-free maps opt out) makes the
-board speak that ladder: `stageVerdict` ranks the same four verdicts on stage spans (a name
-covering several stages spans all of them; "Done" always covers the top stage, so
-Done-eligibility is unchanged), and plan targets the mapped names — a *mapped* `reviewing`
-(say "In Review") is planned instead of auto-Done, moving to Done staying a deliberate act
-the gate accepts. Absent the config, every path is bit-for-bit the 3-status contract — this
-is praxis P3 (artifact-gated seams, `docs/principles.md`) applied to the board as a
-pipeline's observability surface.
+3-status collapse — `specifying` → `planning` → `implementing` → `validating` (only the final
+phase unchecked, needing ≥2 phases, or all boxes checked with strict-mode analysis
+outstanding) → `reviewing` (identical to Done-eligible; `coarseStatus` is the fixed collapse).
+A `statusVocabulary` map (stage → the board's status name; partial maps overlay defaults;
+malformed or rename-free maps opt out) makes the board speak that ladder: `stageVerdict` ranks
+the same four verdicts on stage spans (a name covering several stages spans all; "Done" always
+covers the top, so Done-eligibility is unchanged), and plan targets the mapped names — a
+*mapped* `reviewing` is planned instead of auto-Done, keeping the move to Done deliberate.
+Absent the config every path is bit-for-bit the 3-status contract — praxis P3 applied to the
+board as a pipeline's observability surface.
 
-**Project gates (opt-in, spec 050/061).** A ticked `tasks.md` checkbox IS status here — the
-derivation reads Done-eligibility from those boxes — so a box may not claim a greenness the
-project's gates would deny (field case: a ticked green claim standing over a red freshness
-gate). A `projectGates` map (`.spec-bridge.json`) makes the rule *data*, two buckets: `required`
-green before Done-eligible; `redByConstruction` (freshness) MAY be red mid-PR, enforced
-once the re-pin box is ticked. Each `command` is an **argv array** via `spawnSync`
+**Project gates (opt-in, spec 050/061).** A ticked checkbox IS status here, so a box may not
+claim a greenness the project's gates would deny (field case: a ticked green claim over a red
+freshness gate). A `projectGates` map makes the rule *data*, two buckets: `required` green
+before Done-eligible; `redByConstruction` (freshness) MAY be red mid-PR, enforced once the
+re-pin box is ticked. Each `command` is an **argv array** via `spawnSync`
 `shell:false`; ENOENT/timeout is *failed, never green* (fail-closed). `projectGatesProfile`
 mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒ byte-identical. `collapsedGateProblems`
 feeds both entry points — **Stop hook** (`checkBridge`) at Done-eligible, both buckets; CLI
 **`verify`** (`verifyBridge`), mid-PR, `required` only, both now `{ problems, warnings }` —
 running each command **once per invocation** and emitting exactly **ONE** finding per non-green
-gate, naming gate + bucket + reason + affected count, never one per spec. A dirty tree
-(`isTreeDirty`, fail-closed to clean) routes that finding to `warnings`, labeled non-blocking
-(this note's F6, inverted). `evaluateProjectGates` stays exported as the pure per-spec
-evaluator. `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the **default** runner so a gate command
-re-invoking the bridge can't recurse; an injected `run` bypasses it, so the check dogfoods
-itself.
+gate (gate + bucket + reason + affected count), never one per spec. A dirty tree
+(`isTreeDirty`, fail-closed to clean) routes it to `warnings`, non-blocking (this note's F6,
+inverted). `evaluateProjectGates` stays exported as the pure per-spec evaluator.
+`SPEC_BRIDGE_GATE_ACTIVE` short-circuits the **default** runner so a gate command re-invoking
+the bridge can't recurse; an injected `run` bypasses it, so the check dogfoods itself.
+
+**The board provider seam (052-056).** The board isn't assumed to be Backlog.md: a
+`providers` registry in `lib/board-mirror.mjs` keys on `requiresSync`, `.board/links.json` is
+the gate's read surface for every provider, and Jira's MCP-backed projection lives in a skill
+so `lib/` stays network-free. See [[board-provider-seam]].
 
 ## Connections
 

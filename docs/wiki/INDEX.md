@@ -30,7 +30,8 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[educate-plugin]] — Socratic learning projects: lesson lifecycle, DoD gate, teach→build seam
 - [[build-plugin]] — skill-only implementation leg: implements a handed-off SPEC and returns findings for educate to fold in
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
-- [[spec-bridge-plugin]] — Backlog.md as the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate, opt-in project-gate check
+- [[spec-bridge-plugin]] — the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate, opt-in project-gate check
+- [[board-provider-seam]] — how one gate reads a board it cannot recompute: the providers registry, the mirror as sole read surface, two status maps, and the MCP-free boundary
 - [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit)
 - [[pdlc-grounding-block]] — what bootstrap plants into a host CLAUDE.md: the marked-block mechanism, the 101 principles and their peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json
 - [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through claim+link → spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine and a per-task spec+plan+tasks-or-escape-line Output gate
