@@ -43,9 +43,11 @@ Spec: specs/056-jira-provider
 - [ ] #10 Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated
 - [x] #11 Spec phase: Phase 1 — Verify the MCP surface (output is knowledge, not code)
 - [x] #12 Spec phase: Phase 2 — Read path: provider, JQL, extraction, mirror
-- [ ] #13 Spec phase: Phase 3 — Write path: execute the renderer's calls
+- [x] #13 Spec phase: Phase 3 — Write path: execute the renderer's calls
 - [ ] #14 Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground
 <!-- AC:END -->
+
+
 
 
 
