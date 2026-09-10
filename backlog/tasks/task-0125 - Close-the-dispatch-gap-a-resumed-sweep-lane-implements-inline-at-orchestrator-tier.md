@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 17:13'
+updated_date: '2026-09-10 17:36'
 labels:
   - pdlc
   - doctrine
@@ -175,5 +175,35 @@ Gates: `check-docs` green; suite **563 pass / 0 fail**; pre-commit also ran `gen
 Phase 1 boxes: **7/7 ticked.** AC #7 (Spec phase: Phase 1) is satisfied by the artifacts; it gets ticked by `spec-bridge:sync` from the ticked tasks.md, not by hand.
 
 Next: Phase 2 — the lane-handoff template (R2/R5), same tier.
+---
+
+author: @claude
+created: 2026-09-10 17:36
+---
+PHASE 2 COMPLETE — served model `claude-opus-5` (52 transcript occurrences, pin held again).
+
+**Delivered (commit `6504ad9`):** `pdlc/skills/sweep/templates/lane-handoff.md` — a new template genre; Phase 1 confirmed none existed.
+
+Its first lines, which ARE the fix:
+
+> # {{LANE_TITLE}} — lane handoff ({{DATE}})
+>
+> **You (the session reading this) are the ORCHESTRATOR for this lane, not its implementer.** Dispatch the implementation to `{{TIER}}-implementer` and verify the served model before proceeding.
+
+Nothing precedes it but the title, and an HTML comment immediately after tells a future editor why it is first — with the 2026-09-10 field case — and says do not move these lines. The ordering *is* the mechanism, so it needed a guard against a well-meaning reorganization.
+
+**R2 satisfied:** the body's `## Dispatch` section opens imperatively — *"Dispatch every remaining phase to `{{TIER}}-implementer`"* with model ID, fallback, justification, and the two attached steps that make it unsatisfiable while working inline (verify the served model; record the dispatch on the board task). The string `Model tier:` appears exactly once in the file — inside a comment **prohibiting** that form, because a bare label is satisfiable with zero dispatches. I verified that occurrence is the prohibition, not a usage.
+
+**Beyond the role assignment**, the template carries what a *resuming session* needs and the runbook does not: a `.handoff/` disambiguation note (third thing on the page — the names collide); where the work sits (branch, worktree, parked sha, position vs `main` with the merge-not-rebase reason, claim state with "do not re-claim"); **already proven — do not re-derive**, each line paired with its discharging artifact; **still owed**, naming which phase must not proceed without it; operator-authorized scope; and rules that already bit this sweep. Placeholders mirror `runbook.md` throughout.
+
+**Wired in with three surgical SKILL.md insertions** — step 10's lane-boundary prescription (the moment a handoff actually gets written), the "Handing off" section, and Bundled resources. Sweep skill `version:` 0.21.0 → 0.22.0 in SKILL.md frontmatter. It correctly did **not** touch `pdlc/.claude-plugin/plugin.json` — my dispatch prompt named that file loosely, and per `docs/releasing.md` that is the marketplace lockstep value stamped by `sync-version.mjs`, i.e. Phase 6's business and the file the sibling sweep is fighting over.
+
+**A third `npm test` instance — and grep found three, not one.** Phase 2 flagged that `spec.md`'s Definition of Done still said `npm test` after Phase 1 fixed plan.md and tasks.md. Grepping turned up **three** live instances: the DoD plus two in the runbook's own "per-PR gates" and "Done means" sections — the worse two, since those are the enforcement contract a later phase reads. All fixed in `c4fc77b`.
+
+**Deferred merge-in executed at this phase boundary (`4d97944`).** `origin/main` was 19 commits ahead: TASK-0126 Done via PR #141, lockstep marketplace version **0.63.0 → 0.63.1** (Phase 6's bump starts there), ~13 wiki notes re-pinned. Clean merge, no conflicts — they touched none of this lane's substantive files.
+
+**Gates re-run after the history move, unconditionally — and this is why that rule exists:** suite exit 0, `check-docs` exit 0, `spec-bridge` ok, **`wiki-freshness` exit 1 with SIX stale notes, not the two the spec anticipated.** Phase 2's SKILL.md edit staled the entire `pdlc-sweep` history family (`pdlc-sweep`, `-history`, `-history-early`, `-history-recent` — all four pin `SKILL.md` + `templates/runbook.md`), and the merge staled `pdlc-plugin`. Phase 4's boxes now carry the measured list, an instruction to re-run the gate and work its live output rather than that list, the NEEDS-REVIEW vs RE-PIN-ONLY split, and the `pdlc-sweep` note's ~8,000-char body cap (`bf7e47f`).
+
+Phase 2 boxes: **7/7.** Next: Phase 3 — the dispatch record and its fail-closed check, the one AC that creates enforcement rather than better prose.
 ---
 <!-- COMMENTS:END -->
