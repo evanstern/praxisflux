@@ -31,21 +31,23 @@ Spec: specs/056-jira-provider
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 providers.jira registered as requiresSync:true/project:null; lib/ has no mcp__ or fetch( (grep-asserted)
-- [ ] #2 spec-bridge/skills/board-sync/SKILL.md in gate-work-gate pattern with all three sections
+- [x] #1 providers.jira registered as requiresSync:true/project:null; lib/ has no mcp__ or fetch( (grep-asserted)
+- [x] #2 spec-bridge/skills/board-sync/SKILL.md in gate-work-gate pattern with all three sections
 - [ ] #3 board:sync writes a valid mirror with observedAt+observedSha on every link, and COMMITS it
-- [ ] #4 Unlinked issues (no Spec: marker) excluded from the mirror; count reported
-- [ ] #5 Status round-trips through statusMap both directions; unmapped falls through; non-injective map errors
+- [x] #4 Unlinked issues (no Spec: marker) excluded from the mirror; count reported
+- [x] #5 Status round-trips through statusMap both directions; unmapped falls through; non-injective map errors
 - [ ] #6 Reverse direction executes renderJira calls in order then re-syncs; git status clean under every spec dir
-- [ ] #7 board:create is exactly ONE MCP call with zero discovery; missing coordinate is a named config error; spiking triggers no sync
-- [ ] #8 defaultAssignee self resolves once per session; board:claim sets assignee AND status; name-is-not-an-id documented
-- [ ] #9 All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding
-- [ ] #10 Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated
+- [x] #7 board:create is exactly ONE MCP call with zero discovery; missing coordinate is a named config error; spiking triggers no sync
+- [x] #8 defaultAssignee self resolves once per session; board:claim sets assignee AND status; name-is-not-an-id documented
+- [x] #9 All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding
+- [x] #10 Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated
 - [x] #11 Spec phase: Phase 1 — Verify the MCP surface (output is knowledge, not code)
 - [x] #12 Spec phase: Phase 2 — Read path: provider, JQL, extraction, mirror
 - [x] #13 Spec phase: Phase 3 — Write path: execute the renderer's calls
 - [x] #14 Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
