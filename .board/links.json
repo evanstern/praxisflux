@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-09T19:54:28.599Z",
+  "generatedAt": "2026-09-10T14:54:40.742Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2768,17 +2768,17 @@
     },
     {
       "id": "TASK-113",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/056-jira-provider",
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "providers.jira registered as requiresSync:true/project:null; lib/ has no mcp__ or fetch( (grep-asserted)"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "spec-bridge/skills/board-sync/SKILL.md in gate-work-gate pattern with all three sections"
         },
         {
@@ -2788,12 +2788,12 @@
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "Unlinked issues (no Spec: marker) excluded from the mirror; count reported"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Status round-trips through statusMap both directions; unmapped falls through; non-injective map errors"
         },
         {
@@ -2803,42 +2803,42 @@
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "board:create is exactly ONE MCP call with zero discovery; missing coordinate is a named config error; spiking triggers no sync"
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "defaultAssignee self resolves once per session; board:claim sets assignee AND status; name-is-not-an-id documented"
         },
         {
           "index": 9,
-          "checked": false,
+          "checked": true,
           "text": "All four sweep points proven by evidence (live site or stated fixtures) — incl. Done-over-unchecked-boxes yields a BLOCKING finding"
         },
         {
           "index": 10,
-          "checked": false,
+          "checked": true,
           "text": "Trust boundary stated verbatim in board-verbs.md and the peer block; versions bumped; wiki re-pinned; README/CLAUDE updated"
         },
         {
           "index": 11,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — Verify the MCP surface (output is knowledge, not code)"
         },
         {
           "index": 12,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — Read path: provider, JQL, extraction, mirror"
         },
         {
           "index": 13,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — Write path: execute the renderer's calls"
         },
         {
           "index": 14,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground"
         }
       ],
