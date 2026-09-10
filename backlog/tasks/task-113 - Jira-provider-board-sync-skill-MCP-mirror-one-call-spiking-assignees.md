@@ -4,7 +4,7 @@ title: 'Jira provider: board:sync skill (MCP -> mirror), one-call spiking, assig
 status: Done
 assignee: []
 created_date: '2026-08-27 16:14'
-updated_date: '2026-09-10 14:53'
+updated_date: '2026-09-10 14:54'
 labels:
   - feature
   - spec-bridge
@@ -47,8 +47,6 @@ Spec: specs/056-jira-provider
 - [x] #14 Spec phase: Phase 4 — Spike, assignees, sweep proof, re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -71,6 +69,25 @@ Tier: this phase was knowledge-only and run by the orchestrator directly (no imp
 OWED TO THE OPERATOR: delete or close the scratch issue (titled '[SCRATCH — praxisflux spec 056 Phase 1] marker survival test, safe to delete'). The orchestrator has no delete authorization.
 
 spec-bridge sync: Phase 1 — Verify the MCP surface (output is knowledge, not code): 7/7 · Phase 2 — Read path: provider, JQL, extraction, mirror: 14/14 · Phase 3 — Write path: execute the renderer's calls: 6/6 · Phase 4 — Spike, assignees, sweep proof, re-ground: 12/12 — status In Progress → Done
+
+AC #3 and #6 deliberately LEFT UNCHECKED — the honest residue of this task.
+
+Both proven at the MECHANISM level, neither end-to-end through the skill:
+- #3: writeMirror stamping observedAt/observedSha on every link, validateMirror clean,
+  and board-mirror --check exit 0 were all run against a mirror built from live board
+  data. What was NOT run: the board-sync skill itself, in a repo configured as a Jira
+  host, writing AND COMMITTING its own mirror. praxisflux is a backlog host with no
+  .board.json, so there is no place here to exercise that path honestly.
+- #6: renderJira ordering is unit-tested, the raw-diff -> parse -> apply -> render ->
+  write loop was proven against live wire bytes, and transitions/resolution-clearing
+  were executed live. What was NOT run: spec-bridge:sync executing a renderJira call
+  LIST in order against a Jira-configured host and then re-syncing, with the one-way
+  contract asserted by git status over that run.
+
+Ticking either would claim a status the artifacts do not prove — exactly what this
+feature exists to prevent. They need a real Jira-hosted project; praxisflux cannot be
+one without ceasing to be a backlog host (design invariant 2: one board, singular).
+Recommend a follow-up task for the end-to-end run on a genuine Jira host.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
