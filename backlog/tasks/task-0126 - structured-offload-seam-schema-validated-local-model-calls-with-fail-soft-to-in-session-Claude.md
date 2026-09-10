@@ -32,6 +32,8 @@ Scope is the SEAM ONLY — no consumers land here. Signature is roughly (prompt,
 - Emit enough per-call residue (backend used, validated vs fell back) that the follow-on consumer can be MEASURED rather than assumed. A seam nobody can measure cannot justify its second consumer.
 
 Explicitly out of scope, permanently: anything whose output IS judgment — design-rounds grounding, note bodies, spec authoring, merge and gate decisions. Not a capability limit; the artifact's value is that a reasoning agent stands behind it.
+
+Spec: specs/063-structured-offload-seam
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
