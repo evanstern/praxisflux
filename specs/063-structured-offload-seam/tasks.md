@@ -68,3 +68,7 @@ existing invariant check.
   stale documentation — it still lists several already-shipped modules (project-root,
   gate-runner, etc.) as "planned". Left as found; added `structured-offload` as a
   separate "Also shipped" line rather than expanding scope to rewrite the whole file.
+- The version bump (every `plugin.json`) re-staled the 11 plugin-note pins plus
+  `chassis` (which itself gained a `lib/README.md` edit in the same commit as its
+  re-pin) — a second commit re-pins all 12 to the version-bump commit's sha; none of
+  their bodies quote a version number, so all are RE-PIN-ONLY.

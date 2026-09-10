@@ -7,7 +7,7 @@ sources:
   - scripts/build.mjs
   - lib/toolkit/README.md
   - lib/structured-offload.mjs
-verified_against: 9a6575cee47e611caa39df5af3c827df858c32a4
+verified_against: b992693223645641ff989e180fa7b2a49f009293
 ---
 
 # Chassis
