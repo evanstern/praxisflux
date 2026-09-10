@@ -107,6 +107,15 @@ a transition. Resolve it:
 share the name `Ready for Dev`, and a transition named `Closed (2)` targets the status `Closed`.
 Transition names are neither unique nor equal to their target status.
 
+**A target status may not be reachable in ONE transition.** Verified live: the ratified
+`In Progress` write target was not offered from the issue's starting status at all — reaching
+it took two hops (`Open → Ready for Dev → In Dev`), and the second transition only appeared in
+the list *after* the first landed. So when no listed transition has a matching `to.name`:
+**re-list after each hop and walk**, or report the unreachable target and stop. Never assume
+one call gets there, and never silently leave the card at an intermediate status while
+reporting the claim succeeded — a `board:claim` that lands on the wrong status is a lie the
+mirror will faithfully record.
+
 **After a backwards move out of a `done`-category status, clear the resolution:**
 `editJiraIssue(issue, { resolution: null })`. The forward transition into a done status silently
 sets `resolution` via a workflow post-function, and the backwards move does **not** clear it —

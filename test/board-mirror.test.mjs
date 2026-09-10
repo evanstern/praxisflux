@@ -414,6 +414,35 @@ test("isPausedLink: a mirror-only project's paused-labelled link is excluded fro
   }
 });
 
+// spec 056 R6 point 2 — the SAME lane-exclusion mechanism, end to end on the jira path.
+// The 055 test above proves the mechanism with provider "backlog" and a hand-built mirror;
+// what 056 owes is that a real Jira issue's labels[] survive the wire INTO it. The labels
+// below came back from a live JQL read on 2026-09-10 (issue keys neutralized per F7).
+test("jira: a live paused-labelled issue projects into labels and is excluded from lane analysis", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, {
+      schema: 1, provider: "jira", generatedAt: "2026-09-10T14:00:00.000Z",
+      links: [
+        // As returned live: labels: ["paused"] on one, labels: [] on the other. An empty
+        // list is written as NO labels key, keeping the link byte-identical to a pre-labels mirror.
+        { id: "SCRATCH-123", status: "To Do", specDir: "specs/999-scratch-paused", acs: [], labels: ["paused"],
+          observedAt: "2026-09-10T14:00:00.000Z", observedSha: "c".repeat(40) },
+        { id: "SCRATCH-121", status: "Done", specDir: "specs/056-jira-provider", acs: [],
+          observedAt: "2026-09-10T14:00:00.000Z", observedSha: "c".repeat(40) },
+      ],
+    });
+    const read = readMirror(p.root);
+    assert.deepEqual(validateMirror(read), []);
+    assert.deepEqual(read.links.filter((l) => !isPausedLink(l)).map((l) => l.id), ["SCRATCH-121"]);
+    // Address by id, not index: writeMirror sorts links naturally, so position is not identity.
+    const unlabelled = read.links.find((l) => l.id === "SCRATCH-121");
+    assert.equal("labels" in unlabelled, false, "an unlabelled issue must not gain an empty labels key");
+  } finally {
+    p.done();
+  }
+});
+
 test("isPausedLink: false for a link with no labels, or a labels list without \"paused\"", () => {
   assert.equal(isPausedLink({ id: "TASK-1" }), false);
   assert.equal(isPausedLink({ id: "TASK-1", labels: ["chassis"] }), false);
