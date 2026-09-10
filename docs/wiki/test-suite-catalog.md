@@ -13,10 +13,11 @@ sources:
   - test/install-path.test.mjs
   - test/new-plugin.test.mjs
   - test/run-gates.test.mjs
+  - test/structured-offload.test.mjs
   - test/sync-shared.test.mjs
   - test/sync-version.test.mjs
   - test/version-bump.test.mjs
-verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
+verified_against: 9a6575cee47e611caa39df5af3c827df858c32a4
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -89,6 +90,15 @@ One bullet per `test/*.test.mjs` file:
   WHILE a gate runs exits 1 (gate failure), never 2; the `GATES` registry and action.yml's
   documented gate list are drift-checked against each other; and the realpathed run-as-CLI
   guard fires through a symlinked checkout — no silent zero-gate pass.
+- `test/structured-offload.test.mjs` — `lib/structured-offload.mjs` (spec 063) against
+  `node:http` stubs, no live model: a valid response validates for both `api` values, and
+  the request body carries the schema structurally (Ollama `format`, OpenAI-compatible
+  `response_format.json_schema.schema`); prose/invalid JSON, a wrong enum value, and a
+  missing required property all fall back with the matching `reason`; a server that sleeps
+  past `timeoutMs` falls back to `timeout`, a closed port to `refused`, and no/malformed
+  config file to `unconfigured`; residue (`backend, model, outcome, reason?, ms`) is
+  recorded to `residuePath` on both a success and a fallback; `validateSchema` is also
+  exercised directly against the documented subset (enum, required, items, integer).
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
 - `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version

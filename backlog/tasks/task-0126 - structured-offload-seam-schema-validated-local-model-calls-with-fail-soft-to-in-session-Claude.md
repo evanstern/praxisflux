@@ -3,9 +3,11 @@ id: TASK-0126
 title: >-
   structured-offload seam: schema-validated local-model calls with fail-soft to
   in-session Claude
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:29'
+updated_date: '2026-09-10 15:11'
 labels:
   - chassis
   - feature
@@ -30,6 +32,8 @@ Scope is the SEAM ONLY — no consumers land here. Signature is roughly (prompt,
 - Emit enough per-call residue (backend used, validated vs fell back) that the follow-on consumer can be MEASURED rather than assumed. A seam nobody can measure cannot justify its second consumer.
 
 Explicitly out of scope, permanently: anything whose output IS judgment — design-rounds grounding, note bodies, spec authoring, merge and gate decisions. Not a capability limit; the artifact's value is that a reasoning agent stands behind it.
+
+Spec: specs/063-structured-offload-seam
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -41,4 +45,14 @@ Explicitly out of scope, permanently: anything whose output IS judgment — desi
 - [ ] #5 Endpoint and model are configuration data, not hardcoded, and the config surface is documented next to the model-tier ladder
 - [ ] #6 Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured
 - [ ] #7 Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required
+- [ ] #8 Spec phase: Phase 1 — The module and its tests
+- [ ] #9 Spec phase: Phase 2 — Documentation, versions, wiki
 <!-- AC:END -->
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — work to a written card, fallback semantics and scope already settled; served model recorded at dispatch
+<!-- SECTION:NOTES:END -->
