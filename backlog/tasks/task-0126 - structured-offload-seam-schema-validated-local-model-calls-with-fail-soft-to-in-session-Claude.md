@@ -3,11 +3,11 @@ id: TASK-0126
 title: >-
   structured-offload seam: schema-validated local-model calls with fail-soft to
   in-session Claude
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 15:11'
+updated_date: '2026-09-10 17:00'
 labels:
   - chassis
   - feature
@@ -49,10 +49,14 @@ Spec: specs/063-structured-offload-seam
 - [ ] #9 Spec phase: Phase 2 — Documentation, versions, wiki
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — work to a written card, fallback semantics and scope already settled; served model recorded at dispatch
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The module and its tests: 6/6 · Phase 2 — Documentation, versions, wiki: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
