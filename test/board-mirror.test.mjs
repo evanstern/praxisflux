@@ -9,7 +9,7 @@ import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
   loadBoardConfig, validateBoardConfig, isPausedLink,
-  renderSpecPhasesBlock, parseSpecPhasesBlock,
+  renderSpecPhasesBlock, parseSpecPhasesBlock, toSiteStatus, toBridgeStatus,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -515,6 +515,107 @@ test("validateBoardConfig: catches a non-object statusMap", () => {
     jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusMap: "not an object" },
   });
   assert.ok(problems.some((m) => m.includes("statusMap")));
+});
+
+/* ── spec 056 Phase 2 (AC #1, #5) — the jira provider entry and both mapping directions.
+ * The ratified shape (specs/056-jira-provider/findings/phase-2-operator-rulings.md, ruling 2):
+ * statusMap is bridge->site and MUST be injective; statusReadMap is site->bridge and is
+ * many-to-one by design. Fixtures below use the operator-ratified live mapping. ── */
+
+// The ratified map, as it will appear in a real host's .board.json.
+const RATIFIED = {
+  statusMap: { "To Do": "Open", "In Progress": "In Dev", Done: "Closed" },
+  statusReadMap: {
+    Open: "To Do", "Waiting for Info": "To Do", "Requirements clarification": "To Do",
+    "On Hold": "To Do", "Transferred to Support": "To Do",
+    "Ready for Dev": "In Progress", "Functional Design": "In Progress",
+    "Technical Design": "In Progress", "In Dev": "In Progress", "Code Review": "In Progress",
+    "In Testing": "In Progress", "Ready for UAT": "In Progress",
+    "Deployed to UAT": "Done", Closed: "Done", Archived: "Done",
+  },
+};
+
+// AC #1 — registering the provider is what activates 052 R5 / 053 R3+R4 for a Jira host.
+test("providers.jira is registered as requiresSync:true with a null projector", () => {
+  assert.equal(providers.jira.requiresSync, true);
+  assert.equal(providers.jira.project, null, "project must be null: no node-only recompute exists");
+});
+
+// AC #5 — the write direction.
+test("toSiteStatus maps the bridge vocabulary to the site's canonical write targets", () => {
+  assert.equal(toSiteStatus("To Do", RATIFIED), "Open");
+  assert.equal(toSiteStatus("In Progress", RATIFIED), "In Dev");
+  assert.equal(toSiteStatus("Done", RATIFIED), "Closed");
+});
+
+// AC #5 — the read direction, many-to-one. `In Dev` is the case the handoff's previewed
+// candidate map did not contain; 7 live issues sat in it.
+test("toBridgeStatus collapses all fifteen live site statuses onto the bridge's three", () => {
+  for (const [site, bridge] of Object.entries(RATIFIED.statusReadMap))
+    assert.equal(toBridgeStatus(site, RATIFIED), bridge, `${site} should read back as ${bridge}`);
+  assert.equal(toBridgeStatus("In Dev", RATIFIED), "In Progress");
+});
+
+// AC #5 — unmapped falls through UNCHANGED in both directions (spec 054 R1's stated rule).
+test("both directions fall through unchanged on an unmapped status", () => {
+  assert.equal(toSiteStatus("Blocked", RATIFIED), "Blocked");
+  assert.equal(toBridgeStatus("Some Custom Status", RATIFIED), "Some Custom Status");
+  assert.equal(toSiteStatus("To Do", {}), "To Do", "no config at all is a total fall-through");
+  assert.equal(toBridgeStatus("Open", {}), "Open");
+});
+
+// With no statusReadMap, the read direction inverts statusMap — a host predating the new
+// field keeps its exact prior behavior.
+test("toBridgeStatus inverts statusMap when no statusReadMap is present", () => {
+  const legacy = { statusMap: { "In Progress": "In Dev" } };
+  assert.equal(toBridgeStatus("In Dev", legacy), "In Progress");
+  assert.equal(toBridgeStatus("Code Review", legacy), "Code Review", "unmapped still falls through");
+});
+
+// AC #5 — a non-injective statusMap is an ERROR naming the colliding pair, never a silent
+// first-wins (which would make verdicts depend on key order).
+test("validateBoardConfig: a non-injective statusMap is an error naming the colliding pair", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: {
+      cloudId: "x", projectKey: "PROJ", issueTypeName: "Task",
+      statusMap: { "To Do": "Open", "In Progress": "Open" },
+    },
+  });
+  const hit = problems.find((m) => m.includes("non-injective"));
+  assert.ok(hit, `expected a non-injective problem, got ${JSON.stringify(problems)}`);
+  assert.ok(hit.includes("To Do") && hit.includes("In Progress") && hit.includes("Open"));
+});
+
+// The asymmetry is the point: the same many-to-one shape is LEGAL in statusReadMap.
+test("validateBoardConfig: a many-to-one statusReadMap is valid — the exemption is deliberate", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", ...RATIFIED },
+  });
+  assert.deepEqual(problems, [], "the ratified live mapping must validate clean");
+});
+
+test("validateBoardConfig: catches a non-object statusReadMap", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusReadMap: ["nope"] },
+  });
+  assert.ok(problems.some((m) => m.includes("statusReadMap")));
+});
+
+// AC #1 — lib/ stays MCP-free and network-free (design invariant 4): the whole point of
+// `project: null` is that the MCP half lives in a SKILL, never here. Two standing exceptions,
+// both verified non-calls: lib/selfcontained.mjs holds a DETECTOR regex containing the literal
+// `fetch(`, and lib/toolkit/code-translation.md is a teaching document. Asserting against the
+// real file list (not a bare grep) is what keeps this honest as lib/ grows — a new real call
+// site fails here loudly.
+test("lib/ contains no MCP or network calls (spec 056 AC #1)", () => {
+  const libDir = new URL("../lib/", import.meta.url).pathname;
+  const out = execFileSync("grep", ["-rl", "mcp__\\|fetch(", libDir], { encoding: "utf8" })
+    .split("\n").filter(Boolean).map((f) => f.replace(libDir, "")).sort();
+  assert.deepEqual(out, ["selfcontained.mjs", "toolkit/code-translation.md"],
+    `unexpected MCP/network reference in lib/: ${JSON.stringify(out)}`);
 });
 
 /* ── spec 055 Phase 3 (R2/AC #5) — the marked spec-phases description block ── */
