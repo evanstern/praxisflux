@@ -3,9 +3,11 @@ id: TASK-0124
 title: >-
   Port shunt's read-size gate to a praxis-native redirect (capsule-first + tier
   dispatch)
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:14'
+updated_date: '2026-09-10 15:13'
 labels:
   - gates
   - feature
@@ -28,6 +30,8 @@ Two findings from the upstream read that this port must not inherit:
 2. A blanket size gate is actively hostile to grounding-wiki. wiki-build/wiki-update require reading actual source to earn a note's verified_against pin; a summarized read behind a real pin is corpus rot the freshness gate cannot detect (it checks pins are current, not earned). Same for design-rounds Phase 2, which reads implementation comments precisely because the load-bearing reasoning looks like noise to a summarizer.
 
 So the gate needs exemptions, not just a threshold: docs/wiki/, specs/, .worktrees/ and .claude/worktrees/, plus an env kill-switch for wiki-build/wiki-update/design-rounds passes. The gate is a nudge toward the cheap path for ordinary reads, never a wall in front of grounding.
+
+Spec: specs/064-read-size-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -38,4 +42,14 @@ So the gate needs exemptions, not just a threshold: docs/wiki/, specs/, .worktre
 - [ ] #4 An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives
 - [ ] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
 - [ ] #6 check-docs, wiki-freshness, and spec-bridge gates green
+- [ ] #7 Spec phase: Phase 1 — The hook and its fail-closed tests
+- [ ] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — port of an analyzed upstream design, hazards already carded; served model recorded at dispatch
+<!-- SECTION:NOTES:END -->
