@@ -43,8 +43,10 @@ Spec: specs/064-read-size-gate
 - [ ] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
 - [ ] #6 check-docs, wiki-freshness, and spec-bridge gates green
 - [x] #7 Spec phase: Phase 1 — The hook and its fail-closed tests
-- [ ] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
+- [x] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
+
+
 
 
 
