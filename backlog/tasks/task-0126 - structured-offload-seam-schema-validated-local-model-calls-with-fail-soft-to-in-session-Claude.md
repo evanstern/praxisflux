@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 17:00'
+updated_date: '2026-09-10 17:01'
 labels:
   - chassis
   - feature
@@ -49,14 +49,12 @@ Spec: specs/063-structured-offload-seam
 - [x] #9 Spec phase: Phase 2 — Documentation, versions, wiki
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — work to a written card, fallback semantics and scope already settled; served model recorded at dispatch
+
+spec-bridge sync: Phase 1 — The module and its tests: 6/6 · Phase 2 — Documentation, versions, wiki: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
