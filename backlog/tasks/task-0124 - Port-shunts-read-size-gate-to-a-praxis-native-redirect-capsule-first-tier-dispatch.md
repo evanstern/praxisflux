@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:14'
-updated_date: '2026-09-10 17:32'
+updated_date: '2026-09-10 17:33'
 labels:
   - gates
   - feature
@@ -46,14 +46,12 @@ Spec: specs/064-read-size-gate
 - [x] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — port of an analyzed upstream design, hazards already carded; served model recorded at dispatch
+
+spec-bridge sync: Phase 1 — The hook and its fail-closed tests: 7/7 · Phase 2 — Planting doc, versions, wiki: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
