@@ -327,4 +327,4 @@ This sweep runs as a **Claude Code background job**, so the no-main-push mode ap
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-10 | TASK-0125 | — | — | — | runbook authored; signed off (R1/R2/R3); opus escalation recorded; awaiting claim |
+| 2026-09-10 | TASK-0125 | — | — | Phase 1 ~126k subagent tokens, 20 tool calls | claimed (`898bac0`, spec 066 — 063/064/065 taken by the sibling sweep); spec set `8981f68`; phase ACs + F1 correction `ad54b03`; **phases: 1 done (`b6c723b`), 2 dispatched**. Served model **`claude-opus-5`** — verified from the transcript, pin held. Phase 1 independently re-verified F1 (exit **1**, not 0) and found two spec defects, fixed in `4df8f19`: `npm test` does not exist here (no root `package.json` — use `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`), and the TASK-86/87/88 precedent needed its date pinned (2026-07-30) |

@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 17:02'
+updated_date: '2026-09-10 17:13'
 labels:
   - pdlc
   - doctrine
@@ -148,5 +148,32 @@ Recorded BEFORE the dispatch, per the tier rubric and the sweep's requirement th
 - **Escalation justification (operator checkpoint recorded at runbook sign-off 2026-09-10):** cross-surface doctrine. This task rewrites the always-on planted block that binds every PDLC host, creates a new template genre, and adds an enforcement rule to a shipped gate — judgment the spec cannot fully settle in advance. The repo's own precedent is exact: `docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86/87/88, all pure doctrine prose edits, to an opus implementer rather than inline.
 - **Precondition:** `node pdlc/scripts/tiers.mjs --root . --check` → exit 0, all three definitions `unchanged`. Nothing regenerated, so no session-restart obligation before dispatch.
 - **Dispatch scope:** phase-scoped — one fresh implementer per tasks.md phase, re-grounded from the spec dir plus the branch's commits. Not one agent across the whole task.
+---
+
+author: @claude
+created: 2026-09-10 17:13
+---
+PHASE 1 COMPLETE — served model verified.
+
+**Model that actually served: `claude-opus-5`** (37 occurrences in the dispatch transcript). This fills the field left open in the dispatch record at comment #5. The pin held: agent `opus-implementer`, frontmatter `model: cc/claude-opus-5[1m]`, and the dispatch-call parameter both resolved on this host — worth recording, since the planted block notes each mechanism has been observed failing on some host.
+
+**Delivered (commit `b6c723b`, 2 files, +22/−10):**
+
+- **R1** — the planted block's Model tiers section now opens with the reader as its grammatical subject: *"Implementation work is dispatched to an implementer agent at the task's tier — your own hands do not do it. That obligation is on you, right now, however this work reached you: through `pdlc:sweep`, through a handoff document, or as a direct request from the operator."* Everything from `**Where the ladder lives…**` onward is byte-identical.
+- The implementer added one thing the spec did not ask for and it is the right call: *"If you are holding a spec, a task id, or a handoff and are about to edit the files it names, the next action is a dispatch, not an edit."* That gives the rule a **recognizable trigger moment** — the thing the Lane 4 session never had. It also changed "The orchestrator plans, gates, and judges" to "You plan, gate, and judge" so the second person does not collapse back into third-person description one sentence later.
+- **R4 / AC #4** — the rejection record landed as positive text (~110 words) immediately after the opening, at the point where a session would reach for the exemption: *"There is no 'this one is knowledge-shaped' exemption — it was considered and refused."* It carries the 2026-07-30 TASK-86/87/88 precedent and the decisive clause **"by the party that did the work"**, lifted from the analysis's own self-indictment.
+
+**F1 re-verified first-hand, with no pipe: exit code 1**, `claudeMd: "drifted"`, and `plant.mjs:324` reads `if (check && pending) process.exit(1)`. The correction in comment #4 is confirmed by an independent measurement. **F2 re-verified:** `pdlc/skills/sweep/templates/` holds only `runbook.md`; a repo-wide grep for `lane-handoff` hits only the documents *asking* for one.
+
+**Two spec defects the implementer found, both verified and fixed in `4df8f19`:**
+
+1. **`npm test` does not exist in this repo** — there is no root `package.json`. plan.md and tasks.md Phase 6 both said it and would have failed ENOENT. The real command is `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`; the env-scrub is mandatory in a worktree because git hands worktree hooks an absolute `GIT_DIR` that the suite's fixture repos would inherit and commit onto the real branch (`.githooks/pre-commit:8-11`).
+2. **The TASK-86/87/88 precedent had no date**, and the implementer's own first draft guessed 2026-08-04 before checking it against the runbook and correcting to **2026-07-30**. Now pinned in spec.md with the execution-log rows, PRs #100–#102, and the ~408k / ~98k / ~116k token counts, plus an explicit instruction to cite rather than guess — the next phase quoting it was equally likely to invent one.
+
+Gates: `check-docs` green; suite **563 pass / 0 fail**; pre-commit also ran `gen-marketplace --check` and `sync-version --check`.
+
+Phase 1 boxes: **7/7 ticked.** AC #7 (Spec phase: Phase 1) is satisfied by the artifacts; it gets ticked by `spec-bridge:sync` from the ticked tasks.md, not by hand.
+
+Next: Phase 2 — the lane-handoff template (R2/R5), same tier.
 ---
 <!-- COMMENTS:END -->
