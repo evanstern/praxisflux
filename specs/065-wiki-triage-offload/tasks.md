@@ -6,16 +6,16 @@ phase's commit. Run the suite as bare `node --test`.
 
 ## Phase 1 — The triage-offload script and its tests
 
-- [ ] Add `grounding-wiki/scripts/triage-offload.mjs`: routes `planFreshness` REVIEW
+- [x] Add `grounding-wiki/scripts/triage-offload.mjs`: routes `planFreshness` REVIEW
       entries through `offload()` with the closed-enum + deciding_path schema; post-check
       that deciding_path appears in the entry's diff file list; conservative-bias prompt
       (uncertain → needs-review); JSON routing output; writes nothing; exit 0 always;
       unconfigured seam = every note falls back (byte-identical routing to today)
-- [ ] Add `test/triage-offload.test.mjs`: valid route honored; path-not-in-diff fallback;
+- [x] Add `test/triage-offload.test.mjs`: valid route honored; path-not-in-diff fallback;
       prose/wrong-enum fallback; no-config all-fallback; script writes nothing — all
       against stubs, no live model
-- [ ] Full suite green (`node --test`)
-- [ ] Commit and push
+- [x] Full suite green (`node --test`)
+- [x] Commit and push
 
 ## Phase 2 — Skill wiring, versions, wiki
 
