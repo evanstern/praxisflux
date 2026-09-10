@@ -59,9 +59,14 @@ So the honest summary: **the model tier is enforced at the level of the agent de
 the dispatch is enforced nowhere.** A wrong pin is caught by `--check`; a *skipped dispatch*
 is caught by nothing.
 
-## What would close it (proposals — NOT decided here)
+## What will close it — ALL FOUR ADOPTED (operator triage, 2026-09-10)
 
-Recorded for the operator to triage, in rough order of leverage:
+The operator triaged these on 2026-09-10 and **adopted all four**. Tracked as **TASK-0125**,
+whose comment #1 carries the same decision. Sequencing: items 1, 2 and 4 are prose changes to
+planted/template surface and can ride one PR; **item 3 changes enforcement and should be
+specced separately** rather than folded in.
+
+In rough order of leverage:
 
 1. **Move the obligation into the always-on block.** Rewrite the Model tiers section's
    opening so it binds any session doing implementation work, not just a sweep: *"Implementation
