@@ -7,7 +7,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 19:26'
+updated_date: '2026-09-10 19:27'
 labels:
   - grounding-wiki
   - feature
@@ -49,16 +49,12 @@ Spec: specs/065-wiki-triage-offload
 - [x] #10 Spec phase: Phase 3 — The measurement (endpoint required)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — consumer wiring to the merged 0126 seam plus a measurement protocol the card specifies; served model recorded at dispatch; dep TASK-0126 Done
+
+spec-bridge sync: Phase 1 — The triage-offload script and its tests: 4/4 · Phase 2 — Skill wiring, versions, wiki: 5/5 · Phase 3 — The measurement (endpoint required): 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
