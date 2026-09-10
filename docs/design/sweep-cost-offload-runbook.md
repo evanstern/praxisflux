@@ -188,5 +188,5 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-10 | TASK-0126 | — | — | — | claimed; spec 063 committed; phases: 1 dispatched (sonnet) |
-| 2026-09-10 | TASK-0124 | — | — | — | claimed; spec 064 committed; phases: dispatch pending served-model verify |
+| 2026-09-10 | TASK-0126 | — | — | ~146k subagent tokens (ph1) | phases: 1 done (9a6575c, served cc/claude-sonnet-5[1m], suite 576/576), 2 dispatched |
+| 2026-09-10 | TASK-0124 | — | — | — | phases: 1 dispatched (served-model verified via 0126 ph1) |
