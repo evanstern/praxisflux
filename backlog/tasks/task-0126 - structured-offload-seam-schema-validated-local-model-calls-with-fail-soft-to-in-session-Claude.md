@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 15:09'
+updated_date: '2026-09-10 15:11'
 labels:
   - chassis
   - feature
@@ -45,7 +45,11 @@ Spec: specs/063-structured-offload-seam
 - [ ] #5 Endpoint and model are configuration data, not hardcoded, and the config surface is documented next to the model-tier ladder
 - [ ] #6 Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured
 - [ ] #7 Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required
+- [ ] #8 Spec phase: Phase 1 — The module and its tests
+- [ ] #9 Spec phase: Phase 2 — Documentation, versions, wiki
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
