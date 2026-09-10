@@ -3,9 +3,11 @@ id: TASK-0124
 title: >-
   Port shunt's read-size gate to a praxis-native redirect (capsule-first + tier
   dispatch)
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:14'
+updated_date: '2026-09-10 15:07'
 labels:
   - gates
   - feature
@@ -39,3 +41,9 @@ So the gate needs exemptions, not just a threshold: docs/wiki/, specs/, .worktre
 - [ ] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
 - [ ] #6 check-docs, wiki-freshness, and spec-bridge gates green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — port of an analyzed upstream design, hazards already carded; served model recorded at dispatch
+<!-- SECTION:NOTES:END -->
