@@ -112,6 +112,25 @@ new gate script.**
 - Corroboration worth noting: their runbook independently records the same
   hand-authored-specs escape line, confirming this host's `.specify`-absent precedent.
 
+**F4 UPDATE (2026-09-10, mid-Phase-2 — observed, not predicted):** the sibling sweep has
+started landing. `origin/main` moved **19 commits** ahead of this branch:
+
+- **TASK-0126 is Done** (PR #141, merge `a89bcd8`), spec 063 shipped, board synced.
+- **The lockstep marketplace version is now `0.63.1`** (was 0.63.0), and every
+  `*/plugin.json` moved with it — including `pdlc/.claude-plugin/plugin.json`. **Phase 6's
+  bump starts from 0.63.1, not 0.63.0.**
+- They re-pinned ~13 `docs/wiki/` notes staled by their version bump.
+- **The good news: they touched NONE of this lane's substantive files** — verified by
+  `git diff --name-only HEAD...origin/main` over `pdlc/templates/`, `pdlc/skills/sweep/`,
+  `spec-bridge/gates/`, and `lib/board-mirror.mjs`: all empty. The collisions are exactly
+  the mechanical ones this runbook predicted (version files, wiki pins), not doctrine
+  conflicts.
+- **Reconcile timing:** the merge-in was deliberately deferred until Phase 2's dispatch
+  returned, rather than merging underneath a running implementer that is editing
+  `pdlc/.claude-plugin/plugin.json`. Merge `origin/main` **in** (pin-carrying branch) at the
+  next phase boundary, take main's side on the version files, then re-run every gate **and**
+  the freshness probe unconditionally.
+
 ## Operator rulings (2026-09-10) — these SUPERSEDE the card's sequencing note
 
 **R1 — ONE PR, all four fixes.** The card's comment #1 said "3 changes enforcement and
@@ -183,7 +202,11 @@ artifact this task makes load-bearing, so TASK-0125 must satisfy its own new rul
 - **Released-surface version bump (`docs/releasing.md`, CI-enforced):** this PR edits
   `pdlc/` and `lib/`/`spec-bridge/`, so it **MUST** bump the marketplace version AND any
   edited skill's own `version:`. Currently v0.63.0.
-- **Full test suite** — `npm test`. Fix 3 touches `spec-bridge/gates/bridge.mjs` and
+- **Full test suite** — `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`.
+  **NOT `npm test`** — this repo has no root `package.json`, and the env-scrub is mandatory
+  in a worktree because git hands worktree hooks an absolute `GIT_DIR` that the suite's
+  fixture repos would inherit and commit onto the real branch (`.githooks/pre-commit:8-11`).
+  Fix 3 touches `spec-bridge/gates/bridge.mjs` and
   `lib/board-mirror.mjs`, both heavily covered; new behavior needs new tests.
 - **Merge with a merge commit, never squash** — squashing orphans commits that
   `docs/wiki/` notes pin as `verified_against`.
@@ -316,7 +339,8 @@ This sweep runs as a **Claude Code background job**, so the no-main-push mode ap
 - `specs/063-dispatch-gap/` holds real `spec.md` + `plan.md` + `tasks.md`.
 - All six ACs checked, including **#4 as a positive rejection record** and **#3 as a
   fail-closed check**.
-- `npm test`, `check-docs`, and the wiki freshness gate green on `main`; marketplace version
+- The suite (`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`, never
+  `npm test`), `check-docs`, and the wiki freshness gate green on `main`; marketplace version
   bumped; `pdlc-grounding-block` re-pinned with its prose amended.
 - **praxis's own planted block re-planted** (F1: `.pdlc` no longer 6 versions behind) and the
   downstream upgrade path landed per R3a/R3b/R3c — a downstream host can discover a stale

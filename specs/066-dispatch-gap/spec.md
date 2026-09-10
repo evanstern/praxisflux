@@ -167,7 +167,10 @@ dependant needs a way to update**. Three parts:
 ## Definition of done
 
 All six ACs checked, with the two sufficiency tests honored — **AC #4 as a positive rejection
-record**, **AC #3 as a fail-closed check**. `npm test`, `node scripts/check-docs.mjs`, and
+record**, **AC #3 as a fail-closed check**.
+`env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test` (**not `npm test` — no root
+`package.json` exists here**; the env-scrub is mandatory in a worktree per
+`.githooks/pre-commit:8-11`), `node scripts/check-docs.mjs`, and
 the wiki freshness gate green. Marketplace version bumped per `docs/releasing.md` plus any
 edited skill's own `version:` (an ordinary bump — **not** a breaking-change bump; see the
 R7b correction). praxis's own block re-planted so `.pdlc` is no longer stale, and
