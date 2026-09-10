@@ -24,7 +24,7 @@ real instructions, and which real call sites the naive grep missed.
 |---|---|---|---|---|---|
 | `board:list` | Enumerate or search open work | Board configured (`.board.json`, or the `backlog` default); a query string for the search form | The printed listing itself (read-only; the caller inspects it in the same turn) | `backlog task list --plain` (enumerate) / `backlog search "<query>" --plain` (search by title) | JQL scoped to `projectKey` + open `statusMap` values; add `text ~ "<query>"` for the search form |
 | `board:view` | Read one item fully | The id/key exists on the board | The returned item body | `backlog task view <id> --plain` | `getJiraIssue` |
-| `board:create` | Spike a new item | `board:list`/search already ruled out an existing duplicate | The new item's id, printed/returned by the create call | `backlog task create "<title>" -d "<description>"` | `createJiraIssue` with `.board.json`'s `projectKey`/`issueTypeName` |
+| `board:create` | Spike a new item | `board:list`/search already ruled out an existing duplicate | The new item's id, printed/returned by the create call | `backlog task create "<title>" -d "<description>"` | **Exactly ONE `createJiraIssue` call, ZERO discovery calls** — `cloudId`/`projectKey`/`issueTypeName` all come from `.board.json` (a missing one is a config error naming the field, not a discovery conversation), and `additional_fields.assignee.id` from `defaultAssignee` (`"self"` resolves via `atlassianUserInfo` **once per session**; an explicit account id skips even that). A spiked card has no `Spec:` marker, so it is **not** mirror content and must **not** trigger a sync — slow spiking is what this row exists to prevent. A display name is **not** an account id: resolve it via `lookupJiraAccountId` first. |
 | `board:link-spec` | Plant or replant the `Spec: <dir>` marker | A spec dir exists under `specs/` | `MARKER` (`bridge.mjs:238`, `/^Spec:\s*(\S+?)\/?\s*$/m`) matches the item's description | Last line of the description at create time, or `task edit <id> -d "..."` preserving existing text and appending the marker when it's missing | Last line of the description, same rule — **outside** the `<!-- spec-phases -->` block (see R2 below) |
 | `board:ac-set` | Seed or refresh phase acceptance criteria (add/remove) | `tasks.md` exists with phase headings; skip if absent; never touch a human-authored AC | The item's AC list shows one `Spec phase: <name>` entry per phase | `--ac "Spec phase: <name>"` at create or `task edit <id> --ac "Spec phase: <name>"` | Rewrite the `<!-- spec-phases BEGIN/END -->` block wholesale (R2) — **markdown-only**, see the note below the table |
 | `board:ac-check` | Tick or untick one phase criterion | The criterion at that index already exists (`board:ac-set` ran first) | The item's checkbox state at that (1-based, positional) index | `task edit <id> --check-ac <n>` / `--uncheck-ac <n>` | Same wholesale block rewrite as `board:ac-set` — R2 collapses add/remove/check/uncheck into one description write, because the block has no partial-edit form |
@@ -78,6 +78,33 @@ Rules:
 Because the mirror carries `acs` as `[{ index, checked, text }]` (spec 052 R1), parsing this
 block yields exactly that shape — indexes are **positional within the block** (1-based, not
 an identity): a reordered block renumbers.
+
+## R7 — the trust boundary
+
+> The mirror is a receipt of what Jira said at `observedSha`. A status claim is only as
+> good as the last sync. The gate can prove the mirror is stale; it cannot prove a
+> hand-edited mirror entry is a lie.
+
+This is the same honesty `docs/wiki/`'s `verified_against` doctrine carries. Stating it is a
+requirement, not a caveat: an operator who believes the gate is stronger than it is will trust
+a green check that means less than they think.
+
+## Jira write-path mechanics (verified live, spec 056)
+
+- **Resolve a status move by transition `id`, matched on `to.name`** — never by the
+  transition's own `name`. Transition names are neither unique nor equal to their target
+  status: two transitions on the verified workflow share one name, and one named `Closed (2)`
+  targets `Closed`.
+- **A target may need MORE THAN ONE hop.** The `In Progress` target was unreachable from the
+  starting status; it took two transitions, and the second only appeared after the first
+  landed. Re-list after each hop, or report the unreachable target — never leave the card at
+  an intermediate status while reporting success.
+- **Clear `resolution` after a backwards move out of a done-category status.** The forward
+  move sets it via a workflow post-function and the backwards move does not clear it, leaving
+  a card both in-progress and resolved. `editJiraIssue` with an explicit `null` fixes it.
+- **Write a CLEAN block; never echo back the bytes you read.** Jira appends trailing
+  whitespace to the END marker line, and echoing it back compounds it (2 → 4 → 6 …).
+  `renderSpecPhasesBlock` emits clean markers, which re-normalizes every cycle.
 
 ## Preconditions common to every verb
 

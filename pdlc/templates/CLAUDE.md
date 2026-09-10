@@ -184,6 +184,16 @@ the gate reads — a mirror of Jira issue state, refreshed by the `board:sync` s
   workflow status name — `derivation stage ──statusVocabulary──▶ bridge status
   ──statusMap──▶ Jira workflow status`. Neither mapping's meaning changes; this states
   their precedence.
+- **The trust boundary — state it plainly, it is a requirement not a caveat:**
+
+  > The mirror is a receipt of what Jira said at `observedSha`. A status claim is only as
+  > good as the last sync. The gate can prove the mirror is stale; it cannot prove a
+  > hand-edited mirror entry is a lie.
+
+- **Status read/write are two fields.** `statusMap` is bridge→site and must be injective
+  (the canonical write target). `statusReadMap` is site→bridge and is many-to-one by design,
+  because a real workflow's many statuses collapse onto the bridge's three. Unmapped falls
+  through unchanged in both directions.
 - **Never hand-edit** `.board/links.json` — always `board:sync`, so the mirror and Jira
   stay consistent.
 <!-- pdlc:peer:jira END -->

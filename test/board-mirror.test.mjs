@@ -9,7 +9,7 @@ import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
   loadBoardConfig, validateBoardConfig, isPausedLink,
-  renderSpecPhasesBlock, parseSpecPhasesBlock,
+  renderSpecPhasesBlock, parseSpecPhasesBlock, toSiteStatus, toBridgeStatus,
 } from "../lib/board-mirror.mjs";
 
 const CLI = new URL("../lib/board-mirror.mjs", import.meta.url).pathname;
@@ -414,6 +414,35 @@ test("isPausedLink: a mirror-only project's paused-labelled link is excluded fro
   }
 });
 
+// spec 056 R6 point 2 — the SAME lane-exclusion mechanism, end to end on the jira path.
+// The 055 test above proves the mechanism with provider "backlog" and a hand-built mirror;
+// what 056 owes is that a real Jira issue's labels[] survive the wire INTO it. The labels
+// below came back from a live JQL read on 2026-09-10 (issue keys neutralized per F7).
+test("jira: a live paused-labelled issue projects into labels and is excluded from lane analysis", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, {
+      schema: 1, provider: "jira", generatedAt: "2026-09-10T14:00:00.000Z",
+      links: [
+        // As returned live: labels: ["paused"] on one, labels: [] on the other. An empty
+        // list is written as NO labels key, keeping the link byte-identical to a pre-labels mirror.
+        { id: "SCRATCH-123", status: "To Do", specDir: "specs/999-scratch-paused", acs: [], labels: ["paused"],
+          observedAt: "2026-09-10T14:00:00.000Z", observedSha: "c".repeat(40) },
+        { id: "SCRATCH-121", status: "Done", specDir: "specs/056-jira-provider", acs: [],
+          observedAt: "2026-09-10T14:00:00.000Z", observedSha: "c".repeat(40) },
+      ],
+    });
+    const read = readMirror(p.root);
+    assert.deepEqual(validateMirror(read), []);
+    assert.deepEqual(read.links.filter((l) => !isPausedLink(l)).map((l) => l.id), ["SCRATCH-121"]);
+    // Address by id, not index: writeMirror sorts links naturally, so position is not identity.
+    const unlabelled = read.links.find((l) => l.id === "SCRATCH-121");
+    assert.equal("labels" in unlabelled, false, "an unlabelled issue must not gain an empty labels key");
+  } finally {
+    p.done();
+  }
+});
+
 test("isPausedLink: false for a link with no labels, or a labels list without \"paused\"", () => {
   assert.equal(isPausedLink({ id: "TASK-1" }), false);
   assert.equal(isPausedLink({ id: "TASK-1", labels: ["chassis"] }), false);
@@ -515,6 +544,162 @@ test("validateBoardConfig: catches a non-object statusMap", () => {
     jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusMap: "not an object" },
   });
   assert.ok(problems.some((m) => m.includes("statusMap")));
+});
+
+/* ── spec 056 Phase 2 (AC #1, #5) — the jira provider entry and both mapping directions.
+ * The ratified shape (specs/056-jira-provider/findings/phase-2-operator-rulings.md, ruling 2):
+ * statusMap is bridge->site and MUST be injective; statusReadMap is site->bridge and is
+ * many-to-one by design. Fixtures below use the operator-ratified live mapping. ── */
+
+// The ratified map, as it will appear in a real host's .board.json.
+const RATIFIED = {
+  statusMap: { "To Do": "Open", "In Progress": "In Dev", Done: "Closed" },
+  statusReadMap: {
+    Open: "To Do", "Waiting for Info": "To Do", "Requirements clarification": "To Do",
+    "On Hold": "To Do", "Transferred to Support": "To Do",
+    "Ready for Dev": "In Progress", "Functional Design": "In Progress",
+    "Technical Design": "In Progress", "In Dev": "In Progress", "Code Review": "In Progress",
+    "In Testing": "In Progress", "Ready for UAT": "In Progress",
+    "Deployed to UAT": "Done", Closed: "Done", Archived: "Done",
+  },
+};
+
+// AC #1 — registering the provider is what activates 052 R5 / 053 R3+R4 for a Jira host.
+test("providers.jira is registered as requiresSync:true with a null projector", () => {
+  assert.equal(providers.jira.requiresSync, true);
+  assert.equal(providers.jira.project, null, "project must be null: no node-only recompute exists");
+});
+
+// AC #5 — the write direction.
+test("toSiteStatus maps the bridge vocabulary to the site's canonical write targets", () => {
+  assert.equal(toSiteStatus("To Do", RATIFIED), "Open");
+  assert.equal(toSiteStatus("In Progress", RATIFIED), "In Dev");
+  assert.equal(toSiteStatus("Done", RATIFIED), "Closed");
+});
+
+// AC #5 — the read direction, many-to-one. `In Dev` is the case the handoff's previewed
+// candidate map did not contain; 7 live issues sat in it.
+test("toBridgeStatus collapses all fifteen live site statuses onto the bridge's three", () => {
+  for (const [site, bridge] of Object.entries(RATIFIED.statusReadMap))
+    assert.equal(toBridgeStatus(site, RATIFIED), bridge, `${site} should read back as ${bridge}`);
+  assert.equal(toBridgeStatus("In Dev", RATIFIED), "In Progress");
+});
+
+// AC #5 — unmapped falls through UNCHANGED in both directions (spec 054 R1's stated rule).
+test("both directions fall through unchanged on an unmapped status", () => {
+  assert.equal(toSiteStatus("Blocked", RATIFIED), "Blocked");
+  assert.equal(toBridgeStatus("Some Custom Status", RATIFIED), "Some Custom Status");
+  assert.equal(toSiteStatus("To Do", {}), "To Do", "no config at all is a total fall-through");
+  assert.equal(toBridgeStatus("Open", {}), "Open");
+});
+
+// With no statusReadMap, the read direction inverts statusMap — a host predating the new
+// field keeps its exact prior behavior.
+test("toBridgeStatus inverts statusMap when no statusReadMap is present", () => {
+  const legacy = { statusMap: { "In Progress": "In Dev" } };
+  assert.equal(toBridgeStatus("In Dev", legacy), "In Progress");
+  assert.equal(toBridgeStatus("Code Review", legacy), "Code Review", "unmapped still falls through");
+});
+
+// AC #5 — a non-injective statusMap is an ERROR naming the colliding pair, never a silent
+// first-wins (which would make verdicts depend on key order).
+test("validateBoardConfig: a non-injective statusMap is an error naming the colliding pair", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: {
+      cloudId: "x", projectKey: "PROJ", issueTypeName: "Task",
+      statusMap: { "To Do": "Open", "In Progress": "Open" },
+    },
+  });
+  const hit = problems.find((m) => m.includes("non-injective"));
+  assert.ok(hit, `expected a non-injective problem, got ${JSON.stringify(problems)}`);
+  assert.ok(hit.includes("To Do") && hit.includes("In Progress") && hit.includes("Open"));
+});
+
+// The asymmetry is the point: the same many-to-one shape is LEGAL in statusReadMap.
+test("validateBoardConfig: a many-to-one statusReadMap is valid — the exemption is deliberate", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", ...RATIFIED },
+  });
+  assert.deepEqual(problems, [], "the ratified live mapping must validate clean");
+});
+
+test("validateBoardConfig: catches a non-object statusReadMap", () => {
+  const problems = validateBoardConfig({
+    provider: "jira",
+    jira: { cloudId: "x", projectKey: "PROJ", issueTypeName: "Task", statusReadMap: ["nope"] },
+  });
+  assert.ok(problems.some((m) => m.includes("statusReadMap")));
+});
+
+// AC #1 — lib/ stays MCP-free and network-free (design invariant 4): the whole point of
+// `project: null` is that the MCP half lives in a SKILL, never here. Two standing exceptions,
+// both verified non-calls: lib/selfcontained.mjs holds a DETECTOR regex containing the literal
+// `fetch(`, and lib/toolkit/code-translation.md is a teaching document. Asserting against the
+// real file list (not a bare grep) is what keeps this honest as lib/ grows — a new real call
+// site fails here loudly.
+test("lib/ contains no MCP or network calls (spec 056 AC #1)", () => {
+  const libDir = new URL("../lib/", import.meta.url).pathname;
+  const out = execFileSync("grep", ["-rl", "mcp__\\|fetch(", libDir], { encoding: "utf8" })
+    .split("\n").filter(Boolean).map((f) => f.replace(libDir, "")).sort();
+  assert.deepEqual(out, ["selfcontained.mjs", "toolkit/code-translation.md"],
+    `unexpected MCP/network reference in lib/: ${JSON.stringify(out)}`);
+});
+
+/* ── spec 056 Phase 2 — the LIVE read path, against verbatim bytes returned by a real Jira
+ * JQL read on 2026-09-10 (not hand-written fixtures). Fixtures are what finding F1 warned
+ * about: they produce none of Jira's silent normalizations. These strings are copied exactly
+ * from the wire. ── */
+
+// Verbatim from the live response. Note THREE normalizations, not the two Phase 1 recorded:
+//   1. a blank line inserted after BEGIN,
+//   2. two trailing spaces on the last checkbox line,
+//   3. NEW — two trailing spaces on the END MARKER LINE itself.
+const LIVE_LINKED = "Scratch issue for praxisflux spec 056 Phase 2/3 verification. Safe to close or delete.\n\nThis line is human-authored text that the bridge must never modify.\n\n<!-- spec-phases BEGIN -->\n\n- [x] Phase 1 — Verify the MCP surface\n- [ ] Phase 2 — Read path\n- [ ] Phase 3 — Write path  \n<!-- spec-phases END -->  \nSpec: specs/056-jira-provider\n\n";
+const LIVE_UNLINKED = "Scratch issue for praxisflux spec 056. Safe to close or delete.\n\nThis issue deliberately has NO Spec: marker. It must be EXCLUDED from the mirror and counted as unlinked.";
+
+test("parseSpecPhasesBlock: live Jira bytes parse to the mirror's acs shape (3 normalizations)", () => {
+  assert.deepEqual(parseSpecPhasesBlock(LIVE_LINKED), [
+    { index: 1, checked: true, text: "Phase 1 — Verify the MCP surface" },
+    { index: 2, checked: false, text: "Phase 2 — Read path" },
+    { index: 3, checked: false, text: "Phase 3 — Write path" },
+  ]);
+});
+
+// Normalization 3, isolated: Jira appends trailing whitespace to the END MARKER LINE. The
+// parser slices on indexOf(END) so the trailing spaces land AFTER the slice and never reach
+// an item — but the marker line is no longer byte-equal to what we wrote, so any future
+// exact-line comparison against SPEC_PHASES_END would silently stop matching. Pinned here so
+// that change fails loudly rather than emptying every block.
+test("parseSpecPhasesBlock: trailing whitespace on the END marker line is tolerated", () => {
+  const items = parseSpecPhasesBlock("<!-- spec-phases BEGIN -->\n- [x] A\n<!-- spec-phases END -->  \nSpec: specs/001-x");
+  assert.deepEqual(items, [{ index: 1, checked: true, text: "A" }]);
+});
+
+// spec 056 Phase 3, verified live: the END-marker whitespace COMPOUNDS if echoed back
+// (read 2 spaces -> write them back -> read 4 -> 6 ...). The renderer emits a CLEAN marker, so
+// splicing rendered output between the existing markers re-normalizes to a constant 2 every
+// cycle instead of growing. This test is the regression guard on that property: if
+// renderSpecPhasesBlock ever starts preserving trailing whitespace, the block rots over time
+// in a way no single round-trip would reveal.
+test("renderSpecPhasesBlock emits clean markers, so a read->write cycle cannot compound whitespace", () => {
+  const readBack = "<!-- spec-phases BEGIN -->\n\n- [x] A\n- [ ] B  \n<!-- spec-phases END -->  \nSpec: specs/001-x";
+  const rendered = renderSpecPhasesBlock(parseSpecPhasesBlock(readBack));
+  assert.ok(!/[ \t]+$/m.test(rendered), `rendered block must carry no trailing whitespace:\n${JSON.stringify(rendered)}`);
+  assert.ok(rendered.endsWith("<!-- spec-phases END -->"), "END marker must be the clean final bytes");
+  // Feeding a dirtier read back through renders byte-identically — the cycle converges.
+  const dirtier = "<!-- spec-phases BEGIN -->\n\n- [x] A\n- [ ] B    \n<!-- spec-phases END -->      \n";
+  assert.equal(renderSpecPhasesBlock(parseSpecPhasesBlock(dirtier)), rendered);
+});
+
+// AC #4 — an issue with no Spec: marker is not bridged work and must be excluded. Same
+// MARKER regex bridge.mjs uses, asserted against live bytes.
+test("the Spec: marker survives live normalization, and an unlinked issue yields none", () => {
+  const MARKER = /^Spec:\s*(\S+?)\/?\s*$/m;
+  assert.equal(LIVE_LINKED.match(MARKER)?.[1], "specs/056-jira-provider",
+    "the marker must still match with trailing whitespace on the preceding END line");
+  assert.equal(LIVE_UNLINKED.match(MARKER), null, "an unlinked issue must produce no specDir");
 });
 
 /* ── spec 055 Phase 3 (R2/AC #5) — the marked spec-phases description block ── */
