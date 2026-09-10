@@ -3,11 +3,11 @@ id: TASK-0127
 title: >-
   wiki-update freshness triage as the structured-offload seam's first (and only)
   consumer
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 17:44'
+updated_date: '2026-09-10 19:26'
 labels:
   - grounding-wiki
   - feature
@@ -49,10 +49,14 @@ Spec: specs/065-wiki-triage-offload
 - [ ] #10 Spec phase: Phase 3 — The measurement (endpoint required)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — consumer wiring to the merged 0126 seam plus a measurement protocol the card specifies; served model recorded at dispatch; dep TASK-0126 Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The triage-offload script and its tests: 4/4 · Phase 2 — Skill wiring, versions, wiki: 5/5 · Phase 3 — The measurement (endpoint required): 4/4). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
