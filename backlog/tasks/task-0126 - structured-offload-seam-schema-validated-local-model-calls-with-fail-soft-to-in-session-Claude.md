@@ -3,9 +3,11 @@ id: TASK-0126
 title: >-
   structured-offload seam: schema-validated local-model calls with fail-soft to
   in-session Claude
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 14:29'
+updated_date: '2026-09-10 15:09'
 labels:
   - chassis
   - feature
@@ -42,3 +44,9 @@ Explicitly out of scope, permanently: anything whose output IS judgment — desi
 - [ ] #6 Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured
 - [ ] #7 Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — work to a written card, fallback semantics and scope already settled; served model recorded at dispatch
+<!-- SECTION:NOTES:END -->
