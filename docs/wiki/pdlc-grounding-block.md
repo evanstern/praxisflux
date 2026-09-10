@@ -6,7 +6,7 @@ sources:
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
   - pdlc/scripts/tiers.mjs
-verified_against: d86d6c8bef763bf13bed23f2f33debba0536baad
+verified_against: 409422e7533e6313aae100e406789704daf9b6bd
 ---
 
 # The planted PDLC grounding block
