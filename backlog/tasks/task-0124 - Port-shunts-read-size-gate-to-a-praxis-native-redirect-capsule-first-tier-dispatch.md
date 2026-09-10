@@ -3,11 +3,11 @@ id: TASK-0124
 title: >-
   Port shunt's read-size gate to a praxis-native redirect (capsule-first + tier
   dispatch)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:14'
-updated_date: '2026-09-10 15:13'
+updated_date: '2026-09-10 17:32'
 labels:
   - gates
   - feature
@@ -46,10 +46,14 @@ Spec: specs/064-read-size-gate
 - [ ] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — port of an analyzed upstream design, hazards already carded; served model recorded at dispatch
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — The hook and its fail-closed tests: 7/7 · Phase 2 — Planting doc, versions, wiki: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
