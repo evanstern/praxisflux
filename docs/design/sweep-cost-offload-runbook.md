@@ -7,7 +7,9 @@ conflicts as routine. Direction is decided; do not re-litigate it: the three boa
 (TASK-0124, TASK-0126, TASK-0127) win — they carry the design rationale in full. Plan-of-record
 is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** executing · operator sign-off on lanes: 2026-09-10 (lanes approved as
+authored; all three escape lines signed; checkpoints 1–3 answered at sign-off and
+recorded as gate lines below)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -109,15 +111,22 @@ the Spec marker still on the card — for every scoped task at the end.
   precedent (bootstrap-tier-rubric and gates-and-doctrine sweeps), the Spec Kit *tooling*
   is excused, the artifacts are not:
   - TASK-0126: hand-authored `specs/063-structured-offload-seam/{spec,plan,tasks}.md` —
-    signature pending.
+    signed operator 2026-09-10.
   - TASK-0124: hand-authored `specs/064-read-size-gate/{spec,plan,tasks}.md` —
-    signature pending.
+    signed operator 2026-09-10.
   - TASK-0127: hand-authored `specs/065-wiki-triage-offload/{spec,plan,tasks}.md` —
-    signature pending.
-- **Ruling lines from sign-off (checkable, not prose; filled at sign-off):**
-  - [ ] Checkpoint 1 ruling (endpoint + model + config home): pending.
-  - [ ] Checkpoint 2 ruling (measurement in-sweep vs parked-short-of-Done): pending.
-  - [ ] Checkpoint 3 ruling (read-gate threshold + kill-switch home): pending.
+    signed operator 2026-09-10.
+- **Ruling lines from sign-off (checkable, not prose; signed operator 2026-09-10):**
+  - [ ] Checkpoint 1 ruling: the seam config and the 0127 measurement use Ollama at
+        `http://localhost:11434` with model `deepseek-r1:latest` (probed answering
+        2026-09-10; LM Studio :1234 down). Config home settled in spec 063's plan,
+        placed beside `.claude/model-tiers.json` per the card.
+  - [ ] Checkpoint 2 ruling: if the endpoint is unreachable when 0127's measurement
+        (AC #5) runs, land the code, leave AC #5/#6 unticked, park the task short of
+        Done, and surface to the operator — never tick a measurement that didn't run.
+  - [ ] Checkpoint 3 ruling: TASK-0124's default line threshold and kill-switch env
+        var name are settled in spec 064's plan.md against the card's requirements;
+        operator reviews via the PR.
 
 ## Concurrency & conflict doctrine
 
