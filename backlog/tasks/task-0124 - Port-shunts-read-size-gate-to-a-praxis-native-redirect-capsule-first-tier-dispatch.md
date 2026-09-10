@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:14'
-updated_date: '2026-09-10 15:07'
+updated_date: '2026-09-10 15:13'
 labels:
   - gates
   - feature
@@ -42,7 +42,11 @@ Spec: specs/064-read-size-gate
 - [ ] #4 An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives
 - [ ] #5 A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open
 - [ ] #6 check-docs, wiki-freshness, and spec-bridge gates green
+- [ ] #7 Spec phase: Phase 1 — The hook and its fail-closed tests
+- [ ] #8 Spec phase: Phase 2 — Planting doc, versions, wiki
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
