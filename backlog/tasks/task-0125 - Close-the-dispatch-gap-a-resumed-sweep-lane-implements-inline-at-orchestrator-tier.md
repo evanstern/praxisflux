@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-10 14:20'
+updated_date: '2026-09-10 14:30'
 labels:
   - pdlc
   - doctrine
@@ -38,6 +39,23 @@ Needs operator triage on which combination to adopt before implementation.
 - [ ] #1 The dispatch obligation is stated where a resumed session actually reads it — the always-on planted block and/or the handoff template — not only in pdlc:sweep's SKILL.md
 - [ ] #2 The handoff template names the DISPATCH (to <tier>-implementer), not merely the tier, so naming a tier cannot be satisfied by implementing inline
 - [ ] #3 A skipped dispatch leaves a detectable residue OR the inline carve-out is explicitly written with a stated boundary — the current state where neither holds is closed
-- [ ] #4 Operator has triaged the four candidate fixes in docs/design/lane-4-dispatch-gap.md and the chosen combination is recorded
+- [x] #4 Operator has triaged the four candidate fixes in docs/design/lane-4-dispatch-gap.md and the chosen combination is recorded
 - [ ] #5 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
 <!-- AC:END -->
+
+## Comments
+
+<!-- COMMENTS:BEGIN -->
+author: @claude
+created: 2026-09-10 14:30
+---
+OPERATOR TRIAGE 2026-09-10: **all four candidate fixes adopted.** AC #4 satisfied — the decision is recorded here and in `docs/design/lane-4-dispatch-gap.md`.
+
+1. **Always-on block binds any implementing session.** Rewrite `pdlc/templates/CLAUDE.md`'s Model tiers section so it no longer opens "A sweep dispatches…" (which reads as description of the skill) but states a standing obligation on whoever is implementing, however they arrived — sweep, handoff doc, or direct ask. Costs a re-plant and a `pdlc-grounding-block` re-pin.
+2. **Handoff template names the dispatch, not the tier.** "Model tier: sonnet" is a label a session can satisfy while working inline — exactly what happened in Lane 4. It must read "dispatch to `<tier>-implementer`", with the verify-the-served-model step attached.
+3. **Dispatch gets a durable residue a gate can check.** The only fix that creates enforcement rather than better prose. The sweep already mandates an execution-log line naming which model served; require it before a task's PR is merge-ready, so "was this dispatched?" becomes a checkable artifact. This is the biggest slice — it likely wants its own spec.
+4. **The inline carve-out gets an explicit boundary.** The doctrine already implies one ("the orchestrator's hands touch specs, the board, worktree/PR plumbing, and grounding docs"). Lane 4's MCP probing, the three operator rulings, and the wiki classification fell inside it; the ~12 tests and the provider/mapping code did not. Needs a hard edge — a written carve-out is also a written excuse.
+
+Sequencing note for whoever implements: 1, 2 and 4 are prose changes to planted/template surface and can ride one PR. 3 changes enforcement and should be specced separately rather than folded in.
+---
+<!-- COMMENTS:END -->
