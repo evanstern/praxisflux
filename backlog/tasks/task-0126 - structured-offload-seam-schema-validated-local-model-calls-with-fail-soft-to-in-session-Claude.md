@@ -38,13 +38,13 @@ Spec: specs/063-structured-offload-seam
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A chassis helper takes prompt plus JSON schema plus endpoint config and returns a validated object
-- [ ] #2 Constrained/structured decoding is requested from the backend where supported, rather than relying on prompt instructions alone
-- [ ] #3 Validation failure, timeout, or unreachable endpoint falls back to in-session handling — never an error surfaced to the user and never a blocked sweep
-- [ ] #4 With no endpoint configured the behavior is byte-identical to today (opt-in, absent by default)
-- [ ] #5 Endpoint and model are configuration data, not hardcoded, and the config surface is documented next to the model-tier ladder
-- [ ] #6 Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured
-- [ ] #7 Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required
+- [x] #1 A chassis helper takes prompt plus JSON schema plus endpoint config and returns a validated object
+- [x] #2 Constrained/structured decoding is requested from the backend where supported, rather than relying on prompt instructions alone
+- [x] #3 Validation failure, timeout, or unreachable endpoint falls back to in-session handling — never an error surfaced to the user and never a blocked sweep
+- [x] #4 With no endpoint configured the behavior is byte-identical to today (opt-in, absent by default)
+- [x] #5 Endpoint and model are configuration data, not hardcoded, and the config surface is documented next to the model-tier ladder
+- [x] #6 Each call leaves residue recording backend used and whether the result validated or fell back, so a consumer can be measured
+- [x] #7 Tests cover the fallback paths (invalid JSON, schema mismatch, timeout, refused connection) with no live model required
 - [x] #8 Spec phase: Phase 1 — The module and its tests
 - [x] #9 Spec phase: Phase 2 — Documentation, versions, wiki
 <!-- AC:END -->
@@ -55,6 +55,8 @@ Spec: specs/063-structured-offload-seam
 claimed by sweep (sweep-cost-offload-runbook) 2026-09-10; tier sonnet, model cc/claude-sonnet-5[1m] — work to a written card, fallback semantics and scope already settled; served model recorded at dispatch
 
 spec-bridge sync: Phase 1 — The module and its tests: 6/6 · Phase 2 — Documentation, versions, wiki: 6/6 — status In Progress → Done
+
+ACs 1-7 verified against merged PR #141: offload() signature + constrained decoding (ollama format / openai json_schema) + all fallback paths tested against stubs + opt-in absent-by-default + config beside tier ladder documented in docs/wiki/chassis.md + per-call residue
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
