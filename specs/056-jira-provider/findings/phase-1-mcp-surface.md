@@ -24,20 +24,32 @@ Round-tripped, then written a second time with a different tick pattern and re-r
   preserved exactly.
 - The `Spec: specs/056-jira-provider` marker line survives.
 - Text after the END marker is not swallowed.
-- **The write→read→write cycle is idempotent, not degrading.** A second write with `#1`
-  flipped `[ ]`→`[x]` persisted correctly, and the normalization was byte-identical to the
-  first cycle's. This matters more than the first read: the bridge rewrites this block
-  repeatedly, so a normalization that compounded per cycle would rot the block over time.
-  It converges.
+- **The write→read→write cycle is idempotent for the CHECKBOX LINES.** A second write with
+  `#1` flipped `[ ]`→`[x]` persisted correctly, and the normalization of the item lines was
+  byte-identical to the first cycle's.
 
-**Two normalizations the parser MUST tolerate** (present in every read, both formats):
+  > **AMENDED 2026-09-10 (spec 056 phase 3).** This bullet originally read "the cycle is
+  > idempotent, not degrading … it converges", stated unqualified. That is **true of the
+  > checkbox lines and FALSE of the END marker line**, which this phase did not measure.
+  > Live: the END marker's trailing whitespace **compounds** when the read bytes are echoed
+  > back — 2 spaces become 4, then 6. It converges only if the writer emits a CLEAN marker,
+  > which `renderSpecPhasesBlock` does. Splice rendered output between the existing markers;
+  > never preserve the read bytes. Full detail: `findings/phase-3-resolution-quirk.md` and
+  > the `renderSpecPhasesBlock` doc comment in `lib/board-mirror.mjs`.
+
+**Two normalizations the parser MUST tolerate** (present in every read, both formats) —
+**amended 2026-09-10: there are THREE; the END marker line also gains trailing whitespace,
+see phase 3's findings**:
 
 1. A blank line is inserted immediately after `<!-- spec-phases BEGIN -->`. A parser that
    requires the first checkbox on the very next line will fail on every real read.
 2. Trailing whitespace (two spaces) is appended to the LAST checkbox line. Item text must
    be right-trimmed before comparison, or the last phase's text never matches its source.
+3. **(Added 2026-09-10, phase 3.)** Trailing whitespace (two spaces) is appended to the
+   **END MARKER LINE** itself. Harmless to the parser, which slices on `indexOf(END)` — but
+   it **compounds if echoed back on write**, so the writer must emit a clean marker.
 
-Neither is fatal; both are silent. 055's fixture round-trip would not have produced either,
+None is fatal; all are silent. 055's fixture round-trip would not have produced either,
 which is precisely the gap F1 named.
 
 **`contentFormat: "html"` — the markers survive only as ESCAPED TEXT, and the END marker is
@@ -81,13 +93,18 @@ condition spec 056 Phase 2 says must raise an error rather than silently pick a 
 Phase 2 should map on **status name**, not category, and the non-injective check must run
 against the real workflow's names. This is a live-site fact 055's fixtures could not show.
 
-**Not tested: the resolution quirk.** Spec 056 lists "a set `resolution` can block a
-backwards transition" as a Phase 1 item. Verifying it requires transitioning the scratch
-issue to a resolved state and back. The operator's sign-off authorized a description
-round-trip, not workflow writes on a real corporate project, so the transition test was
-declined by the permission boundary and NOT performed. It remains **unverified** and is
-owed before Phase 3 (the write path) relies on backwards transitions. Do not record it as
-confirmed.
+**~~Not tested: the resolution quirk.~~ RESOLVED 2026-09-10 — see
+`findings/phase-3-resolution-quirk.md`.** This phase could not test it: the 2026-09-09
+sign-off authorized a description round-trip, not workflow writes, so the permission boundary
+declined and it was left owed before Phase 3.
+
+Phase 3 tested it under the operator's 2026-09-10 write authorization. **Verdict: the
+backwards move is NOT blocked on this workflow** — `Closed → Ready for Dev` succeeded
+directly. But the forward move to `Closed` **silently set `resolution: Done`** via a workflow
+post-function, and the backwards move **did not clear it**, leaving an issue that is
+simultaneously in-progress and resolved. `editJiraIssue` with an explicit `null` clears it.
+So the write path clears the resolution **after** a backwards move out of a done-category
+status — needed for hygiene, not to unblock the move.
 
 ## JQL pagination — confirmed
 

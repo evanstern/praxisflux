@@ -648,6 +648,22 @@ test("parseSpecPhasesBlock: trailing whitespace on the END marker line is tolera
   assert.deepEqual(items, [{ index: 1, checked: true, text: "A" }]);
 });
 
+// spec 056 Phase 3, verified live: the END-marker whitespace COMPOUNDS if echoed back
+// (read 2 spaces -> write them back -> read 4 -> 6 ...). The renderer emits a CLEAN marker, so
+// splicing rendered output between the existing markers re-normalizes to a constant 2 every
+// cycle instead of growing. This test is the regression guard on that property: if
+// renderSpecPhasesBlock ever starts preserving trailing whitespace, the block rots over time
+// in a way no single round-trip would reveal.
+test("renderSpecPhasesBlock emits clean markers, so a read->write cycle cannot compound whitespace", () => {
+  const readBack = "<!-- spec-phases BEGIN -->\n\n- [x] A\n- [ ] B  \n<!-- spec-phases END -->  \nSpec: specs/001-x";
+  const rendered = renderSpecPhasesBlock(parseSpecPhasesBlock(readBack));
+  assert.ok(!/[ \t]+$/m.test(rendered), `rendered block must carry no trailing whitespace:\n${JSON.stringify(rendered)}`);
+  assert.ok(rendered.endsWith("<!-- spec-phases END -->"), "END marker must be the clean final bytes");
+  // Feeding a dirtier read back through renders byte-identically — the cycle converges.
+  const dirtier = "<!-- spec-phases BEGIN -->\n\n- [x] A\n- [ ] B    \n<!-- spec-phases END -->      \n";
+  assert.equal(renderSpecPhasesBlock(parseSpecPhasesBlock(dirtier)), rendered);
+});
+
 // AC #4 — an issue with no Spec: marker is not bridged work and must be excluded. Same
 // MARKER regex bridge.mjs uses, asserted against live bytes.
 test("the Spec: marker survives live normalization, and an unlinked issue yields none", () => {

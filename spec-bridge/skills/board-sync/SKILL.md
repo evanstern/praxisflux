@@ -88,6 +88,51 @@ writing the reconciling edits back is `spec-bridge:sync`'s job. Keep them separa
    the Jira UI over unchecked `tasks.md` boxes is *supposed* to produce a blocking finding here.
 3. `git status` shows the mirror committed and the tree clean.
 
+## The write direction (`spec-bridge:sync` under Jira)
+
+This skill does not write to Jira — but the write path shares its primitives, so the mechanics
+live here where they are verified. `spec-bridge:sync` computes reconciling edits with
+`planBridge`, renders them with `renderJira` (`spec-bridge/gates/bridge.mjs`), and executes the
+resulting `{ tool, args, why }` list **in the returned order**. Later calls assume earlier ones
+landed — the same discipline as the Backlog path, for the same reason.
+
+**Status moves are two calls, resolved by ID.** `renderJira` emits
+`{ tool: "transitionJiraIssue", args: { issueIdOrKey, status } }` naming a *target status*, not
+a transition. Resolve it:
+
+1. `listJiraIssueTransitions(issue)` — find the entry whose **`to.name`** equals the target.
+2. `transitionJiraIssue(issue, transitionId)` — execute by that **`id`**.
+
+**Never match on the transition's own `name`.** Verified live: two transitions on one workflow
+share the name `Ready for Dev`, and a transition named `Closed (2)` targets the status `Closed`.
+Transition names are neither unique nor equal to their target status.
+
+**After a backwards move out of a `done`-category status, clear the resolution:**
+`editJiraIssue(issue, { resolution: null })`. The forward transition into a done status silently
+sets `resolution` via a workflow post-function, and the backwards move does **not** clear it —
+leaving a card that reads as resolved while the bridge considers it unfinished. Verified live
+(`specs/056-jira-provider/findings/phase-3-resolution-quirk.md`); the step is a harmless no-op
+when no resolution was set. Note the backwards move itself was **not** blocked on that
+workflow — a different Jira workflow may block it, which this step also handles.
+
+**Resolving an AC edit against the live block.** `renderJira`'s `editJiraIssue` call carries the
+**raw diff** (`acAdd`/`acRemove`/`acCheck`/`acUncheck`), not a finished description — being pure,
+it cannot fetch the issue to resolve a surviving AC's text. Resolving it is the executor's job:
+
+```
+getJiraIssue(issue, markdown)  ->  parseSpecPhasesBlock(description)
+                               ->  apply the raw diff
+                               ->  renderSpecPhasesBlock(items)
+                               ->  editJiraIssue with the rebuilt description
+```
+
+Splice the rebuilt block back **between its existing markers**, leaving every byte outside them
+untouched — text outside the block is human-authored and is never modified.
+
+**After executing, re-sync** (the Work steps above), so the mirror reflects post-edit Jira rather
+than the state that motivated the edits. And assert the one-way contract: `git status` must show
+**no** modification under any spec dir. Files are truth; the board is the view.
+
 ## The trust boundary
 
 > The mirror is a receipt of what Jira said at `observedSha`. A status claim is only as good as

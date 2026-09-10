@@ -22,7 +22,7 @@ all exist.
 - [x] Confirm the transition two-step: `transitionJiraIssue` takes a transition **id**, not a
       status name, and available transitions depend on current status + workflow. Record the
       `getTransitionsForJiraIssue` → `transitionJiraIssue` sequence
-- [ ] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards  <!-- UNVERIFIED 2026-09-09: needs workflow writes on a real corporate project; the operator's sign-off covered a description round-trip only and the permission boundary declined. Owed before Phase 3. -->
+- [x] Confirm the resolution quirk: a set `resolution` can block a reopen/backwards  <!-- VERIFIED 2026-09-10 under the operator's write authorization: the backwards move is NOT blocked on this workflow, but the forward move to Closed silently SETS resolution and the backwards move does not clear it. editJiraIssue with an explicit null clears it. See findings/phase-3-resolution-quirk.md. -->
       transition, and clearing it via `editJiraIssue` is the fix. The bridge **does** move
       statuses backwards, so record how to handle it
 - [x] Confirm `searchJiraIssuesUsingJql` pagination (`maxResults` cap, `nextPageToken`) and
@@ -64,12 +64,12 @@ all exist.
 
 ## Phase 3 — Write path: execute the renderer's calls
 
-- [ ] Extend `spec-bridge:sync` to execute `renderJira`'s `{ tool, args, why }` list when the
+- [x] Extend `spec-bridge:sync` to execute `renderJira`'s `{ tool, args, why }` list when the
       provider is `jira`, **in the returned order** (later calls assume earlier ones landed —
       same discipline as the Backlog path)
-- [ ] Use the phase-1 transition sequence for status moves; handle the resolution-blocks-reopen
+- [x] Use the phase-1 transition sequence for status moves; handle the resolution-blocks-reopen
       case for backwards moves
-- [ ] Re-sync the mirror after execution, so it reflects post-edit Jira rather than the state
+- [x] Re-sync the mirror after execution, so it reflects post-edit Jira rather than the state
       that motivated the edits
 - [ ] Assert the one-way contract: `git status` shows **no** modification under any spec dir
       (AC #6)
