@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:29'
-updated_date: '2026-09-10 17:35'
+updated_date: '2026-09-10 17:44'
 labels:
   - grounding-wiki
   - feature
@@ -44,7 +44,12 @@ Spec: specs/065-wiki-triage-offload
 - [ ] #5 A real wiki-update pass over the praxis corpus is measured seam-on vs seam-off, recording tokens, wall-clock, fallback rate, and misroute rate vs Claude-as-ground-truth
 - [ ] #6 The measurement is written up with an explicit verdict on whether a second consumer is justified
 - [ ] #7 check-docs, wiki-freshness, and spec-bridge gates green
+- [ ] #8 Spec phase: Phase 1 — The triage-offload script and its tests
+- [ ] #9 Spec phase: Phase 2 — Skill wiring, versions, wiki
+- [ ] #10 Spec phase: Phase 3 — The measurement (endpoint required)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
