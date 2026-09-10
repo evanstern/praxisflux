@@ -19,16 +19,16 @@ phase's commit. Run the suite as bare `node --test`.
 
 ## Phase 2 — Skill wiring, versions, wiki
 
-- [ ] Wire the opt-in step into `grounding-wiki/skills/wiki-update/SKILL.md` (preamble to
+- [x] Wire the opt-in step into `grounding-wiki/skills/wiki-update/SKILL.md` (preamble to
       Work step 2 + the Hard rule's third-sanctioned-path sentence), bump the skill's
       `version:` to 0.3.0
-- [ ] Bump versions per `docs/releasing.md` (marketplace + plugin lockstep, 0.63.3)
-- [ ] Honest re-pin pass: amend `grounding-wiki-plugin` (offload step) and
+- [x] Bump versions per `docs/releasing.md` (marketplace + plugin lockstep, 0.63.3)
+- [x] Honest re-pin pass: amend `grounding-wiki-plugin` (offload step) and
       `test-suite-catalog` (new test file); classify version-churn staleness per diff;
       regenerate CAPSULES.md if any description changed
-- [ ] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
+- [x] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
       freshness gate all green
-- [ ] Commit and push
+- [x] Commit and push
 
 ## Phase 3 — The measurement (endpoint required)
 
