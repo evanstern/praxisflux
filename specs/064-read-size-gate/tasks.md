@@ -24,16 +24,43 @@ phase's commit. Run the suite as bare `node --test`.
 
 ## Phase 2 — Planting doc, versions, wiki
 
-- [ ] Add `pdlc/hooks/README-read-size-gate.md`: what the gate does, how a host plants it
+- [x] Add `pdlc/hooks/README-read-size-gate.md`: what the gate does, how a host plants it
       (settings.json PreToolUse wiring for Read and Bash), threshold config, exemptions,
       and the kill-switch documented for wiki-build/wiki-update/design-rounds passes
-- [ ] Bump versions per `docs/releasing.md` (marketplace + plugin lockstep)
-- [ ] Honest re-pin pass over wiki notes whose sources this branch touched
+- [x] Bump versions per `docs/releasing.md` (marketplace + plugin lockstep)
+- [x] Honest re-pin pass over wiki notes whose sources this branch touched
       (`pdlc-plugin`, `test-suite-catalog-plugins-gates-pdlc`; kill-switch pointer where
       the consumption protocol is described): classify per diff, amend prose, re-pin
-- [ ] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
+- [x] `node scripts/check-docs.mjs`, `gen-marketplace --check`, `sync-version --check`,
       freshness gate all green
-- [ ] Commit and push
+- [x] Commit and push
+
+### Phase 2 deviations from plan.md
+
+- The reconcile-merge (main moved under this branch, TASK-0126's PR #141: structured-offload
+  seam, 0.63.0 → 0.63.1) landed first via `git merge origin/main` — clean, no conflicts —
+  so this phase bumps from 0.63.1, not 0.63.0.
+- Ten wiki notes went STALE from the version-stamp bump alone (`plugin.json`/
+  `marketplace.json`/`action.yml` churn only). Four (`build-and-release`,
+  `pdlc-plugin`, `reorient-plugin`, `team-review-plugin`) tripped the freshness planner's
+  conservative NEEDS-REVIEW heuristic (a note quoting ANY semver literal anywhere, even an
+  unrelated historical one, is never auto-classified REPIN) — each diff was read by hand
+  and confirmed version-stamp-only against sources; the quoted literals are unrelated past
+  milestones (e.g. "Since 0.23.0", "`v0.2.0` was the pipeline's first release"), so all four
+  were re-pinned after manual confirmation. The other six were genuine RE-PIN-ONLY, applied
+  via the planner's emitted `repin.mjs` commands.
+- `pdlc-plugin.md` and `test-suite-catalog-plugins-gates-pdlc.md` needed real prose
+  amendment (new sources added: `pdlc/hooks/read-size-gate.mjs`,
+  `pdlc/hooks/README-read-size-gate.md`, `test/read-size-gate.test.mjs`) — the freshness
+  gate can't see this on its own since those files weren't previously in either note's
+  `sources:` list. Adding the read-size-gate paragraph pushed `pdlc-plugin.md` over the
+  8,000-char body budget (8,682); trimmed existing prose (root-guard section, peer-utilities
+  section, local-only section) rather than split summary-style or claim
+  `size_budget_exempt`, landing at 7,913 chars.
+- `test-suite-catalog-plugins-gates-pdlc.md`'s `description:` frontmatter changed (now names
+  the read-size-gate suite), so `CAPSULES.md` was regenerated
+  (`node grounding-wiki/scripts/capsules.mjs . docs/wiki`) per the description-changed rule —
+  no other note's description changed.
 
 ## Phase 1 deviations from plan.md
 
