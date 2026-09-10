@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-10T17:01:51.269Z",
+  "generatedAt": "2026-09-10T17:33:28.185Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3080,6 +3080,58 @@
         "tech-debt",
         "spec-bridge",
         "gates"
+      ]
+    },
+    {
+      "id": "TASK-0124",
+      "status": "Done",
+      "specDir": "specs/064-read-size-gate",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "PreToolUse hooks for Read and Bash deny above a configurable line threshold using the current hookSpecificOutput.permissionDecision schema"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The deny reason names the praxis cheap path (capsule-first corpus loading and tier dispatch), not any external service"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Exemptions cover docs/wiki/, specs/, worktree roots, and targeted reads (offset/limit set, piped or redirected bash)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "check-docs, wiki-freshness, and spec-bridge gates green"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The hook and its fail-closed tests"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Planting doc, versions, wiki"
+        }
+      ],
+      "labels": [
+        "gates",
+        "feature",
+        "sweep-cost"
       ]
     },
     {

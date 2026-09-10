@@ -189,4 +189,4 @@ carries best-effort actuals from the harness/transcript.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-10 | TASK-0126 | #141 | a89bcd8 | ~299k subagent tokens (ph1 146k + ph2 153k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.0→0.63.1 |
-| 2026-09-10 | TASK-0124 | — | — | ~171k subagent tokens (ph1) | phases: 1 done (73993c9, served cc/claude-sonnet-5[1m], 585/585), 2 dispatched with merge-in reconcile |
+| 2026-09-10 | TASK-0124 | #142 | c9891e7 | ~341k subagent tokens (ph1 171k + ph2 170k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.1→0.63.2; clean reconcile |
