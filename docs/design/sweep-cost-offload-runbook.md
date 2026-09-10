@@ -189,5 +189,5 @@ carries best-effort actuals from the harness/transcript.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-10 | TASK-0126 | #141 | a89bcd8 | ~299k subagent tokens (ph1 146k + ph2 153k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.0→0.63.1 |
-| 2026-09-10 | TASK-0127 | — | — | — | claimed; spec 065 committed (3 phases); phases: 1 dispatched |
+| 2026-09-10 | TASK-0127 | — | — | ~278k subagent tokens (ph1 133k + ph2 145k) | phases: 1-2 done (40c7c9c, 5ba9be4, served cc/claude-sonnet-5[1m], 603/603, versions 0.63.3), 3 (measurement) dispatched — endpoint preflighted live |
 | 2026-09-10 | TASK-0124 | #142 | c9891e7 | ~341k subagent tokens (ph1 171k + ph2 170k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.1→0.63.2; clean reconcile |
