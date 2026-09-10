@@ -24,7 +24,7 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { deriveSpecState, STATUS, STAGE, STAGES } from "../lib/spec-derive.mjs";
 import { hasAnyChild, findRootsDownwards } from "../lib/project-root.mjs";
-import { parseLinkedTask, findLinkedTasks, readMirror, providers, mirrorStaleness } from "../lib/board-mirror.mjs";
+import { parseLinkedTask, findLinkedTasks, readMirror, providers, mirrorStaleness, parseDispatchRecords } from "../lib/board-mirror.mjs";
 
 /**
  * Per-project bridge config: `.spec-bridge.json` at the project root (beside backlog/).
@@ -393,13 +393,151 @@ function collapsedGateProblems(gates, counts, runOne) {
   return problems;
 }
 
+/* ── the dispatch record and its fail-closed check (spec 066 R3) ───────────────────────────
+ *
+ * THE RULE: a task's PR is not merge-ready until its board card carries a dispatch record
+ * naming the model that ACTUALLY SERVED. No record, no merge.
+ *
+ * WHY IT HAS TO BE A GATE AND NOT PROSE. An inline-implemented task leaves artifacts
+ * *identical* to a dispatched one — same commits, same spec dir, same ticked boxes. The
+ * served-model record is the ONLY residue that tells them apart. `tiers.mjs --check` proves a
+ * generated agent definition matches the config; it cannot observe whether a dispatch
+ * happened at all, nor whether the pin it verified is the model that ran. Field case:
+ * 2026-09-10, Lane 4 of the TASK-108 sweep ran an entire task inline on the orchestrator's
+ * Opus session while three written sources said to dispatch — none reached the session that
+ * mattered, and no gate could catch it (`docs/design/lane-4-dispatch-gap.md`). Same defect
+ * shape as a stale planted block (spec 066 R7c): written doctrine, no residue anything
+ * enforces — different artifacts, so deliberately different mechanisms.
+ *
+ * THE MARKER, specified in `pdlc/templates/CLAUDE.md`'s `## Model tiers` section and
+ * `pdlc/skills/sweep/templates/lane-handoff.md`'s `## Dispatch` section, so producer and
+ * consumer read one spelling:
+ *
+ *   Dispatch: tier=<tier> pinned=<model-id> served=<model-id>
+ *
+ * One line per dispatch, anywhere in the card's text; a phase-dispatched task carries several.
+ * `served=` is the load-bearing field and the only one this check requires — it is the fact
+ * the whole rule exists to make checkable. A placeholder (`TBD`, `TO BE FILLED`, `pending`,
+ * `unknown`, `?`) is NOT a served model: the record is written at dispatch time with that
+ * field deliberately open, and filling it from the transcript is exactly the step being
+ * enforced. Accepting the placeholder would make the gate satisfiable without ever reading a
+ * transcript — the "name the tier, then work inline" failure one level up.
+ *
+ * WHY THIS LIVES IN spec-bridge AND NOT pdlc. `pdlc` owns the lifecycle verbs and the
+ * doctrine that MANDATES the record; `spec-bridge` owns the gate that READS board cards. The
+ * record lives on a card `checkBridge` already walks, parsed by a parser it already calls
+ * (spec 066 finding F3) — so the check belongs to the reader, and no new gate script or
+ * surface exists. A future reader will ask why a "dispatch" check is not in `pdlc`: this is
+ * the answer.
+ */
+
+/** Values that mean "not filled in yet" — a record carrying one is treated as naming no served
+ *  model at all. Compared case-insensitively with spacing/punctuation folded. */
+const SERVED_PLACEHOLDERS = new Set([
+  "", "?", "tbd", "tobefilled", "tofill", "pending", "unknown", "none", "na", "xxx", "todo",
+]);
+
+/**
+ * Judge ONE `Dispatch:` payload (the text after the marker). Returns the served model when the
+ * record names a real one, else null. Pure; exported for direct testing.
+ */
+export function servedModel(payload) {
+  // The value runs to end-of-line, a `,`/`;`, or the next `key=` token — NOT to the first
+  // space, then must be a SINGLE TOKEN. Two measured leaks drove that:
+  //   `served=TO BE FILLED`             — stopping at the space captured "TO", not a
+  //                                       placeholder, so the gate passed a card whose field
+  //                                       was openly unfilled (this task's own card, no less).
+  //   `served=claude-opus-5 (37 occurrences)` — trailing prose smuggled into the value.
+  // A model ID never contains whitespace, so "has a space" settles both without an
+  // ever-growing placeholder list: the writer must record a bare ID, which is also what makes
+  // the value comparable to a tier config should anyone ever want that.
+  const m = String(payload ?? "").match(/(?:^|[\s,;])served=\s*(.*?)\s*(?=[,;]|\s+[A-Za-z][\w-]*=|$)/i);
+  if (!m) return null;
+  const raw = m[1].replace(/^['"]|['"]$/g, "").trim();
+  if (/\s/.test(raw)) return null;
+  if (SERVED_PLACEHOLDERS.has(raw.toLowerCase().replace(/[_.-]/g, ""))) return null;
+  return raw || null;
+}
+
+/**
+ * Whether this linked card is IN SCOPE for the dispatch-record rule.
+ *
+ * SCOPING — the part that needed judgment, so here is the whole reasoning.
+ *
+ * `checkBridge` walks every linked card (63 in this repo) on every Stop, every
+ * pre-commit/pre-push, and in CI. A blanket "every linked card must carry a record" would
+ * fail ~62 historical cards the moment it shipped, and the tempting fix would be to weaken
+ * the rule — precisely the failure mode this spec exists to stop. So the scope narrows twice,
+ * deliberately:
+ *
+ * 1. **The host must OPT IN** — `"requireDispatchRecord": true` in `.spec-bridge.json`.
+ *    `checkBridge` ships to consumers as `@praxisflux/gates`; a repo that has never heard of
+ *    PDLC tiering must not acquire a blocking finding from a version bump. Absent the flag
+ *    this check does not merely stay quiet, it does not run, and every existing verdict and
+ *    message is bit-for-bit unchanged — the same opt-in posture `statusVocabulary` and
+ *    `projectGates` take. Data the host STATES, never prose this checker infers.
+ *
+ * 2. **Only cards whose PR is still in flight** — i.e. not Done. The rule's own words are
+ *    "not merge-ready", and merge-readiness is a property of work that has not merged. A Done
+ *    card's PR merged long ago; demanding a record of it now IS the retrofit spec 066 puts
+ *    out of scope, and a gate that retroactively condemns finished work gets disabled rather
+ *    than obeyed. Zero historical cards are flagged BY CONSTRUCTION, not by a cutoff date
+ *    someone picked — a claim that ages out on its own as work lands.
+ *
+ * WHAT THIS DOES NOT CATCH — stated plainly, because an honest narrow gate beats a broad one
+ * that has to be softened later:
+ *
+ * - **A card that reaches Done without ever carrying a record.** Once Done it leaves scope
+ *   permanently. Less a loophole than a race: the gate fires on every Stop, commit, push and
+ *   CI run for the whole life of the claim, so escaping needs claim → implement → tick → Done
+ *   with not one of those firing (the claim commit alone trips it). It IS a hole; closing it
+ *   would mean holding merged history to a rule that did not exist when it merged.
+ * - **A truthful-looking record for a dispatch that never happened.** Nothing here can reach
+ *   a transcript: `served=cc/claude-sonnet-5` typed by a session that did the work itself is
+ *   indistinguishable from the real thing. This raises the cost of a skipped dispatch from
+ *   *invisible* to *a written falsehood on a tracked artifact*; it does not make it
+ *   impossible. That is the ceiling of any board-side check, and worth having anyway.
+ * - **Whether the served model matches the tier assigned.** `served=` is checked for presence
+ *   and non-placeholder-ness, never against `.claude/model-tiers.json`. Cross-checking needs
+ *   the config and the card to agree on spelling per host, and the pinned form is
+ *   deliberately host-specific (see the planted block's Model tiers section).
+ * - **How many dispatches happened.** One valid record anywhere on the card satisfies this.
+ *   A phase-dispatched task SHOULD carry one per phase and the sweep skill says so, but a
+ *   card's phase list can grow after the fact, so the count is not mechanically checkable.
+ * - **Cards with no `Spec:` marker.** This gate only ever sees linked cards.
+ *
+ * ponytail: scope is derived from status, so it needs no new board field and no date. If a
+ * host ever must hold merged cards to the rule, the upgrade is a declared epoch in
+ * `.spec-bridge.json` (a date, or a spec-dir floor) rather than widening this predicate —
+ * add it when someone actually has that need.
+ */
+export function dispatchRecordRequired(task) {
+  return String(task?.status ?? "").toLowerCase() !== "done";
+}
+
+/** The blocking finding: names the card, the missing artifact, the exact line to write, and
+ *  where the format is specified — a failure line names its fix (docs/wiki/gates-convention.md). */
+function dispatchRecordProblem(task, { placeholderOnly }) {
+  const why = placeholderOnly
+    ? "its dispatch record's `served=` is still a placeholder"
+    : "it carries no dispatch record";
+  return (
+    `[spec-bridge] ${task.id} is "${task.status}" (PR in flight) but ${why} — its PR is not ` +
+    "merge-ready. An inline-implemented task is indistinguishable from a dispatched one in its " +
+    "commits, specs and ticks, so the served model is the only residue. Read the model that " +
+    "ACTUALLY served from the dispatch transcript and record it on the card: " +
+    `backlog task edit ${task.id} --comment 'Dispatch: tier=<tier> pinned=<model-id> served=<model-id>'` +
+    " (format: the planted CLAUDE.md `## Model tiers` section)."
+  );
+}
+
 const RANK = { "to do": 0, "in progress": 1, done: 2 };
 const DERIVED_RANK = { [STATUS.TODO]: 0, [STATUS.IN_PROGRESS]: 1, [STATUS.DONE_ELIGIBLE]: 2 };
 
 // parseLinkedTask / findLinkedTasks moved to lib/board-mirror.mjs (spec 052 phase 2) — the
 // backlog projector's parser lives in the chassis now, imported above and re-exported here so
 // every existing import site still resolves.
-export { parseLinkedTask, findLinkedTasks };
+export { parseLinkedTask, findLinkedTasks, parseDispatchRecords };
 
 /**
  * The one seam through which the bridge learns what's on the board (spec 053 R1). Resolution
@@ -511,6 +649,10 @@ export function checkBridge(root, {
   const requireAnalysis = config.strictDone === true;
   const profile = vocabularyProfile(config);
   const gatesProfile = projectGatesProfile(config);
+  // spec 066 R3: opt-in, and strictly `=== true` — an absent, false, or non-boolean value
+  // leaves this check unrun and every existing verdict byte-identical (see
+  // `dispatchRecordRequired` for the full scoping rationale).
+  const requireDispatch = config.requireDispatchRecord === true;
 
   // R3/R4 (spec 053 phase 2): fail-closed board-evidence findings. Computed once per call,
   // independent of any particular linked task — the finding is about whether evidence EXISTS
@@ -598,6 +740,17 @@ export function checkBridge(root, {
           ? "analysis.md missing — run /speckit.analyze and save its report as " + `${task.specDir}/analysis.md`
           : `unresolved CRITICAL finding(s) in analysis.md: ${a.criticals.join(" | ")}`)
       );
+    }
+
+    // Dispatch-record check (spec 066 R3). Independent of the verdict above: a card can be
+    // perfectly honest about its status and still have no proof its implementation was
+    // dispatched. Blocks, because "not merge-ready" is a claim about work in flight and this
+    // is the one artifact that separates a dispatched task from an inline-implemented one.
+    if (requireDispatch && dispatchRecordRequired(task)) {
+      const records = task.dispatches ?? [];
+      if (!records.some((r) => servedModel(r))) {
+        problems.push(dispatchRecordProblem(task, { placeholderOnly: records.length > 0 }));
+      }
     }
 
     // Project-gate check (spec 050 R4): a spec is held to its declared gates ONLY when

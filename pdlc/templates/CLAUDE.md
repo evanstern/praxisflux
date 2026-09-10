@@ -131,6 +131,19 @@ not that Sonnet ran. Confirm the model that actually served from the first dispa
 transcript before launching siblings — a wrong pin caught after one agent is a rounding
 error; caught after a lane of them, it is the whole lane's budget.
 
+**Then record it on the board task, in this exact form — one line per dispatch:**
+
+```
+Dispatch: tier=<tier> pinned=<model-id> served=<model-id>
+```
+
+`served=` is the model the transcript shows, as a bare ID with no spaces; a placeholder
+(`TBD`, `pending`) does not count, and neither does prose after the ID. This line is the only
+residue that distinguishes a dispatched task from one implemented inline — the commits,
+specs and ticks are identical — so a task's PR is **not merge-ready without it**, and
+`spec-bridge`'s gate reports a claimed card that lacks one (opt in with
+`"requireDispatchRecord": true` in `.spec-bridge.json`).
+
 **Regenerating is not enough — the agent registry is read at session start.** A newly
 generated definition is invisible to dispatch until the session restarts, and an edited one
 keeps dispatching its *old* pin (observed 2026-08-10: a new tier reported "agent type not

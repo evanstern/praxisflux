@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.22.0
+version: 0.23.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -108,7 +108,13 @@ derive, in this order:
    recorded at dispatch, which model actually served. A bare tier name is not a valid
    runbook entry: tier names have no mechanical resolution at dispatch time, so an unpinned
    tier silently resolves to the orchestrator session's model. Record tier + model ID +
-   justification on the board task at dispatch time, not just in the runbook.
+   justification on the board task at dispatch time, not just in the runbook — as a
+   **machine-findable line**, because a gate reads it:
+   `Dispatch: tier=<tier> pinned=<model-id> served=<model-id>`, one per dispatch, with
+   `served=` a bare ID filled from the transcript (a placeholder does not count). A task's
+   PR is not merge-ready without it; `spec-bridge`'s gate reports a claimed card that lacks
+   one, since a dispatched task and an inline-implemented one leave identical commits,
+   specs and ticks.
    **Precondition:** run `tiers.mjs --root . --check` before authoring the lanes — a
    nonzero exit means a tier's generated agent definition no longer matches the config, so
    the IDs you are about to write into the runbook are not the IDs that would run.

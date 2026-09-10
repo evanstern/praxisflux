@@ -53,9 +53,12 @@ you however you arrived here.
   A green `tiers.mjs --check` proves the file says `{{TIER}}`; it cannot prove `{{TIER}}` ran,
   and it cannot see whether a dispatch happened at all. Read the per-request record, not the
   agent's self-report.
-- **Record the dispatch on the board task** — tier, the model ID pinned, and the model that
-  **actually served** — at dispatch time. That record is the only residue distinguishing a
-  dispatched task from an inline-implemented one: the commits, specs, and ticks are identical.
+- **Record the dispatch on the board task**, in the exact machine-findable form a gate reads —
+  one line per dispatch, `served=` a bare model ID filled from the transcript:
+  `Dispatch: tier={{TIER}} pinned={{MODEL_ID}} served=<model-id>`. A placeholder does not
+  count. That record is the only residue distinguishing a dispatched task from an
+  inline-implemented one: the commits, specs, and ticks are identical. The task's PR is not
+  merge-ready without it (`spec-bridge`'s gate reports a claimed card that lacks one).
 - **Dispatch phase-scoped:** one fresh implementer per `tasks.md` phase, re-grounded from the
   spec dir plus the branch's commits. Nothing passes between phases via chat context.
 - {{HOST_DISPATCH_NOTES — harness quirks that bit this sweep, e.g. "dispatch serially: one

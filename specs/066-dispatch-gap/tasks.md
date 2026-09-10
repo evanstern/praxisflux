@@ -29,15 +29,15 @@ the new gate fails this repo immediately.
 
 ## Phase 3 — The dispatch record and its fail-closed check (R3)
 
-- [ ] Specify the record's marker line **exactly** in the doctrine (planted block and/or sweep skill), machine-findable like the existing `Spec:` marker, carrying at minimum the model that actually served
-- [ ] Extend `checkBridge` in `spec-bridge/gates/bridge.mjs`, reusing `parseLinkedTask` from `lib/board-mirror.mjs`. No new gate script, no new surface
-- [ ] Scope the requirement honestly: `checkBridge` runs over all 63 linked cards via Stop hook, pre-commit/pre-push, and CI — a blanket rule fails ~62 historical cards. Bind tasks claimed under this doctrine, not every card that ever existed
-- [ ] Write down what the chosen scoping does **not** catch. An honest narrow gate beats a broad one that gets softened later
-- [ ] **If a defensible scoping still flags historical cards: STOP and surface it.** Do not retrofit records onto old cards; do not weaken the rule to make the suite green
-- [ ] Prove it fails closed: a claimed card with no dispatch record must be **reported**, not passed
-- [ ] Use TASK-0125's own card (which carries a dispatch record from this task's dispatch) as the passing fixture — the task must satisfy its own rule
-- [ ] Tests for both directions: missing record reported, present record clean
-- [ ] Commit
+- [x] Specify the record's marker line **exactly** in the doctrine (planted block and/or sweep skill), machine-findable like the existing `Spec:` marker, carrying at minimum the model that actually served
+- [x] Extend `checkBridge` in `spec-bridge/gates/bridge.mjs`, reusing `parseLinkedTask` from `lib/board-mirror.mjs`. No new gate script, no new surface
+- [x] Scope the requirement honestly: `checkBridge` runs over all 63 linked cards via Stop hook, pre-commit/pre-push, and CI — a blanket rule fails ~62 historical cards. Bind tasks claimed under this doctrine, not every card that ever existed
+- [x] Write down what the chosen scoping does **not** catch. An honest narrow gate beats a broad one that gets softened later
+- [x] **If a defensible scoping still flags historical cards: STOP and surface it.** Do not retrofit records onto old cards; do not weaken the rule to make the suite green
+- [x] Prove it fails closed: a claimed card with no dispatch record must be **reported**, not passed
+- [ ] Use TASK-0125's own card (which carries a dispatch record from this task's dispatch) as the passing fixture — the task must satisfy its own rule. **NOT DONE — the premise is false, measured Phase 3.** The card's five dispatch comments are PROSE (written before a format existed); its only `served=` line reads `served=TO BE FILLED`, which is exactly the placeholder the check rejects. Two consequences, both operator business, neither an implementer's to take: (a) the card needs one conforming `Dispatch:` line per dispatch before it can be its own passing fixture; (b) the card is absent from `.board/links.json` (mirror lags the live board — `node lib/board-mirror.mjs --check --root .` exits 1 on it), so the gate reads 63 links and does not see it at all. Synthetic fixtures cover both directions in `test/dispatch-record.test.mjs` meanwhile
+- [x] Tests for both directions: missing record reported, present record clean
+- [x] Commit
 
 ## Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5
 
