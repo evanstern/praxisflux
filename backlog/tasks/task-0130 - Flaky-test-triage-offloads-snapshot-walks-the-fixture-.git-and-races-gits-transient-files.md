@@ -3,10 +3,11 @@ id: TASK-0130
 title: >-
   Flaky test: triage-offload's snapshot() walks the fixture .git/ and races
   git's transient files
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 16:04'
-updated_date: '2026-09-11 19:01'
+updated_date: '2026-09-11 19:04'
 labels:
   - flake
   - tests
@@ -47,6 +48,12 @@ Do NOT fix this with a retry, a try/catch around `statSync`, or a test-level ski
 - [ ] #4 A repeated full-suite run (20+ iterations) produces no ENOENT from this helper
 - [ ] #5 Any other test helper in the suite that recursively stats a real git fixture is checked for the same TOCTOU and either fixed or explicitly noted as safe
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Ad-hoc mode (operator: 'Fix now, yes' 2026-09-11): one-line fix per the card's own spec — exclude .git/ from snapshot()'s walk in test/triage-offload.test.mjs. Dispatch at haiku (narrow mechanical single-file edit). Branch task-0130-snapshot-flake, one PR.
+<!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
