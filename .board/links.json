@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-11T16:46:38.007Z",
+  "generatedAt": "2026-09-11T16:49:08.256Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3356,6 +3356,26 @@
           "index": 4,
           "checked": false,
           "text": "Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Spec phase: Install Spec Kit tooling"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Spec phase: Reconcile templates and verify bridge derivation"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "Spec phase: Record constitution state"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "Spec phase: Retire the escape line from sweep doctrine"
         }
       ],
       "labels": [
