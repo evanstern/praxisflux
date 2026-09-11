@@ -2,10 +2,10 @@
 
 ## Phase 1: Install Spec Kit tooling
 
-- [ ] Run `specify init --here --integration claude --ignore-agent-tools --force` in the task worktree
-- [ ] Review installer writes; revert any touch to `.claude/agents/*`, `.claude/model-tiers.json`, `CLAUDE.md`, `specs/**`, existing house files
-- [ ] Confirm `.specify/` present (templates, scripts, memory) and `/speckit.*` command files installed for Claude Code
-- [ ] Commit the reviewed install
+- [x] Run `specify init --here --integration claude --ignore-agent-tools --force` in the task worktree
+- [x] Review installer writes; revert any touch to `.claude/agents/*`, `.claude/model-tiers.json`, `CLAUDE.md`, `specs/**`, existing house files
+- [x] Confirm `.specify/` present (templates, scripts, memory) and `/speckit.*` command files installed for Claude Code
+- [x] Commit the reviewed install
 
 ## Phase 2: Reconcile templates and verify bridge derivation
 
