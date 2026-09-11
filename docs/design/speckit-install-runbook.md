@@ -7,7 +7,12 @@ is decided; do not re-litigate it: the TASK-0128 card (operator-approved mid-swe
 2026-09-10) wins. Plan-of-record is the board; this file carries only ordering, doctrine,
 and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-11 — operator replied
+"Approved: all four" to the itemized list: (1) the lane (TASK-0128, branch
+`task-0128-speckit-install`, spec 067, sonnet default); (2) the spec-067 hand-authored
+escape line (the last use of the precedent); (3) the opus escalation for the
+doctrine phase only (`cc/claude-opus-5[1m]`, fallback `cc/claude-opus-4-8[1m]`);
+(4) the constitution default — record absence, card ratification as follow-up.
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
