@@ -3,11 +3,11 @@ id: TASK-0133
 title: >-
   Ratify the Spec Kit constitution: translate the wiki-grounded design
   principles into .specify/memory/constitution.md
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-11 18:01'
-updated_date: '2026-09-11 18:53'
+updated_date: '2026-09-11 18:56'
 labels:
   - pdlc
   - tooling
@@ -47,3 +47,9 @@ Constitution drafted and ratified-text landed (f7315d7): preamble + 8 articles +
 Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
 AC #4 verified (8f0d702): all 8 articles yield concrete pass/fail verdicts against spec 067's real plan — recorded in docs/design/constitution-check-verification.md. All ACs checked; PR next.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Constitution v1.0.0 ratified via PR #146 (merge 3cb5abb). Decision trail: capsule-grounded candidate list (docs/design/constitution-candidates.md) → operator rulings (docs/design/constitution-decision.md: Tier A minus A7 constitutional, Tier B/C doctrine, amendment procedure promoted to Article VIII, model-tiers.json stays sole tier authority) → ratified text in .specify/memory/constitution.md (preamble + 8 articles + ratification block, supersedes TASK-0128's unratified record) → performability proof against spec 067 (docs/design/constitution-check-verification.md). All three tiers dispatched and served-verified (sonnet draft, haiku verification; candidate list operator-sanctioned inline).
+<!-- SECTION:FINAL_SUMMARY:END -->
