@@ -3,9 +3,11 @@ id: TASK-0128
 title: >-
   Install GitHub Spec Kit tooling properly (.specify/ + /speckit commands) and
   retire the hand-authored-specs escape line
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-10 17:41'
+updated_date: '2026-09-11 16:44'
 labels:
   - pdlc
   - tooling
