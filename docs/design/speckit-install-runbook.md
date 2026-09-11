@@ -166,4 +166,4 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-11 | TASK-0128 | — | — | ph1: ~103k subagent tokens | phases: 1 done (f7cecdc, served=claude-sonnet-5 — pin verified from transcript); 2+3 dispatched grouped (sonnet); 4 (opus) pending |
+| 2026-09-11 | TASK-0128 | — | — | ph1 ~103k, ph2+3 ~147k subagent tokens | phases: 1-3 done (f7cecdc, b8fa70b, bfd04b0; both dispatches served=claude-sonnet-5); 4 dispatched (opus) |
