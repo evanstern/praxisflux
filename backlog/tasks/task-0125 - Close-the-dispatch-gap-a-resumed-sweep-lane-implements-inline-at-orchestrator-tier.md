@@ -45,13 +45,15 @@ Spec: specs/066-dispatch-gap
 - [x] #4 REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation
 - [x] #5 Operator has triaged the candidates and the chosen set is recorded
 - [x] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
-- [ ] #7 Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
+- [x] #7 Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
 - [ ] #8 Spec phase: Phase 2 — The lane-handoff template (R2, R5)
 - [ ] #9 Spec phase: Phase 3 — The dispatch record and its fail-closed check (R3)
 - [ ] #10 Spec phase: Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5
 - [ ] #11 Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4
 - [ ] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
+
+
 
 ## Comments
 
