@@ -46,12 +46,14 @@ Spec: specs/066-dispatch-gap
 - [x] #5 Operator has triaged the candidates and the chosen set is recorded
 - [x] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
 - [x] #7 Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
-- [ ] #8 Spec phase: Phase 2 — The lane-handoff template (R2, R5)
+- [x] #8 Spec phase: Phase 2 — The lane-handoff template (R2, R5)
 - [ ] #9 Spec phase: Phase 3 — The dispatch record and its fail-closed check (R3)
 - [ ] #10 Spec phase: Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5
 - [ ] #11 Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4
 - [ ] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
+
+
 
 
 
