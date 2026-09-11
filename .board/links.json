@@ -3083,6 +3083,83 @@
       ]
     },
     {
+      "id": "TASK-0125",
+      "status": "In Progress",
+      "specDir": "specs/066-dispatch-gap",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "Fixes 1 and 2 land: the dispatch obligation is stated in the always-on planted block AND the handoff template, binding any implementing session however it arrived — not only in pdlc:sweep's SKILL.md"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "Fix 5 lands: the handoff template's OPENING LINE fixes the reader's role (\"you are the orchestrator for this lane, not its implementer; dispatch to <tier>-implementer\") before the reader learns what the work is — role before content, not a tier field in a table"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Fix 3 lands and is SUFFICIENT on its own terms: a task's PR is not merge-ready until its board task carries a dispatch record naming the model that actually served. Fails closed — no record, no merge. Reuses the tier+model+justification record sweep already mandates and the card the gate already reads; no new surface"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Operator has triaged the candidates and the chosen set is recorded"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — The lane-handoff template (R2, R5)"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — The dispatch record and its fail-closed check (R3)"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 6 — Release obligations and close (all ACs)"
+        }
+      ],
+      "labels": [
+        "pdlc",
+        "doctrine",
+        "cost"
+      ],
+      "dispatches": [
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5"
+      ]
+    },
+    {
       "id": "TASK-0126",
       "status": "Done",
       "specDir": "specs/063-structured-offload-seam",

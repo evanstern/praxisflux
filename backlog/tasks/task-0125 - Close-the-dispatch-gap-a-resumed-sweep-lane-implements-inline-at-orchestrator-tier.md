@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 17:36'
+updated_date: '2026-09-10 20:39'
 labels:
   - pdlc
   - doctrine
@@ -205,5 +205,27 @@ Nothing precedes it but the title, and an HTML comment immediately after tells a
 **Gates re-run after the history move, unconditionally — and this is why that rule exists:** suite exit 0, `check-docs` exit 0, `spec-bridge` ok, **`wiki-freshness` exit 1 with SIX stale notes, not the two the spec anticipated.** Phase 2's SKILL.md edit staled the entire `pdlc-sweep` history family (`pdlc-sweep`, `-history`, `-history-early`, `-history-recent` — all four pin `SKILL.md` + `templates/runbook.md`), and the merge staled `pdlc-plugin`. Phase 4's boxes now carry the measured list, an instruction to re-run the gate and work its live output rather than that list, the NEEDS-REVIEW vs RE-PIN-ONLY split, and the `pdlc-sweep` note's ~8,000-char body cap (`bf7e47f`).
 
 Phase 2 boxes: **7/7.** Next: Phase 3 — the dispatch record and its fail-closed check, the one AC that creates enforcement rather than better prose.
+---
+
+author: @claude
+created: 2026-09-10 20:39
+---
+DISPATCH RECORDS — conforming markers, replacing the prose in comments #5–#7.
+
+Phase 3 created the machine-findable format and correctly reported that this card did not yet carry it: comment #5's `served=` field read `TO BE FILLED`, and comments #6/#7 recorded the served model in prose only. A gate cannot read prose. All three dispatches so far, in the format the doctrine now specifies:
+
+```
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+```
+
+One line per dispatch — Phases 1, 2 and 3 respectively. Each `served=` value was read from that dispatch's own transcript (37, 52 and 173 occurrences of `"model":"claude-opus-5"`), never inferred from the pin. The `opus` tier is escalation-gated and its operator checkpoint is recorded at runbook sign-off; the justification is in comment #5.
+
+**Also fixed: the mirror lag Phase 3 found.** `.board/links.json` held 63 links while the live board had 64 — TASK-0125 was absent, so `checkBridge` (which reads mirror-first per spec 053 R1) could not see the very card its new rule is about. `node lib/board-mirror.mjs --check --root .` exited 1 naming it.
+
+Regenerated deterministically via `projectBacklog` + `writeMirror` — not `spec-bridge:board-sync`, which is for `requiresSync` MCP hosts and explicitly says a `backlog` host recomputes rather than syncing. Now: **64 links, `--check` exit 0.**
+
+Worth recording as a finding in its own right: **an in-flight card is exactly the one most likely to be missing from a lagging mirror**, because the mirror is refreshed by a sync step that runs after claiming. So any board-side merge-readiness gate is only as current as `.board/links.json`. Phase 3 flagged this as the spec's fifth defect and it is the more interesting half — the gate was not wrong, the spec's model of what the gate can see was.
 ---
 <!-- COMMENTS:END -->
