@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-11 14:58'
+updated_date: '2026-09-11 15:25'
 labels:
   - pdlc
   - doctrine
@@ -39,12 +39,12 @@ Spec: specs/066-dispatch-gap
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Fixes 1 and 2 land: the dispatch obligation is stated in the always-on planted block AND the handoff template, binding any implementing session however it arrived — not only in pdlc:sweep's SKILL.md
-- [ ] #2 Fix 5 lands: the handoff template's OPENING LINE fixes the reader's role ("you are the orchestrator for this lane, not its implementer; dispatch to <tier>-implementer") before the reader learns what the work is — role before content, not a tier field in a table
-- [ ] #3 Fix 3 lands and is SUFFICIENT on its own terms: a task's PR is not merge-ready until its board task carries a dispatch record naming the model that actually served. Fails closed — no record, no merge. Reuses the tier+model+justification record sweep already mandates and the card the gate already reads; no new surface
-- [ ] #4 REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation
+- [x] #1 Fixes 1 and 2 land: the dispatch obligation is stated in the always-on planted block AND the handoff template, binding any implementing session however it arrived — not only in pdlc:sweep's SKILL.md
+- [x] #2 Fix 5 lands: the handoff template's OPENING LINE fixes the reader's role ("you are the orchestrator for this lane, not its implementer; dispatch to <tier>-implementer") before the reader learns what the work is — role before content, not a tier field in a table
+- [x] #3 Fix 3 lands and is SUFFICIENT on its own terms: a task's PR is not merge-ready until its board task carries a dispatch record naming the model that actually served. Fails closed — no record, no merge. Reuses the tier+model+justification record sweep already mandates and the card the gate already reads; no new surface
+- [x] #4 REJECTED, recorded as rejected: the inline carve-out (old candidate 4). 'Knowledge-shaped' is no boundary — any lane can be argued into it after the fact, legitimizing exactly the Lane 4 miss. Precedent against: sweep-cost-levers-runbook.md dispatched TASK-86/87/88, all pure doctrine edits, to an opus implementer. If inline is ever right it is an operator checkpoint recorded BEFORE the work — same shape as escalation
 - [x] #5 Operator has triaged the candidates and the chosen set is recorded
-- [ ] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
+- [x] #6 Any planted-block change is re-planted and its wiki note (pdlc-grounding-block) re-pinned
 - [ ] #7 Spec phase: Phase 1 — Verify the premises, then the doctrine prose (R1, R4)
 - [ ] #8 Spec phase: Phase 2 — The lane-handoff template (R2, R5)
 - [ ] #9 Spec phase: Phase 3 — The dispatch record and its fail-closed check (R3)
@@ -52,6 +52,8 @@ Spec: specs/066-dispatch-gap
 - [ ] #11 Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4
 - [ ] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
+
+
 
 ## Comments
 
