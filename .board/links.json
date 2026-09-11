@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-11T16:51:38.201Z",
+  "generatedAt": "2026-09-11T16:57:18.679Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3339,17 +3339,17 @@
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir"
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Constitution ratified or its absence explicitly recorded in .specify memory"
         },
         {
@@ -3359,17 +3359,17 @@
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Install Spec Kit tooling"
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Reconcile templates and verify bridge derivation"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Record constitution state"
         },
         {
@@ -3383,6 +3383,7 @@
         "tooling"
       ],
       "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
       ]
     }
