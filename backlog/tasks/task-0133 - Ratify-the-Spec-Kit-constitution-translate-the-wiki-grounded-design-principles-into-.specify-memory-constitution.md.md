@@ -3,8 +3,9 @@ id: TASK-0133
 title: >-
   Ratify the Spec Kit constitution: translate the wiki-grounded design
   principles into .specify/memory/constitution.md
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 18:01'
 updated_date: '2026-09-11 18:53'
 labels:
@@ -36,6 +37,8 @@ Not sweepable as-is: starts with an operator conversation (pdlc:design-rounds sh
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
+Operator kickoff 2026-09-11: ad-hoc mode approved — branch + PR, no full sweep/pdlc run. Candidate item list authored inline by orchestrator on direct operator request (decision-input synthesis for AC #1; constitution drafting after the discussion will dispatch per tiers).
+
 Decision record committed: docs/design/constitution-decision.md (3b411a3) — 7 articles (A1-A6, A8) + amendment article; A7 out (model-tiers.json stays sole source of truth); Tier B/C all doctrine; preamble references docs/principles.md as upstream. Drafting dispatches next (sonnet — the decision record settles all judgment calls).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
