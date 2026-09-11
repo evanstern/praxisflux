@@ -1,6 +1,6 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block (via scripts/plant.mjs), stamps the .pdlc sentinel, gitignores .handoff/ (tracked by default, or local-only via --local-only), and opts into the peer utilities (Backlog.md, Spec Kit, Jira); design-rounds covers the pre-spec seam; sweep and refactor-triage have their own notes.
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a version-stamped CLAUDE.md block (scripts/plant.mjs, whose --check exits 1 with a remedy line and is what a bump forces a re-plant against), stamps the .pdlc sentinel, gitignores .handoff/ (tracked, or local-only), opts into the peers (Backlog.md, Spec Kit, Jira), and can plant two opt-in PreToolUse hooks; the three lifecycle skills have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
@@ -13,73 +13,78 @@ sources:
   - pdlc/templates/model-tiers.json
   - pdlc/hooks/read-size-gate.mjs
   - pdlc/hooks/README-read-size-gate.md
-verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
+verified_against: 9b410267ee638ee2d16e8dc4aba28e29808ccf54
 ---
 
 # pdlc plugin
 
 The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level installer plus
-the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing
-codebase) as a **praxis-development-lifecycle project** whose always-on context
-knows the whole loop, the suite-wide application of the [[skill-patterns]] rule "plant a
-project CLAUDE.md" (a plugin has no always-on slot). Three further skills run the
-lifecycle it installs, each covered below.
+the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing) as a
+**praxis-development-lifecycle project** whose always-on context knows the whole loop — the
+suite-wide application of the [[skill-patterns]] rule "plant a project CLAUDE.md" (a plugin
+has no always-on slot). Three further skills run the lifecycle it installs.
 
 ## The sibling skills — covered in their own notes
 
-The plugin's second skill, `sweep`, orchestrates a set of board tasks into merged PRs
-(authored, operator-signed-off runbook; parallel lanes, serial merges; claim-before-work,
-paused-lane markers, merge-drift gate consumption, pin-aware reconciliation):
-[[pdlc-sweep]]. The third, `refactor-triage`, closes the post-sweep seam — evaluate merged
-work for debt and intent drift (team-review as the engine when installed), triage every
-finding with a recorded disposition, card accepted items back as sweepable tasks:
-[[pdlc-refactor-triage]]. The fourth, `design-rounds`, owns the seam **before** the spec,
-where sweep's ordering cannot start — work whose deliverable is unknowable until an
-operator picks among options: [[pdlc-design-rounds]]. Each note carries its skill's pins.
+Three seams, three notes, each carrying its own skill's pins: `design-rounds` owns the seam
+**before** the spec, where sweep's ordering cannot start — work whose deliverable is
+unknowable until an operator picks among options ([[pdlc-design-rounds]]); `sweep`
+orchestrates a set of board tasks into merged PRs, parallel lanes and serial merges
+([[pdlc-sweep]]); `refactor-triage` closes the seam **after** the merge, evaluating merged
+work for debt and intent drift and carding accepted findings back
+([[pdlc-refactor-triage]]).
 
 ## The planted grounding is a marked block, not a file
 
 Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
-`pdlc/templates/CLAUDE.md`, buying three behaviors: it **composes** with an existing
-`CLAUDE.md` (appended, never clobbered), **refreshes wholesale** on update (user edits
-belong outside the markers), and handles drift **honestly** (a block differing from the
-current render reports `drifted` and is never overwritten without `--force`). Peer
-conventions ride nested `pdlc:peer:*` sub-blocks, stripped unless opted in. The block's
-content — the 101 principles and their per-peer mappings, the corpus-loading and Gates
-rules, and the `## Model tiers` section (ladder in `.claude/model-tiers.json` rather than in
-the block; since 0.63.1 the section also carries the reader-subject dispatch obligation, the
-refused "knowledge-shaped" exemption, and the exact `Dispatch:` record marker a gate reads)
-— is covered in [[pdlc-grounding-block]].
+`pdlc/templates/CLAUDE.md` — composing with an existing `CLAUDE.md`, refreshed wholesale,
+drift never overwritten without `--force`; peer conventions ride nested `pdlc:peer:*`
+sub-blocks, stripped unless opted in. [[pdlc-grounding-block]] owns both that mechanism in
+full and what the block *says* (the 101 principles and per-peer mappings, corpus-loading and
+Gates rules, `## Model tiers` and its `Dispatch:` record marker).
+
+One property belongs here, because `plant.mjs` is where it bites: the BEGIN marker **stamps
+the planting version**, so a marketplace bump drifts every planted block by construction and
+forces the re-plant into the same PR ([[release-pipeline]]).
 
 ## Deterministic core: scripts/plant.mjs
 
 A dual-use module (library + CLI, [[chassis-utilities]]' `runAsCli`) on the [[installer]]
-chassis and `template.mjs`. One invocation:
+chassis and `template.mjs`:
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] [--check] [--force]
+node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <n>] [--peer <p>]…
+       [--hook root-guard] [--local-only] [--check] [--force]
 ```
 
 renders the expected block and lands it (`created` | `appended` | `replaced` | `unchanged` |
 `drifted`), gitignores `.handoff/` (the [[handoff-protocol]] transport — tracked or
-local-only, see below), and stamps the `.pdlc` sentinel — a JSON record of version +
-resolved name + peer choices + planting mode that fresh-vs-update keys on. Two load-bearing
-properties: the sentinel never advances past an unconfirmed drifted block; `--check` writes
-nothing and exits 1 while planting is pending (the skill's output gate).
+local-only, below), and stamps the `.pdlc` sentinel — a JSON record of version + resolved
+name + peer choices + mode that fresh-vs-update keys on. Two load-bearing properties: the
+sentinel never advances past an unconfirmed drifted block; `--check` writes nothing and exits
+1 while planting is pending (the skill's output gate).
 
-Since 0.23.0 absent peers leave a **deterministic trace** (TASK-43 finding #1: omission
-stays the opt-out, never silent): the sentinel records not-opted-in peers under
-`peersOmitted`, and the CLI prints one stderr notice per omitted peer naming its stripped
-block. `peersOmitted` derives from the peer choices, so a same-peers re-plant stays
-`unchanged`.
+Since 0.64.0 (spec 066) that failing path prints its **remedy** on stderr, not just the state
+(`drifted`) — a gate not naming the fix is half a gate ([[gates-convention]]). Two variants,
+since the states need different first steps: a `drifted` footprint must be DIFFED before
+anyone consents to losing it, a merely-behind one just needs the plant run; both name
+`pdlc:bootstrap`, `--force`, `docs/releasing.md`. `--check` stays read-only (every write is
+`!check`-guarded), and this repo now runs it in `ci.yml` — the surface that makes that exit
+code mean something ([[release-pipeline]]).
 
-Since 0.26.0 the rendered PROJECT_NAME stops trusting `basename(root)` (TASK-43 finding #2:
-a worktree plant bakes the worktree's name into the heading; the real root then spuriously
-drifts). Ladder: `--name` > the sentinel-recorded name > a worktree's PRIMARY
-checkout basename (from its `gitdir:` pointer) > `basename(root)`. The recorded `name` is
-sticky — a re-plant from a differently-named checkout stays `unchanged`; only `--name`
-changes it, as honest drift. Legacy sentinels missing either field are never rewritten to
-gain it.
+Since 0.23.0 absent peers leave a **deterministic trace** (TASK-43 #1: omission stays the
+opt-out, never silent) — `peersOmitted` in the sentinel plus one stderr notice per omitted
+peer naming its stripped block. It derives from the peer choices, so a same-peers re-plant
+stays `unchanged`.
+
+Since 0.26.0 the rendered PROJECT_NAME stops trusting `basename(root)` (TASK-43 #2: a
+worktree plant otherwise bakes the worktree's name into the heading, spuriously drifting the
+real root). Ladder: `--name` > the sentinel-recorded name > a worktree's PRIMARY checkout
+basename (its `gitdir:` pointer) > `basename(root)`. The recorded `name` is **sticky** — a
+re-plant from a differently-named checkout stays `unchanged`, which is also what keeps the CI
+gate from firing on a renamed `actions/checkout` directory; only `--name` changes it, as
+honest drift. Legacy sentinels missing either field are never rewritten to gain it.
+
 
 ## Peer utilities are first-class, not assumed
 
@@ -90,53 +95,50 @@ detect, so availability means the Atlassian MCP server's tools are present, neve
 durable record); present, it asks opt-in and runs its init (`backlog init` / `specify init
 --here`) or, for Jira, resolves `cloudId`/`projectKey` by discovery, skipping if already
 initialized. **Backlog.md and Jira are mutually exclusive** — one board, singular (design
-invariant 2) — `plant.mjs` throws naming that reason if both are passed. Opt-ins select the
-planted convention blocks, recorded in `.pdlc`; an update re-presents them as defaults.
+invariant 2) — so `plant.mjs` throws naming that reason. Opt-ins select which convention
+blocks render, recorded in `.pdlc`; an update re-presents them as defaults.
 
 ## Local-only planting mode — tracked vs. guest (spec 060)
 
 By default artifacts land tracked and `.handoff/` joins `.gitignore` via `ensureGitignore`
 ([[installer]]) — wrong for a repo the operator is a **guest** in, not owns. `--local-only`
-(bootstrap 0.13.0) redirects the footprint into `<gitdir>/info/exclude` via [[installer]]'s
-`ensureExclude` instead — per-clone, never committed. The skill offers rather than assumes
-(recommends local-only when the tracked tree shows no prior PDLC adoption; update defaults
-to the sentinel's prior choice).
+(bootstrap 0.13.0) redirects the footprint into `<gitdir>/info/exclude` via `ensureExclude`
+instead — per-clone, never committed. The skill offers rather than assumes (recommended when
+the tracked tree shows no prior PDLC adoption; update defaults to the sentinel's choice).
 
-`excludeSet({ peers, hooks })` scopes lines to what's opted into (`/backlog/`,
-`/.specify/`, `/.claude/settings.json`+`/.claude/hooks/` per peer/hook) plus always-on
-lines (`.pdlc`, `CLAUDE.md`, `.handoff/`, `.worktrees/`, `specs/`, `docs/wiki/`,
-`.claude/agents|model-tiers.json|commands|skills`). `plant()` writes it **first**, before
-`CLAUDE.md`/sentinel/`wireRootGuard` (R3) — never a dirty `git status` for a beat. Report
-fields `gitignore`/`exclude` are complementary (one `skipped` per mode); `exclude:
-"no-git"` is the pre-`git init` degradation (R6) — nothing written or thrown, `--check`
-stays pending until a re-plant after `git init`.
+`excludeSet({ peers, hooks })` scopes the excluded lines to exactly what was opted into
+(`/backlog/` and `/.specify/` per peer, the `.claude/` settings+hooks pair per hook) on top of
+the always-on footprint — never the whole possible set. `plant()` writes it **first** (R3), so
+there is never a dirty working tree for a beat. `gitignore`/`exclude` are complementary report
+fields (one `skipped` per mode); `exclude: "no-git"` surfaces [[installer]]'s pre-init
+degradation (R6), leaving `--check` pending until a re-plant once the repo exists.
 
-The sentinel records `localOnly` (absent-tolerant like `name`/`hooks`). A **mode switch**
-— sentinel vs. requested mode disagreeing — is drift on its own `modeSwitch` field
-(`none`|`drifted`|`applied`), distinct from `claudeMd: "drifted"` (block content, not
-mode); unconfirmed it doesn't advance, and `--force` is the same consent path drift
-already needs. No migration command — switching is always drift-plus-`--force`.
+The sentinel records `localOnly` (absent-tolerant like `name`/`hooks`). A **mode switch** —
+sentinel vs. requested mode disagreeing — is drift on its own `modeSwitch` field
+(`none`|`drifted`|`applied`), diagnosable apart from `claudeMd: "drifted"` (content, not
+mode); unconfirmed it doesn't advance, and `--force` is the consent path drift already needs
+— no migration command.
 
 ## Two opt-in PreToolUse hooks
 
-Since 0.53.0 (bootstrap 0.10.0) bootstrap can also plant a hardened **root-guard
-`PreToolUse` hook** (spec 051 / TASK-101) enforcing the root-read-only + worktree-only
-doctrine — the suite's **first `PreToolUse` hook** (every other is an advisory Stop gate via
-[[gate-runner]]), a new shape hard-blocking a tool call (exit 2). `plant.mjs --hook
-root-guard` copies BOTH `root-guard-hook.mjs` and `shell-scan.mjs` into `.claude/hooks/`,
-plus two merged `PreToolUse` entries into `.claude/settings.json` — **opt-in, never
-default-on**, recorded in `.pdlc`'s `hooks` array. Full policy: `pdlc/README.md`.
+Since 0.53.0 (bootstrap 0.10.0) bootstrap can plant a hardened **root-guard `PreToolUse`
+hook** (spec 051 / TASK-101) enforcing root-read-only + worktree-only — the suite's **first**
+`PreToolUse` hook (every other is an advisory Stop gate via [[gate-runner]]), a shape that
+hard-blocks a tool call (exit 2). `--hook root-guard` copies BOTH `root-guard-hook.mjs` and
+`shell-scan.mjs` into `.claude/hooks/` plus two merged `PreToolUse` entries into
+`.claude/settings.json` — **opt-in, never default-on**, recorded in `.pdlc`'s `hooks`.
 
 Since 0.63.2 (spec 064) a **second** planted hook, `read-size-gate.mjs`, denies Read/Bash
 reads over a configurable line threshold (default 500), redirecting to capsule-first loading
 or `defaultTier` Agent dispatch. Same posture, plus its own kill-switch
 (`PRAXIS_READ_GATE_OFF=1`, required for grounding-wiki/design-rounds passes) and no
-`plant.mjs` automation yet — wired by hand per `pdlc/hooks/README-read-size-gate.md`.
+`plant.mjs` automation yet — wired by hand. Full policy: `pdlc/README.md`,
+`pdlc/hooks/README-read-size-gate.md`.
 
 ## What it deliberately does not do
 
 Phase separation ([[skill-patterns]]) holds: bootstrap creates no `docs/wiki/`
 ([[grounding-wiki-plugin]]) and no `docs/course/` ([[codebase-to-course-plugin]]), and never
-invokes sibling skills — it sets the table and hands off. No **Stop** hook: pdlc has no
-lifecycle of its own; the wired-in plugins bring their own gates ([[gates-convention]]) — its
-shipped enforcement is the two opt-in `PreToolUse` hooks above.
+invokes sibling skills — it sets the table and hands off. No **Stop** hook either: pdlc has
+no lifecycle of its own, the wired-in plugins bring their own gates ([[gates-convention]]),
+and its shipped enforcement is the two hooks above.

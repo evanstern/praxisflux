@@ -1,20 +1,20 @@
 ---
 name: test-suite-catalog-plugins-gates-pdlc
-description: Per-file coverage of pdlc's own gate suites — the plant/tiers surface (test/pdlc.test.mjs) and the two opt-in PreToolUse hooks (test/root-guard-hook.test.mjs, test/root-guard-scan.test.mjs, test/read-size-gate.test.mjs). Split summary-style from test-suite-catalog-plugins-gates, whose remaining files it still catalogs directly.
+description: Per-file coverage of pdlc's own gate suites — the plant/tiers surface (test/pdlc.test.mjs, including the planted-block drift gate wired into ci.yml) and the two opt-in PreToolUse hooks (test/root-guard-hook.test.mjs, test/root-guard-scan.test.mjs, test/read-size-gate.test.mjs). Split summary-style from test-suite-catalog-plugins-gates, whose remaining files it still catalogs directly.
 kind: pattern
 sources:
   - test/pdlc.test.mjs
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
   - test/read-size-gate.test.mjs
-verified_against: e87f7caa1b9edadf94fdaab5db8d4c0ebb10ae8f
+verified_against: 9b410267ee638ee2d16e8dc4aba28e29808ccf54
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
 
 Split summary-style out of [[test-suite-catalog-plugins-gates]]: `pdlc.test.mjs` is that
-note's single largest and fastest-growing file (specs 047/048/051/054/060 have each added
-to it), and its two root-guard sibling suites test a feature `pdlc.test.mjs` itself plants.
+note's single largest and fastest-growing file (specs 047/048/051/054/060/066 have each
+added to it), and its sibling hook suites test features `pdlc.test.mjs` itself plants.
 One bullet per `test/*.test.mjs` file:
 
 - `test/pdlc.test.mjs` — pdlc's plant surface (`pdlc/scripts/plant.mjs`): plugin
@@ -52,7 +52,20 @@ One bullet per `test/*.test.mjs` file:
   sentinels left untouched); and mode-switch drift — its own `modeSwitch` field
   (`none`/`drifted`/`applied`), diagnosable apart from `claudeMd`, an unconfirmed switch
   leaving the sentinel AND `--check` provably unmoved, `--force` as the only path to
-  `applied`, proven both directions (tracked→local-only and back) and through the real CLI.
+  `applied`, proven both directions (tracked→local-only and back) and through the real CLI;
+  and the **planted-block drift gate** (spec 066) — the four tests that make `--check`'s
+  long-standing exit code *mean* something: a **wiring** assertion that `ci.yml` still runs `plant.mjs --root . --peer backlog --check` (mutation-tested — deleting
+  the step fails it), since nothing invoked the check before and that is how this repo ran a
+  `v0.57.0` block against a `v0.63.1` marketplace; the drifted/clean pair spawning the real
+  CLI (`plantCli`, so fixtures are planted at the *live* version — a `--version`-less CLI
+  would otherwise read the stamp alone as drift) and asserting exit 1 vs 0, all four elements
+  of the new stderr fix line (`DRIFTED`, `pdlc:bootstrap`, `DIFF`, `--force`, "OUTSIDE the
+  markers" — [[gates-convention]]'s half-a-gate rule), and that `--check` neither repairs the
+  edited block nor advances the sentinel; the **version-bump-alone** drift (planted 9.9.9,
+  checked at 9.9.10 ⇒ `drifted`, sentinel unmoved) that justifies the CI placement over the
+  per-commit path; and the **CI-checkout** case — the tracked artifacts copied into a
+  randomly-named `.git`-less dir still report the `.pdlc`-recorded `projectName` and exit 0,
+  so `actions/checkout`'s renamed directory cannot fire the gate spuriously.
 - `test/root-guard-scan.test.mjs` — the quote-state shell scanner (spec 051) as a pure
   function: separators bound only OUTSIDE quotes; single/double, ANSI-C and locale runs,
   escapes, line continuation; the Co-Authored-By trailer → FOUR tokens (message ONE);
