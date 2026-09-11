@@ -113,7 +113,7 @@ Do not edit Backlog task, draft, document, decision, or milestone markdown files
 </CRITICAL_INSTRUCTION>
 <!-- BACKLOG.MD GUIDELINES END -->
 
-<!-- pdlc:grounding BEGIN v0.57.0 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
+<!-- pdlc:grounding BEGIN v0.63.1 — planted by pdlc:bootstrap; refreshed wholesale on update. Keep project-specific edits OUTSIDE this block. -->
 # praxis — praxis development lifecycle (PDLC)
 
 This project is developed with the **praxisflux** plugin suite. This block is the always-on
@@ -188,12 +188,24 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
 
 ## Model tiers — who does what work
 
-A sweep dispatches each task's implementation to a subagent; which model that subagent runs
-on drives both cost and quality. **The posture: thinking is Opus/Fable-tier, execution is
-Sonnet/Haiku-tier.** The orchestrator plans, gates, and judges at the top of the ladder; the
+**Implementation work is dispatched to an implementer agent at the task's tier — your own
+hands do not do it.** That obligation is on you, right now, however this work reached you:
+through `pdlc:sweep`, through a handoff document, or as a direct request from the operator.
+If you are holding a spec, a task id, or a handoff and are about to edit the files it names,
+the next action is a dispatch, not an edit. **The posture: thinking is Opus/Fable-tier,
+execution is Sonnet/Haiku-tier.** You plan, gate, and judge at the top of the ladder; the
 work of implementing a written spec runs at the cheapest tier that can hold it. An escalation
 tier exists for tasks whose judgment calls the spec does not already settle — reaching for it
 is an operator checkpoint, not an implementer's own call.
+
+**There is no "this one is knowledge-shaped" exemption — it was considered and refused.**
+Doctrine, prose and docs edits are dispatched like everything else: on 2026-07-30
+`docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86/87/88 — all pure prose edits to
+a SKILL.md — to an opus implementer rather than inline, logging each one's token count. "Knowledge-shaped" is not a boundary: any lane
+can be argued into it after the fact, by the party that did the work, which is precisely how
+the 2026-09-10 Lane 4 miss (`docs/design/lane-4-dispatch-gap.md`) would be retroactively
+legitimized. If inline is ever right it is an **operator checkpoint recorded before the
+work** — structurally identical to a tier escalation, not a new category.
 
 **Where the ladder lives: `.claude/model-tiers.json`.** That file — not this block — declares
 the tiers, their model IDs, their scopes, and which one is the default. It is a plain tracked
@@ -233,6 +245,19 @@ one below.
 not that Sonnet ran. Confirm the model that actually served from the first dispatch's
 transcript before launching siblings — a wrong pin caught after one agent is a rounding
 error; caught after a lane of them, it is the whole lane's budget.
+
+**Then record it on the board task, in this exact form — one line per dispatch:**
+
+```
+Dispatch: tier=<tier> pinned=<model-id> served=<model-id>
+```
+
+`served=` is the model the transcript shows, as a bare ID with no spaces; a placeholder
+(`TBD`, `pending`) does not count, and neither does prose after the ID. This line is the only
+residue that distinguishes a dispatched task from one implemented inline — the commits,
+specs and ticks are identical — so a task's PR is **not merge-ready without it**, and
+`spec-bridge`'s gate reports a claimed card that lacks one (opt in with
+`"requireDispatchRecord": true` in `.spec-bridge.json`).
 
 **Regenerating is not enough — the agent registry is read at session start.** A newly
 generated definition is invisible to dispatch until the session restarts, and an edited one
@@ -274,3 +299,4 @@ Backlog.md is this project's kanban; the board is the plan of record. Statuses f
 <!-- pdlc:peer:backlog END -->
 
 <!-- pdlc:grounding END -->
+

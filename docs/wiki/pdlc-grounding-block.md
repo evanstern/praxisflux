@@ -1,12 +1,12 @@
 ---
 name: pdlc-grounding-block
-description: What pdlc:bootstrap actually plants into a host CLAUDE.md — the marked-block mechanism (compose, refresh wholesale, honest drift), the 101 principles and their per-peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json rather than the block itself.
+description: What pdlc:bootstrap actually plants into a host CLAUDE.md — the marked-block mechanism (compose, refresh wholesale, honest drift), the 101 principles and their per-peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json while the block carries the dispatch obligation, its refused knowledge-shaped exemption, and the Dispatch: record marker a gate reads.
 kind: concept
 sources:
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
   - pdlc/scripts/tiers.mjs
-verified_against: 409422e7533e6313aae100e406789704daf9b6bd
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # The planted PDLC grounding block
@@ -62,7 +62,30 @@ not a hook — so a bootstrapped host is never told a gate exists that nothing i
 Since 0.52.0 (bootstrap 0.9.0) the block plants a **`## Model tiers` section** (TASK-91),
 and since 0.55.0 (bootstrap 0.11.0) it carries **posture, not a ladder** (TASK-106):
 thinking is Opus/Fable-tier, execution is Sonnet/Haiku-tier, escalation an operator
-checkpoint. The ladder moved to **`.claude/model-tiers.json`**, which
+checkpoint.
+
+Since 0.63.1 (spec 066 R1/R4) that section's **grammatical subject is the reader**. It had
+opened *"A sweep dispatches each task's implementation to a subagent"* — subject *a sweep* —
+so a session that arrived any other way read the whole section as inapplicable to itself. It
+now opens on the obligation: implementation work is dispatched to an implementer agent at the
+task's tier, your own hands do not do it, **however this work reached you** — through
+`pdlc:sweep`, a handoff document, or a direct operator request — and if you are holding a
+spec, a task id, or a handoff and are about to edit the files it names, the next action is a
+dispatch, not an edit. Same posture, binding on a reader who never loaded the sweep skill.
+
+Alongside it the block carries a **positive rejection record**: there is no
+"this one is knowledge-shaped" exemption, and it was *considered and refused*, not merely
+unmentioned. Doctrine, prose, and docs edits dispatch like everything else — the 2026-07-30
+`docs/design/sweep-cost-levers-runbook.md` dispatched TASK-86/87/88, all pure prose edits to
+a SKILL.md, to an opus implementer rather than inline. "Knowledge-shaped" is not a boundary:
+any lane can be argued into it after the fact by the party that did the work, which is
+exactly how the 2026-09-10 Lane 4 miss (`docs/design/lane-4-dispatch-gap.md`) would be
+retroactively legitimized. Where inline is right it is an **operator checkpoint recorded
+before the work**, structurally identical to a tier escalation rather than a new category.
+Silence would not have carried that; the ruling is in the text because a reader looks for
+permission where the rule is stated.
+
+The ladder moved to **`.claude/model-tiers.json`**, which
 `pdlc/scripts/tiers.mjs` compiles into `.claude/agents/<tier>-implementer.md`. A generator
 is needed because config alone cannot drive dispatch: only an agent definition's frontmatter
 `model:` (or the dispatch-call parameter) reaches the harness. Keeping the ladder out of the
@@ -83,9 +106,28 @@ Three findings from the 2026-08-10 dogfood are doctrine here:
 - **The agent registry is read at session start**, so a regenerated definition does not take
   effect until the session restarts; an edited tier keeps dispatching its old pin until then.
 
+Since 0.63.1 verifying the served model has a **durable residue**, not just an instruction:
+the block specifies the record's marker line exactly, one per dispatch, as a deliberate
+sibling of the `Spec:` marker —
+
+```
+Dispatch: tier=<tier> pinned=<model-id> served=<model-id>
+```
+
+— with `served=` a **bare ID read from the transcript**; a placeholder (`TBD`, `pending`)
+does not count, and neither does prose trailing the ID. The block states why it is the only
+thing that could work: an inline-implemented task leaves artifacts *identical* to a
+dispatched one — same commits, same spec dir, same ticked boxes — so `served=` is the sole
+residue separating them, and a task's PR is **not merge-ready without it**. Specifying the
+form (rather than "record the model") is what makes it machine-findable, and
+[[spec-bridge-plugin]]'s gate reads it: a claimed card lacking one is reported, opt-in via
+`"requireDispatchRecord": true` in `.spec-bridge.json`. The doctrine that mandates the record
+lives here; the half that judges it lives in the plugin that already walks board cards.
+
 ## Connections
 
 - Parent note: [[pdlc-plugin]] — the plugin, its skills, and `scripts/plant.mjs`.
 - [[pdlc-sweep]] — the consumer: Phase 1 reads the tier config this block points at.
+- [[spec-bridge-plugin]] — reads the `Dispatch:` marker this block specifies.
 - [[grounded-corpus-spec]] — the corpus-loading rule's contract.
 - [[gates-convention]] — the Gates rule's wider shape across the suite.

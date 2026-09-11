@@ -1,19 +1,19 @@
 ---
 name: pdlc-sweep-history-recent
-description: Newer half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.47.0 onward — cost levers, Spec-Kit degradation hardening, doctrine-seam reconciliation — the field cases that forced each. Receives every future sweep-doctrine release. Earlier releases live in pdlc-sweep-history-early; current doctrine is pdlc-sweep.
+description: Newer half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.47.0 onward — doctrine-seam reconciliation, background-job mode, two-track landing, the hand-authored-specs hatch, the config-driven tier rubric, the claim/board-commit boundary, the gate-readable dispatch record plus lane-handoff template. Receives future releases. Earlier: pdlc-sweep-history-early; current doctrine: pdlc-sweep.
 kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
-# pdlc:sweep — doctrine history (0.43.0–)
+# pdlc:sweep — doctrine history (0.47.0–)
 
 Newer half of [[pdlc-sweep-history]]'s release-by-release record, split summary-style
-when the parent neared the 8,000-char body cap. Covers 0.47.0 onward — cost levers
-through doctrine-seam reconciliation — and is the child that receives every future
-sweep-doctrine release. The earlier releases (0.12.1 through 0.44.0) live in
+when the parent neared the 8,000-char body cap. Covers 0.47.0 onward — doctrine-seam
+reconciliation through the gate-readable dispatch record — and is the child that receives
+every future sweep-doctrine release. The earlier releases (0.12.1 through 0.44.0) live in
 [[pdlc-sweep-history-early]]; [[pdlc-sweep]] states current doctrine.
 
 ## Release by release
@@ -88,6 +88,23 @@ needing `cc/…[1m]`). The load-bearing rule is verifying the **served** model f
 transcript before siblings launch — only it separates a cheap failed dispatch from an
 expensive wrong-model one. Also: **regenerating mid-sweep needs a session restart** — the
 agent registry is read at session start, so an edited tier keeps its old pin.
+
+Since 0.63.1 (skill 0.23.0) two doctrine surfaces gain **residue a gate can read**
+(TASK-0125, spec 066). The dispatch record becomes a **machine-findable line** —
+`Dispatch: tier=<tier> pinned=<model-id> served=<model-id>`, one per dispatch, `served=` a
+bare ID filled from the transcript, a placeholder not counting — specified identically in
+the planted block, step 2, and the new lane-handoff template so producer and consumer read
+one spelling; a task's PR is not merge-ready without it, and [[spec-bridge-plugin]]'s gate
+reports a claimed card that lacks one (opt-in `requireDispatchRecord`, scoped to
+not-yet-Done cards so no historical card is condemned retroactively). Step 10 gains
+**`templates/lane-handoff.md`** for resuming mid-lane, whose role-before-content shape is
+itself the fix ([[pdlc-sweep-handoffs]]). Field case for both, 2026-09-10: Lane 4 of the
+TASK-108 sweep ran an entire task inline on the orchestrator's Opus session while three
+written sources said to dispatch — none reached the session that mattered and no gate could
+see it, since an inline-implemented task leaves commits, specs, and ticks *identical* to a
+dispatched one (`docs/design/lane-4-dispatch-gap.md`). **Superseded convention:** recording
+the tier as prose justification on the card. Prose is not read back by anything; only the
+marker line is.
 
 Since 0.57.0 (skill 0.20.0) the claim step names the **claim/board-commit boundary**
 (TASK-102, spec 057): the status flip that claims a task is *deliverable* state and rides

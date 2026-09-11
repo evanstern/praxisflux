@@ -5,29 +5,26 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
 
-`skills/sweep/SKILL.md` (with its `templates/runbook.md`) — the second skill of the
-[[pdlc-plugin]], added in 0.12.0 — orchestrates a **set of board tasks** into merged
-PRs. The orchestrator plans, dispatches, and gates; it never implements inline. Two
-phases, gate → work → gate:
+`skills/sweep/SKILL.md` (with its templates, [[pdlc-sweep-handoffs]]) — the second skill
+of the [[pdlc-plugin]], added in 0.12.0 — orchestrates a **set of board tasks** into
+merged PRs. The orchestrator plans, dispatches, and gates; it never implements inline.
+Two phases, gate → work → gate:
 
 - **Author:** from task ids / a label / a synthesis doc, derive dependency-ordered
   **lanes** (*develop in parallel, merge serially*; contract-shaped work leads — a
-  published interface unblocks consumers), model tiers from the host rubric (since 0.55.0
-  (skill 0.19.0) that rubric is **`.claude/model-tiers.json`** — the tier map, each tier's
-  model ID and scope, `defaultTier`, and `escalation: true` flags; the planted CLAUDE.md
-  section carries the posture and points at it. Tiers are assigned by that posture —
-  **thinking is Opus/Fable-tier, execution is Sonnet/Haiku-tier** — defaulting to
-  `defaultTier`, with an escalation tier requiring an operator checkpoint recorded before
-  dispatch; `tiers.mjs --check` is a Phase 1 precondition, and regenerating anything means
-  ending the session before dispatching, because the agent registry is read at session
-  start) — each pinned to an explicit model ID, **verified from the first dispatch's
-  transcript rather than assumed**, since both pin mechanisms have been observed failing
-  (dispatch-call param 2026-07-31; agent-def frontmatter 2026-08-10) — per-PR gates enumerated
+  published interface unblocks consumers), model tiers from the host rubric
+  **`.claude/model-tiers.json`** (the tier map, each tier's model ID and scope,
+  `defaultTier`, `escalation: true`; the planted CLAUDE.md section carries the posture and
+  points at it) — assigned by that posture, **thinking is Opus/Fable-tier, execution is
+  Sonnet/Haiku-tier**, defaulting to `defaultTier`, an escalation tier needing an operator
+  checkpoint recorded before dispatch, each pinned to an explicit model ID;
+  `tiers.mjs --check` is a Phase 1 precondition, and regenerating anything means ending the
+  session first, because the agent registry is read at session start — per-PR gates enumerated
   (where **Lane-0/precondition rulings that change the per-task loop land as checkable
   gate lines, never only prose** — narrative is not read back; gate lines are),
   concurrency doctrine with named hotspots, operator checkpoints, and a done-means —
@@ -49,7 +46,7 @@ phases, gate → work → gate:
   bridge derives from) — committed before implementation dispatches, then **link
   completion** (phase ACs seeded from tasks.md via update mode; claim's marker
   verified), delegated phase-scoped implementation (never inline; the runbook's model
-  ID on each dispatch), per-PR gates plus the runbook's **"Per-task artifacts required
+  ID on each dispatch), per-PR gates plus its **"Per-task artifacts required
   before PR"** section, reconcile with `origin/main` (pin rule below), PR, serial
   merge (verify merged before cleanup), re-ground (ticks before `spec-bridge:sync`,
   whose derived plan is the only path to Done on a linked task — the sweep never
@@ -59,18 +56,17 @@ phases, gate → work → gate:
 
 **Gates and orientation.** Both phases consume a host **merge-drift gate** when the
 precondition probe finds one (`scripts/check-merge-drift.mjs`, four modes
-`session`/`claim`/`worktree`/`pr`, invocations recorded verbatim in the runbook; absent
-→ the raw git doctrine stands). Whole-corpus orientation moments (runbook authoring,
-each re-ground) consume the corpus per [[grounded-corpus-spec]] v2 — `CAPSULES.md`
-when present, full bodies only for touched concepts.
+`session`/`claim`/`worktree`/`pr`, invocations recorded verbatim in the runbook; absent →
+the raw git doctrine stands). Whole-corpus orientation moments (runbook authoring, each
+re-ground) consume the corpus per [[grounded-corpus-spec]] v2 — `CAPSULES.md` when
+present, full bodies only for touched concepts.
 
-**Paused lanes.** A task labeled `paused` (set/cleared only via `board:label`,
-provenance in an append-note) is not a live lane: lane-conflict analysis resolves the
-label from the `.board/links.json` mirror (`isPausedLink`, `lib/board-mirror.mjs`)
-rather than reading Backlog frontmatter directly, so it holds on a mirror-only (Jira)
-project — authoring excludes it from conflict analysis, execution never claims,
-rebases, or cleans its branches/worktrees; drift-gate hosts downgrade its findings to
-info.
+**Paused lanes.** A task labeled `paused` (set/cleared only via `board:label`, provenance
+in an append-note) is not a live lane: lane-conflict analysis resolves the label from the
+`.board/links.json` mirror (`isPausedLink`, `lib/board-mirror.mjs`) rather than Backlog
+frontmatter, so it holds on a mirror-only (Jira) project — authoring excludes it from
+conflict analysis, execution never claims, rebases, or cleans its branches/worktrees;
+drift-gate hosts downgrade its findings to info.
 
 **Reconciliation and honest re-pins.** A **pin-carrying branch** merges `origin/main`
 in and its PR lands as a merge commit, never a squash (squash/rebase/force-push rewrite
@@ -83,34 +79,45 @@ unconditionally.
 
 **Dispatch economics.** Tiers resolve to explicit model IDs at dispatch (a bare tier
 name silently inherits the session's model), each with a fallback ID for
-subscription-unavailability and the model that actually served recorded at dispatch;
-implementation is **phase-scoped** — one
+subscription-unavailability; the model that actually **served** is
+**verified from the first dispatch's transcript rather than assumed** (both pin
+mechanisms have failed in the field — see [[pdlc-sweep-history]]) and recorded on the card
+as a **machine-findable line a gate reads**:
+`Dispatch: tier=<tier> pinned=<model-id> served=<model-id>`, one per dispatch, `served=` a
+bare ID (a placeholder does not count). A dispatched task and an inline-implemented one
+leave identical commits, specs, and ticks, so that line is the only residue between them,
+and a task's PR is not merge-ready without it ([[spec-bridge-plugin]]'s gate reports a
+claimed card that lacks one).
+Implementation is **phase-scoped** — one
 fresh implementer per tasks.md phase, re-grounded from the phase handoff artifact set
 (spec dir, tick-state, branch commits), nothing passed via chat context; every
 dispatch prompt carries a **turn-hygiene block**; the execution log carries
 tokens/cost actuals; the orchestrator SHOULD end its session at lane boundaries.
 
 **The Spec Kit step cannot degrade silently.** The claim-armed link, the named-artifact
-spec cycle, and the template's per-task-artifacts section (above) close the loop the
-**Output gate** proves: every scoped task Done via its own merged PR — its Spec
-marker re-checked on the card at sweep end — AND its `specs/NNN-*/` containing
-spec+plan+tasks — **or the runbook records an operator-signed
-escape line naming the task and what stands in for the artifacts**; any sanctioned
-substitute (a host's hand-authored-specs precedent included) enters as such a line,
-never as a second mechanism. The **precondition gate** defers to this same line: absent `.specify/` is acceptable only when a recorded host hand-authored-specs precedent stands as one such escape line.
+spec cycle, and the per-task-artifacts section (above) close the loop the **Output gate**
+proves: every scoped task Done via its own merged PR — Spec marker re-checked on the card
+at sweep end — AND its `specs/NNN-*/` holding spec+plan+tasks — **or the runbook records
+an operator-signed escape line naming the task and what stands in for the artifacts**.
+Every sanctioned substitute enters as one such line and never as a second mechanism, the
+**precondition gate** included: absent `.specify/` passes only on a recorded host
+hand-authored-specs precedent standing as one.
 
-The doctrine accreted release by release — merge-drift gates 0.12.1, capsule-first
-orientation 0.14.0, paused lanes 0.25.0, pin-aware reconciliation 0.27.0, honest
-re-pins 0.28.0, claim-step reconciliation 0.34.0, refactor-triage handoff 0.40.0
-([[pdlc-refactor-triage]] as the post-sweep review), model-ID pinning 0.41.0,
-phase-scoped dispatch 0.42.0, cost levers 0.43.0, Spec-Kit degradation hardening
-0.44.0, doctrine-seam reconciliation 0.47.0, the background-job / no-main-push
-execution mode 0.49.0, the two-track landing reference 0.50.0, the hand-authored-specs precondition hatch and the gate-softening-is-a-runbook-amendment rule 0.51.0 — [[pdlc-sweep-history]] carries the
-per-release detail, field cases, and the
-superseded conventions downstream hosts may have inherited.
+The doctrine accreted release by release, from merge-drift gates in 0.12.1 through the
+lane-handoff template in 0.63.1 ([[pdlc-refactor-triage]] arrived at 0.40.0 as the
+post-sweep review). **[[pdlc-sweep-history]] is the release index** — which rule landed
+when, the field case that forced it, the superseded conventions downstream hosts may have
+inherited. Re-enumerating it here drifted: that list had stalled at 0.51.0 while the
+children carried 0.55.0 and 0.57.0.
 
-The runbook is the **session-portable contract**: a fresh session resumes the sweep from
-it plus the board alone. A runbook is an instruction-bearing artifact a session
-*obeys*, so the adopt path verifies authority first — status signed-off (only the
-operator flips it), committed, and board-backed — refusing anything unverifiable. Phase separation ([[skill-patterns]]) holds: sweep decides no
+**Session-portable handoffs** — [[pdlc-sweep-handoffs]]. Two templates: `runbook.md` is
+the contract at a *lane boundary* (a fresh session resumes from it plus the board alone;
+being instruction-bearing, the adopt path verifies its authority before obeying), and
+since 0.63.1 (skill 0.23.0) `lane-handoff.md` covers resuming **mid-lane** — where the
+work sits, what it proved, what it owes. That template's **shape is load-bearing**: the
+reader gets the orchestrator's role and the dispatch instruction before any content,
+after a field case where a tier named as a field was resumed by a session that
+implemented the lane inline. Neither is `.handoff/` ([[handoff-protocol]]).
+
+Phase separation ([[skill-patterns]]) holds: sweep decides no
 direction (that arrives from reorient/team-review/the operator) and writes no code.

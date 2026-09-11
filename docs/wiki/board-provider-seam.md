@@ -8,7 +8,7 @@ sources:
   - spec-bridge/skills/board-sync/SKILL.md
   - docs/board-verbs.md
   - docs/design/board-provider-seam.md
-verified_against: 409422e7533e6313aae100e406789704daf9b6bd
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # The board provider seam
@@ -20,10 +20,18 @@ it is behind an API. This note is how one gate serves both.
 
 ## The mirror is the only read surface
 
- — the **mirror** (spec 052) — is what the gate reads. Never the provider.
-Each link carries `id`, `status`, `specDir`, `acs`, optional `labels`, and for
-MCP-backed providers `observedAt`/`observedSha`. `writeMirror` is byte-deterministic
-(explicit key order, sorted links, trailing newline) so `--check` can byte-compare.
+`.board/links.json` — the **mirror** (spec 052) — is what the gate reads. Never the
+provider. Each link carries `id`, `status`, `specDir`, `acs`, optional `labels` and
+`dispatches`, and for MCP-backed providers `observedAt`/`observedSha`. `writeMirror` is
+byte-deterministic (explicit key order, sorted links, trailing newline) so `--check` can
+byte-compare.
+
+Optional fields are **additive by contract**: `validateMirror` checks one only when the
+key is present, so a mirror written before the field existed stays valid rather than
+needing a migration. `dispatches` (spec 066) is the second to use that shape after
+`labels` — an array of the raw `Dispatch:` payloads `parseDispatchRecords` collects from a
+card, transported here and *judged* in the gate. Which is the seam's usual split: this
+module moves payloads, the gate decides what makes one valid.
 
 The gate therefore has exactly one shape to understand, and adding a provider never touches
 the gate.

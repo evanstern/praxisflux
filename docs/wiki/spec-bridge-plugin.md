@@ -15,13 +15,16 @@ sources:
   - lib/spec-derive.mjs
   - lib/spec-source.mjs
   - lib/board-mirror.mjs
-size_budget_exempt: at 7998/8000 on main with 2 chars of headroom; spec 058 (TASK-104) adds the
-  working-tree/git-ref resolver, which is load-bearing for every verdict this note describes and
-  cannot be omitted. The splittable unit would be ~500 chars — under the ~1,500-char
-  minimum-content counter-rule in docs/corpus-spec.md, so a split would butcher the note rather
-  than summarize it. Trims were attempted first and recovered only ~30 chars each. TASK-103/95
-  already own this note family's owed summary-style split; fold this into it and remove.
-verified_against: b992693223645641ff989e180fa7b2a49f009293
+size_budget_exempt: over cap and growing — 7998/8000 at spec 058 (TASK-104, the
+  working-tree/git-ref resolver), then spec 061's project-gate content, now spec 066's opt-in
+  dispatch-record check; each is load-bearing for a verdict this note describes and cannot be
+  omitted. Every increment has been written at minimum length and trims recover only ~30 chars
+  each, so the note is past what trimming can fix: it needs the real summary-style split
+  TASK-103/95 already own for this note family (the opt-in checks — strictDone, statusVocabulary,
+  projectGates, requireDispatchRecord — are the natural child, ~2,500 chars of substance, well
+  over the ~1,500-char minimum-content counter-rule). Fold this note into that split and remove
+  the exemption; do not treat the exemption as a licence to keep appending.
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # spec-bridge plugin
@@ -118,6 +121,17 @@ the bridge can't recurse; an injected `run` bypasses it, so the check dogfoods i
 `providers` registry in `lib/board-mirror.mjs` keys on `requiresSync`, `.board/links.json` is
 the gate's read surface for every provider, and Jira's MCP-backed projection lives in a skill
 so `lib/` stays network-free. See [[board-provider-seam]].
+
+**The dispatch record (opt-in, spec 066).** `checkBridge` also judges whether a card proves
+its implementation was *dispatched* rather than done inline — an axis independent of status
+honesty. The marker (`Dispatch: tier=… pinned=… served=…`) is [[pdlc-grounding-block]]
+doctrine; the check lives here because the record rides a card this gate already walks via
+`parseLinkedTask` — no new gate or surface. `servedModel` accepts only a **bare ID**:
+whitespace or a placeholder (`TBD`, `pending`, …) names no served model, since filling that
+field from the transcript is the step enforced. Scope narrows twice — the host must set
+`"requireDispatchRecord": true` (absent, it does not run and every verdict is bit-identical),
+and only **not-yet-Done** cards qualify, so no historical card is flagged *by construction*.
+Stated hole: a card reaching Done without a record leaves scope for good.
 
 ## Connections
 

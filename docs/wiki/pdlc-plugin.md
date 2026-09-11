@@ -11,7 +11,7 @@ sources:
   - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
-verified_against: b992693223645641ff989e180fa7b2a49f009293
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # pdlc plugin
@@ -44,8 +44,10 @@ belong outside the markers), and handles drift **honestly** (a block differing f
 current render reports `drifted` and is never overwritten without `--force`). Peer
 conventions ride nested `pdlc:peer:*` sub-blocks, stripped unless opted in. The block's
 content — the 101 principles and their per-peer mappings, the corpus-loading and Gates
-rules, and the `## Model tiers` section whose ladder lives in `.claude/model-tiers.json`
-rather than in the block — is covered in [[pdlc-grounding-block]].
+rules, and the `## Model tiers` section (ladder in `.claude/model-tiers.json` rather than in
+the block; since 0.63.1 the section also carries the reader-subject dispatch obligation, the
+refused "knowledge-shaped" exemption, and the exact `Dispatch:` record marker a gate reads)
+— is covered in [[pdlc-grounding-block]].
 
 ## Deterministic core: scripts/plant.mjs
 
