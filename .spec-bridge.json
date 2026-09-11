@@ -1,4 +1,5 @@
 {
+  "requireDispatchRecord": true,
   "projectGates": {
     "required": [
       { "name": "tests", "command": ["node", "--test"] },

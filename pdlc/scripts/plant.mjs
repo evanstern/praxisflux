@@ -321,6 +321,22 @@ if (runAsCli(import.meta.url)) {
     || report.gitignore === "added" || report.hooks === "installed"
     || report.exclude === "added" || report.exclude === "no-git"
     || report.modeSwitch === "drifted";
-  if (check && pending) process.exit(1); // --check: nonzero when planting would change something
+  // --check: nonzero when planting would change something. A gate whose output doesn't say
+  // what to do is half a gate (docs/wiki/gates-convention.md), and the JSON report alone
+  // names the STATE (`drifted`) without naming the remedy — so print the fix on the failing
+  // path. `drifted` and a merely-behind footprint take different first steps: the former must
+  // be diffed before anyone consents to losing it, the latter just needs the plant to run.
+  if (check && pending) {
+    const drifted = report.claudeMd === "drifted" || report.modeSwitch === "drifted";
+    console.error(
+      drifted
+        ? `plant: the planted footprint has DRIFTED from what this version plants — re-run pdlc:bootstrap, ` +
+          `DIFF the block against the new render, get consent, then re-plant with --force ` +
+          `(keep project edits OUTSIDE the markers; the block is refreshed wholesale). See docs/releasing.md.`
+        : `plant: the planted footprint is out of date — re-run pdlc:bootstrap to plant it (same command ` +
+          `without --check; --force only after diffing a drifted block). See docs/releasing.md.`,
+    );
+    process.exit(1);
+  }
   if (report.missing.length) process.exit(1);
 }

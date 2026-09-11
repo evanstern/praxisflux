@@ -1,13 +1,15 @@
 {
   "planted": "pdlc:bootstrap",
-  "version": "0.57.0",
+  "version": "0.64.0",
   "name": "praxis",
   "peers": [
     "backlog"
   ],
   "peersOmitted": [
-    "spec-kit"
+    "spec-kit",
+    "jira"
   ],
   "hooks": [],
-  "plantedAt": "2026-08-28T14:29:27.345Z"
+  "localOnly": false,
+  "plantedAt": "2026-09-11T15:04:01.021Z"
 }

@@ -1,11 +1,11 @@
 ---
 name: pdlc-sweep-history-early
-description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.44.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, model-ID pinning, phase-scoped dispatch, cost levers, Spec-Kit degradation hardening — the field cases that forced each. Newer releases live in pdlc-sweep-history-recent; current doctrine is pdlc-sweep.
+description: Earlier half of pdlc-sweep-history's release-by-release doctrine record, split summary-style off the parent at the 8,000-char cap. Covers 0.12.1 through 0.44.0 — merge-drift gates, capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins, claim-step reconciliation, model-ID pinning (superseded three times since, latterly by the gate-readable dispatch record), phase-scoped dispatch, cost levers. Newer releases: pdlc-sweep-history-recent; current doctrine: pdlc-sweep.
 kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # pdlc:sweep — doctrine history (0.12.1–0.42.0)
@@ -75,15 +75,15 @@ debt tasks → next sweep.
 Since 0.41.0 (skill 0.10.0) the model tier is pinned to an **explicit model ID**
 (TASK-86): the runbook records the ID next to each tier label — a bare tier name has
 no mechanical resolution and silently resolves to the session's model — and
-dispatch passes the ID explicitly (the Agent tool's `model` param or host
-equivalent), never session inheritance: an orchestrator often runs a price tier
-above the implementer intent (field case: "Opus tier" implementers ran on the Fable
-session model at 2x the price). The board record extends to tier + model ID +
-justification. **Superseded twice since:** 0.52.0 moved the authoritative pin to the
-agent definition's frontmatter after the dispatch parameter was caught being silently
-ignored (2026-07-31), and 0.55.0 dropped the premise that either mechanism is reliable —
-see [[pdlc-sweep-history]]'s superseded-conventions summary. Read this entry as origin,
-not as instruction.
+dispatch passes the ID explicitly, never session inheritance: an orchestrator often
+runs a price tier above the implementer intent (field case: "Opus tier" implementers
+ran on the Fable session model at 2x the price). The board record extends to tier +
+model ID + justification. **Superseded three times since:** 0.52.0 moved the authoritative pin to
+the agent def's frontmatter after the dispatch parameter was caught being silently
+ignored (2026-07-31); 0.55.0 dropped the premise that either mechanism is reliable;
+0.63.1 fixed the record's *form* — a machine-findable `Dispatch:` line a gate reads,
+prose no longer counting. See [[pdlc-sweep-history]]'s superseded-conventions summary.
+Read this entry as origin, not instruction.
 
 Since 0.42.0 (skill 0.11.0) dispatch is **phase-scoped** (TASK-87): one fresh
 implementer per tasks.md phase (or explicitly-grouped small adjacent phases, the
@@ -91,11 +91,11 @@ orchestrator's recorded call), each at the runbook's pinned model, re-grounded f
 the **phase handoff artifact set** — the spec dir, the tasks.md tick-state, the
 branch's commits. Nothing passes between phases via chat context: if the next phase
 needs it, it lives in an artifact (ticked box, committed slice, deviation note).
-Rationale in place: every tool call re-pays the agent's full context read; a
-long-lived implementer's context is mostly its own transcript (field case: 699
-requests at ~427k average context, $404, vs ~32k at dispatch; fresh restarts at
-~35k). The execution log keeps it resumable: a row's `notes` slot carries phases
-dispatched/completed — one slot, not a second table.
+Rationale in place: every tool call re-pays the agent's full context read; a long-lived
+implementer's context is mostly its own transcript (field case: 699 requests at ~427k
+average context, $404, vs ~32k at dispatch; fresh restarts at ~35k). The execution log
+keeps it resumable: a row's `notes` slot carries phases dispatched/completed — one
+slot, not a second table.
 
 Since 0.43.0 (skill 0.12.0) three cost levers (TASK-88): every dispatch prompt
 carries a **turn-hygiene block** — batch independent reads/checks as parallel tool

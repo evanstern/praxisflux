@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 68680f9f15eac8c27f0a68c8e5f396f263b6390a
+verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
 # pdlc:sweep — doctrine history
@@ -25,9 +25,11 @@ neared the 8,000-char body cap:
   capsule-first orientation, paused lanes, pin-aware reconciliation, honest re-pins,
   claim-step reconciliation, refactor-triage handoff, model-ID pinning, phase-scoped
   dispatch.
-- [[pdlc-sweep-history-recent]] — 0.47.0 onward: cost levers, Spec-Kit degradation
-  hardening, doctrine-seam reconciliation, and the sweep's own backfilled releases as
-  they land. This is the child with headroom reserved for new entries.
+- [[pdlc-sweep-history-recent]] — 0.47.0 onward: doctrine-seam reconciliation,
+  background-job mode, two-track landing, the hand-authored-specs hatch, the
+  config-driven tier rubric, the claim/board-commit boundary, and the gate-readable
+  dispatch record plus lane-handoff template. This is the child that receives new
+  entries.
 
 ## Superseded conventions
 
@@ -52,7 +54,12 @@ Two threads run across releases rather than living inside a single one:
   resolved fine. Doctrine now prefers the frontmatter pin (durable across sessions where
   the parameter is per-call) but treats **verifying the served model from the transcript**
   as the load-bearing step. Old-convention hosts should stop reading a green config or a
-  green `--check` as proof that a dispatch ran on the intended model.
+  green `--check` as proof that a dispatch ran on the intended model. **0.63.1 extends the
+  same thread past verification to residue:** the served model is recorded on the card as a
+  machine-findable `Dispatch:` line a gate reads, because nothing before it could prove a
+  dispatch happened *at all* — an inline-implemented task leaves identical commits, specs,
+  and ticks. Superseded: recording the tier as prose justification, which nothing reads
+  back.
 
 ## Connections
 
