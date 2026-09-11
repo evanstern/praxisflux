@@ -3,11 +3,11 @@ id: TASK-0125
 title: >-
   Close the dispatch gap: a resumed sweep lane implements inline at orchestrator
   tier
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-11 16:06'
+updated_date: '2026-09-11 16:20'
 labels:
   - pdlc
   - doctrine
@@ -319,3 +319,9 @@ Two notes hit the ~8,000-char cap. `pdlc-plugin` **arrived from the merge alread
 PR is `MERGEABLE` / `CLEAN`. **It must land as a merge commit** — this branch is pin-carrying and squashing would orphan every note pinning its commits. Merge is the operator's.
 ---
 <!-- COMMENTS:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Verify the premises, then the doctrine prose (R1, R4): 7/7 · Phase 2 — The lane-handoff template (R2, R5): 7/7 · Phase 3 — The dispatch record and its fail-closed check (R3): 9/9 · Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5: 8/8 · Phase 5 — The upgrade path (R7) — AFTER Phase 4: 9/9 · Phase 6 — Release obligations and close (all ACs): 10/10). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
