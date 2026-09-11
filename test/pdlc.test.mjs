@@ -361,6 +361,90 @@ test("check mode writes nothing and the CLI exits nonzero while planting is pend
   } finally { done(); }
 });
 
+// --- the planted-block drift gate: --check wired into a surface that runs (spec 066 R7b) ---
+
+const PLANT_CLI = join(repo, "pdlc", "scripts", "plant.mjs");
+
+/** Run the plant CLI, returning what a gating surface actually sees. The CLI takes no
+ *  --version, so it always renders the LIVE plugin version — fixtures for these tests must be
+ *  planted through the CLI too, or the version stamp alone would read as drift. */
+function plantCli(root, args = []) {
+  const r = spawnSync(process.execPath, [PLANT_CLI, "--root", root, ...args], { encoding: "utf8" });
+  return { status: r.status, out: `${r.stdout}${r.stderr}` };
+}
+
+// The gate's WIRING. `plant --check` has always exited 1 on drift, but until spec 066 nothing
+// invoked it — which is how this repo ran a v0.57.0 block against a v0.63.1 marketplace. The
+// exit code is tested below; this asserts the CI step that makes it mean something still exists,
+// mirroring the spec-bridge/wiki-freshness drift check above it.
+test("ci.yml runs plant --check — this repo's own planted block must stay current", () => {
+  const ci = readFileSync(join(repo, ".github", "workflows", "ci.yml"), "utf8");
+  assert.match(
+    ci, /run:\s*node pdlc\/scripts\/plant\.mjs --root \. --peer backlog --check/,
+    "ci.yml no longer runs plant --check — without it a stale planted block goes unnoticed " +
+    "again (the v0.57.0-vs-v0.63.1 finding), because no other surface invokes it",
+  );
+});
+
+test("plant --check: a drifted block FAILS the gate, a clean one passes, and nothing is written", () => {
+  const { root, done } = proj();
+  try {
+    // Clean: planted through the CLI, then re-checked ⇒ the gate passes.
+    assert.equal(plantCli(root, ["--peer", "backlog"]).status, 0);
+    assert.equal(plantCli(root, ["--peer", "backlog", "--check"]).status, 0, "a current footprint must pass");
+
+    // Drifted: a user edit inside the markers ⇒ the gate must fail loudly.
+    const before = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    writeFileSync(join(root, "CLAUDE.md"), before.replace("## The loop", "## The loop (edited)"));
+    const sentinelBefore = readFileSync(join(root, SENTINEL), "utf8");
+    const drift = plantCli(root, ["--peer", "backlog", "--check"]);
+    assert.equal(drift.status, 1, "a drifted block must FAIL the gate, not warn");
+
+    // gates-convention.md: a gate whose output doesn't say what to do is half a gate.
+    assert.match(drift.out, /DRIFTED/);
+    assert.match(drift.out, /pdlc:bootstrap/, "the fix line must name the skill to re-run");
+    assert.match(drift.out, /DIFF/, "the fix line must say to diff before consenting");
+    assert.match(drift.out, /--force/, "the fix line must name the consent flag");
+    assert.match(drift.out, /OUTSIDE the markers/, "the fix line must warn where edits survive");
+
+    // Read-only: --check must never repair what it reports, nor advance the sentinel past drift.
+    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("(edited)"), "--check must not overwrite the block");
+    assert.equal(readFileSync(join(root, SENTINEL), "utf8"), sentinelBefore, "--check must not advance the sentinel");
+  } finally { done(); }
+});
+
+// A version bump alone drifts the block: the BEGIN marker quotes the planted version. That is
+// why this gate lives in ci.yml (end-state, per PR) and not in the per-commit path — mid-PR it
+// is red by construction until the re-plant lands, exactly the spec 057 redness.
+test("plant --check: a newer plugin version alone drifts the block, and the fix line names the path", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts({ peers: ["backlog"] })); // planted at 9.9.9
+    const r = plant(root, opts({ peers: ["backlog"], version: "9.9.10" }));
+    assert.equal(r.claudeMd, "drifted", "the BEGIN marker stamps the version, so a bump drifts it");
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).version, "9.9.9", "sentinel must not advance");
+  } finally { done(); }
+});
+
+// The CI case: actions/checkout lands the repo in a differently-named directory with no
+// worktree pointer. The name must come from the sticky `.pdlc` record, or this gate would fire
+// spuriously on every CI run — a false red that teaches people to ignore it.
+test("plant --check: a renamed checkout stays clean — the name comes from .pdlc, not basename", () => {
+  const { root, done } = proj();
+  try {
+    assert.equal(plantCli(root, ["--peer", "backlog", "--name", "realname"]).status, 0);
+    const copy = mkdtempSync(join(tmpdir(), "ci-checkout-"));
+    try {
+      // What actions/checkout produces: the tracked files, a different directory name, no .git.
+      for (const f of ["CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(root, f), join(copy, f));
+      assert.notEqual(basename(copy), "realname", "the fixture must actually be renamed");
+      const r = plant(copy, { peers: ["backlog"], check: true }); // live version, as the CLI does
+      assert.equal(r.projectName, "realname", "the recorded name must win over basename");
+      assert.equal(plantCli(copy, ["--peer", "backlog", "--check"]).status, 0, "the gate must pass in a CI checkout");
+    } finally { rmSync(copy, { recursive: true, force: true }); }
+  } finally { done(); }
+});
+
 // --- absent-peer trace (spec 016) ---
 
 test("sentinel records peersOmitted — known peers not opted in at plant time — and idempotence holds", () => {
