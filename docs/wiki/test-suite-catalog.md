@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 8b6a6e692c19fcab8a8478876c3160de8530c7e0
+verified_against: 544ee0fc71fa386ac4cfb079ed4066399013691b
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -106,7 +106,8 @@ One bullet per `test/*.test.mjs` file:
   honored; a `deciding_path` outside that list, a prose response, and a wrong enum value all
   fall back per note; no `.claude/structured-offload.json` routes every REVIEW note to
   fallback, byte-identical to today's in-session triage; a fresh corpus (no REVIEW entries)
-  routes nothing; the script never writes (before/after file snapshots match).
+  routes nothing; the script never writes (tree snapshots match; TASK-0130 excluded
+  `.git/`).
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
 - `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
