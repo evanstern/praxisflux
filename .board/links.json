@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-11T15:02:57.386Z",
+  "generatedAt": "2026-09-11T16:46:38.007Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3330,6 +3330,37 @@
         "grounding-wiki",
         "feature",
         "sweep-cost"
+      ]
+    },
+    {
+      "id": "TASK-0128",
+      "status": "In Progress",
+      "specDir": "specs/067-speckit-install",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Constitution ratified or its absence explicitly recorded in .specify memory"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)"
+        }
+      ],
+      "labels": [
+        "pdlc",
+        "tooling"
       ]
     }
   ]
