@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-11 18:01'
-updated_date: '2026-09-11 18:50'
+updated_date: '2026-09-11 18:53'
 labels:
   - pdlc
   - tooling
@@ -30,7 +30,7 @@ Not sweepable as-is: starts with an operator conversation (pdlc:design-rounds sh
 - [x] #1 Operator discussion held: the item list for the constitution is agreed and recorded (decision artifact, not chat)
 - [x] #2 Constitution drafted from the agreed items, each article traceable to its wiki/CLAUDE.md source
 - [x] #3 Constitution ratified: .specify/memory/constitution.md carries the ratified text; the unratified record is retired
-- [ ] #4 Spec Kit plan template's constitution-check step verified against the ratified text on a real spec
+- [x] #4 Spec Kit plan template's constitution-check step verified against the ratified text on a real spec
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -40,4 +40,7 @@ Decision record committed: docs/design/constitution-decision.md (3b411a3) — 7 
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Constitution drafted and ratified-text landed (f7315d7): preamble + 8 articles + ratification block, verified against the decision record by orchestrator review. AC #4 (real-spec constitution-check verification) dispatching as final slice.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
+AC #4 verified (8f0d702): all 8 articles yield concrete pass/fail verdicts against spec 067's real plan — recorded in docs/design/constitution-check-verification.md. All ACs checked; PR next.
 <!-- SECTION:NOTES:END -->
