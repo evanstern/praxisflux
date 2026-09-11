@@ -11,7 +11,7 @@ only ordering, doctrine, and the log.
 implemented inline instead of dispatching. A session that authors this runbook and then
 implements TASK-0125 itself has reproduced the very defect the task fixes. **Dispatch it.**
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-10 (lanes approved; spec 066
+**Status:** **done** (execution complete 2026-09-11; PR #144 open, green, awaiting operator merge) · operator sign-off on lanes: 2026-09-10 (lanes approved; spec 066
 confirmed; R3b ruled — see its AMENDED gate line: the ruling's intent stands, but the
 "breaking change" premise it was ruled on was wrong and is withdrawn per the F1 correction)
 
@@ -351,4 +351,4 @@ This sweep runs as a **Claude Code background job**, so the no-main-push mode ap
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-10 | TASK-0125 | — | — | Phase 1 ~126k subagent tokens, 20 tool calls | claimed (`898bac0`, spec 066 — 063/064/065 taken by the sibling sweep); spec set `8981f68`; phase ACs + F1 correction `ad54b03`; **phases: 1 done (`b6c723b`), 2 dispatched**. Served model **`claude-opus-5`** — verified from the transcript, pin held. Phase 1 independently re-verified F1 (exit **1**, not 0) and found two spec defects, fixed in `4df8f19`: `npm test` does not exist here (no root `package.json` — use `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE node --test`), and the TASK-86/87/88 precedent needed its date pinned (2026-07-30) |
+| 2026-09-11 | TASK-0125 | [#144](https://github.com/evanstern/praxisflux/pull/144) | pending operator merge (**merge commit, never squash** — pin-carrying) | ~1.17M subagent tokens across 7 dispatches (126k/145k/223k/270k/173k/240k impl + 161k diagnostic), 716 tool calls | **All 6 phases done.** Claimed `898bac0` (spec **066** — 063/064/065 reserved by the sibling sweep); spec set `8981f68`; phases `b6c723b` · `6504ad9` · `d21a9bb` · `43aa03c`+`a4a21c3` · `64f4ffd` · `9b41026`+`c6fcc31`. Two `origin/main` merge-ins (`4d97944` 19 commits, `efe8365` 39 commits/4 conflicts). Marketplace **0.63.3 → 0.64.0**; **14 notes re-pinned** (7 RE-PIN-ONLY / 7 NEEDS-REVIEW); `.pdlc` **0.57.0 → 0.64.0**. Served model **`claude-opus-5`** verified from all 6 transcripts; 5 dispatch records on the card — the task satisfies its own rule. Suite 624/624, every gate exit 0. **11 spec defects surfaced, 7 of them the orchestrator's** — notably `plant --check` never exited 0 (a piped-to-`head` measurement error), the bump drifts the block by construction, and three consecutive wrong stale-note counts (6→8→9→14). CI failed once on a **pre-existing `main` flake** (now TASK-0130); green on re-run, no code change. Cards TASK-0130/0131/0132 filed |

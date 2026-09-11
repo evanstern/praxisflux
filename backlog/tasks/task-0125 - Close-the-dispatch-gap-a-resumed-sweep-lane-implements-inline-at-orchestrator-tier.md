@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-11 15:25'
+updated_date: '2026-09-11 16:06'
 labels:
   - pdlc
   - doctrine
@@ -52,8 +52,6 @@ Spec: specs/066-dispatch-gap
 - [ ] #11 Spec phase: Phase 5 — The upgrade path (R7) — AFTER Phase 4
 - [ ] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
-
-
 
 ## Comments
 
@@ -293,5 +291,31 @@ I re-verified this myself. **Phase 6's own marketplace bump drifts the block by 
 **Defect #8, and it is the consequential one:** R7b told the implementer to wire the check "where this repo's other doctrine checks already live" and listed pre-commit and `check-docs.mjs` as candidates — while the spec had never noticed that its own Phase 6 bump drifts the block. Following that instruction literally would have recreated a documented failure this very spec cites elsewhere. Also: tasks.md said the staleness test is `planted version < plugin version`, which is *sufficient* but not *necessary* — any block-content change drifts it at equal version. The doc states the version test as R7a required; the wiring relies on the stronger content check.
 
 Suite 597/597, `check-docs` green. Phase 5 boxes: **9/9.** Next: Phase 6 — bump + re-plant in the same commit, three re-pins, final AC ticks, PR.
+---
+
+author: @claude
+created: 2026-09-11 16:06
+---
+PHASE 6 COMPLETE · PR #144 OPEN AND GREEN — https://github.com/evanstern/praxisflux/pull/144
+
+Served model `claude-opus-5` (261 transcript occurrences). Six dispatches, six verifications, all opus. Commits `efe8365` (merge), `9b41026` (bump + re-plant, same commit), `c6fcc31` (fourteen re-pins), `4088082`, `70b8241`.
+
+**Release:** marketplace **0.63.3 → 0.64.0** — not from 0.63.1 as my dispatch said, because the sibling sweep published 0.63.2 and 0.63.3 mid-flight; it merged `origin/main` (39 commits, four conflicts, no side discarded) and bumped from the merged value. All ten `plugin.json` files plus `action.yml`'s npx pin propagated by `sync-version.mjs` — nothing hand-edited. The bump and re-plant are in **one commit**, because the bump drifts the block by construction and CI now checks it.
+
+**Fourteen notes re-pinned, not the three I listed** — the bump and re-plant staled eleven more. 7 RE-PIN-ONLY, 7 NEEDS-REVIEW. I verified the split by diffstat rather than trusting it: RE-PIN-ONLY notes show +1/−1 (pin line only), NEEDS-REVIEW show real prose (`pdlc-plugin` +95/−89, `release-pipeline` +23/−4, `test-suite-catalog-plugins-gates-pdlc` +26/−5). Three NEEDS-REVIEW notes were **verified and deliberately left unedited** after reading their diffs — version stamps that were already correct — which is the honest outcome the classifier exists to produce.
+
+Two notes hit the ~8,000-char cap. `pdlc-plugin` **arrived from the merge already over** (8,077) — two independently legal edits producing an illegal note, which nothing in the corpus spec catches. Both fixed by deleting duplication, not by granting exemptions.
+
+**Every check verified independently, not taken on report:** suite 624/624 · `check-docs` 0 · `spec-bridge` + `wiki-freshness` 0 · `plant --check` 0 (`unchanged`) · `board-mirror --check` 0 (66 links) · `tiers --check` 0 · `check-version-bump --base origin/main` 0.
+
+**ACs #1–#6 all ticked against artifacts.** AC #3 proved on the real card, not a fixture: `parseDispatchRecords` returns 5 records, and 0 with the lines stripped. Phase ACs #7–#12 stay unticked deliberately — `spec-bridge:sync` owns those and runs after merge.
+
+**CI failed once, and it was not ours.** The spec-bridge step reported the `tests` project gate red while the `tests` job in the same run passed 624/624. Root cause: a **pre-existing flake on `main`** — `test/triage-offload.test.mjs`'s `snapshot()` walks its git fixture's `.git/` dir (31 of 32 entries are git internals) and races git's transient files in a `readdirSync`→`statSync` TOCTOU. I verified the pre-existence myself: the file is byte-identical to `origin/main`, its introducing commit `40c7c9c` is an ancestor of `main`, and CI run 34521158349 **on `main`** already failed with the same ENOENT. Re-ran CI with no code change — **green**. Per instruction the diagnosis stopped rather than folding an unrelated fix into this PR.
+
+**Three cards created from it (operator-approved):** **TASK-0130** the flake itself (fix: don't walk `.git/` — one predicate, and it strengthens the assertion since git churn was never signal); **TASK-0131** the project-gate runner captures its subprocess output then discards it, reporting only "is red (exited 1)" — the same defect shape this task is about, one layer over, and recovering that output cost a ~160k-token diagnostic run for data the gate held in a variable; **TASK-0132** CI runs the suite twice per PR (the job, then the gate), doubling the odds on any flake — which is exactly how a ~5% flake blocked this PR.
+
+**Defect count: eleven across six phases, seven of them mine.** Every one caught by measurement rather than review. The sharpest pattern: three consecutive stale-note counts wrong (six → eight → nine → fourteen), which is why every phase was told the live gate is the authority and never the spec's list. Phase 6's recommendation for spec 067: **never write a stale-note count into a spec.**
+
+PR is `MERGEABLE` / `CLEAN`. **It must land as a merge commit** — this branch is pin-carrying and squashing would orphan every note pinning its commits. Merge is the operator's.
 ---
 <!-- COMMENTS:END -->
