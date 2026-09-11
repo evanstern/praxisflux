@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 17:41'
-updated_date: '2026-09-11 16:51'
+updated_date: '2026-09-11 16:56'
 labels:
   - pdlc
   - tooling
@@ -33,9 +33,9 @@ Spec: specs/067-speckit-install
 - [ ] #2 Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir
 - [ ] #3 Constitution ratified or its absence explicitly recorded in .specify memory
 - [ ] #4 Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)
-- [ ] #5 Spec phase: Install Spec Kit tooling
-- [ ] #6 Spec phase: Reconcile templates and verify bridge derivation
-- [ ] #7 Spec phase: Record constitution state
+- [x] #5 Spec phase: Install Spec Kit tooling
+- [x] #6 Spec phase: Reconcile templates and verify bridge derivation
+- [x] #7 Spec phase: Record constitution state
 - [ ] #8 Spec phase: Retire the escape line from sweep doctrine
 <!-- AC:END -->
 
@@ -50,4 +50,7 @@ Runbook docs/design/speckit-install-runbook.md (signed off 2026-09-11). Phases 1
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 1 done (commit f7cecdc): specify init 0.12.5.dev0 installed .specify/ (templates, scripts, memory, workflows) and 10 speckit skills at .claude/skills/speckit-*/; no house files touched. Orchestrator call: phases 2+3 grouped in one sonnet dispatch per plan.md's grouping allowance.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+Phases 2+3 done (b8fa70b, bfd04b0): templates reconciled (board-task header; phased tasks template already bridge-shaped), bridge derivation verified Pass against a scratch dir (recorded in specs/067-speckit-install/bridge-verification.md), constitution recorded unratified per operator decision. Phase 4 (opus) next.
 <!-- SECTION:NOTES:END -->
