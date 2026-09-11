@@ -56,6 +56,8 @@ Phases 2+3 done (b8fa70b, bfd04b0): templates reconciled (board-task header; pha
 
 Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
 Phase 4 done (47251d4 + 3db65d9 — two commits, forced: a verified_against pin cannot name the commit that carries it; TASK-0125 precedent): precedent retired from precondition + Output gates, SKILL 0.24.0, marketplace 0.65.0, 16 notes re-pinned (3 NEEDS-REVIEW amended, 13 RE-PIN-ONLY). Gates green 624/624.
+
+spec-bridge sync: Install Spec Kit tooling: 4/4 · Reconcile templates and verify bridge derivation: 4/4 · Record constitution state: 2/2 · Retire the escape line from sweep doctrine: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
