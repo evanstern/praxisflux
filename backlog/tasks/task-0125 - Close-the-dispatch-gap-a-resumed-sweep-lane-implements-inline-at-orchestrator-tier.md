@@ -53,17 +53,11 @@ Spec: specs/066-dispatch-gap
 - [x] #12 Spec phase: Phase 6 — Release obligations and close (all ACs)
 <!-- AC:END -->
 
+## Implementation Notes
 
-
-
-
-
-
-
-
-
-
-
+<!-- SECTION:NOTES:BEGIN -->
+spec-bridge sync: Phase 1 — Verify the premises, then the doctrine prose (R1, R4): 7/7 · Phase 2 — The lane-handoff template (R2, R5): 7/7 · Phase 3 — The dispatch record and its fail-closed check (R3): 9/9 · Phase 4 — Re-plant and re-pin (R6) — MUST precede Phase 5: 8/8 · Phase 5 — The upgrade path (R7) — AFTER Phase 4: 9/9 · Phase 6 — Release obligations and close (all ACs): 10/10 — status In Progress → Done
+<!-- SECTION:NOTES:END -->
 
 ## Comments
 
