@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-10 20:39'
+updated_date: '2026-09-11 14:32'
 labels:
   - pdlc
   - doctrine
@@ -227,5 +227,29 @@ One line per dispatch — Phases 1, 2 and 3 respectively. Each `served=` value w
 Regenerated deterministically via `projectBacklog` + `writeMirror` — not `spec-bridge:board-sync`, which is for `requiresSync` MCP hosts and explicitly says a `backlog` host recomputes rather than syncing. Now: **64 links, `--check` exit 0.**
 
 Worth recording as a finding in its own right: **an in-flight card is exactly the one most likely to be missing from a lagging mirror**, because the mirror is refreshed by a sync step that runs after claiming. So any board-side merge-readiness gate is only as current as `.board/links.json`. Phase 3 flagged this as the spec's fifth defect and it is the more interesting half — the gate was not wrong, the spec's model of what the gate can see was.
+---
+
+author: @claude
+created: 2026-09-11 14:32
+---
+PHASE 4 COMPLETE — served model `claude-opus-5` (353 transcript occurrences). Commits `43aa03c`, `a4a21c3`, `aa4d2a2`.
+
+**AC #6 is satisfied, and the condition that started this thread is closed.** `.pdlc` version **0.57.0 → 0.63.1**; the block's BEGIN marker stamps `v0.63.1`. praxis is no longer running doctrine it does not ship. `node pdlc/scripts/plant.mjs --root . --peer backlog --check` now exits **0** with `claudeMd: "unchanged"` — which is precisely Phase 5's precondition, so the R4 sequencing held.
+
+Verified myself rather than taking the report: outside-marker content survived byte-for-byte (the `# praxisflux — repo orientation` preamble at line 1, the Backlog.md working-flow section at 43, the `<CRITICAL_INSTRUCTION>` block all intact).
+
+**Both gates green:** `spec-bridge ok: 64 linked task(s)` · `wiki-freshness ok: 43 note(s) fresh`. Exit 0. Suite 593/593. The one remaining `wiki-freshness` line is a pre-existing size **warning** on `spec-bridge-plugin.md`, not a failure.
+
+**The stale-note count was wrong twice — in my own spec, both times.** tasks.md asserted SIX, "measured, not guessed." The live gate reported **EIGHT**: my measurement was taken at `4d97944`, one commit before Phase 3's `d21a9bb` touched `lib/board-mirror.mjs` and `spec-bridge/gates/bridge.mjs`, which staled `board-provider-seam` and `spec-bridge-plugin` too. Then the re-plant staled a **ninth** (`overview.md` sources `CLAUDE.md`) — staleness that did not exist until `43aa03c` did, so no pre-commit measurement could have found it. Working the gate as the authority, which the dispatch prompt required, is what caught both.
+
+**All nine came back NEEDS-REVIEW. Zero RE-PIN-ONLY** — and `grounding-wiki/gates/cli.mjs plan` agreed independently. Every one got a prose edit **before** its pin moved. I checked the diffstat rather than trusting that claim: `pdlc-grounding-block` +45/−3, `pdlc-sweep` +57/−50, `board-provider-seam` +13/−5, and so on — substantive churn, not one-line pin bumps. No mechanical pin=HEAD anywhere.
+
+**My "the three history notes are likely RE-PIN-ONLY" guess was wrong, and wrong in shape.** I reasoned they narrate past releases while this task adds new surface. But a history note's *superseded-conventions* thread is a live claim about what current doctrine holds — and `-early`'s 0.41.0 entry states that "the board record extends to tier + model ID + justification", which this task's change to that record's *form* falsified. All three needed prose. Had the implementer accepted my guess, three of nine pins would have been dishonest. The instruction to read each diff anyway is the only reason it did not happen.
+
+**The `pdlc-sweep` cap bit, as anticipated.** Peaked at 8,825 against ~8,000. Deduped a drifted release enumeration first, then **split summary-style** rather than truncating — new child `docs/wiki/pdlc-sweep-handoffs.md` (3,982 chars), parent back to **7,998/8,000**, INDEX line added, CAPSULES regenerated.
+
+Incidental repairs found while re-verifying, all pre-existing: a sentence in `board-provider-seam` broken mid-clause since `105d0d5`; a heading/body contradiction in `-recent` (heading `0.43.0–`, body 0.47.0 onward); `overview` describing pdlc as three skills when it has four (`design-rounds` missing) and stating merge-commits-never-squash twice in one section. This is what an honest re-pin pass turns up that a mechanical one never would.
+
+Phase 4 boxes: **9/9.** Next: Phase 5 — the upgrade path (R7a/b/c), whose precondition is now met.
 ---
 <!-- COMMENTS:END -->
