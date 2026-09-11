@@ -3,9 +3,11 @@ id: TASK-0133
 title: >-
   Ratify the Spec Kit constitution: translate the wiki-grounded design
   principles into .specify/memory/constitution.md
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 18:01'
+updated_date: '2026-09-11 18:30'
 labels:
   - pdlc
   - tooling
@@ -31,3 +33,9 @@ Not sweepable as-is: starts with an operator conversation (pdlc:design-rounds sh
 - [ ] #3 Constitution ratified: .specify/memory/constitution.md carries the ratified text; the unratified record is retired
 - [ ] #4 Spec Kit plan template's constitution-check step verified against the ratified text on a real spec
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator kickoff 2026-09-11: ad-hoc mode approved — branch + PR, no full sweep/pdlc run. Candidate item list authored inline by orchestrator on direct operator request (decision-input synthesis for AC #1; constitution drafting after the discussion will dispatch per tiers).
+<!-- SECTION:NOTES:END -->
