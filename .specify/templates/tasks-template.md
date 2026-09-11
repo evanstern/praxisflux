@@ -3,7 +3,7 @@
 description: "Task list template for feature implementation"
 ---
 
-# Tasks: [FEATURE NAME]
+# [###] — tasks
 
 **Input**: Design documents from `/specs/[###-feature-name]/`
 

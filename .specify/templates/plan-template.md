@@ -1,4 +1,4 @@
-# Implementation Plan: [FEATURE]
+# [###] — implementation plan
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 

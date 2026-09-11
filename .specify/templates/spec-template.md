@@ -1,10 +1,8 @@
-# Feature Specification: [FEATURE NAME]
+# [###] — [FEATURE NAME]
 
-**Feature Branch**: `[###-feature-name]`
+**Board task:** TASK-[NUMBER] · **Runbook:** `[path/to/runbook.md]`
 
 **Created**: [DATE]
-
-**Status**: Draft
 
 **Input**: User description: "$ARGUMENTS"
 

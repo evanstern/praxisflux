@@ -9,10 +9,10 @@
 
 ## Phase 2: Reconcile templates and verify bridge derivation
 
-- [ ] Edit `.specify/templates/` in place to the house format: board-task header, no escape-line header, phased checkbox `tasks.md`
-- [ ] Generate a spec dir from the reconciled templates and run `node spec-bridge/gates/cli.mjs state <dir>` against it
-- [ ] Record command + derived output in `specs/067-speckit-install/bridge-verification.md`; remove any scratch dir
-- [ ] Commit
+- [x] Edit `.specify/templates/` in place to the house format: board-task header, no escape-line header, phased checkbox `tasks.md`
+- [x] Generate a spec dir from the reconciled templates and run `node spec-bridge/gates/cli.mjs state <dir>` against it
+- [x] Record command + derived output in `specs/067-speckit-install/bridge-verification.md`; remove any scratch dir
+- [x] Commit
 
 ## Phase 3: Record constitution state
 
