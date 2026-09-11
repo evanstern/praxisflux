@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-11 16:04'
+updated_date: '2026-09-11 19:01'
 labels:
   - flake
   - tests
@@ -46,3 +47,9 @@ Do NOT fix this with a retry, a try/catch around `statSync`, or a test-level ski
 - [ ] #4 A repeated full-suite run (20+ iterations) produces no ENOENT from this helper
 - [ ] #5 Any other test helper in the suite that recursively stats a real git fixture is checked for the same TOCTOU and either fixed or explicitly noted as safe
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Third observation, NEW failure mode (2026-09-11, run 34636067878 on main at dda6a71 — a board-only commit, no code change): .git/objects/maintenance.lock appeared in the AFTER snapshot but not the BEFORE, so instead of the ENOENT crash the test failed its byte-identical assertion ('the script must write nothing') with the lock file as the only diff. Same root cause — snapshot() walking .git/ — two symptoms: transient file dies between readdir and stat (ENOENT), or survives into one snapshot but not the other (false diff). The carded fix (exclude .git/ from the walk) removes both.
+<!-- SECTION:NOTES:END -->
