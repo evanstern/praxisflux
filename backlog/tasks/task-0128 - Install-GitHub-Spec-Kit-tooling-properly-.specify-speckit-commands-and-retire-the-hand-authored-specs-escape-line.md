@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 17:41'
-updated_date: '2026-09-11 16:57'
+updated_date: '2026-09-11 17:14'
 labels:
   - pdlc
   - tooling
@@ -32,14 +32,12 @@ Spec: specs/067-speckit-install
 - [x] #1 Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo
 - [x] #2 Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir
 - [x] #3 Constitution ratified or its absence explicitly recorded in .specify memory
-- [ ] #4 Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)
+- [x] #4 Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)
 - [x] #5 Spec phase: Install Spec Kit tooling
 - [x] #6 Spec phase: Reconcile templates and verify bridge derivation
 - [x] #7 Spec phase: Record constitution state
-- [ ] #8 Spec phase: Retire the escape line from sweep doctrine
+- [x] #8 Spec phase: Retire the escape line from sweep doctrine
 <!-- AC:END -->
-
-
 
 ## Implementation Plan
 
@@ -55,4 +53,7 @@ Phase 1 done (commit f7cecdc): specify init 0.12.5.dev0 installed .specify/ (tem
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phases 2+3 done (b8fa70b, bfd04b0): templates reconciled (board-task header; phased tasks template already bridge-shaped), bridge derivation verified Pass against a scratch dir (recorded in specs/067-speckit-install/bridge-verification.md), constitution recorded unratified per operator decision. Phase 4 (opus) next.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+Phase 4 done (47251d4 + 3db65d9 — two commits, forced: a verified_against pin cannot name the commit that carries it; TASK-0125 precedent): precedent retired from precondition + Output gates, SKILL 0.24.0, marketplace 0.65.0, 16 notes re-pinned (3 NEEDS-REVIEW amended, 13 RE-PIN-ONLY). Gates green 624/624.
 <!-- SECTION:NOTES:END -->
