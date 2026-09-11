@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-11 18:01'
-updated_date: '2026-09-11 18:47'
+updated_date: '2026-09-11 18:50'
 labels:
   - pdlc
   - tooling
@@ -28,8 +28,8 @@ Not sweepable as-is: starts with an operator conversation (pdlc:design-rounds sh
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Operator discussion held: the item list for the constitution is agreed and recorded (decision artifact, not chat)
-- [ ] #2 Constitution drafted from the agreed items, each article traceable to its wiki/CLAUDE.md source
-- [ ] #3 Constitution ratified: .specify/memory/constitution.md carries the ratified text; the unratified record is retired
+- [x] #2 Constitution drafted from the agreed items, each article traceable to its wiki/CLAUDE.md source
+- [x] #3 Constitution ratified: .specify/memory/constitution.md carries the ratified text; the unratified record is retired
 - [ ] #4 Spec Kit plan template's constitution-check step verified against the ratified text on a real spec
 <!-- AC:END -->
 
@@ -37,4 +37,7 @@ Not sweepable as-is: starts with an operator conversation (pdlc:design-rounds sh
 
 <!-- SECTION:NOTES:BEGIN -->
 Decision record committed: docs/design/constitution-decision.md (3b411a3) — 7 articles (A1-A6, A8) + amendment article; A7 out (model-tiers.json stays sole source of truth); Tier B/C all doctrine; preamble references docs/principles.md as upstream. Drafting dispatches next (sonnet — the decision record settles all judgment calls).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+Constitution drafted and ratified-text landed (f7315d7): preamble + 8 articles + ratification block, verified against the decision record by orchestrator review. AC #4 (real-spec constitution-check verification) dispatching as final slice.
 <!-- SECTION:NOTES:END -->
