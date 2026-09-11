@@ -38,3 +38,9 @@ Spec: specs/067-speckit-install
 - [ ] #7 Spec phase: Record constitution state
 - [ ] #8 Spec phase: Retire the escape line from sweep doctrine
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Runbook docs/design/speckit-install-runbook.md (signed off 2026-09-11). Phases 1-3 dispatch at sonnet (cc/claude-sonnet-5[1m], default tier: work to a written spec); phase 4 at opus (cc/claude-opus-5[1m], fallback cc/claude-opus-4-8[1m]) — SKILL.md doctrine prose per TASK-86/87/88 precedent, escalation operator-signed at runbook sign-off. Spec: specs/067-speckit-install.
+<!-- SECTION:PLAN:END -->
