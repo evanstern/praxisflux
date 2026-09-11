@@ -3156,6 +3156,8 @@
       "dispatches": [
         "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
         "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5",
         "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5"
       ]
     },

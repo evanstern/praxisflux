@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 14:20'
-updated_date: '2026-09-11 14:32'
+updated_date: '2026-09-11 14:58'
 labels:
   - pdlc
   - doctrine
@@ -251,5 +251,45 @@ Verified myself rather than taking the report: outside-marker content survived b
 Incidental repairs found while re-verifying, all pre-existing: a sentence in `board-provider-seam` broken mid-clause since `105d0d5`; a heading/body contradiction in `-recent` (heading `0.43.0–`, body 0.47.0 onward); `overview` describing pdlc as three skills when it has four (`design-rounds` missing) and stating merge-commits-never-squash twice in one section. This is what an honest re-pin pass turns up that a mechanical one never would.
 
 Phase 4 boxes: **9/9.** Next: Phase 5 — the upgrade path (R7a/b/c), whose precondition is now met.
+---
+
+author: @claude
+created: 2026-09-11 14:58
+---
+DISPATCH RECORDS (cont.) — Phases 4 and 5.
+
+```
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+Dispatch: tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5
+```
+
+Phase 4 (353 transcript occurrences) and Phase 5 (149). Five dispatches, five records, every `served=` read from its own transcript.
+
+**PHASE 5 COMPLETE — commit `64f4ffd`. The upgrade path the operator asked for is landed.**
+
+**R7a:** `docs/releasing.md` gains § *"Re-planting a downstream project after an upgrade"* — the concrete sequence (update plugin → re-run `pdlc:bootstrap` → `drifted` → **diff** → consent → `--force`), the `.pdlc` staleness test, and the edits-outside-the-markers warning. Field case cited: praxis's own `0.57.0` against a `0.63.1` marketplace. It points at bootstrap's Refresh path rather than restating drift/consent semantics.
+
+**R7b — wired into `.github/workflows/ci.yml`, and the surface choice was forced by a measurement the spec never made.** The BEGIN marker **quotes the planted version**, so:
+
+```
+plant(check:true)                  → claudeMd: "unchanged"
+plant(check:true, version:0.64.0)  → claudeMd: "drifted"
+```
+
+I re-verified this myself. **Phase 6's own marketplace bump drifts the block by construction**, until the re-plant lands beside it. That disqualifies every per-commit surface: pre-commit / `check-docs.mjs` / the Stop hook would block *every commit* in the bump→re-plant gap — recreating exactly the mid-PR redness spec 057 moved out of the per-commit path, the redness that trained `--no-verify` (TASK-100/93) and amplified one red gate into ~50 findings (TASK-102). `pre-push` fails the opposite way: its harness converts findings to warnings and exits 0, so it structurally cannot fail loudly. CI is also this repo's own stated authority and already hosts the two sibling repo-state self-checks.
+
+**The remedy line did not exist and is now added.** `--check` printed only its JSON report — it named the *state* (`"claudeMd": "drifted"`) and never the fix: half a gate by `gates-convention.md`. Two variants now, because the states need different first steps — a *drifted* footprint must be **diffed before** anyone consents to losing it; a merely-behind one just needs the plant to run. Both name `pdlc:bootstrap`, the diff, `--force`, the markers warning, and the doc.
+
+**`--check` remains read-only**, verified three ways: every write is `!check`-guarded; three consecutive `--check` runs against a drifted fixture left `CLAUDE.md`/`.pdlc`/`.gitignore` md5-identical; and a new test asserts the user's edit survives and the sentinel does not advance.
+
+**Fresh-clone/CI case tested, not reasoned:** `actions/checkout` lands the repo in a differently-named directory, but `resolveProjectName` ranks `.pdlc`'s recorded name above `basename(root)`, so the name is sticky — proven against a real renamed, `.git`-less copy (exit 0, `projectName: "praxis"`) and by a test that plants under one name and reads from a random-named dir.
+
+**R7c** noted in the CI step's own comment, where the wiring lives: same defect shape, different artifacts, and why they stay apart — this gate asks *"does the planted footprint match what the installed plugin plants?"*, `checkBridge` asks *"did the claimed work leave the record it owes?"*. Neither can answer the other's question.
+
+**Phase 5 stopped rather than re-pinning three notes it staled — and it was right to, against a conflict I created.** My dispatch prompt said both "STOP if your change would stale a wiki pin" and "both gates must stay green". **No Phase 5 implementation can satisfy both**: R7a's `docs/releasing.md` edit is pinned by `release-pipeline.md` regardless of surface, and `ci.yml`/`.githooks/*`/`check-docs.mjs` are each pinned by some note. It chose to stop, per the explicit ordering note, and flagged the contradiction instead of quietly resolving it. Owed in Phase 6, all **NEEDS-REVIEW**: `pdlc-plugin` (`ab9e2a0`), `release-pipeline` (`3d7edf1`), `test-suite-catalog-plugins-gates-pdlc` (`4381ba8`). This is the expected mid-PR state — all three are inside the re-pin window and the Stop hook allows with "re-pin OWED before the PR, not forgiven".
+
+**Defect #8, and it is the consequential one:** R7b told the implementer to wire the check "where this repo's other doctrine checks already live" and listed pre-commit and `check-docs.mjs` as candidates — while the spec had never noticed that its own Phase 6 bump drifts the block. Following that instruction literally would have recreated a documented failure this very spec cites elsewhere. Also: tasks.md said the staleness test is `planted version < plugin version`, which is *sufficient* but not *necessary* — any block-content change drifts it at equal version. The doc states the version test as R7a required; the wiring relies on the stronger content check.
+
+Suite 597/597, `check-docs` green. Phase 5 boxes: **9/9.** Next: Phase 6 — bump + re-plant in the same commit, three re-pins, final AC ticks, PR.
 ---
 <!-- COMMENTS:END -->
