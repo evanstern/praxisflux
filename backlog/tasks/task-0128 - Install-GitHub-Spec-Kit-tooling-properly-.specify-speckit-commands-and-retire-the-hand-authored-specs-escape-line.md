@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 17:41'
-updated_date: '2026-09-11 16:48'
+updated_date: '2026-09-11 16:51'
 labels:
   - pdlc
   - tooling
@@ -44,3 +44,10 @@ Spec: specs/067-speckit-install
 <!-- SECTION:PLAN:BEGIN -->
 Runbook docs/design/speckit-install-runbook.md (signed off 2026-09-11). Phases 1-3 dispatch at sonnet (cc/claude-sonnet-5[1m], default tier: work to a written spec); phase 4 at opus (cc/claude-opus-5[1m], fallback cc/claude-opus-4-8[1m]) — SKILL.md doctrine prose per TASK-86/87/88 precedent, escalation operator-signed at runbook sign-off. Spec: specs/067-speckit-install.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+Phase 1 done (commit f7cecdc): specify init 0.12.5.dev0 installed .specify/ (templates, scripts, memory, workflows) and 10 speckit skills at .claude/skills/speckit-*/; no house files touched. Orchestrator call: phases 2+3 grouped in one sonnet dispatch per plan.md's grouping allowance.
+<!-- SECTION:NOTES:END -->
