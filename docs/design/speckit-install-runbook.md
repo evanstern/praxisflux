@@ -7,7 +7,7 @@ is decided; do not re-litigate it: the TASK-0128 card (operator-approved mid-swe
 2026-09-10) wins. Plan-of-record is the board; this file carries only ordering, doctrine,
 and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-11 — operator replied
+**Status:** done · operator sign-off on lanes: 2026-09-11 — operator replied
 "Approved: all four" to the itemized list: (1) the lane (TASK-0128, branch
 `task-0128-speckit-install`, spec 067, sonnet default); (2) the spec-067 hand-authored
 escape line (the last use of the precedent); (3) the opus escalation for the
@@ -166,4 +166,4 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-09-11 | TASK-0128 | — | — | ph1 ~103k, ph2+3 ~147k, ph4 ~152k subagent tokens | phases 1-4 done (f7cecdc, b8fa70b, bfd04b0, 47251d4+3db65d9); served: sonnet×2=claude-sonnet-5, opus=claude-opus-5; SKILL 0.24.0, marketplace 0.65.0; 16 honest re-pins (3 NEEDS-REVIEW amended); PR next |
+| 2026-09-11 | TASK-0128 | #145 | d9cf541 (merge commit) | ph1 ~103k, ph2+3 ~147k, ph4 ~152k subagent tokens | phases 1-4 done (f7cecdc, b8fa70b, bfd04b0, 47251d4+3db65d9); served: sonnet×2=claude-sonnet-5, opus=claude-opus-5; SKILL 0.24.0, marketplace 0.65.0; 17 honest re-pins (3 NEEDS-REVIEW amended); 2 CI round-trips (planted-block stamp, overview.md re-pin); operator merged; board Done via bridge sync; follow-up TASK-0133 (constitution ratification) carded on operator direction |
