@@ -16,8 +16,8 @@
 
 ## Phase 3: Record constitution state
 
-- [ ] Write the unratified record into `.specify/memory/constitution.md`: unratified; planning runs against `docs/wiki/` + `CLAUDE.md`; ratification is an operator follow-up
-- [ ] Commit
+- [x] Write the unratified record into `.specify/memory/constitution.md`: unratified; planning runs against `docs/wiki/` + `CLAUDE.md`; ratification is an operator follow-up
+- [x] Commit
 
 ## Phase 4: Retire the escape line from sweep doctrine
 
