@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-11T16:57:18.679Z",
+  "generatedAt": "2026-09-11T17:14:20.339Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3354,7 +3354,7 @@
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)"
         },
         {
@@ -3374,7 +3374,7 @@
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Retire the escape line from sweep doctrine"
         }
       ],
@@ -3384,7 +3384,8 @@
       ],
       "dispatches": [
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5"
       ]
     }
   ]
