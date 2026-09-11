@@ -21,7 +21,7 @@
 
 ## Phase 4: Retire the escape line from sweep doctrine
 
-- [ ] Amend `pdlc/skills/sweep/SKILL.md`: precondition gate satisfied by `.specify/` presence; escape line reverts to rare operator-signed exception, host precedent retired
-- [ ] Bump the skill `version:` and marketplace version; `node scripts/sync-version.mjs --check` green
-- [ ] Honest re-pin pass over wiki notes staled by the SKILL.md edit (classify RE-PIN-ONLY vs NEEDS-REVIEW against the diff; amend prose before bumping where needed)
-- [ ] Commit
+- [x] Amend `pdlc/skills/sweep/SKILL.md`: precondition gate satisfied by `.specify/` presence; escape line reverts to rare operator-signed exception, host precedent retired
+- [x] Bump the skill `version:` and marketplace version; `node scripts/sync-version.mjs --check` green
+- [x] Honest re-pin pass over wiki notes staled by the SKILL.md edit (classify RE-PIN-ONLY vs NEEDS-REVIEW against the diff; amend prose before bumping where needed)
+- [x] Commit
