@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-10 17:41'
-updated_date: '2026-09-11 16:56'
+updated_date: '2026-09-11 16:57'
 labels:
   - pdlc
   - tooling
@@ -29,15 +29,17 @@ Spec: specs/067-speckit-install
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo
-- [ ] #2 Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir
-- [ ] #3 Constitution ratified or its absence explicitly recorded in .specify memory
+- [x] #1 Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo
+- [x] #2 Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir
+- [x] #3 Constitution ratified or its absence explicitly recorded in .specify memory
 - [ ] #4 Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)
 - [x] #5 Spec phase: Install Spec Kit tooling
 - [x] #6 Spec phase: Reconcile templates and verify bridge derivation
 - [x] #7 Spec phase: Record constitution state
 - [ ] #8 Spec phase: Retire the escape line from sweep doctrine
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
