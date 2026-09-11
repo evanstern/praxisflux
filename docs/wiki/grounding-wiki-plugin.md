@@ -13,7 +13,7 @@ sources:
   - grounding-wiki/scripts/repin.mjs
   - grounding-wiki/scripts/triage-offload.mjs
   - grounding-wiki/templates/note.md
-verified_against: 9b410267ee638ee2d16e8dc4aba28e29808ccf54
+verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
 ---
 
 # Grounding-wiki plugin

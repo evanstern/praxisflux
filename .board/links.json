@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-11T15:02:57.386Z",
+  "generatedAt": "2026-09-11T17:14:20.339Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3330,6 +3330,62 @@
         "grounding-wiki",
         "feature",
         "sweep-cost"
+      ]
+    },
+    {
+      "id": "TASK-0128",
+      "status": "In Progress",
+      "specDir": "specs/067-speckit-install",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "Spec Kit tooling installed: .specify/ present and /speckit.* commands available in this repo"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Templates reconciled with the house spec format (specs 001-065); spec-bridge derivation verified against a tool-generated spec dir"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Constitution ratified or its absence explicitly recorded in .specify memory"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Sweep doctrine updated: the hand-authored-specs escape line retired from future runbooks (pdlc:sweep precondition gate satisfied by .specify/ presence)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Install Spec Kit tooling"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Reconcile templates and verify bridge derivation"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Record constitution state"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Retire the escape line from sweep doctrine"
+        }
+      ],
+      "labels": [
+        "pdlc",
+        "tooling"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5"
       ]
     }
   ]

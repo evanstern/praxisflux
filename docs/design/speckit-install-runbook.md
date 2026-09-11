@@ -166,3 +166,4 @@ carries best-effort actuals from the harness/transcript.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-11 | TASK-0128 | — | — | ph1 ~103k, ph2+3 ~147k, ph4 ~152k subagent tokens | phases 1-4 done (f7cecdc, b8fa70b, bfd04b0, 47251d4+3db65d9); served: sonnet×2=claude-sonnet-5, opus=claude-opus-5; SKILL 0.24.0, marketplace 0.65.0; 16 honest re-pins (3 NEEDS-REVIEW amended); PR next |

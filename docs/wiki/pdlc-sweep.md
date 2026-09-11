@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
+verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -99,9 +99,9 @@ spec cycle, and the per-task-artifacts section (above) close the loop the **Outp
 proves: every scoped task Done via its own merged PR — Spec marker re-checked on the card
 at sweep end — AND its `specs/NNN-*/` holding spec+plan+tasks — **or the runbook records
 an operator-signed escape line naming the task and what stands in for the artifacts**.
-Every sanctioned substitute enters as one such line and never as a second mechanism, the
-**precondition gate** included: absent `.specify/` passes only on a recorded host
-hand-authored-specs precedent standing as one.
+Every substitute enters as one such line — one task, one signed runbook — never as a
+second mechanism. The **precondition gate** passes on `.specify/` present; absent, it
+stops and names `specify init` as the fix.
 
 The doctrine accreted release by release, from merge-drift gates in 0.12.1 through the
 lane-handoff template in 0.63.1 ([[pdlc-refactor-triage]] arrived at 0.40.0 as the

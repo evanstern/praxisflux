@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
+verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
 ---
 
 # pdlc:sweep — doctrine history (0.47.0–)
@@ -60,11 +60,10 @@ asserting all commits land by PR.
 
 Since 0.51.0 (skill 0.17.0) two "precedent pretending to be exception" seams
 close (TASK-79; field source: refactor-triage run praxis-2026-07-27-16-07-29, group F).
-The **precondition gate** now accepts a missing `.specify/` when the host has an
-established hand-authored-specs precedent recorded as one operator-signed escape line in
-the runbook's "Per-task artifacts required before PR" section — one instance of the
-existing 0.44.0 escape-line mechanism, never a second; seven prior praxisflux runbooks
-(board-clearing through board-cost-test) already ran this way de facto. The
+The **precondition gate** accepted a missing `.specify/` when the host had an established
+hand-authored-specs precedent recorded as one operator-signed escape line — one instance
+of the existing 0.44.0 mechanism, never a second; seven prior praxisflux runbooks already
+ran this way de facto (**retired 0.65.0** — see [[pdlc-sweep-history]]). The
 **gate-softening-requires-amendment rule**: plan- or implement-time softening of any
 signed-off runbook gate is a runbook amendment plus an operator ping, never an
 implementer decision note buried in a spec artifact — field case: specs/033's plan.md

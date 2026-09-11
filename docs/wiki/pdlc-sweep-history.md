@@ -5,7 +5,7 @@ kind: note
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
+verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
 ---
 
 # pdlc:sweep — doctrine history
@@ -42,6 +42,16 @@ Two threads run across releases rather than living inside a single one:
   ([[grounding-wiki-plugin]]) against the main-side diff, RE-PIN-ONLY or
   NEEDS-REVIEW. Old-convention hosts should drop the mechanical re-pin and treat
   previously bumped pins as suspect.
+- **The hand-authored-specs precedent, retired 0.65.0.** 0.51.0 let a missing `.specify/`
+  pass the precondition gate on a host's established hand-authored-specs precedent,
+  recorded as an operator-signed escape line. Every praxisflux sweep from spec 052 on
+  resolved that clause the same way, so the hatch became the default path — what an
+  escape hatch must not be. 0.65.0 (skill 0.24.0, TASK-0128, spec 067) removes the
+  precedent: `.specify/` present satisfies the gate plainly, and absent it the sweep stops
+  and names `specify init` as the remedy, because the tooling is installable. An escape
+  line survives as what it was designed to be — one task, one signed runbook, never a
+  standing sanction that rolls forward. Old-convention hosts should install Spec Kit
+  rather than re-sign the precedent.
 - **Drifted doctrine, reconciled 0.34.0.** TASK-60 folded three independently-evolved
   threads (the claim step, the drift-gate inventory, tick-before-sync in re-ground)
   back into agreement across SKILL, template, and this history note, after each had
