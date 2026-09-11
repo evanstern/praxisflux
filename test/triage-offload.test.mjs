@@ -72,6 +72,7 @@ function ollamaOk(value) {
 function snapshot(dir) {
   const out = {};
   for (const f of readdirSync(dir, { recursive: true })) {
+    if (f.split(/[/\\]/)[0] === '.git') continue;
     const p = join(dir, f);
     if (statSync(p).isFile()) out[f] = readFileSync(p, "utf8");
   }
