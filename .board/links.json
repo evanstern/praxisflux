@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-10T17:01:51.269Z",
+  "generatedAt": "2026-09-11T15:02:57.386Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3083,6 +3083,58 @@
       ]
     },
     {
+      "id": "TASK-0124",
+      "status": "Done",
+      "specDir": "specs/064-read-size-gate",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "PreToolUse hooks for Read and Bash deny above a configurable line threshold using the current hookSpecificOutput.permissionDecision schema"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The deny reason names the praxis cheap path (capsule-first corpus loading and tier dispatch), not any external service"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Exemptions cover docs/wiki/, specs/, worktree roots, and targeted reads (offset/limit set, piped or redirected bash)"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "An env kill-switch disables the gate for grounding-wiki and design-rounds passes, documented where the corpus-loading doctrine lives"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "A test asserts the hooks actually deny (fail-closed) so an upstream-style schema drift cannot silently fail open"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "check-docs, wiki-freshness, and spec-bridge gates green"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The hook and its fail-closed tests"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Planting doc, versions, wiki"
+        }
+      ],
+      "labels": [
+        "gates",
+        "feature",
+        "sweep-cost"
+      ]
+    },
+    {
       "id": "TASK-0125",
       "status": "In Progress",
       "specDir": "specs/066-dispatch-gap",
@@ -3214,6 +3266,68 @@
       ],
       "labels": [
         "chassis",
+        "feature",
+        "sweep-cost"
+      ]
+    },
+    {
+      "id": "TASK-0127",
+      "status": "Done",
+      "specDir": "specs/065-wiki-triage-offload",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "wiki-update's triage step routes classification through the structured-offload seam when configured, and behaves exactly as today when it is not"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The response schema is a closed enum per note plus a deciding file path that must appear in the diff; anything else falls back"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The local model never writes a note body, sets a pin, or decides a pin is earned — routing only, with source reads for needs-review notes unchanged"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Prompt and schema encode the conservative bias: when uncertain, route to needs-review"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "A real wiki-update pass over the praxis corpus is measured seam-on vs seam-off, recording tokens, wall-clock, fallback rate, and misroute rate vs Claude-as-ground-truth"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "The measurement is written up with an explicit verdict on whether a second consumer is justified"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "check-docs, wiki-freshness, and spec-bridge gates green"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — The triage-offload script and its tests"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — Skill wiring, versions, wiki"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — The measurement (endpoint required)"
+        }
+      ],
+      "labels": [
+        "grounding-wiki",
         "feature",
         "sweep-cost"
       ]

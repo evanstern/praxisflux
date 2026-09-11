@@ -1,6 +1,6 @@
 ---
 name: wiki-update
-version: 0.2.0
+version: 0.3.0
 description: Refresh a code-grounded corpus (docs/wiki) in place after code changes — plan the reconciliation (computed re-pins vs review work), re-verify what needs judgment against the actual diff, and re-pin. Use when the user asks to update/refresh/sync the wiki, when the freshness gate fails, or before merging changes that touch files listed in any note's sources.
 ---
 
@@ -30,7 +30,14 @@ Run `node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs plan <repo-root> docs/wiki`.
 
 1. **Execute the RE-PIN-ONLY lines verbatim, in order.** Each `repin.mjs` command updates
    one note's pin and refuses malformed input; don't re-derive or "improve" them.
-2. **For each NEEDS-REVIEW note:**
+2. **If `.claude/structured-offload.json` exists, triage the REVIEW pile through the seam
+   first:** run `node ${CLAUDE_PLUGIN_ROOT}/scripts/triage-offload.mjs <repo-root> docs/wiki`.
+   For each entry it returns with `offloaded: true`, treat its `route` as a plan-sanctioned
+   re-pin: `computed-re-pin` runs `repin.mjs` for that note same as a RE-PIN-ONLY line;
+   `needs-review` (and every `offloaded: false` fallback) drops into step 3's loop below
+   unchanged. No config, or the seam unreachable/misconfigured: every note falls back and
+   this step is a no-op — proceed straight to the loop.
+3. **For each remaining NEEDS-REVIEW note:**
    1. Read the note; run `git diff <pin>..HEAD -- <sources>` and READ it.
    2. Update the body so every claim matches current source: symbols, defaults, env vars,
       behavior, verbatim snippets, quoted version numbers. Keep the neutral tone; paths +
@@ -43,7 +50,7 @@ Structural drift:
 - **Deleted subsystem** → remove its note + INDEX line; mention the removal in notes that
   linked to it.
 
-3. **Regenerate the capsule rollup.** Capsules are drift surfaces: an edit that changes what
+4. **Regenerate the capsule rollup.** Capsules are drift surfaces: an edit that changes what
    a note covers must update its `description:` in the same pass (≤500 chars, written for
    routing), and `CAPSULES.md` is derived from those descriptions. If the corpus has a
    `CAPSULES.md`, finish every update pass with
@@ -58,7 +65,9 @@ lines, whose whole point is that the planner proved the diff couldn't invalidate
 The pin is a claim that the content was verified at that commit; a dishonest pin is worse
 than a stale note. The planner is deliberately conservative (anything not provably safe is
 NEEDS-REVIEW), and the code — not the old note text — is ground truth: verify claims you
-keep, not just the ones the diff obviously touched.
+keep, not just the ones the diff obviously touched. An offloaded `computed-re-pin` route is
+the third sanctioned no-read path — ONLY when the seam validated the response and the
+deciding path checked out; a fallback note is never re-pinned without the read.
 
 ## Output gate
 

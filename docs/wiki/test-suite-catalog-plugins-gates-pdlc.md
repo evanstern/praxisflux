@@ -1,12 +1,13 @@
 ---
 name: test-suite-catalog-plugins-gates-pdlc
-description: Per-file coverage of pdlc's own gate suites — the plant/tiers surface (test/pdlc.test.mjs) and the opt-in root-guard PreToolUse hook (test/root-guard-hook.test.mjs, test/root-guard-scan.test.mjs). Split summary-style from test-suite-catalog-plugins-gates, whose remaining files it still catalogs directly.
+description: Per-file coverage of pdlc's own gate suites — the plant/tiers surface (test/pdlc.test.mjs) and the two opt-in PreToolUse hooks (test/root-guard-hook.test.mjs, test/root-guard-scan.test.mjs, test/read-size-gate.test.mjs). Split summary-style from test-suite-catalog-plugins-gates, whose remaining files it still catalogs directly.
 kind: pattern
 sources:
   - test/pdlc.test.mjs
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
-verified_against: 4381ba8816e043ceec8c6d5dbcf0aa1c5467c045
+  - test/read-size-gate.test.mjs
+verified_against: e87f7caa1b9edadf94fdaab5db8d4c0ebb10ae8f
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
@@ -61,6 +62,13 @@ One bullet per `test/*.test.mjs` file:
   backtick each ALLOWED `backlog/`-scoped and still BLOCKED out of scope; heredocs,
   cross-repo jurisdiction, the content false-positive, unparseable-implies-unexecutable,
   the deny set.
+- `test/read-size-gate.test.mjs` — the planted read-size-gate hook (spec 064), end-to-end
+  spawn per case over its `PreToolUse` stdin contract: over-threshold `pre-read`/`pre-bash`
+  deny asserted on the exact current `hookSpecificOutput.permissionDecision` schema path
+  with an obsolete-schema negative control (a top-level `decision: block` fixture must NOT
+  count as a deny); every exemption (path prefixes, offset/limit, piped/redirected bash,
+  `PRAXIS_READ_GATE_OFF=1`); under-threshold allow; config precedence (env over
+  `.claude/read-size-gate.json` over the 500-line default).
 
 ## Connections
 

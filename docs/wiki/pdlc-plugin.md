@@ -11,6 +11,8 @@ sources:
   - pdlc/scripts/tiers.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
+  - pdlc/hooks/read-size-gate.mjs
+  - pdlc/hooks/README-read-size-gate.md
 verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
 ---
 
@@ -82,25 +84,23 @@ gain it.
 ## Peer utilities are first-class, not assumed
 
 Backlog.md, GitHub Spec Kit, and Jira are **officially supported peers**. Backlog.md and
-Spec Kit are detected by CLI (`backlog`, `specify`); Jira differs **in kind** — there is no
-CLI to detect, so availability means the Atlassian MCP server's tools are present, never
-`command -v`. When a CLI peer is absent the skill recommends installation (the plant's
-trace is the durable record); when present, or when Jira's MCP tools are present, it asks
-opt-in per peer and runs its init (`backlog init` / `specify init --here`) or, for Jira,
-resolves `cloudId`/`projectKey` by discovery rather than asking, skipping if already
+Spec Kit are detected by CLI (`backlog`, `specify`); Jira differs **in kind** — no CLI to
+detect, so availability means the Atlassian MCP server's tools are present, never
+`command -v`. Absent a CLI peer the skill recommends installation (the plant's trace is the
+durable record); present, it asks opt-in and runs its init (`backlog init` / `specify init
+--here`) or, for Jira, resolves `cloudId`/`projectKey` by discovery, skipping if already
 initialized. **Backlog.md and Jira are mutually exclusive** — one board, singular (design
-invariant 2) — so `plant.mjs` throws naming that reason if both are passed. Opt-ins select
-the planted convention blocks and are recorded in `.pdlc`; an update re-presents them as
-defaults.
+invariant 2) — `plant.mjs` throws naming that reason if both are passed. Opt-ins select the
+planted convention blocks, recorded in `.pdlc`; an update re-presents them as defaults.
 
 ## Local-only planting mode — tracked vs. guest (spec 060)
 
 By default artifacts land tracked and `.handoff/` joins `.gitignore` via `ensureGitignore`
 ([[installer]]) — wrong for a repo the operator is a **guest** in, not owns. `--local-only`
-(bootstrap 0.13.0) redirects the whole footprint into `<gitdir>/info/exclude` via
-[[installer]]'s `ensureExclude` instead — per-clone, never committed. The skill offers
-rather than assumes (own vs. guest; recommends local-only when the tracked tree shows no
-prior PDLC adoption; update mode defaults to the sentinel's prior choice).
+(bootstrap 0.13.0) redirects the footprint into `<gitdir>/info/exclude` via [[installer]]'s
+`ensureExclude` instead — per-clone, never committed. The skill offers rather than assumes
+(recommends local-only when the tracked tree shows no prior PDLC adoption; update defaults
+to the sentinel's prior choice).
 
 `excludeSet({ peers, hooks })` scopes lines to what's opted into (`/backlog/`,
 `/.specify/`, `/.claude/settings.json`+`/.claude/hooks/` per peer/hook) plus always-on
@@ -117,17 +117,21 @@ The sentinel records `localOnly` (absent-tolerant like `name`/`hooks`). A **mode
 mode); unconfirmed it doesn't advance, and `--force` is the same consent path drift
 already needs. No migration command — switching is always drift-plus-`--force`.
 
-## Opt-in root-guard hook — the suite's first PreToolUse hook
+## Two opt-in PreToolUse hooks
 
 Since 0.53.0 (bootstrap 0.10.0) bootstrap can also plant a hardened **root-guard
 `PreToolUse` hook** (spec 051 / TASK-101) enforcing the root-read-only + worktree-only
-doctrine the block states as prose. It is the suite's **first `PreToolUse` hook** (every
-other is an advisory Stop gate via [[gate-runner]]) — a new shape that hard-blocks a tool
-call (exit 2). `plant.mjs --hook root-guard` **copies files into the host**: BOTH
-`root-guard-hook.mjs` and its scanner `shell-scan.mjs` into `.claude/hooks/`, plus two merged
-`PreToolUse` entries in `.claude/settings.json` — **opt-in, never default-on**, recorded in
-the `.pdlc` `hooks` array. It replaces promptworld's copy with a quote-state scanner (spec
-051 R2/R3/R5). Full policy + divergence: `pdlc/README.md`.
+doctrine — the suite's **first `PreToolUse` hook** (every other is an advisory Stop gate via
+[[gate-runner]]), a new shape hard-blocking a tool call (exit 2). `plant.mjs --hook
+root-guard` copies BOTH `root-guard-hook.mjs` and `shell-scan.mjs` into `.claude/hooks/`,
+plus two merged `PreToolUse` entries into `.claude/settings.json` — **opt-in, never
+default-on**, recorded in `.pdlc`'s `hooks` array. Full policy: `pdlc/README.md`.
+
+Since 0.63.2 (spec 064) a **second** planted hook, `read-size-gate.mjs`, denies Read/Bash
+reads over a configurable line threshold (default 500), redirecting to capsule-first loading
+or `defaultTier` Agent dispatch. Same posture, plus its own kill-switch
+(`PRAXIS_READ_GATE_OFF=1`, required for grounding-wiki/design-rounds passes) and no
+`plant.mjs` automation yet — wired by hand per `pdlc/hooks/README-read-size-gate.md`.
 
 ## What it deliberately does not do
 
@@ -135,4 +139,4 @@ Phase separation ([[skill-patterns]]) holds: bootstrap creates no `docs/wiki/`
 ([[grounding-wiki-plugin]]) and no `docs/course/` ([[codebase-to-course-plugin]]), and never
 invokes sibling skills — it sets the table and hands off. No **Stop** hook: pdlc has no
 lifecycle of its own; the wired-in plugins bring their own gates ([[gates-convention]]) — its
-one shipped enforcement is the opt-in `PreToolUse` hook above.
+shipped enforcement is the two opt-in `PreToolUse` hooks above.

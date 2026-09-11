@@ -7,9 +7,9 @@ conflicts as routine. Direction is decided; do not re-litigate it: the three boa
 (TASK-0124, TASK-0126, TASK-0127) win — they carry the design rationale in full. Plan-of-record
 is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** executing · operator sign-off on lanes: 2026-09-10 (lanes approved as
+**Status:** done · operator sign-off on lanes: 2026-09-10 (lanes approved as
 authored; all three escape lines signed; checkpoints 1–3 answered at sign-off and
-recorded as gate lines below)
+recorded as gate lines below) · completed 2026-09-10
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -189,4 +189,15 @@ carries best-effort actuals from the harness/transcript.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-10 | TASK-0126 | #141 | a89bcd8 | ~299k subagent tokens (ph1 146k + ph2 153k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.0→0.63.1 |
-| 2026-09-10 | TASK-0124 | — | — | ~171k subagent tokens (ph1) | phases: 1 done (73993c9, served cc/claude-sonnet-5[1m], 585/585), 2 dispatched with merge-in reconcile |
+| 2026-09-10 | TASK-0127 | #143 | a9d5c58 | ~459k subagent tokens (ph1 133k + ph2 145k + ph3 181k) | merged as merge commit; board Done via sync; served cc/claude-sonnet-5[1m] all phases; measurement RAN (endpoint live): verdict = second consumer NOT justified as-is (0/4 computed-re-pin recall, 0 false pins, 55.6% fallback) — see docs/design/triage-offload-measurement.md |
+| 2026-09-10 | TASK-0124 | #142 | c9891e7 | ~341k subagent tokens (ph1 171k + ph2 170k) | merged as merge commit; board Done via sync's derived plan; served cc/claude-sonnet-5[1m] both phases; versions 0.63.1→0.63.2; clean reconcile |
+
+**Sweep close (2026-09-10):** all three tasks Done via merged merge-commit PRs (#141, #142,
+#143); specs 063/064/065 each carry real spec/plan/tasks; Spec markers verified on all three
+cards at close; suite 603/603, check-docs, sync-version, gen-marketplace, and wiki freshness
+(42/42) green on main at a9d5c58; versions 0.63.0 → 0.63.3 across the sweep; no sweep
+worktrees remain. Mid-sweep operator ruling carded as TASK-0128 (install Spec Kit tooling,
+retire the hand-authored-specs escape line). The 0127 measurement's negative verdict is the
+sweep's headline finding: the seam ships healthy but its first consumer needs a re-tune
+(stronger local model or a prompt willing to commit to computed-re-pin) before a second
+consumer or default-on wiring is considered.
