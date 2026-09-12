@@ -3,11 +3,11 @@ id: TASK-0130
 title: >-
   Flaky test: triage-offload's snapshot() walks the fixture .git/ and races
   git's transient files
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:04'
-updated_date: '2026-09-11 19:07'
+updated_date: '2026-09-12 00:52'
 labels:
   - flake
   - tests
@@ -63,3 +63,9 @@ Third observation, NEW failure mode (2026-09-11, run 34636067878 on main at dda6
 Dispatch: tier=haiku pinned=cc/claude-haiku-4-5-20251001 served=claude-haiku-4-5-20251001
 Fix landed (d7e8a87): one-line first-segment .git exclusion in snapshot(); 5/5 consecutive runs of the file green, full suite 624/624. PR #147 open.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Fixed via PR #147 (merge a91a05c). snapshot() in test/triage-offload.test.mjs now skips any path whose first segment is .git — a one-line, separator-robust exclusion that removes both observed failure modes: the readdir→stat TOCTOU ENOENT crash (runs 34521158349, 34616221159) and the false-diff variant where a transient (.git/objects/maintenance.lock) survived into one snapshot but not the other (run 34636067878, on a board-only commit with no code change). The assertion is strengthened, not weakened: it now covers exactly the working tree, which was always its stated purpose. Verified by 5 consecutive green runs of the file plus the full suite (624/624). Same-PR honest re-pin of docs/wiki/test-suite-catalog.md (NEEDS-REVIEW — its 'before/after file snapshots' claim was amended to say working-tree). Dispatched at haiku, served=claude-haiku-4-5-20251001.
+<!-- SECTION:FINAL_SUMMARY:END -->
