@@ -111,7 +111,9 @@ mirrors `vocabularyProfile` — absent/malformed ⇒ `null` ⇒ byte-identical. 
 feeds both entry points — **Stop hook** (`checkBridge`) at Done-eligible, both buckets; CLI
 **`verify`** (`verifyBridge`), mid-PR, `required` only, both now `{ problems, warnings }` —
 running each command **once per invocation** and emitting exactly **ONE** finding per non-green
-gate (gate + bucket + reason + affected count), never one per spec. A dirty tree
+gate (gate + bucket + reason + affected count — `required` findings also carry a bounded
+stdout+stderr excerpt after the headline, spec 069's `gateOutput`/`excerptBlock`;
+`redByConstruction` stays byte-identical, no excerpt), never one per spec. A dirty tree
 (`isTreeDirty`, fail-closed to clean) routes it to `warnings`, non-blocking (this note's F6,
 inverted). `evaluateProjectGates` stays exported as the pure per-spec evaluator.
 `SPEC_BRIDGE_GATE_ACTIVE` short-circuits the **default** runner so a gate command re-invoking

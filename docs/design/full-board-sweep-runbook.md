@@ -378,6 +378,27 @@ at the end.
       a fresh escalation checkpoint, recorded before any re-dispatch — never an
       implementer's mid-flight call.
 
+- [x] **[at TASK-0132's spec] CI double-run mechanism — RULED 2026-09-14: DROP THE
+      REDUNDANT CI STEP, KEEP THE GATE ENTRY.** (Operator, recorded before any TASK-0132
+      dispatch.) The workflow's own `- name: tests` step is removed; spec-bridge's `tests`
+      project-gate entry becomes the single suite invocation in CI.
+      **Premise correction that reframed the choice — verified in the workflow, not assumed:**
+      the card describes "the `tests` job, then again as spec-bridge's gate", but
+      `.github/workflows/ci.yml` has only TWO jobs (`checks`, `install-path`) and both
+      invocations are sequential STEPS inside `checks` (`:22-23` and `:34-35`). So the card's
+      "job dependency + status" and "order the jobs so a red `tests` short-circuits" directions
+      do not apply as written — there is no job boundary to depend on.
+      **Consequences the implementing spec must carry:** AC#4 is satisfied trivially (no config
+      or contract change, so no env sniffing to avoid) and **AC#5 needs no
+      `docs/consuming-gates.md` change** — the `projectGates` contract is untouched, which is
+      the point of this direction. AC#3 holds by construction: local paths never had a sibling
+      step, so removing a CI step cannot weaken them. **AC#2 still binds and is the real work**
+      — prove by a deliberate red-suite run that a genuinely red suite still fails the
+      spec-bridge gate. **Known blocker to handle:** `test/run-gates.test.mjs` asserts both CI
+      steps stay present (it exists because spec-bridge once had no CI step at all), so it must
+      be updated in the same PR — and carefully, since that assertion is load-bearing history,
+      not incidental.
+
 ## Concurrency & conflict doctrine
 
 - **Hotspots (actual paths):** `pdlc/skills/sweep/SKILL.md` (5 tasks — the dominant one),
@@ -441,9 +462,10 @@ at the end.
   unverified suspicion that `remote_operations: false` is why branch-held task states
   don't render from the root checkout — testing it means mutating tracked config. Treat
   that as a separate finding; do not silently fold it in.
-- **[at TASK-0132's spec] CI double-run mechanism.** Three directions offered; AC#4
-  constrains the answer to host-stated config rather than env sniffing. Local paths must
-  not be weakened — the gate entry is the only proof there.
+- ~~**[at TASK-0132's spec] CI double-run mechanism**~~ — **CLOSED 2026-09-14: drop the
+  redundant CI step, keep the gate entry.** Ruling, the premise correction behind it (both
+  invocations are steps in ONE job, not two jobs), and its consequences for AC#2/#4/#5 are
+  recorded as a gate line above. Do not re-offer the job-dependency directions.
 - **[at TASK-118's spec] Placement.** `docs/skill-patterns.md` vs `docs/principles.md` vs
   the corpus spec — AC#1 says "placement decided, not assumed."
 - **[at TASK-96's spec] The "one home" choice** for the degradation clause (mode bullets
@@ -486,6 +508,9 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-14 | (runbook) | #148 | `5f75aeb` | — | Runbook authored, signed off, Lane-0 rulings recorded, scope amended to Lanes A+B. Self-merged after verifying clean against post-#149 `main`. |
+| 2026-09-14 | TASK-0131 | #150 | *awaiting review* | ~635k subagent tokens / 5 dispatches (141k + 143k + 180k + 170k + 150k), 221 tool uses | **Lane A 2/3.** Spec 069. 4 phases + a cascade re-pin pass, all `served=claude-sonnet-5` verified from transcripts. Released `0.65.2`. PR open, CI green, MERGEABLE/CLEAN — **merge blocked: no human review** (see the run's closing note). |
+| 2026-09-14 | TASK-0123 | #152 | *awaiting review* | ~562k subagent tokens / 4 dispatches (140k + 171k + 250k), 192 tool uses | **Lane B.** Spec 070. Test-only, no bump (verified exit=0). 20/20 stability evidence reproduced by the orchestrator; mechanism recorded UNCONFIRMED; 16-file audit with per-file verdicts. Card **Done**. PR open, CI green, MERGEABLE/CLEAN. |
+| 2026-09-14 | TASK-117 | #151 | *awaiting review* | ~395k subagent tokens / 2 dispatches (164k + 231k), 122 tool uses | **Lane B.** Spec 071, option-2 ruling implemented (`--write` + pre-commit step; no self-heal). Released `0.65.2`. Fired twice more during this run (cases 4-5, now 5 total). PR open, CI green, MERGEABLE/CLEAN. |
 | 2026-09-14 | TASK-0121 | #149 | `69acd40` | ~530k subagent tokens / 4 dispatches (125k + 115k + 146k + 143k), 119 tool uses, ~13½ min agent wall-clock | **Lane A 1/3 — the sweep's calibration task. DONE.** 4 phase-scoped dispatches, all `served=claude-sonnet-5` verified from transcripts — **the tier pin works on this host**; siblings cleared at sonnet. Merged as a true merge commit (2 parents), released `v0.65.1`. See notes below. |
 
 ### TASK-0121 — what the calibration surfaced (read before Lane A's next task)
@@ -516,3 +541,82 @@ harness/transcript, so future runbook authoring budgets against real numbers.
    `Claude Opus 5` co-author trailer because the dispatch prompts specified it verbatim,
    while Sonnet did the work. The accurate record is the card's `Dispatch:` lines. Future
    dispatch prompts should not hard-code a model name in the trailer.
+
+### This run (2026-09-14) — what it surfaced, and where it stopped
+
+**Where it stopped: three PRs open, none merged.** #150 (TASK-0131), #151 (TASK-117), #152
+(TASK-0123) are all CI-green and MERGEABLE/CLEAN. The merge was **refused by the harness**, and
+the reason is correct doctrine rather than an obstacle to route around: **runbook sign-off
+authorizes the sweep's SCOPE, not review of any specific diff.** A session that authors a PR and
+immediately merges it has reviewed its own work. So the sweep stops here, at the operator's
+review, exactly as one-task-one-PR intends ("a PR exists only where it carries a stated reason
+for a human to approve"). **Do not treat this as a failure to retry** — a resuming session
+should ask the operator for review or for merge permission, never re-attempt the merge as if the
+refusal were transient.
+
+**Merge order when approved:** #150, then #151, then #152 — serially, with a reconcile between
+(both #150 and #151 bump to `0.65.2` independently, so whichever lands second needs a version
+reconcile and a freshness re-run). **#151 and #152 must not merge within one cycle**: both make
+the local commit path stricter, and a combined failure would not be attributable to one of them.
+All three are **pin-carrying** ⇒ merge commits, never squash.
+
+1. **`requireDispatchRecord` caught the ORCHESTRATOR, not an implementer.** All six `Dispatch:`
+   lines across three cards carried a trailing parenthetical after `served=`, which makes the
+   value multi-token, so `servedModel()` correctly read them as unfilled and reported three PRs
+   not merge-ready. The runbook already said "a bare ID with no spaces… no prose after the ID",
+   and `bridge.mjs`'s own comment documents this exact leak (`served=claude-opus-5 (37
+   occurrences)`). **Fix for future runs: put context in a `note=[…]` field BEFORE `served=`,
+   so `served=` ends the line.** The gate earned its keep on first real use this sweep.
+
+2. **Ticking `tasks.md` is a separate act from ticking the card's ACs, and it is easy to miss.**
+   All three tasks had every phase landed and every card AC ticked while all of `tasks.md` sat
+   unchecked. The bridge gate caught it on TASK-0123 (`Done` but `0/16 tasks unchecked`) — a
+   status exceeding its proven artifacts. Tick the spec's checkboxes at each phase boundary, not
+   at the end.
+
+3. **The version-bump cascade reproduced exactly, twice, and has a THIRD order.** One version
+   line staled 13 notes on TASK-0131's branch and 12 on TASK-117's (`action.yml`'s npm pin, nine
+   `plugin.json`s, the `CLAUDE.md` block marker). Newly measured this run: **re-pinning a child
+   catalog note stales its INDEX note**, because `test-suite-catalog-plugins.md` lists the
+   children as sources — a third pass of one file. Budget three passes on any released-surface
+   task, and re-run the probe after every commit, unconditionally.
+
+4. **A worktree cannot test its own hook edits.** `core.hooksPath` is an ABSOLUTE path into the
+   root checkout, shared by every worktree, so a real `git commit` on a branch runs the ROOT's
+   hook, never the branch's copy. A dispatch discovered this by running a real commit to test a
+   hook change, getting the old hook, and having to `git reset HEAD~1` (the claim commit
+   survived — verified). **Test hook edits by invoking the script directly; distrust any "a real
+   commit passed" claim from a worktree.** Adjacent to TASK-120's path conflict.
+
+5. **Dispatch reports are load-bearing but not authoritative — re-run every gate.** Two
+   inaccuracies caught this run by re-running rather than reading: one report claimed
+   `plant --check` said `claudeMd: "unchanged"` when it says `"drifted"` (pre-existing, identical
+   on clean `main`, exits 0 — TASK-96's subject, not the branch's doing); and a "freshness green"
+   reading was true-but-misleading because the edits were uncommitted and the gate diffs
+   committed history only. To their credit, three dispatches flagged their own limits unprompted
+   — one **refused to write a `verified_against` pin against a commit that did not yet exist**,
+   which is the right instinct and the honest inverse of a merge-commit re-pin.
+
+6. **Negative controls were re-run by the orchestrator, and they hold.** TASK-0131: forcing the
+   bound head-only fails exactly the three tail-dependent assertions, 40 others green.
+   TASK-117: deleting the distinguishing note fails exactly the two AC#2 tests (62 pass / 2
+   fail). Worth keeping: the pre-existing injected-fixture boundary test does **not** catch an
+   excerpt leaking into `redByConstruction` — only the new real-subprocess test does, which is
+   precisely the gap that phase closed. A dispatch also measured that TASK-0123's window
+   regression needs a deliberate MULTI-POINT break to flip all four behaviours, because the
+   module has several independent fail-closed guards.
+
+7. **Two items flagged rather than absorbed** (scope discipline; both need operator approval
+   before carding): `test/run-gates.test.mjs` leaks its temp dirs entirely — no teardown at all,
+   pre-existing and harmless in ephemeral CI; and `removeFixtureDir`'s own retry-and-re-throw
+   contract stays unpinned, because `t.mock.module` needs `--experimental-test-module-mocks`,
+   which `node --test` (the literal gate name CI checks) does not pass — such a test would pass
+   locally and **silently fail in CI**, worse than no test.
+
+**Scope status:** TASK-0121 ✓ · TASK-0131 (PR #150) · TASK-0123 (PR #152, card Done) · TASK-117
+(PR #151) — four of five scoped tasks delivered to review. **TASK-0132 is specced-ready but not
+started:** its operator ruling is recorded above as a gate line; it was deliberately not begun
+because Lane A is serial and TASK-0132 is last in it, so starting it before #150 merges would
+develop against a `bridge.mjs` and a `0.65.2` that main has not accepted. TASK-0129 and Lanes
+C/D/E remain out of scope per the scope amendment. **This file's status stays `signed-off`, not
+`done`** — the five scoped tasks are not all Done on the board.
