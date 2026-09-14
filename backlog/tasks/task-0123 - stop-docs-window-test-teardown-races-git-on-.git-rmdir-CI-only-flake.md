@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 19:10'
+updated_date: '2026-09-14 19:11'
 labels:
   - tech-debt
   - flake
@@ -31,8 +31,8 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The ENOTEMPTY teardown race is reproduced or its mechanism confirmed from evidence (not inferred), naming what holds the .git handle
-- [ ] #2 Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is
+- [x] #1 The ENOTEMPTY teardown race is reproduced or its mechanism confirmed from evidence (not inferred), naming what holds the .git handle
+- [x] #2 Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is
 - [x] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
 - [x] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
 - [x] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
@@ -41,6 +41,8 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 - [x] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
 - [x] #9 Spec phase: Phase 4 — sibling audit and close (R5)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
