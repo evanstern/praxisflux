@@ -8,7 +8,7 @@ sources:
   - spec-bridge/skills/board-sync/SKILL.md
   - docs/board-verbs.md
   - docs/design/board-provider-seam.md
-verified_against: ed62e0336ef72aff774c080a7f5e644cf5073e62
+verified_against: 6d1c41d1b87b1c32ecc9e0fe41708dbb846c6d73
 ---
 
 # The board provider seam

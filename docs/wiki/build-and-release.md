@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 5e4494baa26c432a27174a830697e7f62645e17b
+verified_against: 6d1c41d1b87b1c32ecc9e0fe41708dbb846c6d73
 ---
 
 # Build and release
@@ -112,9 +112,8 @@ on any byte difference.
 - Split summary-style per `docs/corpus-spec.md` v2: [[dist-packaging]] carries the
   build.mjs packaging mechanics; [[release-pipeline]] carries the bump gate + CI + release
   workflows; [[gates-consumption-surface]] carries the npm package and the composite action.
-- Guarded by the [[test-suite]]: `test/sync-shared.test.mjs` runs `driftReport`, and the
-  pre-commit hook runs the `--check` validators (CI stays authoritative —
-  `core.hooksPath` is per-clone).
+- Guarded by [[test-suite]]: `sync-shared.test.mjs` runs `driftReport`; pre-commit also runs
+  `board-mirror.mjs --check` (spec 071) — CI stays authoritative (`core.hooksPath` per-clone).
 - The repo-level-tooling rule itself is part of [[skill-patterns]].
 
 ## Operational notes

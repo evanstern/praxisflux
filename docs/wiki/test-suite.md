@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - .githooks/pre-commit
   - .githooks/pre-push
-verified_against: d6be2b825da7ce417bbe38392e44c1e09c5ca941
+verified_against: 6d1c41d1b87b1c32ecc9e0fe41708dbb846c6d73
 ---
 
 # Test suite
@@ -35,7 +35,9 @@ install-path e2e and the release tooling; that child note carries the pins on `t
 with `git config core.hooksPath .githooks`) runs, in order: `node --test` (wrapped in
 `env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE` so worktree checkouts don't leak an
 absolute `GIT_DIR` into the suite's tmpdir fixture repos), then
-`node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`, then
+`node scripts/gen-marketplace.mjs --check`, `node scripts/sync-version.mjs --check`,
+`node lib/board-mirror.mjs --check --root .` (spec 071 — a stale `.board/links.json` blocks
+here, naming the fix, rather than silently misreporting downstream as board drift), then
 `node scripts/check-docs.mjs`; it is `set -e`, so any failure blocks the commit. A sibling
 `.githooks/pre-push` runs the version-bump gate (`check-version-bump.mjs --base
 origin/main`) and the wiki freshness gate, but **warns and exits 0** on findings — both are
