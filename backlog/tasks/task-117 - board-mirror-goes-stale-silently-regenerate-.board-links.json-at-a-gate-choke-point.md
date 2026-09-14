@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:34'
-updated_date: '2026-09-14 17:44'
+updated_date: '2026-09-14 17:59'
 labels:
   - tech-debt
   - spec-bridge
@@ -34,12 +34,12 @@ Option 1 is self-healing but hides drift; option 2 surfaces it but costs a manua
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)
-- [ ] #2 A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings
-- [ ] #3 Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings
+- [x] #1 The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)
+- [x] #2 A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings
+- [x] #3 Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings
 - [x] #4 Spec phase: Phase 1 — supported regenerate entry point (R3)
 - [x] #5 Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)
-- [ ] #6 Spec phase: Phase 3 — prove it and close (R5, R6)
+- [x] #6 Spec phase: Phase 3 — prove it and close (R5, R6)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -71,4 +71,6 @@ FIELD CASES 4 AND 5 (orchestrator, 2026-09-14, full-board sweep). The same defec
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses)
 
 WORKTREE HOOK FINDING (verified by the orchestrator, 2026-09-14) — matters to anyone editing .githooks/ from a worktree in this repo. core.hooksPath is set to an ABSOLUTE path into the ROOT checkout (/Users/.../praxis/.githooks), and that config is shared by every worktree. So a real 'git commit' inside a worktree runs the ROOT's hook, never the worktree's edited copy: a hook change cannot be exercised by committing on its own branch, and a 'real commit passed' claim from a worktree proves nothing about the edit. Test a hook edit by invoking it directly (bash .githooks/pre-commit); it only governs real commits repo-wide once merged to main, where the root copy IS the edited file. Not a defect in this task — a property of the repo's worktree hook setup, and adjacent to the .worktrees vs .claude/worktrees doctrine conflict TASK-120 is carded to resolve.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — regression test, release, re-ground; served verified from transcript, 231k tokens / 86 tool uses)
 <!-- SECTION:NOTES:END -->
