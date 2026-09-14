@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:10:19.391Z",
+  "generatedAt": "2026-09-14T19:12:01.148Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3141,12 +3141,12 @@
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "The ENOTEMPTY teardown race is reproduced or its mechanism confirmed from evidence (not inferred), naming what holds the .git handle"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is"
         },
         {
