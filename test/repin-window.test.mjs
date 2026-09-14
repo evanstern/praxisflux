@@ -6,10 +6,11 @@
 // note pinned to a base commit, and then varies only WHERE the staling commit lives.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { noteWindow, corpusWindow, staleNotesFrom, baseExists } from "../grounding-wiki/gates/repin-window.mjs";
 
@@ -53,7 +54,7 @@ test("repin-window: unmerged staling commit ⇒ INSIDE the window", () => {
   assert.equal(w.inside, true, w.reason);
   assert.equal(w.commits.length, 1);
   assert.match(w.reason, /1 unmerged commit\(s\)/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: staleness already on the base branch ⇒ OUTSIDE (neglect, not mid-task)", () => {
@@ -65,7 +66,7 @@ test("repin-window: staleness already on the base branch ⇒ OUTSIDE (neglect, n
   const w = noteWindow(dir, { ...note, base: "base" });
   assert.equal(w.inside, false);
   assert.match(w.reason, /already on base/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: fresh note (nothing touched its sources) ⇒ OUTSIDE", () => {
@@ -77,7 +78,7 @@ test("repin-window: fresh note (nothing touched its sources) ⇒ OUTSIDE", () =>
 
   const w = noteWindow(dir, { ...note, base: "base" });
   assert.equal(w.inside, false);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: missing base ref ⇒ OUTSIDE, fail closed, reason names the ref", () => {
@@ -91,21 +92,21 @@ test("repin-window: missing base ref ⇒ OUTSIDE, fail closed, reason names the 
   assert.equal(w.inside, false);
   assert.match(w.reason, /origin\/nope does not resolve/);
   assert.equal(baseExists(dir, "origin/nope"), false);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: a missing pin or empty sources ⇒ OUTSIDE, never a crash", () => {
   const { dir } = fixture();
   assert.equal(noteWindow(dir, { pin: null, sources: ["src/thing.mjs"], base: "base" }).inside, false);
   assert.equal(noteWindow(dir, { pin: "HEAD", sources: [], base: "base" }).inside, false);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: not a git repo ⇒ OUTSIDE, fail closed", () => {
   const dir = mkdtempSync(join(tmpdir(), "repin-window-nogit-"));
   const w = noteWindow(dir, { pin: "abc123", sources: ["src/thing.mjs"], base: "base" });
   assert.equal(w.inside, false);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: per-note grain — one excused note does not forgive an unexcused sibling", () => {
@@ -131,7 +132,7 @@ test("repin-window: per-note grain — one excused note does not forgive an unex
   assert.equal(by["thing.md"], true, "branch work explains thing.md");
   assert.equal(by["other.md"], false, "other.md's staleness predates the branch");
   assert.equal(allInside, false, "one unexcused note must keep the corpus verdict shut");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: corpusWindow honors `only` so it is asked about stale notes, not all notes", () => {
@@ -142,7 +143,7 @@ test("repin-window: corpusWindow honors `only` so it is asked about stale notes,
   const only = new Set(["docs/wiki/thing.md"]);
   const { notes } = corpusWindow(dir, "docs/wiki", { base: "base", only });
   assert.deepEqual(notes.map((n) => n.file), ["thing.md"]);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("repin-window: staleNotesFrom parses freshness STALE lines and ignores other findings", () => {

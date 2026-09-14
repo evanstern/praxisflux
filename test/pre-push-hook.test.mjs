@@ -6,11 +6,12 @@
 // the hook rather than the hook.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, chmodSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawnSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 const git = (cwd, ...args) => execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
@@ -57,7 +58,7 @@ test("pre-push: both checks green ⇒ exit 0, no findings printed", () => {
   assert.match(out, /grounding wiki freshness — ok/);
   assert.doesNotMatch(out, /not blocking/, "nothing to report ⇒ no findings block");
   assert.doesNotMatch(out, /expected mid-PR/, "no footer explaining redness on a clean tree");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("pre-push: real findings ⇒ WARN and exit 0 — the push proceeds", () => {
@@ -75,7 +76,7 @@ test("pre-push: real findings ⇒ WARN and exit 0 — the push proceeds", () => 
   // the same bypass reflex it exists to remove (R3).
   assert.match(out, /expected mid-PR/);
   assert.match(out, /ci\.yml, which blocks/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("pre-push: a check that CANNOT RUN ⇒ blocks (fail closed, not a finding)", () => {
@@ -89,7 +90,7 @@ test("pre-push: a check that CANNOT RUN ⇒ blocks (fail closed, not a finding)"
   assert.equal(status, 1, "an unrunnable check is a blocking problem, never a silent green");
   assert.match(out, /COULD NOT RUN/);
   assert.match(out, /blocking problem, not a finding/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("pre-push: a usage error (exit 2) blocks — it is not a findings exit", () => {
@@ -100,7 +101,7 @@ test("pre-push: a usage error (exit 2) blocks — it is not a findings exit", ()
   const { status, out } = run(dir);
   assert.equal(status, 1);
   assert.match(out, /COULD NOT RUN \(exit 2\)/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("pre-push: one check failing to run still blocks even when the other has findings", () => {
@@ -112,5 +113,5 @@ test("pre-push: one check failing to run still blocks even when the other has fi
   assert.equal(status, 1);
   assert.match(out, /version bump vs origin\/main — findings/);
   assert.match(out, /grounding wiki freshness — COULD NOT RUN/);
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });

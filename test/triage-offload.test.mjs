@@ -3,10 +3,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, statSync, readdirSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, statSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { triageOffload } from "../grounding-wiki/scripts/triage-offload.mjs";
 
@@ -81,7 +82,7 @@ function snapshot(dir) {
 
 test("valid computed-re-pin with an in-diff deciding_path is honored", async (t) => {
   const repo = makeReviewFixture();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const server = await startServer((req, res) =>
     res.end(ollamaOk({ route: "computed-re-pin", deciding_path: "src/a.txt" })));
   t.after(() => stopServer(server));
@@ -97,7 +98,7 @@ test("valid computed-re-pin with an in-diff deciding_path is honored", async (t)
 
 test("deciding_path outside the diff's file list falls back", async (t) => {
   const repo = makeReviewFixture();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const server = await startServer((req, res) =>
     res.end(ollamaOk({ route: "computed-re-pin", deciding_path: "src/not-in-diff.txt" })));
   t.after(() => stopServer(server));
@@ -109,7 +110,7 @@ test("deciding_path outside the diff's file list falls back", async (t) => {
 
 test("prose response and a wrong-enum route both fall back (seam-level rejection)", async (t) => {
   const repo = makeReviewFixture();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
 
   const prose = await startServer((req, res) => res.end(JSON.stringify({ message: { content: "sure, re-pin it" } })));
   t.after(() => stopServer(prose));
@@ -127,7 +128,7 @@ test("prose response and a wrong-enum route both fall back (seam-level rejection
 
 test("no config: every REVIEW note falls back, byte-identical to today's routing", async (t) => {
   const repo = makeReviewFixture(); // no .claude/structured-offload.json written
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
 
   const before = snapshot(repo);
   const result = await triageOffload(repo, "docs/wiki");
@@ -137,7 +138,7 @@ test("no config: every REVIEW note falls back, byte-identical to today's routing
 
 test("a fresh corpus (no REVIEW entries) routes nothing", async (t) => {
   const repo = mkdtempSync(join(tmpdir(), "triage-offload-fresh-"));
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   git(repo, "init", "-q");
   mkdirSync(join(repo, "src"), { recursive: true });
   writeFileSync(join(repo, "src", "a.txt"), "one\n");

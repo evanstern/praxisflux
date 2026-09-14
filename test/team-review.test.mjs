@@ -9,6 +9,7 @@ import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawnSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 import { checkReview, citations, gitSnapshot, runsDirFor, reviewGate } from "../team-review/gates/review.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
 
@@ -76,7 +77,7 @@ test("checkReview: a complete report over an untouched target passes", () => {
   writeFileSync(report, GOOD_REPORT);
   try {
     assert.deepEqual(checkReview(makeRun(target, report)), []);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 test("checkReview: each missing section is a named problem", () => {
@@ -87,7 +88,7 @@ test("checkReview: each missing section is a named problem", () => {
   try {
     const problems = checkReview(makeRun(target, report));
     assert.deepEqual(problems, ["report missing section: What should be removed"]);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 test("checkReview: citations must resolve — repeated repo-basename prefix tolerated", () => {
@@ -104,7 +105,7 @@ test("checkReview: citations must resolve — repeated repo-basename prefix tole
     const problems = checkReview(makeRun(target, report));
     assert.equal(problems.length, 1);
     assert.match(problems[0], /only 1\/5 required citations resolve/);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 test("checkReview: a report inside the reviewed repo is rejected — except under the .handoff transport", () => {
@@ -119,7 +120,7 @@ test("checkReview: a report inside the reviewed repo is rejected — except unde
     mkdirSync(dirname(inTransport), { recursive: true });
     writeFileSync(inTransport, GOOD_REPORT);
     assert.deepEqual(checkReview(makeRun(target, inTransport, { snapshot: undefined })), []);
-  } finally { rmSync(target, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); }
 });
 
 test("checkReview: a mutated target blocks; restoring it passes again", () => {
@@ -134,7 +135,7 @@ test("checkReview: a mutated target blocks; restoring it passes again", () => {
     assert.ok(problems.some((p) => /target repo changed during the review/.test(p)), problems.join("; "));
     git(target, "checkout", "--", ".");
     assert.deepEqual(checkReview(run), []);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 test("checkReview: .handoff transport residue never reads as target mutation — genuine changes still do", () => {
@@ -152,7 +153,7 @@ test("checkReview: .handoff transport residue never reads as target mutation —
     writeFileSync(join(target, "src", "app.mjs"), "export const a = 2;\n");
     const problems = checkReview(run);
     assert.ok(problems.some((p) => /target repo changed during the review/.test(p)), problems.join("; "));
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 test("citations: extracts backticked paths with optional :line spans, deduped", () => {
@@ -188,7 +189,7 @@ test("run lifecycle: begin -> finish over a proven report; record lands in TEAM_
     assert.equal(JSON.parse(readFileSync(join(home, `${id}.json`), "utf8")).state, "done");
     assert.equal(git(target, "status", "--porcelain"), "", "target must come out untouched");
   } finally {
-    for (const d of [target, home, outside]) rmSync(d, { recursive: true, force: true });
+    for (const d of [target, home, outside]) removeFixtureDir(d);
   }
 });
 
@@ -203,7 +204,7 @@ test("run lifecycle: abandon closes with durable residue and the reason", () => 
     const rec = JSON.parse(readFileSync(join(home, `${id}.json`), "utf8"));
     assert.equal(rec.state, "abandoned");
     assert.equal(rec.reason, "user cancelled");
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(home, { recursive: true, force: true }); }
 });
 
 test("run lifecycle: a same-second begin never overwrites — ids stay distinct", () => {
@@ -223,7 +224,7 @@ test("run lifecycle: a same-second begin never overwrites — ids stay distinct"
     assert.equal(id, `${expected}x`, "collision suffix path must be exercised");
     const ids = readdirSync(home).map((f) => f.replace(/\.json$/, ""));
     assert.equal(new Set(ids).size, ids.length);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(home, { recursive: true, force: true }); }
 });
 
 test("run lifecycle: with no stamp override, begin's id shape is unchanged from today", () => {
@@ -237,7 +238,7 @@ test("run lifecycle: with no stamp override, begin's id shape is unchanged from 
     const name = target.split("/").pop();
     assert.match(id, new RegExp(`^${name}-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}x*$`),
       "id must still be <target>-<19-char timestamp>, optionally x-suffixed");
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(home, { recursive: true, force: true }); }
 });
 
 // Regression (doc-1): self-review — invoking root == target, .handoff/ NOT gitignored, so the
@@ -271,7 +272,7 @@ test("run lifecycle: self-review with in-repo run records passes untouched, stil
     const blocked = cli(env, target, "finish", id2);
     assert.equal(blocked.status, 2, "a genuinely mutated target must still block");
     assert.match(blocked.stderr, /target repo changed during the review/);
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 // Regression (TASK-61): self-review on DEFAULTS must not deadlock. `begin .` used to default
@@ -296,7 +297,7 @@ test("run lifecycle: self-review round trip passes on the DEFAULT report path �
     writeFileSync(report, GOOD_REPORT); // begin already created the reports dir
     const finish = cli(env, target, "finish", id);
     assert.equal(finish.status, 0, `self-review on defaults must not deadlock: ${finish.stderr}`);
-  } finally { rmSync(target, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); }
 });
 
 // Policy (TASK-70): a review report is EVIDENCE and lives in tracked state; the transport is
@@ -342,7 +343,7 @@ test("run lifecycle: pure-defaults self-review lands a tracked copy on finish, r
     assert.equal(rec2.trackedReport, undefined, "explicit --report must never copy");
     assert.deepEqual(readdirSync(join(target, "docs", "reviews")), [`team-review-${id}.md`],
       "no second tracked file may appear");
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(outside, { recursive: true, force: true }); }
 });
 
 // Regression (TASK-61): the old default was date-keyed — two same-day runs of one target
@@ -359,7 +360,7 @@ test("run lifecycle: two same-day begins default to DISTINCT report paths", () =
       assert.ok(reports[i].startsWith(home + "/"), `default must live under the runs home, got ${reports[i]}`);
     }
     assert.notEqual(reports[0], reports[1], "same-day default report paths must never collide");
-  } finally { rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true }); }
+  } finally { removeFixtureDir(target); rmSync(home, { recursive: true, force: true }); }
 });
 
 // ---------- Stop hook through the shared gate-runner ----------
@@ -393,7 +394,7 @@ test("stop hook: blocks an in-flight run in scope, with finish/abandon guidance"
     assert.equal(evaluate({ cwd: home }, [reviewGate], { cwd: home }).block, false);
   } finally {
     if (prev === undefined) delete process.env.TEAM_REVIEW_HOME; else process.env.TEAM_REVIEW_HOME = prev;
-    rmSync(target, { recursive: true, force: true }); rmSync(home, { recursive: true, force: true });
+    removeFixtureDir(target); rmSync(home, { recursive: true, force: true });
   }
 });
 

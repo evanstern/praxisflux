@@ -15,11 +15,12 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, realpathSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, realpathSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { scanCommand, findGitInvocations } from "../pdlc/hooks/shell-scan.mjs";
 
@@ -58,7 +59,7 @@ function mkEnv() {
   writeFileSync(join(other, "f.txt"), "x\n");
   git(other, "add", ".");
   git(other, "commit", "-qm", "init");
-  return { base, root, worktree, other, done: () => rmSync(base, { recursive: true, force: true }) };
+  return { base, root, worktree, other, done: () => removeFixtureDir(base) };
 }
 
 // Stage ONLY the given repo-relative paths (index cleared first). Each path is

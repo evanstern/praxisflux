@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:58:11.086Z",
+  "generatedAt": "2026-09-14T19:08:54.222Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3161,7 +3161,7 @@
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared"
         },
         {
@@ -3181,7 +3181,7 @@
         },
         {
           "index": 9,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — sibling audit and close (R5)"
         }
       ],
@@ -3191,8 +3191,9 @@
         "gates"
       ],
       "dispatches": [
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)",
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses)"
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — sibling audit and close; served verified from transcript, 250k tokens / 122 tool uses] served=claude-sonnet-5"
       ]
     },
     {

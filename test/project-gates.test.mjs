@@ -14,6 +14,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import {
   evaluateProjectGates, runGateCommand, checkBridge, verifyBridge, GATE_TIMEOUT_MS,
@@ -37,7 +38,7 @@ function project() {
       mkdirSync(join(root, dir), { recursive: true });
       for (const [name, content] of Object.entries(files)) writeFileSync(join(root, dir, name), content);
     },
-    done: () => rmSync(root, { recursive: true, force: true }),
+    done: () => removeFixtureDir(root),
   };
 }
 

@@ -4,6 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync, mkdirSync, chmodSync, readFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { resolveSpecSource } from "../lib/spec-source.mjs";
 
@@ -24,7 +25,7 @@ function scratchRepo() {
 }
 
 function cleanup(dir) {
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 }
 
 // Commits a spec dir on a fresh branch off HEAD, points a fake `origin/task-*` remote-tracking
