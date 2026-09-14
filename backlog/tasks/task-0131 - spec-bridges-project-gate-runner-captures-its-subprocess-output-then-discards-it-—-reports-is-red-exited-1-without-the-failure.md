@@ -57,13 +57,13 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 <!-- SECTION:NOTES:BEGIN -->
 Spec: specs/069-gate-failure-excerpt
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses] served=claude-sonnet-5
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 2 — surface in the finding; served verified from transcript, 143k tokens / 21 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 2 — surface in the finding; served verified from transcript, 143k tokens / 21 tool uses] served=claude-sonnet-5
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — tests, negative-controlled; served verified from transcript, 180k tokens / 45 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — tests, negative-controlled; served verified from transcript, 180k tokens / 45 tool uses] served=claude-sonnet-5
 
 NEGATIVE CONTROLS REPRODUCED INDEPENDENTLY by the orchestrator, not taken from the dispatch's transcript. Broke boundOutput to a head-only slice(0,cap) and re-ran: exactly the tail-dependent assertions failed — the new '069 R3: a marker on the LAST line of long output survives the cap' plus TASK-0121's own two tail tests (R4 bounded-capture, 068 R1 capTrace tail) — while the other 40 stayed green, isolating the behaviour as intended. Restored and re-verified 630 pass / 0 fail with only test/project-gates.test.mjs modified. The dispatch also reported two further controls: excerptBlock forced to "" fails the three excerpt-reaching assertions but not the redByConstruction one (nothing to exclude), and appending the excerpt to redByConstruction fails ONLY the new real-subprocess R7 test — notably the pre-existing injected-fixture boundary test at project-gates.test.mjs:151 does NOT catch that regression, which is precisely the gap this phase closes.
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
