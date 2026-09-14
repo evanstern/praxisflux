@@ -60,4 +60,6 @@ ONE MORE THING FOR THE IMPLEMENTER — the regeneration path is easy to call wro
     writeMirror(root, next);
 
 Whatever mechanism this card lands, consider exposing a supported regenerate entry point so the fix does not require every caller to rediscover that envelope contract.
+
+Spec: specs/071-mirror-staleness
 <!-- SECTION:NOTES:END -->
