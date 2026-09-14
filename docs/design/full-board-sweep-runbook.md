@@ -81,6 +81,41 @@ PR #148** for the same reason.
   TASK-0132 · TASK-0123 · TASK-98, TASK-115, TASK-120 · TASK-105 · TASK-96 · TASK-94,
   TASK-95 · TASK-118. TASK-117 sits in Lane B per the Lane-0 ruling (option 2).
 
+## SCOPE AMENDMENT — this run executes Lanes A + B only (operator, 2026-09-14)
+
+**Operator ruling, recorded before any dispatch:** this run executes **TASK-0121 first as
+a dispatch-and-cost calibration**, then the remainder of **Lane A + Lane B**. Lanes C, D
+and E are **punted** — not dropped, not descoped, not started. Rationale in the operator's
+terms: the full thirteen-task runbook is ~30-50 phase-scoped dispatches plus ten
+released-surface PRs, and that token spend is not warranted in one sweep.
+
+**Executed in this run (5 tasks):**
+- TASK-0121 (calibration — served-model verified from its transcript before any sibling
+  dispatch), then TASK-0131, then TASK-0132 — Lane A, serial.
+- TASK-0123, TASK-117 — Lane B, parallel with Lane A.
+
+**Punted to a later sweep (8 tasks):** TASK-98, TASK-115, TASK-120 (Lane C1); TASK-105
+(C2); TASK-96 (C3); TASK-94, TASK-95 (Lane D); TASK-118 (Lane E). Their lanes, tiers,
+orderings, hotspot analysis and checkpoints below **stand unamended** and remain valid
+input for that sweep — this amendment changes only WHICH lanes run now. TASK-0129 remains
+separately excluded (its own session).
+
+**Consequences for this run's Output gate** — it is scoped to the five tasks above, not
+thirteen. Specifically:
+- Lane C's three-stage chain never starts, so `pdlc/skills/sweep/SKILL.md` (the dominant
+  5-task hotspot) is **untouched by this run**. The C1→C2→C3 ordering constraint carries
+  forward intact.
+- TASK-96's terminal re-plant does not happen, so the root `CLAUDE.md` block stays pinned
+  at its current version. That is expected, not a miss.
+- The cross-lane collisions on `action.yml` (TASK-105 ∩ TASK-94) and
+  `docs/consuming-gates.md` (TASK-0132 ∩ TASK-105) **do not arise in this run**: only
+  TASK-0132 is in scope, so it takes `docs/consuming-gates.md` uncontested. A later sweep
+  running TASK-105 must re-check both against whatever this run merged.
+- This runbook's status flips to **done** when the five scoped tasks are done, with the
+  punted eight named explicitly as remaining. A later sweep adopting the rest should
+  author its own runbook or amend this one back to executing — never silently inherit a
+  `done` file.
+
 ## Execution lanes (dependency-ordered; parallelize within a lane)
 
 Rule of thumb: DEVELOP in parallel, MERGE serially — tasks below share file footprints,
