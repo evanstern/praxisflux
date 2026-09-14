@@ -37,7 +37,12 @@ Option 1 is self-healing but hides drift; option 2 surfaces it but costs a manua
 - [ ] #1 The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)
 - [ ] #2 A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings
 - [ ] #3 Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings
+- [ ] #4 Spec phase: Phase 1 — supported regenerate entry point (R3)
+- [ ] #5 Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)
+- [ ] #6 Spec phase: Phase 3 — prove it and close (R5, R6)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
