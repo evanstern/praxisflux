@@ -13,7 +13,7 @@ sources:
   - pdlc/templates/model-tiers.json
   - pdlc/hooks/read-size-gate.mjs
   - pdlc/hooks/README-read-size-gate.md
-verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
+verified_against: 5e4494baa26c432a27174a830697e7f62645e17b
 ---
 
 # pdlc plugin
