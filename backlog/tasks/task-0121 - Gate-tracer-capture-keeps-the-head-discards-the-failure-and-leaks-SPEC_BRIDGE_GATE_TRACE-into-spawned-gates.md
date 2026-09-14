@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-14 14:31'
+updated_date: '2026-09-14 14:32'
 labels:
   - tech-debt
   - spec-bridge
@@ -55,8 +55,6 @@ Spec: specs/068-gate-tracer-capture
 - [x] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
 - [ ] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -107,4 +105,19 @@ BECAUSE it inherits the leak, which would surface here as a new failure. None di
 / 0 fail, identical to the Phase 1 baseline. So no suite assertion depended on inherited
 tracing. Recording the negative result because the risk was recorded up front; it is evidence
 about the suite, not an absence of news.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 (R3 — regression tests, negative-controlled) complete, commit 28cd564. Served model re-verified from the transcript: claude-sonnet-5. Three for three on the tier pin.
+
+Suite: 626 pass / 0 fail on an INDEPENDENT orchestrator run — not just the implementer report and not just the pre-commit hook. Baseline 624 plus the two new tests. Both fixes verified still present in source after the negative-control reverts: capTrace head+tail at bridge.mjs:279-285, and the childEnv delete of the trace var at :183. A diff of bridge.mjs between 7e70e57 and HEAD is empty, so Phase 3 restored the code exactly rather than leaving a revert behind. Working tree clean.
+
+NEGATIVE CONTROLS CARRIED REAL EVIDENCE, the bar spec R3 set. Each revert produced a NAMED failure, not merely "it failed":
+- R1 control (capTrace reverted to the head-only slice): the tail test failed expected true / actual false (marker gone), AND the tightened cap test failed expected 4000 / actual 4028. The old marker format being longer is independent corroboration that the revert genuinely took effect.
+- R2 control (delete line removed): the env test failed expected true / actual false, the var present on the child env.
+Both restored, each confirmed by an empty diff against the fix. This is the standard TASK-118 exists to generalize: a control that silently no-ops looks identical to a real pass, and the 4028 figure is what proves this one did not no-op.
+
+ALSO FIXED (in scope, one line): test/project-gates.test.mjs:595, the spec-061 assertion stdout.length < 10000 against a TRACE_CAP of 4000 — it would have passed at 9,999 chars. Now assert.equal(..., 4000), pinning the real bound. Found by the orchestrator while reviewing Phase 1; it is the TASK-118 defect shape sitting in the file Phase 3 was already editing. Scoped to that single assertion — TASK-118 itself remains unstarted and out of this sweep run.
+
+TRAILER MISATTRIBUTION — orchestrator error, to state plainly at PR time. All three phase commits carry the Opus 5 co-author trailer because the dispatch prompts specified it verbatim, but the work was served by claude-sonnet-5. The Phase 3 implementer flagged the mismatch rather than following it silently. The trailer is this repos configured session attribution, so it is not wrong in the harness sense, but it does misdescribe which model wrote the code. The Dispatch: lines on this card are the accurate record; the PR body will say so.
 <!-- SECTION:NOTES:END -->
