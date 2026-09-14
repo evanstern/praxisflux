@@ -719,3 +719,105 @@ test("T027-T029 regression: bridgeGate.check stays honest under SPEC_BRIDGE_GATE
     p.done();
   }
 });
+
+/* ── spec 069 (TASK-0131) Phase 3: the excerpt reaches the finding ──────────────────────────
+ * Phase 1/2 built `output` on the verdict and `excerptBlock` in the formatter; these tests
+ * prove the two are actually WIRED — that a real subprocess's real captured stdout/stderr
+ * shows up in `checkBridge`'s real `problems` array, which is the path the field case (PR
+ * #144, CI run 34616221159) came from. They call `checkBridge` directly with NO injected
+ * `run` (`gateActive: false` only, to stay hermetic to this repo's own ambient
+ * SPEC_BRIDGE_GATE_ACTIVE when the suite is itself spawned as a dogfooded gate) — an
+ * injected result would only prove the formatter, never that the real runGateCommand →
+ * gateOutput → collapsedGateProblems → excerptBlock chain actually threads a real capture. */
+
+// excerptBlock's own separator between the one-line headline and the first rendered line.
+const EXCERPT_MARK = "\n    | ";
+
+// Recover the raw bounded output from a rendered finding: strip excerptBlock's per-line
+// "    | " prefix back off (the bound can itself embed "\n"s via the elision marker, so the
+// excerpt is not necessarily one rendered line even for a fixture with no newline of its own).
+function excerptContent(problem) {
+  const idx = problem.indexOf(EXCERPT_MARK);
+  if (idx < 0) return null;
+  return problem.slice(idx + 1).split("\n").map((line) => line.slice("    | ".length)).join("\n");
+}
+
+function gitInit(root) {
+  spawnSync("git", ["init", "-q"], { cwd: root });
+  spawnSync("git", ["-C", root, "config", "user.email", "test@example.com"]);
+  spawnSync("git", ["-C", root, "config", "user.name", "Test"]);
+  spawnSync("git", ["-C", root, "add", "-A"]);
+  spawnSync("git", ["-C", root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+}
+
+test("069 R1/R4/R6: a fixture gate's real stdout reaches checkBridge's collapsed finding, headline unchanged", () => {
+  const p = project();
+  try {
+    const marker = "FIXTURE_OUTPUT_MARKER_" + "Q".repeat(20);
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", `process.stdout.write(${JSON.stringify(marker)}); process.exit(1)`] },
+    ] } });
+    bridged(p, "Done", ALL_DONE); // config already set above; bridged() only writes config if given one
+    gitInit(p.root);
+    const { problems, warnings } = checkBridge(p.root, { gateActive: false });
+    assert.equal(warnings.length, 0, "a red required gate is a problem, never a warning");
+    const headline = `[spec-bridge] the required gate "tests" is red (exited 1) — 1 linked spec affected. ${TAIL}`;
+    assert.deepEqual(problems, [headline + EXCERPT_MARK + marker],
+      "the real captured stdout must reach the finding, appended after the unchanged headline");
+  } finally { p.done(); }
+});
+
+test("069 R2: output well over the cap yields a finding bounded to it", () => {
+  const p = project();
+  try {
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", "process.stdout.write('y'.repeat(10000)); process.exit(1)"] },
+    ] } });
+    bridged(p, "Done", ALL_DONE);
+    gitInit(p.root);
+    const { problems } = checkBridge(p.root, { gateActive: false });
+    assert.equal(problems.length, 1);
+    const excerpt = excerptContent(problems[0]);
+    assert.ok(excerpt !== null, "finding must carry an excerpt block");
+    // Matching TASK-118's convention of an exact-length assertion, not a loose "< 10000" bound —
+    // the recovered (unprefixed) bounded output must be exactly the cap (4000), no more.
+    assert.equal(excerpt.length, 4000, "a capped stream must be exactly the cap (4000), not merely under some loose bound");
+  } finally { p.done(); }
+});
+
+test("069 R3: a marker on the LAST line of long output survives the cap", () => {
+  const p = project();
+  try {
+    const tailMarker = "GATE_TAIL_MARKER_" + "W".repeat(30);
+    // node --test prints its failure summary last; a head-only excerpt would discard exactly
+    // this. Many filler lines followed by the marker AS THE FINAL LINE, well over the cap.
+    const bigOutput = Array(50).fill("y".repeat(200)).join("\n") + "\n" + tailMarker;
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e", `process.stdout.write(${JSON.stringify(bigOutput)}); process.exit(1)`] },
+    ] } });
+    bridged(p, "Done", ALL_DONE);
+    gitInit(p.root);
+    const { problems } = checkBridge(p.root, { gateActive: false });
+    assert.equal(problems.length, 1);
+    assert.ok(problems[0].includes(tailMarker),
+      "the tail — where a node --test failure summary prints — must survive the cap, not just the head");
+  } finally { p.done(); }
+});
+
+test("069 R7: redByConstruction's finding stays byte-identical — no excerpt, even though the real gate produced output", () => {
+  const p = project();
+  try {
+    const marker = "SHOULD_NOT_APPEAR_IN_REDBYCONSTRUCTION_" + "Z".repeat(10);
+    p.config({ projectGates: {
+      required: [{ name: "tests", command: ["node", "-e", "process.exit(0)"] }],
+      redByConstruction: [{ name: "freshness", command: ["node", "-e", `process.stdout.write(${JSON.stringify(marker)}); process.exit(1)`] }],
+    } });
+    bridged(p, "Done", ALL_DONE); // Done-eligible ⇒ both buckets held
+    gitInit(p.root);
+    const { problems } = checkBridge(p.root, { gateActive: false });
+    assert.deepEqual(problems, [
+      `[spec-bridge] the red-by-construction gate "freshness" is red (exited 1) — 1 linked spec affected. ${TAIL}`,
+    ], "R7: redByConstruction's finding text must be exactly what it was before spec 069, excerpt or not");
+    assert.ok(!problems[0].includes(marker), "redByConstruction must never gain the excerpt (R7)");
+  } finally { p.done(); }
+});

@@ -3,9 +3,11 @@ id: TASK-0131
 title: >-
   spec-bridge's project-gate runner captures its subprocess output then discards
   it — reports "is red (exited 1)" without the failure
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 16:05'
+updated_date: '2026-09-14 17:54'
 labels:
   - spec-bridge
   - gates
@@ -38,10 +40,30 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A failing required project gate's finding includes a bounded excerpt of the subprocess's actual output (tail of combined stdout/stderr, or the TAP failure lines), not just the exit code
-- [ ] #2 The excerpt is length-capped so one failing suite cannot drown the finding or the surrounding findings
-- [ ] #3 The existing one-line summary survives as the headline — the excerpt is additional context, not a replacement
-- [ ] #4 Per gates-convention.md, the finding still names its fix alongside the excerpt
-- [ ] #5 A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems
-- [ ] #6 redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path
+- [x] #1 A failing required project gate's finding includes a bounded excerpt of the subprocess's actual output (tail of combined stdout/stderr, or the TAP failure lines), not just the exit code
+- [x] #2 The excerpt is length-capped so one failing suite cannot drown the finding or the surrounding findings
+- [x] #3 The existing one-line summary survives as the headline — the excerpt is additional context, not a replacement
+- [x] #4 Per gates-convention.md, the finding still names its fix alongside the excerpt
+- [x] #5 A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems
+- [x] #6 redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path
+- [x] #7 Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)
+- [x] #8 Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)
+- [x] #9 Spec phase: Phase 3 — prove it, negative-controlled (R6, R7)
+- [x] #10 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec: specs/069-gate-failure-excerpt
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses] served=claude-sonnet-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 2 — surface in the finding; served verified from transcript, 143k tokens / 21 tool uses] served=claude-sonnet-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — tests, negative-controlled; served verified from transcript, 180k tokens / 45 tool uses] served=claude-sonnet-5
+
+NEGATIVE CONTROLS REPRODUCED INDEPENDENTLY by the orchestrator, not taken from the dispatch's transcript. Broke boundOutput to a head-only slice(0,cap) and re-ran: exactly the tail-dependent assertions failed — the new '069 R3: a marker on the LAST line of long output survives the cap' plus TASK-0121's own two tail tests (R4 bounded-capture, 068 R1 capTrace tail) — while the other 40 stayed green, isolating the behaviour as intended. Restored and re-verified 630 pass / 0 fail with only test/project-gates.test.mjs modified. The dispatch also reported two further controls: excerptBlock forced to "" fails the three excerpt-reaching assertions but not the redByConstruction one (nothing to exclude), and appending the excerpt to redByConstruction fails ONLY the new real-subprocess R7 test — notably the pre-existing injected-fixture boundary test at project-gates.test.mjs:151 does NOT catch that regression, which is precisely the gap this phase closes.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses] served=claude-sonnet-5
+<!-- SECTION:NOTES:END -->
