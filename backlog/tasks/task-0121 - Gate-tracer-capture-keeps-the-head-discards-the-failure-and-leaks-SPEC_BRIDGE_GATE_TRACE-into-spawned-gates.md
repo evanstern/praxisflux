@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-14 14:22'
+updated_date: '2026-09-14 14:24'
 labels:
   - tech-debt
   - spec-bridge
@@ -51,7 +51,7 @@ Spec: specs/068-gate-tracer-capture
 - [ ] #2 runGateCommand does not propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children, so a traced gate run cannot hand tracing to the test suite it invokes
 - [ ] #3 Regression test: a capped capture of output whose failure text is in the last 1000 chars still contains that text; and a spawned gate child's env lacks SPEC_BRIDGE_GATE_TRACE
 - [x] #4 Spec phase: Phase 1 — capTrace preserves the tail (R1)
-- [ ] #5 Spec phase: Phase 2 — child env drops the trace var (R2)
+- [x] #5 Spec phase: Phase 2 — child env drops the trace var (R2)
 - [ ] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
 - [ ] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
@@ -86,4 +86,23 @@ Observation for Phase 3: that adjacent assertion is `stdout.length < 10000` agai
 TRACE_CAP of 4000 — it would pass at 9999 chars. Pre-existing weakness, not introduced
 here, but exactly the shape TASK-118 (assertions weaker than their stated intent) is
 carded for. Phase 3 should pin the real bound.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 2 (R2 — child env drops SPEC_BRIDGE_GATE_TRACE) complete, commit 7e70e57.
+Served model re-verified from the transcript: claude-sonnet-5. Tier pin holding.
+
+Verified rather than accepted on report: the strip is `delete childEnv.SPEC_BRIDGE_GATE_TRACE`
+on a fresh spread copy, so the variable is truly ABSENT (not "" and not "0", either of which
+tracePath() would still read as on since it treats any truthy value as an on-switch), while
+SPEC_BRIDGE_GATE_ACTIVE: "1" is still set on the child. process.env is never dereferenced
+after the spread, so the parent session keeps its tracing for the rest of the Stop invocation
+— plan.md step 2.3, which mattered because mutating the parent would have silently disarmed
+the very run being diagnosed.
+
+THE EXPECTED HAZARD DID NOT MATERIALIZE: plan.md Risks warned that a test might be passing
+BECAUSE it inherits the leak, which would surface here as a new failure. None did — 624 pass
+/ 0 fail, identical to the Phase 1 baseline. So no suite assertion depended on inherited
+tracing. Recording the negative result because the risk was recorded up front; it is evidence
+about the suite, not an absence of news.
 <!-- SECTION:NOTES:END -->
