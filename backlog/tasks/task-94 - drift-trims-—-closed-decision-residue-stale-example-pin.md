@@ -4,6 +4,7 @@ title: drift trims — closed-decision residue + stale example pin
 status: To Do
 assignee: []
 created_date: '2026-07-31 20:04'
+updated_date: '2026-09-14 13:42'
 labels:
   - debt
   - pdlc-refactor-triage
@@ -27,3 +28,19 @@ Evidence: (11) pdlc/skills/refactor-triage/SKILL.md:26-27 and docs/wiki/pdlc-ref
 - [ ] #3 action.yml example comment updated or made version-agnostic
 - [ ] #4 refactor-triage skill version bump + lockstep
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+AC#1 NARROWED (operator ratification, 2026-09-14, pre-sweep board prune).
+
+Re-verified all three trims against HEAD 3c696f1. Two are unchanged; one has partly drifted and is narrowed rather than dropped.
+
+AC#1 (orient.mjs residue) — PARTLY OVERTAKEN, still real. The card said SKILL.md:26-27 and the wiki mirror 'advertise range-aware orient.mjs as a live follow-up'. The prose has since softened: pdlc/skills/refactor-triage/SKILL.md:25-27 now reads '(Range-aware orient.mjs is a possible evidence-backed follow-up, not this skill's job.)' and docs/wiki/pdlc-refactor-triage.md:82 similarly hedges. So it no longer reads as a live commitment — but it still does NOT state what TASK-77 actually decided. NARROWED SCOPE: state the closed-not-needed ruling and its re-card trigger, i.e. that TASK-77 closed this as not-needed by operator sign-off (2026-07-31, PR #108) on two clean counter-datapoints with zero observed hampers, re-card on a demonstrated hamper. A reader today cannot tell the question was settled; that is the residue worth removing.
+
+AC#2 (last-run-at overclaim) — UNCHANGED, still false. pdlc/skills/refactor-triage/SKILL.md:69 still calls last-run-at 'the machine-findable line every record carries', which is untrue for all pre-0.3.0 records. Reword to records written under >=0.3.0. (The STOP path at :70-74 already handles absence honestly, so this is a wording fix, not a behavior change.)
+
+AC#3 (stale example pin) — UNCHANGED, still stale. action.yml:6 still reads 'uses: evanstern/praxisflux@v0.4.0' in its illustrative comment, many releases behind. Prefer making it version-agnostic over bumping it to a number that will restale — same enumeration-drift shape TASK-74 fixed elsewhere.
+
+AC#4 (version bump + lockstep) unchanged: refactor-triage skill version bump plus the marketplace lockstep, since this touches released surface.
+<!-- SECTION:NOTES:END -->
