@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:08:54.222Z",
+  "generatedAt": "2026-09-14T19:10:19.391Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3136,7 +3136,7 @@
     },
     {
       "id": "TASK-0123",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/070-teardown-race",
       "acs": [
         {
