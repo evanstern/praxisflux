@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T15:29:15.030Z",
+  "generatedAt": "2026-09-14T17:32:14.311Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2961,6 +2961,48 @@
         "feature",
         "doctrine",
         "downstream-bug-find"
+      ]
+    },
+    {
+      "id": "TASK-117",
+      "status": "In Progress",
+      "specDir": "specs/071-mirror-staleness",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — supported regenerate entry point (R3)"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — prove it and close (R5, R6)"
+        }
+      ],
+      "labels": [
+        "tech-debt",
+        "spec-bridge",
+        "gates"
       ]
     },
     {
