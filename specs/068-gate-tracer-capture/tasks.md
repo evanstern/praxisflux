@@ -33,9 +33,9 @@ one PR — no phase gets its own PR (constitution II).
 
 ## Phase 4 — release obligations and re-ground
 
-- [ ] Marketplace version bump + touched skill `version:`; `sync-version.mjs --check` green
-- [ ] New tests cataloged in `docs/wiki/test-suite-catalog*` AND pinned as sources
-- [ ] Honest re-pin of notes sourcing `bridge.mjs` (classify RE-PIN-ONLY vs NEEDS-REVIEW
+- [x] Marketplace version bump + touched skill `version:`; `sync-version.mjs --check` green
+- [x] New tests cataloged in `docs/wiki/test-suite-catalog*` AND pinned as sources
+- [x] Honest re-pin of notes sourcing `bridge.mjs` (classify RE-PIN-ONLY vs NEEDS-REVIEW
       against the real diff; amend prose before bumping)
-- [ ] All project gates green: `node --test`, `check-docs.mjs`, `sync-version.mjs --check`,
+- [x] All project gates green: `node --test`, `check-docs.mjs`, `sync-version.mjs --check`,
       `gen-marketplace.mjs --check`, wiki freshness
