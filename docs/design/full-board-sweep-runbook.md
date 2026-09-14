@@ -8,9 +8,14 @@ themselves (each carries its own finding, evidence, and ACs) plus the operator-r
 pre-sweep prune (commit `9f6b6af`) win. Plan-of-record is the board; this file carries
 only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-09-14
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
+
+**Sign-off provenance (2026-09-14):** the operator ruled on both Lane-0 checkpoints —
+TASK-117 → **option 2**, TASK-105 → **sonnet** — against the standing instruction to run
+the sweep once the board was pruned and the plan ratified. Both rulings are written into
+the gate lines below; the lanes are otherwise as authored.
 
 
 ## Read first (in this order)
@@ -53,7 +58,7 @@ only ordering, doctrine, and the log.
   sweep's scope.
 - **Queued (this runbook's scope — 13 tasks, in execution order):** TASK-0121, TASK-0131,
   TASK-0132 · TASK-0123 · TASK-98, TASK-115, TASK-120 · TASK-105 · TASK-96 · TASK-94,
-  TASK-95 · TASK-118 · TASK-117 (lane assigned at the Lane-0 checkpoint).
+  TASK-95 · TASK-118. TASK-117 sits in Lane B per the Lane-0 ruling (option 2).
 
 ## Execution lanes (dependency-ordered; parallelize within a lane)
 
@@ -66,7 +71,7 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
 |---|---|
 | `pdlc/skills/sweep/SKILL.md` | **5** — TASK-98, TASK-115, TASK-120, TASK-105, TASK-96 |
 | `CLAUDE.md` | 3 — TASK-120, TASK-105, TASK-96 |
-| `spec-bridge/gates/bridge.mjs` | 2 (+1 conditional) — TASK-0121, TASK-0131, *TASK-117 if option 1* |
+| `spec-bridge/gates/bridge.mjs` | 2 — TASK-0121, TASK-0131 (TASK-117's option-1 overlap did not materialize: option 2 ruled) |
 | `pdlc/templates/CLAUDE.md` | 2 — TASK-105, TASK-96 |
 | `action.yml` | 2 — TASK-105, TASK-94 |
 | `docs/consuming-gates.md` | 2 — TASK-0132, TASK-105 |
@@ -96,7 +101,7 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
   `projectGates` contract TASK-0131 just touched, and `docs/consuming-gates.md` is
   shared with TASK-105.
 
-**Lane B — test-flake hygiene (independent; start immediately, parallel with Lane A):**
+**Lane B — local-gate hygiene (independent; start immediately, parallel with Lane A):**
 - **TASK-0123 (sonnet · `cc/claude-sonnet-5[1m]` — defaultTier; diagnosis work, but
   the card supplies the mechanism hypothesis and a precedent to copy)** — the
   `stop-docs-window` fixture teardown races git on `.git` rmdir (CI-only ENOTEMPTY).
@@ -104,6 +109,14 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
   **Budget honestly:** AC#3 demands TASK-114-shaped evidence (N consecutive green runs,
   raw counts recorded), and AC#5 requires auditing every sibling test using the same
   git-init-in-mkdtemp fixture. The diff is small; the proof is not.
+- **TASK-117 (sonnet · `cc/claude-sonnet-5[1m]` — defaultTier; the mechanism is now
+  decided by operator ruling, leaving hook plumbing plus a regression test)** — the
+  board mirror goes stale silently. **Placed here by the Lane-0 ruling (option 2):**
+  the fix is a `.githooks/pre-commit` staleness check, so it does NOT touch
+  `bridge.mjs` and is free of Lane A's serial chain. Runs parallel with TASK-0123
+  (different files: `.githooks/pre-commit` vs `test/stop-docs-window.test.mjs`).
+  Note both Lane B tasks make the local commit path stricter — sequence their merges
+  so a failure is attributable to one of them, not both.
 
 **Lane C — doctrine chain (three stages; the sweep's critical path):**
 
@@ -173,8 +186,8 @@ so concurrent PRs will conflict; the lanes bound how bad it gets.
   when that behaviour regresses, and the negative control must be shown to have
   actually broken the thing. No code footprint; one doc file.
 
-**TASK-117 — lane assigned at the Lane-0 checkpoint (see below).** Its two candidate
-fixes land in *different lanes*, so it cannot be placed until the mechanism is chosen.
+**TASK-117 is placed in Lane B** by the Lane-0 ruling above (option 2 — pre-commit
+staleness check, not a `bridge.mjs` self-heal). All 13 scoped tasks now have a lane.
 
 Tiers and their model IDs come from **`.claude/model-tiers.json`** (the host's tier config),
 not from memory — `tiers.mjs --root . --check` exited **0** at this runbook's authoring
@@ -257,19 +270,36 @@ at the end.
 <!-- Lane-0/precondition rulings that change the per-task loop are written HERE as
      checkable lines, never only as prose in the state snapshot. -->
 
-- [ ] **Lane-0 ruling — TASK-117 mechanism** (decided at the checkpoint below, written
-      here before Lane A dispatches): option 1 (bridge gate regenerates the mirror in its
-      own precondition) ⇒ TASK-117 joins **Lane A, after TASK-0131**, because it edits
-      `bridge.mjs`. Option 2 (pre-commit fails on a stale mirror) ⇒ TASK-117 becomes
-      **independent, runs alongside Lane B**. The card forbids doing both.
-- [ ] **Lane-0 ruling — TASK-105 tier** (decided at the checkpoint below): recorded here
-      as `sonnet` or `opus` with the rubric justification, BEFORE its dispatch. An
-      escalation not recorded before dispatch is not a valid escalation.
+- [x] **Lane-0 ruling — TASK-117 mechanism: OPTION 2** (operator, 2026-09-14, recorded
+      before any Lane A dispatch). The **pre-commit hook fails on a stale mirror**, the
+      way it already fails on version drift — staleness becomes loud and local rather
+      than silently misreported. Option 1 (gate self-heals in its own precondition) is
+      **rejected**: it hides the drift it repairs, and the card's own field case is a
+      mirror eleven days stale that cost two sessions of phantom-drift diagnosis —
+      self-healing would have made that invisible rather than legible.
+      **Lane consequence:** TASK-117 does NOT enter Lane A's serial `bridge.mjs` chain.
+      It is **independent and runs alongside Lane B**, footprint `.githooks/pre-commit`
+      (+ its regression test). The card forbids doing both mechanisms; only option 2 is
+      built. AC#2 (a stale mirror distinguishable from real board drift in the gate's
+      own output) still binds — the hook must name which it is.
+- [x] **Lane-0 ruling — TASK-105 tier: SONNET** (`cc/claude-sonnet-5[1m]`, the config's
+      `defaultTier`; operator, 2026-09-14, recorded before dispatch). **No escalation.**
+      Rubric justification: the design work for the sign-off artifact and its gate
+      happens in the **spec cycle**, which is the orchestrator's own work at its own
+      tier — by dispatch time `spec.md`/`plan.md`/`tasks.md` have settled the judgment
+      calls, leaving implementation that is wide (four consumer surfaces) but not deep.
+      Escalating the implementer does not rescue a weak spec; it only pays Opus rates to
+      read a good one. The card's size (11 ACs) argues for careful **phase-scoped
+      dispatch** — one fresh implementer per tasks.md phase — not for a higher tier.
+      **Standing:** if the spec cycle surfaces a judgment call it cannot settle, that is
+      a fresh escalation checkpoint, recorded before any re-dispatch — never an
+      implementer's mid-flight call.
 
 ## Concurrency & conflict doctrine
 
 - **Hotspots (actual paths):** `pdlc/skills/sweep/SKILL.md` (5 tasks — the dominant one),
-  `CLAUDE.md` (3), `spec-bridge/gates/bridge.mjs` (2, +1 if TASK-117 takes option 1),
+  `CLAUDE.md` (3), `spec-bridge/gates/bridge.mjs` (2 — TASK-117 stays out of this file
+  under the option-2 ruling),
   `pdlc/templates/CLAUDE.md` (2), `action.yml` (2 — TASK-105 and TASK-94, which sit in
   different lanes: whichever merges second takes main's side), `docs/consuming-gates.md`
   (2 — TASK-0132 and TASK-105, also cross-lane).
@@ -316,20 +346,13 @@ at the end.
 
 ## Operator checkpoints (do not proceed silently)
 
-- **[Lane 0 — before any dispatch] TASK-117 mechanism.** The card names two fixes and
-  forbids doing both: (1) the bridge gate regenerates the mirror in its own precondition
-  — self-healing, but hides drift; (2) the pre-commit hook fails on a stale mirror —
-  surfaces drift, costs a manual step. The card says this is "worth an explicit decision
-  rather than defaulting." **It also changes the lane graph** (option 1 puts TASK-117
-  inside Lane A's serial `bridge.mjs` chain; option 2 makes it independent), so it must be
-  settled before Lane A dispatches. Record the ruling as a gate line above.
-- **[Lane 0 — before its dispatch] TASK-105 tier escalation.** `opus` is marked
-  `escalation: true` in `.claude/model-tiers.json`, so dispatching TASK-105 at opus
-  requires a checkpoint recorded *before* the dispatch. The case for escalating: 11 ACs,
-  a new artifact format and a new gate designed from a deliberately non-prescriptive card
-  ("Shape (not prescriptive — the spec decides)"), spanning four consumer surfaces. The
-  case against: the card is unusually detailed and the spec cycle is where the design gets
-  made, which is the orchestrator's work, not the implementer's. Decide and record.
+- ~~**[Lane 0] TASK-117 mechanism**~~ — **CLOSED 2026-09-14: option 2** (pre-commit
+  fails on a stale mirror). Ruling and its lane consequence recorded as a gate line
+  above. Do not reopen; the card forbids building both mechanisms.
+- ~~**[Lane 0] TASK-105 tier escalation**~~ — **CLOSED 2026-09-14: sonnet, no
+  escalation.** Rubric justification recorded as a gate line above. A fresh escalation
+  checkpoint is still required if the spec cycle surfaces a judgment call it cannot
+  settle.
 - **[at TASK-120's spec] Worktree path direction.** Three named options (bless the split;
   drop the harness path from sweep; one path for both). The card also flags an
   unverified suspicion that `remote_operations: false` is why branch-held task states
