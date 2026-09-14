@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:30:57.413Z",
+  "generatedAt": "2026-09-14T19:32:01.495Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3504,7 +3504,7 @@
     },
     {
       "id": "TASK-0131",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/069-gate-failure-excerpt",
       "acs": [
         {
