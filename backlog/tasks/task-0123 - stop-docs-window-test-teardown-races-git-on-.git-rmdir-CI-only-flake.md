@@ -46,4 +46,6 @@ NON-DETERMINISM CONFIRMED BY EVIDENCE, not inference (2026-09-09). CI run 343974
 So main is green and this card is genuine tech debt rather than a blocker. Deliberately NOT worked now: it is unrelated to the sweep's scope (TASK-112/113 and TASK-0122), and expanding into it mid-sweep would be exactly the silent scope creep the board rules forbid. Carded for a later sweep with the evidence attached so the next session does not have to re-derive the mechanism.
 
 One thing for whoever takes it: do NOT 'fix' this by adding a retry loop and calling it proven. TASK-114's precedent in this repo is the standard — it took 20/20 consecutive green runs read from the raw log, not a summary, before the same-second run-id flake was called fixed. AC#3 here asks for that shape of evidence on purpose.
+
+Spec: specs/070-teardown-race
 <!-- SECTION:NOTES:END -->
