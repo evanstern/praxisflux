@@ -3,9 +3,11 @@ id: TASK-0132
 title: >-
   CI runs the full test suite twice per PR — the tests job, then again as
   spec-bridge's tests project gate
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 16:05'
+updated_date: '2026-09-14 19:47'
 labels:
   - ci
   - cost
