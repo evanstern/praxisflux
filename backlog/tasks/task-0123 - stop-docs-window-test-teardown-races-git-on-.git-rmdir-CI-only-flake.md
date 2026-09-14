@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 19:08'
+updated_date: '2026-09-14 19:09'
 labels:
   - tech-debt
   - flake
@@ -73,3 +73,21 @@ SIBLING AUDIT (AC#5) — sixteen files, a verdict each, none skipped. ADOPTED (1
 
 CATALOG DECISION (TASK-71/101 doctrine): no catalog entry owed for test/fixture-teardown.mjs. All three catalog notes state their own scope as 'One bullet per test/*.test.mjs file' — verified at test-suite-catalog.md:33 — an explicit naming-convention boundary. The helper has no .test. in its name and contains zero test() calls; node --test collects it only as a phantom pass, which is the whole reason the suite total reads 627 rather than 626. It fails the catalogs' own stated inclusion test, so no bullet is owed and none was added. VERSION BUMP: verified not owed rather than assumed — check-version-bump exit=0, 'no released surface changed', matching the runbook's expectation for a test-only task.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Teardown in the git-fixture suites no longer races git on .git removal: a shared removeFixtureDir() retries ENOTEMPTY/EBUSY/EPERM five times with escalating backoff and re-throws after the bound — bounded and loud, never silent, because swallowing would trade a visible flake for an invisible leak.
+
+The fix is named as what it is (retry-with-backoff, AC#2), not a fixture redesign: these fixtures need real commits, branches and rev-parse output, so a fixture that left no live .git behind would gut what the tests prove. And force:true never covered this — per Node's docs it suppresses errors only for a path that no longer exists, doing nothing for a directory that is non-empty when rmdir fires.
+
+MECHANISM: UNCONFIRMED, and recorded that way rather than dressed up (AC#1 asks for evidence). 1500+ iterations of the exact fixture-then-rmSync sequence on darwin produced zero reproductions; CI runs ubuntu-latest, a different kernel and filesystem. The helper is defensive against the class of hazard.
+
+EVIDENCE: 20/20 consecutive green runs with raw per-run counts, reproduced independently by the orchestrator (AC#3). Stated honestly: 20 green runs on a platform that could never reproduce the bug BOUND the flake, they do not prove it fixed. The negative control broke the WINDOW logic at three points and flipped exactly the four window-consuming behaviours while the two that bypass it stayed green (AC#4) — proven non-inert by the before/after delta.
+
+AUDIT (AC#5): sixteen files, sixteen verdicts, none skipped — 14 adopted (two deliberately partial, since converting a non-git fixture would be cargo-cult), 1 cleared with reason (run-gates has no teardown at all, so no removal can be raced).
+
+Test-only: no version bump owed, verified at exit=0 rather than assumed. No catalog entry owed for the helper either, per the catalogs' own stated scope (one bullet per test/*.test.mjs). Three catalog notes re-pinned RE-PIN-ONLY after reading their diffs — imports and teardown only, no assertion touched.
+
+Two items flagged rather than absorbed: run-gates.test.mjs leaks its temp dirs entirely (pre-existing, harmless in ephemeral CI), and removeFixtureDir's own retry contract stays unpinned because every available route was worse than no test — t.mock.module needs a flag 'node --test' does not pass, so such a test would pass locally and silently fail in CI.
+<!-- SECTION:FINAL_SUMMARY:END -->
