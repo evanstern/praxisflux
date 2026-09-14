@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:32:14.311Z",
+  "generatedAt": "2026-09-14T17:44:17.563Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2985,12 +2985,12 @@
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — supported regenerate entry point (R3)"
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)"
         },
         {
@@ -3003,6 +3003,9 @@
         "tech-debt",
         "spec-bridge",
         "gates"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses)"
       ]
     },
     {
