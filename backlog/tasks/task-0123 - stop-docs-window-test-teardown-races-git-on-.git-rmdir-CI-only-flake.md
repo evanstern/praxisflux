@@ -36,7 +36,13 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 - [ ] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
 - [ ] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
 - [ ] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
+- [ ] #6 Spec phase: Phase 1 — confirm the mechanism (R1)
+- [ ] #7 Spec phase: Phase 2 — the shared teardown helper (R2)
+- [ ] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
+- [ ] #9 Spec phase: Phase 4 — sibling audit and close (R5)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
