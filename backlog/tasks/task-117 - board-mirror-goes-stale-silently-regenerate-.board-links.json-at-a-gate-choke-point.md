@@ -3,7 +3,7 @@ id: TASK-117
 title: >-
   board mirror goes stale silently: regenerate .board/links.json at a gate choke
   point
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:34'

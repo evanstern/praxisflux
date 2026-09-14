@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:31:37.339Z",
+  "generatedAt": "2026-09-14T19:34:25.548Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2965,7 +2965,7 @@
     },
     {
       "id": "TASK-117",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/071-mirror-staleness",
       "acs": [
         {
