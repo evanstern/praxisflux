@@ -42,8 +42,6 @@ Option 1 is self-healing but hides drift; option 2 surfaces it but costs a manua
 - [ ] #6 Spec phase: Phase 3 — prove it and close (R5, R6)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -67,4 +65,6 @@ ONE MORE THING FOR THE IMPLEMENTER — the regeneration path is easy to call wro
 Whatever mechanism this card lands, consider exposing a supported regenerate entry point so the fix does not require every caller to rediscover that envelope contract.
 
 Spec: specs/071-mirror-staleness
+
+FIELD CASES 4 AND 5 (orchestrator, 2026-09-14, full-board sweep). The same defect fired twice more, at the claim commits for TASK-0131 and TASK-0123. In both cases 'spec-bridge/gates/cli.mjs links .' could not see the newly claimed task at all until the mirror was hand-regenerated with the four-line envelope-correct recipe from this card's own notes; 'lib/board-mirror.mjs --check' named it in one run each time. Five occurrences now, every one on a routine board write (claim, tick, claim, claim). Recorded because the count is the argument: this is not an edge case, it is the default outcome of editing the board.
 <!-- SECTION:NOTES:END -->
