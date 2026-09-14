@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T20:08:54.466Z",
+  "generatedAt": "2026-09-14T20:11:35.693Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3619,7 +3619,7 @@
     },
     {
       "id": "TASK-0132",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/072-ci-double-run",
       "acs": [
         {
@@ -3634,7 +3634,7 @@
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened"
         },
         {
@@ -3644,7 +3644,7 @@
         },
         {
           "index": 5,
-          "checked": false,
+          "checked": true,
           "text": "docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended"
         },
         {

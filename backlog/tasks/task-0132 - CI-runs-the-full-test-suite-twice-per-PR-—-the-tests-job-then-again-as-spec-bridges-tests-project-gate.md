@@ -3,11 +3,11 @@ id: TASK-0132
 title: >-
   CI runs the full test suite twice per PR — the tests job, then again as
   spec-bridge's tests project gate
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 20:07'
+updated_date: '2026-09-14 20:11'
 labels:
   - ci
   - cost
@@ -42,9 +42,9 @@ Related: TASK-0130 (the flake itself), TASK-0131 (the swallowed diagnostics that
 <!-- AC:BEGIN -->
 - [x] #1 The full test suite runs ONCE per CI run, not twice — measured from the workflow logs, not assumed
 - [x] #2 The 'a ticked checkbox cannot outrun a red project gate' enforcement still holds in CI: a genuinely red suite still fails the spec-bridge gate (proven by a deliberate red-suite run, not reasoned)
-- [ ] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
+- [x] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
 - [x] #4 The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work
-- [ ] #5 docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended
+- [x] #5 docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended
 - [x] #6 Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)
 - [x] #7 Spec phase: Phase 2 — prove the enforcement survives in CI (R2)
 - [x] #8 Spec phase: Phase 3 — re-ground and close (R5, R6)
@@ -67,3 +67,27 @@ AC#1 MEASURED FROM THE WORKFLOW LOGS, not assumed, with a before/after on real r
 
 R2 PROOF STAGE 2 - THE REAL CI RUN, which is what AC#2 asked for. Run 34890912169 on commit 23ab01f (a temporary deliberately-failing test pushed to this PR, then reverted). The checks job FAILED at step 'this repo board is honest (spec-bridge)', and the three steps after it were SKIPPED - so the gate did not merely report, it BLOCKED the run. Its output verbatim: 'GATE FAILED (1 issue(s)): the required gate tests is red (exited 1) - 71 linked specs affected. A ticked tasks.md checkbox cannot outrun a red project gate - make the gate pass or set the box back.' followed by the excerpt block naming 'not ok 1 - spec 072 R2 proof', the failureType, and the file and line at test/_r2-ci-proof.test.mjs:8. THAT EXCERPT IS TASK-0131's WORK, merged earlier in this same sweep: before it, this exact failure would have read only 'is red (exited 1)' with no test name, no file, no line. So this one CI log is simultaneously the proof for this card and a field demonstration of the sibling card's value. Reverted: red test removed, 636 pass / 0 fail restored.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+CI now runs the test suite once per run instead of twice.
+
+ci.yml's standalone `- name: tests` step is removed; spec-bridge's `tests` project gate — which already ran the whole suite — is now the single invocation. The gate entry deliberately stays: it enforces "a ticked tasks.md checkbox cannot outrun a red project gate", which is doctrine that works. The defect was the redundant invocation in CI, not the mechanism.
+
+WHY IT MATTERED: the double-run was a second independent roll of the dice on any nondeterministic test, so a ~5% flake became ~10% per PR. That is exactly how the TASK-0130 flake blocked PR #144, with the dedicated step passing 624/624 while the gate rolled the same die again and came up red.
+
+AC#1, MEASURED FROM THE LOGS both sides rather than inferred from the file: before (run 34888040871) the tests step took 8s AND spec-bridge 9s — two executions; after (run 34890576521) there is no tests step in the job's step list and spec-bridge alone takes 10s while every sibling gate finishes under a second.
+
+AC#2, PROVEN BY A REAL RED-SUITE CI RUN (34890912169), not argued: the checks job failed at the spec-bridge step and the three steps after it were skipped — the gate blocked, it did not merely report. This mattered because after the deletion that gate is the only thing in CI between a red suite and a green run, so a green run would have proven nothing.
+
+A NOTE ON THE PROOF ITSELF: the gate's output named the failing test, its file and its line — TASK-0131's excerpt, merged earlier in this same sweep. Before that card, this exact failure read "is red (exited 1)" and nothing more. One CI log proves this card and demonstrates the sibling's value in the field.
+
+TWO PREMISE CORRECTIONS, both verified at HEAD and written into the spec. (1) The card said "the tests job, then again as spec-bridge's gate" — there is no second job; ci.yml has only checks and install-path, and both invocations were steps inside checks, which is why two of the three offered directions had no job boundary to attach to. (2) The runbook warned test/run-gates.test.mjs asserts both CI steps stay present and would need careful updating — it does not; it covers spec-bridge and wiki-freshness, never node --test, and passes unmodified with zero test-directory diff.
+
+AC#4 satisfied by construction (no new config key, nothing sniffs the environment). AC#5 answered rather than skipped: docs/consuming-gates.md needs no change because AC#5 is conditional on extending the projectGates contract, and a step deletion extends nothing. AC#3 verified by diff: no local path changed — and the pre-commit hook refusing to commit the red suite was incidental proof of it.
+
+No version bump owed (.github/ is exempt, verified at exit 0). One re-pin, NEEDS-REVIEW not a bump: docs/wiki/release-pipeline.md enumerated CI's steps opening with node --test and described install-path's file as running inside "the main node --test step" — both falsified, so prose was amended first. Two other node --test references in that note were read and left: one is spec-057 history, the other belongs to release.yml, which genuinely still runs it.
+
+A TRAP RECORDED FOR REUSE: isTreeDirty() demotes a red required gate to a non-blocking warning on a dirty tree, so a naive local reproduction proves nothing. The local stage-1 proof was run against a committed red state for that reason.
+<!-- SECTION:FINAL_SUMMARY:END -->
