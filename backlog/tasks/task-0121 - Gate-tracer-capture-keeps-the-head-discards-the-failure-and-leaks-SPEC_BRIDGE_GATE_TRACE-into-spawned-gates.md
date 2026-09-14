@@ -53,8 +53,10 @@ Spec: specs/068-gate-tracer-capture
 - [x] #4 Spec phase: Phase 1 — capTrace preserves the tail (R1)
 - [x] #5 Spec phase: Phase 2 — child env drops the trace var (R2)
 - [x] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
-- [ ] #7 Spec phase: Phase 4 — release obligations and re-ground
+- [x] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
