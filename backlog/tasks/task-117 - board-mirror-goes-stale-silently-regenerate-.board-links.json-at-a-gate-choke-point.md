@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:34'
-updated_date: '2026-09-14 17:59'
+updated_date: '2026-09-14 19:33'
 labels:
   - tech-debt
   - spec-bridge
@@ -78,3 +78,21 @@ NEGATIVE CONTROL reproduced independently by the orchestrator (not accepted from
 
 HOOK TEST DELIBERATELY NOT ADDED, with reasoning. pre-push has its own test because it carries real classification logic (WARN vs block, 'could not run' vs findings) worth pinning apart from the scripts it calls. The new pre-commit step is one unconditional line with no branching of its own, and set -e is the only mechanism — already exercised by every other step in that file. Everything actually worth pinning (the distinguishing note, the fix line, the requiresSync degrade) lives in board-mirror.mjs's CLI, which the five new tests exercise directly via execFileSync — which also sidesteps the core.hooksPath-across-worktrees caveat recorded above, since they never go through git commit.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A stale .board/links.json now fails the commit that caused it, instead of being silently misreported downstream as board drift.
+
+MECHANISM: the operator's option-2 ruling, implemented as written — the pre-commit hook fails on a stale mirror, the way it already fails on version drift. Option 1 (the gate self-heals in its own precondition) stays rejected: it hides the drift it repairs, and the eleven-day field case would have become invisible rather than legible. No self-heal was built anywhere; bridge.mjs is untouched (R6, verified by diff).
+
+WHY IT MATTERED: five recorded field cases before the fix, every one on a routine board write (claim, AC tick, claim, claim, claim) — plus a sixth during this sweep's own closure commit. The 2026-09-08 case cost two sessions of phantom-drift diagnosis and a wrong root cause. The worst symptom is that spec-bridge plan reads the mirror, not the board, so a stale mirror makes an already-completed sync re-emit its actions.
+
+WHAT LANDED: regenerateMirror(root) plus a --write CLI mode (read -> replace links+generatedAt -> validateMirror -> write, refusing to write an invalid mirror), because the hook's failure has to name a real fix and the obvious call was actively wrong — projectBacklog() returns a bare array, so writeMirror(root, projectBacklog(root)) writes an envelope-less file that --check then misreports as 'unknown schema undefined'. A pre-commit step beside the version-drift check. Output that cannot be confused with board drift: both failure branches name the MIRROR FILE explicitly and print a copy-pasteable fix. requiresSync degrades rather than breaking, so a Jira host can still commit.
+
+PROVEN: five tests; negative controls reproduced independently by the orchestrator (deleting the distinguishing note fails exactly the two AC#2 tests, 62 pass / 2 fail). No dedicated hook test, deliberately — the step is one unconditional line whose only mechanism is set -e, while everything worth pinning lives in the CLI the tests call directly.
+
+The feature proved itself three times during its own delivery: --write resolved this branch's own mirror conflicts at each merge-in.
+
+Released 0.65.3 (0.65.2 was taken by #150 first). Merged via PR #151, d99cda4, a true merge commit.
+<!-- SECTION:FINAL_SUMMARY:END -->
