@@ -12,7 +12,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: ed62e0336ef72aff774c080a7f5e644cf5073e62
+verified_against: 4b6952f18ce18b61c71f8a0244807d1d4503914c
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -48,8 +48,8 @@ outgrew this note on their own and split further into
   vocabulary (a named review stage plans no auto-Done); and config-absent gate + plan
   output byte-identical to the 3-status contract. Also (spec 050) `projectGatesProfile` cases
   (opt-out, string-command rejection, bucket normalization, name-trim, malformed drop).
-- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050) plus its fan-out and
-  dirty-tree fixes (spec 061): a ticked box can't outrun a red declared gate, and one red gate
+- `test/project-gates.test.mjs` — the tick-vs-red-gate check (spec 050), its fan-out/dirty-tree
+  fixes (spec 061): a ticked box can't outrun a red declared gate, and one red gate
   now yields exactly **one** collapsed finding per invocation (naming gate + bucket + reason +
   affected count), never one per linked spec. Drives `evaluateProjectGates`/`collapsedGateProblems`
   via injected `run`; `runGateCommand` real only where tested. Cases: **blocking** (Done-eligible
@@ -67,7 +67,9 @@ outgrew this note on their own and split further into
   **`bridgeGate` wiring** (the dirty-tree warning reaches `warn()` from `check()`'s single gate
   run, subprocess count unchanged; a `gateActive` seam lets these tests call the real Stop-hook
   wrapper honestly even when the suite itself runs as this repo's own `tests` gate child under
-  `SPEC_BRIDGE_GATE_ACTIVE=1`); **R4 trace** (opt-in `SPEC_BRIDGE_GATE_TRACE`: absent ⇒ no file
+  `SPEC_BRIDGE_GATE_ACTIVE=1`); **069 R1-R4/R7** (real stdout reaches the finding, capped to
+  4000, tail surviving; `redByConstruction` unchanged, no excerpt); **R4
+  trace** (opt-in `SPEC_BRIDGE_GATE_TRACE`: absent ⇒ no file
   written, verdict unchanged; set ⇒ one JSONL record naming resolved roots + bounded per-command
   argv/status/stdout/stderr; a write failure is swallowed, never affecting the verdict; the
   capped-length case now pins the exact `TRACE_CAP` (4000) with an `elided middle` marker,

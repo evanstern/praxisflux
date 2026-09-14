@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T15:29:15.030Z",
+  "generatedAt": "2026-09-14T19:16:15.125Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3438,6 +3438,75 @@
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
         "tier=opus pinned=cc/claude-opus-5[1m] served=claude-opus-5"
+      ]
+    },
+    {
+      "id": "TASK-0131",
+      "status": "In Progress",
+      "specDir": "specs/069-gate-failure-excerpt",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "A failing required project gate's finding includes a bounded excerpt of the subprocess's actual output (tail of combined stdout/stderr, or the TAP failure lines), not just the exit code"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "The excerpt is length-capped so one failing suite cannot drown the finding or the surrounding findings"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "The existing one-line summary survives as the headline — the excerpt is additional context, not a replacement"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Per gates-convention.md, the finding still names its fix alongside the excerpt"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — prove it, negative-controlled (R6, R7)"
+        },
+        {
+          "index": 10,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — release obligations and re-ground"
+        }
+      ],
+      "labels": [
+        "spec-bridge",
+        "gates",
+        "debt",
+        "diagnosability"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 2 — surface in the finding; served verified from transcript, 143k tokens / 21 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — tests, negative-controlled; served verified from transcript, 180k tokens / 45 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses] served=claude-sonnet-5"
       ]
     }
   ]
