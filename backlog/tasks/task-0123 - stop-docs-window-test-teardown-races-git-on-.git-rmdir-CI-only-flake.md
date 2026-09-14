@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 17:58'
+updated_date: '2026-09-14 19:08'
 labels:
   - tech-debt
   - flake
@@ -35,11 +35,11 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 - [ ] #2 Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is
 - [x] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
 - [x] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
-- [ ] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
+- [x] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
 - [x] #6 Spec phase: Phase 1 — confirm the mechanism (R1)
 - [x] #7 Spec phase: Phase 2 — the shared teardown helper (R2)
 - [x] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
-- [ ] #9 Spec phase: Phase 4 — sibling audit and close (R5)
+- [x] #9 Spec phase: Phase 4 — sibling audit and close (R5)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -53,17 +53,19 @@ One thing for whoever takes it: do NOT 'fix' this by adding a retry loop and cal
 
 Spec: specs/070-teardown-race
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses] served=claude-sonnet-5
 
 MECHANISM: NOT CONFIRMED, and recorded as such (AC#1 asks for evidence, not inference). The handle-holder could not be observed or reproduced on darwin: 1500+ iterations of the exact fixture-then-immediate-rmSync sequence (300 serial + 8x150 parallel) produced zero ENOTEMPTY. On this machine core.fsmonitor is unset, no git maintenance scheduler is registered, and repo hooks are all non-executable .sample files, so no background git process is plausible here. CI runs ubuntu-latest (.github/workflows/ci.yml:14,72) — a different kernel and filesystem, which is the gap the card itself anticipated. So the fix is defensive against the CLASS of hazard (something still walking .git when rmSync's readdir/rmdir pair runs), not a confirmed single culprit. What IS established: force:true does not cover this case at all — per Node's fs docs it suppresses errors only for a path that no longer exists, and does nothing for a directory that is non-empty when rmdir fires, which is exactly ENOTEMPTY. Retry is the fix; a stronger force does not exist.
 
 HELPER PLACEMENT (orchestrator decision, recorded because the count evidence AC#3 wants depends on it). The helper lives flat at test/fixture-teardown.mjs. Consequence: 'node --test' with no glob collects EVERY .mjs under test/, so the helper is collected as an empty passing test file and the suite total goes 626 -> 627. That +1 is the helper module, not a new test. Two alternatives were tried and rejected: lib/ (the check-docs gate correctly failed it — lib/ is the documented plugin chassis, so it would need a README chassis entry AND would make a test-only change released surface, owing a version bump the runbook explicitly says this task does not owe); test/support/ (still collected — a subdirectory does not escape the default collector). Also corrected: the card and spec said seven rmSync teardown sites; there are six (the seventh match is the import line).
 
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses] served=claude-sonnet-5
 
 STABILITY EVIDENCE (AC#3), reproduced INDEPENDENTLY by the orchestrator rather than accepted from the dispatch. 20 consecutive runs of node --test test/stop-docs-window.test.mjs, raw per-run counts: every run exit=0 pass=6 fail=0. 0/20 failures. Full suite 627 pass / 0 fail. That matches the dispatch's own 20/20, measured separately. WHAT IT DOES NOT PROVE, stated plainly per AC#3's intent: 20 green local runs BOUND the flake, they do not establish it is fixed. The race was never reproducible on this platform at all (Phase 1: 1500+ iterations, zero failures), CI runs ubuntu-latest on a different kernel and filesystem, and the helper is defensive against a class of hazard rather than a confirmed culprit. Absence of failure on a platform that could not produce the original bug is weak evidence by construction. The honest claim is: teardown can no longer fail on a transient ENOTEMPTY without five retries and an escalating backoff first, and if it still fails it does so loudly.
 
 NEGATIVE CONTROL (AC#4) — the four window behaviours were shown to fail when the WINDOW logic regresses, not the teardown. Broke grounding-wiki/gates/repin-window.mjs at three points (fail-open instead of fail-closed on an unresolvable base ref; inverted the empty/non-empty git-log branch; .every -> .some across notes). Result 4 fail / 2 pass: 'stale from unmerged branch work => NOTICE' got block, 'nothing unmerged => BLOCKS' got notice, 'one excused note does not forgive an unexcused sibling' got notice, 'unresolvable base ref => BLOCKS' got notice. Tests 3 and 6 stayed green correctly — they bypass the window by design, which the tests themselves assert. Control proven non-inert by the clean before/after delta (6/6 green before, exactly the four window-consuming tests flipped after). Restored; tree verified clean at eb72f17. USEFUL FINDING for anyone repeating this: a naive one-line regression breaks only 3 of the 4, because the module has several independent fail-closed guards plus an AND-across-notes semantic — hitting all four takes a deliberate multi-point regression.
 
 HELPER CONTRACT LEFT UNPINNED — a deliberate decision, recorded rather than hidden. removeFixtureDir's retry-and-re-throw contract has no test: nothing proves it retries on ENOTEMPTY or that it re-throws after the bound instead of swallowing (a swallowed error would convert a real leak into a passing test — the failure mode AC#4 guards). Three routes were investigated and each rejected on evidence: (1) reproducing a real ENOTEMPTY is impossible here, so the test would be as unreliable as the bug; (2) mock.method on node:fs throws TypeError — builtin ESM named exports are not configurable that way; (3) t.mock.module works ONLY under --experimental-test-module-mocks, a flag used nowhere in this repo, and 'node --test' with no flags is the literal gate name CI and spec-bridge check — so adding it would make that test pass locally and silently fail under the real CI invocation, which is worse than no test. The affordable closures are a project-wide decision to adopt that flag, or a DI refactor of the helper as its own small card. Neither is in this task's scope; flagged for triage rather than silently expanded into.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — sibling audit and close; served verified from transcript, 250k tokens / 122 tool uses] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
