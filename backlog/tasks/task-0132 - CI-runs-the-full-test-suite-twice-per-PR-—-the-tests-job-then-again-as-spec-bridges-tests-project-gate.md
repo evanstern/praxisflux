@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 20:05'
+updated_date: '2026-09-14 20:07'
 labels:
   - ci
   - cost
@@ -41,12 +41,12 @@ Related: TASK-0130 (the flake itself), TASK-0131 (the swallowed diagnostics that
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The full test suite runs ONCE per CI run, not twice — measured from the workflow logs, not assumed
-- [ ] #2 The 'a ticked checkbox cannot outrun a red project gate' enforcement still holds in CI: a genuinely red suite still fails the spec-bridge gate (proven by a deliberate red-suite run, not reasoned)
+- [x] #2 The 'a ticked checkbox cannot outrun a red project gate' enforcement still holds in CI: a genuinely red suite still fails the spec-bridge gate (proven by a deliberate red-suite run, not reasoned)
 - [ ] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
 - [x] #4 The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work
 - [ ] #5 docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended
 - [x] #6 Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)
-- [ ] #7 Spec phase: Phase 2 — prove the enforcement survives in CI (R2)
+- [x] #7 Spec phase: Phase 2 — prove the enforcement survives in CI (R2)
 - [x] #8 Spec phase: Phase 3 — re-ground and close (R5, R6)
 <!-- AC:END -->
 
@@ -64,4 +64,6 @@ TRAP WORTH RECORDING, surfaced by the dispatch and not anticipated in the spec: 
 PHASE 3 — AC#5 ADDRESSED EXPLICITLY, NOT SKIPPED: docs/consuming-gates.md needs no behavioural change, because AC#5 is conditional on the projectGates contract being extended and this direction extends nothing. The chosen mechanism is a workflow step deletion; .spec-bridge.json is byte-identical to main, the contract is untouched, and no consumer observes any difference. AC#6/R6 VERIFIED rather than assumed: test/run-gates.test.mjs passes UNMODIFIED (7 pass / 0 fail) and the branch has zero test-directory diff against main — confirming the finding that its drift check covers spec-bridge and wiki-freshness, not the tests step, so the blocker the runbook anticipated did not exist. VERSION BUMP: not owed, verified at exit=0 — .github/ is exempt released surface per check-version-bump's own rule. RE-PIN: docs/wiki/release-pipeline.md was NEEDS-REVIEW, not a pin bump - its CI section enumerated the steps starting with node --test and described install-path as also running inside the main node --test step. Both were falsified by this change, so prose was amended first (the step list, plus a paragraph stating why no standalone step exists and that the suite still gates once through the gate), THEN re-pinned. Left correct and untouched: the spec-057 paragraph (history, still true) and the release.yml reference at line 90, since release.yml genuinely still runs node --test - verified.
 
 AC#1 MEASURED FROM THE WORKFLOW LOGS, not assumed, with a before/after on real runs. BEFORE (run 34890576521's predecessor - ci.yml on main at 12f55ab, run 34888040871): step 'tests' 19:37:41-19:37:49 (8s) AND step 'board is honest (spec-bridge)' 19:37:50-19:37:59 (9s) - two full suite executions, 17s of suite time. AFTER (run 34890576521 on this branch, ead5f7b): the checks job's step list contains NO tests step at all - marketplace catalog, versions consistent, plugins package, README/CLAUDE sync, board is honest (spec-bridge), grounding wiki fresh, planted block current, version bumped - and spec-bridge alone spans 20:03:21-20:03:31 (10s) while every sibling gate completes in under a second. The 10s IS the single suite run, executed inside the tests project gate. One run per CI run, halved from two, measured from the logs both sides.
+
+R2 PROOF STAGE 2 - THE REAL CI RUN, which is what AC#2 asked for. Run 34890912169 on commit 23ab01f (a temporary deliberately-failing test pushed to this PR, then reverted). The checks job FAILED at step 'this repo board is honest (spec-bridge)', and the three steps after it were SKIPPED - so the gate did not merely report, it BLOCKED the run. Its output verbatim: 'GATE FAILED (1 issue(s)): the required gate tests is red (exited 1) - 71 linked specs affected. A ticked tasks.md checkbox cannot outrun a red project gate - make the gate pass or set the box back.' followed by the excerpt block naming 'not ok 1 - spec 072 R2 proof', the failureType, and the file and line at test/_r2-ci-proof.test.mjs:8. THAT EXCERPT IS TASK-0131's WORK, merged earlier in this same sweep: before it, this exact failure would have read only 'is red (exited 1)' with no test name, no file, no line. So this one CI log is simultaneously the proof for this card and a field demonstration of the sibling card's value. Reverted: red test removed, 636 pass / 0 fail restored.
 <!-- SECTION:NOTES:END -->

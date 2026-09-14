@@ -16,10 +16,11 @@ this task's single PR.
 
 ## Phase 2 — prove the enforcement survives in CI
 
-- [ ] A deliberately red suite is shown to FAIL the spec-bridge gate in CI, with the run named
+- [x] A deliberately red suite is shown to FAIL the spec-bridge gate in CI, with the run named
       and its output quoted — this is AC#2's "proven by a deliberate red-suite run, not reasoned"
-      · **stage 1 done (local, labelled): the gate reported the red suite as BLOCKING.** Stage 2
-      pending: the real CI run, which needs the PR to exist (ci.yml triggers on `pull_request`)
+      · **run 34890912169** on commit `23ab01f`: the `checks` job FAILED at the spec-bridge step
+      and the three steps after it were SKIPPED — it blocked, not merely reported. Quoted on the
+      card, including the excerpt naming the failing test's file and line
 - [x] The proof exercises the CI path after the deletion (proving it while the dedicated step
       still existed would prove nothing — that step would fail first)
 - [x] The red state is fully reverted; no broken test is left behind, verified by diff
@@ -29,10 +30,12 @@ this task's single PR.
 
 ## Phase 3 — re-ground and close
 
-- [ ] The suite runs ONCE per CI run, confirmed by reading the workflow logs (AC#1 says measured,
+- [x] The suite runs ONCE per CI run, confirmed by reading the workflow logs (AC#1 says measured,
       not assumed) — the run's step list shows a single `node --test`
-      · **pending the PR's own CI run.** The workflow file is verified to contain exactly one
-      full-suite invocation, but AC#1 says *measured from the logs*, so the file is not the proof
+      · **measured with a before/after on real runs.** Before (run 34888040871, main at
+      `12f55ab`): `tests` 8s **plus** spec-bridge 9s — two executions. After (run 34890576521):
+      no `tests` step in the job's step list, spec-bridge alone 10s while every sibling gate
+      finishes under a second — that 10s is the one suite run
 - [x] `test/run-gates.test.mjs:35-44` is intact, unmodified, and still passing — the finding says
       it covers `spec-bridge`/`wiki-freshness` and not `tests`, so verify rather than assume
 - [x] AC#5 is addressed explicitly: `docs/consuming-gates.md` needs no behavioural change because

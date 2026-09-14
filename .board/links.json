@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T20:02:26.248Z",
+  "generatedAt": "2026-09-14T20:08:54.466Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3624,12 +3624,12 @@
       "acs": [
         {
           "index": 1,
-          "checked": false,
+          "checked": true,
           "text": "The full test suite runs ONCE per CI run, not twice — measured from the workflow logs, not assumed"
         },
         {
           "index": 2,
-          "checked": false,
+          "checked": true,
           "text": "The 'a ticked checkbox cannot outrun a red project gate' enforcement still holds in CI: a genuinely red suite still fails the spec-bridge gate (proven by a deliberate red-suite run, not reasoned)"
         },
         {
@@ -3654,7 +3654,7 @@
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — prove the enforcement survives in CI (R2)"
         },
         {
