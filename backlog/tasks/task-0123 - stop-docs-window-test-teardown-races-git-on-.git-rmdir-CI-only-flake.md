@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 17:42'
+updated_date: '2026-09-14 17:57'
 labels:
   - tech-debt
   - flake
@@ -33,12 +33,12 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 <!-- AC:BEGIN -->
 - [ ] #1 The ENOTEMPTY teardown race is reproduced or its mechanism confirmed from evidence (not inferred), naming what holds the .git handle
 - [ ] #2 Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is
-- [ ] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
-- [ ] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
+- [x] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
+- [x] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
 - [ ] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
 - [x] #6 Spec phase: Phase 1 — confirm the mechanism (R1)
 - [x] #7 Spec phase: Phase 2 — the shared teardown helper (R2)
-- [ ] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
+- [x] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
 - [ ] #9 Spec phase: Phase 4 — sibling audit and close (R5)
 <!-- AC:END -->
 
@@ -58,4 +58,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phas
 MECHANISM: NOT CONFIRMED, and recorded as such (AC#1 asks for evidence, not inference). The handle-holder could not be observed or reproduced on darwin: 1500+ iterations of the exact fixture-then-immediate-rmSync sequence (300 serial + 8x150 parallel) produced zero ENOTEMPTY. On this machine core.fsmonitor is unset, no git maintenance scheduler is registered, and repo hooks are all non-executable .sample files, so no background git process is plausible here. CI runs ubuntu-latest (.github/workflows/ci.yml:14,72) — a different kernel and filesystem, which is the gap the card itself anticipated. So the fix is defensive against the CLASS of hazard (something still walking .git when rmSync's readdir/rmdir pair runs), not a confirmed single culprit. What IS established: force:true does not cover this case at all — per Node's fs docs it suppresses errors only for a path that no longer exists, and does nothing for a directory that is non-empty when rmdir fires, which is exactly ENOTEMPTY. Retry is the fix; a stronger force does not exist.
 
 HELPER PLACEMENT (orchestrator decision, recorded because the count evidence AC#3 wants depends on it). The helper lives flat at test/fixture-teardown.mjs. Consequence: 'node --test' with no glob collects EVERY .mjs under test/, so the helper is collected as an empty passing test file and the suite total goes 626 -> 627. That +1 is the helper module, not a new test. Two alternatives were tried and rejected: lib/ (the check-docs gate correctly failed it — lib/ is the documented plugin chassis, so it would need a README chassis entry AND would make a test-only change released surface, owing a version bump the runbook explicitly says this task does not owe); test/support/ (still collected — a subdirectory does not escape the default collector). Also corrected: the card and spec said seven rmSync teardown sites; there are six (the seventh match is the import line).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses)
 <!-- SECTION:NOTES:END -->
