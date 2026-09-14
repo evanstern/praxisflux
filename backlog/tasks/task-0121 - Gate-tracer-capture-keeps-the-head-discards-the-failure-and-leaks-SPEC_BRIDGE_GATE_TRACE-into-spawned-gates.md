@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-14 14:24'
+updated_date: '2026-09-14 14:31'
 labels:
   - tech-debt
   - spec-bridge
@@ -47,14 +47,16 @@ Spec: specs/068-gate-tracer-capture
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 capTrace preserves the END of a captured stream (tail, or head+tail with the middle elided) so a node --test failure summary survives the 4000-char cap
-- [ ] #2 runGateCommand does not propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children, so a traced gate run cannot hand tracing to the test suite it invokes
-- [ ] #3 Regression test: a capped capture of output whose failure text is in the last 1000 chars still contains that text; and a spawned gate child's env lacks SPEC_BRIDGE_GATE_TRACE
+- [x] #1 capTrace preserves the END of a captured stream (tail, or head+tail with the middle elided) so a node --test failure summary survives the 4000-char cap
+- [x] #2 runGateCommand does not propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children, so a traced gate run cannot hand tracing to the test suite it invokes
+- [x] #3 Regression test: a capped capture of output whose failure text is in the last 1000 chars still contains that text; and a spawned gate child's env lacks SPEC_BRIDGE_GATE_TRACE
 - [x] #4 Spec phase: Phase 1 — capTrace preserves the tail (R1)
 - [x] #5 Spec phase: Phase 2 — child env drops the trace var (R2)
-- [ ] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
+- [x] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
 - [ ] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
