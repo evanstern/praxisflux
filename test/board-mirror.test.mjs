@@ -9,7 +9,7 @@ import { removeFixtureDir } from "./fixture-teardown.mjs";
 import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
-  loadBoardConfig, validateBoardConfig, isPausedLink,
+  loadBoardConfig, validateBoardConfig, isPausedLink, regenerateMirror,
   renderSpecPhasesBlock, parseSpecPhasesBlock, toSiteStatus, toBridgeStatus,
 } from "../lib/board-mirror.mjs";
 
@@ -81,6 +81,117 @@ function project() {
   const root = mkdtempSync(join(tmpdir(), "board-mirror-"));
   return { root, done: () => rmSync(root, { recursive: true, force: true }) };
 }
+
+function runCliArgs(argv) {
+  try {
+    const stdout = execFileSync("node", [CLI, ...argv], { encoding: "utf8" });
+    return { status: 0, stdout };
+  } catch (e) {
+    // --write's failure path writes to stderr (console.error), not stdout — combine both so a
+    // caller can match on either without needing to know which stream a given branch used.
+    return { status: e.status, stdout: `${e.stdout || ""}${e.stderr || ""}` };
+  }
+}
+
+/* ── spec 071 R5/AC#3 — the regression test pinning the mechanism: a deliberately stale
+ * mirror must produce a BLOCKED commit that NAMES STALENESS, never a misleading status
+ * finding. Both --check failure branches (recomputable drift, and requiresSync staleness)
+ * print the same distinguishing note + a copy-pasteable `fix:` line — R2's whole point is
+ * that a session can never confuse "mirror stale" with "board status lags its spec", so
+ * that exact text is what's pinned here, not just a nonzero exit code. ── */
+
+test("--check CLI: a drifted (recomputable) mirror names the MIRROR FILE, not board drift, and gives a copy-pasteable fix (R2/R5)", () => {
+  const b = backlogProjectWithOneTask({ id: "TASK-8" });
+  try {
+    writeMirror(b.root, { schema: 1, provider: "backlog", generatedAt: "x", links: projectBacklog(b.root) });
+    const raw = readFileSync(mirrorPath(b.root), "utf8");
+    writeFileSync(mirrorPath(b.root), raw.replace('"To Do"', '"In Progress"'));
+    const { status, stdout } = runCliArgs(["--check", "--root", b.root]);
+    assert.equal(status, 1, "a drifted mirror must block");
+    assert.match(stdout, /MIRROR FILE lagging the board, not a task's board status lagging its spec/,
+      "must be distinguishable from the bridge gate's own status finding");
+    assert.match(stdout, new RegExp(`fix: node lib/board-mirror\\.mjs --write --root ${b.root}`),
+      "the fix line must be the real, copy-pasteable regenerate command");
+  } finally {
+    b.done();
+  }
+});
+
+test("--check CLI: a stale requiresSync (jira) mirror names the MIRROR FILE and points at the sync path, not --write (R2/R4)", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, {
+      schema: 1, provider: "jira", generatedAt: "x",
+      links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] }], // no observedSha ⇒ stale
+    });
+    const { status, stdout } = runCliArgs(["--check", "--root", p.root]);
+    assert.equal(status, 1, "a stale requiresSync mirror must block");
+    assert.match(stdout, /MIRROR FILE lagging the "jira" board, not a task's board status lagging its spec/);
+    assert.match(stdout, /fix: refresh it via its sync path, e\.g\. \/spec-bridge:board-sync/,
+      "a requiresSync provider's fix must point at sync, never at --write");
+    assert.doesNotMatch(stdout, /--write --root/, "--write cannot recompute a requiresSync provider");
+  } finally {
+    p.done();
+  }
+});
+
+test("--write round-trips: a staled mirror, regenerated via --write, then passes --check clean (R3)", () => {
+  const b = backlogProjectWithOneTask({ id: "TASK-11" });
+  try {
+    writeMirror(b.root, { schema: 1, provider: "backlog", generatedAt: "x", links: projectBacklog(b.root) });
+    const raw = readFileSync(mirrorPath(b.root), "utf8");
+    writeFileSync(mirrorPath(b.root), raw.replace('"To Do"', '"In Progress"')); // stale it
+    assert.equal(runCliArgs(["--check", "--root", b.root]).status, 1, "precondition: staled");
+
+    const written = runCliArgs(["--write", "--root", b.root]);
+    assert.equal(written.status, 0);
+    assert.match(written.stdout, /wrote/);
+
+    const rechecked = runCliArgs(["--check", "--root", b.root]);
+    assert.equal(rechecked.status, 0, "--write must leave the mirror passing --check");
+    assert.match(rechecked.stdout, /matches the recomputed projection/);
+  } finally {
+    b.done();
+  }
+});
+
+test("regenerateMirror refuses a requiresSync provider (jira) rather than calling a null recompute (R4)", () => {
+  const p = project();
+  try {
+    writeMirror(p.root, {
+      schema: 1, provider: "jira", generatedAt: "x",
+      links: [{ id: "TASK-1", status: "To Do", specDir: "specs/001-a", acs: [] }],
+    });
+    assert.throws(() => regenerateMirror(p.root), /requiresSync.*spec-bridge:board-sync/s,
+      "a Jira host must still be able to commit — refuse, don't crash on a null projector");
+    // Also confirmed at the CLI: --write on a requiresSync provider is an env error (exit 2).
+    const { status, stdout } = runCliArgs(["--write", "--root", p.root]);
+    assert.equal(status, 2);
+    assert.match(stdout, /requiresSync/);
+  } finally {
+    p.done();
+  }
+});
+
+test("regenerateMirror refuses to write an invalid mirror — never produces the envelope-less file --check misreports as unknown schema (R3)", () => {
+  const root = mkdtempSync(join(tmpdir(), "board-mirror-invalid-"));
+  try {
+    // Two linked tasks sharing one specDir: projectBacklog's own recompute is invalid — one
+    // card per spec dir is the bridge's contract (validateMirror's duplicate-specDir check).
+    const tasksDir = join(root, "backlog", "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    for (const id of ["TASK-1", "TASK-2"]) {
+      writeFileSync(
+        join(tasksDir, `${id}.md`),
+        `---\nid: ${id}\nstatus: To Do\n---\n\nSpec: specs/shared\n`,
+      );
+    }
+    assert.throws(() => regenerateMirror(root), /refusing to write an invalid mirror.*duplicate specDir/s);
+    assert.equal(readMirror(root), null, "no mirror file — the on-disk state, if any, must be left untouched");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 const BASE_MIRROR = {
   schema: 1,

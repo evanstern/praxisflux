@@ -13,5 +13,11 @@ echo "pre-commit: marketplace.json up to date"
 node scripts/gen-marketplace.mjs --check
 echo "pre-commit: versions consistent"
 node scripts/sync-version.mjs --check
+echo "pre-commit: board mirror not stale"
+# Same drift-check style as the version step above (spec 071 R1); fails loudly and locally
+# rather than letting a stale .board/links.json silently misreport as board drift downstream
+# (spec-bridge's gate). Never self-heals — node lib/board-mirror.mjs --write is a deliberate,
+# separate step a human or orchestrator runs; see the fix: line this prints on failure.
+node lib/board-mirror.mjs --check --root .
 echo "pre-commit: README/CLAUDE.md in sync"
 node scripts/check-docs.mjs
