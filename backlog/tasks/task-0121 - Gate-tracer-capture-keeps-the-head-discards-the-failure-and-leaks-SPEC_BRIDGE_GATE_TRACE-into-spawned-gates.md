@@ -56,8 +56,6 @@ Spec: specs/068-gate-tracer-capture
 - [x] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -122,6 +120,8 @@ Both restored, each confirmed by an empty diff against the fix. This is the stan
 ALSO FIXED (in scope, one line): test/project-gates.test.mjs:595, the spec-061 assertion stdout.length < 10000 against a TRACE_CAP of 4000 — it would have passed at 9,999 chars. Now assert.equal(..., 4000), pinning the real bound. Found by the orchestrator while reviewing Phase 1; it is the TASK-118 defect shape sitting in the file Phase 3 was already editing. Scoped to that single assertion — TASK-118 itself remains unstarted and out of this sweep run.
 
 TRAILER MISATTRIBUTION — orchestrator error, to state plainly at PR time. All three phase commits carry the Opus 5 co-author trailer because the dispatch prompts specified it verbatim, but the work was served by claude-sonnet-5. The Phase 3 implementer flagged the mismatch rather than following it silently. The trailer is this repos configured session attribution, so it is not wrong in the harness sense, but it does misdescribe which model wrote the code. The Dispatch: lines on this card are the accurate record; the PR body will say so.
+
+spec-bridge sync: Phase 1 — capTrace preserves the tail (R1): 4/4 · Phase 2 — child env drops the trace var (R2): 3/3 · Phase 3 — regression tests, negative-controlled (R3): 4/4 · Phase 4 — release obligations and re-ground: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
