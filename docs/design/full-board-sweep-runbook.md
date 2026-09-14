@@ -17,11 +17,38 @@ TASK-117 → **option 2**, TASK-105 → **sonnet** — against the standing inst
 the sweep once the board was pruned and the plan ratified. Both rulings are written into
 the gate lines below; the lanes are otherwise as authored.
 
-**Execution mode: background-job / no-main-push.** Established by evidence, not
-assumption: this session's `git push origin HEAD:main` was refused, consistent with the
+**Execution mode: INTERACTIVE (board-track main-push works). CORRECTED 2026-09-14
+after TASK-0121 — the paragraph below overstated the constraint; read this first.**
+
+The original reading came from one refused `git push origin HEAD:main` while landing this
+runbook, which was taken as proof that no main-push was available. It is narrower than
+that. What is refused is pushing **unreviewed deliverable work** straight to `main` — the
 repo's own rule ("push to `origin`, and open a PR with `gh` — don't push straight to
-`main`"). The sweep therefore runs under the SKILL's background-job mode, and its three
-substitutions bind for every task here:
+`main`"). A **board/bookkeeping** push to `main` succeeds: TASK-0121's closure commit
+(`510f1e8` — card Done, mirror resync) pushed to `main` directly, with the pre-push gates
+running normally.
+
+So the **two-track landing rule applies in its ordinary form**, not its degraded one:
+board/bookkeeping commits (cards, status flips, notes, AC ticks, mirror resyncs) land
+**direct on `main`**; deliverables land **by PR**. The claim flip stays the exception it
+always was — it is deliverable state and rides the task branch's claim commit.
+
+Consequences for the remaining tasks, replacing the three substitutions below:
+- Post-merge closures (tasks.md tick, `spec-bridge:sync`'s board-Done, this runbook's log
+  row) land as **root commits on `main`**; they do NOT need to ride the next task's branch.
+- There is **no wrap-up PR** owed at sweep close for board state.
+- **Worktree location is unchanged in practice.** Task worktrees still live at
+  `.claude/worktrees/task-<N>`, because a background job's edits are refused in the shared
+  checkout by the harness isolation guard, and `EnterWorktree` uses that root. That is a
+  harness constraint, not the no-main-push mode — and it is exactly the doctrine conflict
+  **TASK-120** is carded to resolve. Do not "fix" paths mid-sweep.
+
+Recorded rather than quietly amended because a resuming session that inherits a wrong
+execution mode will route every closure the wrong way — which is the failure TASK-98 is
+carded for. The superseded reading follows, kept for provenance:
+
+> **Superseded (2026-09-14, first reading):** background-job / no-main-push, on the
+> evidence of one refused push. Its three substitutions:
 - Task worktrees live at **`.claude/worktrees/task-<N>`** (the harness isolation root,
   entered via `EnterWorktree`), not `.worktrees/task-<N>`. Note this is exactly the
   contradiction **TASK-120** exists to resolve — this sweep runs under the harness path
@@ -458,3 +485,34 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-09-14 | (runbook) | #148 | `5f75aeb` | — | Runbook authored, signed off, Lane-0 rulings recorded, scope amended to Lanes A+B. Self-merged after verifying clean against post-#149 `main`. |
+| 2026-09-14 | TASK-0121 | #149 | `69acd40` | ~530k subagent tokens / 4 dispatches (125k + 115k + 146k + 143k), 119 tool uses, ~13½ min agent wall-clock | **Lane A 1/3 — the sweep's calibration task. DONE.** 4 phase-scoped dispatches, all `served=claude-sonnet-5` verified from transcripts — **the tier pin works on this host**; siblings cleared at sonnet. Merged as a true merge commit (2 parents), released `v0.65.1`. See notes below. |
+
+### TASK-0121 — what the calibration surfaced (read before Lane A's next task)
+
+1. **A dispatch reported a gate green that was red.** Phase 4 said freshness passed; it
+   was exit 1 with 12 stale notes. Caught only by the orchestrator re-running every gate
+   itself. **Do not accept a dispatch's gate claim — re-run it.** Mechanism: the gate
+   prints a non-blocking `warn:` line first and its verdict last, so reading a partial
+   tail can look green while the exit code is 1.
+2. **The version bump cascades.** Bumping the marketplace touches every plugin's
+   `plugin.json` and `action.yml`'s npm pin, which are pinned sources for ~11 notes — one
+   line staled them all. Then the *fix* for that (re-stamping the planted `CLAUDE.md`
+   block + `.pdlc`) staled `overview.md` in turn. **Three separate re-pin passes on one
+   branch.** Budget for this on every released-surface task, and re-run the freshness
+   probe after every history move, unconditionally.
+3. **The planted block needs re-stamping on every version bump.** `plant.mjs --check`
+   goes red (`claudeMd: "drifted"`) because the block marker and `.pdlc` sentinel both
+   carry the version. Fix is a **two-file one-line re-stamp**, NOT `plant.mjs --force` —
+   a force re-plant rewrites 186 lines to change one and collides with TASK-96. Precedent:
+   `b1cf2bd`.
+4. **TASK-117 fired three times in one task** (stale mirror at the claim, at the AC ticks,
+   and at sync). The third is the worst symptom: `spec-bridge plan` reads the mirror, not
+   the board, so a stale mirror makes an **already-completed sync re-emit its actions** —
+   inviting a session to re-run edits that already landed. All three recorded on TASK-117.
+   Regenerating has no `--write` flag and the obvious call is wrong (`projectBacklog`
+   returns bare links, not the schema envelope).
+5. **Trailer misattribution — fixed going forward.** TASK-0121's commits carry the
+   `Claude Opus 5` co-author trailer because the dispatch prompts specified it verbatim,
+   while Sonnet did the work. The accurate record is the card's `Dispatch:` lines. Future
+   dispatch prompts should not hard-code a model name in the trailer.
