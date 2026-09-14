@@ -590,8 +590,10 @@ test("R4: bounded capture — stdout longer than the cap is truncated, not dropp
     // T027: gateActive:false — hermetic to the caller's own SPEC_BRIDGE_GATE_ACTIVE.
     try { bridgeGate.check(p.root, { gateActive: false }); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     const record = JSON.parse(readFileSync(tracePath, "utf8").trim());
-    assert.ok(record.commands[0].stdout.length < 10000, "a 10000-char stream must be capped, not stored in full");
-    assert.match(record.commands[0].stdout, /truncated/);
+    // TASK-118 shape: `< 10000` would pass at 9,999 chars and pin nothing against the real
+    // TRACE_CAP (4000, private to bridge.mjs) — assert the exact capped length instead.
+    assert.equal(record.commands[0].stdout.length, 4000, "a capped stream must be exactly TRACE_CAP (4000), not merely under some loose bound");
+    assert.match(record.commands[0].stdout, /elided middle/);
   } finally { rmSync(traceDir, { recursive: true, force: true }); p.done(); }
 });
 
@@ -614,6 +616,63 @@ test("R4 verdict-neutral: an unwritable trace path is swallowed — the gate ver
     finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     assert.equal(problems.length, 1, "a swallowed trace failure must not affect the gate verdict");
   } finally { p.done(); }
+});
+
+/* ── spec 068 (TASK-0121): the tail survives the cap, and the trace var doesn't leak ────────
+ * TASK-119's own residue: `capTrace` kept the HEAD of a capped stream, so the one real capture
+ * that caught a red `node --test` ended "…[59774 more bytes truncated]" — exactly where the
+ * failure summary lives, since node --test prints it last. And `runGateCommand` inherited
+ * SPEC_BRIDGE_GATE_TRACE onto every spawned child, so a traced gate handed tracing down to the
+ * suite it invoked. Both regression tests below are negative-controlled (see the commit). */
+
+test("068 R1: capTrace preserves the tail — a distinctive marker in the last ~1000 chars survives the cap", () => {
+  const p = project();
+  const traceDir = mkdtempSync(join(tmpdir(), "gate-trace-"));
+  const tracePath = join(traceDir, "trace.jsonl");
+  // A repeated filler char can't prove tail-vs-head survival (both halves look identical); a
+  // distinctive marker can. It sits ~400 chars from the end of a 9400-char stream — inside the
+  // "last ~1000 chars" a node --test failure summary would occupy, and well over TRACE_CAP (4000)
+  // so the cap definitely engages.
+  const tailMarker = "FAIL_SUMMARY_" + "Z".repeat(40);
+  try {
+    spawnSync("git", ["init", "-q"], { cwd: p.root });
+    p.config({ projectGates: { required: [
+      { name: "tests", command: ["node", "-e",
+        `process.stdout.write('y'.repeat(9000)); process.stdout.write(${JSON.stringify(tailMarker)}); process.stdout.write('y'.repeat(400)); process.exit(1)`] },
+    ] } });
+    p.task("TASK-1", "Done", "Spec: specs/001-a/");
+    p.spec("specs/001-a", { "spec.md": "s", "plan.md": "p", "tasks.md": ALL_DONE });
+    spawnSync("git", ["-C", p.root, "config", "user.email", "test@example.com"]);
+    spawnSync("git", ["-C", p.root, "config", "user.name", "Test"]);
+    spawnSync("git", ["-C", p.root, "add", "-A"]);
+    spawnSync("git", ["-C", p.root, "commit", "-q", "-m", "init"]); // clean tree ⇒ a red gate blocks
+    process.env.SPEC_BRIDGE_GATE_TRACE = tracePath;
+    // T027: gateActive:false — hermetic to the caller's own SPEC_BRIDGE_GATE_ACTIVE.
+    try { bridgeGate.check(p.root, { gateActive: false }); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
+    const record = JSON.parse(readFileSync(tracePath, "utf8").trim());
+    assert.ok(record.commands[0].stdout.includes(tailMarker),
+      "the tail — where a node --test failure summary prints — must survive the cap, not just the head");
+  } finally { rmSync(traceDir, { recursive: true, force: true }); p.done(); }
+});
+
+test("068 R2: runGateCommand strips SPEC_BRIDGE_GATE_TRACE from the child env, keeping SPEC_BRIDGE_GATE_ACTIVE", () => {
+  const saved = process.env.SPEC_BRIDGE_GATE_TRACE;
+  process.env.SPEC_BRIDGE_GATE_TRACE = "1"; // simulate a traced Stop invocation spawning a gate
+  // Injectable spawn (spec 050 R4's seam) — no real subprocess needed to see the env a child
+  // would receive.
+  let seenEnv;
+  const fakeSpawn = (_cmd, _args, opts) => {
+    seenEnv = opts.env;
+    return { status: 0, stdout: "", stderr: "", signal: null, error: null };
+  };
+  try {
+    runGateCommand(["node", "-e", ""], { cwd: tmpdir(), spawn: fakeSpawn });
+    assert.ok(!("SPEC_BRIDGE_GATE_TRACE" in seenEnv), "the child must never inherit the trace var — absent, not empty-string/\"0\"");
+    assert.equal(seenEnv.SPEC_BRIDGE_GATE_ACTIVE, "1", "the reentrancy guard must still be set on the child");
+  } finally {
+    if (saved === undefined) delete process.env.SPEC_BRIDGE_GATE_TRACE;
+    else process.env.SPEC_BRIDGE_GATE_TRACE = saved;
+  }
 });
 
 /* ── spec 061 Phase 3b, T027-T029: this repo's own dogfood defect ────────────────────────────

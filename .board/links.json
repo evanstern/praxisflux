@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-12T00:52:30.995Z",
+  "generatedAt": "2026-09-14T14:42:25.369Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3018,6 +3018,58 @@
         "tech-debt",
         "spec-bridge",
         "gates"
+      ]
+    },
+    {
+      "id": "TASK-0121",
+      "status": "In Progress",
+      "specDir": "specs/068-gate-tracer-capture",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "capTrace preserves the END of a captured stream (tail, or head+tail with the middle elided) so a node --test failure summary survives the 4000-char cap"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "runGateCommand does not propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children, so a traced gate run cannot hand tracing to the test suite it invokes"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Regression test: a capped capture of output whose failure text is in the last 1000 chars still contains that text; and a spawned gate child's env lacks SPEC_BRIDGE_GATE_TRACE"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — capTrace preserves the tail (R1)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — child env drops the trace var (R2)"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — regression tests, negative-controlled (R3)"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — release obligations and re-ground"
+        }
+      ],
+      "labels": [
+        "tech-debt",
+        "spec-bridge",
+        "gates"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
       ]
     },
     {

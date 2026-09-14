@@ -12,7 +12,7 @@ sources:
   - test/spec-bridge.test.mjs
   - test/spec-derive.test.mjs
   - test/team-review.test.mjs
-verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
+verified_against: ed62e0336ef72aff774c080a7f5e644cf5073e62
 ---
 
 # Test suite — per-file coverage catalog (single-plugin output gates)
@@ -69,7 +69,14 @@ outgrew this note on their own and split further into
   wrapper honestly even when the suite itself runs as this repo's own `tests` gate child under
   `SPEC_BRIDGE_GATE_ACTIVE=1`); **R4 trace** (opt-in `SPEC_BRIDGE_GATE_TRACE`: absent ⇒ no file
   written, verdict unchanged; set ⇒ one JSONL record naming resolved roots + bounded per-command
-  argv/status/stdout/stderr; a write failure is swallowed, never affecting the verdict).
+  argv/status/stdout/stderr; a write failure is swallowed, never affecting the verdict; the
+  capped-length case now pins the exact `TRACE_CAP` (4000) with an `elided middle` marker,
+  spec 068's tightened check); **068 R1** (`capTrace` keeps a distinctive marker in the last
+  ~1000 chars of a stream well over the cap — proving head+tail survival, since a node --test
+  failure summary prints last and a head-only cap, TASK-119's own residue, would have dropped
+  it); **068 R2** (`runGateCommand`'s injected-`spawn` child env has `SPEC_BRIDGE_GATE_TRACE`
+  absent entirely — not `""`/`"0"` — while `SPEC_BRIDGE_GATE_ACTIVE: "1"` still reaches it, so
+  a traced Stop invocation can't hand tracing down to a suite the gate spawns).
 - `test/reorient.test.mjs` — reorient end to end: the output gate (`checkReorient` blocks
   until analyses + synthesis exist, demands every corpus branch named plus the sections,
   refuses in-corpus syntheses and empty lenses; adhoc corpus needs no analysis note),

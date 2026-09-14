@@ -175,10 +175,16 @@ export const GATE_TIMEOUT_MS = 120000;
  */
 export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spawn = spawnSync, trace } = {}) {
   let res;
+  // Child-scoped env: a copy of process.env (spread), never the object itself, so the parent's
+  // own env is never touched. SPEC_BRIDGE_GATE_TRACE must be truly ABSENT on the child — not ""
+  // or "0" — because tracePath() treats any truthy value as an on-switch (spec 068 R2): a traced
+  // gate must not hand tracing down to a suite it spawns.
+  const childEnv = { ...process.env, SPEC_BRIDGE_GATE_ACTIVE: "1" };
+  delete childEnv.SPEC_BRIDGE_GATE_TRACE;
   try {
     res = spawn(command[0], command.slice(1), {
       cwd, timeout: timeoutMs, shell: false, encoding: "utf8",
-      env: { ...process.env, SPEC_BRIDGE_GATE_ACTIVE: "1" },
+      env: childEnv,
     });
   } catch (e) {
     if (trace) try { trace({ command, cwd, status: null, signal: null, stdout: "", stderr: "", error: e.code || e.message }); } catch { /* swallowed */ }
@@ -267,10 +273,15 @@ function tracePath() {
 
 const TRACE_CAP = 4000; // bound stdout/stderr — the `tests` gate's own output is large
 
-/** Bound a captured stream to TRACE_CAP chars, noting how much was cut. */
+/** Bound a captured stream to TRACE_CAP chars total, keeping head (command context) AND
+ *  tail (the verdict — e.g. `node --test`'s failure summary, which prints last) with the
+ *  middle elided. The tail gets the larger share of the budget. */
 function capTrace(s) {
   if (typeof s !== "string" || s.length <= TRACE_CAP) return s;
-  return s.slice(0, TRACE_CAP) + `…[${s.length - TRACE_CAP} more bytes truncated]`;
+  const HEAD_CAP = 800;
+  const marker = "\n…[elided middle]…\n";
+  const tailCap = TRACE_CAP - HEAD_CAP - marker.length;
+  return s.slice(0, HEAD_CAP) + marker + s.slice(s.length - tailCap);
 }
 
 /** Append one JSONL record for this bridgeGate.check() invocation. Never throws — a write

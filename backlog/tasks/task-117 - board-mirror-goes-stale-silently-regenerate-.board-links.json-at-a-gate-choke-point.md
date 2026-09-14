@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 15:34'
+updated_date: '2026-09-14 14:43'
 labels:
   - tech-debt
   - spec-bridge
@@ -36,3 +37,26 @@ Option 1 is self-healing but hides drift; option 2 surfaces it but costs a manua
 - [ ] #2 A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings
 - [ ] #3 Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+TWO MORE FIELD CASES (orchestrator, 2026-09-14, during TASK-0121 — the first task of the sweep that will later fix this).
+
+Both are the same defect this card describes: .board/links.json is derived state with no automatic recompute, so any board edit silently staled it.
+
+CASE 1 — at the claim commit. Flipping TASK-0121 to In Progress and setting its Spec marker changed the projection; the mirror was not regenerated. Consequence was not cosmetic: `spec-bridge/gates/cli.mjs links .` could not see TASK-0121 at all, so the bridge had no link to gate and the link step appeared to have failed. Diagnosed by `node lib/board-mirror.mjs --check --root .`, which named it in one run — the same tool that settled the 2026-09-08 case.
+
+CASE 2 — at the phase-AC ticks. Ticking the four Spec phase ACs and appending the Dispatch: notes staled it again, caught only because the orchestrator ran --check as part of the pre-PR gate sweep. Nothing in the normal commit path would have reported it.
+
+Twice in a single task, on the two most routine board operations there are (claim, tick). This is direct evidence for the ruling already recorded on this card: OPTION 2 (pre-commit fails on a stale mirror). Both cases would have surfaced at the commit that caused them rather than at a gate run two steps downstream.
+
+ONE MORE THING FOR THE IMPLEMENTER — the regeneration path is easy to call wrongly, which is arguably part of the problem this card should address. There is no `--write`/`--fix` flag: `lib/board-mirror.mjs --check --root <dir>` is the only CLI surface, so regenerating means writing a throwaway script against the module. The obvious call is wrong: `projectBacklog(root)` returns the bare links ARRAY, not a mirror object, so `writeMirror(root, projectBacklog(root))` produces a file with no schema envelope, which `--check` then reports as `unknown schema undefined` — a malformed mirror that looks like a different bug. The correct shape is to read the existing mirror, replace `links` and `generatedAt`, run `validateMirror` before writing:
+
+    const prev = readMirror(root);
+    const next = { ...prev, generatedAt: new Date().toISOString(), links: projectBacklog(root) };
+    if (validateMirror(next).length) throw new Error("refusing to write invalid mirror");
+    writeMirror(root, next);
+
+Whatever mechanism this card lands, consider exposing a supported regenerate entry point so the fix does not require every caller to rediscover that envelope contract.
+<!-- SECTION:NOTES:END -->
