@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:26:24.699Z",
+  "generatedAt": "2026-09-14T19:31:37.339Z",
   "links": [
     {
       "id": "TASK-27",
@@ -2961,6 +2961,52 @@
         "feature",
         "doctrine",
         "downstream-bug-find"
+      ]
+    },
+    {
+      "id": "TASK-117",
+      "status": "In Progress",
+      "specDir": "specs/071-mirror-staleness",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — supported regenerate entry point (R3)"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — prove it and close (R5, R6)"
+        }
+      ],
+      "labels": [
+        "tech-debt",
+        "spec-bridge",
+        "gates"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — regression test, release, re-ground; served verified from transcript, 231k tokens / 86 tool uses] served=claude-sonnet-5"
       ]
     },
     {
