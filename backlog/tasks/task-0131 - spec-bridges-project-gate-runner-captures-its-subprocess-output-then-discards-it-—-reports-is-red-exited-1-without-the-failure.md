@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 17:46'
+updated_date: '2026-09-14 17:54'
 labels:
   - spec-bridge
   - gates
@@ -49,7 +49,7 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 - [x] #7 Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)
 - [x] #8 Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)
 - [x] #9 Spec phase: Phase 3 — prove it, negative-controlled (R6, R7)
-- [ ] #10 Spec phase: Phase 4 — release obligations and re-ground
+- [x] #10 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -64,4 +64,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phas
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — tests, negative-controlled; served verified from transcript, 180k tokens / 45 tool uses)
 
 NEGATIVE CONTROLS REPRODUCED INDEPENDENTLY by the orchestrator, not taken from the dispatch's transcript. Broke boundOutput to a head-only slice(0,cap) and re-ran: exactly the tail-dependent assertions failed — the new '069 R3: a marker on the LAST line of long output survives the cap' plus TASK-0121's own two tail tests (R4 bounded-capture, 068 R1 capTrace tail) — while the other 40 stayed green, isolating the behaviour as intended. Restored and re-verified 630 pass / 0 fail with only test/project-gates.test.mjs modified. The dispatch also reported two further controls: excerptBlock forced to "" fails the three excerpt-reaching assertions but not the redByConstruction one (nothing to exclude), and appending the excerpt to redByConstruction fails ONLY the new real-subprocess R7 test — notably the pre-existing injected-fixture boundary test at project-gates.test.mjs:151 does NOT catch that regression, which is precisely the gap this phase closes.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses)
 <!-- SECTION:NOTES:END -->
