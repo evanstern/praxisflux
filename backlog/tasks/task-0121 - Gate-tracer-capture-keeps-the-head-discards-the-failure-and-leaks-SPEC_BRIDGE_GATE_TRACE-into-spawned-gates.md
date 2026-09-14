@@ -3,10 +3,11 @@ id: TASK-0121
 title: >-
   Gate tracer: capture keeps the head (discards the failure) and leaks
   SPEC_BRIDGE_GATE_TRACE into spawned gates
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-09 14:13'
+updated_date: '2026-09-14 14:10'
 labels:
   - tech-debt
   - spec-bridge
