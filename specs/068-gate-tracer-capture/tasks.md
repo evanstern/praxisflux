@@ -16,10 +16,10 @@ one PR — no phase gets its own PR (constitution II).
 
 ## Phase 2 — child env drops the trace var (R2)
 
-- [ ] `runGateCommand` builds a child env with `SPEC_BRIDGE_GATE_TRACE` absent (not `""`,
+- [x] `runGateCommand` builds a child env with `SPEC_BRIDGE_GATE_TRACE` absent (not `""`,
       not `"0"` — `tracePath()` treats any truthy value as on)
-- [ ] `SPEC_BRIDGE_GATE_ACTIVE: "1"` still set on the child
-- [ ] Parent `process.env` not mutated — the strip is child-scoped only
+- [x] `SPEC_BRIDGE_GATE_ACTIVE: "1"` still set on the child
+- [x] Parent `process.env` not mutated — the strip is child-scoped only
 
 ## Phase 3 — regression tests, negative-controlled (R3)
 

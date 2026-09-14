@@ -175,10 +175,16 @@ export const GATE_TIMEOUT_MS = 120000;
  */
 export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spawn = spawnSync, trace } = {}) {
   let res;
+  // Child-scoped env: a copy of process.env (spread), never the object itself, so the parent's
+  // own env is never touched. SPEC_BRIDGE_GATE_TRACE must be truly ABSENT on the child — not ""
+  // or "0" — because tracePath() treats any truthy value as an on-switch (spec 068 R2): a traced
+  // gate must not hand tracing down to a suite it spawns.
+  const childEnv = { ...process.env, SPEC_BRIDGE_GATE_ACTIVE: "1" };
+  delete childEnv.SPEC_BRIDGE_GATE_TRACE;
   try {
     res = spawn(command[0], command.slice(1), {
       cwd, timeout: timeoutMs, shell: false, encoding: "utf8",
-      env: { ...process.env, SPEC_BRIDGE_GATE_ACTIVE: "1" },
+      env: childEnv,
     });
   } catch (e) {
     if (trace) try { trace({ command, cwd, status: null, signal: null, stdout: "", stderr: "", error: e.code || e.message }); } catch { /* swallowed */ }
