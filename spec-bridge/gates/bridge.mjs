@@ -375,13 +375,35 @@ function gateReason(result) {
 /** Shared tail clause for every project-gate finding, per-spec or collapsed alike. */
 const CANT_OUTRUN = "A ticked tasks.md checkbox cannot outrun a red project gate — make the gate pass or set the box back.";
 
-/** The blocking finding: names the phase, the box, and the failing gate (spec 050 AC #1). */
+/**
+ * The captured excerpt (spec 069 R1/R3/R4), rendered as an indented block AFTER the one-line
+ * headline it is appended to — never woven into the sentence, so a session scanning findings
+ * still reads gate → reason → count → fix before it reaches the raw subprocess dump. Each line
+ * of `result.output` gets a `    | ` prefix (plain ASCII, unmistakable as quoted output rather
+ * than more finding prose). Returns `""` when the verdict carries no `output` — a silent
+ * failure (spec 069 Phase 1's `gateOutput` already omits the key in that case) degrades to
+ * today's bare headline, never an empty block. Callers never invoke this for a
+ * `redByConstruction` gate (R7: that path stays byte-identical to before this change).
+ */
+function excerptBlock(result) {
+  if (!result.output) return "";
+  return "\n" + result.output.split("\n").map((line) => `    | ${line}`).join("\n");
+}
+
+/** The blocking finding: names the phase, the box, and the failing gate (spec 050 AC #1).
+ *  A `required` gate's finding gains the captured-output excerpt after the headline (spec 069
+ *  R1/R4); `redByConstruction` is excluded from `excerptBlock` entirely so its wording stays
+ *  byte-identical to before this change (R7) — the two evaluators (per-spec here, collapsed
+ *  below) apply the same rule for the same reason: R1 names "a non-green required project
+ *  gate's finding" without carving the per-spec path out, and `evaluateProjectGates` stays
+ *  exported for `cli.mjs state`'s live diagnosis, where the excerpt is exactly as useful. */
 function projectGateProblem({ id, specDir, witness, gate, result }) {
   const where = witness
     ? `phase "${witness.phase}", box "${witness.box}" is ticked, but `
     : "a ticked box stands over a gate that ";
   const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
-  return `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ${CANT_OUTRUN}`;
+  const headline = `[spec-bridge] ${id} · ${specDir}: ${where}the ${label} "${gate.name}" ${gateReason(result)}. ${CANT_OUTRUN}`;
+  return gate.bucket === "redByConstruction" ? headline : headline + excerptBlock(result);
 }
 
 /**
@@ -417,6 +439,12 @@ export function evaluateProjectGates({ id, specDir, phaseBoxes }, gates, run) {
  * for `required`, only the Done-eligible ones for `redByConstruction` — the bucket asymmetry).
  * A gate whose bucket count is 0 is never even run — no spec is holding it, so nothing changes
  * about WHICH gates run for WHICH specs, only how a non-green one is reported.
+ *
+ * A `required` gate's finding gains the captured-output excerpt (`excerptBlock`) after the
+ * headline and after `CANT_OUTRUN` — this is the finding a session actually reads (spec 069's
+ * field case: CI prints this collapsed line, not the per-spec one). `redByConstruction` is
+ * routed around `excerptBlock` entirely, so that finding's text is byte-identical to before
+ * this change (spec 069 R4/R5/R7).
  */
 function collapsedGateProblems(gates, counts, runOne) {
   const problems = [];
@@ -426,9 +454,8 @@ function collapsedGateProblems(gates, counts, runOne) {
     const result = runOne(gate.command);
     if (result.ok) continue;
     const label = gate.bucket === "redByConstruction" ? "red-by-construction gate" : "required gate";
-    problems.push(
-      `[spec-bridge] the ${label} "${gate.name}" ${gateReason(result)} — ${count} linked spec${count === 1 ? "" : "s"} affected. ${CANT_OUTRUN}`
-    );
+    const headline = `[spec-bridge] the ${label} "${gate.name}" ${gateReason(result)} — ${count} linked spec${count === 1 ? "" : "s"} affected. ${CANT_OUTRUN}`;
+    problems.push(gate.bucket === "redByConstruction" ? headline : headline + excerptBlock(result));
   }
   return problems;
 }

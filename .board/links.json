@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:28:27.460Z",
+  "generatedAt": "2026-09-14T17:33:32.059Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3482,7 +3482,7 @@
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)"
         },
         {
@@ -3503,7 +3503,8 @@
         "diagnosability"
       ],
       "dispatches": [
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses)"
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses)",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 2 — surface in the finding; served verified from transcript, 143k tokens / 21 tool uses)"
       ]
     }
   ]
