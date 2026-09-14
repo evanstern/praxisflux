@@ -267,10 +267,15 @@ function tracePath() {
 
 const TRACE_CAP = 4000; // bound stdout/stderr — the `tests` gate's own output is large
 
-/** Bound a captured stream to TRACE_CAP chars, noting how much was cut. */
+/** Bound a captured stream to TRACE_CAP chars total, keeping head (command context) AND
+ *  tail (the verdict — e.g. `node --test`'s failure summary, which prints last) with the
+ *  middle elided. The tail gets the larger share of the budget. */
 function capTrace(s) {
   if (typeof s !== "string" || s.length <= TRACE_CAP) return s;
-  return s.slice(0, TRACE_CAP) + `…[${s.length - TRACE_CAP} more bytes truncated]`;
+  const HEAD_CAP = 800;
+  const marker = "\n…[elided middle]…\n";
+  const tailCap = TRACE_CAP - HEAD_CAP - marker.length;
+  return s.slice(0, HEAD_CAP) + marker + s.slice(s.length - tailCap);
 }
 
 /** Append one JSONL record for this bridgeGate.check() invocation. Never throws — a write

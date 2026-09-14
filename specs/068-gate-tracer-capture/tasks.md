@@ -7,12 +7,12 @@ one PR — no phase gets its own PR (constitution II).
 
 ## Phase 1 — capTrace preserves the tail (R1)
 
-- [ ] Rewrite `capTrace` (`spec-bridge/gates/bridge.mjs`) to keep head + tail with the
+- [x] Rewrite `capTrace` (`spec-bridge/gates/bridge.mjs`) to keep head + tail with the
       middle elided, total within the existing `TRACE_CAP` budget; the tail gets the
       larger share since it carries the `node --test` verdict
-- [ ] Truncation marker names which part was dropped (elided middle), not just a byte count
-- [ ] Strings at or under `TRACE_CAP` still pass through unchanged, no marker
-- [ ] Non-string input keeps its current pass-through behaviour
+- [x] Truncation marker names which part was dropped (elided middle), not just a byte count
+- [x] Strings at or under `TRACE_CAP` still pass through unchanged, no marker
+- [x] Non-string input keeps its current pass-through behaviour
 
 ## Phase 2 — child env drops the trace var (R2)
 

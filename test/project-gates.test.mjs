@@ -591,7 +591,7 @@ test("R4: bounded capture — stdout longer than the cap is truncated, not dropp
     try { bridgeGate.check(p.root, { gateActive: false }); } finally { delete process.env.SPEC_BRIDGE_GATE_TRACE; }
     const record = JSON.parse(readFileSync(tracePath, "utf8").trim());
     assert.ok(record.commands[0].stdout.length < 10000, "a 10000-char stream must be capped, not stored in full");
-    assert.match(record.commands[0].stdout, /truncated/);
+    assert.match(record.commands[0].stdout, /elided middle/);
   } finally { rmSync(traceDir, { recursive: true, force: true }); p.done(); }
 });
 
