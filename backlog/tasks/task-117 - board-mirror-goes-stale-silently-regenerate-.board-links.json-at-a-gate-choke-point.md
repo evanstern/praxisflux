@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:34'
-updated_date: '2026-09-14 17:31'
+updated_date: '2026-09-14 17:43'
 labels:
   - tech-debt
   - spec-bridge
@@ -37,8 +37,8 @@ Option 1 is self-healing but hides drift; option 2 surfaces it but costs a manua
 - [ ] #1 The backlog mirror can no longer be silently stale when the bridge gate reads it — either the gate regenerates it in its precondition or a hook fails on staleness (decision recorded)
 - [ ] #2 A stale mirror is distinguishable from real board drift in the gate's own output, so a session cannot chase phantom findings
 - [ ] #3 Regression test pins the chosen mechanism: a deliberately stale mirror produces the intended outcome (refresh or block), not misleading status findings
-- [ ] #4 Spec phase: Phase 1 — supported regenerate entry point (R3)
-- [ ] #5 Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)
+- [x] #4 Spec phase: Phase 1 — supported regenerate entry point (R3)
+- [x] #5 Spec phase: Phase 2 — hook step and distinguishing output (R1, R2, R4)
 - [ ] #6 Spec phase: Phase 3 — prove it and close (R5, R6)
 <!-- AC:END -->
 
@@ -67,4 +67,6 @@ Whatever mechanism this card lands, consider exposing a supported regenerate ent
 Spec: specs/071-mirror-staleness
 
 FIELD CASES 4 AND 5 (orchestrator, 2026-09-14, full-board sweep). The same defect fired twice more, at the claim commits for TASK-0131 and TASK-0123. In both cases 'spec-bridge/gates/cli.mjs links .' could not see the newly claimed task at all until the mirror was hand-regenerated with the four-line envelope-correct recipe from this card's own notes; 'lib/board-mirror.mjs --check' named it in one run each time. Five occurrences now, every one on a routine board write (claim, tick, claim, claim). Recorded because the count is the argument: this is not an edge case, it is the default outcome of editing the board.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses)
 <!-- SECTION:NOTES:END -->
