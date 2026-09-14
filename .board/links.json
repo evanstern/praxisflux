@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:59:56.518Z",
+  "generatedAt": "2026-09-14T18:04:29.752Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3005,8 +3005,8 @@
         "gates"
       ],
       "dispatches": [
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses)",
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — regression test, release, re-ground; served verified from transcript, 231k tokens / 86 tool uses)"
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — regression test, release, re-ground; served verified from transcript, 231k tokens / 86 tool uses] served=claude-sonnet-5"
       ]
     },
     {
