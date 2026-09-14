@@ -3,9 +3,11 @@ id: TASK-0131
 title: >-
   spec-bridge's project-gate runner captures its subprocess output then discards
   it — reports "is red (exited 1)" without the failure
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-11 16:05'
+updated_date: '2026-09-14 17:21'
 labels:
   - spec-bridge
   - gates
