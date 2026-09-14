@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-14 14:16'
+updated_date: '2026-09-14 14:22'
 labels:
   - tech-debt
   - spec-bridge
@@ -50,8 +50,40 @@ Spec: specs/068-gate-tracer-capture
 - [ ] #1 capTrace preserves the END of a captured stream (tail, or head+tail with the middle elided) so a node --test failure summary survives the 4000-char cap
 - [ ] #2 runGateCommand does not propagate SPEC_BRIDGE_GATE_TRACE to spawned gate children, so a traced gate run cannot hand tracing to the test suite it invokes
 - [ ] #3 Regression test: a capped capture of output whose failure text is in the last 1000 chars still contains that text; and a spawned gate child's env lacks SPEC_BRIDGE_GATE_TRACE
-- [ ] #4 Spec phase: Phase 1 — capTrace preserves the tail (R1)
+- [x] #4 Spec phase: Phase 1 — capTrace preserves the tail (R1)
 - [ ] #5 Spec phase: Phase 2 — child env drops the trace var (R2)
 - [ ] #6 Spec phase: Phase 3 — regression tests, negative-controlled (R3)
 - [ ] #7 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 1 (R1 — capTrace preserves the tail) complete, commit 413e9bd.
+
+SERVED-MODEL VERIFICATION (the reason TASK-0121 ran first as this sweep calibration):
+the dispatch transcript reports served model `claude-sonnet-5`, NOT the orchestrator
+session model (Opus 5). The tier pin therefore works on this host through the generated
+agent definition at .claude/agents/sonnet-implementer.md. This is the load-bearing check
+the sweep doctrine requires before launching sibling dispatches — a wrong pin caught
+after one agent is a rounding error; caught after a lane, it is the lane budget. Sibling
+dispatches are now cleared to launch at this tier.
+
+Implementation verified rather than accepted on report: head 800 + marker 19 + tail 3181
+= exactly 4000, so TRACE_CAP is a total and was not silently doubled (the specific failure
+plan.md step 1.1 warned against). Tail gets ~4x the head, per the plan. node --test 624
+pass / 0 fail.
+
+SCOPE NOTE — one file outside the dispatch was touched, flagged by the implementer rather
+than hidden: test/project-gates.test.mjs:594, a spec-061 assertion matching the old marker
+text /truncated/, updated to /elided middle/. Reviewed and accepted: it is a one-line
+assertion repair required by the marker change, not new Phase 3 coverage, and the adjacent
+cap assertion at :593 still pins that the stream is bounded.
+
+Observation for Phase 3: that adjacent assertion is `stdout.length < 10000` against a
+TRACE_CAP of 4000 — it would pass at 9999 chars. Pre-existing weakness, not introduced
+here, but exactly the shape TASK-118 (assertions weaker than their stated intent) is
+carded for. Phase 3 should pin the real bound.
+<!-- SECTION:NOTES:END -->
