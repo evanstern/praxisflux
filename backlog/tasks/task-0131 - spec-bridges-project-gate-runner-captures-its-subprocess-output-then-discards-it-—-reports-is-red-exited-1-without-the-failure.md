@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 17:22'
+updated_date: '2026-09-14 17:28'
 labels:
   - spec-bridge
   - gates
@@ -46,16 +46,16 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 - [ ] #4 Per gates-convention.md, the finding still names its fix alongside the excerpt
 - [ ] #5 A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems
 - [ ] #6 redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path
-- [ ] #7 Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)
+- [x] #7 Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)
 - [ ] #8 Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)
 - [ ] #9 Spec phase: Phase 3 — prove it, negative-controlled (R6, R7)
 - [ ] #10 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec: specs/069-gate-failure-excerpt
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 1 — capture and bound; served verified from transcript, 141k tokens / 17 tool uses)
 <!-- SECTION:NOTES:END -->
