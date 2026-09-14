@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 17:21'
+updated_date: '2026-09-14 17:22'
 labels:
   - spec-bridge
   - gates
@@ -47,3 +47,9 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 - [ ] #5 A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems
 - [ ] #6 redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec: specs/069-gate-failure-excerpt
+<!-- SECTION:NOTES:END -->
