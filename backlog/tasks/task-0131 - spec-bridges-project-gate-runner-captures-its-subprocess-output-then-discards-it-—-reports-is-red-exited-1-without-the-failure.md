@@ -46,7 +46,13 @@ Scope note: `redByConstruction` gates are expected red and already reported diff
 - [ ] #4 Per gates-convention.md, the finding still names its fix alongside the excerpt
 - [ ] #5 A test proves the excerpt reaches the finding: a fixture gate that fails with known output, asserted to appear in checkBridge's problems
 - [ ] #6 redByConstruction gates keep their current reporting — they are expected red and this change does not touch that path
+- [ ] #7 Spec phase: Phase 1 — capture and bound the subprocess output (R1, R2, R3)
+- [ ] #8 Spec phase: Phase 2 — surface the excerpt in the finding (R4, R5, R7)
+- [ ] #9 Spec phase: Phase 3 — prove it, negative-controlled (R6, R7)
+- [ ] #10 Spec phase: Phase 4 — release obligations and re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
