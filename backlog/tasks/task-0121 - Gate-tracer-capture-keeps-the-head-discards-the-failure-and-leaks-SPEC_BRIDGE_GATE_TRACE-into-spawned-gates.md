@@ -3,11 +3,11 @@ id: TASK-0121
 title: >-
   Gate tracer: capture keeps the head (discards the failure) and leaks
   SPEC_BRIDGE_GATE_TRACE into spawned gates
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-09 14:12'
-updated_date: '2026-09-14 14:32'
+updated_date: '2026-09-14 15:28'
 labels:
   - tech-debt
   - spec-bridge
@@ -121,3 +121,9 @@ ALSO FIXED (in scope, one line): test/project-gates.test.mjs:595, the spec-061 a
 
 TRAILER MISATTRIBUTION — orchestrator error, to state plainly at PR time. All three phase commits carry the Opus 5 co-author trailer because the dispatch prompts specified it verbatim, but the work was served by claude-sonnet-5. The Phase 3 implementer flagged the mismatch rather than following it silently. The trailer is this repos configured session attribution, so it is not wrong in the harness sense, but it does misdescribe which model wrote the code. The Dispatch: lines on this card are the accurate record; the PR body will say so.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — capTrace preserves the tail (R1): 4/4 · Phase 2 — child env drops the trace var (R2): 3/3 · Phase 3 — regression tests, negative-controlled (R3): 4/4 · Phase 4 — release obligations and re-ground: 4/4). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
