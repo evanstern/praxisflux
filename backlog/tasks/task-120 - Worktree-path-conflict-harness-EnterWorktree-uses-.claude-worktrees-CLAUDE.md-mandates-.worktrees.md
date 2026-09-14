@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 17:41'
-updated_date: '2026-09-08 17:41'
+updated_date: '2026-09-14 13:42'
 labels:
   - doctrine
   - pdlc
@@ -42,5 +42,20 @@ RELATED, possibly the same root cause (operator report, 2026-09-08): the board d
 <!-- AC:BEGIN -->
 - [ ] #1 The worktree path for background-job sweeps is unambiguous: one document states it and the other does not contradict it
 - [ ] #2 Worktree hygiene (the sweep Output gate and any check script) covers whichever paths are sanctioned, so an orphaned tree in either location is detected
-- [ ] #3 The existing orphan at .claude/worktrees/refactor-triage-2026-07-31 is removed or explicitly retained with a reason
+- [x] #3 The existing orphan at .claude/worktrees/refactor-triage-2026-07-31 is removed or explicitly retained with a reason
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+AC#3 TICKED AS ALREADY-TRUE (operator ratification, 2026-09-14, pre-sweep board prune) — not swept as work.
+
+The orphaned worktree this card cited (.claude/worktrees/refactor-triage-2026-07-31, 7.6M, pointer referencing a repo location that no longer exists, carrying its own backlog/ and docs/wiki/, test suite exiting 1) is GONE. Verified against HEAD 3c696f1: .claude/worktrees/ exists but is empty (only . and ..), and 'git worktree list' shows a single entry — the root checkout on main. It was removed at some point between the card's creation (2026-09-08) and now; the directory mtime is 2026-09-11.
+
+AC#1 and AC#2 REMAIN LIVE — this tick does not close the card. The doctrine conflict is intact and still contradictory in the current tree:
+  - CLAUDE.md:79-80 mandates '<repo-root>/.worktrees/' ('git worktree add .worktrees/task-<n> ...'), backed by .gitignore:6.
+  - pdlc/skills/sweep/SKILL.md:399-401 (background-job / no-main-push execution mode) explicitly prescribes the opposite: 'Task worktrees live at .claude/worktrees/task-<N> — the harness's isolation root, entered via the harness's worktree switch (EnterWorktree) — not .worktrees/task-<N>.'
+A background-job sweep on this host still cannot satisfy both documents, which is the decision AC#1 asks for and AC#2's hygiene coverage depends on.
+
+Worth noting for whoever takes it: the orphan disappearing WITHOUT any hygiene check catching it is itself evidence for AC#2. Nothing detected it, nothing recorded its removal — it was invisible to the worktree listing the whole time, which is precisely the 'a path doctrine does not know about is a path nobody sweeps' hazard. AC#2 should not be weakened on the grounds that this particular orphan is gone.
+<!-- SECTION:NOTES:END -->
