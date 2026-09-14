@@ -8,7 +8,11 @@ themselves (each carries its own finding, evidence, and ACs) plus the operator-r
 pre-sweep prune (commit `9f6b6af`) win. Plan-of-record is the board; this file carries
 only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-09-14
+**Status:** done · operator sign-off on lanes: 2026-09-14 · scoped run completed 2026-09-14
+<!-- All five scope-amended tasks are Done on the board, each via its own merged PR. The
+     eight punted tasks (Lanes C/D/E) and TASK-0129 remain out of scope — a later sweep
+     adopting them must author its own runbook or amend this one back to executing, never
+     silently inherit a `done` file. -->
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -511,6 +515,7 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 | 2026-09-14 | TASK-0131 | #150 | `678b443` | ~635k subagent tokens / 5 dispatches (141k + 143k + 180k + 170k + 150k), 221 tool uses | **Lane A 2/3.** Spec 069. 4 phases + a cascade re-pin pass, all `served=claude-sonnet-5` verified from transcripts. Released `0.65.2`. **MERGED** as a true merge commit, released `0.65.2`. Card Done. |
 | 2026-09-14 | TASK-0123 | #152 | `e41509c` | ~562k subagent tokens / 4 dispatches (140k + 171k + 250k), 192 tool uses | **Lane B.** Spec 070. Test-only, no bump (verified exit=0). 20/20 stability evidence reproduced by the orchestrator; mechanism recorded UNCONFIRMED; 16-file audit with per-file verdicts. Card **Done**. **MERGED** last of the three (sequenced apart from #151 per the stricter-commit-path rule). Suite 636 at merge. |
 | 2026-09-14 | TASK-117 | #151 | `d99cda4` | ~395k subagent tokens / 2 dispatches (164k + 231k), 122 tool uses | **Lane B.** Spec 071, option-2 ruling implemented (`--write` + pre-commit step; no self-heal). Released `0.65.2`. Fired 6× total counting its own closure. **MERGED**, released `0.65.3` after #150 took 0.65.2 — the version collision, resolved by taking the next patch. Card Done. |
+| 2026-09-14 | TASK-0132 | #153 | `43f5f8a` | ~155k subagent tokens / 1 dispatch, 34 tool uses, plus 3 CI round-trips | **Lane A 3/3 — the sweep's last scoped task. DONE.** Spec 072, operator ruling implemented (drop the step, keep the gate). AC#1 measured before/after from real logs; AC#2 proven by a deliberate red-suite CI run (34890912169) that FAILED at the spec-bridge step and skipped the rest. No version bump owed (`.github/` exempt). Two premise corrections recorded. |
 | 2026-09-14 | TASK-0121 | #149 | `69acd40` | ~530k subagent tokens / 4 dispatches (125k + 115k + 146k + 143k), 119 tool uses, ~13½ min agent wall-clock | **Lane A 1/3 — the sweep's calibration task. DONE.** 4 phase-scoped dispatches, all `served=claude-sonnet-5` verified from transcripts — **the tier pin works on this host**; siblings cleared at sonnet. Merged as a true merge commit (2 parents), released `v0.65.1`. See notes below. |
 
 ### TASK-0121 — what the calibration surfaced (read before Lane A's next task)
@@ -613,10 +618,12 @@ All three are **pin-carrying** ⇒ merge commits, never squash.
    which `node --test` (the literal gate name CI checks) does not pass — such a test would pass
    locally and **silently fail in CI**, worse than no test.
 
-**Scope status (updated after the merge phase):** TASK-0121 ✓ · TASK-0131 ✓ (#150,
-`678b443`) · TASK-117 ✓ (#151, `d99cda4`) · TASK-0123 ✓ (#152, `e41509c`) — **four of five
-scoped tasks DONE on the board, each via its own merged PR.** Main is at `0.65.3` with all gates
-green. **TASK-0132 is the one remaining scoped task, specced-ready but not started:** its operator ruling is recorded above as a gate line; it was deliberately not begun
+**Scope status — COMPLETE:** TASK-0121 ✓ · TASK-0131 ✓ (#150, `678b443`) · TASK-117 ✓
+(#151, `d99cda4`) · TASK-0123 ✓ (#152, `e41509c`) · TASK-0132 ✓ (#153, `43f5f8a`) — **all five
+scope-amended tasks DONE on the board, each via its own merged PR, every one a true merge
+commit.** Main is at `0.65.3` with all gates green. The eight punted tasks and TASK-0129 remain
+out of scope, exactly as amended. *Superseded note on TASK-0132, kept for provenance — it was
+specced-ready and blocked on #150 at the time of writing:* its operator ruling is recorded above as a gate line; it was deliberately not begun
 because Lane A is serial and TASK-0132 is last in it, so starting it before #150 merges would
 develop against a `bridge.mjs` and a `0.65.2` that main has not accepted. TASK-0129 and Lanes
 C/D/E remain out of scope per the scope amendment. **This file's status stays `signed-off`, not `done`** — four of the five scoped
@@ -675,3 +682,79 @@ than an unresolved merge. The mirror is derived state: at every conflict, take m
 **regenerate** (`node lib/board-mirror.mjs --write --root .`, the entry point #151 added), never
 resolve it by hand or pick a side. That feature resolved its own branch's merge conflicts three
 times during its delivery.
+
+### TASK-0132 (2026-09-14) — the closing task, and what its proof demonstrated
+
+**One CI log validated two cards at once.** TASK-0132's AC#2 demanded proof that a red suite
+still fails the spec-bridge gate after `ci.yml`'s dedicated `tests` step was removed — the claim
+the whole task rests on, since afterwards that gate is the *only* thing in CI between a red
+suite and a green run. Run **34890912169** (a deliberately red commit, pushed then reverted)
+failed at the spec-bridge step and **skipped the three steps after it**, and printed:
+
+```
+GATE FAILED (1 issue(s)):
+  - the required gate "tests" is red (exited 1) — 71 linked specs affected.
+    A ticked tasks.md checkbox cannot outrun a red project gate — …
+    | not ok 1 - spec 072 R2 proof: deliberately red so CI can prove the gate blocks
+    | location: '.../test/_r2-ci-proof.test.mjs:8:1'
+```
+
+**That excerpt block is TASK-0131's work, merged earlier in this same sweep.** Before it, this
+exact failure read `is red (exited 1)` and nothing else — the defect that cost a ~160k-token
+diagnostic dig on PR #144. So the sweep's second task supplied the diagnosability that made the
+fifth task's proof readable, in the field, on real CI.
+
+**AC#1 was measured, not reasoned** — and the method is worth reusing, because the obvious
+approach fails. The gate captures its subprocess output and prints nothing when green, so
+counting `# pass` lines in the log finds only the `install-path` job. **Step timings settle it:**
+before (run 34888040871, main at `12f55ab`) the `tests` step took 8s *and* spec-bridge 9s — two
+executions; after (run 34890576521) there is no `tests` step in the job's step list and
+spec-bridge alone takes 10s while every sibling gate finishes in under a second. That 10s *is*
+the single suite run.
+
+**Two premise corrections, both written into spec 072 rather than left in a session:**
+1. The card said "the `tests` job, then again as spec-bridge's gate". **There is no second job** —
+   `ci.yml` declares only `checks` and `install-path`, and both invocations were sequential
+   *steps inside `checks`*. Two of the card's three offered directions had no job boundary to
+   attach to, which is what made the operator's chosen direction the only clean one.
+2. **This runbook's own gate line was wrong** about the blocker: it warned that
+   `test/run-gates.test.mjs` "asserts both CI steps stay present" and needed careful updating.
+   It does not — it loops over `["spec-bridge", "wiki-freshness"]` and matches `run-gates.mjs`
+   invocations, never `node --test`. It passes **unmodified**, with zero test-directory diff.
+   Corrected rather than relied on; loosening a load-bearing assertion to fit an expected
+   blocker is the failure TASK-118 is carded about.
+
+**A trap worth reusing, not anticipated by the spec:** `isTreeDirty()` in `bridge.mjs` demotes a
+red *required* gate to a **non-blocking warning** on a dirty tree. So the naive local
+reproduction — add a failing test, run the gate — prints `GATE FAILED` for an unrelated reason
+while the `tests` gate is merely warned about, and proves nothing. Commit the red state first.
+This is the sweep's recurring lesson in a third form: **a gate's verdict is evidence only once
+you know which tree and which range it evaluated** (the other two forms: a partial tail reading
+green at exit 1, and a pin resolved to one parent of a merge).
+
+**An honest correction mid-task:** in the tick pass I marked AC#1's "measured from the logs" box
+and AC#2's CI box as done while the branch had had *no CI run at all* (`ci.yml` triggers on
+`pull_request`, and the PR did not exist yet). Both were unticked in their own commit before
+being earned. The local stage-1 evidence was real and labelled as local-only, but local evidence
+is not what those ACs asked for — and a status outranking its artifacts is precisely what this
+task exists to prevent.
+
+## Sweep close (2026-09-14)
+
+**All five scope-amended tasks Done, each via its own merged PR, every one a true merge commit:**
+TASK-0121 (#149) · TASK-0131 (#150) · TASK-117 (#151) · TASK-0123 (#152) · TASK-0132 (#153).
+Main at **`0.65.3`**, releases `v0.65.2` and `v0.65.3` auto-published. All gates green by exit
+code: `node --test` **636 pass / 0 fail**, freshness, `check-docs`, `gen-marketplace`,
+`sync-version`, `check-version-bump`, `board-mirror --check`, and spec-bridge (72 linked tasks,
+none exceeding their artifacts). Worktrees removed, branches deleted locally and on origin.
+
+**Still out of scope, not missed:** the eight punted tasks (TASK-98, TASK-115, TASK-120,
+TASK-105, TASK-96, TASK-94, TASK-95, TASK-118) and TASK-0129. Their lanes, tiers, orderings and
+checkpoints above stand unamended and remain valid input. A sweep adopting them must author its
+own runbook or amend this one back to `executing` — never silently inherit a `done` file.
+
+**Three of this sweep's five tasks fixed defects that the sweep itself then hit** — TASK-117's
+stale mirror fired six times (including on its own closure commit), TASK-0131's swallowed
+diagnostics were what made TASK-0132's proof readable, and TASK-0132's double-run was the shape
+that made #151's failure surface in the less diagnosable place. That is the loop working, and it
+is the strongest argument for running these lanes together rather than apart.
