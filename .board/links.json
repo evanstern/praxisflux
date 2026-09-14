@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:58:57.154Z",
+  "generatedAt": "2026-09-14T20:01:34.807Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3639,7 +3639,7 @@
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work"
         },
         {
@@ -3659,7 +3659,7 @@
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — re-ground and close (R5, R6)"
         }
       ],
