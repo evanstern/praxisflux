@@ -23,13 +23,13 @@ one PR — no phase gets its own PR (constitution II).
 
 ## Phase 3 — regression tests, negative-controlled (R3)
 
-- [ ] Test: a capped capture whose failure text is in the last ~1000 chars still contains
+- [x] Test: a capped capture whose failure text is in the last ~1000 chars still contains
       that text
-- [ ] Test: a spawned gate child's env lacks `SPEC_BRIDGE_GATE_TRACE` and still carries
+- [x] Test: a spawned gate child's env lacks `SPEC_BRIDGE_GATE_TRACE` and still carries
       `SPEC_BRIDGE_GATE_ACTIVE` (via the injectable `spawn`, no real subprocess)
-- [ ] Negative-control both: revert each fix, confirm the matching test actually FAILS,
+- [x] Negative-control both: revert each fix, confirm the matching test actually FAILS,
       restore; record in the commit that the control really broke the behaviour
-- [ ] `node --test` green
+- [x] `node --test` green
 
 ## Phase 4 — release obligations and re-ground
 
