@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:26:44.408Z",
+  "generatedAt": "2026-09-14T17:42:42.565Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3166,12 +3166,12 @@
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — confirm the mechanism (R1)"
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 2 — the shared teardown helper (R2)"
         },
         {
@@ -3189,6 +3189,9 @@
         "tech-debt",
         "flake",
         "gates"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)"
       ]
     },
     {
