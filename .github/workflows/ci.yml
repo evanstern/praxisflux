@@ -19,8 +19,15 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: tests
-        run: node --test
+      # There is deliberately no standalone `- name: tests` / `node --test` step here. There used
+      # to be one, and the spec-bridge step below ALSO ran the whole suite (as the `tests` project
+      # gate in .spec-bridge.json) — two full runs per CI run, back to back. That is not merely
+      # wasteful: it is a second independent roll of the dice on any nondeterministic test, so a
+      # ~5% flake became ~10% per PR, and it surfaced in the less diagnosable of the two places
+      # (spec 072, TASK-0130's PR #144). Removing this step does not weaken enforcement — the
+      # `tests` project gate below re-derives its own verdict by running the suite itself, so the
+      # suite still gates the PR exactly as before, just once. If you're tempted to restore this
+      # step because "CI doesn't run the tests", it does: see the spec-bridge step below.
       - name: marketplace catalog in sync
         run: node scripts/gen-marketplace.mjs --check
       - name: versions consistent (lockstep)

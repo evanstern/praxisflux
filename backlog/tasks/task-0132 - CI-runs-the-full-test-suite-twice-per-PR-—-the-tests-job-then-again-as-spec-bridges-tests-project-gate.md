@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 19:48'
+updated_date: '2026-09-14 19:58'
 labels:
   - ci
   - cost
@@ -45,15 +45,19 @@ Related: TASK-0130 (the flake itself), TASK-0131 (the swallowed diagnostics that
 - [ ] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
 - [ ] #4 The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work
 - [ ] #5 docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended
-- [ ] #6 Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)
+- [x] #6 Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)
 - [ ] #7 Spec phase: Phase 2 — prove the enforcement survives in CI (R2)
 - [ ] #8 Spec phase: Phase 3 — re-ground and close (R5, R6)
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec: specs/072-ci-double-run
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — delete the redundant step, prove the gate blocks; served verified from transcript, 155k tokens / 34 tool uses] served=claude-sonnet-5
+
+R2 PROOF STAGE 1 - LOCAL ONLY, labelled as the weaker evidence it is. A temporary failing test made the suite genuinely red (636 pass / 1 fail); running the exact invocation CI uses - node scripts/run-gates.mjs --gates spec-bridge --path . - then exited 1 and reported the tests gate as BLOCKING, naming it red with 71 linked specs affected and carrying the TAP tail. Fully reverted and verified independently by the orchestrator: no temp commit, stash empty, 636 pass / 0 fail, and no test-directory diff against main. WHY ONLY LOCAL HERE: ci.yml triggers on pull_request and push-to-main only (verified at lines 6-9), so a feature-branch push with no open PR never invokes the workflow. A real CI proof therefore needs the PR to exist - a sequencing fact, not an impossibility - so stage 2 completes R2 against the actual CI run instead of letting local evidence stand as final.
+
+TRAP WORTH RECORDING, surfaced by the dispatch and not anticipated in the spec: isTreeDirty() in spec-bridge/gates/bridge.mjs demotes a red REQUIRED gate to a non-blocking WARNING when the working tree is dirty. So the naive local reproduction - add a failing test, run the gate on a dirty tree - prints GATE FAILED for some unrelated reason while the tests gate is merely warned about, and proves nothing about blocking. The stage-1 proof was deliberately run against a clean, committed red state to avoid exactly that. Anyone reproducing this must commit the red state first, or the demotion silently masks the result. This is a second instance of the sweep's recurring lesson: a gate reading green or red is only evidence if you know which tree and which range it evaluated.
 <!-- SECTION:NOTES:END -->

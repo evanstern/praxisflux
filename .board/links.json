@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:48:46.212Z",
+  "generatedAt": "2026-09-14T19:58:57.154Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3649,7 +3649,7 @@
         },
         {
           "index": 6,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)"
         },
         {
@@ -3668,6 +3668,9 @@
         "cost",
         "debt",
         "flake"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — delete the redundant step, prove the gate blocks; served verified from transcript, 155k tokens / 34 tool uses] served=claude-sonnet-5"
       ]
     }
   ]
