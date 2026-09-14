@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-08 15:34'
-updated_date: '2026-09-14 17:43'
+updated_date: '2026-09-14 17:44'
 labels:
   - tech-debt
   - spec-bridge
@@ -69,4 +69,6 @@ Spec: specs/071-mirror-staleness
 FIELD CASES 4 AND 5 (orchestrator, 2026-09-14, full-board sweep). The same defect fired twice more, at the claim commits for TASK-0131 and TASK-0123. In both cases 'spec-bridge/gates/cli.mjs links .' could not see the newly claimed task at all until the mirror was hand-regenerated with the four-line envelope-correct recipe from this card's own notes; 'lib/board-mirror.mjs --check' named it in one run each time. Five occurrences now, every one on a routine board write (claim, tick, claim, claim). Recorded because the count is the argument: this is not an edge case, it is the default outcome of editing the board.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — regenerate entry point + hook step; served verified from transcript, 164k tokens / 36 tool uses)
+
+WORKTREE HOOK FINDING (verified by the orchestrator, 2026-09-14) — matters to anyone editing .githooks/ from a worktree in this repo. core.hooksPath is set to an ABSOLUTE path into the ROOT checkout (/Users/.../praxis/.githooks), and that config is shared by every worktree. So a real 'git commit' inside a worktree runs the ROOT's hook, never the worktree's edited copy: a hook change cannot be exercised by committing on its own branch, and a 'real commit passed' claim from a worktree proves nothing about the edit. Test a hook edit by invoking it directly (bash .githooks/pre-commit); it only governs real commits repo-wide once merged to main, where the root copy IS the edited file. Not a defect in this task — a property of the repo's worktree hook setup, and adjacent to the .worktrees vs .claude/worktrees doctrine conflict TASK-120 is carded to resolve.
 <!-- SECTION:NOTES:END -->
