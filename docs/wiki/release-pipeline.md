@@ -8,7 +8,7 @@ sources:
   - .github/workflows/release.yml
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 9b410267ee638ee2d16e8dc4aba28e29808ccf54
+verified_against: 20fa8f4b3dc13d6ba17554da70c372f9bb5ae860
 ---
 
 # Release pipeline
@@ -39,16 +39,23 @@ edits belong outside the markers because the block refreshes wholesale).
 
 ## CI workflow
 
-`.github/workflows/ci.yml` runs on every PR (and main): `node --test`,
+`.github/workflows/ci.yml` runs on every PR (and main):
 `gen-marketplace.mjs --check`, `sync-version.mjs --check`, a full `build.mjs` package run,
 `check-docs.mjs`, **this repo's own spec-bridge and wiki-freshness self-checks** (both via
 `scripts/run-gates.mjs --path .`), **`plant.mjs --root . --peer backlog --check`** — the
 repo's own planted PDLC block (below) — and, PRs only, the bump gate against
-`origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags resolve). A
-second job, `install-path`, re-runs `test/install-path.test.mjs` on its own: the marketplace
+`origin/<base branch>` (checkout uses `fetch-depth: 0` so merge-base and tags resolve).
+
+**There is deliberately no standalone `node --test` step** (spec 072): the spec-bridge
+self-check already runs the whole suite as its `tests` project gate, so a dedicated step made
+CI run the suite *twice per run* — a second independent roll of the dice on any
+nondeterministic test, which is how the TASK-0130 flake blocked PR #144 with the dedicated
+step passing. The suite still gates every PR, once, through that gate.
+
+A second job, `install-path`, runs `test/install-path.test.mjs` on its own: the marketplace
 install simulation that copies each hook-shipping plugin with its `lib` symlink dereferenced
-and spawns its Stop hook end-to-end — the file also runs inside the main `node --test` step,
-but the separate job keeps the install-path signal its own visible check.
+and spawns its Stop hook end-to-end — the file also runs inside the suite the `tests` gate
+executes, but the separate job keeps the install-path signal its own visible check.
 
 The two self-check steps landed with spec 057, which moved them out of `node --test`: they
 assert **repo state**, not code behavior, and mid-PR they are red by construction (see
