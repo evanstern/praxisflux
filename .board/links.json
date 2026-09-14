@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T14:42:25.369Z",
+  "generatedAt": "2026-09-14T15:29:15.030Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3022,7 +3022,7 @@
     },
     {
       "id": "TASK-0121",
-      "status": "In Progress",
+      "status": "Done",
       "specDir": "specs/068-gate-tracer-capture",
       "acs": [
         {
@@ -3057,7 +3057,7 @@
         },
         {
           "index": 7,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 4 — release obligations and re-ground"
         }
       ],
