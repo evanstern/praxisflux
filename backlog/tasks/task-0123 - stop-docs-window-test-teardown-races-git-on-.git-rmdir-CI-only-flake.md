@@ -1,11 +1,11 @@
 ---
 id: TASK-0123
 title: stop-docs-window test teardown races git on .git rmdir (CI-only flake)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 19:09'
+updated_date: '2026-09-14 19:10'
 labels:
   - tech-debt
   - flake
