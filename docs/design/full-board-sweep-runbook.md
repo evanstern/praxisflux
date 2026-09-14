@@ -17,6 +17,27 @@ TASK-117 → **option 2**, TASK-105 → **sonnet** — against the standing inst
 the sweep once the board was pruned and the plan ratified. Both rulings are written into
 the gate lines below; the lanes are otherwise as authored.
 
+**Execution mode: background-job / no-main-push.** Established by evidence, not
+assumption: this session's `git push origin HEAD:main` was refused, consistent with the
+repo's own rule ("push to `origin`, and open a PR with `gh` — don't push straight to
+`main`"). The sweep therefore runs under the SKILL's background-job mode, and its three
+substitutions bind for every task here:
+- Task worktrees live at **`.claude/worktrees/task-<N>`** (the harness isolation root,
+  entered via `EnterWorktree`), not `.worktrees/task-<N>`. Note this is exactly the
+  contradiction **TASK-120** exists to resolve — this sweep runs under the harness path
+  and TASK-120 decides the durable answer; do not pre-empt its ruling by "fixing" paths
+  mid-sweep.
+- **Closures ride the next branch.** Post-merge closures (the tasks.md tick,
+  `spec-bridge:sync`'s board-Done, the runbook log row) cannot land as a root commit, so
+  they ride the NEXT claimed task's branch and merge in its PR. Board and spec commands
+  run **inside the task worktree**; the root board lags until merge.
+- **Sweep-close lands via a wrap-up PR** — the last syncs and this file's status flip
+  have no next branch to ride.
+
+The board track's "direct to `main`" degrades accordingly; the deliverable track is
+unchanged (still one task, one branch, one PR). **This runbook itself landed via
+PR #148** for the same reason.
+
 
 ## Read first (in this order)
 
