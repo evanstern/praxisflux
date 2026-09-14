@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 20:00'
+updated_date: '2026-09-14 20:05'
 labels:
   - ci
   - cost
@@ -40,7 +40,7 @@ Related: TASK-0130 (the flake itself), TASK-0131 (the swallowed diagnostics that
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The full test suite runs ONCE per CI run, not twice — measured from the workflow logs, not assumed
+- [x] #1 The full test suite runs ONCE per CI run, not twice — measured from the workflow logs, not assumed
 - [ ] #2 The 'a ticked checkbox cannot outrun a red project gate' enforcement still holds in CI: a genuinely red suite still fails the spec-bridge gate (proven by a deliberate red-suite run, not reasoned)
 - [ ] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
 - [x] #4 The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work
@@ -62,4 +62,6 @@ R2 PROOF STAGE 1 - LOCAL ONLY, labelled as the weaker evidence it is. A temporar
 TRAP WORTH RECORDING, surfaced by the dispatch and not anticipated in the spec: isTreeDirty() in spec-bridge/gates/bridge.mjs demotes a red REQUIRED gate to a non-blocking WARNING when the working tree is dirty. So the naive local reproduction - add a failing test, run the gate on a dirty tree - prints GATE FAILED for some unrelated reason while the tests gate is merely warned about, and proves nothing about blocking. The stage-1 proof was deliberately run against a clean, committed red state to avoid exactly that. Anyone reproducing this must commit the red state first, or the demotion silently masks the result. This is a second instance of the sweep's recurring lesson: a gate reading green or red is only evidence if you know which tree and which range it evaluated.
 
 PHASE 3 — AC#5 ADDRESSED EXPLICITLY, NOT SKIPPED: docs/consuming-gates.md needs no behavioural change, because AC#5 is conditional on the projectGates contract being extended and this direction extends nothing. The chosen mechanism is a workflow step deletion; .spec-bridge.json is byte-identical to main, the contract is untouched, and no consumer observes any difference. AC#6/R6 VERIFIED rather than assumed: test/run-gates.test.mjs passes UNMODIFIED (7 pass / 0 fail) and the branch has zero test-directory diff against main — confirming the finding that its drift check covers spec-bridge and wiki-freshness, not the tests step, so the blocker the runbook anticipated did not exist. VERSION BUMP: not owed, verified at exit=0 — .github/ is exempt released surface per check-version-bump's own rule. RE-PIN: docs/wiki/release-pipeline.md was NEEDS-REVIEW, not a pin bump - its CI section enumerated the steps starting with node --test and described install-path as also running inside the main node --test step. Both were falsified by this change, so prose was amended first (the step list, plus a paragraph stating why no standalone step exists and that the suite still gates once through the gate), THEN re-pinned. Left correct and untouched: the spec-057 paragraph (history, still true) and the release.yml reference at line 90, since release.yml genuinely still runs node --test - verified.
+
+AC#1 MEASURED FROM THE WORKFLOW LOGS, not assumed, with a before/after on real runs. BEFORE (run 34890576521's predecessor - ci.yml on main at 12f55ab, run 34888040871): step 'tests' 19:37:41-19:37:49 (8s) AND step 'board is honest (spec-bridge)' 19:37:50-19:37:59 (9s) - two full suite executions, 17s of suite time. AFTER (run 34890576521 on this branch, ead5f7b): the checks job's step list contains NO tests step at all - marketplace catalog, versions consistent, plugins package, README/CLAUDE sync, board is honest (spec-bridge), grounding wiki fresh, planted block current, version bumped - and spec-bridge alone spans 20:03:21-20:03:31 (10s) while every sibling gate completes in under a second. The 10s IS the single suite run, executed inside the tests project gate. One run per CI run, halved from two, measured from the logs both sides.
 <!-- SECTION:NOTES:END -->
