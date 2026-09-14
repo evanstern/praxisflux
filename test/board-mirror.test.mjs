@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 import {
   readMirror, writeMirror, validateMirror, compareIds, mirrorPath,
   mirrorStaleness, providers, projectBacklog, findLinkedTasks,
@@ -382,7 +383,7 @@ function gitRepoWithTwoCommits() {
   run("add", "a.txt");
   run("commit", "-q", "-m", "second");
   const newer = run("rev-parse", "HEAD").trim();
-  return { root, older, newer, done: () => rmSync(root, { recursive: true, force: true }) };
+  return { root, older, newer, done: () => removeFixtureDir(root) };
 }
 
 test("mirrorStaleness: observedSha not an ancestor of headSha is stale", () => {

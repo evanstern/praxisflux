@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T19:34:25.548Z",
+  "generatedAt": "2026-09-14T19:34:51.789Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3178,6 +3178,68 @@
         "tech-debt",
         "spec-bridge",
         "gates"
+      ]
+    },
+    {
+      "id": "TASK-0123",
+      "status": "Done",
+      "specDir": "specs/070-teardown-race",
+      "acs": [
+        {
+          "index": 1,
+          "checked": true,
+          "text": "The ENOTEMPTY teardown race is reproduced or its mechanism confirmed from evidence (not inferred), naming what holds the .git handle"
+        },
+        {
+          "index": 2,
+          "checked": true,
+          "text": "Teardown is made robust — e.g. retry-with-backoff around rmSync, or the fixture stops leaving a live git dir behind — and the fix is stated as which of those it is"
+        },
+        {
+          "index": 3,
+          "checked": true,
+          "text": "Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence"
+        },
+        {
+          "index": 4,
+          "checked": true,
+          "text": "The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses"
+        },
+        {
+          "index": 5,
+          "checked": true,
+          "text": "Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared"
+        },
+        {
+          "index": 6,
+          "checked": true,
+          "text": "Spec phase: Phase 1 — confirm the mechanism (R1)"
+        },
+        {
+          "index": 7,
+          "checked": true,
+          "text": "Spec phase: Phase 2 — the shared teardown helper (R2)"
+        },
+        {
+          "index": 8,
+          "checked": true,
+          "text": "Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)"
+        },
+        {
+          "index": 9,
+          "checked": true,
+          "text": "Spec phase: Phase 4 — sibling audit and close (R5)"
+        }
+      ],
+      "labels": [
+        "tech-debt",
+        "flake",
+        "gates"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — sibling audit and close; served verified from transcript, 250k tokens / 122 tool uses] served=claude-sonnet-5"
       ]
     },
     {

@@ -1,10 +1,11 @@
 // grounding-wiki.freshness.test.mjs — the freshness gate against a throwaway git repo.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 import { validateFreshness, parseSourcesBlock, noteSources, classifyNote, planFreshness } from "../grounding-wiki/gates/freshness.mjs";
 import { repin } from "../grounding-wiki/scripts/repin.mjs";
 
@@ -33,7 +34,7 @@ function makeRepo() {
 
 test("fresh corpus passes; broken wikilinks only warn", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"], extra: "See [[missing]].\n" }));
@@ -46,7 +47,7 @@ test("fresh corpus passes; broken wikilinks only warn", (t) => {
 
 test("a note goes stale when its sources change after the pin", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -64,7 +65,7 @@ test("a note goes stale when its sources change after the pin", (t) => {
 
 test("missing pin, unknown pin, and missing INDEX are failures", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     "---\nname: alpha\ndescription: d\nkind: component\n---\n\n# alpha\n");
   writeFileSync(join(repo, "docs", "wiki", "beta.md"),
@@ -82,7 +83,7 @@ test("missing pin, unknown pin, and missing INDEX are failures", (t) => {
 
 test("a source path missing from the working tree is a blocking finding naming note + path", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt", "no-such-file.txt"] }));
@@ -101,7 +102,7 @@ test("a source path missing from the working tree is a blocking finding naming n
 
 test("a source renamed/deleted after the pin blocks until the note's sources are fixed", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -121,7 +122,7 @@ test("a source renamed/deleted after the pin blocks until the note's sources are
 
 test("inline-array sources: [a, b] staleness-check exactly like block lists", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   const inlineNote = (p) =>
     `---\nname: alpha\ndescription: test note\nkind: component\nsources: [src/a.txt, src/b.txt]\nverified_against: ${p}\n---\n\n# alpha\n\nBody.\n`;
@@ -171,7 +172,7 @@ test("classifyNote: only pure version-stamp diffs against version-free notes are
 
 test("plan: stamp-only staleness plans a re-pin; running it leaves the gate green", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   writeFileSync(join(repo, "plugin.json"), '{ "name": "x", "version": "0.1.0" }\n');
   git(repo, "add", "."); git(repo, "commit", "-qm", "add plugin.json");
   const pin = git(repo, "rev-parse", "HEAD");
@@ -195,7 +196,7 @@ test("plan: stamp-only staleness plans a re-pin; running it leaves the gate gree
 
 test("plan: code diffs and version-quoting notes are NEEDS-REVIEW with a work order", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -211,7 +212,7 @@ test("plan: code diffs and version-quoting notes are NEEDS-REVIEW with a work or
 
 test("plan: a fresh corpus plans nothing; structural problems surface instead of being planned over", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   writeFileSync(join(repo, "docs", "wiki", "alpha.md"),
     note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -225,7 +226,7 @@ test("plan: a fresh corpus plans nothing; structural problems surface instead of
 
 test("repin: refuses short hashes, missing notes, and pinless files", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   const notePath = join(repo, "docs", "wiki", "alpha.md");
   writeFileSync(notePath, note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -239,7 +240,7 @@ test("repin: refuses short hashes, missing notes, and pinless files", (t) => {
 
 test("repin: refuses a well-formed hash naming no commit; note left byte-identical", (t) => {
   const repo = makeRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(repo));
   const pin = git(repo, "rev-parse", "HEAD");
   const notePath = join(repo, "docs", "wiki", "alpha.md");
   writeFileSync(notePath, note({ name: "alpha", pin, sources: ["src/a.txt"] }));
@@ -259,7 +260,7 @@ test("repin: refuses a well-formed hash naming no commit; note left byte-identic
 
 test("repin: refuses a note that sits outside any git repo", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "gw-norepo-"));
-  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  t.after(() => removeFixtureDir(dir));
   const notePath = join(dir, "alpha.md");
   writeFileSync(notePath, note({ name: "alpha", pin: "f".repeat(40), sources: ["src/a.txt"] }));
   const before = readFileSync(notePath, "utf8");

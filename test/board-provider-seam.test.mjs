@@ -8,6 +8,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { hasAnyChild } from "../lib/project-root.mjs";
 import {
@@ -453,5 +454,5 @@ test("jira: a card Done in the UI over unchecked boxes is a BLOCKING bridge find
   assert.match(msg, /In Progress/, "and what the artifacts actually prove");
   assert.match(msg, /unchecked/, "and why");
 
-  rmSync(root, { recursive: true, force: true });
+  removeFixtureDir(root);
 });

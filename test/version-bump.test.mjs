@@ -3,10 +3,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 import {
   semverParse, semverGt, releasedSurface, skillDirOf, evaluate, frontmatterVersion,
 } from "../scripts/check-version-bump.mjs";
@@ -166,6 +167,6 @@ test("end-to-end: exempt diff passes, surface diff needs a bump, tag reuse fails
     sh(repo, "tag", "v0.2.0");
     assert.match(run(repo, "--base", "main").out, /already released/);
   } finally {
-    rmSync(repo, { recursive: true, force: true });
+    removeFixtureDir(repo);
   }
 });

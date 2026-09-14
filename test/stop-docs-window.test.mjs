@@ -11,13 +11,14 @@
 // suites and is not re-tested here.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
 import { corpusWindow, staleNotesFrom } from "../grounding-wiki/gates/repin-window.mjs";
 import { validateFreshness } from "../grounding-wiki/gates/freshness.mjs";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 const git = (cwd, ...args) => execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 
@@ -64,7 +65,7 @@ test("stop-docs window: stale from unmerged branch work ⇒ NOTICE (the turn may
   staleIt(dir, "task-1 edits the source");
 
   assert.equal(decide(dir, "base"), "notice");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("stop-docs window: stale with nothing unmerged to explain it ⇒ BLOCKS (neglect)", () => {
@@ -74,7 +75,7 @@ test("stop-docs window: stale with nothing unmerged to explain it ⇒ BLOCKS (ne
   // Identical freshness arithmetic to the case above; only the provenance of the staling
   // commit differs. This is the case the window must never forgive.
   assert.equal(decide(dir, "base"), "block");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("stop-docs window: a non-staleness gate failure ⇒ BLOCKS (the window has no opinion)", () => {
@@ -92,7 +93,7 @@ test("stop-docs window: a non-staleness gate failure ⇒ BLOCKS (the window has 
   assert.ok(fails.some((f) => /no verified_against/.test(f)));
   assert.equal(staleNotesFrom(fails).size, 0, "no STALE lines ⇒ window not consulted");
   assert.equal(decide(dir, "base"), "block");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("stop-docs window: one excused note does not forgive an unexcused sibling", () => {
@@ -114,7 +115,7 @@ test("stop-docs window: one excused note does not forgive an unexcused sibling",
   staleIt(dir, "task-1 edits thing");
 
   assert.equal(decide(dir, "base"), "block", "the unexcused sibling must still block");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("stop-docs window: unresolvable base ref ⇒ BLOCKS (fail closed, never open on unknowns)", () => {
@@ -124,7 +125,7 @@ test("stop-docs window: unresolvable base ref ⇒ BLOCKS (fail closed, never ope
 
   // Same tree that yields "notice" against a real base — only the base is unknowable.
   assert.equal(decide(dir, "origin/does-not-exist"), "block");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });
 
 test("stop-docs window: a fresh corpus is clean — no notice, no block", () => {
@@ -135,5 +136,5 @@ test("stop-docs window: a fresh corpus is clean — no notice, no block", () => 
   git(dir, "commit", "-qm", "task-1: unrelated");
 
   assert.equal(decide(dir, "base"), "clean");
-  rmSync(dir, { recursive: true, force: true });
+  removeFixtureDir(dir);
 });

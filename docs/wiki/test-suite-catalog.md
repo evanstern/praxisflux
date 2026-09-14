@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 544ee0fc71fa386ac4cfb079ed4066399013691b
+verified_against: 266c5c04f8774deb7059f85ea43502694c677fb9
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)

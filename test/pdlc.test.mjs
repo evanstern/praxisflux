@@ -5,6 +5,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { removeFixtureDir } from "./fixture-teardown.mjs";
 
 import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL, excludeSet } from "../pdlc/scripts/plant.mjs";
 import { generate, validateConfig, agentPath, CONFIG_PATH, GENERATED_MARKER } from "../pdlc/scripts/tiers.mjs";
@@ -532,7 +533,7 @@ function gitPair(primaryName, wtName) {
   git(primary, "commit", "-qm", "seed");
   const wt = join(base, wtName);
   git(primary, "worktree", "add", "-q", "-b", `${wtName}-branch`, wt);
-  return { primary, wt, done: () => rmSync(base, { recursive: true, force: true }) };
+  return { primary, wt, done: () => removeFixtureDir(base) };
 }
 
 test("resolveProjectName ladder: override > recorded > worktree gitdir parse > basename", () => {
@@ -918,7 +919,7 @@ test("the planted tier section teaches host-form IDs, dual pin mechanisms, and t
 function gitRoot() {
   const root = mkdtempSync(join(tmpdir(), "pdlc-git-"));
   execFileSync("git", ["init", "-q"], { cwd: root });
-  return { root, done: () => rmSync(root, { recursive: true, force: true }) };
+  return { root, done: () => removeFixtureDir(root) };
 }
 
 test("excludeSet: always-on lines only when no peers/hooks opted in; each opt-in adds exactly its lines", () => {
