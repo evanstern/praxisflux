@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 19:47'
+updated_date: '2026-09-14 19:48'
 labels:
   - ci
   - cost
@@ -45,4 +45,15 @@ Related: TASK-0130 (the flake itself), TASK-0131 (the swallowed diagnostics that
 - [ ] #3 Local invocation paths (Stop hook, pre-commit, hand-run) are UNCHANGED — there is no sibling job there, so the gate entry stays the only proof and nothing is weakened
 - [ ] #4 The chosen mechanism is data the host states in config, not behavior inferred from ambient env sniffing — consistent with how projectGates and statusVocabulary already work
 - [ ] #5 docs/consuming-gates.md (or the equivalent consumer contract doc) records the behavior change if the projectGates contract is extended
+- [ ] #6 Spec phase: Phase 1 — remove the redundant CI step (R1, R3, R4)
+- [ ] #7 Spec phase: Phase 2 — prove the enforcement survives in CI (R2)
+- [ ] #8 Spec phase: Phase 3 — re-ground and close (R5, R6)
 <!-- AC:END -->
+
+
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec: specs/072-ci-double-run
+<!-- SECTION:NOTES:END -->
