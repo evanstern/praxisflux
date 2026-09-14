@@ -508,9 +508,9 @@ harness/transcript, so future runbook authoring budgets against real numbers.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-09-14 | (runbook) | #148 | `5f75aeb` | — | Runbook authored, signed off, Lane-0 rulings recorded, scope amended to Lanes A+B. Self-merged after verifying clean against post-#149 `main`. |
-| 2026-09-14 | TASK-0131 | #150 | *awaiting review* | ~635k subagent tokens / 5 dispatches (141k + 143k + 180k + 170k + 150k), 221 tool uses | **Lane A 2/3.** Spec 069. 4 phases + a cascade re-pin pass, all `served=claude-sonnet-5` verified from transcripts. Released `0.65.2`. PR open, CI green, MERGEABLE/CLEAN — **merge blocked: no human review** (see the run's closing note). |
-| 2026-09-14 | TASK-0123 | #152 | *awaiting review* | ~562k subagent tokens / 4 dispatches (140k + 171k + 250k), 192 tool uses | **Lane B.** Spec 070. Test-only, no bump (verified exit=0). 20/20 stability evidence reproduced by the orchestrator; mechanism recorded UNCONFIRMED; 16-file audit with per-file verdicts. Card **Done**. PR open, CI green, MERGEABLE/CLEAN. |
-| 2026-09-14 | TASK-117 | #151 | *awaiting review* | ~395k subagent tokens / 2 dispatches (164k + 231k), 122 tool uses | **Lane B.** Spec 071, option-2 ruling implemented (`--write` + pre-commit step; no self-heal). Released `0.65.2`. Fired twice more during this run (cases 4-5, now 5 total). PR open, CI green, MERGEABLE/CLEAN. |
+| 2026-09-14 | TASK-0131 | #150 | `678b443` | ~635k subagent tokens / 5 dispatches (141k + 143k + 180k + 170k + 150k), 221 tool uses | **Lane A 2/3.** Spec 069. 4 phases + a cascade re-pin pass, all `served=claude-sonnet-5` verified from transcripts. Released `0.65.2`. **MERGED** as a true merge commit, released `0.65.2`. Card Done. |
+| 2026-09-14 | TASK-0123 | #152 | `e41509c` | ~562k subagent tokens / 4 dispatches (140k + 171k + 250k), 192 tool uses | **Lane B.** Spec 070. Test-only, no bump (verified exit=0). 20/20 stability evidence reproduced by the orchestrator; mechanism recorded UNCONFIRMED; 16-file audit with per-file verdicts. Card **Done**. **MERGED** last of the three (sequenced apart from #151 per the stricter-commit-path rule). Suite 636 at merge. |
+| 2026-09-14 | TASK-117 | #151 | `d99cda4` | ~395k subagent tokens / 2 dispatches (164k + 231k), 122 tool uses | **Lane B.** Spec 071, option-2 ruling implemented (`--write` + pre-commit step; no self-heal). Released `0.65.2`. Fired 6× total counting its own closure. **MERGED**, released `0.65.3` after #150 took 0.65.2 — the version collision, resolved by taking the next patch. Card Done. |
 | 2026-09-14 | TASK-0121 | #149 | `69acd40` | ~530k subagent tokens / 4 dispatches (125k + 115k + 146k + 143k), 119 tool uses, ~13½ min agent wall-clock | **Lane A 1/3 — the sweep's calibration task. DONE.** 4 phase-scoped dispatches, all `served=claude-sonnet-5` verified from transcripts — **the tier pin works on this host**; siblings cleared at sonnet. Merged as a true merge commit (2 parents), released `v0.65.1`. See notes below. |
 
 ### TASK-0121 — what the calibration surfaced (read before Lane A's next task)
@@ -613,10 +613,65 @@ All three are **pin-carrying** ⇒ merge commits, never squash.
    which `node --test` (the literal gate name CI checks) does not pass — such a test would pass
    locally and **silently fail in CI**, worse than no test.
 
-**Scope status:** TASK-0121 ✓ · TASK-0131 (PR #150) · TASK-0123 (PR #152, card Done) · TASK-117
-(PR #151) — four of five scoped tasks delivered to review. **TASK-0132 is specced-ready but not
-started:** its operator ruling is recorded above as a gate line; it was deliberately not begun
+**Scope status (updated after the merge phase):** TASK-0121 ✓ · TASK-0131 ✓ (#150,
+`678b443`) · TASK-117 ✓ (#151, `d99cda4`) · TASK-0123 ✓ (#152, `e41509c`) — **four of five
+scoped tasks DONE on the board, each via its own merged PR.** Main is at `0.65.3` with all gates
+green. **TASK-0132 is the one remaining scoped task, specced-ready but not started:** its operator ruling is recorded above as a gate line; it was deliberately not begun
 because Lane A is serial and TASK-0132 is last in it, so starting it before #150 merges would
 develop against a `bridge.mjs` and a `0.65.2` that main has not accepted. TASK-0129 and Lanes
-C/D/E remain out of scope per the scope amendment. **This file's status stays `signed-off`, not
-`done`** — the five scoped tasks are not all Done on the board.
+C/D/E remain out of scope per the scope amendment. **This file's status stays `signed-off`, not `done`** — four of the five scoped
+tasks are Done; TASK-0132 remains, so the run is not closed. A session resuming it should start
+from the TASK-0132 gate line above (the ruling and its premise correction are recorded there),
+and needs no fresh operator checkpoint to begin.
+
+### Merge phase (2026-09-14) — two traps that cost CI runs, and the rule each yields
+
+The operator granted merge automation after the three PRs were open. #150 and #151 merged;
+what follows is what the merges themselves taught, none of it visible before merging.
+
+**TRAP 1 — a pin conflict must NOT be resolved by picking a side.** When two branches both
+re-pin the same note after the same version bump, the conflict looks trivial (one
+`verified_against` line each) and "keep mine" looks obviously right. It is wrong, and it fails
+in the one place that matters: **CI tests the PR's MERGE commit, not your branch tip.** The two
+candidate pins are on divergent branches — neither is an ancestor of the other — so from your
+branch tip the probe's `git log <pin>..HEAD -- <sources>` range is empty and freshness reads
+**green**, while from the merge commit the other parent's bump is reachable and those same
+sources are stale. Measured on #151: **10 notes stale in CI, 0 locally, identical pins in both
+trees.**
+**The rule: after a merge-in, a pin must name a commit whose history contains BOTH parents'
+changes to its sources — i.e. the merge commit, never either parent's re-pin.** And the
+verification that catches it is not `freshness` on your branch; it is
+`git fetch origin refs/pull/<N>/merge` into a detached probe worktree, then running the gates
+there. Do that before trusting any post-merge-in green.
+*Caveat learned the same way:* GitHub recomputes `refs/pull/<N>/merge` lazily, so a probe run
+immediately after a push can test the STALE merge ref and report a failure you already fixed.
+Check the probe's `git log --oneline -1` against your pushed SHA before believing it.
+
+**TRAP 2 — two branches bumping to the same version is not resolved at merge; the second one
+must take the next patch.** #150 and #151 both bumped to `0.65.2` independently (correct at
+authoring — each was the next patch from `0.65.1`). #150 merged first, and #151's CI then failed
+`check-version-bump` with `base 0.65.2, head 0.65.2` — no increase. **Resolution: the later
+branch takes `0.65.3`; never renumber what already merged.** Budget the follow-on: the new bump
+re-touches all nine `plugin.json`s, `action.yml`'s npm pin and the planted-block marker, so it
+triggers a fresh 12-note re-pin pass (a third on that branch) plus a two-file one-line
+re-stamp.
+
+**The re-pin cascade is now measured at THREE orders**, all on this sweep: a version string
+stales the ~11 plugin notes → re-pinning a child catalog note stales the catalog INDEX note
+that lists it as a source → and that index's own pin move stales nothing further only because
+nothing lists it. Budget three passes on any released-surface task; re-run the probe after every
+single commit, unconditionally.
+
+**Diagnosability, measured.** #151's failure surfaced as spec-bridge's `red-by-construction`
+`wiki-freshness` sub-check, and CI's standalone freshness step was **skipped** because the gate
+step failed first — so the log named the gate, not the ten notes. Recovering the note list
+needed the probe worktree. This is precisely the shape TASK-0131 (now merged, PR #150) improves
+for *required* gates and TASK-0132 is carded to address at the CI level: the failure surfaced in
+the less diagnosable of the two places.
+
+**A small operational note:** `git add` will happily stage a conflict-marked `.board/links.json`,
+after which `readMirror` rejects it as *malformed JSON* — which reads like a schema bug rather
+than an unresolved merge. The mirror is derived state: at every conflict, take main's copy and
+**regenerate** (`node lib/board-mirror.mjs --write --root .`, the entry point #151 added), never
+resolve it by hand or pick a side. That feature resolved its own branch's merge conflicts three
+times during its delivery.
