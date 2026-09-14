@@ -3,11 +3,11 @@ id: TASK-0131
 title: >-
   spec-bridge's project-gate runner captures its subprocess output then discards
   it — reports "is red (exited 1)" without the failure
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-09-11 16:05'
-updated_date: '2026-09-14 17:54'
+updated_date: '2026-09-14 19:25'
 labels:
   - spec-bridge
   - gates
@@ -67,3 +67,17 @@ NEGATIVE CONTROLS REPRODUCED INDEPENDENTLY by the orchestrator, not taken from t
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phase 4 — release and re-ground; served verified from transcript, 170k tokens / 60 tool uses] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A failing required project gate now reports the failure it already captured, instead of just its exit code.
+
+runGateCommand held the subprocess's stdout/stderr and returned only 'exited N', which the finding rendered as 'is red (exited 1)'. Field case: PR #144 needed a gh run view --log dig against a DIFFERENT run plus a ~160k-token diagnostic subagent to recover facts the gate had in a local variable.
+
+The fix carries a bounded 'output' on every non-green verdict and renders it as an indented block AFTER the existing headline, so scanning still reads gate -> reason -> count -> fix first. One shared bound, not two: capTrace's head+elision+tail shape was extracted so the excerpt reuses the tail-preserving rule rather than inventing a second one — load-bearing, because node --test prints its failure summary last. redByConstruction is byte-identical at both formatters.
+
+Proven through the real chain (checkBridge with a real subprocess, not an injected run), negative-controlled, and the controls were reproduced independently by the orchestrator: forcing the bound head-only fails exactly the three tail-dependent assertions, 40 others green. Notable: the pre-existing injected-fixture boundary test does NOT catch an excerpt leaking into redByConstruction — only the new real-subprocess test does, which is the gap this closed.
+
+Released 0.65.2; wiki re-pinned honestly across two passes (two NEEDS-REVIEW with prose amended first, fourteen RE-PIN-ONLY each verified against its own diff). Merged via PR #150 as a true merge commit.
+<!-- SECTION:FINAL_SUMMARY:END -->
