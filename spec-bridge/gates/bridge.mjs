@@ -159,13 +159,21 @@ export const GATE_TIMEOUT_MS = 120000;
  * Run ONE declared gate command as a subprocess and classify the outcome. argv only, shell:false
  * (no interpolation, no injection surface — spec 050 R4); cwd is the project root. Returns
  *   { ok: true }                          — exit 0, green
- *   { ok: false, kind: "red", reason }    — nonzero exit / killed by signal
- *   { ok: false, kind: "error", reason }  — could not execute at all (ENOENT, spawn error)
- *   { ok: false, kind: "timeout", timeoutMs } — exceeded the time box
+ *   { ok: false, kind: "red", reason, output? }    — nonzero exit / killed by signal
+ *   { ok: false, kind: "error", reason, output? }  — could not execute at all (ENOENT, spawn error)
+ *   { ok: false, kind: "timeout", timeoutMs, output? } — exceeded the time box
  * "error" and "timeout" are the fail-closed cases: a command that cannot run is NEVER green (it
  * is the gate-runner contract applied one level down — a crash is a blocking problem, not a
  * silent pass). Sets SPEC_BRIDGE_GATE_ACTIVE on the child env so a declared command that itself
  * invokes the bridge short-circuits instead of recursing (see checkBridge/verifyBridge).
+ *
+ * `output` (spec 069 R1-R3) is the subprocess's combined stdout+stderr, bounded via
+ * `boundOutput` — the same tail-preserving shape as the trace path (`capTrace`), so a session
+ * reading the finding sees the failure a `node --test` run prints last, not just its banner.
+ * It is an APPEND-ONLY addition to this verdict shape: `ok`/`kind`/`reason` are unchanged, the
+ * key is present only when the subprocess actually produced output, and it is bounded AT
+ * CAPTURE (here) rather than at format time, so a large suite dump never travels further than
+ * this function. `{ ok: true }` never carries it — there is nothing to explain on green.
  *
  * `trace` (spec 061 R4) is an optional callback invoked with the RAW outcome — { command, cwd,
  * status, signal, stdout, stderr, error } — before it's classified into the shape above. It
@@ -187,6 +195,8 @@ export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spaw
       env: childEnv,
     });
   } catch (e) {
+    // Spawn itself threw (e.g. bad argv) before any process ran — no output was ever captured,
+    // so there is nothing to bound; `output` is correctly absent below.
     if (trace) try { trace({ command, cwd, status: null, signal: null, stdout: "", stderr: "", error: e.code || e.message }); } catch { /* swallowed */ }
     return { ok: false, kind: "error", reason: e.code || e.message };
   }
@@ -201,12 +211,12 @@ export function runGateCommand(command, { cwd, timeoutMs = GATE_TIMEOUT_MS, spaw
     } catch { /* swallowed: instrumentation must never affect the verdict */ }
   }
   if (res.error) {
-    if (res.error.code === "ETIMEDOUT") return { ok: false, kind: "timeout", timeoutMs };
-    return { ok: false, kind: "error", reason: res.error.code || res.error.message };
+    if (res.error.code === "ETIMEDOUT") return { ok: false, kind: "timeout", timeoutMs, ...gateOutput(res) };
+    return { ok: false, kind: "error", reason: res.error.code || res.error.message, ...gateOutput(res) };
   }
   if (res.status === 0) return { ok: true };
-  if (res.status == null) return { ok: false, kind: "red", reason: res.signal ? `killed by ${res.signal}` : "no exit status" };
-  return { ok: false, kind: "red", reason: `exited ${res.status}` };
+  if (res.status == null) return { ok: false, kind: "red", reason: res.signal ? `killed by ${res.signal}` : "no exit status", ...gateOutput(res) };
+  return { ok: false, kind: "red", reason: `exited ${res.status}`, ...gateOutput(res) };
 }
 
 /**
@@ -273,15 +283,34 @@ function tracePath() {
 
 const TRACE_CAP = 4000; // bound stdout/stderr — the `tests` gate's own output is large
 
-/** Bound a captured stream to TRACE_CAP chars total, keeping head (command context) AND
- *  tail (the verdict — e.g. `node --test`'s failure summary, which prints last) with the
- *  middle elided. The tail gets the larger share of the budget. */
-function capTrace(s) {
-  if (typeof s !== "string" || s.length <= TRACE_CAP) return s;
+/** Bound a captured string to `cap` chars total, keeping head (command context) AND tail (the
+ *  verdict — e.g. `node --test`'s failure summary, which prints last) with the middle elided.
+ *  The tail gets the larger share of the budget. The ONE shared shape for "bounded subprocess
+ *  output" in this file (spec 069 R2/R3, following the precedent spec 068 R1 set here first):
+ *  both the trace path (`capTrace`, below) and the gate-finding excerpt (`gateOutput`) call
+ *  this rather than each inventing their own bound. */
+function boundOutput(s, cap = TRACE_CAP) {
+  if (typeof s !== "string" || s.length <= cap) return s;
   const HEAD_CAP = 800;
   const marker = "\n…[elided middle]…\n";
-  const tailCap = TRACE_CAP - HEAD_CAP - marker.length;
+  const tailCap = cap - HEAD_CAP - marker.length;
   return s.slice(0, HEAD_CAP) + marker + s.slice(s.length - tailCap);
+}
+
+/** capTrace's own bound, unchanged observable behaviour (spec 068 R1) — now just `boundOutput`
+ *  at the trace path's established cap. */
+function capTrace(s) {
+  return boundOutput(s, TRACE_CAP);
+}
+
+/** The `output` excerpt a non-green `runGateCommand` verdict carries (spec 069 R1-R3): combined
+ *  stdout+stderr, bounded via `boundOutput` at the same cap the trace path uses. Returns `{}`
+ *  (no key at all, not `output: ""`) when the subprocess produced no output, so a gate that
+ *  fails silently degrades to today's bare `{ reason }` rather than an empty excerpt block —
+ *  spread this into the verdict object (`...gateOutput(res)`) rather than assigning it. */
+function gateOutput(res) {
+  const combined = `${res?.stdout || ""}${res?.stderr || ""}`;
+  return combined ? { output: boundOutput(combined) } : {};
 }
 
 /** Append one JSONL record for this bridgeGate.check() invocation. Never throws — a write
