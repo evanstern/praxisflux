@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-09 19:53'
-updated_date: '2026-09-14 17:26'
+updated_date: '2026-09-14 17:42'
 labels:
   - tech-debt
   - flake
@@ -36,13 +36,11 @@ Sibling precedent: TASK-114 fixed a same-second run-id flake in this suite with 
 - [ ] #3 Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence
 - [ ] #4 The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses
 - [ ] #5 Any other test in the suite using the same git-init-in-mkdtemp fixture pattern is audited and fixed or explicitly cleared
-- [ ] #6 Spec phase: Phase 1 — confirm the mechanism (R1)
-- [ ] #7 Spec phase: Phase 2 — the shared teardown helper (R2)
+- [x] #6 Spec phase: Phase 1 — confirm the mechanism (R1)
+- [x] #7 Spec phase: Phase 2 — the shared teardown helper (R2)
 - [ ] #8 Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)
 - [ ] #9 Spec phase: Phase 4 — sibling audit and close (R5)
 <!-- AC:END -->
-
-
 
 ## Implementation Notes
 
@@ -54,4 +52,6 @@ So main is green and this card is genuine tech debt rather than a blocker. Delib
 One thing for whoever takes it: do NOT 'fix' this by adding a retry loop and calling it proven. TASK-114's precedent in this repo is the standard — it took 20/20 consecutive green runs read from the raw log, not a summary, before the same-second run-id flake was called fixed. AC#3 here asks for that shape of evidence on purpose.
 
 Spec: specs/070-teardown-race
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)
 <!-- SECTION:NOTES:END -->
