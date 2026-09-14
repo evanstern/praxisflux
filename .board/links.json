@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-09-14T17:42:42.565Z",
+  "generatedAt": "2026-09-14T17:58:11.086Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3151,12 +3151,12 @@
         },
         {
           "index": 3,
-          "checked": false,
+          "checked": true,
           "text": "Proof of stability: the target test (or the suite) runs N consecutive times green, with N and the raw counts recorded, in the style of TASK-114's 20/20 evidence"
         },
         {
           "index": 4,
-          "checked": false,
+          "checked": true,
           "text": "The fix does not weaken what the test asserts: the four stop-docs window behaviours still fail loudly when the window logic regresses"
         },
         {
@@ -3176,7 +3176,7 @@
         },
         {
           "index": 8,
-          "checked": false,
+          "checked": true,
           "text": "Spec phase: Phase 3 — prove it, negative-controlled (R3, R4)"
         },
         {
@@ -3191,7 +3191,8 @@
         "gates"
       ],
       "dispatches": [
-        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)"
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phases 1-2 — mechanism investigation + shared teardown helper; served verified from transcript, 140k tokens / 31 tool uses)",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5 (Phase 3 — stability proof and negative control; served verified from transcript, 171k tokens / 39 tool uses)"
       ]
     },
     {
