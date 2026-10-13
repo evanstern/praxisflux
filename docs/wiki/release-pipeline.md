@@ -8,7 +8,7 @@ sources:
   - .github/workflows/release.yml
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: 20fa8f4b3dc13d6ba17554da70c372f9bb5ae860
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # Release pipeline
@@ -67,7 +67,8 @@ here: `plant.mjs --check` had always exited 1 on a stale or drifted footprint, b
 invoked it**, which is how this repo ran a `v0.57.0` block against a `v0.63.1` marketplace —
 six versions stale, unnoticed. Its placement is forced rather than preferred: the block's
 BEGIN marker quotes the planted version, so **a marketplace bump drifts the block by
-construction** until the re-plant lands in the same PR, which would make the per-commit
+construction** unless it is re-stamped in the same PR (`sync-version.mjs` now stamps the marker
+and `.pdlc` with the bump; before that, each release needed a hand re-stamp commit), which would make the per-commit
 surfaces (pre-commit, `check-docs.mjs`, the repo Stop hook) red between the two — exactly the
 mid-PR redness spec 057 moved out of that path. `pre-push` was wrong for the mirror-image
 reason: its harness downgrades findings to warnings, and a drifted block must fail loudly.

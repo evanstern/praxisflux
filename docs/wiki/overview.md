@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # praxisflux — system overview
@@ -81,8 +81,8 @@ invoking root.
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's `version:` —
   per `docs/releasing.md`; CI enforces it, and each merge to `main` auto-publishes
-  `v<version>` (see [[build-and-release]]). A bump also owes a **re-plant**: the planted
-  block stamps the version, so it drifts by construction until re-planted in the same PR.
+  `v<version>` (see [[build-and-release]]). The planted block stamps the version;
+  `sync-version.mjs` re-stamps it (and `.pdlc`) with the bump, so only a template change owes a re-plant.
 - Docs are load-bearing: every PR keeps `docs/wiki/`, `README.md`, and `CLAUDE.md` in sync
   with the code. Enforced by `scripts/check-docs.mjs` plus the wiki freshness gate, run in CI,
   the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that refuses

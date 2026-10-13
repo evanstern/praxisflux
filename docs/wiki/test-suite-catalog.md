@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -110,8 +110,8 @@ One bullet per `test/*.test.mjs` file:
   `.git/`).
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
-- `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
-  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
+- `test/sync-version.test.mjs` — argv guard: refusals exit 2 + usage, version
+  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered; planted stamps.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
   `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases, incl. a non-semver
   base skill version failing loudly instead of skipping the increase check) plus an

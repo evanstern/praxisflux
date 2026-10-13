@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # Build and release
@@ -51,11 +51,10 @@ true as written. `--check` exits 1 if the file would change; guarded by
 **Version consistency** (`scripts/sync-version.mjs`). Exactly one argument, validated before
 any file is touched: a strict `x.y.z` (`0.3.0`) sets every plugin.json, the marketplace, and
 `action.yml`'s `npx @praxisflux/gates@<version>` pin to that version; `--check` exits 1 on any
-disagreement. Anything else — no argument, `--help`-style flags, non-semver — is a usage
+disagreement. It also stamps the repo's planted pdlc version (`CLAUDE.md` marker, `.pdlc`). Anything else — no argument, `--help`-style flags, non-semver — is a usage
 error: exit 2, zero files written (guarded by `test/sync-version.test.mjs`; a target at or
 below the current value stays allowed for repair/rollback — the bump gate polices increases).
-The pin rewrite is the pure exported `stampNpxPin(text, name, target)`, which also
-reports the pins it found — a vanished pin fails loudly in both modes. Versions are
+The pin rewrite is the pure `stampNpxPin(text, name, target)`; a vanished pin fails loudly. Versions are
 **lockstep**: the marketplace `version` is the single release version and everything else
 follows it.
 
