@@ -5,7 +5,7 @@ tags: [hexagonal, ports-adapters, pdlc, agents]
 type: moc
 created: 2026-10-11
 updated: 2026-10-12
-related: ["[[Brief-and-Assumptions]]", "[[Pattern-Fundamentals]]", "[[Related-Patterns]]", "[[Implementation-Mechanics]]", "[[Real-World-Precedents]]", "[[Code-Examples]]", "[[PDLC-Seam-Inventory]]", "[[Pipeline-Stages-as-Seams]]", "[[Agent-Environment-Targets]]", "[[Costs-and-Failure-Modes]]", "[[Analysis-Which-Ports-and-How]]"]
+related: ["[[Brief-and-Assumptions]]", "[[Pattern-Fundamentals]]", "[[Related-Patterns]]", "[[Implementation-Mechanics]]", "[[Real-World-Precedents]]", "[[Code-Examples]]", "[[PDLC-Seam-Inventory]]", "[[Pipeline-Stages-as-Seams]]", "[[Agent-Environment-Targets]]", "[[Costs-and-Failure-Modes]]", "[[Analysis-Which-Ports-and-How]]", "[[Analysis-Rebuild-Architecture]]"]
 ---
 
 # Ports-and-Adapters-for-PDLC
@@ -70,6 +70,7 @@ of Jira vs Linear vs GitHub Issues; detailed per-API endpoint mapping.
 
 ## Analyses
 
+- [[Analysis-Rebuild-Architecture]] — the rebuild target under operator constraints (scripted adapters, tool agnosticism, spec port): `pdlc` CLI as driving port, four driven ports, receipts, floors; supersedes parts of the first analysis
 - [[Analysis-Which-Ports-and-How]] — which ports, in what form, in what order (verdict: Tracker/Forge/Harness as board-seam-style verb tables; Harness first)
 
 ## Open questions

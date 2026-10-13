@@ -5,10 +5,12 @@ tags: [analysis]
 type: analysis
 created: 2026-10-12
 updated: 2026-10-12
-related: ["[[Ports-and-Adapters-for-PDLC]]", "[[PDLC-Seam-Inventory]]", "[[Pipeline-Stages-as-Seams]]", "[[Agent-Environment-Targets]]", "[[Implementation-Mechanics]]", "[[Real-World-Precedents]]", "[[Costs-and-Failure-Modes]]", "[[Pattern-Fundamentals]]", "[[Related-Patterns]]", "[[Code-Examples]]"]
+related: ["[[Ports-and-Adapters-for-PDLC]]", "[[Analysis-Rebuild-Architecture]]", "[[PDLC-Seam-Inventory]]", "[[Pipeline-Stages-as-Seams]]", "[[Agent-Environment-Targets]]", "[[Implementation-Mechanics]]", "[[Real-World-Precedents]]", "[[Costs-and-Failure-Modes]]", "[[Pattern-Fundamentals]]", "[[Related-Patterns]]", "[[Code-Examples]]"]
 ---
 
 # Analysis — Which Ports, in What Form, in What Order
+
+> **Partly superseded by [[Analysis-Rebuild-Architecture]] (2026-10-12):** adapters are code, not prose; a spec port is in scope; host tooling is not assumed.
 
 **Question:** How should pdlc be refactored along ports-and-adapters lines (which ports, in what
 form, in what order) so it supports forge and tracker adapters and runs in agent environments
