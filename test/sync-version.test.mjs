@@ -120,3 +120,18 @@ test("sync-version: --check exits 0 when clean, 1 on drift, and never writes", (
   assert.match(drift.stderr, /version drift/);
   assert.deepEqual(versionFiles(repo), before, "--check must not write");
 });
+
+test("sync-version: stamps the repo's planted pdlc block marker and .pdlc sentinel; --check reports them", (t) => {
+  const repo = fixture();
+  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  writeFileSync(join(repo, "CLAUDE.md"), "x\n<!-- pdlc:grounding BEGIN v0.0.9 — planted -->\nbody\n");
+  writeFileSync(join(repo, ".pdlc"), JSON.stringify({ planted: "pdlc:bootstrap", version: "0.0.9" }, null, 2) + "\n");
+  const drift = run(repo, ["--check"]);
+  assert.equal(drift.status, 1);
+  assert.match(drift.stderr, /CLAUDE\.md planted stamp: 0\.0\.9 != 0\.1\.0/);
+  assert.match(drift.stderr, /\.pdlc planted stamp/);
+  assert.equal(run(repo, ["0.2.0"]).status, 0);
+  assert.match(readFileSync(join(repo, "CLAUDE.md"), "utf8"), /BEGIN v0\.2\.0 — planted -->\nbody/);
+  assert.equal(JSON.parse(readFileSync(join(repo, ".pdlc"), "utf8")).version, "0.2.0");
+  assert.equal(run(repo, ["--check"]).status, 0);
+});

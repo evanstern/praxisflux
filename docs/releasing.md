@@ -3,7 +3,8 @@
 praxisflux ships as **one release**: the `version` in `.claude-plugin/marketplace.json` is the
 release version, and every plugin's `plugin.json` — plus `action.yml`'s
 `npx @praxisflux/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
-enforces and stamps all three). Releases are git tags + GitHub Releases named
+enforces and stamps all three, plus the version stamps in this repo's own planted pdlc
+grounding: the `CLAUDE.md` block marker and `.pdlc`). Releases are git tags + GitHub Releases named
 `v<version>`, published automatically — there is no manual release step.
 
 ## The pipeline
