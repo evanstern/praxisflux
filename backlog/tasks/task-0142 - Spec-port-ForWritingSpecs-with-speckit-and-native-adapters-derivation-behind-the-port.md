@@ -6,13 +6,14 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-13 02:18'
+updated_date: '2026-10-13 02:18'
 labels:
   - pdlc
   - spec-bridge
   - chassis
   - refactor
 dependencies:
-  - TASK-0138
+  - TASK-0141
 references:
   - >-
     backlog/decisions/decision-0002 -
