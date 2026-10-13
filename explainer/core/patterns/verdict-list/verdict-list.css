@@ -1,0 +1,36 @@
+/* core/patterns/verdict-list — numbered short answers. Pure CSS counters;
+   no JS. Named
+   `ex-verdict-list` (not `ex-verdict`) to stay clear of `matrix`/`table`'s
+   `.ex-cell--*`/`.ex-grade--*` "verdict" cell modifiers, which are an
+   unrelated vocabulary (good/caution/bad reads, not a numbered list). */
+
+.ex-verdict-list {
+  display: grid;
+  gap: 1rem;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ex-verdict;
+}
+.ex-verdict-list > li {
+  counter-increment: ex-verdict;
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: .6rem;
+  margin: 0;
+}
+.ex-verdict-list > li::before {
+  content: counter(ex-verdict);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin-top: .1rem;
+  border-radius: 50%;
+  background: var(--ex-accent);
+  color: var(--ex-accent-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.ex-verdict-list p { margin: 0; max-width: none; }

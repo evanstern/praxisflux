@@ -1,0 +1,76 @@
+/* core/patterns/matrix — X × Y matrices with sticky row AND column headers
+   and verdict-coloured cells. Covers both a reachability/"hit" matrix and
+   a severity matrix with the same shared `--ex-status-*` vocabulary
+   `table` uses for its grade cells — one status read, not two. The scroll
+   wrapper keeps a wide matrix from forcing page-level horizontal scroll. */
+
+.ex-matrix {
+  overflow-x: auto;
+  margin: 20px 0 28px;
+  /* Same fix, same reasoning, as core/patterns/table/table.css's own
+     `.ex-table` — see that file's comment. Empirically confirmed on a
+     real matrix in a real published artifact. */
+  contain: layout;
+}
+.ex-matrix table {
+  border-collapse: collapse;
+  min-width: 600px;
+  font-size: .78rem;
+}
+.ex-matrix th,
+.ex-matrix td {
+  border: 1px solid var(--ex-border);
+  padding: 7px 9px;
+  text-align: center;
+}
+.ex-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ex-bg-sunken);
+  white-space: nowrap;
+  font-size: .72rem;
+  color: var(--ex-ink-muted);
+}
+.ex-matrix th.ex-matrix-rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  text-align: left;
+  background: var(--ex-bg-sunken);
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--ex-ink);
+}
+
+.ex-matrix td.ex-cell--hit {
+  background: var(--ex-accent-soft);
+  color: var(--ex-accent);
+  font-weight: 800;
+}
+.ex-matrix td.ex-cell--indirect {
+  color: var(--ex-ink-faint);
+  font-style: italic;
+  font-size: .92em;
+}
+.ex-matrix td.ex-cell--good {
+  background: var(--ex-status-good-bg);
+  color: var(--ex-status-good);
+  font-weight: 700;
+}
+.ex-matrix td.ex-cell--caution {
+  background: var(--ex-status-caution-bg);
+  color: var(--ex-status-caution);
+  font-weight: 700;
+}
+.ex-matrix td.ex-cell--bad {
+  background: var(--ex-status-bad-bg);
+  color: var(--ex-status-bad);
+  font-weight: 700;
+}
+.ex-matrix td.ex-cell--note {
+  text-align: left;
+  color: var(--ex-ink-faint);
+  font-style: italic;
+  font-size: .85em;
+}

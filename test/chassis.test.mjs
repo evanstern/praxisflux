@@ -10,7 +10,7 @@ import { hasChild, findRootUpwards, findRootsDownwards } from "../lib/project-ro
 import { parseFrontmatter, stripCode, extractWikilinks, linkTarget, namesFor, resolveLinks } from "../lib/markdown.mjs";
 import { today, bumpUpdated } from "../lib/dates.mjs";
 import { render } from "../lib/template.mjs";
-import { checkHtml } from "../lib/selfcontained.mjs";
+import { checkHtml, externalLoads } from "../lib/selfcontained.mjs";
 import { createLifecycle } from "../lib/lifecycle.mjs";
 import { copyDir, ensureGitignore, verifyPresent, installMode } from "../lib/installer.mjs";
 import { evaluate } from "../lib/gate-runner.mjs";
@@ -52,6 +52,13 @@ test("selfcontained: external loads fail, clean page passes", () => {
   const good = checkHtml("<title>ok</title><style>@media (prefers-color-scheme: dark){}</style><table></table>");
   assert.equal(good.ok, true);
   assert.equal(good.warns.length, 0);
+});
+
+test("selfcontained: protocol-relative URLs are external; externalLoads reports each occurrence", () => {
+  assert.equal(checkHtml('<title>x</title><img src="//cdn.example/x.png">').ok, false);
+  const loads = externalLoads('<link href="https://a.example/f.css"><style>b{background:url(//b.example/i.png)}</style>');
+  assert.deepEqual(loads.map((l) => l.url), ["https://a.example/f.css", "//b.example/i.png"]);
+  assert.deepEqual(externalLoads('<a href="https://ok.example">link</a>'), []); // links are not loads
 });
 
 test("lifecycle: status cannot exceed proven artifacts", () => {

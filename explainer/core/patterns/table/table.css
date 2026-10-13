@@ -1,0 +1,78 @@
+/* core/patterns/table — real tables, a horizontal scroll wrapper, ● ◐ ○
+   grade cells with a legend line, and a highlighted "pick" row. The
+   wrapper keeps a wide table from forcing page-level horizontal scroll on
+   narrow screens, built on `--ex-status-*` / `--ex-accent*` tokens. */
+
+.ex-table {
+  overflow-x: auto;
+  margin: 20px 0 28px;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  /* A real Chromium quirk, confirmed on a real published artifact (pages
+     failed a phone-horizontal-scroll check with no offending element a
+     DOM walk could name — this wrapper's own box, and its inner `table`,
+     both measured properly bounded in isolation) — an `overflow-x: auto`
+     wrapper's own (deliberately scrollable) internal overflow can still
+     count toward `document.documentElement.scrollWidth` unless the
+     wrapper also establishes layout containment. `contain: layout` is the
+     standard fix (confirmed empirically: toggling it on these exact
+     wrappers on the real artifact took every affected page's
+     scrollWidth from over-budget to exactly the viewport width, with zero
+     visual change) — it changes nothing about what renders, only stops
+     this wrapper's internal layout from affecting anything outside it. */
+  contain: layout;
+}
+.ex-table table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 460px;
+  font-size: .86rem;
+}
+.ex-table thead th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  padding: 9px 11px;
+  background: var(--ex-bg-sunken);
+  border-bottom: 1px solid var(--ex-border);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--ex-ink-muted);
+  white-space: nowrap;
+}
+.ex-table tbody td,
+.ex-table tbody th {
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--ex-border);
+  vertical-align: top;
+  text-align: left;
+}
+.ex-table tbody tr:last-child td,
+.ex-table tbody tr:last-child th { border-bottom: none; }
+.ex-table tbody tr:hover { background: var(--ex-bg-sunken); }
+.ex-table tbody tr.ex-table-pick td,
+.ex-table tbody tr.ex-table-pick th { background: var(--ex-accent-soft); }
+
+.ex-table caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: 8px 11px 0;
+  font-size: .78rem;
+  color: var(--ex-ink-muted);
+}
+
+.ex-grade { font-weight: 700; white-space: nowrap; }
+.ex-grade--good { color: var(--ex-status-good); }
+.ex-grade--caution { color: var(--ex-status-caution); }
+.ex-grade--bad { color: var(--ex-status-bad); }
+
+.ex-table-legend {
+  margin: 0;
+  padding: 10px 11px;
+  border-top: 1px solid var(--ex-border);
+  font-size: .78rem;
+  color: var(--ex-ink-muted);
+}
+.ex-table-legend .ex-grade { margin-right: .15em; }

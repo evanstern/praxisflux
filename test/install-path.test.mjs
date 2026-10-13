@@ -150,6 +150,17 @@ const TRIPS = {
     },
     expect: /synthesis not written yet/,
   },
+  explainer: {
+    fixture: (root) => {
+      mkdirSync(join(root, "docs", "explainers", "demo", "dist"), { recursive: true });
+      writeFileSync(join(root, "docs", "explainers", "demo", "contents.json"), "{}");
+      writeFileSync(
+        join(root, "docs", "explainers", "demo", "dist", "demo.html"),
+        '<!doctype html><html><head><title>Demo Page</title><link rel="stylesheet" href="https://fonts.example/f.css"></head><body></body></html>',
+      );
+    },
+    expect: /external host/,
+  },
 };
 
 test("every Stop-hook plugin is covered: catalog-derived list is complete and has a tripping fixture", () => {

@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "title": "New PR Explainer",
+  "kind": "pr-explainer",
+  "brand": "neutral",
+  "voice": "none",
+  "groups": [
+    {
+      "id": "start",
+      "title": "Start here"
+    },
+    {
+      "id": "overview",
+      "title": "Overview"
+    },
+    {
+      "id": "detail",
+      "title": "Deep dive"
+    },
+    {
+      "id": "reference",
+      "title": "Reference"
+    }
+  ],
+  "pages": [
+    {
+      "id": "start-here",
+      "title": "Start here",
+      "group": "start",
+      "type": "start-here"
+    },
+    {
+      "id": "overview",
+      "title": "Overview",
+      "group": "overview",
+      "type": "overview"
+    },
+    {
+      "id": "architecture-overview",
+      "title": "Architecture at a glance",
+      "group": "overview",
+      "type": "architecture-overview"
+    },
+    {
+      "id": "components",
+      "title": "Components",
+      "group": "detail",
+      "type": "components"
+    },
+    {
+      "id": "real-examples",
+      "title": "Real examples",
+      "group": "detail",
+      "type": "real-examples"
+    },
+    {
+      "id": "scenario-walkthrough",
+      "title": "Scenario walkthroughs",
+      "group": "detail",
+      "type": "scenario-walkthrough"
+    },
+    {
+      "id": "comparison-matrix",
+      "title": "Before and after",
+      "group": "detail",
+      "type": "comparison-matrix"
+    },
+    {
+      "id": "file-map",
+      "title": "File map",
+      "group": "detail",
+      "type": "file-map"
+    },
+    {
+      "id": "tests-ci",
+      "title": "Tests and CI",
+      "group": "detail",
+      "type": "tests-ci"
+    },
+    {
+      "id": "generated-terms",
+      "title": "Terms",
+      "group": "reference",
+      "type": "generated-terms"
+    },
+    {
+      "id": "generated-sources",
+      "title": "Sources",
+      "group": "reference",
+      "type": "generated-sources"
+    }
+  ],
+  "terms": [],
+  "sources": [],
+  "generators": {
+    "manifest": {
+      "builtin": "git-manifest",
+      "range": "HEAD",
+      "buckets": [
+        {
+          "id": "all",
+          "label": "Changed files",
+          "match": [
+            "**"
+          ]
+        }
+      ]
+    }
+  },
+  "live": {
+    "comments": true,
+    "presenter": true
+  },
+  "publish": {
+    "url": null,
+    "shape": "single"
+  }
+}

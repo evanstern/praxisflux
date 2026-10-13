@@ -1,0 +1,23 @@
+/* core/patterns/ask — a per-section "Ask about this" button that opens
+   the shell's comments composer anchored to that section. CSS + markup +
+   an inert JS hook only here — the live wiring (the `comments` Artifact
+   capability) lives in ask.live.js. Every button stays hidden until
+   ask.js's `enable()` is called: no-op without wiring/`window.claude`. */
+
+.ex-ask {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 6px 0 18px;
+  padding: 5px 12px;
+  border: 1px solid var(--ex-border);
+  border-radius: 999px;
+  background: var(--ex-bg-elevated);
+  color: var(--ex-ink-muted);
+  font: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+}
+.ex-ask:hover { border-color: var(--ex-accent); color: var(--ex-accent); }
+.ex-ask:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }
+.ex-ask::before { content: "?"; font-weight: 700; }

@@ -6,7 +6,7 @@ each is independently installable, aware of the others, and composes only throug
 gates — never by calling each other directly.
 
 > Status: **under construction.** The plan lives in Backlog (`backlog task list --plain`).
-> Nine plugins are registered in the marketplace — the table below is the catalog. This repo
+> Ten plugins are registered in the marketplace — the table below is the catalog. This repo
 > is the unification target for the standalone `research` skills, the `educate` plugin, and
 > the `codebase-to-course` skill.
 
@@ -32,6 +32,7 @@ by default, so the advisory-local / authoritative-CI split holds everywhere it i
 | **pdlc** | Bootstrap, then run, the praxis development lifecycle across three skills: `bootstrap` plants the always-on PDLC grounding (a marked `CLAUDE.md` block) and gitignores the `.handoff/` transport — tracked (`.gitignore`) by default, or, for a repo the operator is a guest in rather than owns, **local-only** (`--local-only`: the footprint lands in `.git/info/exclude` instead of tracked files, `git status` stays clean) — and opts into the supported peer utilities (Backlog.md, Spec Kit, Jira — Backlog.md and Jira mutually exclusive) — running their inits on opt-in; `sweep` runs a set of board tasks through the whole lifecycle via an operator-signed-off runbook (parallel lanes, serial merges); `refactor-triage` triages the swept result for debt and drift and cards accepted findings back onto the board. | Skill-only for the lifecycle, plus an **opt-in** root-guard `PreToolUse` hook `bootstrap` can plant into a host (hard-blocks root-checkout commits outside the `backlog/` carve-out; off by default). | **Runs on any project folder** (stamps a `.pdlc` sentinel). |
 | **team-review** | Lead-engineer-plus-team architecture review via parallel subagents: one consolidated, evidence-backed report, proven by a read-only output gate (sections + resolving citations + target untouched). | Stop hook (advisory): in-flight run gate. | **Caller-supplied target** — reviews a repo the caller names; state stays at the invoking root. |
 | **reorient** | Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground, and one synthesis lands as board moves — proven by an output gate (per-branch analyses + merged synthesis). | Stop hook (advisory): in-flight run gate. | **Runs on the project it reorients** — run state at the invoking root; vault/wiki/board grounding auto-detected, each optional. |
+| **explainer** | Build cited, house-style HTML explainers — PR explainers, architecture sites, decision briefings, onboarding guides — from an interview, gathered facts (grounding wiki first when `docs/wiki/` exists), an approved outline, and parallel page-writers; a read-only check suite (`gates/check.mjs`) plus an independent fact-checker blocks a broken publish, and `/explain-answer` answers artifact comment threads from the same facts. | Stop hook (advisory): built `dist/` pages stay self-contained. | **Favored home** — artifacts live in `docs/explainers/<name>/`; `plant` lands a marked `CLAUDE.md` block. |
 
 ## The loop
 
@@ -117,6 +118,7 @@ special access.
 /plugin install pdlc@praxisflux
 /plugin install team-review@praxisflux
 /plugin install reorient@praxisflux
+/plugin install explainer@praxisflux
 ```
 
 Each plugin is independently installable — take only the legs of the loop you need. Installing

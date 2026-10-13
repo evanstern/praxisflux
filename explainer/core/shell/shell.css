@@ -1,0 +1,307 @@
+/* explainer shell — shared stylesheet for both the single-file and
+   --multi builds. Built on the sticky
+   top bar, grouped nav, and pager pattern familiar from static docs sites,
+   onto the --ex-* token contract (core/brand/tokens.json) instead of
+   any hardcoded palette. Every color/shadow/focus value
+   below is a var(--ex-*) supplied by a brand file (brand/<id>.css) loaded
+   and inlined ahead of this sheet (lib/build.mjs) — this file defines no
+   literal colours itself. Font stacks are the one documented
+   exception: system stacks, not brand tokens, so they are hardcoded
+   here. No @import and no url() to anything external —
+   self-contained — and no var()/colours in SVG attributes;
+   diagram SVGs are styled only by the classes below.
+
+   The "more info" popover/panel/sheet component moved
+   wholesale to core/patterns/info/info.css —
+   `.ex-info*` and the `a.ex-term` trigger styling are no longer here; see
+   that folder's own header comment. This file never re-adds them: a page
+   with no info/term/panel trigger must ship no info-component CSS at all
+   (lib/shell.mjs's BUILD_OWNED_IMPLIES/collectPatternNames).
+*/
+
+* { box-sizing: border-box; }
+
+/* Every control that starts `hidden` until live
+   wiring flips it (the presenter pattern's badge/toggle/follow controls,
+   the ask pattern's button — core/patterns/presenter/presenter.css,
+   core/patterns/ask/ask.css) must actually render nothing
+   until then. A pattern's own `display: flex`/`inline-flex`/etc. on that
+   same selector has equal specificity to the `[hidden]` UA-stylesheet
+   rule, so source order alone decides the winner — any author stylesheet
+   loaded after the UA sheet (every one of them, here) wins, silently
+   defeating `hidden` (the real bug: the presenter pattern's badge
+   selector's own unconditional `display: inline-flex` showed "•
+   Presenting" on every page, live or not — literal class names are
+   deliberately not spelled out verbatim in this comment: this file ships
+   inlined into every build regardless of which patterns a page actually
+   uses, and live-wiring.test.mjs asserts a pattern's own class-name
+   substring is absent from a build that never enabled it). One
+   `!important` rule, this early in the cascade, makes `[hidden]` win over
+   any pattern's own `display` rule build-wide — no per-pattern workaround
+   needed, now or for a future pattern that starts hidden. */
+[hidden] { display: none !important; }
+
+html {
+  /* A larger base font size, applied once here for the whole page. */
+  font-size: 125%;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--ex-bg);
+  color: var(--ex-ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ex-ink);
+}
+h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 0 0 .4em; }
+h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); margin: 2em 0 .5em; }
+h3 { font-size: 1.1rem; margin: 1.6em 0 .5em; }
+h4 {
+  font-size: .8rem; margin: 1.2em 0 .4em; color: var(--ex-ink-muted);
+  text-transform: uppercase; letter-spacing: .05em; font-weight: 700;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Prose measure only — block-level content (diagrams, tables, callouts,
+   code) is never width-constrained here, so a pattern can go full width
+   inside .ex-page-body, giving callouts and other block content the full
+   column width. */
+p, li { max-width: 68ch; }
+li p { max-width: none; }
+
+/* A long .ex-path (a file/cite link's path or URL
+   text — lib/includes.mjs's handleFile, lib/info.mjs's files= footer, the
+   generated Sources page) had no wrap rule of its own, only `code`'s
+   `overflow-wrap: anywhere` below — found on a real published artifact as
+   the actual cause of a phone-horizontal-scroll check failing on most of its
+   pages (an unbroken monospace path easily exceeds 400px on its own, and
+   .ex-path is never inside a scroll wrapper the way a code block or table
+   is — it's plain inline text in the page's own flow). Shared here so
+   every .ex-path wraps the same way `code` already does, build-wide. */
+code, .ex-path { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: .9em; overflow-wrap: anywhere; }
+code {
+  background: var(--ex-bg-sunken);
+  border-radius: 4px;
+  padding: .1em .4em;
+}
+
+a { color: var(--ex-accent); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; border-radius: 3px; }
+
+/* Anything a hash link can land on should clear the sticky top bar. */
+h2[id], h3[id], dt[id], section[id] { scroll-margin-top: 76px; }
+
+/* --------------------------------------------------------------- layout */
+.ex-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.ex-topbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--ex-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ex-border);
+}
+/* Pages + title + presenter controls + the theme
+   toggle's own "Theme: auto" label together overflowed a 400px viewport
+   (a phone-horizontal-scroll check failed on most real pages) — the title had no way
+   to shrink (a flex item's default min-width is its own content width, so
+   a long title just pushed the controls past the edge instead of ever
+   truncating), and nothing stopped a tap target from being squeezed below
+   a usable size in the process. `min-width: 0` on the title lets it
+   actually shrink; the ellipsis then gives the overflow somewhere
+   predictable to go instead of a layout overflow; `flex-shrink: 0` on the
+   two toggle buttons keeps them at their own natural (tap-sized) width
+   regardless of how little room the title leaves them. */
+.ex-title {
+  font-weight: 700; font-size: 1rem;
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ex-pages-toggle, .ex-theme-toggle {
+  border: 1px solid var(--ex-border); background: var(--ex-bg-elevated);
+  color: var(--ex-ink); border-radius: 999px; padding: 5px 12px;
+  font: inherit; font-size: .8rem; cursor: pointer;
+  flex-shrink: 0;
+}
+.ex-pages-toggle:hover, .ex-theme-toggle:hover { border-color: var(--ex-border-strong); }
+.ex-theme-toggle { margin-left: auto; }
+.ex-pages-toggle { display: none; }
+
+@media (max-width: 640px) {
+  /* The theme toggle collapses to an icon-sized button — CSS only, no
+     markup/JS change needed: `shell.js`'s own `apply()` already keeps the
+     button's `aria-label` current ("Toggle color theme (currently …)"),
+     and per the accessible-name computation an explicit `aria-label`
+     overrides visible text content regardless of how that text renders —
+     collapsing the text run to zero size here loses no accessible
+     information, it just stops "Theme: auto" from costing ~90px at a
+     width that has none to spare. The glyph is a plain Unicode character
+     (not an SVG), styled only by `currentColor` — no literal colour, same
+     rule SVG attributes are held to throughout this file. */
+  .ex-theme-toggle {
+    font-size: 0;
+    width: 32px; height: 32px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ex-theme-toggle::before {
+    content: "\25D0"; /* ◐ half-filled circle */
+    font-size: 1rem;
+  }
+}
+
+.ex-shell-body { display: flex; flex: 1; align-items: flex-start; }
+
+.ex-menu {
+  flex: 0 0 240px;
+  position: sticky; top: 49px;
+  max-height: calc(100vh - 49px);
+  overflow-y: auto;
+  padding: 18px 14px;
+  border-right: 1px solid var(--ex-border);
+}
+.ex-menu-group + .ex-menu-group { margin-top: 18px; }
+.ex-menu-group h4 { margin: 0 0 6px 10px; }
+.ex-menu ul { list-style: none; margin: 0; padding: 0; }
+.ex-menu li { margin: 0; }
+.ex-menu a {
+  display: block; padding: 6px 10px; border-radius: 8px;
+  color: var(--ex-ink-muted); font-size: .9rem; text-decoration: none;
+  font-weight: 600;
+}
+.ex-menu a:hover { color: var(--ex-ink); background: var(--ex-bg-sunken); }
+.ex-menu a[aria-current="page"] { color: var(--ex-accent); background: var(--ex-accent-soft); }
+
+.ex-main { flex: 1 1 auto; min-width: 0; padding: 28px 24px 40px; }
+.ex-page-body { max-width: 860px; }
+
+@media (max-width: 880px) {
+  .ex-pages-toggle { display: inline-flex; }
+  .ex-shell-body { position: relative; }
+  .ex-menu {
+    position: fixed; top: 49px; left: 0; bottom: 0; z-index: 30;
+    width: min(300px, 84vw); max-height: none;
+    background: var(--ex-bg); box-shadow: var(--ex-shadow);
+    transform: translateX(-100%); transition: transform .18s ease;
+  }
+  .ex-menu.ex-open { transform: translateX(0); }
+  .ex-main { padding: 20px 16px 32px; }
+}
+
+/* ------------------------------------------------------------- eyebrow */
+.ex-eyebrow {
+  font-size: .78rem; font-weight: 700; letter-spacing: .03em;
+  text-transform: uppercase; color: var(--ex-ink-faint);
+  margin: 0 0 14px;
+}
+
+/* --------------------------------------------------------------- pager */
+.ex-pager {
+  display: flex; justify-content: space-between; gap: 12px;
+  margin: 40px 0 6px; padding-top: 18px;
+  border-top: 1px solid var(--ex-border);
+  font-size: .9rem; max-width: 860px;
+}
+.ex-pager a { font-weight: 600; text-decoration: none; }
+.ex-pager a:hover { text-decoration: underline; }
+.ex-pager-next { margin-left: auto; text-align: right; }
+.ex-pager-lbl {
+  display: block; font-size: .72rem; color: var(--ex-ink-faint);
+  font-weight: 400; text-transform: uppercase; letter-spacing: .04em;
+}
+
+/* ----------------------------------------------------------------- dl.ex-glossary (Terms page) */
+.ex-glossary dt {
+  font-weight: 800; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .95rem; margin-top: 18px; color: var(--ex-accent);
+}
+.ex-glossary dd { margin: 3px 0 0; color: var(--ex-ink-muted); font-size: .9rem; max-width: 62ch; }
+.ex-term-see { font-size: .85em; }
+
+/* ------------------------------------------------------------- ex-sources (Sources page) */
+.ex-sources { padding-left: 1.6em; }
+.ex-sources li { margin: .4em 0; }
+.ex-vendor { color: var(--ex-ink-faint); font-size: .85em; }
+
+/* ----------------------------------------------------- diagram base classes
+   Hand-written and generated SVG both use only these classes — never
+   var()/literal colours directly on an SVG attribute. */
+.ex-diagram {
+  margin: 18px 0; overflow-x: auto; max-width: 100%;
+  border: 1px solid var(--ex-border); border-radius: 12px;
+  background: var(--ex-bg-elevated); box-shadow: var(--ex-shadow);
+  padding: 16px;
+}
+.ex-diagram svg { display: block; margin: 0 auto; height: auto; }
+.ex-box { fill: var(--ex-diagram-same-bg); stroke: var(--ex-diagram-same); stroke-width: 1.5; }
+.ex-box-changed { fill: var(--ex-diagram-changed-bg); stroke: var(--ex-diagram-changed); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.ex-box-new { fill: var(--ex-diagram-new-bg); stroke: var(--ex-diagram-new); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.ex-ln { stroke: var(--ex-diagram-line); stroke-width: 1.5; fill: none; }
+.ex-t { fill: var(--ex-diagram-text); font-size: 13px; }
+.ex-t-muted { fill: var(--ex-diagram-text-muted); font-size: 11px; }
+.ex-legend-same, .ex-legend-changed, .ex-legend-new {
+  display: inline-flex; align-items: center; gap: 6px; font-size: .78rem;
+  color: var(--ex-ink-muted); margin-right: 14px;
+}
+.ex-legend-same::before, .ex-legend-changed::before, .ex-legend-new::before {
+  content: ""; width: 12px; height: 12px; border-radius: 3px; display: inline-block;
+}
+.ex-legend-same::before { background: var(--ex-diagram-same-bg); border: 1.5px solid var(--ex-diagram-same); }
+.ex-legend-changed::before { background: var(--ex-diagram-changed-bg); border: 1.5px solid var(--ex-diagram-changed); }
+.ex-legend-new::before { background: var(--ex-diagram-new-bg); border: 1.5px dashed var(--ex-diagram-new); }
+
+/* ----------------------------------------------- .ex-node (clickable diagram nodes) */
+.ex-node { cursor: pointer; }
+.ex-node > rect, .ex-node > polygon { transition: filter .1s ease; }
+.ex-node:hover > rect, .ex-node:hover > polygon { filter: brightness(1.06) saturate(1.1); }
+.ex-node:focus-visible { outline: 2.5px solid var(--ex-focus); outline-offset: 3px; }
+
+/* ---------------------------------------------------- new-tab link cue
+   Every target="_blank" anchor this plugin emits (lib/includes.mjs's
+   handleCite/handleFile, lib/info.mjs's files= footer, lib/cites.mjs's
+   Sources page, core/patterns/file-map/file-map.js's runtime rows) carries
+   a real, visually-hidden "(opens in new tab)" span (.ex-vh below) — CSS
+   generated content is not reliably exposed to a screen reader, so the
+   accessible text has to be real DOM, stamped by the build/runtime itself
+   (house style `clickable-has-cue`, check's `ui.affordance`). The icon
+   itself is the plain "↗" glyph the operator's own wording named, so it
+   never needs a colour or a `data:` url. */
+a[target="_blank"]::after {
+  content: "\2197";
+  display: inline-block;
+  margin-left: .2em;
+}
+
+/* Visually-hidden utility: present in the accessibility tree, never
+   rendered — the standard clip-to-1px technique (never `display: none`,
+   which screen readers skip entirely). */
+.ex-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+

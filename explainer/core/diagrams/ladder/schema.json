@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "explainer diagrams/ladder data",
+  "description": "A vertical stage ladder with optional gate diamonds between rungs — the SDLC 'triage -> ... -> deploy' shape. Validated by lib/includes.mjs's handleDiagram against the same built-ins-only subset lib/schema.mjs interprets — see core/diagrams/ladder/README.md. Cross-references (gates[].after naming an unknown or last stage, a duplicate after) aren't schema-expressible and are checked by render.mjs itself.",
+  "type": "object",
+  "required": ["stages"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "Diagram <title>, for accessibility; falls back to \"Ladder\"." },
+    "stages": {
+      "type": "array",
+      "minItems": 2,
+      "description": "Rungs, top to bottom in array order.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "description": "Referenced by gates[].after." },
+          "label": { "type": "string", "minLength": 1 },
+          "state": {
+            "type": "string",
+            "enum": ["same", "changed", "new"],
+            "description": "Defaults to \"same\" when omitted. Draws the matching shared box class: ex-box (\"same\"), ex-box-changed (\"changed\"), or ex-box-new (\"new\")."
+          },
+          "panel": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A contents.json page panels[].key; makes the rung a clickable node."
+          }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "description": "Decision diamonds, each placed on the connector right after one stage.",
+      "items": {
+        "type": "object",
+        "required": ["after", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "after": { "type": "string", "minLength": 1, "description": "A stages[].id; must not be the last stage." },
+          "label": { "type": "string", "minLength": 1 },
+          "panel": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A contents.json page panels[].key; makes the gate a clickable node."
+          }
+        }
+      }
+    }
+  }
+}

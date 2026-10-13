@@ -1,0 +1,17 @@
+{
+  "title": "SDLC pipeline stage ladder",
+  "stages": [
+    { "id": "triage", "label": "Triage", "panel": "triage" },
+    { "id": "repo-route", "label": "Repo route" },
+    { "id": "design", "label": "Design" },
+    { "id": "plan", "label": "Plan" },
+    { "id": "execute", "label": "Execute", "state": "changed", "panel": "execute" },
+    { "id": "validate", "label": "Validate" },
+    { "id": "merge", "label": "Merge", "state": "new" }
+  ],
+  "gates": [
+    { "after": "triage", "label": "A or B grade?" },
+    { "after": "plan", "label": "All repos planned?" },
+    { "after": "validate", "label": "All green?" }
+  ]
+}

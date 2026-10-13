@@ -1,9 +1,11 @@
 ---
 id: TASK-0137
 title: 'explainer: adopt the explainer plugin into the praxisflux marketplace'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-13 01:38'
+updated_date: '2026-10-13 01:58'
 labels:
   - plugin
   - explainer
@@ -53,3 +55,16 @@ Open decisions for the spec:
 - [ ] #7 README.md, CLAUDE.md, and docs/wiki describe the new plugin, and scripts/check-docs.mjs passes.
 - [ ] #8 The marketplace version is bumped per docs/releasing.md.
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Scaffold explainer/ via new-plugin.mjs --with-gate; copy source from the clean repo.
+2. Move the suite to test/explainer/; fix plugin-root paths.
+3. Split check: read-only checks to gates/check.mjs; scripts/lib/check.mjs keeps browser runs and report writes.
+4. Route self.contained through lib/selfcontained.mjs; teach it protocol-relative URLs.
+5. Wire the Stop hook: built dist pages must stay self-contained.
+6. Plant a marked CLAUDE.md block in host projects (explainer.mjs plant).
+7. Add docs/wiki as a fact source; warn when a cited wiki note is stale.
+8. Docs sync (README, CLAUDE.md, wiki), version bump, full gates.
+<!-- SECTION:PLAN:END -->

@@ -1,0 +1,40 @@
+/* core/patterns/details — accordion styling for native <details>/<summary>.
+   Depth lives in two forms: accordions (this pattern) and side/bottom
+   panels (`term`/`panel`, which style/extend the shell's info component) —
+   this pattern only covers the accordion half. No JS: the browser's own
+   disclosure behaviour is used as-is, styled only. */
+
+.ex-details {
+  margin: 16px 0;
+  padding: 0 16px;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  background: var(--ex-bg-elevated);
+}
+.ex-details > summary {
+  padding: 12px 0;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  font-size: .92rem;
+  color: var(--ex-accent);
+}
+.ex-details > summary::-webkit-details-marker { display: none; }
+.ex-details > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1em;
+  margin-right: .3em;
+  transition: transform .15s ease;
+}
+.ex-details[open] > summary {
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ex-border);
+}
+.ex-details[open] > summary::before { transform: rotate(90deg); }
+.ex-details > summary ~ * { margin-top: 0; margin-bottom: 14px; }
+.ex-details > summary ~ * + * { margin-top: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-details > summary::before { transition: none; }
+}

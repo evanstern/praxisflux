@@ -1,0 +1,4 @@
+/* Declared in core but never referenced by any fixture page — proves only
+   used patterns are inlined. If this text ever appears in a built
+   dist/*.html, the test asserting "only used patterns inlined" should fail. */
+.ex-unused { color: red; }

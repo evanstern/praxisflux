@@ -1,0 +1,2 @@
+/* Fixture pattern for Phase 4 pattern-inlining tests. */
+.ex-widget { border: 1px solid var(--ex-border); padding: 4px; }

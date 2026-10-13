@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "id": "decision-briefing",
+  "title": "Decision Briefing",
+  "summary": "Argues a recommendation from research — the evidence, the options weighed, and what the team should do next.",
+  "page_types": [
+    {
+      "id": "start-here",
+      "purpose": "Give a reader (live or async) a one-screen kickoff: what this artifact is, who should read which page, and how to ask questions.",
+      "suggested_patterns": [
+        "callout",
+        "presenter"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/start-here.md"
+    },
+    {
+      "id": "verdict-list",
+      "purpose": "State the recommendation as a short numbered list of verdicts, most important first.",
+      "suggested_patterns": [
+        "verdict-list"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/verdict-list.md"
+    },
+    {
+      "id": "needs-register",
+      "purpose": "List every need or requirement the recommendation must satisfy, so a reader can check the argument against them.",
+      "suggested_patterns": [
+        "table"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/needs-register.md"
+    },
+    {
+      "id": "option-comparison",
+      "purpose": "Compare every option considered, cell by cell, against the same criteria.",
+      "suggested_patterns": [
+        "matrix",
+        "table"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/option-comparison.md"
+    },
+    {
+      "id": "same-direction-refinements",
+      "purpose": "When refining an existing plan, show what stays the same and justify each individual change in detail.",
+      "suggested_patterns": [
+        "callout",
+        "steps"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/same-direction-refinements.md"
+    },
+    {
+      "id": "breakage-matrix",
+      "purpose": "Show what breaks under each option, so the cost of being wrong is visible up front.",
+      "suggested_patterns": [
+        "matrix"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/breakage-matrix.md"
+    },
+    {
+      "id": "plan-timeline",
+      "purpose": "Lay out the plan or rollout as a sequence of phases or dates.",
+      "suggested_patterns": [
+        "steps"
+      ],
+      "suggested_diagrams": [
+        "timeline"
+      ],
+      "guide": "guides/plan-timeline.md"
+    },
+    {
+      "id": "case-study-evidence",
+      "purpose": "Back the recommendation with real case-study data, generated from the source material.",
+      "suggested_patterns": [
+        "cards",
+        "stats"
+      ],
+      "suggested_diagrams": [
+        "bar"
+      ],
+      "guide": "guides/case-study-evidence.md"
+    },
+    {
+      "id": "open-questions",
+      "purpose": "List what's still unresolved, each with an explicit confidence level.",
+      "suggested_patterns": [
+        "table",
+        "callout"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/open-questions.md"
+    },
+    {
+      "id": "generated-sources",
+      "purpose": "Auto-built from contents.json's sources[] and every <x-cite> used in the artifact. Not hand-authored.",
+      "suggested_patterns": [],
+      "suggested_diagrams": [],
+      "guide": "guides/generated-sources.md"
+    }
+  ],
+  "default_sources": [
+    {
+      "kind": "wiki",
+      "describe": "The repo's grounding wiki, when one exists — commit-pinned notes already verified against the code",
+      "hint": "docs/wiki/INDEX.md first, then the notes it points to; skip when absent"
+    },
+    {
+      "kind": "vault",
+      "describe": "The research vault's grounded notes and analyses",
+      "hint": "MOC first, then notes/analyses, grepped by section"
+    },
+    {
+      "kind": "docs",
+      "describe": "Decision records and design docs",
+      "hint": "docs/design, ADRs"
+    }
+  ],
+  "interview": [
+    {
+      "id": "audience",
+      "header": "Audience",
+      "question": "Who is this briefing for?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "The decision-makers who approve this",
+          "description": "Whoever signs off on the recommendation"
+        },
+        {
+          "label": "The team that will implement it",
+          "description": "Whoever acts on the decision once made"
+        },
+        {
+          "label": "A wider audience who needs context",
+          "description": "Anyone who needs the background, not the vote"
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "header": "Purpose",
+      "question": "What should this briefing mainly accomplish?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Win approval for the recommendation",
+          "description": "Persuade the decision-makers"
+        },
+        {
+          "label": "Record the decision durably",
+          "description": "Leave a lasting account of why"
+        },
+        {
+          "label": "Prepare the team for a live discussion",
+          "description": "Ground a meeting, with a kickoff page"
+        }
+      ]
+    },
+    {
+      "id": "emphasis",
+      "header": "Emphasis",
+      "question": "Which parts of the argument deserve the most depth?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "The recommendation itself",
+          "description": "The verdict and why it wins"
+        },
+        {
+          "label": "The evidence behind it",
+          "description": "Needs, options, and case-study data"
+        },
+        {
+          "label": "Risks and what breaks",
+          "description": "The honest cost of being wrong"
+        },
+        {
+          "label": "The plan and timeline",
+          "description": "What happens next, and when"
+        }
+      ]
+    },
+    {
+      "id": "where-to-look",
+      "header": "Sources",
+      "question": "Where should the fact-gatherer look?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Grounding wiki",
+          "description": "docs/wiki — commit-pinned notes, read before code (skipped when absent)",
+          "default": true
+        },
+        {
+          "label": "Research vault",
+          "description": "The research vault's grounded notes and analyses",
+          "default": true
+        },
+        {
+          "label": "Docs / Markdown",
+          "description": "Decision records and design docs",
+          "default": true
+        },
+        {
+          "label": "Other",
+          "description": "Something else — a wiki, a ticket system, a URL, or another tool the session can reach",
+          "freeform": true
+        }
+      ]
+    }
+  ],
+  "skeleton": "skeleton.contents.json"
+}

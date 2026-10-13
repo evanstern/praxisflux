@@ -1,0 +1,46 @@
+<h3>Code blocks</h3>
+<p>Highlighted, unwrapped, horizontally scrollable, keyboard-focusable. This markup is exactly what
+<code>x-example</code>/<code>x-include</code> render (<code>scripts/lib/includes.mjs</code>'s
+<code>renderCodeBlock</code>) — written directly here so this example has no build-time dependency on
+a declared term, source, or generator.</p>
+
+<div class="ex-code" data-tag="Illustrative">
+  <div class="ex-code-head"><span class="ex-code-tag">Illustrative</span><span class="ex-code-file">runStage.ts</span></div>
+  <pre class="ex-code-pre" tabindex="0"><code class="ex-code-lang-ts">// runStage.ts — the heart. Does ONE stage. Never decides what runs next.
+export async function runStage(input: StageInput): Promise&lt;StageResult&gt; {
+  const start = Date.now();
+  if (!input.ticketId) {
+    throw new Error("missing ticketId");
+  }
+  const result = await reason(input);
+  return { ...result, ms: Date.now() - start };
+}</code></pre>
+</div>
+
+<h3>Multiple files, collapsed per file</h3>
+<p>Wrap each file's block in the <code>details</code> pattern's <code>&lt;details class="ex-details"&gt;</code>
+so a reader opens only the file they need (collapsible per-file blocks). Pair with the
+<code>file-map</code> pattern when the set of changed files is large enough to need search and
+filters.</p>
+
+<details class="ex-details">
+  <summary>scripts/vcs_lib/core.py</summary>
+  <div class="ex-code" data-tag="Real">
+    <div class="ex-code-head"><span class="ex-code-tag">Real</span><span class="ex-code-file">scripts/vcs_lib/core.py</span></div>
+    <pre class="ex-code-pre" tabindex="0"><code class="ex-code-lang-py">def evaluate(action, payload):
+    # validate, dispatch, and always return one VerdictEnvelope
+    if action not in HANDLERS:
+        raise UnknownAction(action)
+    return HANDLERS[action](payload)</code></pre>
+  </div>
+</details>
+
+<details class="ex-details">
+  <summary>scripts/vcs_lib/github.py</summary>
+  <div class="ex-code" data-tag="Real">
+    <div class="ex-code-head"><span class="ex-code-tag">Real</span><span class="ex-code-file">scripts/vcs_lib/github.py</span></div>
+    <pre class="ex-code-pre" tabindex="0"><code class="ex-code-lang-py">def find_open_prs_by_branch(repo, branch):
+    # GET /repos/{owner}/{repo}/pulls?head=...&amp;state=open
+    return _get(repo, "pulls", params={"head": branch, "state": "open"})</code></pre>
+  </div>
+</details>

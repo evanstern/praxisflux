@@ -1,0 +1,227 @@
+{
+  "schema": 1,
+  "id": "pr-explainer",
+  "title": "PR Explainer",
+  "summary": "Explains a large pull request to a team — what changed, why, and how to explore it — from a diff and the repo it lands in.",
+  "page_types": [
+    {
+      "id": "start-here",
+      "purpose": "Give a reader (live or async) a one-screen kickoff: what this artifact is, who should read which page, and how to ask questions.",
+      "suggested_patterns": [
+        "callout",
+        "presenter"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/start-here.md"
+    },
+    {
+      "id": "overview",
+      "purpose": "Answer, in a few sentences, what changed and why — the one-screen version for someone who reads nothing else.",
+      "suggested_patterns": [
+        "callout",
+        "stats"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/overview.md"
+    },
+    {
+      "id": "architecture-overview",
+      "purpose": "Show how the changed pieces fit into the system as a whole, before diving into any one of them.",
+      "suggested_patterns": [
+        "legend",
+        "panel"
+      ],
+      "suggested_diagrams": [
+        "swimlanes"
+      ],
+      "guide": "guides/architecture-overview.md"
+    },
+    {
+      "id": "components",
+      "purpose": "Introduce each new or changed port/component: what it does, who calls it, and what it replaces.",
+      "suggested_patterns": [
+        "cards",
+        "table"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/components.md"
+    },
+    {
+      "id": "real-examples",
+      "purpose": "Show real, generator-sourced payloads or command output proving the new behavior — never hand-typed.",
+      "suggested_patterns": [
+        "code",
+        "annotated-json"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/real-examples.md"
+    },
+    {
+      "id": "scenario-walkthrough",
+      "purpose": "Walk one real call through the system end to end: the call, the result, and who handles it next.",
+      "suggested_patterns": [
+        "scenario",
+        "panel"
+      ],
+      "suggested_diagrams": [
+        "sequence"
+      ],
+      "guide": "guides/scenario-walkthrough.md"
+    },
+    {
+      "id": "comparison-matrix",
+      "purpose": "Compare old vs. new behavior (or option A vs. option B) cell by cell instead of in prose.",
+      "suggested_patterns": [
+        "matrix",
+        "legend"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/comparison-matrix.md"
+    },
+    {
+      "id": "file-map",
+      "purpose": "Show every changed file, bucketed by concern, generated fresh from the real diff — never hand-maintained.",
+      "suggested_patterns": [
+        "file-map"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/file-map.md"
+    },
+    {
+      "id": "tests-ci",
+      "purpose": "Summarize what tests cover the change and what CI now checks, so a reviewer can trust the coverage claim.",
+      "suggested_patterns": [
+        "table",
+        "stats"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/tests-ci.md"
+    },
+    {
+      "id": "generated-terms",
+      "purpose": "Auto-built from contents.json's terms[] — every defined term in one place. Not hand-authored.",
+      "suggested_patterns": [],
+      "suggested_diagrams": [],
+      "guide": "guides/generated-terms.md"
+    },
+    {
+      "id": "generated-sources",
+      "purpose": "Auto-built from contents.json's sources[] and every <x-cite> used in the artifact. Not hand-authored.",
+      "suggested_patterns": [],
+      "suggested_diagrams": [],
+      "guide": "guides/generated-sources.md"
+    }
+  ],
+  "default_sources": [
+    {
+      "kind": "wiki",
+      "describe": "The repo's grounding wiki, when one exists — commit-pinned notes already verified against the code",
+      "hint": "docs/wiki/INDEX.md first, then the notes it points to; skip when absent"
+    },
+    {
+      "kind": "diff",
+      "describe": "The PR's changed files against its base branch",
+      "hint": "git diff / branch range — the primary source for a PR explainer"
+    },
+    {
+      "kind": "code",
+      "describe": "The repo checkout on the PR's own branch",
+      "hint": "modules, interfaces, configs, tests touched by the diff"
+    }
+  ],
+  "interview": [
+    {
+      "id": "audience",
+      "header": "Audience",
+      "question": "Who is this PR explainer mainly for?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "The reviewing team",
+          "description": "Engineers who will review or approve this PR"
+        },
+        {
+          "label": "A wider engineering audience",
+          "description": "Other teams who depend on or are curious about this area"
+        },
+        {
+          "label": "Non-engineering stakeholders",
+          "description": "PMs, leads, or others tracking the change at a higher level"
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "header": "Purpose",
+      "question": "What should this explainer mainly accomplish?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Get the PR reviewed faster",
+          "description": "Help reviewers understand scope and intent quickly"
+        },
+        {
+          "label": "Hand off for exploration",
+          "description": "Let the team explore and ask questions after merge"
+        },
+        {
+          "label": "Document a big change",
+          "description": "Leave a durable record of what changed and why"
+        }
+      ]
+    },
+    {
+      "id": "emphasis",
+      "header": "Emphasis",
+      "question": "Which parts of the PR deserve the most depth?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Architecture / design",
+          "description": "How the new pieces fit together"
+        },
+        {
+          "label": "Real examples",
+          "description": "Concrete generated payloads or output"
+        },
+        {
+          "label": "Risk and testing",
+          "description": "What could break and how it's covered"
+        },
+        {
+          "label": "File-by-file detail",
+          "description": "A thorough tour of every changed file"
+        }
+      ]
+    },
+    {
+      "id": "where-to-look",
+      "header": "Sources",
+      "question": "Where should the fact-gatherer look?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Grounding wiki",
+          "description": "docs/wiki — commit-pinned notes, read before code (skipped when absent)",
+          "default": true
+        },
+        {
+          "label": "Git diff / branch range",
+          "description": "The PR's changed files against its base branch",
+          "default": true
+        },
+        {
+          "label": "Code checkout",
+          "description": "The repo checkout on the PR's own branch",
+          "default": true
+        },
+        {
+          "label": "Other",
+          "description": "Something else — a wiki, a ticket system, a URL, or another tool the session can reach",
+          "freeform": true
+        }
+      ]
+    }
+  ],
+  "skeleton": "skeleton.contents.json"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "p50 latency by adapter",
+  "unit": "ms",
+  "bars": [
+    { "label": "GitHubAdapter", "value": 420, "panel": "github" },
+    { "label": "AdoAdapter", "value": 610, "new": true },
+    { "label": "core.py direct", "value": 180 }
+  ]
+}

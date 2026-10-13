@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "title": "New Explainer",
+  "kind": "demo-kind",
+  "brand": "neutral",
+  "voice": "none",
+  "groups": [{ "id": "start", "title": "Start here" }],
+  "pages": [{ "id": "overview", "title": "Overview", "group": "start", "type": "short-answer" }],
+  "terms": [],
+  "sources": []
+}

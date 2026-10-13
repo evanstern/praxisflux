@@ -4,7 +4,7 @@
   "owner": {
     "name": "praxisflux maintainers"
   },
-  "version": "0.65.3",
+  "version": "0.66.0",
   "plugins": [
     {
       "name": "educate",
@@ -107,6 +107,13 @@
       "name": "reorient",
       "source": "./reorient",
       "description": "Corpus-grounded reorientation loop: N parallel evaluator subagents judge research branches under a stated lens against the project's wiki and board, the operator steers between rounds, evaluators cross-ground each other, and one synthesis lands as concrete board moves — proven by an output gate (per-branch analyses + merged synthesis sections).",
+      "category": "productivity",
+      "tags": []
+    },
+    {
+      "name": "explainer",
+      "source": "./explainer",
+      "description": "Build cited, house-style HTML explainers (PR explainers, architecture sites, decision briefings, onboarding guides) from facts grounded in code and docs/wiki, with checks that block a broken publish.",
       "category": "productivity",
       "tags": []
     }

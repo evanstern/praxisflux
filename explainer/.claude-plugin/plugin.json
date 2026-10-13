@@ -1,0 +1,15 @@
+{
+  "name": "explainer",
+  "version": "0.66.0",
+  "description": "Build cited, house-style HTML explainers (PR explainers, architecture sites, decision briefings, onboarding guides) from facts grounded in code and docs/wiki, with checks that block a broken publish.",
+  "author": {
+    "name": "praxisflux maintainers"
+  },
+  "keywords": [
+    "explainer",
+    "documentation",
+    "artifacts",
+    "architecture",
+    "onboarding"
+  ]
+}

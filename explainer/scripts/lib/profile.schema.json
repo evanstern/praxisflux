@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxisflux.invalid/explainer/profile.schema.json",
+  "title": "explainer profile.json",
+  "description": "One core/profiles/<kind>/profile.json ('Kinds as profiles'). Validated with lib/schema.mjs's built-ins-only subset (type, const, enum, pattern, minLength, minItems, properties, required, additionalProperties, items, oneOf) — same vocabulary as contents.schema.json, no external schema engine.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "title", "summary", "page_types", "default_sources", "interview", "skeleton"],
+  "properties": {
+    "schema": {
+      "const": 1,
+      "description": "profile.json format version. Only 1 is understood."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Profile id — must match the folder name under core/profiles/ (and any pack's profiles/), since the lookup resolves profiles/<kind> by this name."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable profile name, e.g. \"PR Explainer\"."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One or two sentences: what this kind of artifact is for."
+    },
+    "page_types": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Page types. Every profile includes a \"start-here\" kickoff page type.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "purpose", "suggested_patterns", "suggested_diagrams", "guide"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable kebab-case id. A skeleton page's own \"type\" names one of these; the two build-generated types are literally \"generated-terms\"/\"generated-sources\" (lib/build.mjs special-cases those exact strings)."
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What this page type answers — used both in guides/<id>.md and as the seed text for a scaffolded placeholder page."
+          },
+          "suggested_patterns": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "description": "core/patterns/<name>/ folders a page-writer should reach for first. May be empty (e.g. a build-generated page type)."
+          },
+          "suggested_diagrams": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "description": "core/diagrams/<kind>/ folders a page-writer should reach for first. May be empty."
+          },
+          "guide": {
+            "type": "string",
+            "pattern": "^guides/.+\\.md$",
+            "description": "Path (relative to this profile's own folder) to this page type's short guide."
+          }
+        }
+      }
+    },
+    "default_sources": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Sources this kind of artifact typically draws from. The coordinator's \"where to look\" interview question pre-selects these and always adds a free-form \"Other\" option on top, regardless of what's listed here.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "describe", "hint"],
+        "properties": {
+          "kind": {
+            "enum": ["wiki", "diff", "code", "docs", "vault", "other"],
+            "description": "One of the six source types. `wiki` is a grounding-wiki corpus (docs/wiki), read before code when present."
+          },
+          "describe": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the fact-gatherer reads for this source, in this profile's context."
+          },
+          "hint": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A short pointer to where/how to look (e.g. a command shape or folder name)."
+          }
+        }
+      }
+    },
+    "interview": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The start-of-run interview: audience, purpose, emphasis, and where-to-look, in that order, each a short multiple-choice round.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "header", "multiSelect", "options"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "question": { "type": "string", "minLength": 1 },
+          "header": {
+            "type": "string",
+            "pattern": "^.{1,12}$",
+            "description": "Short label (<= 12 characters) for a narrow UI column."
+          },
+          "multiSelect": { "type": "boolean" },
+          "options": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label", "description"],
+              "properties": {
+                "label": { "type": "string", "minLength": 1 },
+                "description": { "type": "string", "minLength": 1 },
+                "default": {
+                  "type": "boolean",
+                  "description": "True when this option should arrive pre-selected (default_sources are pre-selected in the where-to-look round)."
+                },
+                "freeform": {
+                  "type": "boolean",
+                  "description": "True for the always-available \"Other\" option on the where-to-look round — the answer is free text, not one of the listed sources."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "skeleton": {
+      "const": "skeleton.contents.json",
+      "description": "Every profile's skeleton file is named identically, resolved relative to the profile's own folder."
+    }
+  }
+}

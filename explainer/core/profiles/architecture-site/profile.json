@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "id": "architecture-site",
+  "title": "Architecture Site",
+  "summary": "Explains a system from its own repository — components, flows, and contracts — for a team that needs to work in it.",
+  "page_types": [
+    {
+      "id": "start-here",
+      "purpose": "Give a reader (live or async) a one-screen kickoff: what this artifact is, who should read which page, and how to ask questions.",
+      "suggested_patterns": [
+        "callout",
+        "presenter"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/start-here.md"
+    },
+    {
+      "id": "overview",
+      "purpose": "Answer what this system is and does, in a few sentences, before any detail.",
+      "suggested_patterns": [
+        "callout",
+        "stats"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/overview.md"
+    },
+    {
+      "id": "architecture-overview",
+      "purpose": "Show the system's major components and how they relate, before drilling into any one.",
+      "suggested_patterns": [
+        "legend",
+        "panel"
+      ],
+      "suggested_diagrams": [
+        "swimlanes"
+      ],
+      "guide": "guides/architecture-overview.md"
+    },
+    {
+      "id": "components",
+      "purpose": "Introduce each major component: its responsibility, its interfaces, and what depends on it.",
+      "suggested_patterns": [
+        "cards",
+        "table"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/components.md"
+    },
+    {
+      "id": "real-examples",
+      "purpose": "Show real, generator-sourced examples of the system's actual inputs and outputs.",
+      "suggested_patterns": [
+        "code",
+        "annotated-json"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/real-examples.md"
+    },
+    {
+      "id": "scenario-walkthrough",
+      "purpose": "Walk one real request or event through the system end to end.",
+      "suggested_patterns": [
+        "scenario",
+        "panel"
+      ],
+      "suggested_diagrams": [
+        "sequence"
+      ],
+      "guide": "guides/scenario-walkthrough.md"
+    },
+    {
+      "id": "comparison-matrix",
+      "purpose": "Compare components or approaches cell by cell (for example, capability × component).",
+      "suggested_patterns": [
+        "matrix",
+        "legend"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/comparison-matrix.md"
+    },
+    {
+      "id": "flow-traces",
+      "purpose": "Trace a control or data flow across several components in sequence.",
+      "suggested_patterns": [
+        "scenario"
+      ],
+      "suggested_diagrams": [
+        "sequence"
+      ],
+      "guide": "guides/flow-traces.md"
+    },
+    {
+      "id": "data-contracts",
+      "purpose": "Document the data shapes and contracts the system relies on.",
+      "suggested_patterns": [
+        "annotated-json",
+        "table"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/data-contracts.md"
+    },
+    {
+      "id": "tests-ci",
+      "purpose": "Summarize what tests cover the system and what CI checks on every change.",
+      "suggested_patterns": [
+        "table",
+        "stats"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/tests-ci.md"
+    },
+    {
+      "id": "generated-terms",
+      "purpose": "Auto-built from contents.json's terms[] — every defined term in one place. Not hand-authored.",
+      "suggested_patterns": [],
+      "suggested_diagrams": [],
+      "guide": "guides/generated-terms.md"
+    },
+    {
+      "id": "generated-sources",
+      "purpose": "Auto-built from contents.json's sources[] and every <x-cite> used in the artifact. Not hand-authored.",
+      "suggested_patterns": [],
+      "suggested_diagrams": [],
+      "guide": "guides/generated-sources.md"
+    }
+  ],
+  "default_sources": [
+    {
+      "kind": "wiki",
+      "describe": "The repo's grounding wiki, when one exists — commit-pinned notes already verified against the code",
+      "hint": "docs/wiki/INDEX.md first, then the notes it points to; skip when absent"
+    },
+    {
+      "kind": "code",
+      "describe": "The system's own repo checkout",
+      "hint": "modules, interfaces, schemas, configs, tests"
+    },
+    {
+      "kind": "docs",
+      "describe": "The repo's design docs and decision records",
+      "hint": "docs/design, README, ADRs"
+    }
+  ],
+  "interview": [
+    {
+      "id": "audience",
+      "header": "Audience",
+      "question": "Who needs to work in this system?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "A new team member joining this area",
+          "description": "Someone about to own or extend this system"
+        },
+        {
+          "label": "Another team integrating with it",
+          "description": "A consumer of this system's interfaces"
+        },
+        {
+          "label": "Anyone auditing or reviewing the architecture",
+          "description": "A reviewer assessing the design as a whole"
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "header": "Purpose",
+      "question": "What should this site mainly accomplish?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Onboard someone into the system",
+          "description": "Get a newcomer productive in this area"
+        },
+        {
+          "label": "Document the architecture durably",
+          "description": "Leave a lasting reference for the team"
+        },
+        {
+          "label": "Support an upcoming design review",
+          "description": "Ground a specific architectural discussion"
+        }
+      ]
+    },
+    {
+      "id": "emphasis",
+      "header": "Emphasis",
+      "question": "Which parts of the system deserve the most depth?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Components and responsibilities",
+          "description": "What each piece owns"
+        },
+        {
+          "label": "Data contracts",
+          "description": "The shapes that cross boundaries"
+        },
+        {
+          "label": "Request/event flows",
+          "description": "How things move through the system"
+        },
+        {
+          "label": "Tests and operational readiness",
+          "description": "Coverage, CI, and what breaks"
+        }
+      ]
+    },
+    {
+      "id": "where-to-look",
+      "header": "Sources",
+      "question": "Where should the fact-gatherer look?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Grounding wiki",
+          "description": "docs/wiki — commit-pinned notes, read before code (skipped when absent)",
+          "default": true
+        },
+        {
+          "label": "Code checkout",
+          "description": "The system's own repo checkout",
+          "default": true
+        },
+        {
+          "label": "Docs / Markdown",
+          "description": "The repo's design docs and decision records",
+          "default": true
+        },
+        {
+          "label": "Other",
+          "description": "Something else — a wiki, a ticket system, a URL, or another tool the session can reach",
+          "freeform": true
+        }
+      ]
+    }
+  ],
+  "skeleton": "skeleton.contents.json"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "rules": [
+    {
+      "id": "no-internal-codes",
+      "text": "fixture rule",
+      "applies_to": "check",
+      "check": "fact.no-internal-codes",
+      "patterns": ["\\bTASK-\\d+(?:\\.\\d+)?\\b", "\\bVD\\d+\\b"]
+    },
+    {
+      "id": "short-paragraphs",
+      "text": "fixture rule",
+      "applies_to": "check",
+      "check": "rule.paragraph-length",
+      "threshold": 5
+    },
+    {
+      "id": "big-type",
+      "text": "fixture rule",
+      "applies_to": "check",
+      "check": "rule.min-font-size",
+      "threshold_px": 20
+    }
+  ]
+}

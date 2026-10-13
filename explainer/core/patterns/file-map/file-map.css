@@ -1,0 +1,140 @@
+/* core/patterns/file-map — bucket chips, a status filter, a search box, and
+   "show all", rendered from embedded git-manifest-shaped data. No
+   per-bucket hue palette (token-only, --ex-* only) — buckets are told
+   apart by label text and toggle state, not colour. */
+
+.ex-file-map { margin: 18px 0; }
+
+.ex-file-map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ex-file-map-legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.ex-file-map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--ex-border-strong);
+  border-radius: 999px;
+  background: var(--ex-bg-elevated);
+  color: var(--ex-ink);
+  font: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+}
+.ex-file-map-chip[aria-pressed="false"] { opacity: .45; }
+.ex-file-map-chip:hover { border-color: var(--ex-accent); }
+.ex-file-map-chip:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }
+.ex-file-map-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--ex-accent);
+  display: inline-block;
+}
+
+.ex-file-map-search {
+  flex: 1 1 220px;
+  min-width: 160px;
+  padding: 7px 10px;
+  border: 1px solid var(--ex-border);
+  border-radius: 8px;
+  background: var(--ex-bg);
+  color: var(--ex-ink);
+  font: inherit;
+  font-size: .85rem;
+}
+.ex-file-map-search:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 1px; }
+
+.ex-file-map-status { display: inline-flex; border: 1px solid var(--ex-border); border-radius: 8px; overflow: hidden; }
+.ex-file-map-status button {
+  border: none;
+  border-left: 1px solid var(--ex-border);
+  background: var(--ex-bg-elevated);
+  color: var(--ex-ink-muted);
+  padding: 6px 10px;
+  font: inherit;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.ex-file-map-status button:first-child { border-left: none; }
+.ex-file-map-status button[aria-pressed="true"] { background: var(--ex-accent-soft); color: var(--ex-accent); font-weight: 600; }
+.ex-file-map-status button:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: -2px; }
+
+.ex-file-map-show-all {
+  border: 1px solid var(--ex-border);
+  background: var(--ex-bg-elevated);
+  color: var(--ex-ink);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.ex-file-map-show-all:hover { border-color: var(--ex-border-strong); }
+.ex-file-map-show-all:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 1px; }
+.ex-file-map-count { font-size: .78rem; color: var(--ex-ink-faint); margin-left: auto; }
+
+.ex-file-map-groups { margin-top: 8px; }
+.ex-file-map-group {
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: var(--ex-bg-elevated);
+}
+.ex-file-map-group > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.ex-file-map-group > summary::-webkit-details-marker { display: none; }
+.ex-file-map-group > summary::before { content: "\25B8"; display: inline-block; width: 1em; transition: transform .15s ease; }
+.ex-file-map-group[open] > summary::before { transform: rotate(90deg); }
+.ex-file-map-group-count { margin-left: auto; font-weight: 400; color: var(--ex-ink-faint); font-size: .78rem; }
+
+.ex-file-map-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 32px;
+  border-top: 1px solid var(--ex-border);
+  font-size: .82rem;
+}
+.ex-file-map-status-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 4px;
+  font-size: .7rem;
+  font-weight: 700;
+  background: var(--ex-bg-sunken);
+  color: var(--ex-ink-muted);
+  flex: 0 0 auto;
+}
+.ex-file-map-status-glyph[data-status="A"] { color: var(--ex-status-good); }
+.ex-file-map-status-glyph[data-status="M"] { color: var(--ex-status-caution); }
+.ex-file-map-status-glyph[data-status="D"] { color: var(--ex-status-bad); }
+
+.ex-file-map-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .82rem;
+  color: var(--ex-ink);
+  word-break: break-all;
+}
+a.ex-file-map-path { color: var(--ex-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-file-map-group > summary::before { transition: none; }
+}

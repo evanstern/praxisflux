@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "title": "Patterns Demo",
+  "kind": "pr-explainer",
+  "brand": "fixture",
+  "voice": "none",
+  "groups": [{ "id": "start", "title": "Start here" }],
+  "pages": [
+    { "id": "overview", "title": "Overview", "group": "start", "type": "short-answer" },
+    { "id": "second", "title": "Second page", "group": "start", "type": "short-answer" }
+  ],
+  "terms": [],
+  "sources": [],
+  "rules": { "off": [], "on": [] },
+  "live": { "comments": false, "presenter": false },
+  "publish": { "url": null, "shape": "single" }
+}

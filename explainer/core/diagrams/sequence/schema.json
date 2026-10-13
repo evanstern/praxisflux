@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "explainer diagrams/sequence data",
+  "description": "Lifelines + ordered message arrows. Validated by render.mjs against the same built-ins-only subset lib/schema.mjs interprets (type, minLength, minItems, properties, required, additionalProperties, items) — see core/diagrams/sequence/README.md.",
+  "type": "object",
+  "required": ["actors", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "Diagram <title>, for accessibility; falls back to \"Sequence diagram\"." },
+    "actors": {
+      "type": "array",
+      "minItems": 2,
+      "description": "Lifeline columns, left to right in array order.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "description": "Referenced by steps[].from/to." },
+          "label": { "type": "string", "minLength": 1, "description": "Drawn above the lifeline." }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Message arrows, drawn top to bottom in array order.",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string", "minLength": 1, "description": "An actors[].id." },
+          "to": { "type": "string", "minLength": 1, "description": "An actors[].id." },
+          "label": { "type": "string", "minLength": 1, "description": "The message; wraps to the width between from/to." },
+          "note": { "type": "string", "description": "Muted annotation drawn below the arrow." },
+          "dashed": { "type": "boolean", "description": "Draws the arrow dashed (a return/async message, by convention)." },
+          "panel": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A contents.json page panels[].key; makes the step a clickable node."
+          }
+        }
+      }
+    }
+  }
+}

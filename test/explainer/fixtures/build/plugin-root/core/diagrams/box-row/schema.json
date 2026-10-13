@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "fixture diagrams/box-row data (test-only)",
+  "description": "Matches render.mjs's data.boxes[] shape. Added because lib/includes.mjs's handleDiagram now requires every diagrams/<kind>/ folder to carry a schema.json (orchestrator correction).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string" },
+    "boxes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "minLength": 1 },
+          "new": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

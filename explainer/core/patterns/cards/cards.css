@@ -1,0 +1,33 @@
+/* core/patterns/cards — card grid for related pages, options, or links.
+   Built on `--ex-*` tokens rather than a one-off colour palette. */
+
+.ex-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.ex-card {
+  display: block;
+  padding: 15px 17px;
+  border: 1px solid var(--ex-border);
+  border-radius: 12px;
+  background: var(--ex-bg-elevated);
+  box-shadow: var(--ex-shadow);
+  color: var(--ex-ink);
+  text-decoration: none;
+}
+a.ex-card:hover { border-color: var(--ex-border-strong); }
+.ex-card-title {
+  margin: 0 0 .3em;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 1rem;
+}
+a .ex-card-title { color: var(--ex-accent); }
+.ex-card-body {
+  margin: 0;
+  max-width: none;
+  font-size: .88rem;
+  color: var(--ex-ink-muted);
+}

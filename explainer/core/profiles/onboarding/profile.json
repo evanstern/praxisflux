@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "id": "onboarding",
+  "title": "Onboarding",
+  "summary": "Teaches a codebase or workflow to someone new — concepts in order, a guided tour, and a toy walkthrough.",
+  "page_types": [
+    {
+      "id": "start-here",
+      "purpose": "Give a reader (live or async) a one-screen kickoff: what this artifact is, who should read which page, and how to ask questions.",
+      "suggested_patterns": [
+        "callout",
+        "presenter"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/start-here.md"
+    },
+    {
+      "id": "concepts-in-order",
+      "purpose": "Introduce every concept a newcomer needs, each defined before it's relied on.",
+      "suggested_patterns": [
+        "term",
+        "details"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/concepts-in-order.md"
+    },
+    {
+      "id": "guided-tour",
+      "purpose": "Walk the real codebase in a sensible order, pointing out what matters and what to skip.",
+      "suggested_patterns": [
+        "file-map",
+        "panel"
+      ],
+      "suggested_diagrams": [
+        "swimlanes"
+      ],
+      "guide": "guides/guided-tour.md"
+    },
+    {
+      "id": "toy-code-walkthrough",
+      "purpose": "Illustrate the hardest concept with small, concrete toy code (at most 50 lines per file).",
+      "suggested_patterns": [
+        "code"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/toy-code-walkthrough.md"
+    },
+    {
+      "id": "exercises-next-steps",
+      "purpose": "Give the newcomer something to try, plus where to look when they get stuck.",
+      "suggested_patterns": [
+        "steps",
+        "callout"
+      ],
+      "suggested_diagrams": [],
+      "guide": "guides/exercises-next-steps.md"
+    }
+  ],
+  "default_sources": [
+    {
+      "kind": "wiki",
+      "describe": "The repo's grounding wiki, when one exists — commit-pinned notes already verified against the code",
+      "hint": "docs/wiki/INDEX.md first, then the notes it points to; skip when absent"
+    },
+    {
+      "kind": "code",
+      "describe": "The codebase itself",
+      "hint": "modules, structure, conventions, tests"
+    },
+    {
+      "kind": "docs",
+      "describe": "Existing onboarding docs or READMEs",
+      "hint": "README, CONTRIBUTING, docs/"
+    }
+  ],
+  "interview": [
+    {
+      "id": "audience",
+      "header": "Audience",
+      "question": "Who is onboarding?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "A new engineer joining the team",
+          "description": "First exposure to this codebase"
+        },
+        {
+          "label": "An engineer from another team",
+          "description": "Needs to contribute here occasionally"
+        },
+        {
+          "label": "Someone picking this back up",
+          "description": "Returning after time away"
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "header": "Purpose",
+      "question": "What should onboarding mainly accomplish?",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Get someone productive quickly",
+          "description": "Minimum viable context to contribute"
+        },
+        {
+          "label": "Give a thorough, durable reference",
+          "description": "A reference to return to later"
+        },
+        {
+          "label": "Prepare someone for a specific task",
+          "description": "Just enough for one piece of work"
+        }
+      ]
+    },
+    {
+      "id": "emphasis",
+      "header": "Emphasis",
+      "question": "Which parts deserve the most depth?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Core concepts and vocabulary",
+          "description": "The terms everything else depends on"
+        },
+        {
+          "label": "A guided tour of the real code",
+          "description": "Where things live and why"
+        },
+        {
+          "label": "Hands-on toy examples",
+          "description": "Concrete code for the hardest ideas"
+        },
+        {
+          "label": "Where to go next",
+          "description": "Exercises and pointers past this artifact"
+        }
+      ]
+    },
+    {
+      "id": "where-to-look",
+      "header": "Sources",
+      "question": "Where should the fact-gatherer look?",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Grounding wiki",
+          "description": "docs/wiki — commit-pinned notes, read before code (skipped when absent)",
+          "default": true
+        },
+        {
+          "label": "Code checkout",
+          "description": "The codebase itself",
+          "default": true
+        },
+        {
+          "label": "Docs / Markdown",
+          "description": "Existing onboarding docs or READMEs",
+          "default": true
+        },
+        {
+          "label": "Other",
+          "description": "Something else — a wiki, a ticket system, a URL, or another tool the session can reach",
+          "freeform": true
+        }
+      ]
+    }
+  ],
+  "skeleton": "skeleton.contents.json"
+}

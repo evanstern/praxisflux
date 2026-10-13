@@ -1,0 +1,10 @@
+{
+  "title": "VCS port rollout plan",
+  "entries": [
+    { "label": "PoC branch", "date": "Sep 2026", "detail": "one remote branch, no PRs", "panel": "poc" },
+    { "label": "Triage to merge, ADO", "date": "Oct 2026", "detail": "full pipeline run" },
+    { "label": "GitHub mirror proven", "date": "Oct 2026", "detail": "mirrored, same commit", "new": true, "panel": "mirror" },
+    { "label": "Decision record closed", "date": "Oct 2026" },
+    { "label": "First real PR opened", "date": "Nov 2026", "new": true }
+  ]
+}

@@ -1,0 +1,141 @@
+/* core/brand/neutral.css — the default, brand-agnostic palette.
+   Hand-authored — literal values only, same
+   token contract as core/brand/tokens.json, light + dark under both prefers-color-scheme
+   and [data-theme] (same mode-selection shape as core/shell/shell.css expects). */
+
+:root {
+  --ex-bg: #ffffff;
+  --ex-bg-elevated: #f7f7f8;
+  --ex-bg-sunken: #eceef0;
+  --ex-ink: #14181c;
+  --ex-ink-muted: #4b5563;
+  --ex-ink-faint: #6b7280;
+  --ex-border: #d8dce1;
+  --ex-border-strong: #b7bec7;
+  --ex-accent: #2f6feb;
+  --ex-accent-ink: #ffffff;
+  --ex-accent-soft: #e6eefd;
+  --ex-focus: #2f6feb;
+  --ex-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 10px 24px -12px rgba(15, 23, 42, 0.25);
+  --ex-diagram-same: #1a7f4b;
+  --ex-diagram-same-bg: #e3f6ea;
+  --ex-diagram-changed: #a15c00;
+  --ex-diagram-changed-bg: #fbeed4;
+  --ex-diagram-new: #2f6feb;
+  --ex-diagram-new-bg: #e6eefd;
+  --ex-diagram-text: #14181c;
+  --ex-diagram-text-muted: #4b5563;
+  --ex-diagram-line: #6b7280;
+  --ex-status-good: #1a7f4b;
+  --ex-status-good-bg: #e3f6ea;
+  --ex-status-caution: #a15c00;
+  --ex-status-caution-bg: #fbeed4;
+  --ex-status-bad: #b42318;
+  --ex-status-bad-bg: #fbe9e7;
+  --ex-callout-note: #2f6feb;
+  --ex-callout-note-bg: #e6eefd;
+  --ex-callout-caution: #a15c00;
+  --ex-callout-caution-bg: #fbeed4;
+  --ex-callout-key: #7a6a00;
+  --ex-callout-key-bg: #faf6d6;
+  --ex-callout-aside: #4b5563;
+  --ex-callout-aside-bg: #eceef0;
+  --ex-code-keyword: #4338ca;
+  --ex-code-string: #15803d;
+  --ex-code-comment: #6b7280;
+  --ex-code-number: #0f62c7;
+  --ex-code-function: #a15c00;
+  --ex-code-punct: #7d8a97;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ex-bg: #14181c;
+    --ex-bg-elevated: #1c2127;
+    --ex-bg-sunken: #0b0d10;
+    --ex-ink: #f3f4f6;
+    --ex-ink-muted: #b6bec7;
+    --ex-ink-faint: #8b95a1;
+    --ex-border: #30363d;
+    --ex-border-strong: #424a52;
+    --ex-accent: #6e9bf7;
+    --ex-accent-ink: #0b1220;
+    --ex-accent-soft: #15233f;
+    --ex-focus: #6e9bf7;
+    --ex-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -16px rgba(0, 0, 0, 0.7);
+    --ex-diagram-same: #3fb87a;
+    --ex-diagram-same-bg: #0f2a1c;
+    --ex-diagram-changed: #e0a23a;
+    --ex-diagram-changed-bg: #2e2008;
+    --ex-diagram-new: #6e9bf7;
+    --ex-diagram-new-bg: #121d33;
+    --ex-diagram-text: #f3f4f6;
+    --ex-diagram-text-muted: #b6bec7;
+    --ex-diagram-line: #8b95a1;
+    --ex-status-good: #3fb87a;
+    --ex-status-good-bg: #0f2a1c;
+    --ex-status-caution: #e0a23a;
+    --ex-status-caution-bg: #2e2008;
+    --ex-status-bad: #e8695f;
+    --ex-status-bad-bg: #341210;
+    --ex-callout-note: #6e9bf7;
+    --ex-callout-note-bg: #121d33;
+    --ex-callout-caution: #e0a23a;
+    --ex-callout-caution-bg: #2e2008;
+    --ex-callout-key: #e3d75a;
+    --ex-callout-key-bg: #312c08;
+    --ex-callout-aside: #b6bec7;
+    --ex-callout-aside-bg: #1c2127;
+    --ex-code-keyword: #9d8cf5;
+    --ex-code-string: #52c77f;
+    --ex-code-comment: #8b95a1;
+    --ex-code-number: #6e9bf7;
+    --ex-code-function: #e0a23a;
+    --ex-code-punct: #9aa5b0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ex-bg: #14181c;
+  --ex-bg-elevated: #1c2127;
+  --ex-bg-sunken: #0b0d10;
+  --ex-ink: #f3f4f6;
+  --ex-ink-muted: #b6bec7;
+  --ex-ink-faint: #8b95a1;
+  --ex-border: #30363d;
+  --ex-border-strong: #424a52;
+  --ex-accent: #6e9bf7;
+  --ex-accent-ink: #0b1220;
+  --ex-accent-soft: #15233f;
+  --ex-focus: #6e9bf7;
+  --ex-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -16px rgba(0, 0, 0, 0.7);
+  --ex-diagram-same: #3fb87a;
+  --ex-diagram-same-bg: #0f2a1c;
+  --ex-diagram-changed: #e0a23a;
+  --ex-diagram-changed-bg: #2e2008;
+  --ex-diagram-new: #6e9bf7;
+  --ex-diagram-new-bg: #121d33;
+  --ex-diagram-text: #f3f4f6;
+  --ex-diagram-text-muted: #b6bec7;
+  --ex-diagram-line: #8b95a1;
+  --ex-status-good: #3fb87a;
+  --ex-status-good-bg: #0f2a1c;
+  --ex-status-caution: #e0a23a;
+  --ex-status-caution-bg: #2e2008;
+  --ex-status-bad: #e8695f;
+  --ex-status-bad-bg: #341210;
+  --ex-callout-note: #6e9bf7;
+  --ex-callout-note-bg: #121d33;
+  --ex-callout-caution: #e0a23a;
+  --ex-callout-caution-bg: #2e2008;
+  --ex-callout-key: #e3d75a;
+  --ex-callout-key-bg: #312c08;
+  --ex-callout-aside: #b6bec7;
+  --ex-callout-aside-bg: #1c2127;
+  --ex-code-keyword: #9d8cf5;
+  --ex-code-string: #52c77f;
+  --ex-code-comment: #8b95a1;
+  --ex-code-number: #6e9bf7;
+  --ex-code-function: #e0a23a;
+  --ex-code-punct: #9aa5b0;
+}
