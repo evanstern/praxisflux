@@ -4,7 +4,7 @@ aliases: [Trunk, Index]
 tags: [index]
 type: moc
 created: 2026-07-25
-updated: 2026-07-25
+updated: 2026-10-11
 related: []
 ---
 
@@ -19,3 +19,4 @@ here, in your head, and nowhere else.
 | Topic | About |
 | ----- | ----- |
 | [[Grounded-Wiki-Scaling]] | How grounded wikis/doc corpora grow without blowing LLM token budgets — tiering, summary pyramids, compaction, freshness |
+| [[Ports-and-Adapters-for-PDLC]] | The hexagonal pattern, its implementations and precedents (forges, trackers, models, harnesses), and pdlc's seams and agent-environment targets — grounding for an undecided refactor |
