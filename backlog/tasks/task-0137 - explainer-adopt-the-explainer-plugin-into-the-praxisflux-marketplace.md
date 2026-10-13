@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-13 01:38'
-updated_date: '2026-10-13 02:23'
+updated_date: '2026-10-13 19:05'
 labels:
   - plugin
   - explainer
@@ -79,4 +79,6 @@ Branch task-0137-explainer-plugin, commits 617c27c (adoption) and 1d28e7a (wiki 
 - Wiki added as a source kind (all four profiles), fact-gatherer/fact-checker prompts, and a wiki.fresh warning check.
 - explainer.mjs plant replaces the sources stub; Stop hook keeps dist/ self-contained.
 Not done: push and PR — awaiting operator review.
+
+CI fix on PR #154: plant --check failed (claudeMd drifted) because the 0.66.0 bump left the planted CLAUDE.md marker and .pdlc at 0.65.3 — the same drift each release has needed a hand re-stamp for (8526891, b1cf2bd). sync-version.mjs now stamps both and reports them in --check (ef405b1, test added); wiki re-pinned in 46fb3a0.
 <!-- SECTION:NOTES:END -->
