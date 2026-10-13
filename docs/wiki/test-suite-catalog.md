@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 266c5c04f8774deb7059f85ea43502694c677fb9
+verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -43,8 +43,8 @@ One bullet per `test/*.test.mjs` file:
   out exactly as npm install would, and drives the bin through a `node_modules/.bin`
   symlink — usage exit 2, a passing gate exit 0 (proving the whole packed import graph
   resolves), a failing gate exit 1 with the fix named.
-- `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
-  frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
+- `test/chassis.test.mjs` — smoke tests for `lib/`: project-root finders, markdown
+  frontmatter/wikilinks, dates, templates, `checkHtml`/`externalLoads`, `createLifecycle`, installer
   helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
   named problems).
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission

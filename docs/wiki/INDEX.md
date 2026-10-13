@@ -42,6 +42,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[pdlc-refactor-triage]] — the post-sweep debt-triage skill: evaluate merged work (range / whole-repo / headless+policy) via team-review's lens plus a range-only intent-drift pass, disposition every finding in a tracked triage record, card accepted findings as sweepable backlog tasks
 - [[pdlc-design-rounds]] — the pre-spec design-iteration skill: N rounds of comparable demo artifacts against a long-running worktree until the operator picks, the card held In Progress with each round a commit plus a note, ending in a decision record and a spec written against the choice
 - [[team-review-plugin]] — lead-plus-subagent architecture review of a caller-supplied codebase; read-only, proven by an output gate over run records at the invoking root
+- [[explainer-plugin]] — cited, house-style HTML explainers built from wiki-first facts; read-only check suite in gates/, Stop hook keeps dist/ pages self-contained
 - [[reorient-plugin]] — corpus-grounded reorientation loop: N evaluator subagents under a stated lens, operator-steered rounds, cross-grounded analyses, one synthesis landing as board moves
 - [[reorient-run-ownership]] — worktree-first, session-owned reorient runs: shared-primary-checkout refusal with the recorded --shared-checkout override, owner + heartbeat on the manifest, owner-scoped Stop nag, stale-orphan notices, run-id-keyed synthesis targets, explicit takeover
 
