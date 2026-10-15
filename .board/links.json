@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-10-15T16:46:57.624Z",
+  "generatedAt": "2026-10-15T16:53:04.342Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3766,6 +3766,7 @@
         "feature"
       ],
       "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
       ]
     }
