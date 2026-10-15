@@ -59,7 +59,7 @@ payload's contents instead of re-reading the artifacts.
 Every tracked status must be backed by disk evidence. When a gate blocks, the response is
 to produce the missing artifact — never to argue with the gate or hand-edit derived state.
 
-**Source:** `docs/wiki/gates-convention.md`; root `CLAUDE.md` "Rules that always hold".
+**Source:** `docs/wiki/gates-convention.md`; root `AGENTS.md` "Rules that always hold".
 **Violation:** a plan proposing a hand-set status, or a write to derived state in place of
 the artifact that would prove it.
 
@@ -77,7 +77,7 @@ Stop hooks are opt-in local pressure, never guaranteed present. CI is the author
 enforcement point. The one hard-blocking local surface is the opt-in root-guard hook,
 planted but never wired by default.
 
-**Source:** root `CLAUDE.md` enforcement block; `docs/wiki/gates-consumption-surface.md`.
+**Source:** root `AGENTS.md` enforcement block; `docs/wiki/gates-consumption-surface.md`.
 **Violation:** a plan that makes a local hook load-bearing or treats it as mandatory
 enforcement.
 
@@ -86,7 +86,7 @@ enforcement.
 A change that touches a wiki note's pinned sources is not done until the wiki is re-pinned.
 Docs are load-bearing, not decoration; every PR keeps them in sync.
 
-**Source:** root `CLAUDE.md` docs block; `docs/wiki/grounding-wiki-plugin.md`.
+**Source:** root `AGENTS.md` docs block; `docs/wiki/grounding-wiki-plugin.md`.
 **Violation:** a plan that scopes a source-touching change without its re-ground step.
 
 ### VIII. Amendment Procedure
@@ -107,4 +107,9 @@ Ratified 2026-09-11 by operator decision, recorded in
 `docs/design/constitution-decision.md`. Supersedes the unratified record left open by
 TASK-0128.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-11 | **Last Amended**: 2026-09-11
+**Amendment 1.0.1 (2026-10-15, TASK-0134):** PATCH — Articles IV, VI, VII's source
+citations corrected from root `CLAUDE.md` to root `AGENTS.md` (spec 074: `AGENTS.md` is
+now the load-bearing planted file; `CLAUDE.md` is a thin `@AGENTS.md` pointer). A pointer
+correction only — no article redefined, added, or removed.
+
+**Version**: 1.0.1 | **Ratified**: 2026-09-11 | **Last Amended**: 2026-10-15
