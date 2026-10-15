@@ -12,6 +12,15 @@ the subject `TASK-0138: <phase summary>`. Run `node --test` before each commit.
 - [x] `lib/pdlc-config.mjs`: `CONFIG_FILE`, `loadPdlcConfig`, `configure`, `ConfigError` per spec R2 (config → detected → none; malformed / unknown port / unknown adapter → error)
 - [x] `test/port-registry.test.mjs` and `test/pdlc-config.test.mjs` cover every R1/R2 rule and edge case in the spec
 
+**Deviation (Phase 1 dispatch):** `test/check-docs.test.mjs`'s "the praxisflux repo itself is
+in sync" test asserts every `lib/*.mjs` file is named in README's chassis section, and this
+runs against the real repo as part of the plain `node --test` suite — so adding
+`lib/port-registry.mjs` and `lib/pdlc-config.mjs` without a mention breaks that pre-existing
+test. Added one minimal clause naming both modules to README's chassis-section sentence now,
+ahead of Phase 5's fuller docs/wiki/version pass, so `node --test` stays green without
+front-running the rest of Phase 5 (version bump, wiki re-pin, `lib/README.md`/`pdlc/README.md`
+updates are untouched and still Phase 5's job).
+
 ## Phase 2 — receipts and contract-test harness
 
 - [ ] `lib/receipts.mjs`: `receiptPath`, `serializeReceipt`, `writeReceipt`, `readReceipt`, `checkReceipt` per spec R3
