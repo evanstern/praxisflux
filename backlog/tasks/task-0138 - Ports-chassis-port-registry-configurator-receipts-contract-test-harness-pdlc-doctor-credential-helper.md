@@ -3,9 +3,11 @@ id: TASK-0138
 title: >-
   Ports chassis: port registry, configurator, receipts, contract-test harness,
   pdlc doctor, credential helper
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-13 02:14'
+updated_date: '2026-10-15 16:19'
 labels:
   - pdlc
   - chassis
@@ -30,6 +32,8 @@ Build the shared machinery every driven port (Tracker, Forge, Spec, Harness) nee
 Scope: a port registry with adapter discovery under lib/adapters/<port>/; a configurator that reads the declared adapter per port from a repo file and falls back to detection; receipt-file conventions that gates read instead of providers (generalized from .board/links.json); a shared contract-test harness that runs one suite against every adapter of a port, an in-memory fake included; a pdlc CLI entry point with JSON output and a doctor subcommand that reports which adapters can run on this host; a credential helper that resolves a forge token through git credential fill, then env vars.
 
 Constraint: assume only git, node and a POSIX shell. Use Node built-ins only (fetch, child_process for git). Keep lib/ and gates/ free of network and MCP calls.
+
+Spec: specs/073-ports-chassis
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
