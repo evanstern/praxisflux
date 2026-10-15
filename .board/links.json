@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-10-15T16:22:14.289Z",
+  "generatedAt": "2026-10-15T16:27:43.636Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3722,6 +3722,31 @@
           "index": 9,
           "checked": false,
           "text": "Wiki re-pinned for touched sources; marketplace and edited skill versions bumped per docs/releasing.md; gates green"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — port registry and configurator"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — receipts and contract-test harness"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — credential helper"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — pdlc CLI, doctor, and boundary checks"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 5 — docs, wiki, version, gates"
         }
       ],
       "labels": [

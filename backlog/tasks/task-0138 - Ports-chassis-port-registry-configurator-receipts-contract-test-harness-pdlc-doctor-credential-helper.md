@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-13 02:14'
-updated_date: '2026-10-15 16:19'
+updated_date: '2026-10-15 16:26'
 labels:
   - pdlc
   - chassis
@@ -47,4 +47,15 @@ Spec: specs/073-ports-chassis
 - [ ] #7 No new runtime dependencies; nothing requires gh, glab, tea, backlog, rg or jq
 - [ ] #8 Tests cover registry, configurator, receipts, harness, doctor and credential helper; full suite green
 - [ ] #9 Wiki re-pinned for touched sources; marketplace and edited skill versions bumped per docs/releasing.md; gates green
+- [ ] #10 Spec phase: Phase 1 — port registry and configurator
+- [ ] #11 Spec phase: Phase 2 — receipts and contract-test harness
+- [ ] #12 Spec phase: Phase 3 — credential helper
+- [ ] #13 Spec phase: Phase 4 — pdlc CLI, doctor, and boundary checks
+- [ ] #14 Spec phase: Phase 5 — docs, wiki, version, gates
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator rulings 2026-10-15 (runbook docs/design/ports-rebuild-runbook.md C1/C2): C1 configurator = new .pdlc.json, operator-authored {"ports":{"<port>":"<adapter>"}}; absent file/key -> detection; .pdlc stays the plant receipt; .board.json stays tracker adapter config. C2 receipts at .<port-dir>/<noun>.json, tracked, byte-deterministic via the chassis helper; tracker keeps .board/links.json; forge reserves .forge/changes.json (TASK-0140); spec and harness have no receipt. Spec set: specs/073-ports-chassis/{spec,plan,tasks}.md.
+<!-- SECTION:NOTES:END -->
