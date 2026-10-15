@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 17:51'
+updated_date: '2026-10-15 19:48'
 labels:
   - pdlc
   - educate
@@ -73,4 +73,7 @@ Operator rulings 2026-10-15: OC1 release 1.0.0 (major); OC2 explainer planter mo
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 4b: explainer plant consent-gates only the legacy CLAUDE.md migration; in-AGENTS.md refresh stays unconditional as before (deviation note in plan.md).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+Orchestrator re-ran all 9 runbook per-PR gates at e54e9ef: all exit 0.
 <!-- SECTION:NOTES:END -->
