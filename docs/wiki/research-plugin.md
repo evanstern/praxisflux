@@ -16,7 +16,7 @@ sources:
   - research/hooks/hooks.json
   - research/scripts/gate.sh
   - research/scripts/stop.mjs
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Research plugin
@@ -39,9 +39,11 @@ opens by running the previous phase's gate as a precondition and refuses to do t
 phase's work itself.
 
 **Drop-anywhere placement.** A vault can live in any folder; it is marked by an empty
-`.research-vault` sentinel file at its root, which is what the Stop hook detects. On bootstrap,
-`research-vault` plants `templates/CLAUDE.md` (the vault orchestrator), `Home.md` (the trunk),
-and `_templates/` (moc, note, grounding, analysis). Gates stay plugin-hosted in
+`.research-vault` sentinel file at its root, which is what the Stop hook detects. A vault is
+recognized by an `AGENTS.md` (or legacy `CLAUDE.md`) plus `Home.md`/`_templates/`. On
+bootstrap, `research-vault` plants `templates/AGENTS.md` (the vault orchestrator) plus a
+thin `@AGENTS.md` pointer in `CLAUDE.md`, `Home.md` (the trunk), and `_templates/` (moc,
+note, grounding, analysis). Gates stay plugin-hosted in
 `${CLAUDE_PLUGIN_ROOT}/gates/` — never copied per vault.
 
 **Gates** (`research/gates/`, entered via `cli.mjs branch|analysis|artifact`):

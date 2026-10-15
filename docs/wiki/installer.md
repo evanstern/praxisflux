@@ -4,14 +4,14 @@ description: lib/installer.mjs — dotfile-safe, idempotent project-planting hel
 kind: component
 sources:
   - lib/installer.mjs
-verified_against: fc8cac785cef4499bed8c32f25cd4cda6bc6ec14
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Installer
 
 `lib/installer.mjs` holds the shared "plant a project" helpers used by each plugin's
 start/init skill. Because a plugin has no always-on context slot, it installs a project
-`CLAUDE.md` plus scaffolding into the user's directory; these helpers make that planting
+`AGENTS.md` (with a `CLAUDE.md` pointer) plus scaffolding into the user's directory; these helpers make that planting
 dotfile-safe, idempotent, and honest (verified on disk, never clobbering what the user
 has grown). The module is zero-dependency, using only `node:fs` and `node:path`.
 
@@ -55,7 +55,7 @@ Six exports:
 - The [[handoff-protocol]] transport (`lib/handoff.mjs`) imports `ensureGitignore` so
   that `ensureHandoffDir` keeps the gitignored `.handoff/` directory out of `git status`.
 - Plugin start/init skills — e.g. [[educate-plugin]]'s start and the
-  [[research-plugin]]'s vault setup — plant `CLAUDE.md` and templates through these
+  [[research-plugin]]'s vault setup — plant `AGENTS.md` and templates through these
   helpers, following the planting pattern described in [[skill-patterns]].
 - [[pdlc-plugin]]'s `plant.mjs` calls `ensureExclude` for `--local-only` bootstrap
   (spec 060), the same shape `ensureGitignore` serves for tracked planting.

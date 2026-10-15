@@ -1,6 +1,6 @@
 ---
 name: educate-plugin
-description: Socratic learning-project plugin — plants a project CLAUDE.md, orchestrates the lesson lifecycle, hands SPECs to build, and gates "done" on artifacts via a Stop hook.
+description: Socratic learning-project plugin — plants a project AGENTS.md (with a CLAUDE.md pointer), orchestrates the lesson lifecycle, hands SPECs to build, and gates "done" on artifacts via a Stop hook.
 kind: component
 sources:
   - educate/.claude-plugin/plugin.json
@@ -13,9 +13,9 @@ sources:
   - educate/scripts/progress.mjs
   - educate/scripts/stop.mjs
   - educate/scripts/wiki.mjs
-  - educate/templates/CLAUDE.md
+  - educate/templates/AGENTS.md
   - educate/templates/progress.schema.json
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # educate plugin
@@ -31,8 +31,9 @@ durable, verifiable work product rather than ephemeral chat.
 numbered from 101; the `topics/` directory is the project marker (root resolution in
 `educate/scripts/progress.mjs` and `educate/scripts/wiki.mjs` tries `--root`, then
 `$EDUCATE_PROJECT_ROOT`, then `findRootUpwards(cwd, hasChild("topics"))`). The
-`educate:start` skill is the installer: it plants `templates/CLAUDE.md` as the project's
-always-on layer (plugins have no always-on slot) by **rendering, never raw-copying** —
+`educate:start` skill is the installer: it plants `templates/AGENTS.md` as the project's
+always-on layer, plus a thin `CLAUDE.md` pointer (`@AGENTS.md`) so Claude Code loads the
+same bytes (plugins have no always-on slot), by **rendering, never raw-copying** —
 `{{PROJECT_NAME}}` and `{{EDUCATE_PLUGIN_ROOT}}` are substituted at plant time (the
 `lib/template.mjs` `render()` contract), so the planted gate/wiki commands are runnable as
 written in a user-project shell where `$CLAUDE_PLUGIN_ROOT` is undefined; the commands also
@@ -40,8 +41,9 @@ omit `--root`, relying on the scripts' walk-up root resolution from inside the p
 then copies `templates/.template/` to `topics/.template/` and plants
 `templates/progress.schema.json` as `topics/progress.schema.json`. Re-running it migrates
 legacy `_template/` / `_progress.schema.json` names and refreshes boilerplate — diffing the
-planted `CLAUDE.md` against the *rendered* template so placeholder substitutions never read
-as user edits — never touching real lessons.
+planted `AGENTS.md` against the *rendered* template so placeholder substitutions never read
+as user edits (a legacy project with only `CLAUDE.md` gets the same diff-and-consent move
+offered, writing the result to `AGENTS.md` plus the pointer) — never touching real lessons.
 
 **Lifecycle and DoD gate.** `educate/gates/dod.mjs` defines `STATES` —
 `planned, scaffolded, taught, spec'd, built, decked, done` — and `ARTIFACT_FILES` mapping

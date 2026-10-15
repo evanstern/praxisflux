@@ -7,7 +7,7 @@ sources:
   - scripts/run-gates.mjs
   - action.yml
   - docs/consuming-gates.md
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Gates consumption surface

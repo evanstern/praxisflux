@@ -66,7 +66,7 @@ publish.
 | `scripts/lib/` | State-mutating build modules (build, generators, browser runs, report writes). |
 | `gates/check.mjs` | The read-only checks `check` runs. Never writes to disk. |
 | `gates/explainer.mjs` | The Stop-hook gate: built `dist/` pages stay self-contained. |
-| `templates/CLAUDE.md` | The marked always-on block `plant` lands in a host project. |
+| `templates/AGENTS.md` | The marked always-on block `plant` lands in a host project's `AGENTS.md` (with a `CLAUDE.md` pointer). |
 | `lib` | Symlink to the shared praxisflux chassis (`selfcontained`, `markdown`, `project-root`, `gate-runner`, `template`). |
 | `core/` | Lowest layer of the lookup: patterns, diagrams, profiles, brand, rules, shell. |
 

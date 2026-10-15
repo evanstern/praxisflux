@@ -115,6 +115,6 @@ through files and gates, never through calls that testify.
 | Surface | Role |
 |---|---|
 | `docs/principles.md` (this file) | Canonical statement + rationale; the upstream reference. |
-| `pdlc/templates/CLAUDE.md` — "Rules that always hold" | Operational form planted into every bootstrapped project's always-on grounding. |
+| `pdlc/templates/AGENTS.md` — "Rules that always hold" | Operational form planted into every bootstrapped project's always-on grounding (with a `CLAUDE.md` pointer so Claude Code loads the same bytes). |
 | Peer blocks in the planted grounding | The per-system mapping (e.g. Backlog.md dotted-id subtasks ride the parent's PR). |
 | Downstream governance artifacts | Domain-specific application, referencing this document (e.g. Coda constitution Principle VIII). |

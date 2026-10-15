@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // stop-docs.mjs — praxisflux's own docs-sync Stop gate, wired via the tracked .claude/settings.json.
 //
-// The grounding docs (docs/wiki, README.md, CLAUDE.md) are the repo's spec surface; letting a
+// The grounding docs (docs/wiki, README.md, AGENTS.md) are the repo's spec surface; letting a
 // turn end while they lag the code is "status exceeds proven artifacts" applied to ourselves.
 // This gate blocks Stop while either check fails, so every PR generated in this repo carries
 // its docs sync. Runs on lib/gate-runner (honors stop_hook_active; no-op outside praxisflux —
@@ -52,7 +52,7 @@ export function underRepo(startDir, repoDir = repo) {
  *
  * Deliberately unchanged: this still BLOCKS for real neglect. Weakening it outright would
  * fight TASK-105, which exists because re-grounding gets missed and wants this stronger.
- * checkDocs (README/CLAUDE sync) is never window-aware — it compares tracked files to repo
+ * checkDocs (README/AGENTS sync) is never window-aware — it compares tracked files to repo
  * structure, so it is never red by construction.
  *
  * Fails closed everywhere: if the window can't be computed (no base ref, no git, unreadable

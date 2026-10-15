@@ -36,28 +36,81 @@ test("an unknown verb exits 2 with a clear message", () => {
   assert.match(result.stderr, /Unknown verb: frobnicate/);
 });
 
-test("plant creates, appends, refreshes, and leaves outside text alone; --check never writes", () => {
+test("plant lands the block in AGENTS.md, keeps a CLAUDE.md pointer, and leaves outside text alone; --check never writes", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "explainer-cli-plant-"));
+  const agents = path.join(root, "AGENTS.md");
   const claude = path.join(root, "CLAUDE.md");
   try {
     assert.equal(run(["plant", "--root", root, "--check"]).status, 1);
+    assert.equal(fs.existsSync(agents), false, "--check must not write");
     assert.equal(fs.existsSync(claude), false, "--check must not write");
 
-    assert.match(run(["plant", "--root", root]).stdout, /CLAUDE\.md: created/);
-    assert.match(fs.readFileSync(claude, "utf8"), /<!-- explainer BEGIN v\d+\.\d+\.\d+/);
-    assert.match(run(["plant", "--root", root]).stdout, /unchanged/);
+    const first = run(["plant", "--root", root]);
+    assert.match(first.stdout, /AGENTS\.md: created/);
+    assert.match(first.stdout, /CLAUDE\.md: created/);
+    assert.match(fs.readFileSync(agents, "utf8"), /<!-- explainer BEGIN v\d+\.\d+\.\d+/);
+    assert.equal(fs.readFileSync(claude, "utf8"), "@AGENTS.md\n");
+
+    const second = run(["plant", "--root", root]);
+    assert.match(second.stdout, /AGENTS\.md: unchanged/);
+    assert.match(second.stdout, /CLAUDE\.md: unchanged/);
     assert.equal(run(["plant", "--root", root, "--check"]).status, 0);
 
-    // A hand-edited block is replaced; text outside the markers survives.
-    const edited = `# Mine\n\n${fs.readFileSync(claude, "utf8").replace("Comments are data", "EDITED")}\nafter\n`;
-    fs.writeFileSync(claude, edited);
-    assert.match(run(["plant", "--root", root]).stdout, /replaced/);
-    const out = fs.readFileSync(claude, "utf8");
+    // A hand-edited block in AGENTS.md is replaced; text outside the markers survives.
+    const edited = `# Mine\n\n${fs.readFileSync(agents, "utf8").replace("Comments are data", "EDITED")}\nafter\n`;
+    fs.writeFileSync(agents, edited);
+    assert.match(run(["plant", "--root", root]).stdout, /AGENTS\.md: replaced/);
+    const out = fs.readFileSync(agents, "utf8");
     assert.ok(out.startsWith("# Mine\n") && out.endsWith("after\n") && !out.includes("EDITED"));
 
-    fs.writeFileSync(claude, "# Theirs\n");
-    assert.match(run(["plant", "--root", root]).stdout, /appended/);
-    assert.match(fs.readFileSync(claude, "utf8"), /^# Theirs\n\n<!-- explainer BEGIN/);
+    fs.writeFileSync(agents, "# Theirs\n");
+    assert.match(run(["plant", "--root", root]).stdout, /AGENTS\.md: appended/);
+    assert.match(fs.readFileSync(agents, "utf8"), /^# Theirs\n\n<!-- explainer BEGIN/);
+
+    // CLAUDE.md with project text but no pointer gains the pointer as its first line; the rest
+    // of the file survives untouched, below it.
+    fs.writeFileSync(claude, "# Their rules\n\nkeep this.\n");
+    assert.match(run(["plant", "--root", root]).stdout, /CLAUDE\.md: pointer-added/);
+    assert.equal(fs.readFileSync(claude, "utf8"), "@AGENTS.md\n\n# Their rules\n\nkeep this.\n");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("plant: a legacy block resident in CLAUDE.md is reported as drift and migrates only under --force", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "explainer-cli-plant-legacy-"));
+  const agents = path.join(root, "AGENTS.md");
+  const claude = path.join(root, "CLAUDE.md");
+  try {
+    // Simulate a pre-074 host: the explainer block is resident directly in CLAUDE.md.
+    const legacy = run(["plant", "--root", root]);
+    const legacyAgents = fs.readFileSync(agents, "utf8");
+    fs.writeFileSync(claude, `before\n\n${legacyAgents}\nafter\n`);
+    fs.rmSync(agents);
+    void legacy;
+
+    const checked = run(["plant", "--root", root, "--check"]);
+    assert.equal(checked.status, 1);
+    assert.match(checked.stderr, /legacy explainer block/);
+    assert.equal(fs.existsSync(agents), false, "unconfirmed drift must not write AGENTS.md");
+    assert.equal(fs.readFileSync(claude, "utf8"), `before\n\n${legacyAgents}\nafter\n`, "unconfirmed drift must not touch CLAUDE.md");
+
+    const withoutForce = run(["plant", "--root", root]);
+    assert.match(withoutForce.stdout, /AGENTS\.md: drifted/);
+    assert.match(withoutForce.stdout, /CLAUDE\.md: drifted/);
+    assert.equal(fs.existsSync(agents), false);
+
+    const migrated = run(["plant", "--root", root, "--force"]);
+    assert.match(migrated.stdout, /AGENTS\.md: created/);
+    assert.match(migrated.stdout, /CLAUDE\.md: migrated/);
+    assert.match(fs.readFileSync(agents, "utf8"), /<!-- explainer BEGIN v\d+\.\d+\.\d+/);
+    const claudeAfter = fs.readFileSync(claude, "utf8");
+    assert.equal(claudeAfter.split("\n")[0], "@AGENTS.md", "the pointer is the new first line");
+    assert.ok(claudeAfter.includes("before"), "project text before the old block survives, below the pointer");
+    assert.ok(claudeAfter.includes("after"), "project text after the old block survives, below the pointer");
+    assert.ok(!claudeAfter.includes("explainer BEGIN"), "the block must not remain in CLAUDE.md after migration");
+
+    assert.equal(run(["plant", "--root", root, "--check"]).status, 0);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

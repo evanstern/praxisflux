@@ -1,6 +1,6 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a version-stamped CLAUDE.md block (scripts/plant.mjs, whose --check exits 1 with a remedy line and is what a bump forces a re-plant against), stamps the .pdlc sentinel, gitignores .handoff/ (tracked, or local-only), opts into the peers (Backlog.md, Spec Kit, Jira), and can plant two opt-in PreToolUse hooks; the three lifecycle skills have their own notes.
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a version-stamped AGENTS.md block, CLAUDE.md pointer (scripts/plant.mjs, whose --check exits 1 with a remedy line and is what a bump forces a re-plant against), stamps the .pdlc sentinel, gitignores .handoff/ (tracked, or local-only), opts into the peers (Backlog.md, Spec Kit, Jira), and can plant two opt-in PreToolUse hooks; the three lifecycle skills have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
@@ -10,12 +10,12 @@ sources:
   - pdlc/scripts/plant.mjs
   - pdlc/scripts/tiers.mjs
   - pdlc/scripts/pdlc.mjs
-  - pdlc/templates/CLAUDE.md
+  - pdlc/templates/AGENTS.md
   - pdlc/templates/model-tiers.json
   - pdlc/hooks/read-size-gate.mjs
   - pdlc/hooks/README-read-size-gate.md
 size_budget_exempt: over cap and growing — 8047/8000 at TASK-0138; splitting is separable
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # pdlc plugin
@@ -23,8 +23,9 @@ verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
 The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level installer plus
 the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing) as a
 **praxis-development-lifecycle project** whose always-on context knows the whole loop — the
-suite-wide application of the [[skill-patterns]] rule "plant a project CLAUDE.md" (a plugin
-has no always-on slot). Three further skills run the lifecycle it installs.
+suite-wide application of the [[skill-patterns]] rule "plant a project AGENTS.md, with a
+CLAUDE.md pointer" (a plugin has no always-on slot). Three further skills run the lifecycle
+it installs.
 
 ## The sibling skills — covered in their own notes
 
@@ -39,8 +40,10 @@ work for debt and intent drift and carding accepted findings back
 ## The planted grounding is a marked block, not a file
 
 Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
-`pdlc/templates/CLAUDE.md` — composing with an existing `CLAUDE.md`, refreshed wholesale,
-drift never overwritten without `--force`; peer conventions ride nested `pdlc:peer:*`
+`pdlc/templates/AGENTS.md` into the host's `AGENTS.md` — composing with an existing one,
+refreshed wholesale, drift never overwritten without `--force`; `CLAUDE.md` is a thin
+`@AGENTS.md` pointer so Claude Code loads the same bytes (a legacy CLAUDE.md-resident block
+migrates only under `--force`, never silently). Peer conventions ride nested `pdlc:peer:*`
 sub-blocks, stripped unless opted in. [[pdlc-grounding-block]] owns both that mechanism in
 full and what the block *says* (the 101 principles and per-peer mappings, corpus-loading and
 Gates rules, `## Model tiers` and its `Dispatch:` record marker).
@@ -59,12 +62,15 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <dir> [--name <n>] [--peer <
        [--hook root-guard] [--local-only] [--check] [--force]
 ```
 
-renders the expected block and lands it (`created` | `appended` | `replaced` | `unchanged` |
-`drifted`), gitignores `.handoff/` (the [[handoff-protocol]] transport — tracked or
+renders the expected block and lands it in `AGENTS.md`, reported as `agentsMd`
+(`created` | `appended` | `replaced` | `unchanged` | `drifted`); `CLAUDE.md`'s pointer state
+is reported separately as `claudeMd` (`created` | `pointer-added` | `unchanged` |
+`migrated` | `drifted` — the last two only for a legacy block, migrated only under
+`--force`). It also gitignores `.handoff/` (the [[handoff-protocol]] transport — tracked or
 local-only, below), and stamps the `.pdlc` sentinel — a JSON record of version + resolved
 name + peer choices + mode that fresh-vs-update keys on. Two load-bearing properties: the
-sentinel never advances past an unconfirmed drifted block; `--check` writes nothing and exits
-1 while planting is pending (the skill's output gate).
+sentinel never advances past an unconfirmed drifted `agentsMd` or `claudeMd`; `--check`
+writes nothing and exits 1 while planting is pending (the skill's output gate).
 
 Since 0.64.0 (spec 066) that failing path prints its **remedy** on stderr, not just the state
 (`drifted`) — a gate not naming the fix is half a gate ([[gates-convention]]). Two variants,
@@ -117,9 +123,9 @@ degradation (R6), leaving `--check` pending until a re-plant once the repo exist
 
 The sentinel records `localOnly` (absent-tolerant like `name`/`hooks`). A **mode switch** —
 sentinel vs. requested mode disagreeing — is drift on its own `modeSwitch` field
-(`none`|`drifted`|`applied`), diagnosable apart from `claudeMd: "drifted"` (content, not
-mode); unconfirmed it doesn't advance, and `--force` is the consent path drift already needs
-— no migration command.
+(`none`|`drifted`|`applied`), diagnosable apart from `agentsMd: "drifted"` (block content,
+not mode) or `claudeMd: "drifted"` (the legacy-migration case); unconfirmed it doesn't
+advance, and `--force` is the consent path drift already needs — no migration command.
 
 ## Two opt-in PreToolUse hooks
 

@@ -1,6 +1,7 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to any AI coding agent working with code in this repository.
+Claude Code reaches it through the vault's `CLAUDE.md`, whose first line is `@AGENTS.md`.
 
 ## What this repository is
 

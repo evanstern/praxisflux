@@ -1,14 +1,14 @@
 ---
 name: lesson
-version: 0.2.0
+version: 0.2.1
 description: Orchestrate a learning lesson's lifecycle in an educate project — placement, scaffolding, the teach -> build -> deck handoff seam, and the Definition-of-Done gate. Use when starting, resuming, or finishing a lesson, or when the user asks where a lesson should live or whether it's done.
 ---
 
 # educate:lesson — the orchestration layer
 
-This is the *logic* that used to live in the project `CLAUDE.md`, lifted into a lazily-loaded
+This is the *logic* that used to live in the project `AGENTS.md`, lifted into a lazily-loaded
 skill. It **routes, sequences, teaches, and gates** — the one thing it delegates is *building*,
-which is a separate plugin (`build:implement`). Pair it with the project `CLAUDE.md` that
+which is a separate plugin (`build:implement`). Pair it with the project `AGENTS.md` that
 `educate:start` planted — that file holds the always-on copy of these rules; this skill holds the
 procedure.
 

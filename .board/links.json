@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-10-15T19:26:39.452Z",
+  "generatedAt": "2026-10-15T19:50:41.493Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3671,6 +3671,107 @@
       ],
       "dispatches": [
         "tier=sonnet pinned=cc/claude-sonnet-5[1m] note=[Phases 1-2 — delete the redundant step, prove the gate blocks; served verified from transcript, 155k tokens / 34 tool uses] served=claude-sonnet-5"
+      ]
+    },
+    {
+      "id": "TASK-0134",
+      "status": "In Progress",
+      "specDir": "specs/074-agents-md",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "pdlc plants the grounding block (markers, peer blocks, tier section) into <root>/AGENTS.md; the rendered content is byte-identical to what CLAUDE.md carried, and AGENTS.md is a required artifact in the plant report's missing check"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "CLAUDE.md is planted as a thin pointer whose first directive is the @AGENTS.md import; content a project has added below the pointer survives a re-plant untouched"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Drift and consent operate on the new target: extractBlock, --check, and --force key on AGENTS.md, and an unconfirmed drift still refuses to advance the .pdlc sentinel"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "An already-planted host migrates on re-plant: the block moves from CLAUDE.md to AGENTS.md and the pointer replaces it, reported as honest drift needing consent rather than performed silently"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "Local-only planting still leaves git status clean on a first plant and the excludes-before-artifacts ordering holds; the exclude set needs no new line because /AGENTS.md is already in it"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "pdlc:bootstrap teaches the AGENTS.md-first shape and the pointer's purpose, and its report names both files and which one is load-bearing"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "educate:start and research:research-vault plant AGENTS.md plus the pointer on the same pattern, from their own templates"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "praxisflux's own root is migrated (dogfood): AGENTS.md carries the content, CLAUDE.md is the pointer, and scripts/check-docs.mjs plus the hooks, CI, and the repo Stop hook check the load-bearing file"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "Every prose reference that names CLAUDE.md as the always-on file is corrected: README.md, docs/principles.md, docs/skill-patterns.md, the constitution's source citations, and the root-guard hook's blocking messages"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "Tests pin the behavior: planting target, pointer content, drift and consent on the new path, migration of an existing plant, and the cross-plugin planters"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Wiki re-pinned for every note whose sources this change touches; marketplace version and each edited skill version bumped; gates green"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — plant.mjs plants AGENTS.md with a CLAUDE.md pointer"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — repo tooling follows the load-bearing file"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — dogfood this repo, and bootstrap teaches it"
+        },
+        {
+          "index": 15,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — cross-plugin planters and prose (haiku-suitable)"
+        },
+        {
+          "index": 16,
+          "checked": false,
+          "text": "Spec phase: Phase 5 — release, re-ground, gates"
+        }
+      ],
+      "labels": [
+        "pdlc",
+        "educate",
+        "research",
+        "feature"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
       ]
     },
     {

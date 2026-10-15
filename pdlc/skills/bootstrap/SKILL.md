@@ -1,21 +1,35 @@
 ---
 name: bootstrap
-version: 0.13.1
-description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (CLAUDE.md block), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present. Also offers local-only planting mode (--local-only) for a repo the operator is a guest in, not a project we own — PDLC's footprint lands in .git/info/exclude instead of tracked files.
+version: 0.14.0
+description: Bootstrap a NEW or EXISTING project folder for the praxis development lifecycle (PDLC), OR update an already-bootstrapped one after a plugin upgrade. Use when the user wants to set up praxisflux in a project, says "bootstrap this project for praxis/PDLC", "init the praxis lifecycle here", "wire this repo for grounding-wiki/spec-bridge/codebase-to-course", or asks how to get a folder ready for the plugin suite. Plants the always-on PDLC grounding (AGENTS.md block, with a CLAUDE.md pointer so Claude Code loads the same bytes), gitignores the .handoff/ transport, and handles the officially supported peer utilities — Backlog.md, GitHub Spec Kit, and Jira (mutually exclusive with Backlog.md) — recommending installation/connection when absent and offering opt-in (running their inits, or discovering Jira's site coordinates) when present. Also offers local-only planting mode (--local-only) for a repo the operator is a guest in, not a project we own — PDLC's footprint lands in .git/info/exclude instead of tracked files.
 ---
 
 # pdlc:bootstrap — stamp a project for the praxis development lifecycle
 
 This skill turns any folder — brand-new and empty, or an existing codebase with history and
-its own `CLAUDE.md` — into a **PDLC project**: one whose always-on context knows the
-praxisflux loop, each plugin's role, the gates principle, and the `.handoff/` transport. It
-is the suite-level answer to "a plugin has no always-on slot": instead of bundling always-on
-context, plant it.
+its own `AGENTS.md` or `CLAUDE.md` — into a **PDLC project**: one whose always-on context
+knows the praxisflux loop, each plugin's role, the gates principle, and the `.handoff/`
+transport. It is the suite-level answer to "a plugin has no always-on slot": instead of
+bundling always-on context, plant it.
+
+**`AGENTS.md` is the load-bearing file, not `CLAUDE.md`.** Codex, Cursor, Copilot, Gemini
+CLI, opencode and the other harnesses read `AGENTS.md` and never `CLAUDE.md` — planting the
+grounding only into `CLAUDE.md` would give every non-Claude-Code harness none of the loop,
+rules, tier doctrine or peer blocks, silently. So the grounding block lands in
+`<root>/AGENTS.md`, and `<root>/CLAUDE.md` becomes a thin pointer whose first line is exactly
+`@AGENTS.md` — Claude Code expands that import, so a Claude Code session loads the exact same
+grounding bytes it always has. A symlink and Claude Code's own AGENTS.md fallback are both
+rejected as the mechanism (the former fails silently on `core.symlinks=false`, the latter is
+toggleable and absent on Bedrock/Vertex/Foundry) — the pointer is the only path that is both
+universal and honest.
 
 Everything it plants rides inside `<!-- pdlc:grounding BEGIN/END -->` markers, so it composes
-with an existing `CLAUDE.md` (appended, never clobbered) and can be refreshed wholesale on
-update. The heavy lifting is deterministic — `scripts/plant.mjs` on the chassis
-(`lib/installer.mjs` + `lib/template.mjs`) — this skill's job is the judgment around it.
+with an existing `AGENTS.md` (appended, never clobbered) and can be refreshed wholesale on
+update. A host still carrying the pre-074 CLAUDE.md-resident block migrates on re-plant —
+honest drift needing `--force`, never a silent move; project text around the old block stays
+in `CLAUDE.md`, below the new pointer, until someone moves it into `AGENTS.md` by hand. The
+heavy lifting is deterministic — `scripts/plant.mjs` on the chassis (`lib/installer.mjs` +
+`lib/template.mjs`) — this skill's job is the judgment around it.
 
 ## What it does NOT do
 
@@ -31,7 +45,7 @@ update. The heavy lifting is deterministic — `scripts/plant.mjs` on the chassi
    Call it `<root>`. It may be empty or an existing project — both are supported.
 2. **Detect the mode.** `<root>/.pdlc` exists → **update** (re-bootstrap after a plugin
    upgrade, or changing peer opt-ins; read the file — it records the previous choices).
-   Absent → **fresh** (even if the folder already has code and a `CLAUDE.md`).
+   Absent → **fresh** (even if the folder already has code and an `AGENTS.md` or `CLAUDE.md`).
 3. If `<root>` is not a git repository, say so and continue — planting still works; the
    `.gitignore` entry becomes meaningful once they `git init`. **Local-only mode degrades the
    same way, one step further:** `.git/info/exclude` cannot exist before `.git/` does, so
@@ -117,7 +131,7 @@ a default**:
 
 ## Planting mode — tracked vs. local-only (opt-in)
 
-By default every artifact this skill plants — `CLAUDE.md`, `.pdlc`, `.claude/agents/`,
+By default every artifact this skill plants — `AGENTS.md`, `CLAUDE.md`, `.pdlc`, `.claude/agents/`,
 `model-tiers.json`, and (if opted in) `backlog/`, `.specify/`, the root-guard hook files —
 lands as ordinary tracked files, and `.handoff/` joins the host's own tracked `.gitignore`.
 That is right when the operator running this skill **owns** the project. It is wrong when
@@ -131,7 +145,7 @@ a real choice with a real default, not a flag you have to already know exists.
    previous choice recorded in `.pdlc`'s `localOnly` field as the default.
 2. **Recommend from what is observable**, don't just ask blind: a repo whose remote/tracked
    tree shows no prior PDLC adoption (no `.pdlc`, no `pdlc:grounding` marker in a tracked
-   `CLAUDE.md`) is the guest case — lean local-only. A repo that already carries tracked PDLC
+   `AGENTS.md`) is the guest case — lean local-only. A repo that already carries tracked PDLC
    artifacts is presumably one the operator owns — lean tracked.
 3. **On opt-in, pass `--local-only`** to the plant step. That sends the scoped exclude set
    (`excludeSet` in `plant.mjs` — peer- and hook-conditional, only what was actually opted
@@ -146,10 +160,15 @@ a real choice with a real default, not a flag you have to already know exists.
 
 1. Preview first: run
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/plant.mjs --root <root> [--name <name>] [--peer backlog] [--peer spec-kit] [--peer jira] [--hook root-guard] [--local-only] --check`
-   (one `--peer` per opt-in; `--hook root-guard` only if opted in above). The JSON report
-   says what would happen: `created`, `appended`
-   (existing `CLAUDE.md` gains the marked block at the end), `replaced`, `unchanged`, or
-   `drifted`.
+   (one `--peer` per opt-in; `--hook root-guard` only if opted in above). The JSON report has
+   two fields for the two files: `agentsMd` says what would happen to the grounding **block**
+   in `<root>/AGENTS.md` — `created`, `appended` (an existing AGENTS.md gains the marked block
+   at the end), `replaced`, `unchanged`, or `drifted`. `claudeMd` says what would happen to the
+   **pointer** in `<root>/CLAUDE.md` — `created` (file absent), `pointer-added` (file present,
+   gains `@AGENTS.md` as its new first line, everything else untouched), `unchanged`,
+   `migrated` (a pre-074 host's CLAUDE.md-resident block moves to AGENTS.md — only under
+   `--force`), or `drifted` (that legacy block is present and `--force` was not given — nothing
+   is written to either file for the migration).
 2. **Project name.** The block's heading never blindly trusts the folder name. The planter
    resolves it (reported as `projectName`): an explicit `--name <name>` wins > the name
    `.pdlc` recorded at a previous plant > when `<root>` is a **git worktree** (`.git` is a
@@ -159,14 +178,21 @@ a real choice with a real default, not a flag you have to already know exists.
    differently-named checkout of the same project (a worktree, a renamed clone) reports
    `unchanged`, never spuriously `drifted`; only `--name` changes the name, and that
    change surfaces as honest drift handled per the next step.
-3. **`drifted`** means the on-disk block differs from what this plugin version plants —
-   either a plugin upgrade or user edits inside the markers. Diff the block against the
-   rendered template, show the user what would change, and get explicit consent. Carry any
-   project-specific edits **outside** the markers (that's their supported home), then re-run
-   with `--force`. Never silently discard user text.
+3. **`agentsMd: drifted`** means the on-disk block in AGENTS.md differs from what this plugin
+   version plants — either a plugin upgrade or user edits inside the markers. Diff the block
+   against the rendered template, show the user what would change, and get explicit consent.
+   Carry any project-specific edits **outside** the markers (that's their supported home), then
+   re-run with `--force`. Never silently discard user text. **`claudeMd: drifted`** is a
+   different question — a legacy CLAUDE.md-resident block from before this file split existed.
+   Tell the user re-planting will move that block into AGENTS.md and leave the surrounding
+   CLAUDE.md text, below the new pointer, exactly where it is; get consent, then re-run with
+   `--force`. The project's own orientation prose that ends up below the pointer is the host's
+   to relocate into AGENTS.md by hand if they want non-Claude-Code harnesses to read it too —
+   this skill never moves project text for them.
 4. Run the plant for real (same command without `--check`, plus `--force` only after the
-   consent above). This writes the `CLAUDE.md` block, the `.pdlc` sentinel (version +
-   resolved name + peer choices), and gitignores `.handoff/` — all idempotent.
+   consent above). This writes the AGENTS.md block, ensures CLAUDE.md's pointer (or completes
+   the migration), writes the `.pdlc` sentinel (version + resolved name + peer choices), and
+   gitignores `.handoff/` — all idempotent.
 5. Plant the model-tier config and generate the implementer agent definitions — see
    **Model tiers** below. This is a second planting step with its own files and its own
    drift/consent semantics; `plant.mjs` does not do it.
@@ -188,7 +214,7 @@ halves:
    `--check` first (same convention as `plant.mjs`); it reports per tier `created`,
    `unchanged`, `replaced`, or `drifted`. A `drifted` definition is one this generator did not
    write, or one edited by hand — diff it, get consent, then re-run with `--force`, exactly as
-   you would for a drifted CLAUDE.md block. Never silently discard the operator's text.
+   you would for a drifted AGENTS.md block. Never silently discard the operator's text.
 
 Model IDs date fast, and the config is where they live, so keep them honest:
 
@@ -235,14 +261,18 @@ Model IDs date fast, and the config is where they live, so keep them honest:
 
 ## Output gate
 
-1. Re-run with `--check`: it must exit 0 (nothing left to change) and report
-   `claudeMd: unchanged`. Re-run `tiers.mjs --root <root> --check` too: it must exit 0 with
-   every tier `unchanged` — a nonzero exit means a definition is missing or its pin no longer
-   matches the config.
-2. Verify on disk — never claim success without looking: `<root>/CLAUDE.md` contains the
-   `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block), the heading names
-   the **project** (not a worktree/scratch folder), `<root>/.pdlc` records the resolved
-   `name`, the right peers (each declined peer under `peersOmitted`), and the right
+1. Re-run with `--check`: it must exit 0 (nothing left to change) and report both
+   `agentsMd: unchanged` and `claudeMd: unchanged`. Re-run `tiers.mjs --root <root> --check`
+   too: it must exit 0 with every tier `unchanged` — a nonzero exit means a definition is
+   missing or its pin no longer matches the config.
+2. Verify on disk — never claim success without looking: `<root>/AGENTS.md` contains the
+   `pdlc:grounding` markers (and each opted peer's `pdlc:peer:` block) — this is the
+   **load-bearing** file, the one every harness (Claude Code included, via the pointer below)
+   actually reads — the heading names the **project** (not a worktree/scratch folder);
+   `<root>/CLAUDE.md`'s first line is exactly `@AGENTS.md` (Claude Code expands that import, so
+   a Claude Code session loads the same grounding bytes AGENTS.md carries — never claim that
+   without reading both files and confirming the line matches). `<root>/.pdlc` records the
+   resolved `name`, the right peers (each declined peer under `peersOmitted`), and the right
    `localOnly`. In **tracked** mode, `.gitignore` contains `.handoff/`. In **local-only**
    mode, verify the opposite pair: `<root>/.git/info/exclude` carries the scoped set
    `excludeSet` would produce for the opted peers/hooks, and `.gitignore` was **not**
@@ -267,7 +297,8 @@ Model IDs date fast, and the config is where they live, so keep them honest:
 
 ## Handing off
 
-The project is now grounded; its `CLAUDE.md` governs from the next session. Tell the user
+The project is now grounded; its `AGENTS.md` governs from the next session (`CLAUDE.md`
+points at it, so a Claude Code session loads the identical bytes). Tell the user
 what the loop makes possible next — without doing any of it here:
 
 - **Ground the codebase:** `/grounding-wiki:wiki-build` → `docs/wiki/` (do this first on an

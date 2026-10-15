@@ -78,8 +78,16 @@ if (runAsCli(import.meta.url)) {
   // sentinel). A bump that skips them fails CI's `plant.mjs --check` as "drifted" — the
   // recurring re-stamp commits 8526891 / b1cf2bd. Stamp only; template changes still need a
   // real re-plant, which plant --check keeps catching. Absent files (fixtures) are skipped.
+  const BLOCK_RE = /(<!-- pdlc:grounding BEGIN v)(\d+\.\d+\.\d+)/;
+  // The block lives in AGENTS.md now (spec 074); CLAUDE.md is a fallback for a fixture or a
+  // checkout not yet re-planted (R4's migration is honest drift, not this stamper's job).
+  const blockPath = (() => {
+    const agents = join(repo, "AGENTS.md");
+    try { if (BLOCK_RE.test(readFileSync(agents, "utf8"))) return agents; } catch { /* absent */ }
+    return join(repo, "CLAUDE.md");
+  })();
   const stamps = [
-    [join(repo, "CLAUDE.md"), /(<!-- pdlc:grounding BEGIN v)(\d+\.\d+\.\d+)/],
+    [blockPath, BLOCK_RE],
     [join(repo, ".pdlc"), /("version":\s*")(\d+\.\d+\.\d+)/],
   ];
   for (const [p, re] of stamps) {

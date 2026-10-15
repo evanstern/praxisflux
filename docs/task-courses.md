@@ -26,9 +26,9 @@ Each project records **once** whether it wants courses, and at what grain:
 
 The choice is standing — made once, revisited deliberately, never re-asked per task or per
 cycle. **Where the choice lives:** a `courses:` line in the project's PDLC grounding — for
-pdlc-bootstrapped projects, the planted CLAUDE.md grounding block (this doc records the
+pdlc-bootstrapped projects, the planted AGENTS.md grounding block (this doc records the
 convention; wiring the line into the bootstrap template is downstream work). For praxisflux
-itself, the "Course policy" stanza below plus the matching line in the repo `CLAUDE.md`
+itself, the "Course policy" stanza below plus the matching line in the repo `AGENTS.md`
 workflow section (step 4).
 
 ## Course policy — praxisflux's standing choice

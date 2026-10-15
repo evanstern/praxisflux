@@ -1,25 +1,26 @@
 ---
 name: pdlc-grounding-block
-description: What pdlc:bootstrap actually plants into a host CLAUDE.md — the marked-block mechanism (compose, refresh wholesale, honest drift), the 101 principles and their per-peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json while the block carries the dispatch obligation, its refused knowledge-shaped exemption, and the Dispatch: record marker a gate reads.
+description: What pdlc:bootstrap actually plants into a host AGENTS.md (with a CLAUDE.md pointer) — the marked-block mechanism (compose, refresh wholesale, honest drift), the 101 principles and their per-peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json while the block carries the dispatch obligation, its refused knowledge-shaped exemption, and the Dispatch: record marker a gate reads.
 kind: concept
 sources:
-  - pdlc/templates/CLAUDE.md
+  - pdlc/templates/AGENTS.md
   - pdlc/templates/model-tiers.json
   - pdlc/scripts/tiers.mjs
-verified_against: ab9e2a0fd7c690f538f235134167cc0c6f7f580b
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # The planted PDLC grounding block
 
-What [[pdlc-plugin]]'s `bootstrap` skill writes into a host's `CLAUDE.md`, and why each
+What [[pdlc-plugin]]'s `bootstrap` skill writes into a host's `AGENTS.md`, and why each
 rule is phrased the way it is. Split summary-style off the parent at the 8,000-char cap.
 
 ## A marked block, not a file
 
 Everything planted rides between `<!-- pdlc:grounding BEGIN/END -->` markers rendered from
-`pdlc/templates/CLAUDE.md` — one decision buying three behaviors:
+`pdlc/templates/AGENTS.md` — one decision buying three behaviors:
 
-- **Compose with an existing `CLAUDE.md`** — appended after the user's content, never clobbered.
+- **Compose with an existing `AGENTS.md`** — appended, never clobbered (a legacy `CLAUDE.md`
+  block migrates only under `--force`).
 - **Refresh wholesale on update** — the block is boilerplate; user edits belong *outside* the markers.
 - **Honest drift handling** — a block differing from the current render reports `drifted`
   and is never overwritten without `--force`; the skill diffs and gets consent.

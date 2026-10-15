@@ -12,7 +12,7 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Build and release
@@ -51,7 +51,8 @@ true as written. `--check` exits 1 if the file would change; guarded by
 **Version consistency** (`scripts/sync-version.mjs`). Exactly one argument, validated before
 any file is touched: a strict `x.y.z` (`0.3.0`) sets every plugin.json, the marketplace, and
 `action.yml`'s `npx @praxisflux/gates@<version>` pin to that version; `--check` exits 1 on any
-disagreement. It also stamps the repo's planted pdlc version (`CLAUDE.md` marker, `.pdlc`). Anything else — no argument, `--help`-style flags, non-semver — is a usage
+disagreement. It also stamps the repo's planted pdlc version (`AGENTS.md` marker, `.pdlc`).
+Anything else — no argument, `--help`-style flags, non-semver — is a usage
 error: exit 2, zero files written (guarded by `test/sync-version.test.mjs`; a target at or
 below the current value stays allowed for repair/rollback — the bump gate polices increases).
 The pin rewrite is the pure `stampNpxPin(text, name, target)`; a vanished pin fails loudly. Versions are
@@ -72,7 +73,7 @@ marketplace plugin (table row + `/plugin install` line) and every `lib/*.mjs` ch
 runs a two-way plugin census (a row or install line for a name `marketplace.json` doesn't
 register is a problem, and every `<N> plugins` count claim in README prose — digits or
 number words — must equal the registered count, so count drift fails the gate), and checks
-that CLAUDE.md links `docs/releasing.md`; the wiki freshness gate covers the semantic half. Both
+that `AGENTS.md` links `docs/releasing.md`; the freshness gate covers the semantic half. Both
 run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
 `lib/gate-runner`, wired by the tracked `.claude/settings.json`). `check-docs` always blocks;
 freshness blocks **except inside the re-pin window** (spec 057) — when the commits that staled

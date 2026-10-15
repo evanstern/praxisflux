@@ -38,7 +38,7 @@ real instructions, and which real call sites the naive grep missed.
 
 A row with no real evidence artifact is a wish, not a verb (`docs/principles.md` P1) — every
 row above names one. **Dropped from consideration:** `board:plan` (a task's `--plan` field).
-No skill among the six reads or writes it — it's a `CLAUDE.md`-level standing convention for
+No skill among the six reads or writes it — it's an `AGENTS.md`-level standing convention for
 how this repo runs its own board, not something any audited skill resolves. See the findings
 doc for the full reasoning; add it back the day a skill actually needs it.
 

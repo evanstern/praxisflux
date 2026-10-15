@@ -2,11 +2,15 @@
 // plant.mjs — deterministic planting for pdlc:bootstrap (dual-use: library + CLI).
 //
 // Renders the grounding template (peer blocks stripped unless opted in) and lands it in the
-// target project: a fresh CLAUDE.md when none exists, appended when one exists without pdlc
-// markers, replaced-between-markers on refresh. A block whose on-disk content differs from
-// what this version would plant is reported as `drifted` and is never overwritten without
-// --force — the skill shows the diff and gets consent first. Also stamps the `.pdlc` sentinel
-// and gitignores `.handoff/`. Writes nothing in --check mode.
+// target project's AGENTS.md — load-bearing for every harness, not just Claude Code (spec 074):
+// a fresh AGENTS.md when none exists, appended when one exists without pdlc markers,
+// replaced-between-markers on refresh. A block whose on-disk content differs from what this
+// version would plant is reported as `drifted` and is never overwritten without --force — the
+// skill shows the diff and gets consent first. CLAUDE.md is planted as a thin pointer (first
+// line `@AGENTS.md`); Claude Code expands that import, so a Claude Code session loads the same
+// grounding it always has. An already-planted host carrying the old CLAUDE.md-resident block
+// migrates on re-plant — honest drift needing `--force`, never a silent move (R4). Also stamps
+// the `.pdlc` sentinel and gitignores `.handoff/`. Writes nothing in --check mode.
 //
 // Absent peers leave a deterministic trace: the sentinel records the known peers NOT opted
 // in under `peersOmitted`, and the CLI prints a one-line stderr notice per omitted peer
@@ -72,6 +76,9 @@ export function excludeSet({ peers = [], hooks = [] } = {}) {
 }
 const BEGIN = /^<!-- pdlc:grounding BEGIN\b.*$/m;
 const END = "<!-- pdlc:grounding END -->";
+// R2: CLAUDE.md's load-bearing content is this one line — Claude Code expands the import so a
+// Claude Code session loads the exact same grounding bytes AGENTS.md carries.
+export const POINTER = "@AGENTS.md";
 
 /** Drop a peer's block (markers + content) from `text`; keep it when opted in. */
 function stripPeerBlock(text, name) {
@@ -173,11 +180,17 @@ function wireRootGuard(root) {
 
 /**
  * Plant (or report on, with check:true) the PDLC grounding in `root`.
- * Returns { mode, claudeMd, gitignore, exclude, pdlcFile, hooks, projectName, peersOmitted,
- * modeSwitch, missing } — claudeMd is one of created | appended | replaced | unchanged | drifted;
- * gitignore is `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever
- * written to `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude
- * file is never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
+ * Returns { mode, agentsMd, claudeMd, gitignore, exclude, pdlcFile, hooks, projectName,
+ * peersOmitted, modeSwitch, missing } (spec 074). `agentsMd` — the grounding BLOCK's state in
+ * `<root>/AGENTS.md`, the load-bearing file every harness reads — is one of created | appended |
+ * replaced | unchanged | drifted, same semantics `claudeMd` used to carry. `claudeMd` is now the
+ * PLAIN POINTER's state in `<root>/CLAUDE.md` (first line `@AGENTS.md`): created (file absent) |
+ * pointer-added (file present, lacked the pointer) | unchanged | migrated (a legacy
+ * CLAUDE.md-resident block was moved to AGENTS.md under --force) | drifted (a legacy block is
+ * present and --force was not given — nothing written for the migration; R4). gitignore is
+ * `present`|`added` in tracked mode or `skipped` in local-only mode (nothing is ever written to
+ * `.gitignore` there — spec 060 R1); exclude is `skipped` in tracked mode (the exclude file is
+ * never touched) or, in local-only mode, `unchanged`|`added`|`no-git` (R6: no `.git` yet —
  * nothing written, no throw); hooks is `absent` (root-guard not opted in), `installed` (opted
  * in and newly wired, or would be under --check), or `unchanged` (opted in and already fully
  * wired); projectName is the resolved heading name (see resolveProjectName); peersOmitted
@@ -185,12 +198,12 @@ function wireRootGuard(root) {
  * rendered grounding); modeSwitch is `none` (no prior sentinel, or it agrees with the requested
  * localOnly), `drifted` (the sentinel recorded the other mode and --force was not given — the
  * sentinel is NOT advanced), or `applied` (a genuine switch, confirmed with --force). This is
- * diagnosable apart from `claudeMd: "drifted"`, which means the on-disk grounding block content
- * differs from what this version renders — a different question entirely (spec 060 R4).
+ * diagnosable apart from `agentsMd`/`claudeMd` drift, which means on-disk content differs from
+ * what this version renders — a different question entirely (spec 060 R4).
  */
 export function plant(root, { peers = [], hooks = [], check = false, force = false, templatePath, version, name, localOnly = false } = {}) {
   root = resolve(root);
-  templatePath ??= join(here, "..", "templates", "CLAUDE.md");
+  templatePath ??= join(here, "..", "templates", "AGENTS.md");
   version ??= JSON.parse(readFileSync(join(here, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
   const unknown = peers.filter((p) => !PEERS.includes(p));
   if (unknown.length) throw new Error(`unknown peer(s): ${unknown.join(", ")} (known: ${PEERS.join(", ")})`);
@@ -229,26 +242,67 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
     projectName, version, peers,
   });
   const mode = existsSync(sentinelPath) ? "update" : "fresh";
+  const agentsPath = join(root, "AGENTS.md");
   const claudePath = join(root, "CLAUDE.md");
 
-  let claudeMd, nextClaude;
-  if (!existsSync(claudePath)) {
-    claudeMd = "created";
-    nextClaude = expected;
-  } else {
-    const current = readFileSync(claudePath, "utf8");
-    const found = extractBlock(current);
-    if (!found) {
-      claudeMd = "appended";
-      nextClaude = current.replace(/\n*$/, "\n\n") + expected;
-    } else if (found.block === expected) {
-      claudeMd = "unchanged";
-    } else if (!force) {
-      claudeMd = "drifted"; // on-disk block ≠ what this version plants; caller must confirm + --force
+  // R4: a legacy host planted before spec 074 carries the marked block in CLAUDE.md itself —
+  // detect it so the migration path (honest drift, --force to move it) can fire.
+  const claudeCurrent = existsSync(claudePath) ? readFileSync(claudePath, "utf8") : null;
+  const legacyBlock = claudeCurrent ? extractBlock(claudeCurrent) : null;
+
+  // --- AGENTS.md: the grounding BLOCK lives here now (R1). ---
+  const agentsCurrent = existsSync(agentsPath) ? readFileSync(agentsPath, "utf8") : null;
+  const agentsFound = agentsCurrent ? extractBlock(agentsCurrent) : null;
+
+  let agentsMd, nextAgents;
+  if (legacyBlock && !agentsFound) {
+    // The block has never been migrated: AGENTS.md has no block of its own to compare against.
+    // Writing it is PART OF the migration, so it needs the same consent as the CLAUDE.md side —
+    // nothing lands in AGENTS.md until --force (R4: "nothing written to either file").
+    if (!force) {
+      agentsMd = "drifted";
     } else {
-      claudeMd = "replaced";
-      nextClaude = found.before + expected + found.after;
+      agentsMd = agentsCurrent ? "appended" : "created";
+      nextAgents = agentsCurrent ? agentsCurrent.replace(/\n*$/, "\n\n") + expected : expected;
     }
+  } else if (!agentsCurrent) {
+    agentsMd = "created";
+    nextAgents = expected;
+  } else if (!agentsFound) {
+    agentsMd = "appended";
+    nextAgents = agentsCurrent.replace(/\n*$/, "\n\n") + expected;
+  } else if (agentsFound.block === expected) {
+    agentsMd = "unchanged";
+  } else if (!force) {
+    agentsMd = "drifted"; // on-disk block ≠ what this version plants; caller must confirm + --force
+  } else {
+    agentsMd = "replaced";
+    nextAgents = agentsFound.before + expected + agentsFound.after;
+  }
+  if (!check && nextAgents !== undefined) writeFileSync(agentsPath, nextAgents);
+
+  // --- CLAUDE.md: a thin pointer (R2), or the legacy-block migration (R4). ---
+  let claudeMd, nextClaude;
+  if (legacyBlock) {
+    if (!force) {
+      claudeMd = "drifted"; // migration needs consent; nothing written to either file (R4)
+    } else {
+      claudeMd = "migrated";
+      // Project text stays in CLAUDE.md, below the pointer — the plant never moves it to
+      // AGENTS.md for the host (plan.md: "a host that wants it there moves it by hand").
+      const before = legacyBlock.before.replace(/\n*$/, "");
+      const after = legacyBlock.after.replace(/^\n*/, "");
+      const rest = [before, after].filter(Boolean).join("\n\n");
+      nextClaude = rest ? `${POINTER}\n\n${rest}\n` : `${POINTER}\n`;
+    }
+  } else if (!claudeCurrent) {
+    claudeMd = "created";
+    nextClaude = `${POINTER}\n`;
+  } else if (claudeCurrent.split("\n", 1)[0] === POINTER) {
+    claudeMd = "unchanged";
+  } else {
+    claudeMd = "pointer-added"; // project content survives untouched, below the new first line
+    nextClaude = `${POINTER}\n\n${claudeCurrent}`;
   }
   if (!check && nextClaude !== undefined) writeFileSync(claudePath, nextClaude);
 
@@ -272,24 +326,25 @@ export function plant(root, { peers = [], hooks = [], check = false, force = fal
     (existing.hooks === undefined || JSON.stringify([...existing.hooks].sort()) === JSON.stringify(desired.hooks)) &&
     (existing.localOnly === undefined || existing.localOnly === desired.localOnly);
   // Spec 060 R4: a MODE SWITCH — the sentinel recorded the other planting mode than what's being
-  // requested now — is honest drift, diagnosable apart from `claudeMd: "drifted"` (a different
-  // question: on-disk block content vs. this version's render). A legacy sentinel written before
-  // `localOnly` existed is tracked mode by definition (`?? false`), so replanting tracked over one
-  // is NOT a switch — only a genuine disagreement is. Unconfirmed, the sentinel must not advance
-  // past it; `--force` is the same consent path `claudeMd: "drifted"` already requires.
+  // requested now — is honest drift, diagnosable apart from `agentsMd`/`claudeMd` drift (a
+  // different question: on-disk content vs. this version's render). A legacy sentinel written
+  // before `localOnly` existed is tracked mode by definition (`?? false`), so replanting tracked
+  // over one is NOT a switch — only a genuine disagreement is. Unconfirmed, the sentinel must not
+  // advance past it; `--force` is the same consent path block/pointer drift already requires.
   const modeSwitch = existing && (existing.localOnly ?? false) !== localOnly
     ? (force ? "applied" : "drifted") : "none";
-  // A drifted, unconfirmed block — or an unconfirmed mode switch — means nothing was planted for
-  // that facet: don't advance the sentinel past either one.
-  const pdlcFile = claudeMd === "drifted" || modeSwitch === "drifted" ? (existing ? "unchanged" : "skipped")
+  // A drifted, unconfirmed block or pointer migration — or an unconfirmed mode switch — means
+  // nothing was planted for that facet: don't advance the sentinel past any of them (R3).
+  const anyDrifted = agentsMd === "drifted" || claudeMd === "drifted" || modeSwitch === "drifted";
+  const pdlcFile = anyDrifted ? (existing ? "unchanged" : "skipped")
     : same ? "unchanged" : existing ? "updated" : "written";
-  if (!check && !same && claudeMd !== "drifted" && modeSwitch !== "drifted") {
+  if (!check && !same && !anyDrifted) {
     writeFileSync(sentinelPath, JSON.stringify({ ...desired, plantedAt: new Date().toISOString() }, null, 2) + "\n");
   }
 
   // .gitignore is never planted in local-only mode (R1), so it is not a required artifact there.
-  const missing = check ? [] : verifyPresent(root, localOnly ? ["CLAUDE.md", SENTINEL] : ["CLAUDE.md", SENTINEL, ".gitignore"]);
-  return { mode, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, modeSwitch, missing };
+  const missing = check ? [] : verifyPresent(root, localOnly ? ["AGENTS.md", "CLAUDE.md", SENTINEL] : ["AGENTS.md", "CLAUDE.md", SENTINEL, ".gitignore"]);
+  return { mode, agentsMd, claudeMd, gitignore, exclude, pdlcFile, hooks: hooksReport, projectName, peersOmitted, modeSwitch, missing };
 }
 
 function readGitignoreHas(root, entry) {
@@ -317,7 +372,7 @@ if (runAsCli(import.meta.url)) {
   // gitignore is "skipped" (never pending) in local-only mode; exclude is "skipped" (never
   // pending) in tracked mode. "no-git" is honest degradation, not convergence — it stays
   // pending until a real `git init` lets the exclude lines actually land (R6).
-  const pending = report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
+  const pending = report.agentsMd !== "unchanged" || report.claudeMd !== "unchanged" || report.pdlcFile !== "unchanged"
     || report.gitignore === "added" || report.hooks === "installed"
     || report.exclude === "added" || report.exclude === "no-git"
     || report.modeSwitch === "drifted";
@@ -327,7 +382,7 @@ if (runAsCli(import.meta.url)) {
   // path. `drifted` and a merely-behind footprint take different first steps: the former must
   // be diffed before anyone consents to losing it, the latter just needs the plant to run.
   if (check && pending) {
-    const drifted = report.claudeMd === "drifted" || report.modeSwitch === "drifted";
+    const drifted = report.agentsMd === "drifted" || report.claudeMd === "drifted" || report.modeSwitch === "drifted";
     console.error(
       drifted
         ? `plant: the planted footprint has DRIFTED from what this version plants — re-run pdlc:bootstrap, ` +

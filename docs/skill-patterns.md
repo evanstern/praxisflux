@@ -25,10 +25,11 @@ Every phase skill has the same skeleton:
    self-contained). Fix failures before declaring done.
 4. **Handing off** — tell the user what's now possible next (the next phase), without doing it.
 
-## 3. Plant a project `CLAUDE.md` (a plugin has no always-on slot)
+## 3. Plant a project `AGENTS.md`, with a `CLAUDE.md` pointer (a plugin has no always-on slot)
 
 A plugin's skills are lazy-loaded; nothing of it is always in context. So the installer **plants a
-project `CLAUDE.md`** that carries the always-on rules (lifecycle, placement, DoD). Use
+project `AGENTS.md`** that carries the always-on rules (lifecycle, placement, DoD), plus a thin
+`CLAUDE.md` pointer (`@AGENTS.md`) so Claude Code loads the same bytes. Use
 `lib/installer.mjs` (`copyDir` is dotfile-safe; `installMode` picks fresh vs. idempotent update;
 `ensureGitignore` adds `.handoff/`). Never claim success without verifying the files on disk
 (`verifyPresent`).
@@ -59,7 +60,7 @@ honest without nagging: `required` gates must be green before a spec reaches Don
 red mid-PR — legitimately, since re-pinning only after the source commit is *correct* sequencing —
 and are enforced again once every box, the re-pin box included, is ticked.
 
-*Advisory vs. blocking, reconciled (don't re-derive this).* `CLAUDE.md` calls Stop hooks
+*Advisory vs. blocking, reconciled (don't re-derive this).* `AGENTS.md` calls Stop hooks
 *advisory*, yet this check **blocks**. Not a contradiction: "advisory" describes the hook's
 *optionality* — it may not be installed locally, and CI is what *guarantees* enforcement — not a
 promise it never blocks. `checkBridge` already blocks through the Stop hook today (an `exceeds`
@@ -127,7 +128,7 @@ user's project — one canonical, updatable copy per plugin.
   else's project and must stay untouched. **Rooting rule:** `lib/handoff.mjs` (`ensureHandoffDir`
   → `ensureGitignore`) writes to whatever root it is given, so it may only ever be rooted at the
   **invoking** root; pointed at the caller-supplied target it would itself be the forbidden write.
-  Same rule for any planted hook or CLAUDE.md — this shape installs nothing into its target.
+  Same rule for any planted hook or AGENTS.md — this shape installs nothing into its target.
 
 ## 7. Shared chassis vs. per-plugin
 
@@ -209,7 +210,8 @@ needed. It refuses to overwrite an existing plugin dir. The remaining items are 
    `scripts/gen-marketplace.mjs`). *(scaffolded)*
 2. Skills under `<plugin>/skills/<name>/SKILL.md`, each in the gate→work→gate shape.
    *(scaffolded as a skeleton — fill in the description: it is the trigger surface.)*
-3. If it stamps a project: a planted `CLAUDE.md` + templates, installed via `lib/installer.mjs`.
+3. If it stamps a project: a planted `AGENTS.md` (+ `CLAUDE.md` pointer) + templates, installed
+   via `lib/installer.mjs`.
 4. If it has a lifecycle to enforce: define it with `lib/lifecycle.mjs`; ship a Stop hook
    (`<plugin>/scripts/stop.mjs` → `lib/gate-runner.mjs`) + a `gate.sh` shim + `hooks/hooks.json`.
    *(`--with-gate` stamps the trio with a no-op stub gate — wire `resolveRoots`/`check`.)*
