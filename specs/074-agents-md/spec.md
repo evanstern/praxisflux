@@ -101,9 +101,8 @@ Claude Code behavior is unchanged. A Claude Code session in a planted host loads
 - No Harness port, no `pdlc` CLI verbs — that is TASK-0139.
 - No renaming of `${CLAUDE_PLUGIN_ROOT}` script paths in skills — TASK-0139.
 - No change to the block's *content* beyond prose that names its own file.
-- The explainer plugin's `plant` verb (`explainer/scripts/explainer.mjs:337-343`) also
-  writes a marked block into `CLAUDE.md`. The card does not name it. See plan.md's
-  open checkpoint OC2.
+- ~~The explainer plugin's planter~~ — moved INTO scope by operator ruling OC2
+  (2026-10-15): `explainer plant` follows the same AGENTS.md + pointer pattern (Phase 4b).
 
 ## Requirement → acceptance-criterion map
 

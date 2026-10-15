@@ -150,7 +150,15 @@ that says the block lives in CLAUDE.md is NEEDS-REVIEW, not RE-PIN-ONLY.
 - **Downstream re-plant.** Every host sees drift on upgrade and must consent. That is the
   designed consent path (card), and `docs/releasing.md`'s re-plant section names it.
 
-## Open checkpoints (not settled by the card)
+## Operator rulings (2026-10-15) — supersede the open checkpoints below
+
+- **OC1:** release **1.0.0** (major), marking the planted-file contract change.
+- **OC2:** explainer's planter moves to `AGENTS.md` **in this PR** (Phase 4b).
+- **Constitution v1.0.1:** signed off by the operator.
+- **`claudeMd` report-field meaning change** (now the pointer's state): accepted.
+- **Leftover prose** (`educate/skills/lesson/SKILL.md`, plus the root orientation prose): swept in this PR (Phase 4b).
+
+## Open checkpoints (not settled by the card) — historical, see rulings above
 
 - **OC1 — release size.** `docs/releasing.md` says planted-file schema changes are *major*.
   Pre-1.0, this plan takes the minor bump (0.67.0). If the operator wants 1.0.0 to mark the

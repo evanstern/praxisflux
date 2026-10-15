@@ -39,9 +39,17 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 - [x] `pdlc/hooks/root-guard-hook.mjs` blocking messages (`:458`, `:654`) point at AGENTS.md (or CLAUDE.md on hosts not yet re-planted); root-guard tests still green
 - [x] Constitution source citations (Articles IV, VI, VII) point at root `AGENTS.md`; version 1.0.0 → 1.0.1, Last Amended updated
 
+## Phase 4b — explainer planter and leftover prose (operator rulings 2026-10-15)
+
+- [ ] `explainer plant` lands its marked block in `AGENTS.md` and plants the `@AGENTS.md` pointer in `CLAUDE.md`, on plant.mjs's pattern; a legacy block in `CLAUDE.md` migrates only under consent, never silently
+- [ ] `explainer/templates/CLAUDE.md` renamed to `explainer/templates/AGENTS.md`; explainer's skill, README and tests follow; skill `version:` bumped
+- [ ] `educate/skills/lesson/SKILL.md`'s two "project CLAUDE.md" mentions name `AGENTS.md`; skill `version:` bumped
+- [ ] Root `AGENTS.md` orientation prose that names `CLAUDE.md` as the always-on file (guiding principles; "Docs are load-bearing") names `AGENTS.md`; README's explainer row likewise
+- [ ] Full suite green; `check-docs`, `sync-version --check`, `plant.mjs --check` exit 0
+
 ## Phase 5 — release, re-ground, gates
 
-- [ ] `node scripts/sync-version.mjs 0.67.0`; re-plant so the block stamp matches
+- [ ] `node scripts/sync-version.mjs 1.0.0` (OC1: operator chose 1.0.0); re-plant so the block stamp matches
 - [ ] Every edited skill's `version:` increased; `check-version-bump.mjs --base origin/main` passes
 - [ ] `/grounding-wiki:wiki-update` run; every stale note classified and re-pinned honestly (prose saying the block lives in CLAUDE.md amended before re-pin)
 - [ ] All gates green: `node --test`, `check-docs`, `sync-version --check`, `gen-marketplace --check`, `build.mjs`, `plant.mjs --check`, `run-gates spec-bridge`, `run-gates wiki-freshness`
