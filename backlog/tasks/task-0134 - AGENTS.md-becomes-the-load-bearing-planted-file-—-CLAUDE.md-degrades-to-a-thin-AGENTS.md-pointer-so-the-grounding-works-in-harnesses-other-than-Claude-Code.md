@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 16:52'
+updated_date: '2026-10-15 17:01'
 labels:
   - pdlc
   - educate
@@ -60,4 +60,6 @@ Spec 074 authored (spec/plan/tasks). Open checkpoints for operator: OC1 release 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+Phase 3 (dogfood + bootstrap teaches it): node pdlc/scripts/plant.mjs --root . --peer backlog --force migrated the root block (agentsMd: created, claudeMd: migrated); hand-moved the orientation prose + Backlog.md guidelines block from CLAUDE.md into AGENTS.md above the BEGIN marker (byte-identical move, verified via diff of before/after against the original pre-migration CLAUDE.md); CLAUDE.md is now exactly "@AGENTS.md\n". backlog targets AGENTS.md finding (read via `backlog agents --help` + strings on the installed darwin-arm64 binary, backlog.md 1.47.1 at /opt/homebrew/Cellar/backlog-md/1.47.1): `backlog agents --update-instructions` treats CLAUDE.md and AGENTS.md as two SEPARATE, independently selectable instruction-file targets (map includes claude:CLAUDE.md, agents/cursor/codex:AGENTS.md, gemini:GEMINI.md, copilot:.github/copilot-instructions.md) — it does not follow a CLAUDE.md-to-AGENTS.md pointer; each selected file gets its own managed <!-- BACKLOG.MD GUIDELINES START/END --> block (file-agnostic marker text, confirmed in the binary). So our hand-moved guidelines block in AGENTS.md is exactly what a future `backlog agents --update-instructions` run against AGENTS.md would refresh if AGENTS.md is (re-)selected as a target; nothing automatic links it to the old CLAUDE.md selection. Verified: plant.mjs --root . --peer backlog --check exit 0; check-docs.mjs exit 0 ("README.md and AGENTS.md are in sync with the repo"); sync-version.mjs --check exit 0; node --test full suite 1244/1244 pass. Updated pdlc/skills/bootstrap/SKILL.md (version 0.13.1 -> 0.14.0) to teach the AGENTS.md-first shape, the pointer's purpose, the migration path, and an Output gate that verifies AGENTS.md's markers plus CLAUDE.md's pointer line; updated pdlc/README.md to match. No deviations from plan.md's dogfood ordering.
 <!-- SECTION:NOTES:END -->
