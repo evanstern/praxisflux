@@ -243,5 +243,5 @@ Dependencies: 0140 and 0141 need 0138. 0139 needs 0138 and 0134. 0142 needs 0141
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-13 | — | — | — | — | runbook authored (draft); awaiting operator sign-off + C1/C2 |
 | 2026-10-15 | — | — | — | — | C1 (.pdlc.json) and C2 (.<port>/<noun>.json) ruled by operator; lanes signed off same day; execution started |
-| 2026-10-15 | TASK-0138 | — | — | — | claim 35ff8ab; spec set 29028fe (5 phases); phases: 1 dispatched (sonnet). C3 parked for next sweep |
-| 2026-10-15 | TASK-0134 | — | — | — | claim 93374a4; spec set authoring |
+| 2026-10-15 | TASK-0138 | #155 (open) | — | ~1.1M subagent tokens (5 sonnet phases ~0.85M + spec authoring 0.21M) | claim 35ff8ab; spec 29028fe; phases 1-5 done, all sonnet served; 9 gates re-verified by orchestrator; C3 parked for next sweep |
+| 2026-10-15 | TASK-0134 | — | — | — | claim 93374a4; spec c921646; phases: 1-4 done (sonnet served), 5 held on OC1-OC2 + constitution/claudeMd rulings |
