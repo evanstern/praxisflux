@@ -1,11 +1,11 @@
 ---
 id: TASK-0137
 title: 'explainer: adopt the explainer plugin into the praxisflux marketplace'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-13 01:38'
-updated_date: '2026-10-13 19:05'
+updated_date: '2026-10-15 16:15'
 labels:
   - plugin
   - explainer
@@ -82,3 +82,9 @@ Not done: push and PR — awaiting operator review.
 
 CI fix on PR #154: plant --check failed (claudeMd drifted) because the 0.66.0 bump left the planted CLAUDE.md marker and .pdlc at 0.65.3 — the same drift each release has needed a hand re-stamp for (8526891, b1cf2bd). sync-version.mjs now stamps both and reports them in --check (ef405b1, test added); wiki re-pinned in 46fb3a0.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Adopted the explainer plugin into the marketplace (PR #154, merged 2a430cf, v0.66.0). explainer/ shares lib/ via symlink, ships no package.json, keeps read-only checks in explainer/gates/, verifies built pages with lib/selfcontained.mjs (which gained externalLoads() and treats protocol-relative URLs as external), reads docs/wiki as a fact source with a warning-level wiki.fresh check, and plants a CLAUDE.md block. Suite in test/explainer/. Also fixed the recurring CI plant drift: sync-version.mjs now stamps the planted CLAUDE.md marker and .pdlc. No Dispatch: line was recorded; the operator merged without one.
+<!-- SECTION:FINAL_SUMMARY:END -->
