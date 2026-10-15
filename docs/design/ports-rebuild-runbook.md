@@ -161,8 +161,9 @@ transcript). Verify the served model on the first dispatch before launching sibl
 
 ## Operator checkpoints (do not proceed silently)
 
-**C1 — TASK-0138: which file is the configurator.** Ask before finalizing spec.md.
-Recommendation: **a new `.pdlc.json`**, operator-authored, one key per port
+**C1 — TASK-0138: which file is the configurator.** **RULED 2026-10-15 (operator): new
+`.pdlc.json`, as recommended.** Copy this ruling into TASK-0138's notes at claim (AC #2).
+Recommendation (accepted): **a new `.pdlc.json`**, operator-authored, one key per port
 (`{"ports": {"tracker": "backlog-md", "forge": "github", …}}`). Absent file or absent key →
 detection. Reasons:
 - `.pdlc` is a **machine-written receipt** (`plant.mjs` rewrites it on every plant and
@@ -178,8 +179,9 @@ detection. Reasons:
 - Cost: `.pdlc` and `.pdlc.json` look alike. Mitigation: `pdlc doctor` names both and
   says which one is config and which one is the plant receipt.
 
-**C2 — TASK-0138: receipt location convention.** Ask before finalizing spec.md.
-Recommendation: **`.<port-dir>/<noun>.json`, tracked, written only through the chassis
+**C2 — TASK-0138: receipt location convention.** **RULED 2026-10-15 (operator):
+`.<port>/<noun>.json`, as recommended.** Copy this ruling into TASK-0138's notes at claim.
+Recommendation (accepted): **`.<port-dir>/<noun>.json`, tracked, written only through the chassis
 helper** (byte-deterministic key order, sorted entries, trailing newline,
 `observedAt`/`observedSha` when the source is remote). Concretely:
 - tracker → `.board/links.json` (keeps its name; no rename);
@@ -233,3 +235,4 @@ Dependencies: 0140 and 0141 need 0138. 0139 needs 0138 and 0134. 0142 needs 0141
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-13 | — | — | — | — | runbook authored (draft); awaiting operator sign-off + C1/C2 |
+| 2026-10-15 | — | — | — | — | C1 (.pdlc.json) and C2 (.<port>/<noun>.json) ruled by operator; lane sign-off still pending |
