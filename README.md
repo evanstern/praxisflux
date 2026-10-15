@@ -57,7 +57,9 @@ dirs) · `cli` (symlink-safe run-as-CLI guard) · `board-mirror` (tracked `.boar
 board mirror: schema, read/write, validate) · `structured-offload` (schema-validated,
 fail-soft calls to a local model) · `port-registry` (pdlc ports chassis: port/adapter
 registration and resolve) · `pdlc-config` (pdlc ports chassis: `.pdlc.json` adapter
-configurator).
+configurator) · `receipts` (pdlc ports chassis: byte-deterministic `.<port-dir>/<noun>.json`
+read/write/check, `docs/receipts.md`) · `contract-harness` (pdlc ports chassis: one
+assertion suite run against every port adapter).
 
 ## Principles
 

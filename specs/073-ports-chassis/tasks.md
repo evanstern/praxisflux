@@ -23,11 +23,24 @@ updates are untouched and still Phase 5's job).
 
 ## Phase 2 — receipts and contract-test harness
 
-- [ ] `lib/receipts.mjs`: `receiptPath`, `serializeReceipt`, `writeReceipt`, `readReceipt`, `checkReceipt` per spec R3
-- [ ] `test/receipts.test.mjs`: byte-determinism (key order independent), trailing newline, absent → ok/`absent`, reformatted file → not ok
-- [ ] `docs/receipts.md`: the `.<port-dir>/<noun>.json` convention (C2), tracked, helper-only writes, gates read receipts never providers, `.board/links.json` as the tracker's existing receipt, `.forge/changes.json` reserved for TASK-0140
-- [ ] `lib/contract-harness.mjs`: `runContractSuite({ port, factories, cases })` per spec R4, temp root per test cleaned up
-- [ ] `test/contract-harness.test.mjs`: the demo suite runs against the fake via the harness and passes; the broken adapter fails validation
+- [x] `lib/receipts.mjs`: `receiptPath`, `serializeReceipt`, `writeReceipt`, `readReceipt`, `checkReceipt` per spec R3
+- [x] `test/receipts.test.mjs`: byte-determinism (key order independent), trailing newline, absent → ok/`absent`, reformatted file → not ok
+- [x] `docs/receipts.md`: the `.<port-dir>/<noun>.json` convention (C2), tracked, helper-only writes, gates read receipts never providers, `.board/links.json` as the tracker's existing receipt, `.forge/changes.json` reserved for TASK-0140
+- [x] `lib/contract-harness.mjs`: `runContractSuite({ port, factories, cases })` per spec R4, temp root per test cleaned up
+- [x] `test/contract-harness.test.mjs`: the demo suite runs against the fake via the harness and passes; the broken adapter fails validation
+
+**Deviation (Phase 2 dispatch):** `test/contract-harness.test.mjs` cannot drive the harness
+through permanent fixture files such as `harness-fake.mjs`/`harness-broken.mjs` under
+`test/fixtures/ports-demo/`, because `node --test`'s default discovery runs *every* `.mjs`
+file under any `test/` directory tree as its own test file — a fixture whose top-level code
+calls `runContractSuite` with the deliberately-broken adapter would register a failing
+subtest there too, breaking the plain `node --test` suite's own exit code. Instead the test
+generates each driver script into a temp dir **outside** the repo tree at test time
+(`mkdtempSync` under the OS tmp dir) and spawns `node` on it there, then removes it — same
+behavior proved (fake suite passes, broken adapter fails naming the missing method, temp
+root cleanup), no permanent side-effecting file sitting under `test/`. `lib/receipts.mjs` and
+`lib/contract-harness.mjs` were also added to README's chassis-section sentence now (minimal
+clause, same as Phase 1's deviation), ahead of Phase 5's fuller docs/wiki/version pass.
 
 ## Phase 3 — credential helper
 
