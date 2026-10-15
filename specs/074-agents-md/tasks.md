@@ -41,11 +41,11 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 4b — explainer planter and leftover prose (operator rulings 2026-10-15)
 
-- [ ] `explainer plant` lands its marked block in `AGENTS.md` and plants the `@AGENTS.md` pointer in `CLAUDE.md`, on plant.mjs's pattern; a legacy block in `CLAUDE.md` migrates only under consent, never silently
-- [ ] `explainer/templates/CLAUDE.md` renamed to `explainer/templates/AGENTS.md`; explainer's skill, README and tests follow; skill `version:` bumped
-- [ ] `educate/skills/lesson/SKILL.md`'s two "project CLAUDE.md" mentions name `AGENTS.md`; skill `version:` bumped
-- [ ] Root `AGENTS.md` orientation prose that names `CLAUDE.md` as the always-on file (guiding principles; "Docs are load-bearing") names `AGENTS.md`; README's explainer row likewise
-- [ ] Full suite green; `check-docs`, `sync-version --check`, `plant.mjs --check` exit 0
+- [x] `explainer plant` lands its marked block in `AGENTS.md` and plants the `@AGENTS.md` pointer in `CLAUDE.md`, on plant.mjs's pattern; a legacy block in `CLAUDE.md` migrates only under consent, never silently
+- [x] `explainer/templates/CLAUDE.md` renamed to `explainer/templates/AGENTS.md`; explainer's skill, README and tests follow; skill `version:` bumped
+- [x] `educate/skills/lesson/SKILL.md`'s two "project CLAUDE.md" mentions name `AGENTS.md`; skill `version:` bumped
+- [x] Root `AGENTS.md` orientation prose that names `CLAUDE.md` as the always-on file (guiding principles; "Docs are load-bearing") names `AGENTS.md`; README's explainer row likewise
+- [x] Full suite green; `check-docs`, `sync-version --check`, `plant.mjs --check` exit 0
 
 ## Phase 5 — release, re-ground, gates
 
