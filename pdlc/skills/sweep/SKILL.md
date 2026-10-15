@@ -1,6 +1,6 @@
 ---
 name: sweep
-version: 0.24.0
+version: 0.25.0
 description: Orchestrate a multi-task board sweep through the full PDLC — author a dependency-laned runbook from a set of board tasks (or adopt an existing runbook), get operator sign-off on the lanes, then execute every task automatically through spec → link → worktree → delegated implementation → PR → merge → re-ground, parallelizing development across lanes while merging serially, under explicit concurrency doctrine for repos where other agents/sessions are working at the same time. Use when the user wants to "run the sweep", "work through these tasks automatically", "act as orchestrator", "execute the runbook", "run these tasks through the SDLC/PDLC end to end", hands over a wave plan or reorientation synthesis naming several tasks, or asks to parallelize board work "creating PRs along the way" — even if they don't say "sweep".
 ---
 
@@ -100,7 +100,7 @@ derive, in this order:
    project the rubric is **`.claude/model-tiers.json`** — read it, don't infer it: it
    declares the tiers, each tier's model ID and scope, `defaultTier`, and which tiers are
    escalation-gated. (Other hosts may express the same thing elsewhere, e.g. a
-   constitution's tiered-workflow principle; the planted CLAUDE.md `## Model tiers` section
+   constitution's tiered-workflow principle; the planted AGENTS.md `## Model tiers` section
    carries the posture and points at the config.) Assign tiers by that config's posture:
    **thinking is Opus/Fable-tier, execution is Sonnet/Haiku-tier** — a task whose judgment
    calls the spec already settles runs at `defaultTier`, and reaching for a tier marked
@@ -129,7 +129,7 @@ derive, in this order:
 3. **Project-specific per-PR gates, enumerated.** Every repo grows its own ("run this
    check script before any PR touching X", "amend this reference doc in the same PR").
    The runbook lists them explicitly so a dispatched implementer can't miss one — hunt
-   for them in the project CLAUDE.md, design-doc INDEX files, and `scripts/`. Record
+   for them in the project AGENTS.md, design-doc INDEX files, and `scripts/`. Record
    the merge-drift probe's result here (present/absent; when present, the four
    invocations — session / claim / worktree / pr — verbatim) so an adopting session
    doesn't re-derive it. **Lane-0/precondition rulings that change the per-task loop
@@ -205,7 +205,7 @@ one at a time. For **each task**, the loop is the host PDLC's, instantiated:
      title, it is still a stub.
    - **`plan.md`** — the how, checked against the host constitution. Constitution
      absent or unratified (an unfilled template)? State that plainly in plan.md and
-     plan against the project's grounding docs (`docs/wiki/`, CLAUDE.md, README)
+     plan against the project's grounding docs (`docs/wiki/`, AGENTS.md, README)
      instead — never treat the plan step as ceremony because the checker it expects is
      missing.
    - **`tasks.md`** — phased checkboxes. This is the file the bridge derives phase ACs

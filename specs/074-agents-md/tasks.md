@@ -32,12 +32,12 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 4 — cross-plugin planters and prose (haiku-suitable)
 
-- [ ] `educate/templates/CLAUDE.md` → `AGENTS.md`; `educate:start` plants AGENTS.md + pointer, detects existing projects by AGENTS.md, CLAUDE.md or topics/, update path reconciles AGENTS.md; `version:` bumped
-- [ ] `research/templates/CLAUDE.md` → `AGENTS.md`; `research:research-vault` recognizes AGENTS.md or CLAUDE.md, scaffolds AGENTS.md + pointer; `analyze-vault` and `vault-artifact` wording; versions bumped
-- [ ] Tests assert each template's new path and that each planter SKILL.md names AGENTS.md as the planted file
-- [ ] Prose corrected: `README.md`, `docs/principles.md`, `docs/skill-patterns.md`, `docs/releasing.md`, `docs/task-courses.md`, `docs/board-verbs.md`, `docs/task-labels.md`, `lib/installer.mjs` header, `pdlc/skills/sweep/SKILL.md` (+ version bump)
-- [ ] `pdlc/hooks/root-guard-hook.mjs` blocking messages (`:458`, `:654`) point at AGENTS.md (or CLAUDE.md on hosts not yet re-planted); root-guard tests still green
-- [ ] Constitution source citations (Articles IV, VI, VII) point at root `AGENTS.md`; version 1.0.0 → 1.0.1, Last Amended updated
+- [x] `educate/templates/CLAUDE.md` → `AGENTS.md`; `educate:start` plants AGENTS.md + pointer, detects existing projects by AGENTS.md, CLAUDE.md or topics/, update path reconciles AGENTS.md; `version:` bumped
+- [x] `research/templates/CLAUDE.md` → `AGENTS.md`; `research:research-vault` recognizes AGENTS.md or CLAUDE.md, scaffolds AGENTS.md + pointer; `analyze-vault` and `vault-artifact` wording; versions bumped
+- [x] Tests assert each template's new path and that each planter SKILL.md names AGENTS.md as the planted file
+- [x] Prose corrected: `README.md`, `docs/principles.md`, `docs/skill-patterns.md`, `docs/releasing.md`, `docs/task-courses.md`, `docs/board-verbs.md`, `docs/task-labels.md`, `lib/installer.mjs` header, `pdlc/skills/sweep/SKILL.md` (+ version bump)
+- [x] `pdlc/hooks/root-guard-hook.mjs` blocking messages (`:458`, `:654`) point at AGENTS.md (or CLAUDE.md on hosts not yet re-planted); root-guard tests still green
+- [x] Constitution source citations (Articles IV, VI, VII) point at root `AGENTS.md`; version 1.0.0 → 1.0.1, Last Amended updated
 
 ## Phase 5 — release, re-ground, gates
 

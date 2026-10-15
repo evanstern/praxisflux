@@ -4,7 +4,7 @@ praxisflux ships as **one release**: the `version` in `.claude-plugin/marketplac
 release version, and every plugin's `plugin.json` — plus `action.yml`'s
 `npx @praxisflux/gates@<version>` pin — stays in lockstep with it (`scripts/sync-version.mjs`
 enforces and stamps all three, plus the version stamps in this repo's own planted pdlc
-grounding: the `CLAUDE.md` block marker and `.pdlc`). Releases are git tags + GitHub Releases named
+grounding: the `AGENTS.md` block marker and `.pdlc`). Releases are git tags + GitHub Releases named
 `v<version>`, published automatically — there is no manual release step.
 
 ## The pipeline
@@ -77,7 +77,8 @@ node scripts/check-version-bump.mjs --base main
 ## Re-planting a downstream project after an upgrade
 
 A release changes more than code: `pdlc:bootstrap` **plants** an always-on grounding block into
-every downstream project's `CLAUDE.md`, and that block is versioned. Upgrading the plugin does
+every downstream project's `AGENTS.md` (with a `CLAUDE.md` pointer so Claude Code loads the same
+bytes), and that block is versioned. Upgrading the plugin does
 not touch what was already planted — so a host that upgrades and stops there keeps running last
 release's doctrine. This is the upgrade path for those hosts.
 
@@ -86,7 +87,7 @@ and the block's own BEGIN marker repeats it:
 
 ```sh
 node -e 'console.log(JSON.parse(require("fs").readFileSync(".pdlc")).version)'   # planted
-grep -m1 'pdlc:grounding BEGIN' CLAUDE.md                                        # same, in the block
+grep -m1 'pdlc:grounding BEGIN' AGENTS.md                                        # same, in the block
 ```
 
 `<planted version> < <installed plugin version>` means stale. The field case is this repo
@@ -110,7 +111,7 @@ hook. Read it there; this section is the *when and why*, not a second copy of th
 **Keep project edits OUTSIDE the markers.** The block between
 `<!-- pdlc:grounding BEGIN … -->` and `<!-- pdlc:grounding END -->` is refreshed **wholesale**
 by design, so a re-plant discards anything added inside it. Project-specific rules belong in the
-surrounding `CLAUDE.md` — that text survives byte-for-byte across re-plants.
+surrounding `AGENTS.md` — that text survives byte-for-byte across re-plants.
 
 **Detecting staleness without being told.** `plant.mjs --check` exits **1** whenever planting
 would change something and **0** when the footprint is current, so any host can gate on it:
