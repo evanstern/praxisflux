@@ -3,9 +3,11 @@ id: TASK-0134
 title: >-
   AGENTS.md becomes the load-bearing planted file — CLAUDE.md degrades to a thin
   @AGENTS.md pointer so the grounding works in harnesses other than Claude Code
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-09-20 01:59'
+updated_date: '2026-10-15 16:20'
 labels:
   - pdlc
   - educate
@@ -26,6 +28,8 @@ Make `AGENTS.md` the load-bearing planted file. The grounding block, its markers
 The blast radius is wider than the write target. The drift/consent machinery keys on the CLAUDE.md path (`extractBlock`, the `.pdlc` sentinel, `--check`/`--force`). `educate:start` and `research:research-vault` plant their own project CLAUDE.md from their own templates. And praxisflux's own root `CLAUDE.md` is read by `scripts/check-docs.mjs:31`, enforced by the pre-commit/pre-push hooks, CI, and the repo Stop hook, cited as a source by `.specify/memory/constitution.md`, and named in the root-guard hook's blocking messages. One thing is already done: `excludeSet` lists `/AGENTS.md` (`pdlc/scripts/plant.mjs:60`, spec 060 R2), so local-only planting needs no new exclude line — it anticipated this.
 
 Already-planted hosts migrate on re-plant: the marked block moves to `AGENTS.md`, the pointer is left in its place, and the move surfaces through the sentinel as honest drift needing consent (`--force`) — the same path a drifted block and a mode switch already take. Moving it silently would strand the block in a file the new pointer no longer carries.
+
+Spec: specs/074-agents-md
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
