@@ -1,15 +1,16 @@
 ---
 name: start
-version: 0.2.0
-description: Initialize a new Socratic learning project in a folder, OR update an existing one to the current plugin version. Use when the user wants to set up educate, bootstrap a learnings folder, start a learning project, create the structure for educate lessons, or migrate/upgrade an existing educate project after a plugin update. Plants (or refreshes) the always-on CLAUDE.md, the lesson template, and the progress schema, then verifies the setup.
+version: 0.3.0
+description: Initialize a new Socratic learning project in a folder, OR update an existing one to the current plugin version. Use when the user wants to set up educate, bootstrap a learnings folder, start a learning project, create the structure for educate lessons, or migrate/upgrade an existing educate project after a plugin update. Plants (or refreshes) the always-on AGENTS.md (with a CLAUDE.md pointer), the lesson template, and the progress schema, then verifies the setup.
 ---
 
 # educate:start — the installer
 
-This skill stamps out a **learning project**: a folder whose own `CLAUDE.md` carries the
-always-on orchestration rules, plus the scaffolding every lesson needs. It is the answer
+This skill stamps out a **learning project**: a folder whose own `AGENTS.md` carries the
+always-on orchestration rules, plus the scaffolding every lesson needs. `CLAUDE.md` is a
+thin pointer (`@AGENTS.md`) so Claude Code loads the same bytes. It is the answer
 to "a plugin has no always-on slot" — instead of bundling always-on context, the plugin
-*plants* a project `CLAUDE.md`, which is always-on for free.
+*plants* a project `AGENTS.md`, which is always-on for free.
 
 It works in two modes, decided in step 2: a **fresh install** into an empty folder, and an
 **update** that migrates an already-set-up project to the current plugin version (rename
@@ -27,21 +28,24 @@ legacy scaffolding, refresh the boilerplate) without disturbing any real lesson.
    (default: the current working directory). Call it `<root>`.
 
 2. **Detect the mode.** Look at `<root>`:
-   - Neither `CLAUDE.md` nor `topics/` exists → **fresh install**: continue with steps 3–6.
-   - Either already exists → this folder is already a project. Do **not** clobber it; switch
+   - None of `AGENTS.md`, `CLAUDE.md`, `topics/` exists → **fresh install**: continue with
+     steps 3–6.
+   - Any already exists → this folder is already a project. Do **not** clobber it; switch
      to **Update an existing project** below.
 
 3. **Plant the always-on layer — render, never raw-copy.** Read
-   `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`, substitute its placeholders (the chassis
+   `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.md`, substitute its placeholders (the chassis
    `lib/template.mjs` `render()` contract — exact-text replacement is fine), and write the
-   result to `<root>/CLAUDE.md`:
+   result to `<root>/AGENTS.md`:
    - `{{PROJECT_NAME}}` → the project's name (ask the user; default: the basename of `<root>`).
    - `{{EDUCATE_PLUGIN_ROOT}}` → the absolute path of this plugin's root (the resolved value
      of `${CLAUDE_PLUGIN_ROOT}`). The planted gate/wiki commands must be runnable as written
      in the user's own shell, where `$CLAUDE_PLUGIN_ROOT` is undefined.
    Before moving on, verify no `{{…}}` token and no literal `${CLAUDE_PLUGIN_ROOT}` survives
-   in `<root>/CLAUDE.md`. This is the file that makes the lifecycle, placement rules, and
+   in `<root>/AGENTS.md`. This is the file that makes the lifecycle, placement rules, and
    Definition of Done apply on every session in this project.
+   Then write `<root>/CLAUDE.md` as exactly `@AGENTS.md\n` — the thin pointer that makes
+   Claude Code load the same bytes.
 
 4. **Plant the scaffolding:**
    - `${CLAUDE_PLUGIN_ROOT}/templates/.template/`  ->  `<root>/topics/.template/`
@@ -51,9 +55,9 @@ legacy scaffolding, refresh the boilerplate) without disturbing any real lesson.
    Copy `.template/` with a tool that preserves dotfiles (e.g. `cp -R`); some copy helpers
    skip names beginning with `.`, which would silently drop the template.
 
-5. **Verify.** List `<root>` (including dotfiles, e.g. `ls -a topics/`) and confirm `CLAUDE.md`,
-   `topics/.template/checklist.md`, `topics/.template/raw-notes.md`, and
-   `topics/progress.schema.json` all exist on disk.
+5. **Verify.** List `<root>` (including dotfiles, e.g. `ls -a topics/`) and confirm `AGENTS.md`,
+   `CLAUDE.md` (first line `@AGENTS.md`), `topics/.template/checklist.md`,
+   `topics/.template/raw-notes.md`, and `topics/progress.schema.json` all exist on disk.
    Report what was created; never claim success without listing the files.
 
 6. **Hand off.** Tell the user the project is ready and that the next move is
@@ -74,12 +78,16 @@ is to bring the *scaffolding* up to date while leaving every *real lesson* exact
    - `${CLAUDE_PLUGIN_ROOT}/templates/.template/`  ->  `<root>/topics/.template/`  (overwrite; `cp -R` to keep dotfiles)
    - `${CLAUDE_PLUGIN_ROOT}/templates/progress.schema.json`  ->  `<root>/topics/progress.schema.json`  (overwrite)
 
-3. **Reconcile `CLAUDE.md`.** It is planted boilerplate, but the user may have edited it. Diff
-   `<root>/CLAUDE.md` against the **rendered** template — `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`
+3. **Reconcile `AGENTS.md`.** It is planted boilerplate, but the user may have edited it. Diff
+   `<root>/AGENTS.md` against the **rendered** template — `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.md`
    with `{{PROJECT_NAME}}` and `{{EDUCATE_PLUGIN_ROOT}}` substituted exactly as in fresh-install
    step 3 (keep the project name already planted in the heading) — so placeholder lines never
    read as user edits. If they differ, show the user what would change and confirm before
    overwriting. Carry forward any project-specific additions — never silently discard them.
+   A legacy project with only a `CLAUDE.md` (no `AGENTS.md` yet) gets the same move offered:
+   show the diff between its `CLAUDE.md` content and the rendered template, and on consent
+   write that content to `AGENTS.md` and replace `CLAUDE.md` with the `@AGENTS.md` pointer.
+   Without consent, leave both files untouched.
 
 4. **Leave real lessons alone.** Lesson folders (`topics/<topic>/NNN-*`), their `progress.json`,
    `SERIES.md`, and any already-built `deck.html`/`guide.md` are the user's work product — do not
@@ -91,5 +99,5 @@ is to bring the *scaffolding* up to date while leaving every *real lesson* exact
    current. Report exactly what was renamed, refreshed, reconciled, and deliberately left untouched.
 
 ## After install / update
-The live workflow now lives in `<root>` (its `CLAUDE.md` governs). The plugin's job here is
-done — it was the factory, not the factory floor.
+The live workflow now lives in `<root>` (its `AGENTS.md` governs, with `CLAUDE.md` pointing
+at it). The plugin's job here is done — it was the factory, not the factory floor.
