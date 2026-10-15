@@ -59,8 +59,16 @@ clause, same as Phase 1's deviation), ahead of Phase 5's fuller docs/wiki/versio
 
 ## Phase 5 — docs, wiki, version, gates
 
-- [ ] README chassis section names the five new modules and the `pdlc doctor` CLI; `lib/README.md` and `pdlc/README.md` updated; `node scripts/check-docs.mjs` passes
-- [ ] Marketplace minor bump via `node scripts/sync-version.mjs <next minor>` above `origin/main`; `sync-version --check`, `gen-marketplace --check`, `check-version-bump --base origin/main` pass
-- [ ] `node pdlc/scripts/plant.mjs --root . --peer backlog --check` passes (re-plant if the bump drifted it)
-- [ ] Wiki: new `docs/wiki/ports-chassis.md` + INDEX + CAPSULES entries; honest re-pins of every note whose sources changed via `/grounding-wiki:wiki-update`; freshness gate passes
-- [ ] `node --test`, `node scripts/build.mjs`, `node scripts/run-gates.mjs --gates spec-bridge --path .` all green; no existing test modified except additions
+- [x] README chassis section names the five new modules and the `pdlc doctor` CLI; `lib/README.md` and `pdlc/README.md` updated; `node scripts/check-docs.mjs` passes
+- [x] Marketplace minor bump via `node scripts/sync-version.mjs <next minor>` above `origin/main`; `sync-version --check`, `gen-marketplace --check`, `check-version-bump --base origin/main` pass
+- [x] `node pdlc/scripts/plant.mjs --root . --peer backlog --check` passes (re-plant if the bump drifted it)
+- [x] Wiki: new `docs/wiki/ports-chassis.md` + INDEX + CAPSULES entries; honest re-pins of every note whose sources changed via `/grounding-wiki:wiki-update`; freshness gate passes
+- [x] `node --test`, `node scripts/build.mjs`, `node scripts/run-gates.mjs --gates spec-bridge --path .` all green; no existing test modified except additions
+
+**Deviation (Phase 5 dispatch):** `docs/wiki/pdlc-plugin.md`'s body crossed the 8000-char
+note budget by the honest addition of the new `pdlc/scripts/pdlc.mjs` mention (it was
+already at 7948/8000 before this task touched it). Marked
+`size_budget_exempt: over cap and growing — 8047/8000 at TASK-0138; splitting is separable`
+(same pattern as the pre-existing `spec-bridge-plugin.md` exemption) rather than splitting
+the note — the freshness gate treats this as a warning, not a failure, and splitting a
+component note is a separable job outside this task's scope.
