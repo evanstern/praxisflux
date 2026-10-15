@@ -3,11 +3,11 @@ id: TASK-0138
 title: >-
   Ports chassis: port registry, configurator, receipts, contract-test harness,
   pdlc doctor, credential helper
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-13 02:14'
-updated_date: '2026-10-15 17:19'
+updated_date: '2026-10-15 19:26'
 labels:
   - pdlc
   - chassis
@@ -38,21 +38,23 @@ Spec: specs/073-ports-chassis
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A port registry resolves an adapter by port and name and rejects an adapter missing a required method or a declared floor capability
-- [ ] #2 The configurator reads each port's adapter from one repo config file and falls back to detection; the config file choice is recorded in the task notes
-- [ ] #3 Receipt conventions are documented and a helper writes byte-deterministic receipts that a gate can --check
-- [ ] #4 A contract-test harness runs one node --test suite against a list of adapter factories; a demo port with a fake adapter proves it
-- [ ] #5 A pdlc CLI exists with JSON output; pdlc doctor lists each port, its configured adapter, and whether that adapter can run here
-- [ ] #6 A credential helper returns a token for a remote host via git credential fill, then env vars, and never prints the token
-- [ ] #7 No new runtime dependencies; nothing requires gh, glab, tea, backlog, rg or jq
-- [ ] #8 Tests cover registry, configurator, receipts, harness, doctor and credential helper; full suite green
-- [ ] #9 Wiki re-pinned for touched sources; marketplace and edited skill versions bumped per docs/releasing.md; gates green
-- [ ] #10 Spec phase: Phase 1 — port registry and configurator
-- [ ] #11 Spec phase: Phase 2 — receipts and contract-test harness
-- [ ] #12 Spec phase: Phase 3 — credential helper
-- [ ] #13 Spec phase: Phase 4 — pdlc CLI, doctor, and boundary checks
-- [ ] #14 Spec phase: Phase 5 — docs, wiki, version, gates
+- [x] #1 A port registry resolves an adapter by port and name and rejects an adapter missing a required method or a declared floor capability
+- [x] #2 The configurator reads each port's adapter from one repo config file and falls back to detection; the config file choice is recorded in the task notes
+- [x] #3 Receipt conventions are documented and a helper writes byte-deterministic receipts that a gate can --check
+- [x] #4 A contract-test harness runs one node --test suite against a list of adapter factories; a demo port with a fake adapter proves it
+- [x] #5 A pdlc CLI exists with JSON output; pdlc doctor lists each port, its configured adapter, and whether that adapter can run here
+- [x] #6 A credential helper returns a token for a remote host via git credential fill, then env vars, and never prints the token
+- [x] #7 No new runtime dependencies; nothing requires gh, glab, tea, backlog, rg or jq
+- [x] #8 Tests cover registry, configurator, receipts, harness, doctor and credential helper; full suite green
+- [x] #9 Wiki re-pinned for touched sources; marketplace and edited skill versions bumped per docs/releasing.md; gates green
+- [x] #10 Spec phase: Phase 1 — port registry and configurator
+- [x] #11 Spec phase: Phase 2 — receipts and contract-test harness
+- [x] #12 Spec phase: Phase 3 — credential helper
+- [x] #13 Spec phase: Phase 4 — pdlc CLI, doctor, and boundary checks
+- [x] #14 Spec phase: Phase 5 — docs, wiki, version, gates
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -69,4 +71,14 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Orchestrator re-ran all 9 runbook per-PR gates on the branch tip: all exit 0.
+
+spec-bridge sync: Phase 1 — port registry and configurator: 6/6 · Phase 2 — receipts and contract-test harness: 5/5 · Phase 3 — credential helper: 4/4 · Phase 4 — pdlc CLI, doctor, and boundary checks: 5/5 · Phase 5 — docs, wiki, version, gates: 5/5 — status In Progress → Done
+
+spec-bridge sync: Phase 1 — port registry and configurator: 6/6 · Phase 2 — receipts and contract-test harness: 5/5 · Phase 3 — credential helper: 4/4 · Phase 4 — pdlc CLI, doctor, and boundary checks: 5/5 · Phase 5 — docs, wiki, version, gates: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — port registry and configurator: 6/6 · Phase 2 — receipts and contract-test harness: 5/5 · Phase 3 — credential helper: 4/4 · Phase 4 — pdlc CLI, doctor, and boundary checks: 5/5 · Phase 5 — docs, wiki, version, gates: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
