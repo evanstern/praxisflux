@@ -16,10 +16,10 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 2 — repo tooling follows the load-bearing file
 
-- [ ] `scripts/sync-version.mjs` stamps the BEGIN marker in `AGENTS.md`, falling back to `CLAUDE.md` when AGENTS.md has no marker; `test/sync-version.test.mjs` covers both
-- [ ] `scripts/check-docs.mjs` reads `AGENTS.md` for the releasing.md link rule and asserts `CLAUDE.md`'s first line is `@AGENTS.md`; `test/check-docs.test.mjs` updated
-- [ ] Wording in `scripts/stop-docs.mjs`, `.githooks/pre-commit`, `.githooks/pre-push`, `.github/workflows/ci.yml` names AGENTS.md as the load-bearing file (CI's plant command unchanged)
-- [ ] Full suite green
+- [x] `scripts/sync-version.mjs` stamps the BEGIN marker in `AGENTS.md`, falling back to `CLAUDE.md` when AGENTS.md has no marker; `test/sync-version.test.mjs` covers both
+- [x] `scripts/check-docs.mjs` reads `AGENTS.md` for the releasing.md link rule and asserts `CLAUDE.md`'s first line is `@AGENTS.md`; `test/check-docs.test.mjs` updated
+- [x] Wording in `scripts/stop-docs.mjs`, `.githooks/pre-commit`, `.githooks/pre-push`, `.github/workflows/ci.yml` names AGENTS.md as the load-bearing file (CI's plant command unchanged)
+- [x] Full suite green
 
 ## Phase 3 — dogfood this repo, and bootstrap teaches it
 

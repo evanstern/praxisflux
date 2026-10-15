@@ -34,7 +34,7 @@ jobs:
         run: node scripts/sync-version.mjs --check
       - name: plugins package cleanly
         run: node scripts/build.mjs
-      - name: README/CLAUDE.md name what the repo ships
+      - name: README/AGENTS.md name what the repo ships
         run: node scripts/check-docs.mjs
       # This repo's own repo-STATE self-checks. They live HERE, not in `node --test`: mid-PR
       # they are red by construction (spec 057), so the per-commit path is the wrong home —
@@ -45,7 +45,7 @@ jobs:
         run: node scripts/run-gates.mjs --gates spec-bridge --path .
       - name: this repo's grounding wiki is fresh
         run: node scripts/run-gates.mjs --gates wiki-freshness --path .
-      # This repo dogfoods pdlc:bootstrap, so its CLAUDE.md carries a PLANTED grounding block
+      # This repo dogfoods pdlc:bootstrap, so its AGENTS.md carries a PLANTED grounding block
       # stamped with the plugin version that planted it. `plant.mjs --check` has always exited 1
       # on a stale or drifted footprint — but until spec 066 NOTHING invoked it (verified by grep
       # over .github/, .githooks/, scripts/), which is how praxis ran a v0.57.0 block against a

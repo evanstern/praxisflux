@@ -110,6 +110,41 @@ test("check-docs: the praxisflux repo itself is in sync", () => {
   assert.deepEqual(checkDocs(repo), []);
 });
 
+/* ── AGENTS.md as the load-bearing file (spec 074) ─────────────────────────── */
+
+test("check-docs: a pre-migration host (no AGENTS.md) falls back to CLAUDE.md for the releasing.md link, no pointer required", () => {
+  const root = fixture({ readme: GOOD_README, claude: GOOD_CLAUDE });
+  try { assert.deepEqual(checkDocs(root), []); } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("check-docs: once AGENTS.md exists, the releasing.md link rule reads it instead of CLAUDE.md", () => {
+  const root = fixture({ readme: GOOD_README, claude: "@AGENTS.md\n" });
+  try {
+    writeFileSync(join(root, "AGENTS.md"), "nothing here\n");
+    const problems = checkDocs(root);
+    assert.equal(problems.length, 1, JSON.stringify(problems));
+    assert.match(problems[0], /AGENTS\.md: does not link docs\/releasing\.md/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("check-docs: once AGENTS.md exists, CLAUDE.md must lead with the @AGENTS.md pointer", () => {
+  const root = fixture({ readme: GOOD_README, claude: "no pointer here\n" });
+  try {
+    writeFileSync(join(root, "AGENTS.md"), GOOD_CLAUDE);
+    const problems = checkDocs(root);
+    assert.equal(problems.length, 1, JSON.stringify(problems));
+    assert.match(problems[0], /CLAUDE\.md: first line is not the @AGENTS\.md pointer/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("check-docs: AGENTS.md present + pointer present passes", () => {
+  const root = fixture({ readme: GOOD_README, claude: "@AGENTS.md\n" });
+  try {
+    writeFileSync(join(root, "AGENTS.md"), GOOD_CLAUDE);
+    assert.deepEqual(checkDocs(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 /* ── stop-docs root matching: realpath both sides + separator boundary ────── */
 
 // Regression: the docs-sync Stop gate compared the ESM-realpathed repo dir against the

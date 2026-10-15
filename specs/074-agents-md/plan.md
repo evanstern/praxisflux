@@ -171,3 +171,20 @@ consent (`--force`) and the hand-move of the root's orientation prose into `AGEN
 Phase 3's "dogfood this repo" task, not Phase 1's. `scripts/sync-version.mjs --check` is
 unaffected by this PR (Phase 2 scope; it still stamps `CLAUDE.md` as before). Per the Phase 1
 dispatch brief, this is recorded here rather than fixed inline.
+
+## Phase 2 deviation note (recorded, not a scope change)
+
+Phase 2 landed `sync-version.mjs`'s AGENTS.md-then-CLAUDE.md fallback exactly as designed
+above. `check-docs.mjs` needed the same shape even though this plan's R8/design section didn't
+spell it out for it: this repo's own root carries no `AGENTS.md` yet (Phase 3's migration), and
+`checkDocs` is called directly on the real repo root by
+`test/check-docs.test.mjs`'s "the praxisflux repo itself is in sync" test (no CLI, no
+try/catch) — an unconditional `readFileSync(join(root, "AGENTS.md"))` would throw ENOENT on
+that test today, not just report a problem. `checkDocs` now reads `AGENTS.md` when present and
+falls back to `CLAUDE.md`'s content otherwise (same releasing.md-link check, message names
+whichever file it actually read); the `CLAUDE.md`-first-line-is-`@AGENTS.md` pointer check only
+applies once `AGENTS.md` exists — a pre-migration host has nothing to point at yet, and that
+migration is Phase 3's honest-drift step (`plant.mjs --force`), not this check's job. Both
+fallback branches are covered in `test/check-docs.test.mjs`. `node --test` (full suite, 1244
+tests), `node scripts/check-docs.mjs`, and `node scripts/sync-version.mjs --check` are all green
+against this repo's current pre-migration root.
