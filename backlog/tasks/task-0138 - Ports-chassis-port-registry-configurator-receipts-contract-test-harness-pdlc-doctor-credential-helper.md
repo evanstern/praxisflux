@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-13 02:14'
-updated_date: '2026-10-15 16:48'
+updated_date: '2026-10-15 16:54'
 labels:
   - pdlc
   - chassis
@@ -58,6 +58,8 @@ Spec: specs/073-ports-chassis
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator rulings 2026-10-15 (runbook docs/design/ports-rebuild-runbook.md C1/C2): C1 configurator = new .pdlc.json, operator-authored {"ports":{"<port>":"<adapter>"}}; absent file/key -> detection; .pdlc stays the plant receipt; .board.json stays tracker adapter config. C2 receipts at .<port-dir>/<noun>.json, tracked, byte-deterministic via the chassis helper; tracker keeps .board/links.json; forge reserves .forge/changes.json (TASK-0140); spec and harness have no receipt. Spec set: specs/073-ports-chassis/{spec,plan,tasks}.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 
