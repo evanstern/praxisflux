@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 17:03'
+updated_date: '2026-10-15 17:15'
 labels:
   - pdlc
   - educate
@@ -65,4 +65,7 @@ Phase 3 (dogfood + bootstrap teaches it): node pdlc/scripts/plant.mjs --root . -
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Orchestrator verification (phase 3): AGENTS.md pre-block text byte-identical to origin/main CLAUDE.md's (7398 bytes); grounding block identical except two trailing blank lines after END dropped by plant --force; CLAUDE.md is exactly '@AGENTS.md\n'.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+Phase 4 open items for operator: explainer planter left in CLAUDE.md pending OC2; educate/skills/lesson/SKILL.md has two generic 'project CLAUDE.md' mentions not in the Phase 4 list. Phase 5 held pending OC1 (release size).
 <!-- SECTION:NOTES:END -->
