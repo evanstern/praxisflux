@@ -6,7 +6,7 @@ independently installable, mutually aware, and composes only through files + gat
 calling each other directly. See `README.md` for the full picture.
 
 **Guiding principles:** shared plumbing but domain-specific content · phase-separated skills ·
-plant a project `CLAUDE.md` (plugins have no always-on slot) · gates enforce "status can't
+plant a project `AGENTS.md` (plugins have no always-on slot) · gates enforce "status can't
 exceed proven artifacts" · handoffs ride a shared transport (gitignored `.handoff/`) with
 evidence in tracked state. The foundational ("101") rules — **artifact-grounded action**
 (never act without a durable paper trail and/or gating on real evidence) and **one TASK,
@@ -30,10 +30,10 @@ Touching released surface (plugin dirs, `lib/`, `scripts/`, `.claude-plugin/`)? 
 the marketplace version — and any edited skill's own `version:` — per `docs/releasing.md`; CI
 enforces it, and each merge to `main` auto-publishes the GitHub Release `v<version>`.
 
-**Docs are load-bearing.** The grounding docs (`docs/wiki/`, `README.md`, `CLAUDE.md`) ground
+**Docs are load-bearing.** The grounding docs (`docs/wiki/`, `README.md`, `AGENTS.md`) ground
 spec-driven development here and matter as much as the code, so every PR keeps them in sync:
 finish each PR with a `/grounding-wiki:wiki-update` pass when the freshness gate fails, and
-update `README.md`/`CLAUDE.md` when what the repo ships changes. This is enforced, not
+update `README.md`/`AGENTS.md` when what the repo ships changes. This is enforced, not
 aspirational — CI, the pre-commit/pre-push hooks, and a repo Stop hook
 (`scripts/stop-docs.mjs`) all run `scripts/check-docs.mjs` plus the wiki freshness gate, and
 the Stop hook refuses to end a turn while they fail.
