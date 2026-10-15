@@ -51,11 +51,11 @@ clause, same as Phase 1's deviation), ahead of Phase 5's fuller docs/wiki/versio
 
 ## Phase 4 — pdlc CLI, doctor, and boundary checks
 
-- [ ] `pdlc/scripts/pdlc.mjs` (dual-use, `runAsCli`): `doctor` subcommand, JSON stdout, exit 2 on usage error, exit 1 with `{ "error" }` on config error; injectable `libDir`
-- [ ] Doctor JSON matches the spec R5 shape, including `config` and `plantReceipt` entries
-- [ ] `test/pdlc-doctor.test.mjs`: real repo (`ports: []`), demo fixture via config, via detection, unrunnable adapter with reason, malformed `.pdlc.json`
-- [ ] `test/ports-chassis-boundaries.test.mjs`: the five new modules and `pdlc.mjs` import no `node:http`/`https`/`net`/`tls`, call no `fetch(`, spawn no `gh`/`glab`/`tea`/`backlog`/`rg`/`jq`
-- [ ] Doctor runs with `PATH` reduced to the dirs holding `git` and `node` (test)
+- [x] `pdlc/scripts/pdlc.mjs` (dual-use, `runAsCli`): `doctor` subcommand, JSON stdout, exit 2 on usage error, exit 1 with `{ "error" }` on config error; injectable `libDir`
+- [x] Doctor JSON matches the spec R5 shape, including `config` and `plantReceipt` entries
+- [x] `test/pdlc-doctor.test.mjs`: real repo (`ports: []`), demo fixture via config, via detection, unrunnable adapter with reason, malformed `.pdlc.json`
+- [x] `test/ports-chassis-boundaries.test.mjs`: the five new modules and `pdlc.mjs` import no `node:http`/`https`/`net`/`tls`, call no `fetch(`, spawn no `gh`/`glab`/`tea`/`backlog`/`rg`/`jq`
+- [x] Doctor runs with `PATH` reduced to the dirs holding `git` and `node` (test)
 
 ## Phase 5 — docs, wiki, version, gates
 
