@@ -62,6 +62,11 @@ read/write/check, `docs/receipts.md`) · `contract-harness` (pdlc ports chassis:
 assertion suite run against every port adapter) · `credentials` (pdlc ports chassis:
 resolve a forge token via `git credential fill` then env vars, never a prompt).
 
+The ports chassis' driving side is `pdlc/scripts/pdlc.mjs` (dual-use CLI, `runAsCli`):
+`node pdlc/scripts/pdlc.mjs doctor` prints JSON naming every registered port, its resolved
+adapter and how it was chosen (config/detected/none), and whether it can run here. No port
+is registered yet — `lib/ports/*.mjs` and `lib/adapters/**` land in TASK-0139..0142.
+
 ## Principles
 
 The foundational ("101") rules are stated canonically in
