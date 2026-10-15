@@ -59,7 +59,8 @@ fail-soft calls to a local model) · `port-registry` (pdlc ports chassis: port/a
 registration and resolve) · `pdlc-config` (pdlc ports chassis: `.pdlc.json` adapter
 configurator) · `receipts` (pdlc ports chassis: byte-deterministic `.<port-dir>/<noun>.json`
 read/write/check, `docs/receipts.md`) · `contract-harness` (pdlc ports chassis: one
-assertion suite run against every port adapter).
+assertion suite run against every port adapter) · `credentials` (pdlc ports chassis:
+resolve a forge token via `git credential fill` then env vars, never a prompt).
 
 ## Principles
 

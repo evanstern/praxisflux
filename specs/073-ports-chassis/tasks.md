@@ -44,10 +44,10 @@ clause, same as Phase 1's deviation), ahead of Phase 5's fuller docs/wiki/versio
 
 ## Phase 3 — credential helper
 
-- [ ] `lib/credentials.mjs`: `resolveToken`, `describeToken` per spec R6 (git credential fill → env vars → null; no prompt; timeout)
-- [ ] `test/credentials.test.mjs`: stubbed spawn for success, nonzero exit, missing git, empty password → env fallback, env order respected
-- [ ] One integration test drives real `git credential fill` through a fixture `credential.helper` under a temp `GIT_CONFIG_GLOBAL`/`HOME`, never the operator's keychain
-- [ ] A test asserts the token never appears in captured stdout/stderr of any chassis call
+- [x] `lib/credentials.mjs`: `resolveToken`, `describeToken` per spec R6 (git credential fill → env vars → null; no prompt; timeout)
+- [x] `test/credentials.test.mjs`: stubbed spawn for success, nonzero exit, missing git, empty password → env fallback, env order respected
+- [x] One integration test drives real `git credential fill` through a fixture `credential.helper` under a temp `GIT_CONFIG_GLOBAL`/`HOME`, never the operator's keychain
+- [x] A test asserts the token never appears in captured stdout/stderr of any chassis call
 
 ## Phase 4 — pdlc CLI, doctor, and boundary checks
 
