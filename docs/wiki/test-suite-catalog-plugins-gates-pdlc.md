@@ -7,7 +7,7 @@ sources:
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
   - test/read-size-gate.test.mjs
-verified_against: 266c5c04f8774deb7059f85ea43502694c677fb9
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
@@ -26,7 +26,8 @@ One bullet per `test/*.test.mjs` file:
   (`pdlc/scripts/tiers.mjs`, TASK-106): open tier map, generated `model:` equal to the
   config, named schema rejections; planting fresh/append/idempotent, peer-change drift,
   `--check` writing nothing and exiting 1 — one drifted/`--force` contract covers the
-  CLAUDE.md block and a hand-authored tier def; the `peersOmitted` trace (one stderr notice
+  AGENTS.md block (plus the legacy CLAUDE.md-resident block's migration) and a
+  hand-authored tier def; the `peersOmitted` trace (one stderr notice
   per omitted peer, legacy sentinels readable); the `resolveProjectName` ladder (override >
   recorded > worktree > basename); the `jira` peer (spec 054) — three-member `PEERS` with a
   `backlog`/`jira` mutual-exclusion throw, `pdlc:peer:jira` render/strip via `--peer jira`
@@ -46,11 +47,11 @@ One bullet per `test/*.test.mjs` file:
   pointer-file case (resolves to the real gitdir), and the no-`.git` degradation (never
   throws); `plant --local-only` writing the scoped set and leaving `.gitignore` absent vs.
   tracked mode staying byte-for-byte unchanged; the R3 write-**order** assertion via
-  nanosecond mtimes (exclude lands before `CLAUDE.md`/the sentinel — not merely present by
+  nanosecond mtimes (exclude lands before `AGENTS.md`/`CLAUDE.md`/the sentinel — not merely present by
   the time `plant()` returns) plus the companion `git status --porcelain` empty check; the
   `localOnly` sentinel field (absent-tolerant, byte/mtime-stable no-op re-plants, legacy
   sentinels left untouched); and mode-switch drift — its own `modeSwitch` field
-  (`none`/`drifted`/`applied`), diagnosable apart from `claudeMd`, an unconfirmed switch
+  (`none`/`drifted`/`applied`), diagnosable apart from `agentsMd`/`claudeMd`, an unconfirmed switch
   leaving the sentinel AND `--check` provably unmoved, `--force` as the only path to
   `applied`, proven both directions (tracked→local-only and back) and through the real CLI;
   and the **planted-block drift gate** (spec 066) — the four tests that make `--check`'s

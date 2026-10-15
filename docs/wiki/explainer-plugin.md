@@ -14,8 +14,8 @@ sources:
   - explainer/scripts/explainer.mjs
   - explainer/scripts/lib/check.mjs
   - explainer/scripts/lib/plant.mjs
-  - explainer/templates/CLAUDE.md
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+  - explainer/templates/AGENTS.md
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # explainer plugin
@@ -54,9 +54,11 @@ plugins compose through files, not code.
 directory holding `contents.json` + `dist/` and blocks while a built page loads an
 external resource.
 
-**Planting.** `explainer.mjs plant [--check]` lands a marked block from
-`templates/CLAUDE.md` in the host's `CLAUDE.md` — created, appended, or replaced between
-markers; text outside the markers is never touched. Pipeline step 0 runs `--check`.
+**Planting.** `explainer.mjs plant [--check] [--force]` lands a marked block from
+`templates/AGENTS.md` in the host's `AGENTS.md` — created, appended, or replaced between
+markers — plus a thin `@AGENTS.md` pointer kept in `CLAUDE.md`; text outside the markers
+is never touched. A legacy block still resident in `CLAUDE.md` (pre-074) reports `drifted`
+and migrates only under `--force`, never silently. Pipeline step 0 runs `--check`.
 
 ## Connections
 

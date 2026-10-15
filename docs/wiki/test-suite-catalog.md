@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -69,7 +69,7 @@ One bullet per `test/*.test.mjs` file:
   install path containing a space (the hooks.json command must quote the
   `${CLAUDE_PLUGIN_ROOT}` expansion). Runs hooks as Claude Code spawns them, not
   in-process; also its own CI job.
-  Plus educate's plant simulation: the rendered `templates/CLAUDE.md` (placeholders
+  Plus educate's plant simulation: the rendered `templates/AGENTS.md` (placeholders
   substituted as `educate:start` instructs) leaves no `{{…}}`/`${CLAUDE_PLUGIN_ROOT}`
   behind, and every planted command runs as written from a user project with
   `CLAUDE_PLUGIN_ROOT` scrubbed from the environment.

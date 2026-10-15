@@ -6,7 +6,7 @@ sources:
   - docs/skill-patterns.md
   - lib/lifecycle.mjs
   - lib/gate-runner.mjs
-verified_against: c58d21d3a9fcd6274686c72c9e4234feda787485
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Gates convention

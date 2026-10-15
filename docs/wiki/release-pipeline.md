@@ -8,7 +8,7 @@ sources:
   - .github/workflows/release.yml
   - .githooks/pre-push
   - docs/releasing.md
-verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Release pipeline
@@ -32,7 +32,7 @@ over the base's, and the tag `v<version>` must not already exist; `docs/`, `back
 skill is skipped; a non-semver base version like `v0.1.0` is a named failure — never a
 silent skip of the increase check). Every SKILL.md carries a `version:` for this purpose. Bump-size guidance
 (patch/minor/major, the skill rule, recipes) lives in `docs/releasing.md`, linked from
-`CLAUDE.md` — as does the **re-plant obligation** a bump carries for downstream hosts
+`AGENTS.md` — as does the **re-plant obligation** a bump carries for downstream hosts
 ("Re-planting a downstream project after an upgrade": the `.pdlc`-vs-installed staleness test,
 the bootstrap → `--check` → diff → consent → `--force` sequence, and the rule that project
 edits belong outside the markers because the block refreshes wholesale).
