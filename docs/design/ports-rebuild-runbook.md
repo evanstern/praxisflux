@@ -7,7 +7,7 @@ conflicts as routine. Direction is decided; do not re-litigate it: decision-0002
 2026-10-12) and `vault/Ports-and-Adapters-for-PDLC/Analysis-Rebuild-Architecture.md` win.
 Plan-of-record is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** draft · operator sign-off on lanes: pending
+**Status:** signed-off · operator sign-off on lanes: 2026-10-15 (operator, in session; C1/C2 ruled same day)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
 
@@ -235,4 +235,4 @@ Dependencies: 0140 and 0141 need 0138. 0139 needs 0138 and 0134. 0142 needs 0141
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-13 | — | — | — | — | runbook authored (draft); awaiting operator sign-off + C1/C2 |
-| 2026-10-15 | — | — | — | — | C1 (.pdlc.json) and C2 (.<port>/<noun>.json) ruled by operator; lane sign-off still pending |
+| 2026-10-15 | — | — | — | — | C1 (.pdlc.json) and C2 (.<port>/<noun>.json) ruled by operator; lanes signed off same day; execution started |
