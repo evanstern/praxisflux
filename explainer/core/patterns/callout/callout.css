@@ -1,0 +1,38 @@
+/* core/patterns/callout — note / caution / key / aside callouts. One
+   shape, four kinds: only the background and tag colour change per kind.
+   Full width by construction — block-level content is never
+   prose-width-constrained inside .ex-page-body (shell.css), so a callout
+   with no explicit max-width already spans the full column. Built on the
+   --ex-callout-* token pairs (core/brand/tokens.json) rather than its own
+   one-off colour variables. */
+
+.ex-callout {
+  margin: 20px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  background: var(--ex-bg-elevated);
+}
+.ex-callout > * + * { margin-top: .5em; }
+.ex-callout p, .ex-callout li { max-width: none; }
+
+.ex-callout-tag {
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ex-ink-muted);
+}
+
+.ex-callout--note { border-color: transparent; background: var(--ex-callout-note-bg); }
+.ex-callout--note .ex-callout-tag { color: var(--ex-callout-note); }
+
+.ex-callout--caution { border-color: transparent; background: var(--ex-callout-caution-bg); }
+.ex-callout--caution .ex-callout-tag { color: var(--ex-callout-caution); }
+
+.ex-callout--key { border-color: transparent; background: var(--ex-callout-key-bg); }
+.ex-callout--key .ex-callout-tag { color: var(--ex-callout-key); }
+
+.ex-callout--aside { border-color: transparent; background: var(--ex-callout-aside-bg); }
+.ex-callout--aside .ex-callout-tag { color: var(--ex-callout-aside); }

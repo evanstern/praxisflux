@@ -1,0 +1,35 @@
+<h3>Grade table</h3>
+<p>Three options scored against three criteria, with one option picked and highlighted.</p>
+
+<div class="ex-table">
+  <table>
+    <thead>
+      <tr><th>Option</th><th>Setup cost</th><th>Operating cost</th><th>Lock-in</th></tr>
+    </thead>
+    <tbody>
+      <tr class="ex-table-pick">
+        <td><strong>Managed queue</strong></td>
+        <td><span class="ex-grade ex-grade--good">●</span> low</td>
+        <td><span class="ex-grade ex-grade--good">●</span> low</td>
+        <td><span class="ex-grade ex-grade--caution">◐</span> moderate</td>
+      </tr>
+      <tr>
+        <td><strong>Self-hosted queue</strong></td>
+        <td><span class="ex-grade ex-grade--bad">○</span> high</td>
+        <td><span class="ex-grade ex-grade--caution">◐</span> moderate</td>
+        <td><span class="ex-grade ex-grade--good">●</span> low</td>
+      </tr>
+      <tr>
+        <td><strong>No queue</strong></td>
+        <td><span class="ex-grade ex-grade--good">●</span> none</td>
+        <td><span class="ex-grade ex-grade--bad">○</span> high at scale</td>
+        <td><span class="ex-grade ex-grade--good">●</span> low</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="ex-table-legend">
+    <span class="ex-grade ex-grade--good">●</span> strong ·
+    <span class="ex-grade ex-grade--caution">◐</span> partial ·
+    <span class="ex-grade ex-grade--bad">○</span> weak. The highlighted row is the pick.
+  </p>
+</div>

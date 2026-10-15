@@ -1,0 +1,39 @@
+<!-- Single-shape document skeleton. lib/shell.mjs
+     fills in the {{PLACEHOLDER}} tokens with a plain string replace (Node
+     built-ins only — no templating engine): STYLE is the brand CSS
+     plus shell.css plus every used pattern's CSS, inlined in one <style>;
+     SCRIPT is shell.js plus every used pattern's JS, inlined in one
+     <script>. Self-contained: no external src/href anywhere. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{TITLE}}</title>
+<style>
+{{STYLE}}
+</style>
+</head>
+<body>
+<div class="ex-shell">
+<header class="ex-topbar">
+<button type="button" class="ex-pages-toggle" aria-expanded="false" aria-controls="ex-menu">Pages</button>
+<div class="ex-title">{{TITLE}}</div>
+{{PRESENTER}}
+<button type="button" class="ex-theme-toggle" id="ex-theme-toggle" aria-label="Toggle color theme">Theme: auto</button>
+</header>
+<div class="ex-shell-body">
+<nav class="ex-menu" id="ex-menu" aria-label="Pages">
+{{MENU}}
+</nav>
+<main class="ex-main">
+{{PAGES}}
+</main>
+</div>
+</div>
+{{DATA}}
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>

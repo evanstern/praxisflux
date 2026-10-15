@@ -1,0 +1,104 @@
+<h3>Info: one component for every "more detail" need</h3>
+<p>Six worked examples below, one per usage category — a definition, a diagram
+node with real files behind it, a step sequence with previous/next, an
+annotated field in a data structure, a payload too large to show inline, and
+a narrative "who handles it next" link. A legacy <code>data-panel</code>
+alias closes it out. Every trigger's visible cue — its underline style and
+icon — is automatic; nothing below hand-styles a trigger.</p>
+
+<h4>1. Define a term inline</h4>
+<p>A <x-info k="port-def">port</x-info> is a fixed plug shape a caller codes
+against.</p>
+
+<h4>2. Detail behind a diagram node</h4>
+<div class="ex-diagram">
+  <svg viewBox="0 0 220 90">
+    <g class="ex-node" data-info="dispatcher" tabindex="0" aria-label="core.py dispatcher">
+      <rect x="10" y="10" width="140" height="70" rx="8" class="ex-box"></rect>
+      <text x="20" y="45" class="ex-t">core.py</text>
+    </g>
+  </svg>
+</div>
+<p>Click the dispatcher box above for the real file and the functions involved.</p>
+
+<h4>3. A flow/decision step sequence, with previous/next</h4>
+<ol>
+  <li data-info="step-receive" tabindex="0">Receive the request</li>
+  <li data-info="step-validate" tabindex="0">Validate the envelope</li>
+  <li data-info="step-dispatch" tabindex="0">Dispatch to a handler</li>
+</ol>
+
+<h4>4. Annotate a field in a data structure</h4>
+<p>The reference site's own most-used shape: a clickable marker on a value
+inside a code block, not a separate table.</p>
+<x-example kind="illustrative" lang="json" file="response.json">
+{
+  "status": <span data-info="field-status" tabindex="0">"ok"</span>,
+  "latencyMs": <span data-info="field-latency" tabindex="0">42</span>
+}
+</x-example>
+<p>Click a highlighted value above for what it means. The same key also
+works as a plain table cell, a second, secondary form, when the detail is a
+label rather than a code value:</p>
+<table>
+  <tr><td data-info="field-status" tabindex="0">status</td><td>One of <code>ok</code>/<code>retry</code>/<code>fail</code>.</td></tr>
+  <tr><td data-info="field-latency" tabindex="0">latencyMs</td><td>Wall-clock time the adapter spent.</td></tr>
+</table>
+
+<h4>5. Evidence too large to show inline</h4>
+<p>See <x-info k="full-payload">the full response payload</x-info> for every
+field, not only the ones called out above.</p>
+
+<h4>6. Narrative continuation — who handles it next</h4>
+<p>Once dispatched, see <x-info k="next-handler">who renders the
+response</x-info>.</p>
+
+<h4>A legacy panel alias still works</h4>
+<table>
+  <tr><td data-panel="exit-code">0</td><td>success (legacy contents.json panels[] alias)</td></tr>
+</table>
+
+<x-info-body k="port-def" mode="popover" title="Port">
+  <p>A boundary interface the application core defines; an adapter implements
+  it.</p>
+</x-info-body>
+
+<x-info-body k="dispatcher" title="core.py: the dispatcher" files="explainer/scripts/lib/includes.mjs:179">
+  <p>Routes a trigger's key to the matching entry at build time.</p>
+</x-info-body>
+
+<x-info-body k="step-receive" title="Receive the request" seq="steps" order="1">
+  <p>The adapter reads the raw request off the transport.</p>
+</x-info-body>
+<x-info-body k="step-validate" title="Validate the envelope" seq="steps" order="2">
+  <p>The envelope's shape is checked against its schema before anything else
+  runs.</p>
+</x-info-body>
+<x-info-body k="step-dispatch" title="Dispatch to a handler" seq="steps" order="3">
+  <p>The dispatcher looks up the handler registered for this envelope's
+  kind.</p>
+</x-info-body>
+
+<x-info-body k="field-status" title="status">
+  <p>One of <code>ok</code>, <code>retry</code>, or <code>fail</code> — the
+  only field a caller branches on.</p>
+</x-info-body>
+<x-info-body k="field-latency" title="latencyMs">
+  <p>Wall-clock time the adapter spent, measured at the boundary.</p>
+</x-info-body>
+
+<x-info-body k="full-payload" title="Full response payload">
+  <div class="ex-code" data-tag="Illustrative">
+    <div class="ex-code-head"><span class="ex-code-tag">Illustrative</span><span class="ex-code-file">response.json</span></div>
+    <pre class="ex-code-pre" tabindex="0"><code class="ex-code-lang-json">{
+  "status": "ok",
+  "latencyMs": 42,
+  "handledBy": "dispatcher"
+}</code></pre>
+  </div>
+</x-info-body>
+
+<x-info-body k="next-handler" title="Who handles it next" see="demo">
+  <p>The matched handler builds the response envelope and hands it back to
+  the adapter that received the original request.</p>
+</x-info-body>

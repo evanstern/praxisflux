@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "title": "New Decision Briefing",
+  "kind": "decision-briefing",
+  "brand": "neutral",
+  "voice": "none",
+  "groups": [
+    {
+      "id": "start",
+      "title": "Start here"
+    },
+    {
+      "id": "verdict",
+      "title": "Verdict"
+    },
+    {
+      "id": "evidence",
+      "title": "Evidence"
+    },
+    {
+      "id": "plan",
+      "title": "Plan"
+    },
+    {
+      "id": "reference",
+      "title": "Reference"
+    }
+  ],
+  "pages": [
+    {
+      "id": "start-here",
+      "title": "Start here",
+      "group": "start",
+      "type": "start-here"
+    },
+    {
+      "id": "verdict-list",
+      "title": "Verdict",
+      "group": "verdict",
+      "type": "verdict-list"
+    },
+    {
+      "id": "needs-register",
+      "title": "Needs register",
+      "group": "evidence",
+      "type": "needs-register"
+    },
+    {
+      "id": "option-comparison",
+      "title": "Option comparison",
+      "group": "evidence",
+      "type": "option-comparison"
+    },
+    {
+      "id": "same-direction-refinements",
+      "title": "Same direction, N refinements",
+      "group": "evidence",
+      "type": "same-direction-refinements"
+    },
+    {
+      "id": "breakage-matrix",
+      "title": "What breaks if…",
+      "group": "evidence",
+      "type": "breakage-matrix"
+    },
+    {
+      "id": "plan-timeline",
+      "title": "Plan and timeline",
+      "group": "plan",
+      "type": "plan-timeline"
+    },
+    {
+      "id": "case-study-evidence",
+      "title": "Case-study evidence",
+      "group": "evidence",
+      "type": "case-study-evidence"
+    },
+    {
+      "id": "open-questions",
+      "title": "Open questions",
+      "group": "plan",
+      "type": "open-questions"
+    },
+    {
+      "id": "generated-sources",
+      "title": "Sources",
+      "group": "reference",
+      "type": "generated-sources"
+    }
+  ],
+  "terms": [],
+  "sources": [],
+  "live": {
+    "comments": true,
+    "presenter": true
+  },
+  "publish": {
+    "url": null,
+    "shape": "single"
+  }
+}

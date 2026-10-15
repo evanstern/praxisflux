@@ -1,0 +1,5 @@
+/* Deliberately incomplete fixture brand: defines --ex-bg only, missing
+   --ex-ink and --ex-shadow, to exercise build()'s brand validation. */
+:root {
+  --ex-bg: #ffffff;
+}

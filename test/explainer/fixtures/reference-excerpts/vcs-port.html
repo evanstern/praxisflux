@@ -1,0 +1,45 @@
+<!--
+  Excerpted and rewritten into the authoring dialect from the reference site
+  at an earlier project's docs/design/vcs-port-architecture/
+  (ports-and-adapters.html's concept paragraph + hexagon diagram, and
+  merge-control.html's "Known limitation" callout). Source conventions this
+  rewrite maps onto the dialect:
+    - `<a class="term" data-term="port">` (site.js VcsInfo/TERMS)  -> x-term
+    - `<code class="path">…</code>` linking to a GitHub blob         -> x-file
+    - the footer "Sources" list                                     -> x-cite
+    - `<g class="node" data-panel="core">` (site.js initNodePanels)  -> kept
+      as-is (data-panel is validated, not expanded — the shell wires the
+      actual panel JS); fills/strokes changed from the reference site's
+      CSS-custom-property fill/stroke attributes to ex-box/ex-box-new
+      classes (hand SVG uses only pattern classes, never a CSS
+      variable or a literal colour in an attribute).
+-->
+<p>A <x-term k="port">port</x-term> is one fixed plug shape. An
+<x-term k="adapter">adapter</x-term> is whatever you wire into that plug —
+GitHub today, Azure DevOps today, a third host later, without changing the
+plug itself. Click either adapter box below for its key functions and real
+file.</p>
+
+<div class="ex-diagram-wrap">
+<svg viewBox="0 0 640 260" width="640" height="260" role="img" aria-label="A hexagonal port labeled vcs.v1 with two plugs">
+<title>The port-and-adapter shape: one port, two interchangeable adapters</title>
+<g class="ex-node" data-panel="core">
+<rect x="10" y="100" width="120" height="60" rx="10" class="ex-box"></rect>
+<text x="70" y="126" text-anchor="middle" class="ex-t">core.py</text>
+</g>
+<g class="ex-node" data-panel="adapter-gh">
+<rect x="424" y="40" width="200" height="60" rx="10" class="ex-box-new"></rect>
+<text x="524" y="66" text-anchor="middle" class="ex-t">GitHubAdapter</text>
+</g>
+</svg>
+</div>
+<p class="ex-diagram-caption"><x-file p="plugins/sdlc-pipeline-plugin/scripts/vcs_lib/core.py" l="120"/>:
+<code>ADAPTERS = {"github": GitHubAdapter, "azure-devops": AzureDevOpsAdapter}</code>, selected by
+<code>identity.py</code>'s resolved provider. See <x-cite s="s-vcs-v1"/> for the full action list.</p>
+
+<div class="ex-callout ex-callout-caution">
+<div class="ex-callout-tag">Known limitation</div>
+<p>The compensating control is <strong>detection, not prevention</strong>: by the time the
+independent read disagrees, nothing has been corrected, only stopped before (or flagged after) a
+write. <x-cite s="s-vcs-core"/></p>
+</div>

@@ -1,9 +1,11 @@
 ---
 id: TASK-0137
 title: 'explainer: adopt the explainer plugin into the praxisflux marketplace'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-13 01:38'
+updated_date: '2026-10-13 19:05'
 labels:
   - plugin
   - explainer
@@ -44,12 +46,39 @@ Open decisions for the spec:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The plugin lives at <repo-root>/explainer/ with a lib -> ../lib symlink and is listed in .claude-plugin/marketplace.json.
-- [ ] #2 The plugin ships no package.json; repo-level build and version tooling packages it.
-- [ ] #3 Read-only checks live in explainer/gates/ and never write to disk.
-- [ ] #4 The output gate verifies every built page with lib/selfcontained.mjs.
-- [ ] #5 No file cites an internal code with no shipped referent (TASK-12.x, build spec sections, E-series decision records).
-- [ ] #6 The explainer test suite runs from the repo test/ directory and passes under node --test.
-- [ ] #7 README.md, CLAUDE.md, and docs/wiki describe the new plugin, and scripts/check-docs.mjs passes.
-- [ ] #8 The marketplace version is bumped per docs/releasing.md.
+- [x] #1 The plugin lives at <repo-root>/explainer/ with a lib -> ../lib symlink and is listed in .claude-plugin/marketplace.json.
+- [x] #2 The plugin ships no package.json; repo-level build and version tooling packages it.
+- [x] #3 Read-only checks live in explainer/gates/ and never write to disk.
+- [x] #4 The output gate verifies every built page with lib/selfcontained.mjs.
+- [x] #5 No file cites an internal code with no shipped referent (TASK-12.x, build spec sections, E-series decision records).
+- [x] #6 The explainer test suite runs from the repo test/ directory and passes under node --test.
+- [x] #7 README.md, CLAUDE.md, and docs/wiki describe the new plugin, and scripts/check-docs.mjs passes.
+- [x] #8 The marketplace version is bumped per docs/releasing.md.
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Scaffold explainer/ via new-plugin.mjs --with-gate; copy source from the clean repo.
+2. Move the suite to test/explainer/; fix plugin-root paths.
+3. Split check: read-only checks to gates/check.mjs; scripts/lib/check.mjs keeps browser runs and report writes.
+4. Route self.contained through lib/selfcontained.mjs; teach it protocol-relative URLs.
+5. Wire the Stop hook: built dist pages must stay self-contained.
+6. Plant a marked CLAUDE.md block in host projects (explainer.mjs plant).
+7. Add docs/wiki as a fact source; warn when a cited wiki note is stale.
+8. Docs sync (README, CLAUDE.md, wiki), version bump, full gates.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Branch task-0137-explainer-plugin, commits 617c27c (adoption) and 1d28e7a (wiki re-ground).
+- Suite: node --test 1231/1231 (explainer 587 in test/explainer/).
+- Gates: gen-marketplace --check, sync-version --check (0.66.0), build.mjs (lib dereferenced, no tests packaged), check-docs, wiki freshness (44 notes) all pass.
+- lib/selfcontained.mjs gained externalLoads() and counts protocol-relative URLs as external; existing callers unchanged.
+- Wiki added as a source kind (all four profiles), fact-gatherer/fact-checker prompts, and a wiki.fresh warning check.
+- explainer.mjs plant replaces the sources stub; Stop hook keeps dist/ self-contained.
+Not done: push and PR — awaiting operator review.
+
+CI fix on PR #154: plant --check failed (claudeMd drifted) because the 0.66.0 bump left the planted CLAUDE.md marker and .pdlc at 0.65.3 — the same drift each release has needed a hand re-stamp for (8526891, b1cf2bd). sync-version.mjs now stamps both and reports them in --check (ef405b1, test added); wiki re-pinned in 46fb3a0.
+<!-- SECTION:NOTES:END -->

@@ -1,0 +1,18 @@
+<h3>Term definition refinements</h3>
+<p>A term's <code>def</code> HTML (in <code>contents.json</code> <code>terms[]</code>) can use these two
+optional classes — shown here as they would render inside the popover or on the generated Terms page;
+the trigger markup itself (<code>a.ex-term</code>, the popover, the Terms page) is the shell's own.</p>
+
+<dl class="ex-glossary">
+  <dt id="terms--demo">demo</dt>
+  <dd>
+    A short definition sentence.
+    <span class="ex-term-eg">e.g. "staging demo"</span>
+    <p class="ex-term-also">See also <a href="#terms--other" class="ex-term-see">other</a>.</p>
+  </dd>
+</dl>
+
+<h4>The trigger (reference only — not this pattern's own classes)</h4>
+<p>A real page writes <code>&lt;x-term k="demo"&gt;demo&lt;/x-term&gt;</code>; the build expands it to
+exactly this anchor, which is what opens the popover above:</p>
+<p><a class="ex-term" data-term="demo" href="#terms--demo">demo</a></p>

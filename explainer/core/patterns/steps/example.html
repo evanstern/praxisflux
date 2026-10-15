@@ -1,0 +1,20 @@
+<h3>Stage flow: opening a PR</h3>
+<p>Click any step for the detail that doesn't fit inline.</p>
+<ol class="ex-steps" aria-label="Sequence, click any step for detail">
+  <li class="ex-steps-item" data-panel="st-1" tabindex="0">
+    <span class="ex-steps-who">pr-review &rarr; core.py</span>
+    <div class="ex-steps-what">Push the branch, then call <code>open_pr</code>.</div>
+  </li>
+  <li class="ex-steps-item" data-panel="st-2" tabindex="0">
+    <span class="ex-steps-who">core.py &rarr; GitHubAdapter</span>
+    <div class="ex-steps-what">Check for an existing PR on the source branch — none found.</div>
+  </li>
+  <li class="ex-steps-item" data-panel="st-3" tabindex="0">
+    <span class="ex-steps-who">GitHubAdapter &rarr; api.github.com</span>
+    <div class="ex-steps-what">Create the PR on the host.</div>
+  </li>
+  <li class="ex-steps-item" data-panel="st-4" tabindex="0">
+    <span class="ex-steps-who">core.py &rarr; pr-review</span>
+    <div class="ex-steps-what">One <code>VerdictEnvelope</code> back on stdout, exit 0.</div>
+  </li>
+</ol>

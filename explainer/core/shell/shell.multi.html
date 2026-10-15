@@ -1,0 +1,40 @@
+<!-- Multi-shape document skeleton, one per page.
+     lib/shell.mjs fills in the {{PLACEHOLDER}} tokens with a plain string
+     replace, once per page: MENU/PAGES/DATA differ per file (PAGES holds
+     only this one page's <section class="ex-page">, with aria-current
+     already baked into its own menu/pager since the "current" page is
+     known at build time for each file — unlike the single shape, which
+     must set aria-current client-side). STYLE and SCRIPT are NOT inlined
+     here: they are written once as sibling site.css/site.js (lib/shell.mjs)
+     and referenced by a local, relative path — still self-contained
+     (no *external* src/href), since every build of one explainer
+     ships its own copy of both. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="site.css" />
+</head>
+<body>
+<div class="ex-shell">
+<header class="ex-topbar">
+<button type="button" class="ex-pages-toggle" aria-expanded="false" aria-controls="ex-menu">Pages</button>
+<div class="ex-title">{{TITLE}}</div>
+{{PRESENTER}}
+<button type="button" class="ex-theme-toggle" id="ex-theme-toggle" aria-label="Toggle color theme">Theme: auto</button>
+</header>
+<div class="ex-shell-body">
+<nav class="ex-menu" id="ex-menu" aria-label="Pages">
+{{MENU}}
+</nav>
+<main class="ex-main">
+{{PAGES}}
+</main>
+</div>
+</div>
+{{DATA}}
+<script src="site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+/* core/patterns/term — optional refinements for content INSIDE a term's
+   `def` HTML (contents.json `terms[].def`). The trigger markup
+   (`a.ex-term`, the popover/bottom-sheet, the generated Terms page) is the
+   shell's own (core/shell/shell.css/shell.js) and is never
+   re-implemented here — term and panel style/extend the shell's info
+   component, they never re-implement it. This pattern
+   ships no JS — `def` is static HTML, injected verbatim by the shell. */
+
+.ex-term-eg {
+  display: inline-block;
+  margin-left: .4em;
+  color: var(--ex-ink-muted);
+  font-style: italic;
+  font-size: .92em;
+}
+
+.ex-term-also {
+  margin: .5em 0 0;
+  font-size: .85em;
+  color: var(--ex-ink-muted);
+}

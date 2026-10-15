@@ -1,0 +1,58 @@
+/* core/patterns/annotated-json — JSON with numbered annotation markers
+   mapped to a schema/notes table below it. Rewritten from an earlier
+   data-panel/popover wiring onto a plain numbered anchor + `:target`
+   highlight, so this pattern needs no JS and
+   no contents.json `panels[]` declaration — use `panel`/`[data-panel]`
+   instead on a page that wants a popover rather than a table row. The
+   notes table itself is a real `<table>`: add the `table` pattern's
+   `ex-table` class alongside `ex-annotated-json-table` for its border/
+   scroll-wrapper/sticky-header styling; this pattern only adds the marker
+   badges and the jump-to-row highlight. */
+
+.ex-annotated-json { margin: 16px 0; }
+
+.ex-annotated-json-pre {
+  margin: 0 0 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  background: var(--ex-bg-sunken);
+  overflow-x: auto;
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .84rem;
+  line-height: 1.7;
+  color: var(--ex-ink);
+}
+
+.ex-ann-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3em;
+  height: 1.3em;
+  margin-left: .25em;
+  padding: 0 .3em;
+  border-radius: 999px;
+  background: var(--ex-accent-soft);
+  color: var(--ex-accent);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  text-decoration: none;
+  vertical-align: middle;
+}
+.ex-ann-marker:hover,
+.ex-ann-marker:focus-visible {
+  outline: 2px solid var(--ex-focus);
+  outline-offset: 1px;
+}
+
+.ex-annotated-json-table tbody tr:target { background: var(--ex-accent-soft); }
+.ex-annotated-json-table .ex-ann-back {
+  margin-left: 6px;
+  font-size: .85em;
+  color: var(--ex-ink-muted);
+  text-decoration: none;
+}
+.ex-annotated-json-table .ex-ann-back:hover { text-decoration: underline; }

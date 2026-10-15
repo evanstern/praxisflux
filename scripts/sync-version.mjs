@@ -74,6 +74,24 @@ if (runAsCli(import.meta.url)) {
     else { writeFileSync(actionPath, stamped); console.log(`  action.yml npx pin → ${target}`); }
   }
 
+  // The repo's own planted pdlc grounding stamps the version twice (block marker + .pdlc
+  // sentinel). A bump that skips them fails CI's `plant.mjs --check` as "drifted" — the
+  // recurring re-stamp commits 8526891 / b1cf2bd. Stamp only; template changes still need a
+  // real re-plant, which plant --check keeps catching. Absent files (fixtures) are skipped.
+  const stamps = [
+    [join(repo, "CLAUDE.md"), /(<!-- pdlc:grounding BEGIN v)(\d+\.\d+\.\d+)/],
+    [join(repo, ".pdlc"), /("version":\s*")(\d+\.\d+\.\d+)/],
+  ];
+  for (const [p, re] of stamps) {
+    let text;
+    try { text = readFileSync(p, "utf8"); } catch { continue; }
+    const m = re.exec(text);
+    if (!m || m[2] === target) continue;
+    mismatch = true;
+    if (check) console.error(`  ${p.slice(repo.length + 1)} planted stamp: ${m[2]} != ${target}`);
+    else { writeFileSync(p, text.replace(re, `$1${target}`)); console.log(`  ${p.slice(repo.length + 1)} stamp → ${target}`); }
+  }
+
   if (check) { if (mismatch) { console.error("version drift — run: node scripts/sync-version.mjs <x.y.z>"); process.exit(1); } console.log(`all versions = ${target}`); }
   else if (!pins.length) process.exit(1);
   else console.log(`synced to ${target}`);

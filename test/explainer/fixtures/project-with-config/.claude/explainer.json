@@ -1,0 +1,7 @@
+{
+  "brand": "neutral",
+  "voice": "none",
+  "repo": { "github": "example-org/example", "ref": "main" },
+  "rules": { "on": ["no-internal-codes"], "off": ["rule.chart-data-table"] },
+  "packs": ["team-pack", "missing-pack"]
+}

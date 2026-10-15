@@ -1,0 +1,29 @@
+{
+  "title": "pr-review opens a PR through vcs.v1",
+  "actors": [
+    { "id": "caller", "label": "pr-review" },
+    { "id": "core", "label": "core.py" },
+    { "id": "adapter", "label": "GitHubAdapter" },
+    { "id": "host", "label": "api.github.com" }
+  ],
+  "steps": [
+    { "from": "caller", "to": "core", "label": "push branch, then call open_pr", "panel": "step1" },
+    {
+      "from": "core",
+      "to": "adapter",
+      "label": "check for an existing PR",
+      "note": "none found — create one",
+      "dashed": true,
+      "panel": "step2"
+    },
+    {
+      "from": "adapter",
+      "to": "host",
+      "label": "create the PR on the host",
+      "note": "201 Created",
+      "dashed": true,
+      "panel": "step3"
+    },
+    { "from": "core", "to": "caller", "label": "one envelope back, exit 0", "panel": "step4" }
+  ]
+}

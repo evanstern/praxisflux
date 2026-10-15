@@ -1,0 +1,24 @@
+/* core/patterns/legend — a standalone row of same/changed/new swatches:
+   green = same, amber = changed, blue dashed = new; reused across
+   diagrams. The swatch classes themselves — .ex-legend-same /
+   .ex-legend-changed / .ex-legend-new — are shell-owned
+   (core/shell/shell.css's DIAGRAM_BASE_CLASSES) because the
+   .ex-diagram box already uses them inline. This pattern is only the
+   container that lays them out as a standalone row above/beside a diagram
+   (or anywhere else the vocabulary applies) — it defines no new colour
+   tokens. */
+
+.ex-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 12px 0;
+  font-size: .78rem;
+  color: var(--ex-ink-muted);
+}
+.ex-legend-title {
+  margin-right: 2px;
+  font-weight: 700;
+  color: var(--ex-ink-faint);
+}

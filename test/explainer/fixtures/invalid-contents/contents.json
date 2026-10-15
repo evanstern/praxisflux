@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "title": "OneWord",
+  "kind": "pr-explainer",
+  "brand": "fixture",
+  "groups": [],
+  "pages": [{ "id": "overview", "title": "Overview", "group": "nope", "type": "short-answer" }],
+  "terms": [],
+  "sources": []
+}

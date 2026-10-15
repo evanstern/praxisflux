@@ -1,10 +1,10 @@
 ---
 name: selfcontained-verifier
-description: The chassis HTML self-containment checker — checkHtml flags external scripts, styles, images, fonts, and runtime fetches that the Artifact CSP would block
+description: The chassis HTML self-containment checker — checkHtml flags external scripts, styles, images, fonts, and runtime fetches that the Artifact CSP would block; externalLoads lists each occurrence
 kind: component
 sources:
   - lib/selfcontained.mjs
-verified_against: ee95e70091ec1719a250fee57cf2925622c16ff1
+verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
 ---
 
 # Self-contained HTML verifier
@@ -17,12 +17,18 @@ now the single checker shared by every plugin that emits HTML.
 
 ## How it works
 
-The module exports one function, `checkHtml(html, { substantialBytes = 6000 } = {})`,
-which returns `{ ok, fails, warns }` — `ok` is true exactly when `fails` is empty. It
-never exits the process; callers decide what to do with the result.
+The module exports two functions. Neither exits the process; callers decide what to do
+with the result.
 
-A private `CHECKS` table pairs case-insensitive regexes (all anchored on the `https?://`
-prefix, held in the `EXT` constant) with labels. Any match is a **fail**:
+- `checkHtml(html, { substantialBytes = 6000 } = {})` returns `{ ok, fails, warns }` —
+  `ok` is true exactly when `fails` is empty. It emits one fail per *kind* of external
+  load, however many times that kind occurs.
+- `externalLoads(html)` returns every external load as `{ label, url, index }`, in source
+  order. Callers that report `file:line` locations use it; `checkHtml` is built on it.
+
+A private `CHECKS` table pairs case-insensitive regex sources with labels. Each regex
+captures the URL, which matches either an absolute `http(s)://` URL or a protocol-relative
+`//host` URL (held in the `URL` constant) — both leave the page. Any match is a **fail**:
 
 - external `<script src>`
 - external `<link href>` (stylesheet/font)
@@ -56,7 +62,8 @@ string it is given.
 - Backs the HTML leg of [[gates-convention]]: the [[educate-plugin]] DoD gate runs it on
   `deck.html`, the [[research-plugin]] artifact gate runs it on rendered
   `*-briefing.html`, and the [[codebase-to-course-plugin]] course gate runs it on the
-  generated course page.
+  generated course page. The [[explainer-plugin]] runs `externalLoads` in both its
+  `self.contained` check and its Stop hook over built `dist/` pages.
 - Exercised by the [[test-suite]].
 
 ## Operational notes

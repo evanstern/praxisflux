@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "rules": [
+    {
+      "id": "negative-space",
+      "text": "Use generous negative space. Readability comes before density — a page that looks busy gets skimmed, not read.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "reader-level-depth",
+      "text": "Write for a reader at the team's own technical level: keep most explanations brief, and never talk down or over-explain. Push real depth into sub-pages or expandable/collapsible panels instead of lengthening the main text.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "define-before-use",
+      "text": "Never use a term before it is defined. Define it on first use, or link to where it is defined, before relying on it elsewhere.",
+      "applies_to": "both",
+      "check": "rule.define-before-use"
+    },
+    {
+      "id": "big-type",
+      "text": "Use large, easy-to-read fonts everywhere. No rendered text may fall below the house-style minimum size.",
+      "applies_to": "both",
+      "check": "rule.min-font-size",
+      "threshold_px": 12
+    },
+    {
+      "id": "svg-diagrams-not-ascii",
+      "text": "Illustrate processes and concepts with real SVG diagrams — never ASCII art, and never a screenshot standing in for a diagram.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "tables-over-prose-lists",
+      "text": "Use a table for any apples-to-apples comparison instead of describing it in prose.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "sub-pages-not-scroll",
+      "text": "Split content into new sections or sub-pages rather than cramming it all onto one page. A reader who bores easily should never face one long scroll.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "short-paragraphs",
+      "text": "Keep paragraphs short. A reader disengages from long text runs; break up anything past the house-style word limit for a paragraph.",
+      "applies_to": "both",
+      "check": "rule.paragraph-length",
+      "threshold": 150
+    },
+    {
+      "id": "cite-every-claim",
+      "text": "Cite every factual claim back to its original source — a file path, a document, or another durable reference — so a reader can verify it independently.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "callouts-for-asides",
+      "text": "Put caveats, notes, and asides in a callout component, never inline as a parenthetical or a footnote-like aside in body prose.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "bold-key-topics",
+      "text": "Use bold text to highlight the handful of most important topics on a page — not as routine emphasis sprinkled throughout.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "single-sentence-bullets",
+      "text": "Prefer a single sentence per bullet. A bullet that needs two or more sentences is usually better as its own short paragraph or broken into separate bullets.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "prose-as-last-resort",
+      "text": "Reach for a diagram, table, callout, or bullet list first. Write a prose paragraph only when none of those fit the content, and keep it short even then.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "vertical-rhythm",
+      "text": "Leave generous vertical space between sections. Never shrink text to make it fit — route an aside into a callout or an on-demand panel instead of cramming it in at a smaller size.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "term-popover-not-modal",
+      "text": "A defined term shows its definition in a popover or a slide-out/slide-up panel on hover or click. Never use a modal dialog for this — modals behave badly on mobile.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "hide-depth-behind-interaction",
+      "text": "Hide deep detail behind an interaction — an accordion, or a clickable diagram region that opens a side or bottom panel — instead of showing it by default.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "full-width-callouts",
+      "text": "A callout's background spans the full column width even when its text is narrower than the column.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "legible-inline-code",
+      "text": "Prefer a list or table with inline code over prose cluttered with inline code. Inline code must stay legible — never use a striped or alternating background behind it.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "real-vs-illustrative",
+      "text": "Tag every code or data example as Real (generated fresh from the code — for example an actual JSON payload mapped to its schema) or Illustrative (hand-written to explain a concept). Never leave an example untagged, and prefer a real, end-to-end scenario walkthrough (call, then result, then who handles it next and why) over an abstract description.",
+      "applies_to": "both",
+      "check": "fact.illustrative-tag"
+    },
+    {
+      "id": "mapped-matrices",
+      "text": "Prefer an \"X mapped to Y\" matrix over prose whenever the content describes a mapping between two sets (for example, callers mapped to the actions each one takes).",
+      "applies_to": "writer"
+    },
+    {
+      "id": "no-internal-codes",
+      "text": "Never cite an internal ticket, task, or decision-record code as a reference — a reader outside the project cannot look it up. Cite a file path or a plain description instead.",
+      "applies_to": "both",
+      "check": "fact.no-internal-codes",
+      "patterns": [
+        "\\bTASK-\\d+(?:\\.\\d+)?\\b",
+        "\\bVD\\d+\\b",
+        "\\bT\\d+-\\d+\\b",
+        "\\bE\\d{1,2}[a-z]?\\b",
+        "\\bFR-\\d+\\b",
+        "\\bspec \\d{3}\\b",
+        "§\\s?\\d+"
+      ]
+    },
+    {
+      "id": "github-file-links",
+      "text": "A file-path reference links to the real file on its branch on GitHub, opening in a new tab.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "nav-lands-at-top",
+      "text": "Navigating to a page lands the reader at its top, not wherever a previous page happened to be scrolled to.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "no-svg-text-overflow",
+      "text": "Diagram text must never overflow its box — wrap or resize it rather than letting it spill past its boundary.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "real-tables-not-faux",
+      "text": "Use a real table element for tabular data — never a div-based layout that merely looks like a table.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "diagram-text-budget",
+      "text": "Keep diagram node text short and at a consistent font size. Put further detail on demand, in a click-to-open panel, rather than packing it into the node itself.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "diagrams-use-horizontal-space",
+      "text": "Let a diagram use the available horizontal space and degrade gracefully at narrow widths, rather than shrinking its text illegibly to fit.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "charts-have-data-tables",
+      "text": "Every bar chart ships a real data table next to it, so the same information reaches a reader who skims and a reader who needs the exact values.",
+      "applies_to": "both",
+      "check": "rule.chart-without-data-table"
+    },
+    {
+      "id": "kickoff-page",
+      "text": "Offer a \"Start here\" kickoff page suited to presenting the artifact live in a meeting, alongside its regular pages.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "same-direction-n-refinements",
+      "text": "When proposing a change to an existing plan, frame it as \"same direction, N refinements\": show what stays the same, and justify each individual change in detail.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "concrete-toy-code",
+      "text": "Illustrate an abstract concept with concrete toy code, kept to at most 50 lines per file.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "code-font-scroll",
+      "text": "Render code with syntax highlighting, unwrapped and horizontally scrollable, at a slightly smaller font than body text.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "one-color-coded-diagram",
+      "text": "When showing what changed, use one large, color-coded diagram with a consistent legend for a three-way distinction such as identical, refactored, and new.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "on-demand-qa",
+      "text": "An optional live Q&A board is answered on demand — never by an always-on background loop.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "generated-numbering",
+      "text": "Generate page numbering, navigation, and the pager from the artifact's own structure — never hand-number a page.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-definitions",
+      "text": "Define a term with a popover on its first mention per page, and keep the full glossary on the generated Terms page.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-detail-in-tight-space",
+      "text": "When there is more to say than a tight space allows — a table cell, a caption, a long parenthetical — put the extra detail in a panel and keep one plain sentence inline.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-diagram-context",
+      "text": "Make a diagram element clickable whenever there is real detail behind it — what it is, the files that implement it, the functions involved — and say so in the caption.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-steps",
+      "text": "Give a flow, decision, or sequence step a clickable detail panel, and chain a multi-step sequence together so a reader can move to the next or previous step from inside it.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-field-annotation",
+      "text": "Annotate a field or value inside a data structure — a JSON payload, a table row, a code sample — with a clickable marker rather than a parenthetical.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-for-evidence",
+      "text": "Put a payload, a log, or a full example too large to show inline into a panel, and label it Real or Illustrative the same as any other example.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-never-hides-the-point",
+      "text": "Never put the page's main claim, or anything a reader must know to follow along, only inside a panel — state it on the page itself, and use a panel only for supporting detail.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "info-caption-matches-triggers",
+      "text": "Never tell a reader to click, tap, or select something that isn't actually clickable — a caption that names an interaction only works when the element it describes is a real trigger.",
+      "applies_to": "both",
+      "check": "ref.info"
+    },
+    {
+      "id": "info-one-level",
+      "text": "Keep a panel's own content to one level — link out to a term or another page from inside it rather than chaining it into a second panel.",
+      "applies_to": "writer"
+    },
+    {
+      "id": "clickable-has-cue",
+      "text": "Every clickable trigger and every link that opens in a new tab carries a visible cue — an underline style and a small icon matched to what it does — so a reader can tell it's interactive, and what clicking it will do, before they click it.",
+      "applies_to": "both",
+      "check": "ui.affordance"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ sources:
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 266c5c04f8774deb7059f85ea43502694c677fb9
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -43,8 +43,8 @@ One bullet per `test/*.test.mjs` file:
   out exactly as npm install would, and drives the bin through a `node_modules/.bin`
   symlink — usage exit 2, a passing gate exit 0 (proving the whole packed import graph
   resolves), a failing gate exit 1 with the fix named.
-- `test/chassis.test.mjs` — smoke tests for shared `lib/`: project-root finders, markdown
-  frontmatter/wikilinks, dates, template render, `checkHtml`, `createLifecycle`, installer
+- `test/chassis.test.mjs` — smoke tests for `lib/`: project-root finders, markdown
+  frontmatter/wikilinks, dates, templates, `checkHtml`/`externalLoads`, `createLifecycle`, installer
   helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
   named problems).
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
@@ -110,8 +110,8 @@ One bullet per `test/*.test.mjs` file:
   `.git/`).
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
-- `test/sync-version.test.mjs` — sync-version's argv guard: refusals exit 2 + usage, version
-  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered.
+- `test/sync-version.test.mjs` — argv guard: refusals exit 2 + usage, version
+  files byte-identical (fixture copy); valid stamp, downgrade, `--check` covered; planted stamps.
 - `test/version-bump.test.mjs` — the release bump gate (`check-version-bump.mjs`): pure
   `evaluate()` scenarios (exempt/surface/tag-reuse/skill-version cases, incl. a non-semver
   base skill version failing loudly instead of skipping the increase check) plus an

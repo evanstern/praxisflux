@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "title": "Demo Explainer",
+  "kind": "pr-explainer",
+  "repo": { "ref": "feature/x" },
+  "groups": [{ "id": "start", "title": "Start here" }],
+  "pages": [{ "id": "overview", "title": "Overview", "group": "start", "type": "short-answer" }],
+  "terms": [],
+  "sources": []
+}

@@ -1,0 +1,49 @@
+/* core/patterns/scenario — call -> result -> who handles it next -> why.
+   Each step reuses the shell's existing `[data-panel]`
+   wiring (core/shell/shell.js `initPanels`) for "click for detail" — this
+   pattern only styles the chain and the card; it ships no JS of its own.
+   A page using it must declare a matching `panels[]` entry (key + title +
+   body) in contents.json for every `data-panel` key a step uses. */
+
+.ex-scenario {
+  margin: 20px 0 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--ex-border);
+  border-radius: 12px;
+  background: var(--ex-bg-elevated);
+  box-shadow: var(--ex-shadow);
+}
+.ex-scenario > h3:first-child,
+.ex-scenario > h4:first-child { margin-top: 0; }
+
+.ex-scenario-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: .86rem;
+}
+.ex-scenario-step {
+  border: 1px solid var(--ex-border-strong);
+  border-radius: 8px;
+  padding: 7px 11px;
+  background: var(--ex-bg-sunken);
+  cursor: pointer;
+}
+.ex-scenario-step:hover { border-color: var(--ex-accent); }
+.ex-scenario-step:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }
+.ex-scenario-arrow { color: var(--ex-ink-faint); }
+
+.ex-scenario-verdict {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-weight: 700;
+  font-size: .78rem;
+}
+.ex-scenario-verdict--good { color: var(--ex-status-good); background: var(--ex-status-good-bg); }
+.ex-scenario-verdict--caution { color: var(--ex-status-caution); background: var(--ex-status-caution-bg); }
+.ex-scenario-verdict--bad { color: var(--ex-status-bad); background: var(--ex-status-bad-bg); }
+
+.ex-scenario-why { font-weight: 700; }

@@ -1,0 +1,16 @@
+{
+  "description": "explainer self-containment gate — refuses to finish while a built page under an explainer artifact's dist/ loads an external resource (CSP-unsafe). No-op outside explainer artifacts (a dir with contents.json + dist/).",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

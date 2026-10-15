@@ -1,0 +1,36 @@
+<!--
+  Excerpted and rewritten into the authoring dialect from the briefing at
+  an earlier project's docs/research/Portable-Agent-Runtime/
+  runtime-strategy-briefing.html (the kickoff/"short answer" section's lede,
+  callouts, verdict list and inline citations). Source conventions mapped
+  onto the dialect:
+    - `<dfn>term</dfn> <span class="def">(…)</span>`  -> x-term (the reference site's
+      popover pattern is the canonical term treatment, so both references'
+      term styles converge on x-term rather than each keeping its own)
+    - `<a class="cite" href="...">[n]</a>`            -> x-cite (same
+      numbering rule, generalized to run across pages, not just within one)
+    - `<div class="callout note/key/caution/aside">`  -> ex-callout pattern
+      classes, kept as ordinary (non-x-*) markup
+    - the end-of-document numbered Sources list        -> the generated
+      Sources page (lib/cites.mjs renderSourcesPage), not hand-authored
+-->
+<p class="ex-lede">The team wants the same pipeline prompts to work in the
+<x-term k="stage-runner">stage runner</x-term> both runtimes call.</p>
+
+<div class="ex-callout ex-callout-note">
+<div class="ex-callout-tag">Note</div>
+<p>Small numbers like <x-cite s="s-noise"/> link straight to the generated Sources page.</p>
+</div>
+
+<div class="ex-callout ex-callout-key">
+<div class="ex-callout-tag">The question</div>
+<p><strong>How do we run one set of SDLC prompts in both the Claude Code plugin and n8n, without
+building everything twice?</strong></p>
+</div>
+
+<ol class="ex-verdict">
+<li><div><strong>Share a "stage runner", not just prompt files.</strong> Each pipeline step runs as
+the same packaged job. <x-cite s="s-agent-program"/></div></li>
+<li><div><strong>Keep a human on the merge for the pilot.</strong> No company we found lets agents
+merge on their own yet.</div></li>
+</ol>

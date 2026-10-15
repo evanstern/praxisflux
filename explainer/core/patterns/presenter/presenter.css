@@ -1,0 +1,86 @@
+/* core/patterns/presenter — owner toggle + follow toggle UI. CSS + markup
+   + inert JS hooks only here: the live wiring (the `db`/`user` Artifact
+   capabilities) lives in presenter.live.js. Every control here starts
+   `hidden` and stays that way until presenter.js's `enable()` is called —
+   a page without `window.claude`, or before the live wiring resolves it,
+   renders nothing. */
+
+.ex-presenter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  font-size: .82rem;
+}
+/* In the shell's top bar (narrower than any
+   page-level placement — core/shell/shell.css's own narrow-viewport rules
+   live beside this), these controls wrap onto their own line instead of
+   forcing the bar wider than the viewport once any of them is visible. */
+@media (max-width: 640px) {
+  .ex-presenter { flex-wrap: wrap; row-gap: 6px; }
+}
+
+.ex-presenter-toggle,
+.ex-presenter-follow {
+  border: 1px solid var(--ex-border);
+  background: var(--ex-bg-elevated);
+  color: var(--ex-ink);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font: inherit;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.ex-presenter-toggle:hover,
+.ex-presenter-follow:hover { border-color: var(--ex-border-strong); }
+.ex-presenter-toggle:focus-visible,
+.ex-presenter-follow:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }
+.ex-presenter-toggle[aria-pressed="true"] {
+  background: var(--ex-status-good-bg);
+  color: var(--ex-status-good);
+  border-color: var(--ex-status-good);
+}
+.ex-presenter-follow[aria-pressed="false"] { opacity: .7; }
+
+.ex-presenter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ex-status-good-bg);
+  color: var(--ex-status-good);
+  font-weight: 700;
+  font-size: .76rem;
+}
+.ex-presenter-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+/* badge → dot: under 640px the badge compresses
+   to just its own status dot (::before above, already fixed-px, unaffected
+   by anything below) — `.ex-presenter-badge-label`'s "Presenting" text is
+   visually hidden (the standard clip-to-1px technique, same as
+   core/shell/shell.css's own `.ex-vh` utility — duplicated here rather
+   than shared across files, since this file has no dependency on the
+   shell's own classes) rather than removed, so the badge keeps a real
+   accessible name instead of relying on the dot alone. */
+@media (max-width: 640px) {
+  .ex-presenter-badge { padding: 3px 7px; gap: 0; }
+  .ex-presenter-badge-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

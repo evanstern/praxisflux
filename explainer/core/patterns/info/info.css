@@ -1,0 +1,292 @@
+/* core/patterns/info — the "info" component: one shared non-modal
+   popover/slide-out-panel/bottom-sheet, moved here from an earlier home in
+   core/shell/shell.css so it lives in its own pattern folder and a page
+   ships it only when it actually uses a trigger: `<x-info>`,
+   `data-info`/`data-panel`, or a term (`a.ex-term`/`data-term`) —
+   lib/shell.mjs's BUILD_OWNED_IMPLIES / collectPatternNames). `term`/
+   `panel` are now thin aliases over content *inside* a body (their own
+   folders' `.ex-term-eg`/`.ex-panel-section` etc.) — this folder owns the
+   trigger, the dialog itself, and every mode.
+
+   Modes: `popover` (small, anchored near the trigger — term
+   definitions) or `panel` (wide, slides from the right — diagram-node/
+   step/evidence detail). Below 640px both collapse into the same bottom
+   slide-up sheet. Never a modal: no focus trap; Esc, the close button, the
+   backdrop, and an outside click (popover) all dismiss it (info.js).
+   Real entrance transitions — fade for popover, slide-in for panel,
+   slide-up for the phone sheet — are plain CSS driven by a `data-anim`
+   attribute info.js toggles after forcing one layout flush; the global
+   `prefers-reduced-motion: reduce` rule in core/shell/shell.css (which
+   forces every transition-duration to .001ms) already neutralizes them
+   without any extra media query here. */
+
+a.ex-term {
+  font-weight: 600; text-decoration: underline dotted; text-underline-offset: 3px;
+  cursor: help; border-radius: 3px;
+}
+a.ex-term[aria-expanded="true"] { background: var(--ex-accent-soft); }
+
+.ex-info-trigger { font-weight: 600; }
+.ex-info-trigger[aria-expanded="true"] { background: var(--ex-accent-soft); border-radius: 3px; }
+[data-info-target]:not(a) { cursor: pointer; border-radius: 3px; }
+[data-info-target]:not(a):hover { background: var(--ex-bg-sunken); }
+[data-info-target][aria-expanded="true"]:not(a) { background: var(--ex-accent-soft); }
+
+/* ---------------------------------------------------- visible cues
+   Operator review of the demo: "Clickable JSON fields should be underlined
+   or dotted-underlined to indicate clickability... it should be clear that
+   it opens a popup, slideout, or new window." Applied automatically by the
+   build/runtime stamping `data-info-mode="popover"|"panel"` on every
+   info/term trigger (lib/includes.mjs's handleTerm/handleInfoTrigger/
+   checkDataInfo) — a writer never adds a cue by hand (house style
+   `clickable-has-cue`, enforced by check's `ui.affordance`).
+
+   Icons are a plain glyph in a `content:` string — never a `data:`/mask
+   image — so there is never a colour literal to trip this plugin's own
+   `rule.min-font-size`-adjacent CSS-literal-colour test, which scans every
+   pattern's CSS text verbatim, including inside a string (a mask's own
+   alpha-channel fill value would have tripped it; a glyph has no such value
+   at all). Both the underline and the icon are explicitly `var(--ex-accent)`
+   — not inherited `currentColor` — on every trigger shape, link or not
+   (found reviewing the demo: a non-anchor trigger, e.g. a step `<li>` or a
+   table-cell `<code>`, has no reason to otherwise be accent-coloured, so its
+   cue silently rendered in plain body-ink instead of matching the term/
+   `a.ex-info-trigger` cue right next to it). Sized in `em` (scales with
+   text); no animation on the cue itself, so there's nothing here
+   `prefers-reduced-motion` needs to neutralize; `--ex-accent` is already
+   theme-aware (every brand file defines it for both light and dark), and
+   forced-colors mode replaces both the underline and the icon with the
+   system foreground colour regardless, same as plain text.
+
+   SVG diagram nodes get a runtime corner badge instead (info.js's
+   addDiagramBadges, from the node's own bbox) — `::after`/`text-decoration`
+   are not reliably rendered on an SVG `<g>` across browsers, so this file
+   never attempts them there; the existing `.ex-node` hover/focus highlight
+   (core/shell/shell.css) is untouched. */
+
+a.ex-term,
+.ex-info-trigger[data-info-mode="popover"],
+:where(li, td, div, span, code, tr, dt, dd)[data-info-target][data-info-mode="popover"] {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--ex-accent);
+  text-underline-offset: 3px;
+}
+
+.ex-info-trigger[data-info-mode="panel"],
+:where(li, td, div, span, code, tr, dt, dd)[data-info-target][data-info-mode="panel"] {
+  text-decoration: underline solid;
+  text-decoration-color: var(--ex-accent);
+  text-underline-offset: 3px;
+}
+
+a.ex-term::after,
+.ex-info-trigger[data-info-mode]::after,
+:where(li, td, div, span, code, tr, dt, dd)[data-info-target][data-info-mode]::after {
+  display: inline-block;
+  margin-left: .25em;
+  font-size: .88em;
+  font-weight: 700;
+  color: var(--ex-accent);
+  vertical-align: -0.02em;
+}
+a.ex-term::after,
+.ex-info-trigger[data-info-mode="popover"]::after,
+:where(li, td, div, span, code, tr, dt, dd)[data-info-target][data-info-mode="popover"]::after {
+  content: "\24D8"; /* circled "i" — opens a definition */
+  font-weight: 400; /* already a solid filled glyph; bold just distorts it */
+}
+.ex-info-trigger[data-info-mode="panel"]::after,
+:where(li, td, div, span, code, tr, dt, dd)[data-info-target][data-info-mode="panel"]::after {
+  /* a bold arrow — opens a side panel. Checked directly against a headless
+     Chromium render, next to the circled-"i" above, at the same size: a
+     thin right-pointing triangle (U+25B8) and the more literal "square
+     split by a line" (U+25EB, missing from this plugin's own monospace
+     stack entirely — Menlo/SF Mono/Consolas all render it as a tofu box)
+     both read too quiet/bullet-like next to the "i"; `font-weight: 700`
+     gives this one the same visual weight. */
+  content: "\2192";
+}
+
+/* Triggers inside a code block (JSON field markers etc.): a
+   dotted underline only, never an icon — an icon after the value would
+   shift whatever follows it on the same line, and the code pattern's
+   columns must never move. `!important` wins the tie against the
+   popover/panel rules above regardless of source order (same final
+   specificity — two attribute selectors each — once `:where()`'s own
+   zero-specificity is accounted for). */
+.ex-code-pre [data-info-target],
+.ex-code-pre a.ex-term {
+  text-decoration: underline dotted !important;
+  text-underline-offset: 2px;
+}
+.ex-code-pre [data-info-target]::after,
+.ex-code-pre a.ex-term::after {
+  content: none !important;
+}
+
+/* --------------------------------------------------- diagram node badges
+   (info.js's addDiagramBadges) — classes only, no colour attribute on the
+   SVG elements themselves, same convention as .ex-box/.ex-t above. */
+.ex-node-badge { pointer-events: none; }
+.ex-node-badge circle { fill: var(--ex-accent); stroke: var(--ex-bg-elevated); stroke-width: 1.5; }
+.ex-node-badge text { fill: var(--ex-accent-ink); font-size: 9px; font-weight: 700; }
+
+.ex-info { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+.ex-info[hidden] { display: none; }
+.ex-info-backdrop { position: absolute; inset: 0; background: transparent; pointer-events: none; }
+.ex-info[data-mode="panel"] .ex-info-backdrop { background: color-mix(in srgb, var(--ex-ink) 28%, transparent); pointer-events: auto; }
+
+/* ------------------------------------------------- nested popover
+   A popover-mode trigger clicked inside an already-open panel/sheet opens
+   as a second, independent dialog layered above it (info.js's
+   ensureNested/openNestedPopover) — never a replacement of the panel's own
+   body, which would destroy the very element it needs to anchor against
+   (the operator's bug report this amendment fixes). It shares every
+   `.ex-info`/`.ex-info-box` rule above and below (background, border,
+   entrance transition, phone bottom-sheet collapse) — only the stacking
+   order differs, plus a smaller phone sheet height further down. No extra
+   backdrop of its own ("dim nothing extra" — the panel underneath stays
+   exactly as dim/undimmed as it already was). */
+.ex-info.ex-info-nested { z-index: 320; }
+
+.ex-info-box {
+  position: fixed; background: var(--ex-bg-elevated); color: var(--ex-ink);
+  border: 1px solid var(--ex-border-strong); box-shadow: var(--ex-shadow);
+  border-radius: 12px; padding: 16px 18px; overflow-y: auto;
+  pointer-events: auto;
+}
+/* Desktop/tablet only (min-width: 641px — the exact inverse of the phone
+   sheet's own `max-width: 640px` query below): a popover's small, anchored
+   SIZE (width/max-height — this is what collapses into the phone sheet;
+   `font-size` isn't size-as-in-layout-footprint, so it stays unconditional
+   below, unchanged at every width, same as before this fix). Scoped here,
+   rather than left unconditional with a phone-side `!important` override,
+   because this rule and ANY phone-mode `.ex-info-box` (the generic one
+   below, or the nested popover's own) are now mutually exclusive by
+   viewport width — nothing left to out-rank, so nothing needs
+   `!important` either (found reviewing a real screenshot at 400px:
+   the unconditional version of this rule — no media guard at
+   all — kept winning the cascade over the phone sheet's own `width: auto`
+   for EVERY popover, nested or not, by sheer selector specificity (two
+   classes + an attribute vs. the phone rule's one class), leaving it
+   ~340px wide and pinned to the left edge instead of a full-width
+   sheet). */
+@media (min-width: 641px) {
+  .ex-info[data-mode="popover"] .ex-info-box { width: min(340px, calc(100vw - 32px)); max-height: 60vh; }
+}
+.ex-info[data-mode="popover"] .ex-info-box { font-size: .9rem; }
+.ex-info[data-mode="popover"] .ex-info-box .ex-info-title { display: none; }
+
+.ex-info[data-mode="panel"] .ex-info-box {
+  top: 0; right: 0; bottom: 0; left: auto; width: min(420px, 92vw); max-height: none;
+  border-radius: 0; border-right: none; border-top: none; border-bottom: none;
+  padding: 22px 24px;
+}
+.ex-info-title { font-family: Georgia, "Times New Roman", serif; font-weight: 700; font-size: 1.1rem; margin: 0 0 .6em 0; }
+.ex-info-body { font-size: .92rem; line-height: 1.6; }
+.ex-info-more { display: inline-block; margin-top: .3em; font-size: .85em; font-weight: 600; }
+
+/* Floated, not absolutely positioned (fixed found reviewing the
+   demo artifact): the title/body text must wrap AROUND the button, not
+   risk sitting under it — true in every mode, but it only ever showed up
+   in popover mode, where `.ex-info-title` above is display:none, so the
+   first visible text is `.ex-info-body` with nothing reserving the
+   button's corner for it. `.ex-info-box` already has a non-`visible`
+   overflow (`overflow-y: auto` above forces `overflow-x` to compute to
+   `auto` too, per the CSS Overflow spec), so it already establishes the
+   block formatting context a float needs to be contained inside the box's
+   own height — no `overflow`/`display: flow-root` addition needed here. */
+.ex-info-close {
+  float: right; margin: -6px -8px 10px 12px; width: 30px; height: 30px;
+  border-radius: 8px; border: 1px solid var(--ex-border); background: var(--ex-bg-sunken);
+  color: var(--ex-ink); font-size: 1.1rem; line-height: 1; cursor: pointer;
+}
+.ex-info-close:hover { border-color: var(--ex-border-strong); }
+
+/* ------------------------------------------------- "← Back"
+   A panel-mode trigger inside an open panel replaces its content and shows
+   this control to restore what was there before (info.js's
+   pushFrame/popFrame, a small stack — depth >= 2 is fine, `info-one-level`
+   only discourages *authoring* this, never a reason for the engine itself
+   to misbehave). `clear: both` starts it on its own line below the floated
+   close button above, same reasoning the seq nav row below already uses. */
+.ex-info-back {
+  display: block; clear: both; border: none; background: none; padding: 2px 0;
+  margin: 0 0 10px; color: var(--ex-accent); font: inherit; font-weight: 600; font-size: .85rem;
+  cursor: pointer;
+}
+.ex-info-back:hover { text-decoration: underline; }
+.ex-info-back[hidden] { display: none; }
+
+/* ------------------------------------------------------ seq prev/next */
+/* `clear: both`: the floated close button above must never cause the nav
+   row to render beside it instead of below the body text. */
+.ex-info-nav { clear: both; display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--ex-border); }
+.ex-info-nav button {
+  border: 1px solid var(--ex-border); background: var(--ex-bg-sunken); color: var(--ex-ink);
+  border-radius: 8px; padding: 5px 10px; font: inherit; font-size: .82rem; cursor: pointer;
+}
+.ex-info-nav button:hover { border-color: var(--ex-border-strong); }
+.ex-info-nav button:disabled { opacity: .4; cursor: default; }
+
+/* ------------------------------------------------- files/see footer */
+.ex-info-files, .ex-info-see { margin-top: 12px; font-size: .85em; }
+.ex-info-files h4, .ex-info-see h4 {
+  margin: 0 0 4px; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ex-ink-muted); font-weight: 700;
+}
+.ex-info-files ul, .ex-info-see ul { margin: 0; padding-left: 1.2em; }
+.ex-info-files li, .ex-info-see li { margin: 2px 0; }
+
+/* ------------------------------------- no-JS "More detail" fallback
+   `.ex-info-entry` is both this fallback's visible content AND the
+   runtime's own data source (info.js reads its title/body/footer directly
+   off the DOM) — there is no second, separate template. */
+.ex-info-fallback { margin: 32px 0 0; border-top: 1px solid var(--ex-border); padding-top: 14px; }
+.ex-info-fallback > summary { cursor: pointer; font-weight: 700; color: var(--ex-ink-muted); font-size: .85rem; }
+.ex-info-entry { margin: 16px 0; padding: 12px 14px; border: 1px solid var(--ex-border); border-radius: 10px; background: var(--ex-bg-sunken); }
+.ex-info-entry-title { font-weight: 700; margin: 0 0 6px; }
+.ex-info-entry-body { font-size: .92rem; line-height: 1.6; }
+
+/* ------------------------------------------------------------ phone sheet */
+@media (max-width: 640px) {
+  .ex-info-box, .ex-info[data-mode="panel"] .ex-info-box {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+    width: auto; max-width: none; max-height: 75vh;
+    border-radius: 16px 16px 0 0; border: 1px solid var(--ex-border-strong); border-bottom: none;
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .ex-info[data-mode="popover"] .ex-info-box .ex-info-title { display: block; }
+  .ex-info-backdrop { background: color-mix(in srgb, var(--ex-ink) 30%, transparent); pointer-events: auto; }
+
+  /* On a phone the nested popover is a second, smaller sheet
+     stacked above the panel's own sheet — both are `position: fixed;
+     bottom: 0; width: auto` (inherited from the `.ex-info-box` branch
+     above — the desktop-only popover width rule no longer competes with
+     it here at all, now that it's scoped to `@media (min-width: 641px)`),
+     so a shorter `max-height` plus the higher `z-index` set earlier is
+     all it takes to read as "stacked on top of" rather than "replacing",
+     at the SAME full width as the panel sheet underneath it. */
+  .ex-info-nested-box {
+    max-height: 40vh;
+    box-shadow: 0 -4px 16px color-mix(in srgb, var(--ex-ink) 18%, transparent);
+  }
+}
+
+/* ------------------------------------------------------- entrance transitions
+   Pre-settle state (JS: root has no [data-anim] yet) differs by mode —
+   fade for popover, slide-in from the right for panel, slide-up for the
+   phone sheet (the max-width query below overrides both of the above,
+   later in the cascade). Once info.js adds `data-anim="settled"` (after
+   one forced layout flush, next animation frame), every box transitions to
+   its resting opacity/transform. */
+.ex-info-box { opacity: 1; transform: none; }
+.ex-info:not([data-anim="settled"]) .ex-info-box { opacity: 0; }
+.ex-info[data-mode="popover"]:not([data-anim="settled"]) .ex-info-box { transform: translateY(6px) scale(.98); }
+.ex-info[data-mode="panel"]:not([data-anim="settled"]) .ex-info-box { transform: translateX(28px); }
+@media (max-width: 640px) {
+  .ex-info:not([data-anim="settled"]) .ex-info-box { transform: translateY(28px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ex-info-box { transition: transform .16s ease, opacity .16s ease; }
+}

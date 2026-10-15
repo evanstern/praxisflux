@@ -1,0 +1,18 @@
+<h3>Panel body formatting</h3>
+<p>Classes available inside a panel's <code>body</code> HTML (<code>contents.json</code>
+<code>pages[].panels[].body</code>), shown here as they would render once the shell injects them into
+the open side panel / bottom sheet:</p>
+
+<div class="ex-panel-section">
+  <h4>Request</h4>
+  <p class="ex-panel-meta">method: <code>POST</code> &middot; host: <code>api.github.com</code></p>
+  <p>Longer explanatory text about this field, exactly as it appears inside the opened panel.</p>
+  <a class="ex-panel-cta" href="#terms--port">Full definition on Terms &rarr;</a>
+</div>
+
+<h4>The trigger (reference only — not this pattern's own classes)</h4>
+<p>Any element with <code>data-panel</code> opens this content in the shell's side panel / bottom
+sheet — a diagram node, a <code>scenario</code> step, a <code>steps</code> item, or a plain span like
+this one. The page must declare a matching <code>contents.json</code> <code>pages[].panels[]</code>
+entry for the key used.</p>
+<p><span data-panel="demo" tabindex="0">Click or press Enter for the panel above</span></p>

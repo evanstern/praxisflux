@@ -1,0 +1,35 @@
+<h3>Envelope by example</h3>
+<p>A real response, annotated field by field. Click a marker to jump to its row below; the row
+highlights while it is the link target.</p>
+
+<div class="ex-annotated-json">
+  <pre class="ex-annotated-json-pre"><code>{
+  "verdict": "proceed"<a class="ex-ann-marker" id="ann-verdict-src" href="#ann-verdict">1</a>,
+  "mergeable_state": "clean"<a class="ex-ann-marker" id="ann-mergeable-src" href="#ann-mergeable">2</a>,
+  "credential_source": "env:GITHUB_TOKEN"<a class="ex-ann-marker" id="ann-cred-src" href="#ann-cred">3</a>
+}</code></pre>
+
+  <table class="ex-table ex-annotated-json-table">
+    <thead><tr><th>#</th><th>Field</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr id="ann-verdict">
+        <td>1</td>
+        <td><code>verdict</code></td>
+        <td>One of <code>proceed</code> / <code>hold</code> / <code>stop</code> — the only field a
+        caller branches on.<a class="ex-ann-back" href="#ann-verdict-src">&#8617; back</a></td>
+      </tr>
+      <tr id="ann-mergeable">
+        <td>2</td>
+        <td><code>mergeable_state</code></td>
+        <td>One of 8 enum values; <code>clean</code> is the only pass value at
+        <code>pre_merge</code>.<a class="ex-ann-back" href="#ann-mergeable-src">&#8617; back</a></td>
+      </tr>
+      <tr id="ann-cred">
+        <td>3</td>
+        <td><code>credential_source</code></td>
+        <td>Which credential path answered the call, so a caller or a human can see where auth came
+        from.<a class="ex-ann-back" href="#ann-cred-src">&#8617; back</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

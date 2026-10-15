@@ -1,0 +1,77 @@
+/* core/patterns/code — highlighted, unwrapped, horizontally scrollable,
+   keyboard-focusable code blocks. Collapsible per-file blocks pair with a
+   file map when there are many files. Styles the fixed markup
+   lib/includes.mjs's renderCodeBlock emits for both x-example
+   (tag="Illustrative") and x-include (tag="Real") — this pattern never
+   re-defines that markup, only styles it and highlights the code inside it
+   (code.js). For a multi-file listing, wrap each file's block in the
+   `details` pattern's <details class="ex-details"> so every file collapses
+   independently (see example.html); pair with the `file-map` pattern when
+   the set of files is large enough to need search/filters. Built on
+   --ex-code-* tokens (core/brand/tokens.json) — no literal colours.
+
+   Known build-time gap: core/shell/shell.css's BUILD_OWNED_EX_CLASSES set
+   (scripts/lib/shell.mjs) excludes every `ex-code*` class from the generic
+   per-page pattern collector, because that markup is emitted by the build
+   itself, never hand-written — so this folder's CSS/JS are not yet
+   auto-inlined by `collectPatternNames`. The fix is a shell.mjs change,
+   out of this pattern's own scope. */
+
+.ex-code {
+  margin: 16px 0;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  background: var(--ex-bg-sunken);
+  overflow: hidden;
+}
+.ex-code-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ex-border);
+  font-size: .76rem;
+}
+.ex-code-tag {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ex-ink-muted);
+}
+.ex-code[data-tag="Real"] .ex-code-tag { color: var(--ex-status-good); }
+.ex-code[data-tag="Illustrative"] .ex-code-tag { color: var(--ex-ink-faint); }
+.ex-code-file {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color: var(--ex-ink-muted);
+  overflow-wrap: anywhere;
+}
+.ex-code-pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+.ex-code-pre:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: -2px; }
+.ex-code-pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--ex-ink);
+}
+
+/* Highlighter token classes (code.js) — one colour per class, all from
+   tokens.json's --ex-code-* family: every ts/js/json/yaml/py/sh/
+   dockerfile/md/tree block shares this one set, no per-language tokens. */
+.ex-tok-kw { color: var(--ex-code-keyword); font-weight: 600; }
+.ex-tok-str { color: var(--ex-code-string); }
+.ex-tok-com { color: var(--ex-code-comment); font-style: italic; }
+.ex-tok-num { color: var(--ex-code-number); }
+.ex-tok-fn { color: var(--ex-code-function); }
+.ex-tok-key { color: var(--ex-code-function); }
+.ex-tok-punct { color: var(--ex-code-punct); }
+.ex-tok-desc { color: var(--ex-ink-faint); }
+
+/* Multiple files: wrap each .ex-code in <details class="ex-details"> (the
+   `details` pattern) so every file collapses on its own. */
+.ex-details > .ex-code { margin-top: 0; }

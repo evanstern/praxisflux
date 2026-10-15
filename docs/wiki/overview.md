@@ -5,17 +5,17 @@ kind: concept
 sources:
   - README.md
   - CLAUDE.md
-verified_against: a324eeb0d4666c36e88b9f3c809765e61d035b22
+verified_against: ef405b1c9c3651465c583e4dea2b607b155ec378
 ---
 
 # praxisflux — system overview
 
 praxisflux is a Claude Code **plugin marketplace** that unifies composable knowledge-work
-plugins on one shared, zero-dependency Node chassis (`lib/`). Nine plugins are registered
+plugins on one shared, zero-dependency Node chassis (`lib/`). Ten plugins are registered
 in `.claude-plugin/marketplace.json`: `research`, `grounding-wiki`, `educate`, `build`,
-`codebase-to-course`, `spec-bridge`, `pdlc`, `team-review`, `reorient`. Each is
-independently installable and mutually aware, but plugins never call each other — they
-compose only through files and gates.
+`codebase-to-course`, `spec-bridge`, `pdlc`, `team-review`, `reorient`, `explainer`. Each is
+independently installable, but plugins never call each other — they compose only
+through files and gates.
 
 ## How it works
 
@@ -46,6 +46,7 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[team-review-plugin]] also sits beside it: a lead-plus-subagent architecture review of
   any caller-named codebase, read-only by doctrine, proven by an output gate (report
   sections + resolving citations + target untouched).
+- [[explainer-plugin]] renders cited HTML explainers.
 
 Knowledge interchange rides one contract, the grounded corpus ([[grounded-corpus-spec]]);
 work interchange one transport, the handoff protocol ([[handoff-protocol]]).
@@ -69,9 +70,8 @@ invoking root.
 
 - Work is tracked in Backlog.md (`backlog task list --plain`); the board is the plan of
   record, statuses flow To Do → In Progress → Done, and every unit of committed work is a
-  task. Courses are opt-in via a standing per-project choice (per-task | per-feature |
-  none); praxisflux's is **per-feature** — a course per shipped feature on request,
-  snapshot-exempt from freshness (`docs/task-courses.md`).
+  task. Courses are opt-in per project (per-task | per-feature | none); praxisflux's is
+  **per-feature**, snapshot-exempt from freshness (`docs/task-courses.md`).
 - The repo uses a PR flow: per-task branches pushed to `origin`
   (`github.com:evanstern/praxisflux.git`), merged into `main` via `gh` — with merge commits,
   never squash, so `verified_against` pins stay reachable. Each branch is checked out in a
@@ -81,8 +81,8 @@ invoking root.
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's `version:` —
   per `docs/releasing.md`; CI enforces it, and each merge to `main` auto-publishes
-  `v<version>` (see [[build-and-release]]). A bump also owes a **re-plant**: the planted
-  block stamps the version, so it drifts by construction until re-planted in the same PR.
+  `v<version>` (see [[build-and-release]]). The planted block stamps the version;
+  `sync-version.mjs` re-stamps it (and `.pdlc`) with the bump, so only a template change owes a re-plant.
 - Docs are load-bearing: every PR keeps `docs/wiki/`, `README.md`, and `CLAUDE.md` in sync
   with the code. Enforced by `scripts/check-docs.mjs` plus the wiki freshness gate, run in CI,
   the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that refuses

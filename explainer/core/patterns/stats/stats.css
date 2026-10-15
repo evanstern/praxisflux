@@ -1,0 +1,26 @@
+/* core/patterns/stats — stat tile strip, built on `--ex-*` tokens. */
+
+.ex-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.ex-stat {
+  padding: 14px 15px;
+  border: 1px solid var(--ex-border);
+  border-radius: 12px;
+  background: var(--ex-bg-elevated);
+  box-shadow: var(--ex-shadow);
+}
+.ex-stat-num {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--ex-accent);
+}
+.ex-stat-lbl {
+  font-size: .76rem;
+  color: var(--ex-ink-muted);
+}

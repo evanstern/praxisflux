@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "title": "Mini Fixture",
+  "kind": "pr-explainer",
+  "brand": "fixture",
+  "voice": "none",
+  "repo": { "github": "example-org/example-repo", "ref": "poc/vcs-port" },
+  "groups": [
+    { "id": "start", "title": "Start here" },
+    { "id": "flows", "title": "Flows" },
+    { "id": "reference", "title": "Reference" }
+  ],
+  "pages": [
+    { "id": "overview", "title": "Overview", "group": "start", "type": "short-answer" },
+    {
+      "id": "merge-control",
+      "title": "Merge control",
+      "group": "flows",
+      "type": "flow",
+      "panels": [{ "key": "guard-check", "title": "Server head guard", "body": "<p>Checks SERVER_HEAD_GUARD.</p>" }]
+    },
+    { "id": "scenario-a", "title": "Scenario A", "group": "flows", "type": "scenario" },
+    { "id": "terms", "title": "Terms", "group": "reference", "type": "generated-terms" },
+    { "id": "sources", "title": "Sources", "group": "reference", "type": "generated-sources" }
+  ],
+  "terms": [
+    { "key": "port", "term": "Port", "def": "<b>Port</b>: one sentence." },
+    { "key": "adapter", "term": "Adapter", "def": "<b>Adapter</b>: one sentence.", "see": "port" }
+  ],
+  "sources": [
+    { "id": "s-core", "kind": "file", "path": "plugins/vcs/core.py", "line": 120 },
+    { "id": "s-uber", "kind": "url", "url": "https://example.com/uber", "vendor": true }
+  ],
+  "generators": {
+    "manifest": {
+      "builtin": "git-manifest",
+      "range": "HEAD~1...HEAD",
+      "buckets": [{ "id": "core", "label": "Core", "match": ["plugins/*/vcs/core/**"] }]
+    }
+  },
+  "rules": { "off": [], "on": [] },
+  "live": { "comments": true, "presenter": true },
+  "publish": { "url": null, "shape": "single" }
+}

@@ -1,0 +1,59 @@
+/* core/patterns/steps — a numbered stepper whose items open detail panels
+   via the shell's existing [data-panel] wiring.
+   Ships no JS: core/shell/shell.js's initPanels already wires
+   every [data-panel] element on the page. A page using this pattern must
+   declare a matching panels[] entry (key + title + body) for every step. */
+
+.ex-steps {
+  list-style: none;
+  counter-reset: ex-step;
+  margin: 20px 0;
+  padding: 0;
+}
+.ex-steps-item {
+  counter-increment: ex-step;
+  position: relative;
+  padding: 10px 14px 10px 46px;
+  margin-bottom: 4px;
+  border: 1px solid var(--ex-border);
+  border-radius: 10px;
+  background: var(--ex-bg-elevated);
+  cursor: pointer;
+}
+.ex-steps-item::before {
+  content: counter(ex-step);
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--ex-accent);
+  color: var(--ex-accent-ink);
+  font-size: .78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex-steps-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 23px;
+  top: 32px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--ex-border-strong);
+}
+.ex-steps-item:hover { border-color: var(--ex-accent); }
+.ex-steps-item:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }
+
+.ex-steps-who {
+  display: block;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ex-ink-muted);
+  font-weight: 700;
+}
+.ex-steps-what { font-weight: 600; }

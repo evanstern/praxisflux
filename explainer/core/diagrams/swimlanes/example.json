@@ -1,0 +1,31 @@
+{
+  "title": "VCS port: who implements what, by phase",
+  "columns": [
+    { "id": "design", "label": "Design" },
+    { "id": "build", "label": "Build" },
+    { "id": "verify", "label": "Verify" }
+  ],
+  "lanes": [
+    {
+      "id": "core",
+      "label": "core.py",
+      "cells": {
+        "design": { "label": "vcs.v1 contract", "panel": "core-design" },
+        "build": { "label": "GitHubAdapter", "new": true, "panel": "core-build" }
+      }
+    },
+    {
+      "id": "pipeline",
+      "label": "pipeline-plugin",
+      "cells": {
+        "build": { "label": "pr-review calls vcs.v1" },
+        "verify": { "label": "full pipeline run", "new": true }
+      }
+    }
+  ],
+  "arrows": [
+    { "from": "core:design", "to": "core:build" },
+    { "from": "core:build", "to": "pipeline:build" },
+    { "from": "pipeline:build", "to": "pipeline:verify", "dashed": true }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "title": "Fixture flow",
+  "boxes": [{ "label": "A" }, { "label": "B", "new": true }]
+}

@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "title": "New Onboarding",
+  "kind": "onboarding",
+  "brand": "neutral",
+  "voice": "none",
+  "groups": [
+    {
+      "id": "start",
+      "title": "Start here"
+    },
+    {
+      "id": "concepts",
+      "title": "Concepts"
+    },
+    {
+      "id": "tour",
+      "title": "Guided tour"
+    },
+    {
+      "id": "next",
+      "title": "Next steps"
+    }
+  ],
+  "pages": [
+    {
+      "id": "start-here",
+      "title": "Start here",
+      "group": "start",
+      "type": "start-here"
+    },
+    {
+      "id": "concepts-in-order",
+      "title": "Concepts, in order",
+      "group": "concepts",
+      "type": "concepts-in-order"
+    },
+    {
+      "id": "guided-tour",
+      "title": "Guided tour",
+      "group": "tour",
+      "type": "guided-tour"
+    },
+    {
+      "id": "toy-code-walkthrough",
+      "title": "Toy code walkthrough",
+      "group": "tour",
+      "type": "toy-code-walkthrough"
+    },
+    {
+      "id": "exercises-next-steps",
+      "title": "Exercises and next steps",
+      "group": "next",
+      "type": "exercises-next-steps"
+    }
+  ],
+  "terms": [],
+  "sources": [],
+  "live": {
+    "comments": true,
+    "presenter": true
+  },
+  "publish": {
+    "url": null,
+    "shape": "single"
+  }
+}

@@ -1,0 +1,36 @@
+/* core/patterns/panel — optional refinements for content INSIDE a panel's
+   `body` HTML (contents.json `pages[].panels[].body`). The trigger
+   (`[data-panel]`, the side panel / bottom sheet) is the shell's own
+   (core/shell/shell.css/shell.js's `ExInfo`) and is never re-implemented
+   here — term and panel style/extend the shell's info component, they
+   never re-implement it. This pattern ships no JS — `body`
+   is static HTML, injected verbatim by the shell when the panel opens. */
+
+.ex-panel-section + .ex-panel-section { margin-top: 14px; }
+.ex-panel-section h4 {
+  margin: 0 0 4px;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ex-ink-muted);
+}
+
+.ex-panel-meta {
+  margin: 0 0 6px;
+  font-size: .85em;
+  color: var(--ex-ink-muted);
+}
+
+.ex-panel-cta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: var(--ex-accent-soft);
+  color: var(--ex-accent);
+  font-weight: 600;
+  font-size: .85em;
+  text-decoration: none;
+}
+.ex-panel-cta:hover { text-decoration: underline; }
+.ex-panel-cta:focus-visible { outline: 2px solid var(--ex-focus); outline-offset: 2px; }

@@ -1,0 +1,43 @@
+<h3>Reachability matrix</h3>
+<p>Which stage calls which low-level operation, directly (hit) or indirectly (reported).</p>
+<div class="ex-matrix">
+  <table>
+    <thead>
+      <tr>
+        <th class="ex-matrix-rowhead">Stage</th>
+        <th>read</th><th>write</th><th>merge</th><th>notify</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th class="ex-matrix-rowhead">plan</th><td class="ex-cell--hit">✓</td><td></td><td></td><td></td></tr>
+      <tr><th class="ex-matrix-rowhead">execute</th><td class="ex-cell--hit">✓</td><td class="ex-cell--hit">✓</td><td></td><td></td></tr>
+      <tr><th class="ex-matrix-rowhead">merge</th><td></td><td></td><td class="ex-cell--hit">✓</td><td class="ex-cell--indirect">reported</td></tr>
+      <tr><th class="ex-matrix-rowhead">deploy</th><td></td><td></td><td></td><td class="ex-cell--hit">✓</td></tr>
+      <tr><th class="ex-matrix-rowhead">triage</th><td class="ex-cell--note" colspan="4">no direct call — grades a ticket, no repo context yet</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Severity matrix</h3>
+<p>How each constraint reads against three candidate deployment shapes.</p>
+<div class="ex-matrix">
+  <table>
+    <thead>
+      <tr><th class="ex-matrix-rowhead">Constraint</th><th>Shape A</th><th>Shape B</th><th>Shape C</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th class="ex-matrix-rowhead">No shell access</th>
+        <td class="ex-cell--bad">Blocking</td><td class="ex-cell--good">Fine</td><td class="ex-cell--good">Fine</td>
+      </tr>
+      <tr>
+        <th class="ex-matrix-rowhead">Long-running steps</th>
+        <td class="ex-cell--caution">Costly</td><td class="ex-cell--good">Fine</td><td class="ex-cell--good">Fine</td>
+      </tr>
+      <tr>
+        <th class="ex-matrix-rowhead">Human checkpoints</th>
+        <td class="ex-cell--good">Fine</td><td class="ex-cell--good">Fine</td><td class="ex-cell--good">Fine</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
