@@ -5,14 +5,14 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 1 — plant.mjs plants AGENTS.md with a CLAUDE.md pointer
 
-- [ ] Rename `pdlc/templates/CLAUDE.md` → `pdlc/templates/AGENTS.md` (content unchanged); `plant()`'s default `templatePath` follows
-- [ ] `plant()` writes the block into `<root>/AGENTS.md` with `created/appended/replaced/unchanged/drifted` reported as `agentsMd`
-- [ ] `plant()` ensures `CLAUDE.md`'s first line is `@AGENTS.md`; reports `claudeMd` as `created/pointer-added/unchanged/migrated/drifted`; text below the pointer survives
-- [ ] Legacy block in `CLAUDE.md`: `drifted` without `--force` (nothing written, sentinel held, `--check` exits 1 with the drifted remedy); `migrated` with `--force` (block to AGENTS.md, surrounding text kept below the pointer)
-- [ ] Both files marked: AGENTS.md authoritative; CLAUDE.md copy drifted until `--force`
-- [ ] `missing` requires `AGENTS.md` and `CLAUDE.md`; CLI `pending` includes `agentsMd`
-- [ ] `excludeSet` unchanged; local-only first plant leaves `git status` clean (existing test still green)
-- [ ] `test/pdlc.test.mjs` updated and extended: target, pointer content, project-text survival, drift+consent on AGENTS.md, migration with and without `--force`, both-marked case, rendered block byte-identical to the pre-change render
+- [x] Rename `pdlc/templates/CLAUDE.md` → `pdlc/templates/AGENTS.md` (content unchanged); `plant()`'s default `templatePath` follows
+- [x] `plant()` writes the block into `<root>/AGENTS.md` with `created/appended/replaced/unchanged/drifted` reported as `agentsMd`
+- [x] `plant()` ensures `CLAUDE.md`'s first line is `@AGENTS.md`; reports `claudeMd` as `created/pointer-added/unchanged/migrated/drifted`; text below the pointer survives
+- [x] Legacy block in `CLAUDE.md`: `drifted` without `--force` (nothing written, sentinel held, `--check` exits 1 with the drifted remedy); `migrated` with `--force` (block to AGENTS.md, surrounding text kept below the pointer)
+- [x] Both files marked: AGENTS.md authoritative; CLAUDE.md copy drifted until `--force`
+- [x] `missing` requires `AGENTS.md` and `CLAUDE.md`; CLI `pending` includes `agentsMd`
+- [x] `excludeSet` unchanged; local-only first plant leaves `git status` clean (existing test still green)
+- [x] `test/pdlc.test.mjs` updated and extended: target, pointer content, project-text survival, drift+consent on AGENTS.md, migration with and without `--force`, both-marked case, rendered block byte-identical to the pre-change render
 
 ## Phase 2 — repo tooling follows the load-bearing file
 

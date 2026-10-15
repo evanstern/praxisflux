@@ -158,3 +158,16 @@ that says the block lives in CLAUDE.md is NEEDS-REVIEW, not RE-PIN-ONLY.
 - **OC2 — explainer's planter.** `explainer/scripts/explainer.mjs:337-343` plants its own
   marked block into `CLAUDE.md`. The card names only educate and research. Recommendation:
   card it as a follow-up (or ride TASK-0139); keep it out of this PR to hold scope.
+
+## Phase 1 deviation note (recorded, not fixed — Phase 2/3 scope)
+
+Phase 1 landed `plant.mjs`'s new AGENTS.md/pointer behavior and its tests green (`node --test`
+passes in full). As an expected, out-of-scope-for-Phase-1 side effect, this repo's own
+pre-commit hook step (`node pdlc/scripts/plant.mjs --root . --peer backlog --check`) now exits
+1 against this repo's root: this repo's root `CLAUDE.md` still carries the legacy
+pdlc-markers block (pre-074), so the new `plant()` reports `agentsMd: "drifted"` and
+`claudeMd: "drifted"` — exactly the honest-migration-needs-consent path R4 designs for. That
+consent (`--force`) and the hand-move of the root's orientation prose into `AGENTS.md` is
+Phase 3's "dogfood this repo" task, not Phase 1's. `scripts/sync-version.mjs --check` is
+unaffected by this PR (Phase 2 scope; it still stamps `CLAUDE.md` as before). Per the Phase 1
+dispatch brief, this is recorded here rather than fixed inline.
