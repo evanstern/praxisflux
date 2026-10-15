@@ -7,7 +7,7 @@ sources:
   - scripts/build.mjs
   - lib/toolkit/README.md
   - lib/structured-offload.mjs
-verified_against: b992693223645641ff989e180fa7b2a49f009293
+verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
 ---
 
 # Chassis
@@ -53,6 +53,11 @@ The module roster in `lib/`:
   ([[chassis-utilities]])
 - `structured-offload.mjs` — schema-validated, fail-soft calls to a local Ollama or
   OpenAI-compatible endpoint (spec 063); see "Local-model offload" below
+- `port-registry.mjs`, `pdlc-config.mjs`, `receipts.mjs`, `contract-harness.mjs`,
+  `credentials.mjs` — decision-0002's **ports chassis**: port/adapter declaration and
+  `resolve`, `.pdlc.json` adapter selection, byte-deterministic `.<port-dir>/<noun>.json`
+  receipts, one contract suite run against every adapter, and a `git credential fill` →
+  env-var token resolver. Driven by `pdlc/scripts/pdlc.mjs` (`doctor`). See [[ports-chassis]].
 - `html/base.html` — the shared CSS custom-property token schema referenced by toolkit snippets
 - `handoff-protocol.md` — a stamped copy of the canonical `docs/handoff-protocol.md`
   (re-stamped by `scripts/sync-shared.mjs`, drift-tested), shipped here so skills can cite
@@ -98,7 +103,8 @@ The chassis is consumed by every plugin's gates and scripts ([[gates-convention]
 copies through each plugin's `lib` symlink, dereferenced by the marketplace installer and by
 [[build-and-release]]. Its modules are individually documented in [[project-root]],
 [[gate-runner]], [[markdown-module]], [[selfcontained-verifier]], [[lifecycle-engine]],
-[[installer]], [[chassis-utilities]], and [[toolkit]]. Behavior is covered by [[test-suite]].
+[[installer]], [[chassis-utilities]], and [[toolkit]]. The ports-chassis modules are covered
+in full by [[ports-chassis]]. Behavior is covered by [[test-suite]].
 
 ## Operational notes
 

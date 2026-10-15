@@ -15,7 +15,7 @@ sources:
   - educate/scripts/wiki.mjs
   - educate/templates/CLAUDE.md
   - educate/templates/progress.schema.json
-verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
+verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
 ---
 
 # educate plugin

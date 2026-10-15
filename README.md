@@ -55,7 +55,17 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 `spec-derive` (Spec Kit → kanban state) · `spec-source` (working-tree/git-ref resolver for spec
 dirs) · `cli` (symlink-safe run-as-CLI guard) · `board-mirror` (tracked `.board/links.json`
 board mirror: schema, read/write, validate) · `structured-offload` (schema-validated,
-fail-soft calls to a local model).
+fail-soft calls to a local model) · `port-registry` (pdlc ports chassis: port/adapter
+registration and resolve) · `pdlc-config` (pdlc ports chassis: `.pdlc.json` adapter
+configurator) · `receipts` (pdlc ports chassis: byte-deterministic `.<port-dir>/<noun>.json`
+read/write/check, `docs/receipts.md`) · `contract-harness` (pdlc ports chassis: one
+assertion suite run against every port adapter) · `credentials` (pdlc ports chassis:
+resolve a forge token via `git credential fill` then env vars, never a prompt).
+
+The ports chassis' driving side is `pdlc/scripts/pdlc.mjs` (dual-use CLI, `runAsCli`):
+`node pdlc/scripts/pdlc.mjs doctor` prints JSON naming every registered port, its resolved
+adapter and how it was chosen (config/detected/none), and whether it can run here. No port
+is registered yet — `lib/ports/*.mjs` and `lib/adapters/**` land in TASK-0139..0142.
 
 ## Principles
 
