@@ -5,12 +5,12 @@ the subject `TASK-0138: <phase summary>`. Run `node --test` before each commit.
 
 ## Phase 1 — port registry and configurator
 
-- [ ] `lib/port-registry.mjs`: `definePort`, `createRegistry` (`addPort`, `addAdapter`, `ports`, `adapters`, `resolve`), `discover(registry, libDir)`, `PortError` per spec R1
-- [ ] `resolve` rejects a missing method and a missing floor capability, naming port, adapter and each gap
-- [ ] `discover` tolerates absent `ports/` and `adapters/` dirs and loads in sorted file order
-- [ ] Demo fixture: `test/fixtures/ports-demo/lib/ports/demo.mjs`, `adapters/demo/fake.mjs` (in-memory), `adapters/demo/broken.mjs` (missing a method)
-- [ ] `lib/pdlc-config.mjs`: `CONFIG_FILE`, `loadPdlcConfig`, `configure`, `ConfigError` per spec R2 (config → detected → none; malformed / unknown port / unknown adapter → error)
-- [ ] `test/port-registry.test.mjs` and `test/pdlc-config.test.mjs` cover every R1/R2 rule and edge case in the spec
+- [x] `lib/port-registry.mjs`: `definePort`, `createRegistry` (`addPort`, `addAdapter`, `ports`, `adapters`, `resolve`), `discover(registry, libDir)`, `PortError` per spec R1
+- [x] `resolve` rejects a missing method and a missing floor capability, naming port, adapter and each gap
+- [x] `discover` tolerates absent `ports/` and `adapters/` dirs and loads in sorted file order
+- [x] Demo fixture: `test/fixtures/ports-demo/lib/ports/demo.mjs`, `adapters/demo/fake.mjs` (in-memory), `adapters/demo/broken.mjs` (missing a method)
+- [x] `lib/pdlc-config.mjs`: `CONFIG_FILE`, `loadPdlcConfig`, `configure`, `ConfigError` per spec R2 (config → detected → none; malformed / unknown port / unknown adapter → error)
+- [x] `test/port-registry.test.mjs` and `test/pdlc-config.test.mjs` cover every R1/R2 rule and edge case in the spec
 
 ## Phase 2 — receipts and contract-test harness
 

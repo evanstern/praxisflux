@@ -55,7 +55,9 @@ symlink that marketplace installs and `dist/` packaging dereference into a real 
 `spec-derive` (Spec Kit → kanban state) · `spec-source` (working-tree/git-ref resolver for spec
 dirs) · `cli` (symlink-safe run-as-CLI guard) · `board-mirror` (tracked `.board/links.json`
 board mirror: schema, read/write, validate) · `structured-offload` (schema-validated,
-fail-soft calls to a local model).
+fail-soft calls to a local model) · `port-registry` (pdlc ports chassis: port/adapter
+registration and resolve) · `pdlc-config` (pdlc ports chassis: `.pdlc.json` adapter
+configurator).
 
 ## Principles
 
