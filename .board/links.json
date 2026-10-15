@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-10-15T16:22:32.022Z",
+  "generatedAt": "2026-10-15T16:32:28.343Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3732,6 +3732,31 @@
           "index": 11,
           "checked": false,
           "text": "Wiki re-pinned for every note whose sources this change touches; marketplace version and each edited skill version bumped; gates green"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — plant.mjs plants AGENTS.md with a CLAUDE.md pointer"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — repo tooling follows the load-bearing file"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — dogfood this repo, and bootstrap teaches it"
+        },
+        {
+          "index": 15,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — cross-plugin planters and prose (haiku-suitable)"
+        },
+        {
+          "index": 16,
+          "checked": false,
+          "text": "Spec phase: Phase 5 — release, re-ground, gates"
         }
       ],
       "labels": [

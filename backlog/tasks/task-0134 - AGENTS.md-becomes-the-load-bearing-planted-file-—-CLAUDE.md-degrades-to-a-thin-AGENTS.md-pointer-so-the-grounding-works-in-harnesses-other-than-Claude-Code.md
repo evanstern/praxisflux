@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 16:20'
+updated_date: '2026-10-15 16:31'
 labels:
   - pdlc
   - educate
@@ -45,4 +45,15 @@ Spec: specs/074-agents-md
 - [ ] #9 Every prose reference that names CLAUDE.md as the always-on file is corrected: README.md, docs/principles.md, docs/skill-patterns.md, the constitution's source citations, and the root-guard hook's blocking messages
 - [ ] #10 Tests pin the behavior: planting target, pointer content, drift and consent on the new path, migration of an existing plant, and the cross-plugin planters
 - [ ] #11 Wiki re-pinned for every note whose sources this change touches; marketplace version and each edited skill version bumped; gates green
+- [ ] #12 Spec phase: Phase 1 — plant.mjs plants AGENTS.md with a CLAUDE.md pointer
+- [ ] #13 Spec phase: Phase 2 — repo tooling follows the load-bearing file
+- [ ] #14 Spec phase: Phase 3 — dogfood this repo, and bootstrap teaches it
+- [ ] #15 Spec phase: Phase 4 — cross-plugin planters and prose (haiku-suitable)
+- [ ] #16 Spec phase: Phase 5 — release, re-ground, gates
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec 074 authored (spec/plan/tasks). Open checkpoints for operator: OC1 release size (plan takes minor 0.67.0; releasing.md calls planted-file schema changes major); OC2 explainer's own CLAUDE.md planter (explainer/scripts/explainer.mjs:337-343) is out of card scope — recommend a follow-up card or TASK-0139.
+<!-- SECTION:NOTES:END -->
