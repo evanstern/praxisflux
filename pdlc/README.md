@@ -10,11 +10,15 @@ items back onto the board as sweepable tasks.
 
 `bootstrap`:
 
-- Plants the always-on grounding into the project's `CLAUDE.md` — the praxisflux loop, each
-  plugin's role and entry skill, the gates principle, the `.handoff/` transport — inside
-  `<!-- pdlc:grounding BEGIN/END -->` markers, so an existing `CLAUDE.md` is appended to,
-  never clobbered, and updates refresh the block wholesale (drift is diffed and confirmed,
-  never silently overwritten).
+- Plants the always-on grounding into the project's `AGENTS.md` — the load-bearing file every
+  harness reads (Codex, Cursor, Copilot, Gemini CLI, opencode, …, not just Claude Code) — the
+  praxisflux loop, each plugin's role and entry skill, the gates principle, the `.handoff/`
+  transport — inside `<!-- pdlc:grounding BEGIN/END -->` markers, so an existing `AGENTS.md` is
+  appended to, never clobbered, and updates refresh the block wholesale (drift is diffed and
+  confirmed, never silently overwritten). `CLAUDE.md` is planted as a thin pointer (first line
+  `@AGENTS.md`) so Claude Code expands the import and loads the identical grounding bytes; a
+  host still carrying the pre-074 CLAUDE.md-resident block migrates on re-plant under the same
+  diff-and-confirm consent.
 - Gitignores `.handoff/` and stamps a `.pdlc` sentinel recording the plugin version and peer
   choices (the marker `installMode` keys fresh vs. update on).
 - Treats **Backlog.md**, **GitHub Spec Kit**, and **Jira** as officially supported peer

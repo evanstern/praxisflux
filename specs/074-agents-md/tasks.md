@@ -23,12 +23,12 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 3 — dogfood this repo, and bootstrap teaches it
 
-- [ ] `node pdlc/scripts/plant.mjs --root . --peer backlog --force` migrates the root block
-- [ ] Root orientation text and Backlog.md guidelines moved by hand into `AGENTS.md` above the BEGIN marker; `CLAUDE.md` is exactly `@AGENTS.md`
-- [ ] Record on the card whether `backlog` targets AGENTS.md for its guidelines (read its help/config; no guessing)
-- [ ] `plant.mjs --root . --peer backlog --check` exits 0; `check-docs.mjs` and `sync-version.mjs --check` pass
-- [ ] `pdlc/skills/bootstrap/SKILL.md` teaches AGENTS.md-first + pointer purpose; report names both files and which is load-bearing; Output gate verifies markers in AGENTS.md and pointer in CLAUDE.md; `version:` bumped
-- [ ] `pdlc/README.md` updated to match
+- [x] `node pdlc/scripts/plant.mjs --root . --peer backlog --force` migrates the root block
+- [x] Root orientation text and Backlog.md guidelines moved by hand into `AGENTS.md` above the BEGIN marker; `CLAUDE.md` is exactly `@AGENTS.md`
+- [x] Record on the card whether `backlog` targets AGENTS.md for its guidelines (read its help/config; no guessing)
+- [x] `plant.mjs --root . --peer backlog --check` exits 0; `check-docs.mjs` and `sync-version.mjs --check` pass
+- [x] `pdlc/skills/bootstrap/SKILL.md` teaches AGENTS.md-first + pointer purpose; report names both files and which is load-bearing; Output gate verifies markers in AGENTS.md and pointer in CLAUDE.md; `version:` bumped
+- [x] `pdlc/README.md` updated to match
 
 ## Phase 4 — cross-plugin planters and prose (haiku-suitable)
 
