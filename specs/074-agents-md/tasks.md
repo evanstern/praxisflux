@@ -49,7 +49,7 @@ this task's single PR. Each phase is one fresh implementer dispatch.
 
 ## Phase 5 — release, re-ground, gates
 
-- [ ] `node scripts/sync-version.mjs 1.0.0` (OC1: operator chose 1.0.0); re-plant so the block stamp matches
-- [ ] Every edited skill's `version:` increased; `check-version-bump.mjs --base origin/main` passes
-- [ ] `/grounding-wiki:wiki-update` run; every stale note classified and re-pinned honestly (prose saying the block lives in CLAUDE.md amended before re-pin)
-- [ ] All gates green: `node --test`, `check-docs`, `sync-version --check`, `gen-marketplace --check`, `build.mjs`, `plant.mjs --check`, `run-gates spec-bridge`, `run-gates wiki-freshness`
+- [x] `node scripts/sync-version.mjs 1.0.0` (OC1: operator chose 1.0.0); re-plant so the block stamp matches
+- [x] Every edited skill's `version:` increased; `check-version-bump.mjs --base origin/main` passes
+- [x] `/grounding-wiki:wiki-update` run; every stale note classified and re-pinned honestly (prose saying the block lives in CLAUDE.md amended before re-pin)
+- [x] All gates green: `node --test`, `check-docs`, `sync-version --check`, `gen-marketplace --check`, `build.mjs`, `plant.mjs --check`, `run-gates spec-bridge`, `run-gates wiki-freshness`

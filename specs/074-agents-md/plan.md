@@ -204,3 +204,18 @@ ordinary refresh of the explainer block inside AGENTS.md still replaces uncondit
 did before this task. explainer never had a general drift gate, and adding one broke an
 existing behavior test. Adding a gate like pdlc's would be a separate behavior change, out of
 scope here.
+
+## Phase 5 deviation note
+
+`/grounding-wiki:wiki-update`'s `plan` tool only flags a note when a diff touches a path
+already in its `sources:` list. Phase 4b added two new test files — `test/educate-start.test.mjs`
+and `test/research-vault-planter.test.mjs` — that pin the template-rename behavior but aren't
+listed as a source by any wiki note (the existing test-suite catalog notes cite the older,
+broader test files these two narrowed out of). The planner can't flag an uncataloged file, so
+this is a known gap for a future wiki pass, not a gate failure today: `wiki-freshness` only
+checks notes against their own declared sources, and both files are otherwise covered in spirit
+by `test-suite-catalog.md`'s and `test-suite-catalog-plugins-gates-pdlc.md`'s existing
+AGENTS.md-rename bullets. Four notes' prose also needed trimming after the AGENTS.md-rename
+edits pushed them over the 8,000-char body budget (`build-and-release`, `overview`,
+`pdlc-grounding-block`, `test-suite-catalog`); `pdlc-plugin`'s `description` capsule was
+trimmed to the 500-char cap for the same reason. No content was dropped, only condensed.
