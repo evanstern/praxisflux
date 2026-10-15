@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 17:15'
+updated_date: '2026-10-15 17:43'
 labels:
   - pdlc
   - educate
@@ -68,4 +68,6 @@ Orchestrator verification (phase 3): AGENTS.md pre-block text byte-identical to 
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 Phase 4 open items for operator: explainer planter left in CLAUDE.md pending OC2; educate/skills/lesson/SKILL.md has two generic 'project CLAUDE.md' mentions not in the Phase 4 list. Phase 5 held pending OC1 (release size).
+
+Operator rulings 2026-10-15: OC1 release 1.0.0 (major); OC2 explainer planter moves to AGENTS.md in this PR; constitution v1.0.1 signed off; claudeMd report-field meaning change accepted; leftover prose (educate lesson SKILL.md + root orientation) swept in this PR. Spec set amended: new Phase 4b, Phase 5 targets 1.0.0.
 <!-- SECTION:NOTES:END -->
