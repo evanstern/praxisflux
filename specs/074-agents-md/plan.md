@@ -196,3 +196,11 @@ migration is Phase 3's honest-drift step (`plant.mjs --force`), not this check's
 fallback branches are covered in `test/check-docs.test.mjs`. `node --test` (full suite, 1244
 tests), `node scripts/check-docs.mjs`, and `node scripts/sync-version.mjs --check` are all green
 against this repo's current pre-migration root.
+
+## Phase 4b deviation note
+
+`explainer plant` gates only the CLAUDE.md → AGENTS.md **migration** behind `--force`. An
+ordinary refresh of the explainer block inside AGENTS.md still replaces unconditionally, as it
+did before this task. explainer never had a general drift gate, and adding one broke an
+existing behavior test. Adding a gate like pdlc's would be a separate behavior change, out of
+scope here.
