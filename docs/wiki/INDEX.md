@@ -21,6 +21,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[lifecycle-engine]] — ordered states + artifact evidence maps; flags status that outruns proof
 - [[installer]] — plants project CLAUDE.md/templates: copyDir, installMode, ensureGitignore, verifyPresent
 - [[chassis-utilities]] — the small shared utilities: dates.mjs, template.mjs, and cli.mjs (symlink-safe run-as-CLI guard)
+- [[ports-chassis]] — decision-0002's pdlc ports chassis: port/adapter registry+resolve, the .pdlc.json configurator, byte-deterministic receipts, a one-suite contract-test harness, a gh-free credential helper, and the pdlc doctor CLI; no port registered yet
 - [[toolkit]] — shared *content* modules (pedagogy, diagrams, tooltips) skills read while authoring
 
 ## Plugins

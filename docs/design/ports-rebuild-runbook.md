@@ -226,6 +226,13 @@ Dependencies: 0140 and 0141 need 0138. 0139 needs 0138 and 0134. 0142 needs 0141
   CLI; needs 0134's AGENTS.md). It rewrites the same skill bodies as 0140. Treat it as
   sharing 0140's footprint: merge whichever is smaller first, then reconcile the other.
 - **Lane 2 (after 0141 merges):** TASK-0142 (Spec — derivation behind the port).
+- **C3 (raised 2026-10-15 during TASK-0138 spec authoring; must be ruled before TASK-0140):**
+  decision-0002 places adapters under `lib/adapters/<port>/` but also says `lib/` makes no
+  network calls, and the github REST adapter must call `fetch`. TASK-0138's plan assumes the
+  no-network rule binds `gates/` and the chassis core, with network code allowed only in
+  `lib/adapters/**`. Existing precedent: `lib/structured-offload.mjs` already calls `fetch`
+  (spec 063). TASK-0138's boundary scan covers only its own new files, so it forecloses
+  nothing.
 - Tier expectation: sonnet for all four once each spec is written. TASK-0140's merge
   receipt timing (C2 sub-question) and TASK-0141's backlog-md ruling are their operator
   checkpoints.
@@ -236,3 +243,5 @@ Dependencies: 0140 and 0141 need 0138. 0139 needs 0138 and 0134. 0142 needs 0141
 |------|------|----|-------|---------------------------|-------|
 | 2026-10-13 | — | — | — | — | runbook authored (draft); awaiting operator sign-off + C1/C2 |
 | 2026-10-15 | — | — | — | — | C1 (.pdlc.json) and C2 (.<port>/<noun>.json) ruled by operator; lanes signed off same day; execution started |
+| 2026-10-15 | TASK-0138 | #155 (open) | — | ~1.1M subagent tokens (5 sonnet phases ~0.85M + spec authoring 0.21M) | claim 35ff8ab; spec 29028fe; phases 1-5 done, all sonnet served; 9 gates re-verified by orchestrator; C3 parked for next sweep |
+| 2026-10-15 | TASK-0134 | — | — | — | claim 93374a4; spec c921646; phases: 1-4 done (sonnet served), 5 held on OC1-OC2 + constitution/claudeMd rulings |

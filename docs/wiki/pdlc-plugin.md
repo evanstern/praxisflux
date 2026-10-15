@@ -9,11 +9,13 @@ sources:
   - pdlc/skills/design-rounds/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/scripts/tiers.mjs
+  - pdlc/scripts/pdlc.mjs
   - pdlc/templates/CLAUDE.md
   - pdlc/templates/model-tiers.json
   - pdlc/hooks/read-size-gate.mjs
   - pdlc/hooks/README-read-size-gate.md
-verified_against: 617c27cb8a6578af4d6541f51c2d5c7522cfacf0
+size_budget_exempt: over cap and growing — 8047/8000 at TASK-0138; splitting is separable
+verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
 ---
 
 # pdlc plugin
@@ -127,6 +129,8 @@ hook** (spec 051 / TASK-101) enforcing root-read-only + worktree-only — the su
 hard-blocks a tool call (exit 2). `--hook root-guard` copies BOTH `root-guard-hook.mjs` and
 `shell-scan.mjs` into `.claude/hooks/` plus two merged `PreToolUse` entries into
 `.claude/settings.json` — **opt-in, never default-on**, recorded in `.pdlc`'s `hooks`.
+
+A second dual-use entry, `pdlc/scripts/pdlc.mjs`, sits beside `plant.mjs`: see [[ports-chassis]].
 
 Since 0.63.2 (spec 064) a **second** planted hook, `read-size-gate.mjs`, denies Read/Bash
 reads over a configurable line threshold (default 500), redirecting to capsule-first loading

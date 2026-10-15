@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "provider": "backlog",
-  "generatedAt": "2026-10-15T17:52:01.256Z",
+  "generatedAt": "2026-10-15T19:20:22.481Z",
   "links": [
     {
       "id": "TASK-27",
@@ -3763,6 +3763,95 @@
         "pdlc",
         "educate",
         "research",
+        "feature"
+      ],
+      "dispatches": [
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5",
+        "tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5"
+      ]
+    },
+    {
+      "id": "TASK-0138",
+      "status": "In Progress",
+      "specDir": "specs/073-ports-chassis",
+      "acs": [
+        {
+          "index": 1,
+          "checked": false,
+          "text": "A port registry resolves an adapter by port and name and rejects an adapter missing a required method or a declared floor capability"
+        },
+        {
+          "index": 2,
+          "checked": false,
+          "text": "The configurator reads each port's adapter from one repo config file and falls back to detection; the config file choice is recorded in the task notes"
+        },
+        {
+          "index": 3,
+          "checked": false,
+          "text": "Receipt conventions are documented and a helper writes byte-deterministic receipts that a gate can --check"
+        },
+        {
+          "index": 4,
+          "checked": false,
+          "text": "A contract-test harness runs one node --test suite against a list of adapter factories; a demo port with a fake adapter proves it"
+        },
+        {
+          "index": 5,
+          "checked": false,
+          "text": "A pdlc CLI exists with JSON output; pdlc doctor lists each port, its configured adapter, and whether that adapter can run here"
+        },
+        {
+          "index": 6,
+          "checked": false,
+          "text": "A credential helper returns a token for a remote host via git credential fill, then env vars, and never prints the token"
+        },
+        {
+          "index": 7,
+          "checked": false,
+          "text": "No new runtime dependencies; nothing requires gh, glab, tea, backlog, rg or jq"
+        },
+        {
+          "index": 8,
+          "checked": false,
+          "text": "Tests cover registry, configurator, receipts, harness, doctor and credential helper; full suite green"
+        },
+        {
+          "index": 9,
+          "checked": false,
+          "text": "Wiki re-pinned for touched sources; marketplace and edited skill versions bumped per docs/releasing.md; gates green"
+        },
+        {
+          "index": 10,
+          "checked": false,
+          "text": "Spec phase: Phase 1 — port registry and configurator"
+        },
+        {
+          "index": 11,
+          "checked": false,
+          "text": "Spec phase: Phase 2 — receipts and contract-test harness"
+        },
+        {
+          "index": 12,
+          "checked": false,
+          "text": "Spec phase: Phase 3 — credential helper"
+        },
+        {
+          "index": 13,
+          "checked": false,
+          "text": "Spec phase: Phase 4 — pdlc CLI, doctor, and boundary checks"
+        },
+        {
+          "index": 14,
+          "checked": false,
+          "text": "Spec phase: Phase 5 — docs, wiki, version, gates"
+        }
+      ],
+      "labels": [
+        "pdlc",
+        "chassis",
         "feature"
       ],
       "dispatches": [

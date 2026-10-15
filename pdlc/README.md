@@ -38,6 +38,21 @@ bootstrap sets the table and hands off to `wiki-build`, `spec-bridge:link`, and
 /pdlc:bootstrap          # fresh install, or idempotent update after a plugin upgrade
 ```
 
+## `pdlc` CLI — the driving port
+
+`pdlc/scripts/pdlc.mjs` (dual-use via `lib/cli.mjs`'s `runAsCli`) is decision-0002's driving
+port: the one entry point a human or CI runs against the ports chassis in `lib/`
+(`port-registry`, `pdlc-config`, `receipts`, `contract-harness`, `credentials` — see
+`lib/README.md` and `docs/wiki/ports-chassis.md`). It outputs JSON on stdout; usage errors
+exit 2, configuration errors exit 1 with `{ "error": … }`.
+
+```
+node pdlc/scripts/pdlc.mjs doctor   # every registered port: adapter, source, canRun, reason
+```
+
+No port is registered yet (`doctor` reports `ports: []` on this repo) — TASK-0139..0142 add
+the tracker/forge/spec/harness ports and their adapters.
+
 `sweep` — the board-sweep orchestrator. Given a set of board tasks (ids, a label, or a
 synthesis doc naming them), it **authors a dependency-laned runbook** — develop-parallel /
 merge-serial lanes, model tiers per the host rubric, the project's per-PR gates enumerated,
