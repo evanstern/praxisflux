@@ -82,6 +82,12 @@ bytes), and that block is versioned. Upgrading the plugin does
 not touch what was already planted — so a host that upgrades and stops there keeps running last
 release's doctrine. This is the upgrade path for those hosts.
 
+**1.0.0 is a one-time migration, not just a version bump.** Spec 074 moved the planted-file
+contract itself: the block's home changed from `CLAUDE.md` to `AGENTS.md`. A host still carrying
+the pre-1.0.0 CLAUDE.md-resident block sees this on upgrade as the migration case (R4): re-plant
+reports `claudeMd: "drifted"` and writes nothing until the operator consents with `--force`,
+exactly like any other drifted block — never a silent move.
+
 **The staleness test.** `.pdlc` in the project root stamps the version that planted the block,
 and the block's own BEGIN marker repeats it:
 
