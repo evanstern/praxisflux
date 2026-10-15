@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-09-20 01:59'
-updated_date: '2026-10-15 16:31'
+updated_date: '2026-10-15 16:46'
 labels:
   - pdlc
   - educate
@@ -56,4 +56,6 @@ Spec: specs/074-agents-md
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec 074 authored (spec/plan/tasks). Open checkpoints for operator: OC1 release size (plan takes minor 0.67.0; releasing.md calls planted-file schema changes major); OC2 explainer's own CLAUDE.md planter (explainer/scripts/explainer.mjs:337-343) is out of card scope — recommend a follow-up card or TASK-0139.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
