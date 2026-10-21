@@ -1,7 +1,7 @@
 ---
 name: pr-review-sweep
-version: 0.1.0
-description: Work a GitHub pull-request review end to end — read the review and every child comment, triage each one (fix / pass with a reasoned reply / already covered by an epic or ticket / defer to its own task), card the accepted fixes and the deferrals on the Backlog board, run pdlc:sweep over the fix tasks, then reply on each review thread with the fix commit or the reason for passing. Use when the user hands over a PR review URL or comment link and says "address these comments", "examine this review and its children", "triage the PR feedback", "fix the review comments and reply", or "pass on what's not valid but say why". Not for reviewing a PR (that is a review skill), not for evaluating merged work (pdlc:refactor-triage), and not for a task set that did not come from review comments (pdlc:sweep directly).
+version: 0.2.0
+description: Work a GitHub pull-request review end to end — read the review and every child comment, triage each one (fix / pass with a reasoned reply / already covered by an epic or ticket / defer to its own task), card the accepted fixes and the deferrals on the Backlog board, run pdlc:sweep over the fix tasks, then reply on each review thread with the fix commit or the reason for passing. Use when the user hands over a PR review URL or comment link and says "address these comments", "examine this review and its children", "triage the PR feedback", "fix the review comments and reply", or "pass on what's not valid but say why" — including a single reviewer comment to act on ("reviewer says X, is that right? fix it and answer them") and PRs that are already merged. Not for reviewing a PR (that is a review skill), not for evaluating merged work (pdlc:refactor-triage), and not for a task set that did not come from review comments (pdlc:sweep directly).
 ---
 
 # pdlc:pr-review-sweep — review comments → triage → tasks → sweep → replies
@@ -50,9 +50,23 @@ tasks** (one per accepted fix or deferral, each citing its comment id), and the
    git worktree list    # is the head branch already checked out somewhere?
    ```
 
+   **A merged or closed PR changes the base.** After a squash merge the head branch's
+   commits (including the one the review was written at) are not in the default branch's
+   history, and the branch itself may be deleted. Fetch them through the PR ref
+   (`git fetch origin pull/<N>/head`) to read the code as the reviewer saw it, and read
+   *current* behaviour on the default branch's tip — a defect is only still real if it is
+   there. Any fix is cut from the default branch's tip, not the stale head.
+
+   When `git clone`/`fetch` cannot authenticate (a headless or token-only machine), read
+   code with `gh api repos/<o>/<r>/contents/<path>?ref=<sha>` instead; it needs no git
+   credential.
+
    Read the comments' `path:line` against the **head SHA the review was written at**
-   (`pull_request_review.commit_id`), not against whatever HEAD is now — lines move.
-   Fixes are cut from `origin/<headRefName>`, never from the default branch, and the
+   (`pull_request_review.commit_id`), not against whatever HEAD is now — lines move. When
+   the API returns `line` as null, use `original_line`, then `diff_hunk`, and finally locate
+   the code by the symbol the comment names.
+   For an **open** PR, fixes are cut from `origin/<headRefName>`, never from the default
+   branch (the merged-PR rule above covers the other case), and the
    head branch's own worktree (often locked, possibly behind origin) is only touched at
    landing, by fast-forwarding it first.
 
@@ -65,11 +79,19 @@ gh api repos/<o>/<r>/pulls/<N>/reviews/<review-id>/comments --paginate \
 gh api repos/<o>/<r>/pulls/<N>/comments --paginate   # replies / sibling threads, when the review has children
 ```
 
+Note which threads **already have a reply** from the operator or a prior run. A review is
+often worked in rounds, and replying twice under the operator's name is noise the reviewer
+has to read.
+
 Read the review body as well as the inline comments — it usually ranks them ("the two I'd
 look at first") and states what the reviewer verified live versus read. That ranking is
 evidence for triage; keep it. Collect every comment id, its path/line, and any child
 replies (`in_reply_to_id`). Anything the reviewer says they did **not** run is a claim
 you must verify against the code before accepting it.
+
+If every thread is already resolved (a reply plus a fix on the current base), the round is
+done: report that, with the evidence, and stop. A request to "run the sweep" does not oblige
+the skill to invent tasks for a sweep with nothing to carry.
 
 ## Phase 2 — TRIAGE
 
@@ -81,6 +103,7 @@ current head, and assign exactly one disposition:
 | **fix** | The defect is real; the reviewer's repro (or yours) shows it. | Board task → sweep → reply with the commit. |
 | **pass — not valid** | The claim is wrong, already handled, or out of the PR's contract. | Reply with the reason and the evidence (file:line, a test, a spec/decision record). No task. |
 | **pass — covered** | An existing epic/ticket already owns it (e.g. the Jira epic the user named, its children, or an existing board task). | Reply linking the ticket. No new task — unless the gap is easy to fix now **or** a blocker for other work, in which case it is a **fix**. |
+| **already resolved** | A reply and a fix for this exact comment already exist (check the thread, then the code on the current base). | Verify the fix is present at the current base — read the code, and run the test the reply names when it is cheap; no task, no new reply. If every comment in the review lands here, say so and stop: a clean "nothing left to do" is a valid outcome, not a reason to invent work. Replies that quote pre-squash SHAs stay as they are unless the operator wants a correction. If it is not actually there, it is a **fix**. |
 | **defer** | Real but not a blocker for this change, and better handled in its own task/PR. | Board task (labelled `deferred`) → reply linking it. Not swept this round. |
 
 Rules that keep the triage honest:
@@ -96,6 +119,12 @@ Rules that keep the triage honest:
 - **Parity claims need the baseline.** "Matches master's behaviour" (a reviewer's own
   non-blocking note, say) is a defer-with-record, not a silent drop: check the baseline,
   then card the decision so it is revisited deliberately.
+- **A reviewer's question can be a real bug.** "Does this handle X?" with no claim attached
+  is still a finding if the answer is no. Answer it from the code, and treat a "no" as a fix.
+- **Sweep for siblings.** When a defect is a pattern (single-quoted shell interpolation, a
+  copied constant), grep the codebase for the same pattern before carding. The reviewer
+  usually names one site; the task should fix every site, or card the rest explicitly —
+  otherwise the same review comes back next round about the next copy.
 - **Do not split by effort alone.** An easy fix inside the same file as a harder one still
   rides the sweep as its own task; the sweep's lanes handle the overlap.
 
@@ -103,16 +132,21 @@ Write the **triage record** (table: comment id · path:line · disposition · re
 · task id once carded) and commit it. This is the artifact the next session reads instead
 of re-triaging.
 
-**Operator checkpoint:** if the user authorized "decide each one yourself", proceed;
-otherwise show the disposition table and get a go-ahead before carding. Every *pass*
-becomes a public reply under the operator's name — they should know which ones.
+**Operator checkpoint:** if the user gave you the decision criteria ("pass if invalid,
+defer if not a blocker") you are authorized to apply them to fixes and tasks — carding is
+internal. Public replies are the outward-facing part: a *pass* or *defer* reply speaks for
+the operator, so show those dispositions (and the reply drafts) and get a go-ahead unless
+they said to post without asking. Reply drafts for *fix* dispositions need the same
+go-ahead, but only at reply time (Phase 5).
 
 ## Phase 3 — CARD
 
 One task per **fix** and per **defer**, via the `backlog` CLI/MCP (never hand-edit task
 files; see `docs/board-verbs.md`):
 
-- Title leads with a stable review id (`PR43-5: …`), so threads and tasks cross-reference.
+- Title leads with a stable review id so threads and tasks cross-reference: `PR<N>-<n>`
+  continuing the PR's existing sequence (`board:list` the `pr<N>-review` label first), or
+  `PR<N>-R<round>-<n>` when no ordering exists. Never reuse an id from an earlier round.
 - Description: the reviewer, the comment id/URL, path:line, the defect in one paragraph,
   and the suggested fix. Acceptance criteria are checkable — include the **test that would
   have caught it**, not only the behaviour.
@@ -121,7 +155,16 @@ files; see `docs/board-verbs.md`):
   is not on the default branch yet.
 - Priority from the reviewer's ranking and blast radius, not from effort.
 
-Add the task id back into the triage record. Check the board for an existing task that
+Add the task id back into the triage record. Put the record where the host keeps review
+artifacts (`docs/reviews/` is pdlc's convention; follow the host's CLAUDE.md if it says
+otherwise). If the repo has no `backlog/` board or no tracked docs dir, the carding step has
+nothing to land on: say so, write the record and task drafts to a file the operator
+names, and stop short of the sweep — an untracked fix is not tracked work.
+
+Mirror deferrals to an external tracker (a Jira epic, say) only when the host's rules ask
+for it, the user said to, or the user named that epic as the home for such follow-ups;
+otherwise the board task is the record. Use one id per item everywhere — the board task id
+in the record and the reply, with the `PR<N>-<n>` review id in its title. Check the board for an existing task that
 already covers a finding before creating a duplicate.
 
 ### Deferral = task, not PR
@@ -157,8 +200,9 @@ invocation). Pass the sweep what it cannot discover:
   real footprints.
 - **Spec Kit may be root-local.** Hosts often keep `.specify/` and `specs/` untracked and
   git-excluded (`.git/info/exclude`); a fresh worktree then has neither and the
-  precondition looks failed when it is not. Check the **repository root** (`git rev-parse
-  --git-common-dir`'s parent), including `specs/` numbering, before treating it as missing.
+  precondition looks failed when it is not. Check the **repository root** — `ls "$(dirname "$(git rev-parse --git-common-dir)")/.specify"` —
+  including `specs/` numbering, before treating it as missing. That read is the only
+  thing a dry run may do in the root checkout.
   If it is genuinely absent, stop and offer the sweep's two real options — install it, or
   an operator-signed escape line for this one sweep — and wait; never decide it inline.
 - **Lane sign-off is the operator's.** Propose lanes, get the go-ahead (the sweep already
@@ -177,9 +221,17 @@ see it, and confirm with the operator first unless they have already authorized 
   If the commit is local (standing orders forbade pushing task branches), the SHA is a dead
   link until the head branch is pushed: reply after that push, or say plainly "fixed on the
   head branch, lands with the next push".
+- **Squash-merged PR:** commit SHAs from the PR's own branch stop resolving on the default
+  branch after a squash. Quote the squash commit, or the SHA with a "(pre-squash; see PR
+  ref)" note, so the link means something.
+- **Already replied:** skip threads whose existing reply is accurate; post a correction only
+  if the earlier reply is wrong.
 - **Pass — not valid / covered:** the reason and the evidence, no defensiveness. Link the
   ticket for *covered*.
-- **Defer:** the task id (or URL) and the reason it is separate.
+- **Defer:** the task id (or URL) and the reason it is separate. A local-only board
+  (gitignored `backlog/`) is not something the reviewer can open: also give them something
+  reachable — the tracked triage record's path, or the external ticket — and say what the
+  deferred item will change.
 - Post as a reply to the comment, not a new top-level review:
 
   ```bash
