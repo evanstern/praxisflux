@@ -7,4 +7,4 @@
 ## Phase 3: Grounding
 - [x] T004 Wiki: re-verify pdlc-plugin and overview; add skill note; freshness gate green
 ## Phase 4: Live check
-- [ ] T005 One live (non-dry-run) use with replies held; record result
+- [x] T005 Live (non-dry-run) use — WAIVED by operator 2026-10-21: no unresolved review exists to run it on; the first real use is the live test, and any gap it finds is a follow-up task
