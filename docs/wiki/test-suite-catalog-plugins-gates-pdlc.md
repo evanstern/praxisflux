@@ -7,7 +7,7 @@ sources:
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
   - test/read-size-gate.test.mjs
-verified_against: 266c5c04f8774deb7059f85ea43502694c677fb9
+verified_against: 3f589f8ae10daad8307d2851e68bd844e5b0e234
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
@@ -40,7 +40,10 @@ One bullet per `test/*.test.mjs` file:
   phase-content anchors (triage-record path, `board:create`-routed Execute, team-review lens),
   three entry modes + declared-policy headless rule, sweep's Handing off naming
   refactor-triage, and a cross-plugin test that refactor-triage and team-review spell
-  `docs/reviews/team-review-<run-id>.md` identically; and **local-only planting mode**
+  `docs/reviews/team-review-<run-id>.md` identically; the pr-review-sweep skill shape
+  (TASK-0145) — frontmatter with a "Use when" description, the full phase skeleton, and
+  anchors for head-branch lookup, standing-order override, the deferral-is-a-task rule,
+  merged-PR ref fetching, and outward-facing reply gating; and **local-only planting mode**
   (spec 060) — `excludeSet({ peers, hooks })`'s always-on lines plus exactly-scoped
   peer/hook additions; `ensureExclude` writing + idempotence, the `.git`-as-worktree-
   pointer-file case (resolves to the real gitdir), and the no-`.git` degradation (never
