@@ -5,6 +5,6 @@
 - [x] T002 plugin.json, marketplace.json, pdlc README, template, root README, planted CLAUDE.md block
 - [x] T003 Test anchors in test/pdlc.test.mjs
 ## Phase 3: Grounding
-- [ ] T004 Wiki: re-verify pdlc-plugin and overview; add skill note; freshness gate green
+- [x] T004 Wiki: re-verify pdlc-plugin and overview; add skill note; freshness gate green
 ## Phase 4: Live check
 - [ ] T005 One live (non-dry-run) use with replies held; record result
