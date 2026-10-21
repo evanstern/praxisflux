@@ -1,6 +1,6 @@
 {
   "name": "explainer",
-  "version": "0.66.0",
+  "version": "0.68.0",
   "description": "Build cited, house-style HTML explainers (PR explainers, architecture sites, decision briefings, onboarding guides) from facts grounded in code and docs/wiki, with checks that block a broken publish.",
   "author": {
     "name": "praxisflux maintainers"
