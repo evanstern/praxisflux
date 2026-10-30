@@ -3,10 +3,11 @@ id: TASK-0144
 title: >-
   root-guard treats a worktree as the root checkout when a session opens on that
   worktree
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-18 19:07'
-updated_date: '2026-10-30 02:19'
+updated_date: '2026-10-30 02:33'
 labels:
   - pdlc
   - bug
@@ -35,6 +36,15 @@ Fix direction: derive the root checkout from `git rev-parse --git-common-dir` (t
 - [ ] #3 A session whose CLAUDE_PROJECT_DIR is the root keeps today's behavior for root and worktrees
 - [ ] #4 Tests cover a session rooted at a linked worktree
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Merge origin/main into the branch; re-bump the version if it collides.
+2. Review e55393c against each AC; run node --test and scripts/check-docs.mjs.
+3. Re-ground the wiki if the freshness gate fails.
+4. Tick ACs on evidence, write the final summary, set Done, push, open the PR.
+<!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
