@@ -3,11 +3,11 @@ id: TASK-0146
 title: >-
   Kimi-tier bake-off: trial kimi/kimi-for-coding as an implementer tier via
   9router
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-29 05:04'
-updated_date: '2026-10-30 02:18'
+updated_date: '2026-10-30 02:21'
 labels:
   - model-tiers
   - experiment
@@ -29,7 +29,7 @@ ordinal: 173000
 - [x] #4 Pick one small spec'd board task; dispatch it to sonnet-implementer and kimi-implementer in separate worktrees
 - [x] #5 Record a Dispatch line per run with served= taken from the transcript
 - [x] #6 Record per run: served model, total tokens, tool-call errors, and review fixes needed
-- [ ] #7 Write a recommendation (adopt, adopt for a narrower scope, or drop) in the final summary
+- [x] #7 Write a recommendation (adopt, adopt for a narrower scope, or drop) in the final summary
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -62,4 +62,22 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 - First sonnet dispatch failed: passing the Agent model param 'sonnet' overrode the frontmatter pin to claude-sonnet-5-5 (404 model_not_found). Orchestrator error; re-dispatched without the param. Lesson: on this host omit the model param and rely on the frontmatter pin.
 - Diff: +119/-9 (hook +47/-8, tests +71, 6 new tests). node --test 1322/1322.
 - Review: pre-bash correct (same probe matrix as kimi). runPreWrite left on CLAUDE_PROJECT_DIR: a worktree-rooted session is BLOCKED writing inside its own worktree (exit 2) and ALLOWED writing at root (exit 0), the inverse of intent. Its tests do not cover pre-write. Fixes needed: 1 (re-key runPreWrite + tests).
+
+Tier description update dispatched (26,928 tokens, 7 tool uses, 0 errors; commit 147c7c7).
+Dispatch: tier=kimi pinned=kimi/kimi-for-coding served=kimi-for-coding
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Recommendation: ADOPT FOR A NARROWER SCOPE. Keep kimi as a non-default tier for implementation against a written spec with tight, testable ACs. Sonnet stays the default; opus stays escalation.
+
+Evidence (one sample, TASK-0144 root-guard fix, identical prompt):
+- kimi-for-coding: 52.6K tokens, 21 tool uses, 0 tool errors, 0 review fixes; it covered pre-bash and pre-write, with 9 tests; 1324/1324 green. The operator kept this run as TASK-0144's branch (task-0144-root-guard-worktree).
+- claude-sonnet-5: 111.5K tokens, 47 tool uses, 0 edit errors, 1 review fix (runPreWrite left on CLAUDE_PROJECT_DIR, which inverts the write policy for worktree-rooted sessions); 1322/1322 green.
+- Tool-use translation through 9router worked in all 3 kimi dispatches (probe, bake-off, tier edit).
+
+Limits: one task is not a distribution. The narrower scope is deliberate until more samples exist. Dispatch only through the frontmatter pin, because the Agent tool's model param rejects non-Claude IDs. On this host, passing model=sonnet also overrides the frontmatter pin with a 404-ing ID, so omit the param for every tier.
+
+Shipped: kimi tier in .claude/model-tiers.json with the bake-off scope, plus the regenerated .claude/agents/kimi-implementer.md.
+<!-- SECTION:FINAL_SUMMARY:END -->
