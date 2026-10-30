@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-18 19:07'
-updated_date: '2026-10-30 02:33'
+updated_date: '2026-10-30 02:34'
 labels:
   - pdlc
   - bug
@@ -31,10 +31,10 @@ Fix direction: derive the root checkout from `git rev-parse --git-common-dir` (t
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A session whose CLAUDE_PROJECT_DIR is a linked worktree can commit in that worktree
-- [ ] #2 The same session is still blocked from non-board commits in the main (root) checkout
-- [ ] #3 A session whose CLAUDE_PROJECT_DIR is the root keeps today's behavior for root and worktrees
-- [ ] #4 Tests cover a session rooted at a linked worktree
+- [x] #1 A session whose CLAUDE_PROJECT_DIR is a linked worktree can commit in that worktree
+- [x] #2 The same session is still blocked from non-board commits in the main (root) checkout
+- [x] #3 A session whose CLAUDE_PROJECT_DIR is the root keeps today's behavior for root and worktrees
+- [x] #4 Tests cover a session rooted at a linked worktree
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -52,4 +52,6 @@ Fix direction: derive the root checkout from `git rev-parse --git-common-dir` (t
 Implemented during the TASK-0146 bake-off by kimi-implementer (operator kept this run, 2026-10-29). Branch task-0144-root-guard-worktree, worktree .worktrees/task-0144, commit e55393c, pushed, no PR yet. Reviewed: 0 fixes needed; node --test 1324/1324.
 Dispatch: tier=kimi pinned=kimi/kimi-for-coding served=kimi-for-coding
 Remaining before PR: claim the card on the branch, wiki-update for root-guard notes, tick ACs.
+
+Verified on merged branch (origin/main e17e7e4 merged): node --test 1324/1324; root-guard suite 74/74. AC1: worktree-rooted commit IN worktree ALLOWED test. AC2: worktree-rooted commit/amend/checkout -b/tracked write AT ROOT BLOCKED tests; board-sync at root still ALLOWED. AC3: 20 pre-existing root-rooted tests unchanged and passing. AC4: 8 new worktree-rooted tests (6 pre-bash, 2 pre-write). Version 0.68.1 does not collide (main 0.68.0).
 <!-- SECTION:NOTES:END -->
