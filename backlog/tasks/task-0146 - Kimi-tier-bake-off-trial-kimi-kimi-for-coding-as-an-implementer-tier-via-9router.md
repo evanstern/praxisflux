@@ -3,9 +3,11 @@ id: TASK-0146
 title: >-
   Kimi-tier bake-off: trial kimi/kimi-for-coding as an implementer tier via
   9router
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-29 05:04'
+updated_date: '2026-10-30 01:58'
 labels:
   - model-tiers
   - experiment
@@ -29,3 +31,9 @@ ordinal: 173000
 - [ ] #6 Record per run: served model, total tokens, tool-call errors, and review fixes needed
 - [ ] #7 Write a recommendation (adopt, adopt for a narrower scope, or drop) in the final summary
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add kimi tier to .claude/model-tiers.json  2. Regenerate agent defs  3. Restart session, confirm dispatchable  4. Bake-off sonnet vs kimi on one small spec'd task  5. Record results + recommendation
+<!-- SECTION:PLAN:END -->
