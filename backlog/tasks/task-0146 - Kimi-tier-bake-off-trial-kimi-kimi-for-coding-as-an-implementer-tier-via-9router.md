@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-29 05:04'
-updated_date: '2026-10-30 02:00'
+updated_date: '2026-10-30 02:01'
 labels:
   - model-tiers
   - experiment
@@ -42,4 +42,6 @@ ordinal: 173000
 
 <!-- SECTION:NOTES:BEGIN -->
 kimi tier added and regenerated; --check green. Next: restart session (agent registry is read at session start) before AC3.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
 <!-- SECTION:NOTES:END -->
