@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-29 05:04'
-updated_date: '2026-10-30 01:58'
+updated_date: '2026-10-30 02:00'
 labels:
   - model-tiers
   - experiment
@@ -23,8 +23,8 @@ ordinal: 173000
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Add a kimi tier (model kimi/kimi-for-coding, non-default, non-escalation) to .claude/model-tiers.json
-- [ ] #2 Regenerate agent definitions with pdlc/scripts/tiers.mjs; --check exits 0
+- [x] #1 Add a kimi tier (model kimi/kimi-for-coding, non-default, non-escalation) to .claude/model-tiers.json
+- [x] #2 Regenerate agent definitions with pdlc/scripts/tiers.mjs; --check exits 0
 - [ ] #3 Restart the session; confirm kimi-implementer is dispatchable
 - [ ] #4 Pick one small spec'd board task; dispatch it to sonnet-implementer and kimi-implementer in separate worktrees
 - [ ] #5 Record a Dispatch line per run with served= taken from the transcript
@@ -37,3 +37,9 @@ ordinal: 173000
 <!-- SECTION:PLAN:BEGIN -->
 1. Add kimi tier to .claude/model-tiers.json  2. Regenerate agent defs  3. Restart session, confirm dispatchable  4. Bake-off sonnet vs kimi on one small spec'd task  5. Record results + recommendation
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+kimi tier added and regenerated; --check green. Next: restart session (agent registry is read at session start) before AC3.
+<!-- SECTION:NOTES:END -->
