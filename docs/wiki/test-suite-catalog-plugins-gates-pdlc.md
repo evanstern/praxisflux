@@ -7,7 +7,7 @@ sources:
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
   - test/read-size-gate.test.mjs
-verified_against: 483de9c6e8589eed8be697c67fc66d2c465cde40
+verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)

@@ -24,7 +24,7 @@ size_budget_exempt: over cap and growing — 7998/8000 at spec 058 (TASK-104, th
   projectGates, requireDispatchRecord — are the natural child, ~2,500 chars of substance, well
   over the ~1,500-char minimum-content counter-rule). Fold this note into that split and remove
   the exemption; do not treat the exemption as a licence to keep appending.
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
 ---
 
 # spec-bridge plugin

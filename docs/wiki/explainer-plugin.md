@@ -15,7 +15,7 @@ sources:
   - explainer/scripts/lib/check.mjs
   - explainer/scripts/lib/plant.mjs
   - explainer/templates/AGENTS.md
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
 ---
 
 # explainer plugin
