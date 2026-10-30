@@ -7,7 +7,7 @@ sources:
   - test/root-guard-hook.test.mjs
   - test/root-guard-scan.test.mjs
   - test/read-size-gate.test.mjs
-verified_against: 3f589f8ae10daad8307d2851e68bd844e5b0e234
+verified_against: 27fdb9fbde01c8823c4c16ccaaede374b22de05d
 ---
 
 # Test suite — per-file coverage catalog (pdlc's own gates)
@@ -77,7 +77,9 @@ One bullet per `test/*.test.mjs` file:
   stdin contract (spec 051), every hazard BOTH ways: newline, `)`, `'`, `"`, `;`, `|`,
   backtick each ALLOWED `backlog/`-scoped and still BLOCKED out of scope; heredocs,
   cross-repo jurisdiction, the content false-positive, unparseable-implies-unexecutable,
-  the deny set.
+  the deny set; a session rooted at a linked worktree (TASK-0144 — `CLAUDE_PROJECT_DIR` is the
+  worktree, root derived from `git rev-parse --git-common-dir`): commits and writes in the
+  worktree ALLOWED, root-policy still enforced at the main checkout.
 - `test/read-size-gate.test.mjs` — the planted read-size-gate hook (spec 064), end-to-end
   spawn per case over its `PreToolUse` stdin contract: over-threshold `pre-read`/`pre-bash`
   deny asserted on the exact current `hookSpecificOutput.permissionDecision` schema path
