@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// check-docs.mjs — the deterministic half of docs-sync: README.md and CLAUDE.md must name
+// check-docs.mjs — the deterministic half of docs-sync: README.md and AGENTS.md must name
 // what the repo actually ships.
 //
 //   node scripts/check-docs.mjs        # exit 1 with a problem list if any doc is out of sync
@@ -9,11 +9,13 @@
 // marketplace doesn't register (the census is two-way); every "<N> plugins" count claim in
 // README prose (digits or number words, e.g. "Nine plugins are registered") equals the
 // marketplace plugin count — so count drift is a gate failure, not a review finding; every
-// lib/*.mjs chassis module is named in README's chassis section; CLAUDE.md links
-// docs/releasing.md. The semantic half of docs-sync — prose matching current code — is the
-// wiki freshness gate's job (docs/wiki notes source README.md and CLAUDE.md, so editing them
-// pulls the wiki-update loop in). CI and the Stop hook run both.
-import { readFileSync, readdirSync } from "node:fs";
+// lib/*.mjs chassis module is named in README's chassis section; AGENTS.md — the load-bearing
+// planted file every harness reads, spec 074 — links docs/releasing.md; CLAUDE.md's first line
+// is the `@AGENTS.md` pointer, so it can never silently regress back into a content file. The
+// semantic half of docs-sync — prose matching current code — is the wiki freshness gate's job
+// (docs/wiki notes source README.md and AGENTS.md, so editing them pulls the wiki-update loop
+// in). CI and the Stop hook run both.
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAsCli } from "../lib/cli.mjs";
@@ -29,6 +31,11 @@ export function checkDocs(root) {
   const problems = [];
   const readme = readFileSync(join(root, "README.md"), "utf8");
   const claude = readFileSync(join(root, "CLAUDE.md"), "utf8");
+  // AGENTS.md is the load-bearing planted file (spec 074); a host not yet re-planted still
+  // carries the content in CLAUDE.md itself — fall back to it rather than throw on ENOENT.
+  const agentsPath = join(root, "AGENTS.md");
+  const agentsExists = existsSync(agentsPath);
+  const agents = agentsExists ? readFileSync(agentsPath, "utf8") : claude;
   const mp = JSON.parse(readFileSync(join(root, ".claude-plugin", "marketplace.json"), "utf8"));
 
   for (const p of mp.plugins ?? []) {
@@ -62,8 +69,14 @@ export function checkDocs(root) {
       problems.push(`README.md: chassis module '${mod}' (lib/${f}) is not named in the chassis section`);
   }
 
-  if (!claude.includes("docs/releasing.md"))
-    problems.push("CLAUDE.md: does not link docs/releasing.md (the version-bump rules)");
+  if (!agents.includes("docs/releasing.md"))
+    problems.push(`${agentsExists ? "AGENTS.md" : "CLAUDE.md"}: does not link docs/releasing.md (the version-bump rules)`);
+
+  // The pointer only applies once AGENTS.md exists — a pre-migration host has nothing to
+  // point at yet, and that migration is its own honest-drift step (plant.mjs --force), not
+  // this check's job.
+  if (agentsExists && claude.split("\n")[0] !== "@AGENTS.md")
+    problems.push("CLAUDE.md: first line is not the @AGENTS.md pointer");
 
   return problems;
 }
@@ -76,5 +89,5 @@ if (runAsCli(import.meta.url)) {
     for (const p of problems) console.error(`  - ${p}`);
     process.exit(1);
   }
-  console.log("README.md and CLAUDE.md are in sync with the repo");
+  console.log("README.md and AGENTS.md are in sync with the repo");
 }

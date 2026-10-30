@@ -1,11 +1,11 @@
 ---
 name: skill-patterns
-description: The shared authoring patterns for praxisflux plugins — phase-separated skills, the gate→work→gate skill shape, planted CLAUDE.md, placement models, shared-vs-per-plugin split, and the new-plugin checklist
+description: The shared authoring patterns for praxisflux plugins — phase-separated skills, the gate→work→gate skill shape, planted AGENTS.md, placement models, shared-vs-per-plugin split, and the new-plugin checklist
 kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: 3d7edf1c266c6263b1b974c31e71917c57da1cd7
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -26,9 +26,10 @@ gate* verifying the input state exists — on failure, stop and name the phase t
 first; (2) do the one phase; (3) an *output gate* verifying what was produced; (4) *hand
 off* by telling the user what's now possible next, without doing it.
 
-**Planted CLAUDE.md.** A plugin's skills are lazy-loaded, so nothing is always in context.
-The installer plants a project `CLAUDE.md` carrying the always-on rules (lifecycle,
-placement, DoD), using [[installer]] — and never claims success without `verifyPresent`.
+**Planted AGENTS.md.** A plugin's skills are lazy-loaded, so nothing is always in context.
+The installer plants a project `AGENTS.md` carrying the always-on rules (lifecycle,
+placement, DoD), plus a thin `CLAUDE.md` pointer (`@AGENTS.md`) so Claude Code loads the
+same bytes, using [[installer]] — and never claims success without `verifyPresent`.
 
 **Three placement models.** *Favored home* (educate): a fixed project marked by a child dir
 (`topics/`), found with `findRootUpwards(dir, hasChild("topics"))`. *Drop-anywhere*
@@ -37,7 +38,7 @@ placement, DoD), using [[installer]] — and never claims success without `verif
 the skill operates on a root the caller names but stores state at the **invoking** project's
 root; the rooting rule is inline in §6 — `lib/handoff.mjs`'s `ensureGitignore` may only ever
 run at the invoking root, since pointed at the target it would itself be a forbidden write,
-and this shape installs nothing (no hook, no CLAUDE.md) into its target.
+and this shape installs nothing (no hook, no AGENTS.md) into its target.
 
 **Shared vs per-plugin.** Shared (`lib/`): plumbing modules plus the HTML base
 (`lib/html/base.html`) and the content [[toolkit]]. Per-plugin: domain vocabulary
@@ -62,7 +63,7 @@ templates.
 **New-plugin checklist** (abridged): a `.claude-plugin/plugin.json` registered in the
 marketplace (running `scripts/gen-marketplace.mjs` now registers an unregistered plugin dir,
 not just re-syncs — see [[build-and-release]]); skills in the gate→work→gate shape; a planted
-`CLAUDE.md` if it stamps a project; a lifecycle + Stop hook if it enforces one;
+`AGENTS.md` (+ `CLAUDE.md` pointer) if it stamps a project; a lifecycle + Stop hook if it enforces one;
 `lib/handoff.mjs` if it hands off; tests under `test/` kept green. The paved path is
 `scripts/new-plugin.mjs <name> [--with-gate]` (`scaffoldPlugin`): it stamps the drift-gated
 surface in one shot — plugin.json in version lockstep, the SKILL.md skeleton with the

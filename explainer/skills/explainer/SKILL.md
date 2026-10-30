@@ -1,6 +1,6 @@
 ---
 name: explainer
-version: 0.1.0
+version: 0.1.1
 description: "Use when coordinating the explainer pipeline end to end — interview, fact gathering, outline approval, page writing, build, check and publish — for /explain and /explain-answer. Use when the user wants to build or update a cited, house-style explainer artifact from a codebase or design docs."
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Task", "ToolSearch", "AskUserQuestion", "Artifact", "Skill"]
 ---
@@ -61,7 +61,7 @@ the Plan section of `references/pipeline.md` has the exact derivation.
 | `build --dir <artifact> [--multi] [--yes]` | Expand every page, run generators, assemble the shell, write `dist/`. |
 | `approve <id> --dir <artifact>` | Record approval for one command generator at its current fingerprint. **Never pass `--yes` to skip this** — `--yes` on `build` never approves anything, by design. |
 | `check --dir <artifact>` | Run every check against an already-built `dist/` — requires `build` to have run first; never rebuilds for you. The read-only checks live in `${CLAUDE_PLUGIN_ROOT}/gates/check.mjs`. |
-| `plant [--check]` | Plant or refresh the marked explainer block in the project's `CLAUDE.md`. Run `--check` at step 0 of the pipeline. |
+| `plant [--check] [--force]` | Plant or refresh the marked explainer block in the project's `AGENTS.md`, keeping a `@AGENTS.md` pointer in `CLAUDE.md`. Run `--check` at step 0 of the pipeline; `--force` migrates a legacy `CLAUDE.md`-resident block after its diff is reviewed. |
 
 Exit codes from `check`: `0` clean, `1` any error-level check failed, `2`
 usage error (e.g. no `dist/` yet), `3` nothing failed but `fact.checker` is

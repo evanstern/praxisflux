@@ -8,7 +8,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[overview]] — what praxisflux is: a plugin marketplace on a shared chassis forming a research → teach → build loop
 - [[grounded-corpus-spec]] — the interchange contract (spec v1): corpus layout, note core, provenance dialects, freshness semantics
 - [[handoff-protocol]] — how plugins hand work to each other: gitignored `.handoff/` payloads, durable evidence in tracked state
-- [[skill-patterns]] — the shared authoring patterns: phase-separated skills, gate→work→gate shape, planted CLAUDE.md, placement models
+- [[skill-patterns]] — the shared authoring patterns: phase-separated skills, gate→work→gate shape, planted AGENTS.md, placement models
 - [[gates-convention]] — "status can't exceed proven artifacts": gates/ vs scripts/, lifecycle enforcement, additive Stop hooks
 
 ## Chassis (lib/)
@@ -19,7 +19,7 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[markdown-module]] — frontmatter/wikilink/code-stripping primitives shared by gates
 - [[selfcontained-verifier]] — checks HTML output is fully self-contained (no external requests)
 - [[lifecycle-engine]] — ordered states + artifact evidence maps; flags status that outruns proof
-- [[installer]] — plants project CLAUDE.md/templates: copyDir, installMode, ensureGitignore, verifyPresent
+- [[installer]] — plants project AGENTS.md/templates: copyDir, installMode, ensureGitignore, verifyPresent
 - [[chassis-utilities]] — the small shared utilities: dates.mjs, template.mjs, and cli.mjs (symlink-safe run-as-CLI guard)
 - [[ports-chassis]] — decision-0002's pdlc ports chassis: port/adapter registry+resolve, the .pdlc.json configurator, byte-deterministic receipts, a one-suite contract-test harness, a gh-free credential helper, and the pdlc doctor CLI; no port registered yet
 - [[toolkit]] — shared *content* modules (pedagogy, diagrams, tooltips) skills read while authoring
@@ -33,8 +33,8 @@ note pins `verified_against` to a commit and lists the `sources:` whose change i
 - [[codebase-to-course-plugin]] — turns a codebase into an interactive HTML course; corpus-aware, gated output
 - [[spec-bridge-plugin]] — the derived kanban view over GitHub Spec Kit specs; one-way derivation, exceeds-blocks gate, opt-in project-gate check
 - [[board-provider-seam]] — how one gate reads a board it cannot recompute: the providers registry, the mirror as sole read surface, two status maps, and the MCP-free boundary
-- [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked CLAUDE.md block and opts into the peer utilities (Backlog.md, Spec Kit)
-- [[pdlc-grounding-block]] — what bootstrap plants into a host CLAUDE.md: the marked-block mechanism, the 101 principles and their peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json while the block carries the dispatch obligation and the Dispatch: record marker
+- [[pdlc-plugin]] — the suite-level installer plus the lifecycle orchestrator: bootstrap plants the always-on PDLC grounding as a marked AGENTS.md block (with a CLAUDE.md pointer) and opts into the peer utilities (Backlog.md, Spec Kit)
+- [[pdlc-grounding-block]] — what bootstrap plants into a host AGENTS.md: the marked-block mechanism, the 101 principles and their peer mappings, the corpus-loading and Gates rules, and the model-tier section whose ladder lives in .claude/model-tiers.json while the block carries the dispatch obligation and the Dispatch: record marker
 - [[pdlc-sweep]] — the board-sweep orchestrator skill: a signed-off, dependency-laned runbook executed through claim+link → spec → PR → serial merge → re-ground, with claim-before-work, paused-lane, and pin-aware reconciliation doctrine and a per-task spec+plan+tasks-or-escape-line Output gate
 - [[pdlc-sweep-handoffs]] — the sweep's two session-portable artifacts: the runbook as a lane-boundary contract, and the lane-handoff template for resuming mid-lane, whose role-before-content shape is the fix for a session that resumed a lane and implemented it inline
 - [[pdlc-sweep-history]] — entry point and release→child index for the sweep skill's doctrine history, split summary-style into [[pdlc-sweep-history-early]] and [[pdlc-sweep-history-recent]]

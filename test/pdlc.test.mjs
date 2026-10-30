@@ -2,20 +2,21 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync, statSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { removeFixtureDir } from "./fixture-teardown.mjs";
 
-import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL, excludeSet } from "../pdlc/scripts/plant.mjs";
+import { plant, renderGrounding, extractBlock, resolveProjectName, PEERS, HOOKS, rootGuardHookEntries, SENTINEL, excludeSet, POINTER } from "../pdlc/scripts/plant.mjs";
 import { generate, validateConfig, agentPath, CONFIG_PATH, GENERATED_MARKER } from "../pdlc/scripts/tiers.mjs";
 import { parseFrontmatter } from "../lib/markdown.mjs";
 import { ensureExclude } from "../lib/installer.mjs";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
-const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "CLAUDE.md"), "utf8");
+const TEMPLATE = readFileSync(join(repo, "pdlc", "templates", "AGENTS.md"), "utf8");
 const opts = (extra = {}) => ({
-  templatePath: join(repo, "pdlc", "templates", "CLAUDE.md"),
+  templatePath: join(repo, "pdlc", "templates", "AGENTS.md"),
   version: "9.9.9",
   ...extra,
 });
@@ -119,6 +120,16 @@ test("sweep's Handing off names refactor-triage as the post-sweep review step", 
 });
 
 // --- template shape ---
+
+// spec 074 R1: the rename (pdlc/templates/CLAUDE.md → AGENTS.md) must move zero bytes of
+// content — the hash is a snapshot taken from the pre-rename file, so a future edit that also
+// changes bytes during a rename-shaped diff fails loud here instead of passing as "renamed".
+test("template rename moved zero bytes: AGENTS.md hashes identically to the pre-074 CLAUDE.md template", () => {
+  assert.equal(
+    createHash("sha256").update(TEMPLATE).digest("hex"),
+    "4657277b6eab1609e3b3955bad666293dd69cdeb143c89e5c05b661a0b800dad",
+  );
+});
 
 test("template markers are well-formed: one grounding block, both peer blocks inside it", () => {
   assert.equal(TEMPLATE.match(/pdlc:grounding BEGIN/g).length, 1);
@@ -276,34 +287,40 @@ test("sentinel records jira under peers/peersOmitted with no sentinel schema cha
   } finally { done(); }
 });
 
-// --- planting ---
+// --- planting (spec 074: the block lives in AGENTS.md; CLAUDE.md is a thin pointer) ---
 
-test("fresh plant: creates CLAUDE.md, sentinel, and .handoff/ gitignore; then idempotent", () => {
+test("fresh plant: creates AGENTS.md (block) + CLAUDE.md (pointer), sentinel, and .handoff/ gitignore; then idempotent", () => {
   const { root, done } = proj();
   try {
     const r = plant(root, opts({ peers: ["backlog", "spec-kit"] }));
     assert.deepEqual(
-      { mode: r.mode, claudeMd: r.claudeMd, gitignore: r.gitignore, pdlcFile: r.pdlcFile, missing: r.missing },
-      { mode: "fresh", claudeMd: "created", gitignore: "added", pdlcFile: "written", missing: [] },
+      { mode: r.mode, agentsMd: r.agentsMd, claudeMd: r.claudeMd, gitignore: r.gitignore, pdlcFile: r.pdlcFile, missing: r.missing },
+      { mode: "fresh", agentsMd: "created", claudeMd: "created", gitignore: "added", pdlcFile: "written", missing: [] },
     );
+    const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+    assert.ok(agents.includes("pdlc:grounding BEGIN"), "the grounding block lands in AGENTS.md");
+    const claude = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    assert.ok(!claude.includes("pdlc:grounding BEGIN"), "CLAUDE.md never carries the block on a fresh plant");
+    assert.equal(claude, `${POINTER}\n`, "CLAUDE.md is exactly the pointer");
     const sentinel = JSON.parse(readFileSync(join(root, SENTINEL), "utf8"));
     assert.deepEqual(sentinel.peers, ["backlog", "spec-kit"]);
     assert.ok(readFileSync(join(root, ".gitignore"), "utf8").split("\n").includes(".handoff/"));
 
     const again = plant(root, opts({ peers: ["backlog", "spec-kit"] }));
     assert.equal(again.mode, "update");
+    assert.equal(again.agentsMd, "unchanged");
     assert.equal(again.claudeMd, "unchanged");
     assert.equal(again.pdlcFile, "unchanged");
   } finally { done(); }
 });
 
-test("existing CLAUDE.md without markers is appended to, never clobbered", () => {
+test("existing AGENTS.md without markers is appended to, never clobbered (R1)", () => {
   const { root, done } = proj();
   try {
-    writeFileSync(join(root, "CLAUDE.md"), "# my project\n\nHouse rules here.\n");
+    writeFileSync(join(root, "AGENTS.md"), "# my project\n\nHouse rules here.\n");
     const r = plant(root, opts({ peers: [] }));
-    assert.equal(r.claudeMd, "appended");
-    const out = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    assert.equal(r.agentsMd, "appended");
+    const out = readFileSync(join(root, "AGENTS.md"), "utf8");
     assert.ok(out.startsWith("# my project"), "user content stays first");
     assert.ok(out.includes("pdlc:grounding BEGIN"));
     const { before } = extractBlock(out);
@@ -311,21 +328,43 @@ test("existing CLAUDE.md without markers is appended to, never clobbered", () =>
   } finally { done(); }
 });
 
+test("existing CLAUDE.md with project prose and no markers: pointer prepended, every other byte survives (R2)", () => {
+  const { root, done } = proj();
+  try {
+    writeFileSync(join(root, "CLAUDE.md"), "# my project\n\nHouse rules here.\n");
+    const r = plant(root, opts({ peers: [] }));
+    assert.equal(r.claudeMd, "pointer-added");
+    const out = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    assert.equal(out.split("\n")[0], POINTER, "first line is exactly the pointer");
+    assert.ok(out.includes("# my project\n\nHouse rules here.\n"), "project text survives untouched below the pointer");
+    assert.ok(!out.includes("pdlc:grounding BEGIN"), "the block itself never lands in CLAUDE.md");
+  } finally { done(); }
+});
+
+test("a CLAUDE.md whose first line is already the pointer re-plants unchanged", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts({ peers: [] }));
+    const again = plant(root, opts({ peers: [] }));
+    assert.equal(again.claudeMd, "unchanged");
+  } finally { done(); }
+});
+
 test("drifted block is never overwritten without force, and the sentinel does not advance", () => {
   const { root, done } = proj();
   try {
     plant(root, opts({ peers: [] }));
-    const edited = readFileSync(join(root, "CLAUDE.md"), "utf8").replace("## The loop", "## The loop (edited by user)");
-    writeFileSync(join(root, "CLAUDE.md"), edited);
+    const edited = readFileSync(join(root, "AGENTS.md"), "utf8").replace("## The loop", "## The loop (edited by user)");
+    writeFileSync(join(root, "AGENTS.md"), edited);
 
     const r = plant(root, opts({ peers: [], version: "10.0.0" })); // upgrade attempt, no force
-    assert.equal(r.claudeMd, "drifted");
+    assert.equal(r.agentsMd, "drifted");
     assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).version, "9.9.9", "sentinel must not advance past a drifted block");
-    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("(edited by user)"));
+    assert.ok(readFileSync(join(root, "AGENTS.md"), "utf8").includes("(edited by user)"));
 
     const forced = plant(root, opts({ peers: [], version: "10.0.0", force: true }));
-    assert.equal(forced.claudeMd, "replaced");
-    assert.ok(!readFileSync(join(root, "CLAUDE.md"), "utf8").includes("(edited by user)"));
+    assert.equal(forced.agentsMd, "replaced");
+    assert.ok(!readFileSync(join(root, "AGENTS.md"), "utf8").includes("(edited by user)"));
     assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).version, "10.0.0");
   } finally { done(); }
 });
@@ -335,10 +374,11 @@ test("changing peer opt-ins on update rewrites the block and the sentinel (with 
   try {
     plant(root, opts({ peers: [] }));
     const r = plant(root, opts({ peers: ["backlog"] }));
-    assert.equal(r.claudeMd, "drifted", "peer change alters the expected block");
+    assert.equal(r.agentsMd, "drifted", "peer change alters the expected block");
+    assert.equal(r.claudeMd, "unchanged", "peer change does not touch the pointer");
     const forced = plant(root, opts({ peers: ["backlog"], force: true }));
-    assert.equal(forced.claudeMd, "replaced");
-    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("pdlc:peer:backlog BEGIN"));
+    assert.equal(forced.agentsMd, "replaced");
+    assert.ok(readFileSync(join(root, "AGENTS.md"), "utf8").includes("pdlc:peer:backlog BEGIN"));
     assert.deepEqual(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).peers, ["backlog"]);
   } finally { done(); }
 });
@@ -347,7 +387,9 @@ test("check mode writes nothing and the CLI exits nonzero while planting is pend
   const { root, done } = proj();
   try {
     const r = plant(root, opts({ peers: [], check: true }));
+    assert.equal(r.agentsMd, "created");
     assert.equal(r.claudeMd, "created");
+    assert.ok(!existsSync(join(root, "AGENTS.md")));
     assert.ok(!existsSync(join(root, "CLAUDE.md")));
     assert.ok(!existsSync(join(root, SENTINEL)));
 
@@ -358,7 +400,74 @@ test("check mode writes nothing and the CLI exits nonzero while planting is pend
     assert.equal(status, 1, "--check must exit 1 while planting is pending");
     execFileSync(process.execPath, [cli, "--root", root]); // plant for real
     execFileSync(process.execPath, [cli, "--root", root, "--check"]); // now clean → exit 0
-    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("pdlc:grounding BEGIN"));
+    assert.ok(readFileSync(join(root, "AGENTS.md"), "utf8").includes("pdlc:grounding BEGIN"));
+    assert.equal(readFileSync(join(root, "CLAUDE.md"), "utf8"), `${POINTER}\n`);
+  } finally { done(); }
+});
+
+// --- migration: a host planted before spec 074 carries the block in CLAUDE.md itself (R4) ---
+
+/** Simulate a pre-074 plant: the grounding block lives directly in CLAUDE.md, no AGENTS.md. */
+function plantLegacy(root, options) {
+  const rendered = renderGrounding(TEMPLATE, { projectName: basename(root), version: "9.9.9", ...options });
+  writeFileSync(join(root, "CLAUDE.md"), rendered);
+}
+
+test("migration: a legacy CLAUDE.md-resident block is drifted (not moved) without --force", () => {
+  const { root, done } = proj();
+  try {
+    plantLegacy(root, { peers: [] });
+    const r = plant(root, opts({ peers: [] }));
+    assert.equal(r.claudeMd, "drifted", "the migration needs consent");
+    assert.equal(r.agentsMd, "drifted", "nothing lands in AGENTS.md until the migration is confirmed");
+    assert.ok(!existsSync(join(root, "AGENTS.md")), "AGENTS.md must not be created by an unconfirmed migration");
+    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("pdlc:grounding BEGIN"), "the legacy block stays put, untouched");
+    assert.ok(!existsSync(join(root, SENTINEL)), "the sentinel must not advance past an unconfirmed migration");
+  } finally { done(); }
+});
+
+test("migration: --force moves the block to AGENTS.md and leaves the pointer + surrounding text in CLAUDE.md", () => {
+  const { root, done } = proj();
+  try {
+    const legacyBlock = renderGrounding(TEMPLATE, { projectName: basename(root), version: "9.9.9", peers: [] });
+    writeFileSync(join(root, "CLAUDE.md"), `# before text\n\n${legacyBlock}\n# after text\n`);
+
+    const r = plant(root, opts({ peers: [], force: true }));
+    assert.equal(r.claudeMd, "migrated");
+    assert.equal(r.agentsMd, "created");
+
+    const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+    assert.ok(agents.includes("pdlc:grounding BEGIN"), "the block now lives in AGENTS.md");
+
+    const claude = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    assert.equal(claude.split("\n")[0], POINTER, "the pointer is the new first line");
+    assert.ok(!claude.includes("pdlc:grounding BEGIN"), "the block is gone from CLAUDE.md");
+    assert.ok(claude.includes("# before text"), "project text before the old block survives, below the pointer");
+    assert.ok(claude.includes("# after text"), "project text after the old block survives, below the pointer");
+
+    assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).version, "9.9.9", "a confirmed migration advances the sentinel");
+  } finally { done(); }
+});
+
+test("both files marked (half-migrated host): AGENTS.md is authoritative, the CLAUDE.md copy is drifted until --force", () => {
+  const { root, done } = proj();
+  try {
+    plant(root, opts({ peers: [] })); // a clean, already-migrated plant: AGENTS.md + pointer
+    // Simulate a half-migrated host: the legacy block ALSO still sits in CLAUDE.md (e.g. a
+    // hand copy-paste), on top of the pointer the real migration already wrote.
+    const legacy = renderGrounding(TEMPLATE, { projectName: basename(root), version: "9.9.9", peers: [] });
+    writeFileSync(join(root, "CLAUDE.md"), `${POINTER}\n\n${legacy}`);
+
+    const r = plant(root, opts({ peers: [] }));
+    assert.equal(r.agentsMd, "unchanged", "AGENTS.md already carries the correct block — it is authoritative");
+    assert.equal(r.claudeMd, "drifted", "the stray CLAUDE.md copy needs consent to remove");
+
+    const forced = plant(root, opts({ peers: [], force: true }));
+    assert.equal(forced.claudeMd, "migrated");
+    assert.equal(forced.agentsMd, "unchanged", "the already-correct AGENTS.md block is untouched");
+    const claude = readFileSync(join(root, "CLAUDE.md"), "utf8");
+    assert.ok(!claude.includes("pdlc:grounding BEGIN"), "the stray copy is removed");
+    assert.equal(claude.split("\n")[0], POINTER);
   } finally { done(); }
 });
 
@@ -395,8 +504,8 @@ test("plant --check: a drifted block FAILS the gate, a clean one passes, and not
     assert.equal(plantCli(root, ["--peer", "backlog", "--check"]).status, 0, "a current footprint must pass");
 
     // Drifted: a user edit inside the markers ⇒ the gate must fail loudly.
-    const before = readFileSync(join(root, "CLAUDE.md"), "utf8");
-    writeFileSync(join(root, "CLAUDE.md"), before.replace("## The loop", "## The loop (edited)"));
+    const before = readFileSync(join(root, "AGENTS.md"), "utf8");
+    writeFileSync(join(root, "AGENTS.md"), before.replace("## The loop", "## The loop (edited)"));
     const sentinelBefore = readFileSync(join(root, SENTINEL), "utf8");
     const drift = plantCli(root, ["--peer", "backlog", "--check"]);
     assert.equal(drift.status, 1, "a drifted block must FAIL the gate, not warn");
@@ -409,7 +518,7 @@ test("plant --check: a drifted block FAILS the gate, a clean one passes, and not
     assert.match(drift.out, /OUTSIDE the markers/, "the fix line must warn where edits survive");
 
     // Read-only: --check must never repair what it reports, nor advance the sentinel past drift.
-    assert.ok(readFileSync(join(root, "CLAUDE.md"), "utf8").includes("(edited)"), "--check must not overwrite the block");
+    assert.ok(readFileSync(join(root, "AGENTS.md"), "utf8").includes("(edited)"), "--check must not overwrite the block");
     assert.equal(readFileSync(join(root, SENTINEL), "utf8"), sentinelBefore, "--check must not advance the sentinel");
   } finally { done(); }
 });
@@ -422,7 +531,7 @@ test("plant --check: a newer plugin version alone drifts the block, and the fix 
   try {
     plant(root, opts({ peers: ["backlog"] })); // planted at 9.9.9
     const r = plant(root, opts({ peers: ["backlog"], version: "9.9.10" }));
-    assert.equal(r.claudeMd, "drifted", "the BEGIN marker stamps the version, so a bump drifts it");
+    assert.equal(r.agentsMd, "drifted", "the BEGIN marker stamps the version, so a bump drifts it");
     assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).version, "9.9.9", "sentinel must not advance");
   } finally { done(); }
 });
@@ -437,7 +546,7 @@ test("plant --check: a renamed checkout stays clean — the name comes from .pdl
     const copy = mkdtempSync(join(tmpdir(), "ci-checkout-"));
     try {
       // What actions/checkout produces: the tracked files, a different directory name, no .git.
-      for (const f of ["CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(root, f), join(copy, f));
+      for (const f of ["AGENTS.md", "CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(root, f), join(copy, f));
       assert.notEqual(basename(copy), "realname", "the fixture must actually be renamed");
       const r = plant(copy, { peers: ["backlog"], check: true }); // live version, as the CLI does
       assert.equal(r.projectName, "realname", "the recorded name must win over basename");
@@ -556,16 +665,18 @@ test("worktree plant renders the PRIMARY checkout's name; re-plants from either 
   try {
     const r = plant(wt, opts({ peers: [] }));
     assert.equal(r.projectName, "primary-proj");
-    assert.ok(readFileSync(join(wt, "CLAUDE.md"), "utf8").includes("# primary-proj — praxis development lifecycle"));
+    assert.ok(readFileSync(join(wt, "AGENTS.md"), "utf8").includes("# primary-proj — praxis development lifecycle"));
     assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "primary-proj");
 
     const again = plant(wt, opts({ peers: [], check: true }));
-    assert.equal(again.claudeMd, "unchanged", "re-plant from the same worktree must be a no-op");
+    assert.equal(again.agentsMd, "unchanged", "re-plant from the same worktree must be a no-op");
+    assert.equal(again.claudeMd, "unchanged");
 
     // the branch merges: the planted files land in the primary checkout byte-identical
-    for (const f of ["CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(wt, f), join(primary, f));
+    for (const f of ["AGENTS.md", "CLAUDE.md", SENTINEL, ".gitignore"]) copyFileSync(join(wt, f), join(primary, f));
     const back = plant(primary, opts({ peers: [], check: true }));
-    assert.equal(back.claudeMd, "unchanged", "re-plant from the primary must not spuriously drift");
+    assert.equal(back.agentsMd, "unchanged", "re-plant from the primary must not spuriously drift");
+    assert.equal(back.claudeMd, "unchanged");
     assert.equal(back.pdlcFile, "unchanged");
   } finally { done(); }
 });
@@ -575,17 +686,18 @@ test("--name beats derivation, is recorded in the sentinel, and a later rename i
   try {
     const r = plant(wt, opts({ peers: [], name: "flux" }));
     assert.equal(r.projectName, "flux");
-    assert.ok(readFileSync(join(wt, "CLAUDE.md"), "utf8").includes("# flux — praxis development lifecycle"));
+    assert.ok(readFileSync(join(wt, "AGENTS.md"), "utf8").includes("# flux — praxis development lifecycle"));
     assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "flux");
 
     const again = plant(wt, opts({ peers: [] }));
-    assert.equal(again.claudeMd, "unchanged", "re-plant without --name reuses the recorded name");
+    assert.equal(again.agentsMd, "unchanged", "re-plant without --name reuses the recorded name");
     assert.equal(again.pdlcFile, "unchanged");
 
     const renamed = plant(wt, opts({ peers: [], name: "flux2" }));
-    assert.equal(renamed.claudeMd, "drifted", "a rename never lands silently");
+    assert.equal(renamed.agentsMd, "drifted", "a rename never lands silently — it changes the block's heading");
+    assert.equal(renamed.claudeMd, "unchanged", "the pointer is name-independent");
     const forced = plant(wt, opts({ peers: [], name: "flux2", force: true }));
-    assert.equal(forced.claudeMd, "replaced");
+    assert.equal(forced.agentsMd, "replaced");
     assert.equal(JSON.parse(readFileSync(join(wt, SENTINEL), "utf8")).name, "flux2", "the sentinel follows the rename");
   } finally { done(); }
 });
@@ -595,13 +707,13 @@ test("plain dirs keep basename(root); the CLI accepts --name and reports the res
   try {
     const r = plant(a.root, opts({ peers: [] }));
     assert.equal(r.projectName, basename(a.root));
-    assert.ok(readFileSync(join(a.root, "CLAUDE.md"), "utf8").includes(`# ${basename(a.root)} — praxis development lifecycle`));
+    assert.ok(readFileSync(join(a.root, "AGENTS.md"), "utf8").includes(`# ${basename(a.root)} — praxis development lifecycle`));
 
     const cli = join(repo, "pdlc", "scripts", "plant.mjs");
     const out = spawnSync(process.execPath, [cli, "--root", b.root, "--name", "acme"], { encoding: "utf8" });
     assert.equal(out.status, 0);
     assert.equal(JSON.parse(out.stdout).projectName, "acme");
-    assert.ok(readFileSync(join(b.root, "CLAUDE.md"), "utf8").includes("# acme — praxis development lifecycle"));
+    assert.ok(readFileSync(join(b.root, "AGENTS.md"), "utf8").includes("# acme — praxis development lifecycle"));
   } finally { a.done(); b.done(); }
 });
 
@@ -987,7 +1099,7 @@ test("plant --local-only writes the scoped exclude set and leaves .gitignore abs
     for (const line of excludeSet({ peers: [], hooks: [] })) {
       assert.ok(exclude.split("\n").includes(line), `exclude missing ${line}`);
     }
-    assert.deepEqual(r.missing, [], "CLAUDE.md + sentinel are the only required artifacts in local-only mode");
+    assert.deepEqual(r.missing, [], "AGENTS.md + CLAUDE.md + sentinel are the only required artifacts in local-only mode");
 
     // idempotent re-plant
     const again = plant(root, opts({ localOnly: true }));
@@ -1000,8 +1112,8 @@ test("plant tracked mode (default) is byte-for-byte unchanged from today", () =>
   try {
     const r = plant(root, opts());
     assert.deepEqual(
-      { mode: r.mode, claudeMd: r.claudeMd, gitignore: r.gitignore, exclude: r.exclude, pdlcFile: r.pdlcFile, missing: r.missing },
-      { mode: "fresh", claudeMd: "created", gitignore: "added", exclude: "skipped", pdlcFile: "written", missing: [] },
+      { mode: r.mode, agentsMd: r.agentsMd, claudeMd: r.claudeMd, gitignore: r.gitignore, exclude: r.exclude, pdlcFile: r.pdlcFile, missing: r.missing },
+      { mode: "fresh", agentsMd: "created", claudeMd: "created", gitignore: "added", exclude: "skipped", pdlcFile: "written", missing: [] },
     );
     assert.ok(readFileSync(join(root, ".gitignore"), "utf8").split("\n").includes(".handoff/"));
     assert.ok(!existsSync(join(root, ".git", "info", "exclude")), "tracked mode must never touch the exclude file");
@@ -1025,6 +1137,7 @@ test("R3 ordering: a first local-only plant into a real git repo leaves git stat
     // call fails loud (R3; plan.md: "testable by asserting write order, not merely end state").
     const nsOf = (rel) => statSync(join(root, ...rel.split("/")), { bigint: true }).mtimeNs;
     const excludeNs = nsOf(".git/info/exclude");
+    assert.ok(excludeNs <= nsOf("AGENTS.md"), "exclude must be written before AGENTS.md");
     assert.ok(excludeNs <= nsOf("CLAUDE.md"), "exclude must be written before CLAUDE.md");
     assert.ok(excludeNs <= nsOf(SENTINEL), "exclude must be written before the sentinel");
   } finally { done(); }
@@ -1087,8 +1200,9 @@ test("a mode switch surfaces as drift, does not advance the sentinel, and applie
     // Ask for the OTHER mode without --force: honest drift, own field, sentinel unmoved.
     const drifted = plant(root, opts({ localOnly: true }));
     assert.equal(drifted.modeSwitch, "drifted");
-    assert.notEqual(drifted.modeSwitch, drifted.claudeMd, "diagnosable apart from claudeMd's own drift state");
-    assert.equal(drifted.claudeMd, "unchanged", "the grounding block is untouched by a mode switch");
+    assert.notEqual(drifted.modeSwitch, drifted.agentsMd, "diagnosable apart from agentsMd's own drift state");
+    assert.equal(drifted.agentsMd, "unchanged", "the grounding block is untouched by a mode switch");
+    assert.equal(drifted.claudeMd, "unchanged", "the pointer is untouched by a mode switch");
     assert.equal(drifted.pdlcFile, "unchanged", "sentinel must not advance past an unconfirmed switch");
     assert.deepEqual(readFileSync(join(root, SENTINEL)), before, "sentinel bytes provably unchanged (not just same JSON)");
     assert.equal(JSON.parse(readFileSync(join(root, SENTINEL), "utf8")).localOnly, false, "still records the OLD mode");
@@ -1117,7 +1231,8 @@ test("a mode switch surfaces as drift, does not advance the sentinel, and applie
     // other pending facet, is what the --check gate is keying on.
     const revert = plant(root, opts({ check: true }));
     assert.equal(revert.modeSwitch, "drifted", "reverting without --force is itself an unconfirmed switch");
-    assert.equal(revert.claudeMd, "unchanged", "grounding content does not depend on planting mode");
+    assert.equal(revert.agentsMd, "unchanged", "grounding content does not depend on planting mode");
+    assert.equal(revert.claudeMd, "unchanged");
     assert.notEqual(revert.gitignore, "added");
     assert.notEqual(revert.exclude, "added");
     assert.notEqual(revert.exclude, "no-git");
@@ -1142,7 +1257,8 @@ test("--check's exit-nonzero gate fires on a mode-switch-only drift, with no oth
     assert.equal(status, 1, "reverting to tracked without --force must fail --check");
     const report = JSON.parse(stdout);
     assert.equal(report.modeSwitch, "drifted");
-    assert.equal(report.claudeMd, "unchanged", "content itself is settled — not what's failing this check");
+    assert.equal(report.agentsMd, "unchanged", "content itself is settled — not what's failing this check");
+    assert.equal(report.claudeMd, "unchanged");
     assert.notEqual(report.gitignore, "added", "gitignore already carries .handoff/ from the first plant");
     assert.notEqual(report.exclude, "added", "exclude is skipped outright in the tracked branch");
   } finally { done(); }

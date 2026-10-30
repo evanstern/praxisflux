@@ -455,7 +455,8 @@ function block(sub, rule) {
       'The root checkout is READ-ONLY: author changes on a branch in .worktrees/<task-branch> ' +
       'and land them on main only by merge (PR `gh pr merge --merge` or manual `git merge --no-ff` at root). ' +
       'Rebases are forbidden repo-wide.\n' +
-      'See CLAUDE.md "Root checkout is READ-ONLY — worktree + merge only, no rebases". ' +
+      'See AGENTS.md (or CLAUDE.md on hosts not yet re-planted) "Root checkout is READ-ONLY — ' +
+      'worktree + merge only, no rebases". ' +
       'No bypass flag — emergencies go through the operator editing hook config, visibly and deliberately.\n'
   );
   process.exit(2);
@@ -651,7 +652,8 @@ function runPreWrite() {
     `root-guard: blocked write to ${realAbs} — the root checkout is READ-ONLY.\n` +
       'Author this change on a branch in a worktree (.worktrees/<task-branch>) and land it on main by merge ' +
       '(PR `gh pr merge --merge` or manual `git merge --no-ff` at root).\n' +
-      'See CLAUDE.md "Root checkout is READ-ONLY — worktree + merge only, no rebases". ' +
+      'See AGENTS.md (or CLAUDE.md on hosts not yet re-planted) "Root checkout is READ-ONLY — ' +
+      'worktree + merge only, no rebases". ' +
       'No bypass flag — emergencies go through the operator editing hook config, visibly and deliberately.\n'
   );
   process.exit(2);

@@ -5,7 +5,7 @@ kind: component
 sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
-verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # pdlc:sweep — the board-sweep orchestrator
@@ -19,7 +19,7 @@ Two phases, gate → work → gate:
   **lanes** (*develop in parallel, merge serially*; contract-shaped work leads — a
   published interface unblocks consumers), model tiers from the host rubric
   **`.claude/model-tiers.json`** (the tier map, each tier's model ID and scope,
-  `defaultTier`, `escalation: true`; the planted CLAUDE.md section carries the posture and
+  `defaultTier`, `escalation: true`; the planted AGENTS.md section carries the posture and
   points at it) — assigned by that posture, **thinking is Opus/Fable-tier, execution is
   Sonnet/Haiku-tier**, defaulting to `defaultTier`, an escalation tier needing an operator
   checkpoint recorded before dispatch, each pinned to an explicit model ID;

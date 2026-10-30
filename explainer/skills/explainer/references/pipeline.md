@@ -12,8 +12,8 @@ resolve inside `docs/explainers/<name>/`.
 
 - Run `explainer.mjs plant --check` once per project. When it exits 1, run
   `explainer.mjs plant` and tell the operator. It plants the marked
-  always-on block in the project's `CLAUDE.md`. Text outside the block is
-  never touched.
+  always-on block in the project's `AGENTS.md`, keeping a `@AGENTS.md`
+  pointer in `CLAUDE.md`. Text outside the block is never touched.
 
 - Given `--name <slug>`, the artifact folder is `docs/explainers/<slug>/`.
   Without `--name`, derive a short kebab-case slug from the kind and the

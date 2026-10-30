@@ -8,7 +8,7 @@
 #
 # So they WARN here and exit 0 (spec 057 R3). This is not a weakening — it is this repo's own
 # stated posture applied: local surfaces are advisory, CI is the authoritative enforcement point
-# (CLAUDE.md, "Enforcement is split by design"), and core.hooksPath is per-clone so a local hook
+# (AGENTS.md, "Enforcement is split by design"), and core.hooksPath is per-clone so a local hook
 # can silently be absent entirely. `.github/workflows/ci.yml` runs both of these and BLOCKS the
 # PR on either; nothing about that changed. What changed is that an intermediate push — the one
 # the sweep's claim step requires, so in-flight work is auditable from any clone — is no longer
