@@ -127,7 +127,7 @@ test("sweep's Handing off names refactor-triage as the post-sweep review step", 
 test("template rename moved zero bytes: AGENTS.md hashes identically to the pre-074 CLAUDE.md template", () => {
   assert.equal(
     createHash("sha256").update(TEMPLATE).digest("hex"),
-    "f2ceafca646516c7e2ba51c8a39b766cd8ba50c93cb421d6783a41ec865ccbac",
+    "4657277b6eab1609e3b3955bad666293dd69cdeb143c89e5c05b661a0b800dad",
   );
 });
 
@@ -1262,4 +1262,33 @@ test("--check's exit-nonzero gate fires on a mode-switch-only drift, with no oth
     assert.notEqual(report.gitignore, "added", "gitignore already carries .handoff/ from the first plant");
     assert.notEqual(report.exclude, "added", "exclude is skipped outright in the tracked branch");
   } finally { done(); }
+});
+
+// --- pr-review-sweep skill (TASK-0145) ---
+
+test("pr-review-sweep SKILL.md has the frontmatter the bump gate keys on and the full phase skeleton", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "pr-review-sweep", "SKILL.md"), "utf8");
+  const fm = parseFrontmatter(skill);
+  assert.equal(fm.name, "pr-review-sweep");
+  assert.match(fm.version, /^\d+\.\d+\.\d+$/);
+  assert.ok(fm.description && /Use when|use when/.test(fm.description), "description must carry a 'Use when' trigger");
+  for (const section of [
+    "## Precondition gate",
+    "## Phase 1 — READ",
+    "## Phase 2 — TRIAGE",
+    "## Phase 3 — CARD",
+    "## Phase 4 — SWEEP",
+    "## Phase 5 — REPLY",
+    "## Output gate",
+    "## Handing off",
+  ]) assert.ok(skill.includes(section), `SKILL.md missing "${section}"`);
+});
+
+test("pr-review-sweep phase-content anchors: head-branch lookup, standing orders, reply gating, no PRs for deferrals", () => {
+  const skill = readFileSync(join(repo, "pdlc", "skills", "pr-review-sweep", "SKILL.md"), "utf8");
+  assert.match(skill, /headRefName/, "must resolve the PR head branch, not assume the checkout");
+  assert.match(skill, /Standing orders override sweep defaults/, "host standing orders must override the sweep");
+  assert.match(skill, /Deferral = task, not PR/, "must resolve the ambiguous 'create the PR' for deferrals");
+  assert.match(skill, /pull\/<N>\/head/, "merged/squashed PRs are read through the PR ref");
+  assert.match(skill, /outward-facing/, "replies must be gated as outward-facing");
 });

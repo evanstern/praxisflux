@@ -1,12 +1,13 @@
 ---
 name: pdlc-plugin
-description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a version-stamped AGENTS.md block, CLAUDE.md pointer (scripts/plant.mjs, whose --check exits 1 with a remedy line and is what a bump forces a re-plant against), stamps the .pdlc sentinel, gitignores .handoff/ (tracked, or local-only), opts into the peers (Backlog.md, Spec Kit, Jira), and can plant two opt-in PreToolUse hooks; the three lifecycle skills have their own notes.
+description: The pdlc plugin — suite-level installer plus the lifecycle's orchestrator; bootstrap plants the always-on PDLC grounding as a version-stamped AGENTS.md block, CLAUDE.md pointer (scripts/plant.mjs, whose --check exits 1 with a remedy line and is what a bump forces a re-plant against), stamps the .pdlc sentinel, gitignores .handoff/ (tracked, or local-only), opts into the peers (Backlog.md, Spec Kit, Jira), and can plant two opt-in PreToolUse hooks; the four lifecycle skills have their own notes.
 kind: component
 sources:
   - pdlc/.claude-plugin/plugin.json
   - pdlc/README.md
   - pdlc/skills/bootstrap/SKILL.md
   - pdlc/skills/design-rounds/SKILL.md
+  - pdlc/skills/pr-review-sweep/SKILL.md
   - pdlc/scripts/plant.mjs
   - pdlc/scripts/tiers.mjs
   - pdlc/scripts/pdlc.mjs
@@ -24,18 +25,20 @@ The `pdlc` plugin (lockstep with the marketplace version) is the **suite-level i
 the lifecycle's own orchestrator**: `pdlc:bootstrap` stamps a folder (new or existing) as a
 **praxis-development-lifecycle project** whose always-on context knows the whole loop — the
 suite-wide application of the [[skill-patterns]] rule "plant a project AGENTS.md, with a
-CLAUDE.md pointer" (a plugin has no always-on slot). Three further skills run the lifecycle
+CLAUDE.md pointer" (a plugin has no always-on slot). Four further skills run the lifecycle
 it installs.
 
 ## The sibling skills — covered in their own notes
 
-Three seams, three notes, each carrying its own skill's pins: `design-rounds` owns the seam
+Four seams, four notes, each carrying its own skill's pins: `design-rounds` owns the seam
 **before** the spec, where sweep's ordering cannot start — work whose deliverable is
 unknowable until an operator picks among options ([[pdlc-design-rounds]]); `sweep`
 orchestrates a set of board tasks into merged PRs, parallel lanes and serial merges
 ([[pdlc-sweep]]); `refactor-triage` closes the seam **after** the merge, evaluating merged
 work for debt and intent drift and carding accepted findings back
-([[pdlc-refactor-triage]]).
+([[pdlc-refactor-triage]]); `pr-review-sweep` works the feedback on a pull request — triage
+each review comment, card the fixes and deferrals, sweep the fixes under the host's standing
+orders, reply on the threads ([[pdlc-pr-review-sweep]]).
 
 ## The planted grounding is a marked block, not a file
 

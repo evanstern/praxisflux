@@ -153,7 +153,8 @@ grounding-wiki (docs/wiki) ──corpus──▶ codebase-to-course (docs/course
   long-running worktree and ending with a decision record plus a spec written against the
   choice; `/pdlc:refactor-triage` closes the loop after a sweep — evaluate the merged work
   for debt and drift, triage every finding with the operator, and card accepted items back
-  onto the board as sweepable tasks.
+  onto the board as sweepable tasks; `/pdlc:pr-review-sweep` works a PR review — triage each
+  comment, card the fixes and deferrals, sweep the fixes, and reply on the threads.
 
 ## Rules that always hold
 

@@ -1,12 +1,13 @@
 # pdlc — bootstrap a project for the praxis development lifecycle, then run it
 
-The suite-level installer plus the lifecycle's orchestrator. Four skills:
+The suite-level installer plus the lifecycle's orchestrator. Five skills:
 `bootstrap` stamps a **new or existing** folder as a PDLC project; `sweep` runs a set of
 that project's board tasks through the whole lifecycle automatically; `design-rounds`
 handles the case sweep's order cannot — work whose deliverable is not knowable until an
 operator has looked at options and chosen one; `refactor-triage` closes the loop after a
 sweep — evaluate the merged work for debt and drift, triage the findings, and card accepted
-items back onto the board as sweepable tasks.
+items back onto the board as sweepable tasks; `pr-review-sweep` turns a GitHub PR review
+into fixes — triage every comment, card the accepted ones, sweep them, and reply on each thread.
 
 `bootstrap`:
 
@@ -98,6 +99,19 @@ finding-citing backlog tasks via the CLI — immediately sweepable.
 /pdlc:refactor-triage --range v0.38.0..v0.39.0   # post-sweep: triage the merged range
 /pdlc:refactor-triage                            # periodic whole-repo debt pass
 /pdlc:refactor-triage --range v0.38.0..v0.39.0 --policy "accept sev≥high, defer rest"   # headless: declared policy, no operator
+```
+
+`pr-review-sweep` — the review-feedback loop: given a PR review URL, read the review and
+its child comments, triage each (fix / pass with an evidenced reply / already covered by an
+epic / defer to its own task), card the fixes and deferrals on the board, run `pdlc:sweep`
+over the fixes, then reply on each thread with the fix commit or the reason for passing.
+It finds the PR head branch (the checkout is often not it), lets host standing orders
+(no PRs, push only one branch) override the sweep's defaults, and treats "create the PR"
+for a deferral as a board task unless the host's flow plainly wants a PR. The triage record
+is tracked at `docs/reviews/pr-<N>-review-<review-id>-triage.md`.
+
+```
+/pdlc:pr-review-sweep https://github.com/<org>/<repo>/pull/43#pullrequestreview-5602185138
 ```
 
 ## Planted enforcement — the opt-in root-guard hook
