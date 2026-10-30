@@ -7,7 +7,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-29 05:04'
-updated_date: '2026-10-30 02:01'
+updated_date: '2026-10-30 02:03'
 labels:
   - model-tiers
   - experiment
@@ -25,7 +25,7 @@ ordinal: 173000
 <!-- AC:BEGIN -->
 - [x] #1 Add a kimi tier (model kimi/kimi-for-coding, non-default, non-escalation) to .claude/model-tiers.json
 - [x] #2 Regenerate agent definitions with pdlc/scripts/tiers.mjs; --check exits 0
-- [ ] #3 Restart the session; confirm kimi-implementer is dispatchable
+- [x] #3 Restart the session; confirm kimi-implementer is dispatchable
 - [ ] #4 Pick one small spec'd board task; dispatch it to sonnet-implementer and kimi-implementer in separate worktrees
 - [ ] #5 Record a Dispatch line per run with served= taken from the transcript
 - [ ] #6 Record per run: served model, total tokens, tool-call errors, and review fixes needed
@@ -44,4 +44,7 @@ ordinal: 173000
 kimi tier added and regenerated; --check green. Next: restart session (agent registry is read at session start) before AC3.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=claude-sonnet-5
+
+AC3 probe (2026-10-29): kimi-implementer dispatched via frontmatter pin; the Agent tool's model param rejects non-Claude IDs (enum sonnet|opus|haiku|fable), so the frontmatter pin is the only route. Read-only probe (README + git log) succeeded: 23,680 tokens, 2 tool uses, 0 tool errors, ~10s. Transcript model fields: kimi-for-coding (x4), kimi/kimi-for-coding (x2).
+Dispatch: tier=kimi pinned=kimi/kimi-for-coding served=kimi-for-coding
 <!-- SECTION:NOTES:END -->
