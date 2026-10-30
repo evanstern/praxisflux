@@ -16,7 +16,7 @@ sources:
   - pdlc/hooks/read-size-gate.mjs
   - pdlc/hooks/README-read-size-gate.md
 size_budget_exempt: over cap and growing — 8047/8000 at TASK-0138; splitting is separable
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: 483de9c6e8589eed8be697c67fc66d2c465cde40
 ---
 
 # pdlc plugin

@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - AGENTS.md
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: 483de9c6e8589eed8be697c67fc66d2c465cde40
 ---
 
 # praxisflux — system overview
@@ -39,9 +39,10 @@ grounding-wiki ────┘             (teach)          (implement)         
 - [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
   five skills: `bootstrap` stamps a project (tracked, or **local-only** for a guest repo) with
   the planted AGENTS.md grounding and the peer opt-ins; `design-rounds` owns the pre-spec seam
-  (the deliverable is unknowable until an operator picks); `sweep` runs a set
-  of board tasks through the whole lifecycle (signed-off runbook, parallel lanes, serial merges); `refactor-triage` closes the post-sweep loop, carding accepted debt and
-  drift findings back onto the board; `pr-review-sweep` works a PR review.
+  (the deliverable is unknowable until an operator picks); `sweep` runs board tasks
+  through the whole lifecycle (signed-off runbook, parallel lanes, serial merges);
+  `refactor-triage` cards accepted post-sweep debt and drift back onto the board;
+  `pr-review-sweep` works a PR review.
 - [[team-review-plugin]] also sits beside it: a lead-plus-subagent architecture review of
   any caller-named codebase, read-only by doctrine, proven by an output gate (report
   sections + resolving citations + target untouched).
