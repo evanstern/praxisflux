@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - AGENTS.md
-verified_against: 483de9c6e8589eed8be697c67fc66d2c465cde40
+verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
 ---
 
 # praxisflux — system overview

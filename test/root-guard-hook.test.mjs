@@ -84,6 +84,15 @@ function drive(command, { cwd, projectDir }) {
   return r.status === 2 ? "BLOCK" : "ALLOW";
 }
 
+function driveWrite(filePath, { cwd, projectDir }) {
+  const r = spawnSync("node", [HOOK, "pre-write"], {
+    input: JSON.stringify({ tool_input: { file_path: filePath }, cwd }),
+    env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
+    encoding: "utf8",
+  });
+  return r.status === 2 ? "BLOCK" : "ALLOW";
+}
+
 function bashParse(command) {
   // `bash -n` = parse only, never executes. Exit 0 ⇒ bash would run it.
   return spawnSync("bash", ["-n"], { input: command, encoding: "utf8" }).status === 0
@@ -349,6 +358,99 @@ test("worktree: `git rebase` is STILL BLOCKED (rebases forbidden repo-wide)", ()
   const env = mkEnv();
   try {
     assert.equal(drive(`git rebase main`, { cwd: env.worktree, projectDir: env.root }), "BLOCK");
+  } finally {
+    env.done();
+  }
+});
+
+// ===========================================================================
+// Session opened DIRECTLY on a linked worktree — CLAUDE_PROJECT_DIR IS the
+// worktree. The hook must derive the root checkout from git
+// (`rev-parse --git-common-dir`), not from CLAUDE_PROJECT_DIR: the worktree
+// must accept commits, and the main checkout must still enforce root policy.
+// ===========================================================================
+
+test("worktree-rooted session: non-backlog `git commit` IN the worktree is ALLOWED", () => {
+  const env = mkEnv();
+  try {
+    stageOnly(env.worktree, "README.md");
+    assert.equal(
+      drive(`git commit -m "wip" README.md`, { cwd: env.worktree, projectDir: env.worktree }),
+      "ALLOW"
+    );
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: out-of-scope `git commit` AT ROOT is STILL BLOCKED", () => {
+  const env = mkEnv();
+  try {
+    const cmd = `git commit -m "fix" README.md`;
+    assert.equal(drive(cmd, { cwd: env.root, projectDir: env.worktree }), "BLOCK");
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: board-sync `git commit` AT ROOT is ALLOWED", () => {
+  const env = mkEnv();
+  try {
+    const cmd = `git commit -m "board" backlog/card.md`;
+    assert.equal(drive(cmd, { cwd: env.root, projectDir: env.worktree }), "ALLOW");
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: `git commit --amend` AT ROOT is BLOCKED", () => {
+  const env = mkEnv();
+  try {
+    const cmd = `git commit --amend -m "x"`;
+    assert.equal(drive(cmd, { cwd: env.root, projectDir: env.worktree }), "BLOCK");
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: `git rebase` IN the worktree is STILL BLOCKED (repo-wide)", () => {
+  const env = mkEnv();
+  try {
+    assert.equal(drive(`git rebase main`, { cwd: env.worktree, projectDir: env.worktree }), "BLOCK");
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: `git checkout -b` AT ROOT is BLOCKED (branch create at root)", () => {
+  const env = mkEnv();
+  try {
+    const cmd = `git checkout -b newbranch`;
+    assert.equal(drive(cmd, { cwd: env.root, projectDir: env.worktree }), "BLOCK");
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: writing a TRACKED file AT ROOT is BLOCKED (pre-write)", () => {
+  const env = mkEnv();
+  try {
+    assert.equal(
+      driveWrite(join(env.root, "README.md"), { cwd: env.worktree, projectDir: env.worktree }),
+      "BLOCK"
+    );
+  } finally {
+    env.done();
+  }
+});
+
+test("worktree-rooted session: writing INSIDE the worktree is ALLOWED (pre-write)", () => {
+  const env = mkEnv();
+  try {
+    assert.equal(
+      driveWrite(join(env.worktree, "README.md"), { cwd: env.worktree, projectDir: env.worktree }),
+      "ALLOW"
+    );
   } finally {
     env.done();
   }
