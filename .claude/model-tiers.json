@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "_comment": "Model IDs here are in THIS HOST's accepted form, which is not the bare API ID. This checkout routes through 9router (see ANTHROPIC_BASE_URL), which augments model names and requires the cc/ prefix and the [1m] context suffix; the bare `claude-sonnet-5` and the `sonnet` alias are both rejected in agent-def frontmatter here (verified 2026-08-10). Resolve your own host's accepted form before editing — see the bootstrap skill's Model tiers section.",
+  "_comment": "Model IDs here are in THIS HOST's accepted form, which is not the bare API ID. This checkout routes through 9router (see ANTHROPIC_BASE_URL), which augments model names and requires the cc/ prefix and the [1m] context suffix; the bare `claude-sonnet-5` and the `sonnet` alias are both rejected in agent-def frontmatter here (verified 2026-08-10). Resolve your own host's accepted form before editing — see the bootstrap skill's Model tiers section. Non-Claude provider IDs (e.g. kimi/kimi-for-coding) use the gateway's own provider prefix instead of cc/ — that prefix is not the [1m]-suffixed Claude convention above.",
   "defaultTier": "sonnet",
   "escalationTier": "opus",
   "tiers": {
@@ -21,6 +21,12 @@
       "contextWindow": "1M",
       "escalation": true,
       "for": "escalation only — design work, cross-surface doctrine, anything with a real judgment call the spec does not already settle"
+    },
+    "kimi": {
+      "model": "kimi/kimi-for-coding",
+      "contextWindow": "256K",
+      "for": "work to a written spec with tight, testable ACs (non-default; adopted for narrower scope by TASK-0146 on one bake-off sample) — not for doctrine, design, or anything with an unsettled judgment call",
+      "caution": "Dispatch via the agent definition's frontmatter pin only — the Agent tool's model parameter rejects non-Claude IDs. Tool use through 9router worked in TASK-0146 (0 tool errors over 21 calls), but that is one sample: confirm served= from the transcript on every dispatch."
     }
   }
 }
