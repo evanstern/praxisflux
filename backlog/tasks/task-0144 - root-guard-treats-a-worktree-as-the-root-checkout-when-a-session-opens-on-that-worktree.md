@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-18 19:07'
+updated_date: '2026-10-30 02:19'
 labels:
   - pdlc
   - bug
@@ -34,3 +35,11 @@ Fix direction: derive the root checkout from `git rev-parse --git-common-dir` (t
 - [ ] #3 A session whose CLAUDE_PROJECT_DIR is the root keeps today's behavior for root and worktrees
 - [ ] #4 Tests cover a session rooted at a linked worktree
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented during the TASK-0146 bake-off by kimi-implementer (operator kept this run, 2026-10-29). Branch task-0144-root-guard-worktree, worktree .worktrees/task-0144, commit e55393c, pushed, no PR yet. Reviewed: 0 fixes needed; node --test 1324/1324.
+Dispatch: tier=kimi pinned=kimi/kimi-for-coding served=kimi-for-coding
+Remaining before PR: claim the card on the branch, wiki-update for root-guard notes, tick ACs.
+<!-- SECTION:NOTES:END -->
