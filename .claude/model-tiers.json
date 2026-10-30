@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "_comment": "Model IDs here are in THIS HOST's accepted form, which is not the bare API ID. This checkout routes through 9router (see ANTHROPIC_BASE_URL), which augments model names and requires the cc/ prefix and the [1m] context suffix; the bare `claude-sonnet-5` and the `sonnet` alias are both rejected in agent-def frontmatter here (verified 2026-08-10). Resolve your own host's accepted form before editing — see the bootstrap skill's Model tiers section.",
+  "_comment": "Model IDs here are in THIS HOST's accepted form, which is not the bare API ID. This checkout routes through 9router (see ANTHROPIC_BASE_URL), which augments model names and requires the cc/ prefix and the [1m] context suffix; the bare `claude-sonnet-5` and the `sonnet` alias are both rejected in agent-def frontmatter here (verified 2026-08-10). Resolve your own host's accepted form before editing — see the bootstrap skill's Model tiers section. Non-Claude provider IDs (e.g. kimi/kimi-for-coding) use the gateway's own provider prefix instead of cc/ — that prefix is not the [1m]-suffixed Claude convention above.",
   "defaultTier": "sonnet",
   "escalationTier": "opus",
   "tiers": {
@@ -21,6 +21,12 @@
       "contextWindow": "1M",
       "escalation": true,
       "for": "escalation only — design work, cross-surface doctrine, anything with a real judgment call the spec does not already settle"
+    },
+    "kimi": {
+      "model": "kimi/kimi-for-coding",
+      "contextWindow": "256K",
+      "for": "EXPERIMENTAL (TASK-0146 bake-off) — candidate cheap implementer for work to a written spec; not for default dispatch until the bake-off recommends it",
+      "caution": "Tool-use translation through 9router is unverified — confirm served= from the transcript before trusting any dispatch to this tier."
     }
   }
 }
