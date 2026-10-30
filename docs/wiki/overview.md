@@ -4,8 +4,8 @@ description: What praxisflux is — a Claude Code plugin marketplace on one shar
 kind: concept
 sources:
   - README.md
-  - CLAUDE.md
-verified_against: 27fdb9fbde01c8823c4c16ccaaede374b22de05d
+  - AGENTS.md
+verified_against: 483de9c6e8589eed8be697c67fc66d2c465cde40
 ---
 
 # praxisflux — system overview
@@ -38,10 +38,11 @@ grounding-wiki ────┘             (teach)          (implement)         
   over GitHub Spec Kit specs, gated so status can't exceed proven artifacts.
 - [[pdlc-plugin]] is the suite-level installer plus the lifecycle's own orchestrator, across
   five skills: `bootstrap` stamps a project (tracked, or **local-only** for a guest repo) with
-  the planted CLAUDE.md grounding and the peer opt-ins; `design-rounds` owns the pre-spec seam
-  (the deliverable is unknowable until an operator picks); `sweep` runs a set
-  of board tasks through the whole lifecycle (signed-off runbook, parallel lanes, serial merges); `refactor-triage` closes the post-sweep loop, carding accepted debt and
-  drift findings back onto the board; `pr-review-sweep` works a PR review.
+  the planted AGENTS.md grounding and the peer opt-ins; `design-rounds` owns the pre-spec seam
+  (the deliverable is unknowable until an operator picks); `sweep` runs board tasks
+  through the whole lifecycle (signed-off runbook, parallel lanes, serial merges);
+  `refactor-triage` cards accepted post-sweep debt and drift back onto the board;
+  `pr-review-sweep` works a PR review.
 - [[team-review-plugin]] also sits beside it: a lead-plus-subagent architecture review of
   any caller-named codebase, read-only by doctrine, proven by an output gate (report
   sections + resolving citations + target untouched).
@@ -76,13 +77,13 @@ invoking root.
   never squash, so `verified_against` pins stay reachable. Each branch is checked out in a
   **worktree** under the gitignored `.worktrees/`, never by switching the root checkout: the
   root stays on `main` as the shared read surface every session reads the board, `specs/`, and
-  `docs/wiki/` from (`CLAUDE.md`, "Worktree discipline").
+  `docs/wiki/` from (AGENTS.md, "Worktree discipline").
 - Releases are automated: a PR touching released surface (plugin dirs, `lib/`, `scripts/`,
   `.claude-plugin/`) must bump the marketplace version — and any edited skill's `version:` —
   per `docs/releasing.md`; CI enforces it, and each merge to `main` auto-publishes
   `v<version>` (see [[build-and-release]]). The planted block stamps the version;
   `sync-version.mjs` re-stamps it (and `.pdlc`) with the bump, so only a template change owes a re-plant.
-- Docs are load-bearing: every PR keeps `docs/wiki/`, `README.md`, and `CLAUDE.md` in sync
+- Docs are load-bearing: every PR keeps `docs/wiki/`, README, and AGENTS.md in sync
   with the code. Enforced by `scripts/check-docs.mjs` plus the wiki freshness gate, run in CI,
   the pre-commit/pre-push hooks, and a repo Stop hook (`scripts/stop-docs.mjs`) that refuses
   to end a turn while they fail.
@@ -94,8 +95,9 @@ invoking root.
 - The flow also runs under external orchestration with humans only at the approval seam:
   `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
   pilot — workflow, host runner, run log, findings).
-- The repo is itself PDLC-bootstrapped (dogfood): its own `CLAUDE.md` ends with the planted
-  `pdlc:grounding` block (Backlog.md peer opted in; Spec Kit and Jira not, both recorded in
+- The repo is itself PDLC-bootstrapped (dogfood): its own `AGENTS.md` ends with the planted
+  `pdlc:grounding` block (`CLAUDE.md` is a thin `@AGENTS.md` pointer; Backlog.md peer
+  opted in; Spec Kit and Jira not, both recorded in
   `.pdlc`'s `peersOmitted` — specs are hand-authored), the sentinel records the plant and the
   version planted, `.handoff/` is gitignored, and its dispatch tiers ride the mechanism it
   ships (`.claude/model-tiers.json` → `tiers.mjs` → `.claude/agents/*`), including re-planting
@@ -108,10 +110,10 @@ invoking root.
   real physical evidence — and **one TASK, one PR** — a top-level task maps 1:1 to a PR;
   subtasks never get their own PR.
 - Suite-design principles (`README.md`): shared plumbing but domain-specific content;
-  phase-separated skills; plant a project `CLAUDE.md` (plugins have no always-on slot); gates
+  phase-separated skills; plant a project AGENTS.md (plugins have no always-on slot); gates
   enforce "status can't exceed proven artifacts"; handoffs ride a shared transport, evidence
   in tracked state.
-- Enforcement is split by design (`README.md`, `CLAUDE.md`): local Stop hooks are
+- Enforcement is split by design (README, AGENTS.md): local Stop hooks are
   advisory/opt-in — present only where a plugin is installed and `node` resolves — while CI
   (the composite action / `@praxisflux/gates`, see [[gates-consumption-surface]]) is
   authoritative: gates make dishonest status expensive locally and impossible in CI. The

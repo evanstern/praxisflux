@@ -1,6 +1,6 @@
 ---
 name: vault-artifact
-version: 0.1.1
+version: 0.1.2
 description: >-
   Render an existing analysis from an Obsidian-style Markdown "thinking vault" into a
   self-contained, theme-aware HTML page with charts — the RENDER phase: visualize the argument an
@@ -37,7 +37,7 @@ node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs analysis <vault> <Branch>
 - **Gate not found** → the gate is hosted in the research plugin (`${CLAUDE_PLUGIN_ROOT}/gates/`);
   if `node` can't find it, the plugin is misinstalled — say so rather than reconstructing it.
 
-Read the branch `CLAUDE.md` and follow its conventions where they differ.
+Read the branch `AGENTS.md` (or `CLAUDE.md`) and follow its conventions where they differ.
 
 ## Step 2 — Decide if a visual is warranted
 Read the analysis. If it's a comparison / budget / benchmark / decision, a page helps. If it's

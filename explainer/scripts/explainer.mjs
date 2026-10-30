@@ -68,7 +68,7 @@ function usage() {
     "  approve <id> [--dir <artifact dir>]",
     "  check [--dir <artifact dir>]           (requires a fresh dist/ — run build first)",
     "  fact-merge --dir <artifact dir>        (folds dist/fact-check.recheck.json into dist/fact-check.json)",
-    "  plant [--root <project dir>] [--check] (plants/refreshes the marked CLAUDE.md block)",
+    "  plant [--root <project dir>] [--check] [--force] (plants/refreshes the marked AGENTS.md block, with a CLAUDE.md pointer)",
   ].join("\n");
 }
 
@@ -334,14 +334,20 @@ function verbFactMerge(argv) {
   return 0;
 }
 
-// Plants (or refreshes) the marked explainer block in the host project's CLAUDE.md.
-// --check reports what would change and writes nothing (exit 1 when out of date).
+// Plants (or refreshes) the marked explainer block in the host project's AGENTS.md, with a
+// @AGENTS.md pointer kept in CLAUDE.md. --check reports what would change and writes nothing
+// (exit 1 when out of date). --force migrates a legacy CLAUDE.md-resident block (pre-074) after
+// the diff has been reviewed — never silently.
 function verbPlant(argv) {
-  const { flags } = parseArgs(argv, { booleanFlags: ["check"] });
+  const { flags } = parseArgs(argv, { booleanFlags: ["check", "force"] });
   const root = path.resolve(flags.root ?? repoRootFor(process.cwd()) ?? process.cwd());
-  const status = plant({ root, pluginRoot: PLUGIN_ROOT, check: flags.check });
-  console.log(`CLAUDE.md: ${status}`);
-  return flags.check && status !== "unchanged" ? 1 : 0;
+  const { agentsMd, claudeMd } = plant({ root, pluginRoot: PLUGIN_ROOT, check: flags.check, force: flags.force });
+  console.log(`AGENTS.md: ${agentsMd}`);
+  console.log(`CLAUDE.md: ${claudeMd}`);
+  if (flags.check && (agentsMd === "drifted" || claudeMd === "drifted")) {
+    console.error("plant: a legacy explainer block is present in CLAUDE.md — diff it, get consent, then re-run with --force to migrate it into AGENTS.md.");
+  }
+  return flags.check && (agentsMd !== "unchanged" || claudeMd !== "unchanged") ? 1 : 0;
 }
 
 const VERBS = {

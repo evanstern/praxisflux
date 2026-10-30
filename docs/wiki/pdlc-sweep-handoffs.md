@@ -6,7 +6,7 @@ sources:
   - pdlc/skills/sweep/SKILL.md
   - pdlc/skills/sweep/templates/runbook.md
   - pdlc/skills/sweep/templates/lane-handoff.md
-verified_against: 47251d443613f69264061c61fa2ccda51d0628cb
+verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
 ---
 
 # pdlc:sweep — the session-portable handoff artifacts

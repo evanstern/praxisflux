@@ -1,12 +1,12 @@
 ---
 name: research-vault
-version: 0.1.1
+version: 0.2.0
 description: >-
   Research a topic and file it into an Obsidian-style Markdown "thinking vault" as an isolated,
   grounded, interlinked wiki branch — the EMBED phase: gather cited facts and structure them into
   neutral, descriptive notes (no verdicts). Use this whenever the user wants to research /
   investigate / look into / gather / "read up on" a subject and KEEP the result, especially when
-  a vault CLAUDE.md is present, or when they say "research X", "spin up a wiki/branch on Y", "add
+  a vault AGENTS.md is present, or when they say "research X", "spin up a wiki/branch on Y", "add
   notes on Z to the vault", "gather what's known about…", "ground this topic", or "set up a
   research vault". Prefer this over a plain chat answer whenever the research should be filed and
   kept, not just spoken. This skill only gathers and wikifies; evaluating the corpus or drawing a
@@ -20,7 +20,7 @@ Turn a research request into a **self-contained, grounded, interlinked wiki bran
 does one job: **gather cited facts and structure them into neutral notes.** It deliberately does
 *not* form a verdict or build visuals — those are separate, later phases (`analyze-vault`,
 `vault-artifact`) that this skill knows nothing about. They compose only through the vault's files
-and gates, which the vault's `CLAUDE.md` orchestrates.
+and gates, which the vault's `AGENTS.md` orchestrates.
 
 ## Why the boundary matters
 
@@ -29,15 +29,18 @@ If research notes smuggle in recommendations, that line blurs and the vault beco
 pile of opinions. So here you stay descriptive: lay out *what is known*, cite it, and stop. The
 moment you catch yourself writing "so the best option is…", that belongs in an analysis, not here.
 
-## Step 0 — Locate or bootstrap the vault, and honor its CLAUDE.md
+## Step 0 — Locate or bootstrap the vault, and honor its AGENTS.md
 
-1. Look for a vault: a `CLAUDE.md` describing a thinking vault, plus `Home.md` / `_templates/`.
-   Usually the current working directory.
-2. **If a vault `CLAUDE.md` exists, it wins.** Read it and follow *its* conventions over anything
-   here — the user may have tuned frontmatter, naming, or the pipeline. Defer to it.
+1. Look for a vault: an `AGENTS.md` (or legacy `CLAUDE.md`) describing a thinking vault, plus
+   `Home.md` / `_templates/`. Usually the current working directory.
+2. **If a vault `AGENTS.md` (or `CLAUDE.md`) exists, it wins.** Read it and follow *its*
+   conventions over anything here — the user may have tuned frontmatter, naming, or the
+   pipeline. Defer to it.
 3. **If there's no vault, scaffold one** (a vault can live in **any** folder — drop it wherever
    you like):
-   - `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md` → `<vault>/CLAUDE.md`
+   - `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.md` → `<vault>/AGENTS.md`
+   - write `<vault>/CLAUDE.md` as exactly `@AGENTS.md\n` — the pointer that makes Claude Code
+     load the same bytes.
    - `${CLAUDE_PLUGIN_ROOT}/templates/*` (moc, note, grounding, analysis) → `<vault>/_templates/`
    - `${CLAUDE_PLUGIN_ROOT}/templates/Home.md` → `<vault>/Home.md`
    - create an empty `<vault>/.research-vault` **sentinel** — this is what marks the folder as a
@@ -96,7 +99,8 @@ can **analyze** it (evaluate / get a recommendation) as a separate step whenever
 evaluate it yourself here.
 
 ## Bundled resources
-- `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md` — the vault orchestrator (planted on bootstrap).
+- `${CLAUDE_PLUGIN_ROOT}/templates/AGENTS.md` — the vault orchestrator (planted on bootstrap,
+  with a `CLAUDE.md` pointer alongside it).
 - `${CLAUDE_PLUGIN_ROOT}/templates/` — `moc`, `note`, `grounding`, `analysis`, `Home`.
 - `${CLAUDE_PLUGIN_ROOT}/gates/` — the Node gates (`cli.mjs branch|analysis|artifact`), shared by
   all three phases and enforced by the plugin's Stop hook. Plugin-hosted; never copied per-vault.

@@ -50,7 +50,7 @@ The stable half of the vocabulary: it tracks the repo's actual surfaces, so it d
 | `tooling` | `scripts/`, build/release tooling, CI workflows, `.claude-plugin/` |
 | `demo-rig` | `demo/` — the checkpointed demo project and its fixtures |
 | `wiki` | `docs/wiki/` as content — the corpus itself, not the generator |
-| `docs` | Prose docs, `README.md`, `CLAUDE.md`, spec/plan/tasks text |
+| `docs` | Prose docs, `README.md`, `AGENTS.md`, spec/plan/tasks text |
 | `tests` | `test/` — the suite as the deliverable |
 
 ## Kind — what shape the work is

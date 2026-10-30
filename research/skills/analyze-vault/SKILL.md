@@ -1,6 +1,6 @@
 ---
 name: analyze-vault
-version: 0.1.0
+version: 0.1.1
 description: >-
   Evaluate an existing topic branch in an Obsidian-style Markdown "thinking vault" and write a
   grounded, opinionated analysis — the QUERY phase: reason ACROSS the already-gathered corpus to
@@ -42,7 +42,8 @@ node ${CLAUDE_PLUGIN_ROOT}/gates/cli.mjs branch <vault> <Branch>
 - The gate is **hosted in the research plugin** (`${CLAUDE_PLUGIN_ROOT}/gates/`); if `node` can't
   find it, the plugin is misinstalled — say so rather than trying to reconstruct it.
 
-Read the branch's `CLAUDE.md` too, and follow its conventions where they differ from this skill.
+Read the branch's `AGENTS.md` (or `CLAUDE.md`) too, and follow its conventions where they
+differ from this skill.
 
 ## Step 2 — Absorb the corpus
 
