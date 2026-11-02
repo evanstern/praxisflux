@@ -15,9 +15,9 @@
 import { existsSync } from "node:fs";
 import { join, resolve as resolvePath } from "node:path";
 
-import { runAsCli } from "../../lib/cli.mjs";
-import { createRegistry, discover } from "../../lib/port-registry.mjs";
-import { CONFIG_FILE, configure } from "../../lib/pdlc-config.mjs";
+import { runAsCli } from "../lib/cli.mjs";
+import { createRegistry, discover } from "../lib/port-registry.mjs";
+import { CONFIG_FILE, configure } from "../lib/pdlc-config.mjs";
 
 const PLANT_RECEIPT_FILE = ".pdlc";
 

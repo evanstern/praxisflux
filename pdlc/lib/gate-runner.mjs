@@ -1,0 +1,93 @@
+// gate-runner.mjs — the shared Stop-hook harness.
+//
+// Each plugin ships a Stop hook whose command is a one-line Node entry that calls runStopHook
+// with that plugin's gates. When several plugins are installed, each fires its own hook — so
+// "run every applicable gate" happens naturally across plugins; within one plugin the runner
+// runs that plugin's gates additively over every root they resolve.
+//
+// A gate is: { name, resolveRoots(startDir, ctx) -> string[], check(root, ctx) -> string[]
+//             (problems), warn?(root, ctx) -> string[] (non-blocking notices) }.
+// A gate that resolves no roots is a no-op (this isn't its kind of project). `check` problems
+// block the stop (exit 2); optional `warn` notices are surfaced on stderr but never block (exit 0)
+// — for freshness reminders and the like that shouldn't refuse to let the model finish.
+// A gate that CRASHES — in resolveRoots or in check — surfaces as a blocking problem naming
+// the gate: a crash swallowed silently would be permanent non-enforcement wearing a green exit.
+// `ctx` is { sessionId, input }: the invoking session's identity (hook input `session_id`,
+// falling back to $CLAUDE_CODE_SESSION_ID) plus the raw hook input — gates that scope state
+// to its owning session (e.g. reorient run records) key off it; every existing gate ignores it.
+//
+// Contract (Claude Code Stop hook): stdin is JSON with { stop_hook_active, session_id, cwd, … };
+// exit 0 = allow the model to stop; exit 2 = block, and stderr becomes the message it sees.
+//
+// Root resolution in evaluate() (spec 062), most specific first: explicit { cwd } option ->
+// $CLAUDE_PROJECT_DIR -> input.cwd -> process.cwd(). An explicit argument is a caller naming a
+// directory on purpose and must never be silently overridden by an ambient variable. The env
+// var still outranks input.cwd: it's the harness's authoritative statement of the project root,
+// while input.cwd is merely where the hook happened to fire (a worktree, a subdir, wherever the
+// session sat). The only production caller, runStopHook below, passes no cwd, so this ordering
+// is byte-identical to before for the real Stop-hook path.
+
+/** Read all of stdin as a string (empty string on a TTY, so it's safe to run by hand). */
+export function readStdin() {
+  return new Promise((resolve) => {
+    if (process.stdin.isTTY) return resolve("");
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (c) => (data += c));
+    process.stdin.on("end", () => resolve(data));
+  });
+}
+
+/**
+ * Pure core: given the parsed hook input and the gates, return { block, message }.
+ * Separated from process I/O so it is unit-testable.
+ */
+export function evaluate(input, gates, { cwd = undefined } = {}) {
+  if (input && input.stop_hook_active === true) return { block: false, message: "", warnings: "" };
+  const start = cwd || process.env.CLAUDE_PROJECT_DIR || (input && input.cwd) || process.cwd();
+  const ctx = {
+    sessionId: (input && input.session_id) || process.env.CLAUDE_CODE_SESSION_ID || null,
+    input: input || {},
+  };
+  const problems = [];
+  const warnings = [];
+  for (const gate of gates) {
+    let roots = [];
+    try { roots = gate.resolveRoots(start, ctx) || []; } catch (e) {
+      problems.push(`[${gate.name || "gate"}] resolveRoots crashed on ${start}: ${e.message}`);
+    }
+    for (const root of roots) {
+      try { problems.push(...(gate.check(root, ctx) || [])); } catch (e) {
+        problems.push(`[${gate.name || "gate"}] crashed on ${root}: ${e.message}`);
+      }
+      if (typeof gate.warn === "function") {
+        try { warnings.push(...(gate.warn(root, ctx) || [])); } catch { /* warnings are best-effort */ }
+      }
+    }
+  }
+  return { block: problems.length > 0, message: problems.join("\n"), warnings: warnings.join("\n") };
+}
+
+/**
+ * Full harness: read stdin, evaluate the gates, exit 0 (allow) or 2 (block, message on stderr).
+ * Blocking problems win; otherwise any non-blocking warnings are written to stderr and we still
+ * allow the stop (exit 0). Optional `before(input)` runs after parsing and before the gates —
+ * the hook point for a plugin's own writer to do session-owned upkeep (e.g. heartbeat a run
+ * record); it is best-effort and never blocks the stop.
+ */
+export async function runStopHook({ gates, before, exit = process.exit } = {}) {
+  const raw = await readStdin();
+  let input = {};
+  try { input = JSON.parse(raw || "{}"); } catch { input = {}; }
+  if (typeof before === "function") {
+    try { await before(input); } catch { /* upkeep is best-effort */ }
+  }
+  const { block, message, warnings } = evaluate(input, gates);
+  if (block) {
+    process.stderr.write([message, warnings].filter(Boolean).join("\n") + "\n");
+    exit(2);
+  } else {
+    if (warnings) process.stderr.write(warnings + "\n");
+    exit(0);
+  }
+}
