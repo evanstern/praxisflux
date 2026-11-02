@@ -1,13 +1,13 @@
 // build.mjs packages plugins into dist/. The load-bearing invariants: a --plugin build
 // cleans ONLY its target (sibling packaged copies and dist/npm survive — a full wipe to
-// rebuild one plugin was the TASK-66 bug), a full build starts from a clean dist/, the
-// copied lib symlink is dereferenced, and a bare `--plugin` is a usage error, not a
+// rebuild one plugin was the TASK-66 bug), a full build starts from a clean dist/, each
+// plugin's vendored lib/ copy packages intact, and a bare `--plugin` is a usage error, not a
 // TypeError from targets=[undefined].
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import {
-  existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync,
+  existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync,
 } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
@@ -16,7 +16,7 @@ import { buildPlugins, USAGE } from "../scripts/build.mjs";
 
 const script = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "build.mjs");
 
-/** A minimal two-plugin repo: alpha/ and beta/ each carry a file + the lib -> ../lib symlink. */
+/** A minimal two-plugin repo: alpha/ and beta/ each carry a file + a vendored lib/ copy. */
 function fixture() {
   const repo = mkdtempSync(join(tmpdir(), "praxisflux-build-"));
   mkdirSync(join(repo, ".claude-plugin"), { recursive: true });
@@ -27,14 +27,14 @@ function fixture() {
   mkdirSync(join(repo, "lib"));
   writeFileSync(join(repo, "lib", "chassis.mjs"), "export const ok = true;\n");
   for (const name of ["alpha", "beta"]) {
-    mkdirSync(join(repo, name));
+    mkdirSync(join(repo, name, "lib"), { recursive: true });
     writeFileSync(join(repo, name, "hello.txt"), `${name}\n`);
-    symlinkSync("../lib", join(repo, name, "lib"));
+    writeFileSync(join(repo, name, "lib", "chassis.mjs"), "export const ok = true;\n");
   }
   return repo;
 }
 
-test("build: a full build packages every plugin with lib dereferenced", (t) => {
+test("build: a full build packages every plugin with its vendored lib/ intact", (t) => {
   const repo = fixture();
   t.after(() => rmSync(repo, { recursive: true, force: true }));
   buildPlugins(repo, "all");

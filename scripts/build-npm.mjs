@@ -3,9 +3,8 @@
 //
 // The npm surface is the SAME runner action.yml uses (scripts/run-gates.mjs), carved out of
 // the repo with its import graph intact: the runner, root lib/, each gate plugin's gates/
-// dir, and the plugin-local `lib -> ../lib` symlinks materialized as real copies — npm
-// refuses to pack symlinks, so the staging tree must contain none (enforced below: the build
-// fails on any symlink in the output).
+// dir, and a real copy of lib/ beside each — npm refuses to pack symlinks, so the staging
+// tree must contain none (enforced below: the build fails on any symlink in the output).
 //
 // package.json is GENERATED from .claude-plugin/marketplace.json, so the npm version is
 // lockstep with the marketplace by construction — there is no second version file to sync.
@@ -23,7 +22,7 @@ const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
  *  repo is expected to eventually rename to praxisflux to match. */
 export const PACKAGE_NAME = "@praxisflux/gates";
 
-/** Plugins whose gates the runner imports; each needs its lib symlink materialized. */
+/** Plugins whose gates the runner imports; each needs a real lib/ copy beside its gates/. */
 const GATE_PLUGINS = ["spec-bridge", "grounding-wiki", "codebase-to-course"];
 
 /** Walk `dir` and return any symlinks found (repo-relative paths). */

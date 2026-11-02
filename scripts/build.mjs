@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 // build.mjs — package each praxisflux plugin into dist/<plugin>/, self-contained.
 //
-// The shared chassis lives once at repo-root lib/; each plugin carries a `lib -> ../lib`
-// symlink, so plugin code imports it as `../lib/…` and skills reference
-// `${CLAUDE_PLUGIN_ROOT}/lib/…`. Marketplace installs dereference that symlink themselves
-// (the cache copy replaces marketplace-internal symlinks with real copies), so packaging here
-// only needs to do the same: copy with dereference so dist/<plugin>/lib is a real directory.
+// Repo-root lib/ is the canonical chassis; each plugin carries a real, committed copy of
+// it (stamped by scripts/sync-lib.mjs), so a plain recursive copy here is already
+// self-contained — no symlink to dereference.
 //
 //   node scripts/build.mjs [--plugin <name>|all]
 //
 // The plugin list is derived from .claude-plugin/marketplace.json (the single source of truth) —
 // registering a plugin there is enough to have it packaged; this script needs no edit per plugin.
-import { cpSync, readdirSync, readFileSync, rmSync, existsSync, lstatSync } from "node:fs";
+import { cpSync, readdirSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAsCli } from "../lib/cli.mjs";
@@ -46,14 +44,7 @@ export function buildPlugins(repo, only = "all") {
     const src = join(repo, plugin), out = join(dist, plugin);
     if (existsSync(out)) rmSync(out, { recursive: true, force: true }); // scoped clean: this target only
     cpSync(src, out, { recursive: true });
-    // cpSync's dereference option doesn't materialize directory symlinks met mid-recursion, so
-    // swap the copied lib symlink for a real copy of the chassis by hand.
-    const outLib = join(out, "lib");
-    if (existsSync(outLib) && lstatSync(outLib).isSymbolicLink()) {
-      rmSync(outLib);
-      cpSync(join(repo, "lib"), outLib, { recursive: true });
-    }
-    console.log(`packaged ${plugin} → dist/${plugin} (lib dereferenced)`);
+    console.log(`packaged ${plugin} → dist/${plugin}`);
   }
 }
 
