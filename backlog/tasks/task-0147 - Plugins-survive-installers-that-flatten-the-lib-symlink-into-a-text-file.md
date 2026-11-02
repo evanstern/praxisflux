@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-02 15:14'
-updated_date: '2026-11-02 15:16'
+updated_date: '2026-11-02 15:46'
 labels: []
 dependencies: []
 ordinal: 174000
@@ -33,3 +33,23 @@ The Claude desktop app's marketplace sync (2026-11-02) extracts the repo without
 4. Tests: sync-lib drift; install-path adds a flattened-symlink archive layout over all ten plugins (Stop hook + every lib-importing module loads).
 5. Docs (README, skill-patterns), version bump, wiki-update.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented on branch task-0147-vendored-lib in worktree gracious-shaw-1fb937 (dispatched sonnet-implementer, served cc/claude-sonnet-5[1m]).
+
+Commits (all node --test green at each step, full suite 1363 tests passing):
+1. a9f87cb — vendor real lib/ copy into all 10 plugins (scripts/sync-lib.mjs); fix pdlc/scripts/pdlc.mjs's ../../lib -> ../lib import depth; update test/pdlc.test.mjs's symlink assertion.
+2. 1f94743 — simplify scripts/build.mjs (drop dead symlink-swap branch), scripts/new-plugin.mjs (cpSync instead of symlinkSync), scripts/build-npm.mjs (comment only, code unchanged); update test/build.test.mjs and test/new-plugin.test.mjs fixtures/assertions.
+3. 9f076ce — add test/sync-lib.test.mjs (driftReport empty for repo; fixture catches tampered/missing files).
+4. c1cc9f6 — extend test/install-path.test.mjs with simulateFlattenedArchive() (reproduces the desktop app's symlink-to-text-file extraction); covers all 10 catalog plugins' lib/ survival + every .mjs module's import resolution, plus Stop-hook spawn from the flattened tree for the 6 hook-shipping plugins.
+5. b2391ed — docs: README.md and docs/skill-patterns.md rewritten from "lib -> ../lib symlink, dereferenced at install" to "vendored copy, stamped by scripts/sync-lib.mjs"; dropped the now-false core.symlinks platform-support claim.
+6. 4add6c0 — version bump 1.0.1 -> 1.0.2 (patch) via scripts/sync-version.mjs.
+
+Final verification (all green): node --test (1363/1363), check-docs.mjs, sync-version.mjs --check, gen-marketplace.mjs --check, build.mjs, sync-lib.mjs --check.
+
+Not done (per dispatch instructions): wiki-update (orchestrator's), AC ticks, Done status.
+
+No judgment-call escalations needed — spec covered every decision.
+<!-- SECTION:NOTES:END -->
