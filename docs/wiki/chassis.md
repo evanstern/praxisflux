@@ -1,13 +1,14 @@
 ---
 name: chassis
-description: The shared zero-dependency Node module layer in lib/, reached from each plugin through a committed lib -> ../lib symlink that installers and packaging dereference into a real copy.
+description: The shared zero-dependency Node module layer in lib/, vendored into each plugin as a real, committed copy (scripts/sync-lib.mjs) rather than a symlink.
 kind: component
 sources:
   - lib/README.md
   - scripts/build.mjs
+  - scripts/sync-lib.mjs
   - lib/toolkit/README.md
   - lib/structured-offload.mjs
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # Chassis
@@ -20,23 +21,24 @@ sibling plugins.
 
 ## How it works
 
-Every plugin directory carries a committed `lib -> ../lib` symlink, so plugin code imports the
-chassis as `../lib/…` (every importer sits in a depth-1 subdirectory of its plugin, `scripts/`
-or `gates/`) and skills reference `${CLAUDE_PLUGIN_ROOT}/lib/…`. The same path works in both
-worlds:
+Every plugin directory carries a real, committed copy of repo-root `lib/` at `<plugin>/lib/`,
+so plugin code imports the chassis as `../lib/…` (every importer sits in a depth-1
+subdirectory of its plugin, `scripts/` or `gates/`) and skills reference
+`${CLAUDE_PLUGIN_ROOT}/lib/…`. `scripts/sync-lib.mjs` keeps every plugin's copy byte-identical
+to repo-root `lib/`: default mode overwrites each copy, `--check` (`driftReport`) exits 1
+listing drift, and `test/sync-lib.test.mjs` fails the suite on divergence — edit `lib/`, then
+run the script, never hand-edit a plugin's copy.
 
-- **In the repo**, the symlink resolves to repo-root `lib/` — no build step during development.
-- **When installed from the marketplace**, Claude Code copies only the plugin's source dir into
-  its cache, but the plugins spec dereferences any symlink whose target resolves elsewhere in
-  the same marketplace: the cache copy gets a *real* `lib/` directory in the symlink's place.
-  A path escaping the plugin root (the old `../../lib/…` imports) would not survive that copy —
-  that was exactly the shipped-plugin `ERR_MODULE_NOT_FOUND` bug fixed in 0.3.2.
-- **When packaged**, `node scripts/build.mjs [--plugin <name>|all]` (plugin list derived from
-  `.claude-plugin/marketplace.json`, the single source of truth) copies each target to
-  `dist/<plugin>/` and swaps the copied `lib` symlink for a real copy of the chassis — Node's
-  `cpSync` `dereference` option doesn't materialize directory symlinks met mid-recursion, so
-  the script does the swap explicitly. A full build wipes `dist/` first; `--plugin` cleans
-  only its own target dir. Scoped-clean, drift-warning, and argv details: [[dist-packaging]].
+This replaced a committed `lib -> ../lib` symlink (pre-TASK-0147): it resolved fine in the
+repo and Claude Code's cache install (which dereferences any symlink into a real directory),
+but the Claude desktop app's marketplace sync extracts the repo without symlink support,
+writing the symlink as a 6-byte text file holding its target — every `../lib/…` import then
+failed with `ERR_MODULE_NOT_FOUND`.
+
+**When packaged**, `node scripts/build.mjs [--plugin <name>|all]` (plugin list derived from
+`.claude-plugin/marketplace.json`) plainly copies each target to `dist/<plugin>/` — no
+symlink to dereference, since `lib/` is already real. A full build wipes `dist/` first;
+`--plugin` cleans only its own target dir. Scoped-clean and argv details: [[dist-packaging]].
 
 The module roster in `lib/`:
 
@@ -100,8 +102,8 @@ become undetectable corpus rot behind a `verified_against` pin).
 The chassis is consumed by every plugin's gates and scripts ([[gates-convention]]) — notably
 [[research-plugin]], [[grounding-wiki-plugin]], [[educate-plugin]], [[build-plugin]],
 [[codebase-to-course-plugin]], and [[spec-bridge-plugin]] — and reaches installed and packaged
-copies through each plugin's `lib` symlink, dereferenced by the marketplace installer and by
-[[build-and-release]]. Its modules are individually documented in [[project-root]],
+copies as a real, vendored `lib/` in each plugin, stamped by [[build-and-release]]'s
+`scripts/sync-lib.mjs`. Its modules are individually documented in [[project-root]],
 [[gate-runner]], [[markdown-module]], [[selfcontained-verifier]], [[lifecycle-engine]],
 [[installer]], [[chassis-utilities]], and [[toolkit]]. The ports-chassis modules are covered
 in full by [[ports-chassis]]. Behavior is covered by [[test-suite]].
@@ -111,6 +113,5 @@ in full by [[ports-chassis]]. Behavior is covered by [[test-suite]].
 - Zero external dependencies by design; only `node:` built-ins.
 - `dist/` holds packaged copies only — never edit there; the canonical copy is repo-root `lib/`.
 - Building an unknown plugin name exits with status 1 (`no such plugin`).
-- The per-plugin `lib` symlinks must stay committed *as symlinks* — replacing one with a plain
-  file or directory breaks the install-time dereference. Windows contributors need symlink
-  support enabled (Developer Mode) to check them out correctly; installers are unaffected.
+- Never hand-edit a plugin's `lib/` copy — edit repo-root `lib/`, then run
+  `node scripts/sync-lib.mjs` to re-stamp every plugin; `--check` catches drift in CI/hooks.

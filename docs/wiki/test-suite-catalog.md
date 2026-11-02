@@ -14,11 +14,12 @@ sources:
   - test/new-plugin.test.mjs
   - test/run-gates.test.mjs
   - test/structured-offload.test.mjs
+  - test/sync-lib.test.mjs
   - test/sync-shared.test.mjs
   - test/sync-version.test.mjs
   - test/triage-offload.test.mjs
   - test/version-bump.test.mjs
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # Test suite — per-file coverage catalog (chassis, tooling & release)
@@ -33,20 +34,18 @@ are cataloged one-bullet-per-file in [[test-suite-catalog-plugins]].
 One bullet per `test/*.test.mjs` file:
 
 - `test/build.test.mjs` — `scripts/build.mjs` packaging (`buildPlugins`): full builds wipe
-  `dist/` and dereference `lib`; `--plugin` cleans only its target (siblings and `dist/npm`
-  survive, stale target files don't); unknown plugins throw before cleaning; a bare
-  `--plugin` exits 2 with usage, never a TypeError.
+  `dist/` and plainly copy each plugin's already-real vendored `lib/`; `--plugin` cleans
+  only its target (siblings and `dist/npm` survive, stale target files don't); unknown
+  plugins throw before cleaning; a bare `--plugin` exits 2 with usage, never a TypeError.
 - `test/build-npm.test.mjs` — `scripts/build-npm.mjs` (the `@praxisflux/gates` carve): the
   staging tree is symlink-free, lockstep-versioned, and carries the contract files;
   `stampNpxPin` rewrites only the named package's pins, and action.yml's npx pin matches
-  the marketplace version; the integration proof packs the staging tree, lays the tarball
-  out exactly as npm install would, and drives the bin through a `node_modules/.bin`
-  symlink — usage exit 2, a passing gate exit 0 (proving the whole packed import graph
-  resolves), a failing gate exit 1 with the fix named.
+  the marketplace version; the integration proof packs the tree, lays the tarball out as
+  npm install would, and drives the bin through a `node_modules/.bin` symlink — usage exit
+  2, a passing gate exit 0, a failing gate exit 1 with the fix named.
 - `test/chassis.test.mjs` — smoke tests for `lib/`: project-root finders, markdown
-  frontmatter/wikilinks, dates, templates, `checkHtml`/`externalLoads`, `createLifecycle`, installer
-  helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check` blocking as
-  named problems).
+  frontmatter/wikilinks, dates, templates, `checkHtml`/`externalLoads`, `createLifecycle`,
+  installer helpers, and gate-runner `evaluate` (incl. crashing `resolveRoots`/`check`).
 - `test/check-docs.test.mjs` — the docs-sync structural gate: fixtures for each omission
   (missing plugin row / install line / chassis module / releasing link), the plugin census
   ("<N> plugins" count claims vs `marketplace.json`, in words and digits; ghost rows and
@@ -54,60 +53,60 @@ One bullet per `test/*.test.mjs` file:
   stop-docs' `underRepo` root match (symlinked launch fires; siblings never match).
 - `test/gate-shim.test.mjs` — every shipped Stop-hook shim's node-missing path
   (catalog-derived): with no resolvable node, `gate.sh` still exits 0 but emits its
-  one-time stderr notice; the suite-wide `TMPDIR` sentinel keeps later runs — and other
-  plugins' shims — silent.
+  one-time stderr notice; the `TMPDIR` sentinel keeps later runs — and other shims — silent.
 - `test/gen-marketplace.test.mjs` — the generative catalog: an unregistered plugin dir gets
   a marketplace entry, hand-set category/tags survive, regeneration is idempotent, and the
   repo's own catalog is never stale.
-- `test/html-base.test.mjs` — `lib/html/base.html` and the deck template pass the
-  self-contained verifier with zero warnings (theme-aware, has a data table).
-- `test/install-path.test.mjs` — the marketplace install path end to end: for every plugin
-  shipping `hooks/hooks.json` (catalog-derived), simulate an install (`lib -> ../lib`
-  dereferenced, no symlink survives), then spawn the exact Stop command from hooks.json
-  with fake hook JSON on stdin — exit 0 clean, exit 2 with the gate's message on a
-  per-plugin violating fixture, exit 0 under `stop_hook_active`, and exit 0 from an
-  install path containing a space (the hooks.json command must quote the
-  `${CLAUDE_PLUGIN_ROOT}` expansion). Runs hooks as Claude Code spawns them, not
+- `test/html-base.test.mjs` — `lib/html/base.html` + the deck template pass the
+  self-contained verifier with zero warnings.
+- `test/install-path.test.mjs` — the marketplace install path end to end, two shapes: (1)
+  the Claude Code cache install — for every plugin shipping `hooks/hooks.json`
+  (catalog-derived), copy the plugin (no symlink survives — a no-op now that `lib/` is
+  already real), then spawn the exact Stop command from hooks.json with fake hook JSON on
+  stdin — exit 0 clean, exit 2 with the gate's message on a violating fixture, exit 0 under
+  `stop_hook_active`, and exit 0 from a spaced install path; (2) `simulateFlattenedArchive()`
+  (TASK-0147) reproduces the Claude desktop app's symlink-unaware sync (every symlink
+  written as plain text) — for all ten plugins, `lib/` survives as a real directory and
+  every `.mjs` module's imports resolve (no `ERR_MODULE_NOT_FOUND`), and hook-shipping
+  plugins' Stop hooks run clean from that tree. Runs hooks as Claude Code spawns them, not
   in-process; also its own CI job.
-  Plus educate's plant simulation: the rendered `templates/AGENTS.md` (placeholders
-  substituted as `educate:start` instructs) leaves no `{{…}}`/`${CLAUDE_PLUGIN_ROOT}`
-  behind, and every planted command runs as written from a user project with
-  `CLAUDE_PLUGIN_ROOT` scrubbed from the environment.
+  Plus educate's plant simulation: the rendered `templates/AGENTS.md` leaves no
+  `{{…}}`/`${CLAUDE_PLUGIN_ROOT}` behind, and every planted command runs as written from a
+  user project with `CLAUDE_PLUGIN_ROOT` scrubbed from the environment.
 - `test/new-plugin.test.mjs` — `scripts/new-plugin.mjs` scaffolding: the stamped plugin
   passes `checkDocs` unmodified (README row + install line inserted, "<N> plugins" count
   claims rewritten in words and digits) and `genMarketplace` regenerates as a no-op;
   the plugin version rides the marketplace's (sync-version lockstep), SKILL.md carries
-  the frontmatter the bump gate keys on plus the gate→work→gate sections, and the
-  `lib -> ../lib` symlink is committed; rerunning fails safely instead of clobbering,
-  `--with-gate` stamps the Stop-hook trio as a safe no-op (quoted `${CLAUDE_PLUGIN_ROOT}`
-  expansion, executable `gate.sh`, dependency-free stub gate resolving no roots), and
-  non-kebab-case names are rejected before touching disk.
+  the frontmatter the bump gate keys on plus the gate→work→gate sections, and a vendored
+  real copy of repo-root `lib/` is committed (not a symlink); rerunning fails safely
+  instead of clobbering, `--with-gate` stamps the Stop-hook trio as a safe no-op (quoted
+  `${CLAUDE_PLUGIN_ROOT}` expansion, executable `gate.sh`, dependency-free stub gate
+  resolving no roots), and non-kebab-case names are rejected before touching disk.
 - `test/run-gates.test.mjs` — `scripts/run-gates.mjs` (the CI consumption surface behind
   action.yml): unknown or empty gate lists are usage errors (exit 2), never silent skips;
   `ci.yml` still runs the repo's own spec-bridge + wiki-freshness self-checks (spec 057 moved
-  that assertion OUT of `node --test` — it is repo state, red by construction mid-PR — and this
-  drift check is what keeps the CI steps from being dropped); failures name the
-  fix (course's missing index.html, shallow clone → `fetch-depth: 0`); an exception thrown
-  WHILE a gate runs exits 1 (gate failure), never 2; the `GATES` registry and action.yml's
-  documented gate list are drift-checked against each other; and the realpathed run-as-CLI
-  guard fires through a symlinked checkout — no silent zero-gate pass.
+  that assertion out of `node --test`, since it is repo-state, red by construction mid-PR);
+  failures name the fix (course's missing index.html, shallow clone → `fetch-depth: 0`); an
+  exception thrown while a gate runs exits 1, never 2; the `GATES` registry and action.yml's
+  gate list are drift-checked against each other; and the realpathed run-as-CLI guard fires
+  through a symlinked checkout.
 - `test/structured-offload.test.mjs` — `lib/structured-offload.mjs` (spec 063) against
   `node:http` stubs, no live model: a valid response validates for both `api` values, and
   the request body carries the schema structurally (Ollama `format`, OpenAI-compatible
   `response_format.json_schema.schema`); prose/invalid JSON, a wrong enum value, and a
-  missing required property all fall back with the matching `reason`; a server that sleeps
-  past `timeoutMs` falls back to `timeout`, a closed port to `refused`, and no/malformed
-  config file to `unconfigured`; residue (`backend, model, outcome, reason?, ms`) is
-  recorded to `residuePath` on both a success and a fallback; `validateSchema` is also
-  exercised directly against the documented subset (enum, required, items, integer).
+  missing required property all fall back with the matching `reason`; a sleeping server
+  falls back to `timeout`, a closed port to `refused`, and no/malformed config to
+  `unconfigured`; residue is recorded to `residuePath` on both success and fallback;
+  `validateSchema` is also exercised directly.
 - `test/triage-offload.test.mjs` — `grounding-wiki/scripts/triage-offload.mjs` (spec 065),
   the wiki-update REVIEW-pile offload consumer, against `structured-offload`'s stub-server
   conventions: a valid `computed-re-pin` whose `deciding_path` is in the diff's file list is
-  honored; a `deciding_path` outside that list, a prose response, and a wrong enum value all
-  fall back per note; no `.claude/structured-offload.json` routes every REVIEW note to
-  fallback, byte-identical to today's in-session triage; a fresh corpus (no REVIEW entries)
-  routes nothing; the script never writes (tree snapshots match; TASK-0130 excluded
-  `.git/`).
+  honored; an out-of-list `deciding_path`, a prose response, and a wrong enum value all fall
+  back per note; no config routes every REVIEW note to fallback, byte-identical to today's
+  in-session triage; a fresh corpus routes nothing; the script never writes.
+- `test/sync-lib.test.mjs` — `scripts/sync-lib.mjs`: the repo's own ten plugin `lib/`
+  copies are in sync (`driftReport` empty); a fixture with a tampered or missing file is
+  caught, and `syncLib` fixes it.
 - `test/sync-shared.test.mjs` — stamped visual-contract regions in consumers match their
   canonical sources (`driftReport` empty); `stampRegion` replaces only marked bodies.
 - `test/sync-version.test.mjs` — argv guard: refusals exit 2 + usage, version

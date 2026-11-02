@@ -10,7 +10,7 @@ sources:
   - lib/credentials.mjs
   - pdlc/scripts/pdlc.mjs
   - docs/receipts.md
-verified_against: e9cf2187254c768efd84ad367f3d3c97a045b086
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # The pdlc ports chassis

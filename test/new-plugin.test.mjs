@@ -3,7 +3,7 @@
 // (sync-version lockstep), and rerunning fails safely instead of clobbering.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, readlinkSync, lstatSync, statSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, lstatSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
@@ -72,9 +72,9 @@ test("scaffold: the stamped plugin passes the drift checks unmodified", () => {
     for (const section of ["## Precondition gate", "## The work", "## Output gate", "## Handing off"])
       assert.ok(skill.includes(section), `SKILL.md missing "${section}"`);
 
-    // The committed lib -> ../lib symlink.
-    assert.ok(lstatSync(join(root, "newbie", "lib")).isSymbolicLink());
-    assert.equal(readlinkSync(join(root, "newbie", "lib")), "../lib");
+    // The vendored lib/ copy — a real directory, not a symlink.
+    const lib = join(root, "newbie", "lib");
+    assert.ok(statSync(lib).isDirectory() && !lstatSync(lib).isSymbolicLink());
 
     // Optional pieces are opt-in: no gate surface without --with-gate.
     assert.ok(!existsSync(join(root, "newbie", "hooks")));

@@ -7,7 +7,7 @@ sources:
   - scripts/run-gates.mjs
   - action.yml
   - docs/consuming-gates.md
-verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # Gates consumption surface
@@ -26,8 +26,9 @@ impossible in CI.
 `scripts/build-npm.mjs` (run as `node scripts/build-npm.mjs [--out <dir>]`, default
 `dist/npm/`) carves the gate surface into an installable npm package (`PACKAGE_NAME`,
 `@praxisflux/gates`): the same `scripts/run-gates.mjs` the action uses, root `lib/`, each
-gate plugin's `gates/` dir, the plugin-local `lib` symlinks materialized as real copies (npm
-cannot pack symlinks — the build fails on any symlink in the output), and the course gate's
+gate plugin's `gates/` dir with a real copy of `lib/` copied in beside it (npm cannot pack
+symlinks — the build fails on any symlink in the output; it copies `lib/` directly from
+repo-root, independent of each plugin's own vendored copy), and the course gate's
 `validate.mjs` reference. `package.json` is generated from `marketplace.json`, so the npm
 version is lockstep by construction; `docs/consuming-gates.md` ships as the README, root
 `LICENSE` (MIT) rides along, and the bin `praxisflux-gates` points at the runner.

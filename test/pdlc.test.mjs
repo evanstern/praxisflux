@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, realpathSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, existsSync, rmSync, statSync, lstatSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -28,14 +28,16 @@ function proj() {
 
 // --- plugin registration (new-plugin checklist) ---
 
-test("pdlc is a registered plugin with a resolving lib symlink", () => {
+test("pdlc is a registered plugin with a vendored lib/ copy", () => {
   const mp = JSON.parse(readFileSync(join(repo, ".claude-plugin", "marketplace.json"), "utf8"));
   const entry = mp.plugins.find((p) => p.name === "pdlc");
   const pj = JSON.parse(readFileSync(join(repo, "pdlc", ".claude-plugin", "plugin.json"), "utf8"));
   assert.ok(entry, "pdlc missing from marketplace.json");
   assert.equal(entry.source, "./pdlc");
   assert.equal(entry.description, pj.description, "catalog description must follow plugin.json");
-  assert.equal(realpathSync(join(repo, "pdlc", "lib")), realpathSync(join(repo, "lib")));
+  const lib = join(repo, "pdlc", "lib");
+  assert.ok(statSync(lib).isDirectory() && !lstatSync(lib).isSymbolicLink(), "pdlc/lib must be a real directory, not a symlink");
+  assert.ok(existsSync(join(lib, "gate-runner.mjs")), "pdlc/lib must contain the chassis");
 });
 
 test("bootstrap SKILL.md has the frontmatter the bump gate keys on", () => {

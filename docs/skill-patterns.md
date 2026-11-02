@@ -103,9 +103,9 @@ belong. praxisflux's own live at `node scripts/run-gates.mjs --gates spec-bridge
 ## 5. Gates and the chassis are plugin-hosted, never copied per-project
 
 Scripts live once in the plugin and are referenced as `${CLAUDE_PLUGIN_ROOT}/…`; each plugin
-reaches `lib/` through a committed `lib -> ../lib` symlink, which marketplace installs and
-`scripts/build.mjs` packaging dereference into a real per-plugin copy. Don't copy gates into the
-user's project — one canonical, updatable copy per plugin.
+carries a real, committed copy of repo-root `lib/`, stamped by `scripts/sync-lib.mjs` — edit
+`lib/` then run it to re-stamp every plugin's copy (`--check` fails the suite on drift). Don't
+copy gates into the user's project — one canonical, updatable copy per plugin.
 
 **Directory convention (uniform across plugins):**
 - **`<plugin>/gates/`** — the read-only verification logic (the "is this valid?" checkers) and any
@@ -146,9 +146,9 @@ is shared *content*: educational methods and visual tools a skill reads while au
 course, or briefing — tooltip snippets, pedagogy principles, diagram idioms. One canonical copy
 serves every plugin, and single-owner tools become borrowable by siblings.
 
-**Distribution.** Toolkit modules ship exactly like the chassis: each plugin's `lib` symlink is
-dereferenced into a real copy when the plugin is installed or packaged, so every installed
-plugin carries its own copy and stays independently installable. There is no runtime
+**Distribution.** Toolkit modules ship exactly like the chassis: each plugin carries its own
+vendored copy of `lib/` (including `lib/toolkit/`), stamped by `scripts/sync-lib.mjs`, so every
+installed plugin is self-contained and stays independently installable. There is no runtime
 cross-plugin lookup.
 
 **Referencing.** Skill prose and templates point at modules as
@@ -202,9 +202,9 @@ Module index: [`lib/toolkit/README.md`](../lib/toolkit/README.md).
 **The paved path: `node scripts/new-plugin.mjs <name> [--with-gate]`.** It stamps items 1–2
 (and, with `--with-gate`, the Stop-hook trio of item 4) in one shot — plugin.json in version
 lockstep with the marketplace, the SKILL.md skeleton in the gate→work→gate shape with the
-frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace entry, and the
-README table row + install line the docs gate demands — then leaves TODOs where judgment is
-needed. It refuses to overwrite an existing plugin dir. The remaining items are yours:
+frontmatter the bump gate keys on, a vendored copy of repo-root `lib/`, the marketplace entry,
+and the README table row + install line the docs gate demands — then leaves TODOs where
+judgment is needed. It refuses to overwrite an existing plugin dir. The remaining items are yours:
 
 1. `<plugin>/.claude-plugin/plugin.json`; add it to `.claude-plugin/marketplace.json` (or run
    `scripts/gen-marketplace.mjs`). *(scaffolded)*

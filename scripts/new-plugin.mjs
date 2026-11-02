@@ -8,13 +8,13 @@
 //
 // Stamps: <name>/.claude-plugin/plugin.json (version in lockstep with the marketplace),
 // skills/<name>/SKILL.md skeleton (frontmatter the bump gate keys on + the gate→work→gate
-// shape), the lib -> ../lib symlink, the marketplace entry (via gen-marketplace), and the
-// README surface check-docs.mjs requires: table row, install line, and every "<N> plugins"
-// count claim rewritten to the new catalog count. --with-gate adds the Stop-hook
-// trio (gates/<name>.mjs + scripts/{stop.mjs,gate.sh} + hooks/hooks.json) per
-// skill-patterns §5; the stub gate resolves no roots, so it is a safe no-op until wired.
-// Refuses to run if <name>/ already exists — rerunning never clobbers.
-import { readFileSync, writeFileSync, existsSync, mkdirSync, symlinkSync, chmodSync } from "node:fs";
+// shape), a vendored copy of repo-root lib/ (scripts/sync-lib.mjs keeps it in sync), the
+// marketplace entry (via gen-marketplace), and the README surface check-docs.mjs requires:
+// table row, install line, and every "<N> plugins" count claim rewritten to the new catalog
+// count. --with-gate adds the Stop-hook trio (gates/<name>.mjs + scripts/{stop.mjs,gate.sh}
+// + hooks/hooks.json) per skill-patterns §5; the stub gate resolves no roots, so it is a
+// safe no-op until wired. Refuses to run if <name>/ already exists — rerunning never clobbers.
+import { readFileSync, writeFileSync, existsSync, mkdirSync, cpSync, chmodSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { genMarketplace } from "./gen-marketplace.mjs";
@@ -167,7 +167,7 @@ export function scaffoldPlugin(repo, name, { withGate = false } = {}) {
   writeFileSync(join(dir, ".claude-plugin", "plugin.json"), pluginJson(name, mp.version));
   mkdirSync(join(dir, "skills", name), { recursive: true });
   writeFileSync(join(dir, "skills", name, "SKILL.md"), skillMd(name));
-  symlinkSync("../lib", join(dir, "lib"));
+  cpSync(join(repo, "lib"), join(dir, "lib"), { recursive: true });
 
   if (withGate) {
     mkdirSync(join(dir, "gates"));

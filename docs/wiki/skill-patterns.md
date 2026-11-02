@@ -5,7 +5,7 @@ kind: pattern
 sources:
   - docs/skill-patterns.md
   - scripts/new-plugin.mjs
-verified_against: 43db0f01fb30a277be5d15ec56165e5bd5b33269
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # Skill patterns — how praxisflux plugins are authored
@@ -67,7 +67,7 @@ not just re-syncs — see [[build-and-release]]); skills in the gate→work→ga
 `lib/handoff.mjs` if it hands off; tests under `test/` kept green. The paved path is
 `scripts/new-plugin.mjs <name> [--with-gate]` (`scaffoldPlugin`): it stamps the drift-gated
 surface in one shot — plugin.json in version lockstep, the SKILL.md skeleton with the
-frontmatter the bump gate keys on, the `lib -> ../lib` symlink, the marketplace entry, and
+frontmatter the bump gate keys on, a vendored copy of repo-root `lib/`, the marketplace entry, and
 the README table row (whose enforcement cell reads "Stop hook (advisory)" with
 `--with-gate`, "Skill-only: none." without) + install line, rewriting every "<N> plugins"
 count claim in README prose to the new catalog count (`updateCountClaims`, mirroring
@@ -83,7 +83,7 @@ local Stop hooks stay advisory by design. It refuses to overwrite an existing pl
 ## Connections
 
 - [[gates-convention]] — the enforcement half of these patterns (gates/ vs scripts/, lifecycle).
-- [[chassis]] — what a conforming plugin inherits through its `lib` symlink; [[build-and-release]] dereferences it into packaged copies.
+- [[chassis]] — what a conforming plugin inherits as its own vendored `lib/` copy, stamped by [[build-and-release]]'s `scripts/sync-lib.mjs`.
 - Applied by every plugin note: [[research-plugin]], [[grounding-wiki-plugin]],
   [[educate-plugin]], [[build-plugin]], [[codebase-to-course-plugin]],
   [[spec-bridge-plugin]], [[pdlc-plugin]], [[team-review-plugin]].
