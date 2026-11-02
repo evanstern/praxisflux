@@ -1,11 +1,11 @@
 ---
 name: dist-packaging
-description: How scripts/build.mjs packages each registered plugin self-contained into dist/<plugin>/ — full-build vs --plugin scoped cleaning, the lib-symlink dereference, the drift warning, and the argv/exit-code contract. Split summary-style from [[build-and-release]]; load when packaging plugins or debugging dist/ output.
+description: How scripts/build.mjs packages each registered plugin self-contained into dist/<plugin>/ — full-build vs --plugin scoped cleaning, the plain recursive copy (each plugin already vendors a real lib/), the drift warning, and the argv/exit-code contract. Split summary-style from [[build-and-release]]; load when packaging plugins or debugging dist/ output.
 kind: pipeline
 sources:
   - scripts/build.mjs
   - test/build.test.mjs
-verified_against: 25d53c222befab08aa10e8ef18463c2efe4df314
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # dist/ packaging (scripts/build.mjs)
@@ -16,12 +16,11 @@ the exported `buildPlugins(repo, only)` (CLI entry via `runAsCli`); the plugin l
 derived from `.claude-plugin/marketplace.json`, the single source of truth — registering a
 plugin there is enough to have it packaged.
 
-**Per target.** Copies the plugin sources to `dist/<plugin>/` and swaps the copied `lib`
-symlink for a real copy of repo-root `lib/` (explicitly — Node's `cpSync` `dereference`
-option doesn't materialize directory symlinks met mid-recursion). No import rewriting:
-plugin code already imports `../lib/…`, which resolves identically through the in-repo
-symlink, the packaged copy, and a marketplace install (the plugins spec dereferences
-marketplace-internal symlinks into the cache copy).
+**Per target.** A plain recursive `cpSync` of the plugin sources to `dist/<plugin>/` — no
+symlink to dereference, since each plugin already carries a real, committed copy of
+repo-root `lib/` at `<plugin>/lib/` (kept in sync by `scripts/sync-lib.mjs`, see
+[[chassis]]). No import rewriting: plugin code already imports `../lib/…`, which resolves
+identically in the repo, the packaged copy, and any install.
 
 **Cleaning is scoped to what's being built.** A full build (`all`, the default) deletes
 `dist/` outright; `--plugin <name>` cleans and rebuilds only that plugin's `dist/<name>/`
@@ -42,6 +41,8 @@ scratch on every full run.
 
 - Child of [[build-and-release]] (split summary-style per `docs/corpus-spec.md` v2); the
   catalog/version/docs-sync legs and the release story stay there.
-- Distributes the [[chassis]] by dereferencing each plugin's `lib` symlink into a real copy.
-- The same dereference is simulated by the install-path e2e in the [[test-suite]];
-  `test/build.test.mjs` pins the scoped-clean and usage-error contract.
+- Distributes the [[chassis]], whose vendored `lib/` copies `scripts/sync-lib.mjs` keeps
+  in sync — packaging itself does no dereferencing.
+- The install-path e2e in the [[test-suite]] simulates both a Claude Code cache install and
+  a symlink-unaware marketplace extraction; `test/build.test.mjs` pins the scoped-clean and
+  usage-error contract.

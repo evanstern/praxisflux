@@ -5,7 +5,7 @@ kind: concept
 sources:
   - README.md
   - AGENTS.md
-verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # praxisflux — system overview
@@ -59,7 +59,7 @@ invoking root.
 
 ## Connections
 
-- [[chassis]] — the shared plumbing every plugin reaches through its committed `lib` symlink.
+- [[chassis]] — the shared plumbing each plugin reaches via its own vendored `lib/`.
 - [[skill-patterns]] — the authoring conventions that make the plugins look alike.
 - [[gates-convention]] — how gates keep each status backed by proven artifacts.
 - [[build-and-release]] — how the marketplace and self-contained plugin packages are made,
@@ -89,9 +89,10 @@ invoking root.
   to end a turn while they fail.
 - Install surfaces are public (the repo and the `@praxisflux/gates` npm package need no
   special access) and platform support is an explicit recorded decision: macOS/Linux
-  supported, native Windows out of scope (the Stop-hook shims are bash and the committed
-  `lib` symlinks assume `core.symlinks`; WSL works) — see README's Install section. The
-  install path itself is CI-proven end to end (`test/install-path.test.mjs`).
+  supported, native Windows out of scope (the Stop-hook shims are bash; WSL works) — see
+  README's Install section. The install path itself is CI-proven end to end
+  (`test/install-path.test.mjs`), including a simulated symlink-unaware marketplace archive
+  across all ten plugins.
 - The flow also runs under external orchestration with humans only at the approval seam:
   `docs/headless-runner.md` (the agent-node recipe) and `docs/orchestration/` (the n8n
   pilot — workflow, host runner, run log, findings).

@@ -4,6 +4,7 @@ description: Repo-level build tooling, the hub of the release story — packages
 kind: pipeline
 sources:
   - scripts/build.mjs
+  - scripts/sync-lib.mjs
   - scripts/sync-shared.mjs
   - scripts/gen-marketplace.mjs
   - scripts/sync-version.mjs
@@ -12,19 +13,19 @@ sources:
   - .claude/settings.json
   - .claude-plugin/marketplace.json
   - .githooks/pre-commit
-verified_against: b46d72da658e79eb14ebd1b72504faaff2c2c313
+verified_against: 7a3051e7624d902028f0e39152e1e5373267d3c7
 ---
 
 # Build and release
 
-The repo-level pipeline that turns in-repo plugin sources (which reach the shared chassis
-through a committed `lib -> ../lib` symlink, importing it as `../lib/…`) into independently
-installable packages, while keeping three things from
-drifting: the marketplace catalog, the version numbers, and the literal copies of shared
-visual-contract regions. Plugins carry no `package.json` and never self-build; the scripts
-live in repo-root `scripts/`, and GitHub Actions turns them into an automated release
-pipeline: every substantive merge to `main` publishes exactly one GitHub Release named after
-the marketplace version.
+The repo-level pipeline that turns in-repo plugin sources (each carrying a real, committed
+copy of the shared chassis at `<plugin>/lib/`, kept in sync with repo-root `lib/` by
+`scripts/sync-lib.mjs` and imported as `../lib/…`) into independently installable packages,
+while keeping four things from drifting: the marketplace catalog, the version numbers, the
+literal copies of shared visual-contract regions, and the per-plugin chassis copies. Plugins
+carry no `package.json` and never self-build; the scripts live in repo-root `scripts/`, and
+GitHub Actions turns them into an automated release pipeline: every substantive merge to
+`main` publishes exactly one GitHub Release named after the marketplace version.
 
 ## How it works
 
@@ -33,54 +34,51 @@ the marketplace version.
 there is enough to have it packaged.
 
 **Packaging — [[dist-packaging]].** `scripts/build.mjs` (exported core
-`buildPlugins(repo, only)`) copies each target plugin to gitignored `dist/<plugin>/` with
-the `lib` symlink dereferenced into a real copy of the chassis. Cleaning is scoped: a full
-build wipes `dist/` first, while `--plugin <name>` cleans and rebuilds only that plugin's
-dir (sibling packages and `dist/npm` survive). The mechanics, the drift warning, and the
-argv/exit-code contract live in [[dist-packaging]].
+`buildPlugins(repo, only)`) copies each target plugin to gitignored `dist/<plugin>/` with a
+plain recursive copy — each plugin's `lib/` is already a real, vendored directory, so there
+is no symlink to dereference. Cleaning is scoped: a full build wipes `dist/` first, while
+`--plugin <name>` cleans and rebuilds only that plugin's dir (sibling packages and
+`dist/npm` survive). The mechanics and the argv/exit-code contract live in [[dist-packaging]].
+
+**Chassis-copy consistency** (`scripts/sync-lib.mjs`). Each registered plugin's `<plugin>/lib/`
+must be byte-identical to repo-root `lib/` — replaces the pre-TASK-0147 `lib -> ../lib`
+symlink, which the Claude desktop app's marketplace sync (no symlink support) flattened into
+a 6-byte text file, breaking every `../lib/…` import. Default mode overwrites every plugin's
+copy (`syncLib`); `--check` (`driftReport`) exits 1, listing missing/stale/drifted files with
+a fix hint. Guarded by `test/sync-lib.test.mjs`.
 
 **Catalog consistency** (`scripts/gen-marketplace.mjs`). Generative, not just a re-sync: the
-exported `genMarketplace(repo)` regenerates each registered entry's `name` and `description`
-from that plugin's own `.claude-plugin/plugin.json` (preserving the marketplace's top-level
-fields and hand-set per-plugin `category`/`tags`) **and appends an entry for any top-level dir
-that carries a `plugin.json` but isn't registered yet** (default category `productivity`, tags
-from the plugin's `keywords`) — so the new-plugin checklist's "run gen-marketplace.mjs" is
-true as written. `--check` exits 1 if the file would change; guarded by
-`test/gen-marketplace.test.mjs`, including a repo-own-catalog staleness check.
+exported `genMarketplace(repo)` regenerates each entry's `name`/`description` from that
+plugin's own `plugin.json` (preserving hand-set `category`/`tags`) and appends an entry for
+any unregistered top-level dir with a `plugin.json`. `--check` exits 1 if the file would
+change; guarded by `test/gen-marketplace.test.mjs`.
 
 **Version consistency** (`scripts/sync-version.mjs`). Exactly one argument, validated before
 any file is touched: a strict `x.y.z` (`0.3.0`) sets every plugin.json, the marketplace, and
 `action.yml`'s `npx @praxisflux/gates@<version>` pin to that version; `--check` exits 1 on any
 disagreement. It also stamps the repo's planted pdlc version (`AGENTS.md` marker, `.pdlc`).
-Anything else — no argument, `--help`-style flags, non-semver — is a usage
-error: exit 2, zero files written (guarded by `test/sync-version.test.mjs`; a target at or
-below the current value stays allowed for repair/rollback — the bump gate polices increases).
-The pin rewrite is the pure `stampNpxPin(text, name, target)`; a vanished pin fails loudly. Versions are
-**lockstep**: the marketplace `version` is the single release version and everything else
-follows it.
+Anything else — no argument, `--help`-style flags, non-semver — is a usage error: exit 2, zero
+files written (guarded by `test/sync-version.test.mjs`; a target at or below the current value
+stays allowed for repair/rollback). Versions are **lockstep**: the marketplace `version` is
+the single release version and everything else follows it.
 
-**Release mechanics — [[release-pipeline]].** Merges to `main` release automatically, no
-manual step: CI verifies every PR, the bump gate (`scripts/check-version-bump.mjs`) refuses
-released-surface changes whose marketplace version didn't increase, and the release workflow
-publishes the npm package **before** creating the tag `v<version>` and its GitHub Release —
-so a released tag always resolves a live npm version. The workflows, the bump and skill-bump
-rules, OIDC trusted publishing, and the idempotent re-run behavior live in
-[[release-pipeline]].
+**Release mechanics — [[release-pipeline]].** Merges to `main` release automatically: CI
+verifies every PR, the bump gate (`scripts/check-version-bump.mjs`) refuses released-surface
+changes whose marketplace version didn't increase, and the release workflow publishes the npm
+package before creating the tag `v<version>` and its GitHub Release. The workflows, bump
+rules, OIDC publishing, and re-run behavior live in [[release-pipeline]].
 
 **Docs-sync enforcement** (`scripts/check-docs.mjs`, `scripts/stop-docs.mjs`). The grounding
 docs are treated as release artifacts too. `check-docs.mjs` verifies README.md names every
 marketplace plugin (table row + `/plugin install` line) and every `lib/*.mjs` chassis module,
-runs a two-way plugin census (a row or install line for a name `marketplace.json` doesn't
-register is a problem, and every `<N> plugins` count claim in README prose — digits or
-number words — must equal the registered count, so count drift fails the gate), and checks
-that `AGENTS.md` links `docs/releasing.md`; the freshness gate covers the semantic half. Both
-run in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
+runs a two-way plugin census (a row or install line for an unregistered name is a problem,
+and every `<N> plugins` count claim must equal the registered count), and checks that
+`AGENTS.md` links `docs/releasing.md`; the freshness gate covers the semantic half. Both run
+in CI on every PR, in the local hooks, and in a repo Stop hook (`stop-docs.mjs` on
 `lib/gate-runner`, wired by the tracked `.claude/settings.json`). `check-docs` always blocks;
-freshness blocks **except inside the re-pin window** (spec 057) — when the commits that staled
-a note are themselves unmerged the re-pin is legitimately owed later, so the gate notices what
-is owed instead of wedging the turn. Unexplained staleness still blocks, and every unknown
-fails closed. The Stop gate's `underRepo` realpaths both sides and requires a
-separator boundary, so symlinked launches fire but `praxis-anything` siblings don't.
+freshness blocks **except inside the re-pin window** (spec 057) — commits that staled a note
+but are themselves unmerged owe the re-pin later, not now. Unexplained staleness still blocks,
+and every unknown fails closed.
 
 **External consumption — [[gates-consumption-surface]].** The gates run in repos that don't
 carry praxisflux: `scripts/build-npm.mjs` stages the `@praxisflux/gates` npm package
@@ -90,20 +88,19 @@ runner (`scripts/run-gates.mjs`), the package contents, and the exit-code contra
 described in [[gates-consumption-surface]].
 
 **Shared-region stamping** (`scripts/sync-shared.mjs`). Some shared content must live as a
-literal copy inside consumer files (a planted template can't import at runtime). `SYNCS`
-maps canonical sources to consumers: `praxisflux:tokens`/`praxisflux:theme` from
-`lib/html/base.html` and `praxisflux:tooltip-css`/`praxisflux:tooltip-js` from
-`lib/toolkit/tooltip.md`, stamped into `educate/templates/.template/deck.html`; and
-`praxisflux:handoff-protocol`, `docs/handoff-protocol.md` → `lib/handoff-protocol.md`.
-Regions are
-delimited by `<name>:start` / `<name>:end` marker lines; `extractRegion`/`stampRegion` copy the
-body between them. Default mode re-stamps every consumer; `--check` (via `driftReport`) exits 1
-on any byte difference.
+literal copy inside consumer files (a planted template can't import at runtime). `SYNCS` maps
+canonical sources to consumers: `praxisflux:tokens`/`praxisflux:theme` from `lib/html/base.html`
+and `praxisflux:tooltip-css`/`praxisflux:tooltip-js` from `lib/toolkit/tooltip.md`, stamped into
+`educate/templates/.template/deck.html`; and `praxisflux:handoff-protocol`,
+`docs/handoff-protocol.md` → `lib/handoff-protocol.md`. Regions are delimited by `<name>:start` /
+`<name>:end` marker lines; `extractRegion`/`stampRegion` copy the body between them. Default
+mode re-stamps every consumer; `--check` (via `driftReport`) exits 1 on any byte difference.
 
 ## Connections
 
-- Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by dereferencing each
-  plugin's `lib` symlink into a real copy — there is no runtime cross-plugin lookup.
+- Distributes the [[chassis]] (all of `lib/`, including the [[toolkit]]) by vendoring a real,
+  stamped copy into each plugin's `lib/` (`scripts/sync-lib.mjs`) — there is no runtime
+  cross-plugin lookup.
 - Packages [[research-plugin]], [[educate-plugin]], [[build-plugin]],
   [[codebase-to-course-plugin]], [[grounding-wiki-plugin]], [[spec-bridge-plugin]],
   [[pdlc-plugin]], and [[team-review-plugin]], as registered in the marketplace file.
@@ -112,8 +109,9 @@ on any byte difference.
 - Split summary-style per `docs/corpus-spec.md` v2: [[dist-packaging]] carries the
   build.mjs packaging mechanics; [[release-pipeline]] carries the bump gate + CI + release
   workflows; [[gates-consumption-surface]] carries the npm package and the composite action.
-- Guarded by [[test-suite]]: `sync-shared.test.mjs` runs `driftReport`; pre-commit also runs
-  `board-mirror.mjs --check` (spec 071) — CI stays authoritative (`core.hooksPath` per-clone).
+- Guarded by [[test-suite]]: `sync-shared.test.mjs` and `sync-lib.test.mjs` each run their
+  own `driftReport`; pre-commit also runs `board-mirror.mjs --check` (spec 071) — CI stays
+  authoritative (`core.hooksPath` per-clone).
 - The repo-level-tooling rule itself is part of [[skill-patterns]].
 
 ## Operational notes
@@ -125,7 +123,7 @@ on any byte difference.
   symlinked checkout path still runs the CLI body (the failure mode this fixed is detailed
   in [[gates-consumption-surface]]).
 - Check modes for CI/hooks: `gen-marketplace.mjs --check`, `sync-version.mjs --check`,
-  `sync-shared.mjs --check` — each exits 1 with a message naming the fix.
+  `sync-shared.mjs --check`, `sync-lib.mjs --check` — each exits 1 naming the fix.
 - Hooks are opt-in per clone: `git config core.hooksPath .githooks`.
 - Marketplace version at any commit: `.claude-plugin/marketplace.json`'s `version` (`v0.2.0` was the pipeline's first
   self-published release; `0.5.0` is the first to publish `@praxisflux/gates` to npm).
