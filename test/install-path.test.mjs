@@ -1,39 +1,48 @@
 // install-path.test.mjs — the marketplace install path, end to end.
 //
-// The suite's biggest structural bet: each plugin carries a committed `lib -> ../lib` symlink,
-// and installing from the marketplace dereferences it into a real directory inside the cached
-// copy — so a plugin's Stop hook must work from a tree that no longer sits beside repo-root
-// lib/. Nothing exercised that path: unit tests import gates in-process, and the hook wiring
-// (hooks.json -> gate.sh -> stop.mjs) had never been spawned the way Claude Code spawns it.
+// The suite's biggest structural bet, historically: each plugin carried a committed
+// `lib -> ../lib` symlink, and installing from the marketplace dereferenced it into a real
+// directory inside the cached copy — so a plugin's Stop hook had to work from a tree that no
+// longer sat beside repo-root lib/. TASK-0147 replaced the symlink with a real, committed
+// per-plugin copy of lib/ (scripts/sync-lib.mjs) because the Claude desktop app's marketplace
+// sync extracts the whole repo WITHOUT symlink support — it writes a symlink as a 6-byte text
+// file holding its target, breaking every `../lib/…` import with ERR_MODULE_NOT_FOUND. The
+// Claude Code cache install (copy-with-dereference) still works with either shape; the
+// flattened-archive tests below cover the desktop app's shape specifically.
 //
-// This file converts the bet into a checked invariant. For every plugin that ships
-// hooks/hooks.json it: (1) simulates a marketplace install — copy the plugin, dereference the
-// lib symlink the way the cache does, assert no symlink survives; (2) spawns the EXACT Stop
-// command from hooks.json (${CLAUDE_PLUGIN_ROOT} substituted, fake hook JSON on stdin) against
-// a clean fixture — exit 0 proves the dereferenced import chain loads and runs; (3) spawns it
-// against a fixture that violates the plugin's invariant — exit 2 with the gate's message on
-// stderr proves the gate actually evaluates through the spawn path (not a vacuous pass); and
-// (4) re-spawns the tripping fixture with stop_hook_active: true — exit 0 proves the loop
-// guard holds through the shim, not just in evaluate()'s unit tests.
+// This file converts both install paths into checked invariants. For every plugin that ships
+// hooks/hooks.json it: (1) simulates a Claude Code cache install — copy the plugin, dereference
+// any symlink the way the cache does (now a no-op since lib/ is already real), assert no
+// symlink survives; (2) spawns the EXACT Stop command from hooks.json (${CLAUDE_PLUGIN_ROOT}
+// substituted, fake hook JSON on stdin) against a clean fixture — exit 0 proves the import
+// chain loads and runs; (3) spawns it against a fixture that violates the plugin's invariant —
+// exit 2 with the gate's message on stderr proves the gate actually evaluates through the
+// spawn path (not a vacuous pass); and (4) re-spawns the tripping fixture with
+// stop_hook_active: true — exit 0 proves the loop guard holds through the shim, not just in
+// evaluate()'s unit tests.
+//
+// Separately, for EVERY plugin in the catalog, simulateFlattenedArchive() reproduces the
+// desktop app's extraction (any symlink becomes a text file holding its target) and asserts
+// each plugin's lib/ survives as a real directory and every .mjs module under the plugin still
+// resolves its imports from that flattened tree.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync,
+  cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, readlinkSync,
   realpathSync, rmSync, writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname, relative } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 const marketplace = JSON.parse(readFileSync(join(repo, ".claude-plugin", "marketplace.json"), "utf8"));
+const ALL_PLUGINS = marketplace.plugins.map((p) => ({ name: p.name, source: p.source.replace(/^\.\//, "") }));
 
 // Coverage is derived from the catalog, not hand-listed: a plugin registered in
 // marketplace.json that ships hooks/hooks.json is on the hook path and gets tested.
-const HOOK_PLUGINS = marketplace.plugins
-  .filter((p) => existsSync(join(repo, p.source, "hooks", "hooks.json")))
-  .map((p) => ({ name: p.name, source: p.source.replace(/^\.\//, "") }));
+const HOOK_PLUGINS = ALL_PLUGINS.filter((p) => existsSync(join(repo, p.source, "hooks", "hooks.json")));
 
 /** Simulate a marketplace install: copy the plugin dir, then replace the marketplace-internal
  *  `lib` symlink with a real copy of the chassis — the same dereference the plugin cache (and
@@ -48,6 +57,33 @@ function installPlugin({ name, source }, { spaced = false } = {}) {
     rmSync(lib);
     cpSync(join(repo, "lib"), lib, { recursive: true });
   }
+  return dest;
+}
+
+/** Simulate the Claude desktop app's marketplace sync: copy the WHOLE repo, but write every
+ *  symlink as the 6-byte-or-so text file holding its target instead of a real symlink —
+ *  exactly what an archive-extractor without symlink support does. Skips VCS/build/tool dirs
+ *  that are never part of a plugin's own import graph. Returns the flattened repo root. */
+function simulateFlattenedArchive() {
+  const SKIP = new Set([".git", "node_modules", "dist", ".worktrees", ".claude"]);
+  const dest = mkdtempSync(join(tmpdir(), "praxisflux-flattened-"));
+  const walk = (src, rel = "") => {
+    for (const e of readdirSync(src, { withFileTypes: true })) {
+      if (rel === "" && SKIP.has(e.name)) continue;
+      const srcPath = join(src, e.name), relPath = join(rel, e.name), destPath = join(dest, relPath);
+      if (e.isSymbolicLink()) {
+        mkdirSync(dirname(destPath), { recursive: true });
+        writeFileSync(destPath, readlinkSync(srcPath)); // the exact failure mode: link target as plain text
+      } else if (e.isDirectory()) {
+        mkdirSync(destPath, { recursive: true });
+        walk(srcPath, relPath);
+      } else {
+        mkdirSync(dirname(destPath), { recursive: true });
+        cpSync(srcPath, destPath);
+      }
+    }
+  };
+  walk(repo);
   return dest;
 }
 
@@ -213,8 +249,8 @@ for (const plugin of HOOK_PLUGINS) {
   test(`install path e2e [${plugin.name}]: dereferenced copy runs its Stop hook; gate fires and honors the loop guard`, () => {
     const installed = installPlugin(plugin);
 
-    // The symlink bet, checked: the installed chassis is a real directory, and no symlink at
-    // all survives the copy (a new one appearing would mean this simulation went stale).
+    // The chassis survives the copy as a real directory, and no symlink at all survives
+    // (a new one appearing would mean this simulation went stale).
     const lib = join(installed, "lib");
     assert.ok(lstatSync(lib).isDirectory() && !lstatSync(lib).isSymbolicLink(), "installed lib/ must be a real directory");
     assert.ok(existsSync(join(lib, "gate-runner.mjs")), "installed lib/ must contain the chassis");
@@ -247,5 +283,68 @@ for (const plugin of HOOK_PLUGINS) {
     const r = spawnStopHook(installed, clean);
     assert.equal(r.status, 0,
       `spaced install path must not break the Stop hook (quote the expansion in hooks.json); stderr: ${r.stderr}`);
+  });
+}
+
+// --- the flattened-archive layout (TASK-0147): the Claude desktop app's marketplace sync,
+// which extracts the repo WITHOUT symlink support, writing each symlink as the plain-text
+// target it pointed at. Every plugin now ships a real, committed lib/ copy instead of a
+// symlink, so this layout must work for all ten catalog plugins, not just the ones with hooks.
+
+/** Every `.mjs` file under `dir` (repo-relative to `dir`), excluding `lib/` — that's the
+ *  vendored chassis, already covered by the directory-shape assertion below, not a plugin's
+ *  own module graph. */
+function mjsFilesUnder(dir, base = dir, acc = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (base === dir && e.name === "lib") continue; // top-level lib/ only — skills may have their own "lib"-named content, none do today
+    const p = join(dir, e.name);
+    if (e.isDirectory()) mjsFilesUnder(p, base, acc);
+    else if (e.name.endsWith(".mjs")) acc.push(p);
+  }
+  return acc;
+}
+
+test("flattened archive: every plugin's lib/ survives as a real directory, not a flattened symlink", () => {
+  const flattened = simulateFlattenedArchive();
+  try {
+    for (const { name, source } of ALL_PLUGINS) {
+      const lib = join(flattened, source, "lib");
+      assert.ok(existsSync(lib) && lstatSync(lib).isDirectory(),
+        `${name}: lib/ must survive a flattened (symlink-unaware) extraction as a real directory`);
+      assert.ok(existsSync(join(lib, "cli.mjs")), `${name}: flattened lib/ must contain the chassis`);
+    }
+  } finally { rmSync(flattened, { recursive: true, force: true }); }
+});
+
+for (const { name, source } of ALL_PLUGINS) {
+  test(`flattened archive [${name}]: every .mjs module resolves its imports`, () => {
+    const flattened = simulateFlattenedArchive();
+    try {
+      const pluginDir = join(flattened, source);
+      const files = mjsFilesUnder(pluginDir); // some plugins (e.g. build) ship no .mjs outside lib/ — nothing to import, nothing to assert
+      for (const file of files) {
+        // Spawn per file: a top-level runAsCli guard may exit non-zero on a bare import (usage
+        // error) — that's fine, it proves the import graph resolved and ran. The one failure
+        // this test exists to catch is an unresolved `../lib/…` import (ERR_MODULE_NOT_FOUND).
+        const r = spawnSync(process.execPath, ["--input-type=module", "-e", `await import(${JSON.stringify(pathToFileURL(file).href)})`], {
+          encoding: "utf8",
+          timeout: 10_000,
+        });
+        assert.doesNotMatch(r.stderr ?? "", /ERR_MODULE_NOT_FOUND/,
+          `${relative(repo, file)}: import failed to resolve from the flattened tree:\n${r.stderr}`);
+      }
+    } finally { rmSync(flattened, { recursive: true, force: true }); }
+  });
+}
+
+for (const plugin of HOOK_PLUGINS) {
+  test(`flattened archive [${plugin.name}]: Stop hook runs from the flattened tree`, () => {
+    const flattened = simulateFlattenedArchive();
+    try {
+      const installed = join(flattened, plugin.source);
+      const clean = fixtureDir();
+      const r = spawnStopHook(installed, clean);
+      assert.equal(r.status, 0, `clean fixture must allow the stop from a flattened install; stderr: ${r.stderr}`);
+    } finally { rmSync(flattened, { recursive: true, force: true }); }
   });
 }
