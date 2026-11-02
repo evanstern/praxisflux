@@ -1,11 +1,11 @@
 ---
 id: TASK-0147
 title: Plugins survive installers that flatten the lib symlink into a text file
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-02 15:14'
-updated_date: '2026-11-02 15:46'
+updated_date: '2026-11-02 16:02'
 labels: []
 dependencies: []
 ordinal: 174000
@@ -19,9 +19,9 @@ The Claude desktop app's marketplace sync (2026-11-02) extracts the repo without
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Every plugin's lib/ is a real directory identical to repo-root lib/, with a drift check that fails the suite on divergence
-- [ ] #2 test/install-path.test.mjs simulates an archive install that writes symlinks as text files and proves all ten plugins' lib-importing modules load and Stop hooks run
-- [ ] #3 build.mjs, new-plugin.mjs, docs (README, skill-patterns, wiki) reflect the vendored chassis; versions bumped; CI green
+- [x] #1 Every plugin's lib/ is a real directory identical to repo-root lib/, with a drift check that fails the suite on divergence
+- [x] #2 test/install-path.test.mjs simulates an archive install that writes symlinks as text files and proves all ten plugins' lib-importing modules load and Stop hooks run
+- [x] #3 build.mjs, new-plugin.mjs, docs (README, skill-patterns, wiki) reflect the vendored chassis; versions bumped; CI green
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -52,4 +52,12 @@ Final verification (all green): node --test (1363/1363), check-docs.mjs, sync-ve
 Not done (per dispatch instructions): wiki-update (orchestrator's), AC ticks, Done status.
 
 No judgment-call escalations needed — spec covered every decision.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5[1m] served=cc/claude-sonnet-5[1m]
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Each plugin now ships a real, committed lib/ copy stamped from repo-root lib/ by scripts/sync-lib.mjs (test/sync-lib.test.mjs fails on drift), so installers that write symlinks as text files (Claude desktop app marketplace sync) no longer break ../lib imports. pdlc.mjs fixed from ../../lib to ../lib. install-path test adds a flattened-archive layout: all ten plugins' modules import cleanly and all six Stop hooks run. build/new-plugin simplified, docs + wiki re-verified, version 1.0.2.
+<!-- SECTION:FINAL_SUMMARY:END -->
