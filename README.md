@@ -48,8 +48,8 @@ grounding-wiki ────┘             (teach)          (implement)         
 
 ## Shared chassis (`lib/`)
 
-Zero-dependency Node modules, reached from each plugin through a committed `lib -> ../lib`
-symlink that marketplace installs and `dist/` packaging dereference into a real copy:
+Zero-dependency Node modules, canonical at repo root and vendored into each plugin as a real,
+committed copy (`scripts/sync-lib.mjs` stamps the copies; edit `lib/` then run it):
 `project-root` · `gate-runner` (Stop hook) · `markdown` · `selfcontained` (HTML) ·
 `lifecycle` · `installer` · `handoff` (`.handoff/` transport) · `dates` · `template` ·
 `spec-derive` (Spec Kit → kanban state) · `spec-source` (working-tree/git-ref resolver for spec
@@ -132,17 +132,17 @@ special access.
 /plugin install explainer@praxisflux
 ```
 
-Each plugin is independently installable — take only the legs of the loop you need. Installing
-copies the plugin into Claude Code's cache with the `lib -> ../lib` symlink dereferenced into a
-real directory; CI proves that exact path end-to-end on every PR (`test/install-path.test.mjs`
-simulates the dereferenced copy, spawns each plugin's Stop hook the way Claude Code does, and
-asserts the gates fire). Note that installing buys you the **advisory** half of enforcement —
-the Stop hooks listed in the table above, which nudge as you work; authoritative enforcement
-is the CI surface ([`docs/consuming-gates.md`](docs/consuming-gates.md)), which needs no
-install at all.
+Each plugin is independently installable — take only the legs of the loop you need. Each
+plugin ships a real, committed copy of `lib/` (no symlink to dereference), so a plain copy
+into Claude Code's cache is already self-contained; CI proves that path end-to-end on every
+PR (`test/install-path.test.mjs` spawns each plugin's Stop hook the way Claude Code does, and
+also simulates a symlink-unaware marketplace extraction, asserting the gates fire from both).
+Note that installing buys you the **advisory** half of enforcement — the Stop hooks listed in
+the table above, which nudge as you work; authoritative enforcement is the CI surface
+([`docs/consuming-gates.md`](docs/consuming-gates.md)), which needs no install at all.
 
 **Per-plugin zips** — each GitHub Release `v<version>` attaches `<plugin>-v<version>.zip`,
-packaged by `scripts/build.mjs` with the symlink already dereferenced.
+packaged by `scripts/build.mjs`, self-contained.
 
 **Gates only, no install** — enforce the gates in any repo's CI via the composite action
 (`uses: evanstern/praxisflux@v<version>`) or anywhere Node runs via `npx @praxisflux/gates`;
@@ -151,11 +151,10 @@ see [`docs/consuming-gates.md`](docs/consuming-gates.md).
 ### Platform support
 
 macOS and Linux are supported. **Native Windows is explicitly out of scope** (owner decision,
-2026-07-23): the Stop-hook shims are bash and the committed `lib -> ../lib` symlinks assume
-`core.symlinks`, so a native-Windows install would get gates that are silently absent — the
-exact failure mode this suite exists to prevent, so we decline to ship it rather than ship it
-broken. Windows users should run under WSL, where everything behaves as on Linux. Revisiting
-this means a tested PowerShell/cmd shim path, not a doc edit.
+2026-07-23): the Stop-hook shims are bash, so a native-Windows install would get gates that are
+silently absent — the exact failure mode this suite exists to prevent, so we decline to ship
+it rather than ship it broken. Windows users should run under WSL, where everything behaves as
+on Linux. Revisiting this means a tested PowerShell/cmd shim path, not a doc edit.
 
 Every merge to `main` publishes a GitHub Release `v<version>` (the marketplace version) with a
 self-contained zip per plugin (`<plugin>-v<version>.zip`) — versioned snapshots for installing
